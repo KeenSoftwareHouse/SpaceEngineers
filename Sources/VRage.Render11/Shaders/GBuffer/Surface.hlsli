@@ -4,6 +4,7 @@
 struct SurfaceInterface 
 {
 	float3 	base_color;
+    uint    LOD;
 	float  	metalness;
 	float3  albedo;
 	float3 	f0;

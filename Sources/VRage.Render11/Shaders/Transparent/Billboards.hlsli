@@ -37,7 +37,7 @@ void CalculateVertexPosition(VsIn vertex, uint vertex_id, out float4 projPos, ou
 
     int custom_id = BillboardBuffer[billboard_index].custom_projection_id;
     if (custom_id < 0)
-        projPos = mul(float4(vertex.position.xyz, 1), frame_.view_projection_matrix);
+        projPos = mul(float4(vertex.position.xyz, 1), frame_.Environment.view_projection_matrix);
     else
         projPos = mul(float4(vertex.position.xyz, 1), view_projection[custom_id]);
 }

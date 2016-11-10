@@ -83,11 +83,12 @@ SurfaceInterface read_gbuffer(uint2 screencoord, uint sample = 0)
     gbuffer.N = view_to_world(nview);
 
 	gbuffer.base_color = gbuffer0.rgb;
+    gbuffer.LOD = gbuffer0.a * 255;
 
 	gbuffer.gloss = gbuffer2.g;
 
 	gbuffer.metalness = gbuffer2.r;
-	gbuffer.ao = max(min(gbuffer1.b, AOTexture.SampleLevel(LinearSampler, ((float2) screencoord) / frame_.resolution_of_gbuffer, 0)), 0.01);
+	gbuffer.ao = max(min(gbuffer1.b, AOTexture.SampleLevel(LinearSampler, ((float2) screencoord) / frame_.Screen.resolution_of_gbuffer, 0)), 0.01);
 	gbuffer.coverage = gbuffer2.a * 255;
 	gbuffer.emissive = gbuffer2.b;
 	gbuffer.stencil = stencil;

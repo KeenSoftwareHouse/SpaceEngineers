@@ -24,9 +24,6 @@ namespace VRageRender
 
         public int ParentID = -1;
 
-        // The billboard is part of a window
-        public bool Window = false;
-
         //  Distance to camera, for sorting
         public float DistanceSquared;
 

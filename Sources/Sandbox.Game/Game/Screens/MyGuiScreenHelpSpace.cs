@@ -22,16 +22,16 @@ namespace Sandbox.Game.Gui
         {
             public StringBuilder BoundButtons;
             public StringBuilder Description;
-            public MyFontEnum LeftFont;
-            public MyFontEnum RightFont;
+            public string LeftFont;
+            public string RightFont;
 
             public StringBuilder LeftIcon;
             public Color LeftIconColor;
 
-            public ControlWithDescription(string boundButtons, string description, MyFontEnum leftFont = MyFontEnum.Red, MyFontEnum rightFont = MyFontEnum.White)
+            public ControlWithDescription(string boundButtons, string description, string leftFont = MyFontEnum.Red, string rightFont = MyFontEnum.White)
                 : this(new StringBuilder(boundButtons), new StringBuilder(description), leftFont, rightFont)
             { }
-            public ControlWithDescription(StringBuilder boundButtons, StringBuilder description, MyFontEnum leftFont = MyFontEnum.Red, MyFontEnum rightFont = MyFontEnum.White)
+            public ControlWithDescription(StringBuilder boundButtons, StringBuilder description, string leftFont = MyFontEnum.Red, string rightFont = MyFontEnum.White)
             {
                 BoundButtons = new StringBuilder(boundButtons.Length).AppendStringBuilder(boundButtons);
                 Description = new StringBuilder(description.Length).AppendStringBuilder(description);
@@ -40,7 +40,7 @@ namespace Sandbox.Game.Gui
                 LeftIcon = null;
                 LeftIconColor = Color.White;
             }
-            public ControlWithDescription(StringBuilder boundButtons, StringBuilder description, StringBuilder leftIcon, Color leftIconColor, MyFontEnum leftFont = MyFontEnum.Red, MyFontEnum rightFont = MyFontEnum.White)
+            public ControlWithDescription(StringBuilder boundButtons, StringBuilder description, StringBuilder leftIcon, Color leftIconColor, string leftFont = MyFontEnum.Red, string rightFont = MyFontEnum.White)
             {
                 BoundButtons = new StringBuilder(boundButtons.Length).AppendStringBuilder(boundButtons);
                 Description = new StringBuilder(description.Length).AppendStringBuilder(description);

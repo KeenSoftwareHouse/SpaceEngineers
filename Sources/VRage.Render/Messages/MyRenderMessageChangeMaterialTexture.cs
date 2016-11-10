@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace VRageRender.Messages
 {
@@ -14,7 +15,7 @@ namespace VRageRender.Messages
 
     public struct MyTextureChange
     {
-        public string MaterialSlot;
+        public MyTextureType TextureType;
         public string TextureName;
     }
 
@@ -26,6 +27,16 @@ namespace VRageRender.Messages
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ChangeMaterialTexture; } }
+    }
+
+    [Flags]
+    public enum MyTextureType
+    {
+        Unspecified = 0,
+        ColorMetal = 1,
+        NormalGloss = 2,
+        Extensions = 4,
+        Alphamask = 8,
     }
 
 }

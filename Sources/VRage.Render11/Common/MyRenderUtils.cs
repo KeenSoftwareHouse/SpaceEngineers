@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using SharpDX.Direct3D11;
 using VRage.Render11.Profiler;
 using VRage.Render11.RenderContext;
@@ -29,7 +30,7 @@ namespace VRageRender
             //    m_staticData.m_constantsVersion[desc.CB] = desc.Version;
 
                 var mapping = MyMapping.MapDiscard(rc, desc.CB);
-                mapping.WriteAndPosition(desc.Data, 0, desc.Data.Length);
+                mapping.WriteAndPosition(desc.Data, desc.Data.Length);
                 mapping.Unmap();
             //}
             //MyRender11.ProcessDebugOutput();
@@ -55,12 +56,12 @@ namespace VRageRender
             if ((desc.BindFlag & MyBindFlag.BIND_VS) > 0)
             {
                 for (int i = 0; i < desc.Srvs.Length; i++)
-                    rc.VertexShader.SetRawSrv(desc.StartSlot + i, desc.Srvs[i]);
+                    rc.VertexShader.SetSrv(desc.StartSlot + i, desc.Srvs[i]);
             }
             if ((desc.BindFlag & MyBindFlag.BIND_PS) > 0)
             {
                 for (int i = 0; i < desc.Srvs.Length; i++)
-                    rc.PixelShader.SetRawSrv(desc.StartSlot + i, desc.Srvs[i]);
+                    rc.PixelShader.SetSrv(desc.StartSlot + i, desc.Srvs[i]);
             }
             MyRender11.ProcessDebugOutput();
         }
@@ -70,6 +71,5 @@ namespace VRageRender
             MyGpuProfiler.Join(rc.ProfilingQueries);
             return rc.FinishCommandList(false);
         }
-
     }
 }

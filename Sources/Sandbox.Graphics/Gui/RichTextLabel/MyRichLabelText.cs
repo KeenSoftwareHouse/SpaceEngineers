@@ -12,12 +12,12 @@ namespace Sandbox.Graphics.GUI
     class MyRichLabelText : MyRichLabelPart
     {
         private StringBuilder m_text;
-        private MyFontEnum m_font;
+        private string m_font;
         private Vector4 m_color;
         private float m_scale;
         private bool mShowTextShadow;
 
-        public MyRichLabelText(StringBuilder text, MyFontEnum font, float scale, Vector4 color)
+        public MyRichLabelText(StringBuilder text, string font, float scale, Vector4 color)
         {
             m_text = text;
             m_font = font;
@@ -34,7 +34,7 @@ namespace Sandbox.Graphics.GUI
             m_color = Vector4.Zero;
         }
 
-        public void Init(string text, MyFontEnum font, float scale, Vector4 color)
+        public void Init(string text, string font, float scale, Vector4 color)
         {
             m_text.Append(text);
             m_font = font;
@@ -76,7 +76,7 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
-        public MyFontEnum Font
+        public string Font
         {
             get
             {

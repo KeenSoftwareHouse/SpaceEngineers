@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SharpDX.Direct3D11;
 using VRage.Library.Utils;
 using VRage.Render11.Common;
 using VRage.Render11.Resources;
@@ -83,8 +84,8 @@ namespace VRageRender
         private static PixelShaderId m_blurXPS = PixelShaderId.NULL;
         private static PixelShaderId m_blurYPS = PixelShaderId.NULL;
 
-        private static ConstantsBufferId m_dataCB = ConstantsBufferId.NULL;
-        private static ConstantsBufferId[] m_perPassCBs = new ConstantsBufferId[NUM_SLICES];
+        private static IConstantBuffer m_dataCB;
+        private static IConstantBuffer[] m_perPassCBs = new IConstantBuffer[NUM_SLICES];
 
         private static IRtvTexture m_fullResViewDepthTarget;
         private static IRtvTexture m_fullResNormalTexture;
@@ -94,10 +95,10 @@ namespace VRageRender
         private static IRtvArrayTexture m_quarterResViewDepthTextureArray;
         private static IRtvArrayTexture m_quarterResAOTextureArray;
 
-        internal static void Run(IRtvTexture dst, MyGBuffer gbuffer, ISrvBindable resolvedDepth, MyViewport? viewport = null)
+        internal static void Run(IRtvTexture dst, MyGBuffer gbuffer, MyViewport? viewport = null)
         {
             CompilePS();
-
+            
             if (!viewport.HasValue)
             {
                 viewport = new MyViewport(0, 0, MyRender11.m_resolution.X, MyRender11.m_resolution.Y);
@@ -111,9 +112,9 @@ namespace VRageRender
 
             RC.PixelShader.SetSamplers(0, MySamplerStateManager.PointHBAOClamp);
             RC.SetBlendState(null);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);
+            DrawLinearDepthPS(gbuffer.ResolvedDepthStencil.SrvDepth, m_fullResViewDepthTarget, viewport.Value);
 
-            DrawLinearDepthPS(resolvedDepth, m_fullResViewDepthTarget, viewport.Value);
-        
             DrawDeinterleavedDepth(viewport.Value);
 
             DrawCoarseAO(gbuffer, viewport.Value);
@@ -126,7 +127,7 @@ namespace VRageRender
                 DrawBlurYPS(dst, viewport.Value);
             }
             else Resolve(false, dst, viewport.Value);
-            
+
             RC.SetRtv(null);
         }
 
@@ -187,7 +188,7 @@ namespace VRageRender
                 RC.SetRtv(m_quarterResAOTextureArray.SubresourceRtv(sliceIndex));
                 MyScreenPass.DrawFullscreenQuad(qViewport);
             }
-            
+
             RC.GeometryShader.Set(null);
         }
 
@@ -280,14 +281,14 @@ namespace VRageRender
             m_linearizeDepthPS = MyShaders.CreatePs("Postprocess/HBAO/LinearizeDepth.hlsl");
             m_deinterleaveDepthPS = MyShaders.CreatePs("Postprocess/HBAO/DeinterleaveDepth.hlsl");
             m_reinterleaveAOPS = MyShaders.CreatePs("Postprocess/HBAO/ReinterleaveAO.hlsl");
-            m_reinterleaveAOPS_PreBlur = MyShaders.CreatePs("Postprocess/HBAO/ReinterleaveAO.hlsl", 
+            m_reinterleaveAOPS_PreBlur = MyShaders.CreatePs("Postprocess/HBAO/ReinterleaveAO.hlsl",
                 new SharpDX.Direct3D.ShaderMacro[] { new SharpDX.Direct3D.ShaderMacro("ENABLE_BLUR", 1) });
             m_copyPS = MyShaders.CreatePs("Postprocess/HBAO/Copy.hlsl");
 
-            m_dataCB = MyHwBuffers.CreateConstantsBuffer(GLOBALCONSTANTBUFFERSIZE, "MyHBAO::dataCB");
+            m_dataCB = MyManagers.Buffers.CreateConstantBuffer("MyHBAO::dataCB", GLOBALCONSTANTBUFFERSIZE, usage: ResourceUsage.Dynamic);
 
             for (int it = 0; it < NUM_SLICES; it++)
-                m_perPassCBs[it] = ConstantsBufferId.NULL;
+                m_perPassCBs[it] = null;
 
             InitializeConstantBuffer();
         }
@@ -320,9 +321,9 @@ namespace VRageRender
                 data.SliceIndexInt = sliceIndex;
 
                 var buffer = m_perPassCBs[sliceIndex];
-                if (buffer == ConstantsBufferId.NULL)
+                if (buffer == null)
                 {
-                    buffer = MyHwBuffers.CreateConstantsBuffer(PERPASSCONSTANTBUFFERSIZE, "MyHBAO::passCB " + sliceIndex);
+                    buffer = MyManagers.Buffers.CreateConstantBuffer("MyHBAO::passCB " + sliceIndex, PERPASSCONSTANTBUFFERSIZE, usage: ResourceUsage.Dynamic);
                     m_perPassCBs[sliceIndex] = buffer;
                 }
 
@@ -350,9 +351,9 @@ namespace VRageRender
                 SharpDX.DXGI.Format.R16G16_Float, 1, 0);
 
             MyArrayTextureManager arrayManager = MyManagers.ArrayTextures;
-            m_quarterResViewDepthTextureArray = arrayManager.CreateRtvArray("MyHBAO.QuarterResViewDepthTextureArray", 
+            m_quarterResViewDepthTextureArray = arrayManager.CreateRtvArray("MyHBAO.QuarterResViewDepthTextureArray",
                 DivUp(MyRender11.m_resolution.X, 4), DivUp(MyRender11.m_resolution.Y, 4), NUM_SLICES, SharpDX.DXGI.Format.R16_Float);
-            m_quarterResAOTextureArray = arrayManager.CreateRtvArray("MyHBAO.QuarterResAOTextureArray", 
+            m_quarterResAOTextureArray = arrayManager.CreateRtvArray("MyHBAO.QuarterResAOTextureArray",
                 DivUp(MyRender11.m_resolution.X, 4), DivUp(MyRender11.m_resolution.Y, 4), NUM_SLICES, SharpDX.DXGI.Format.R8_UNorm);
         }
 
@@ -417,6 +418,12 @@ namespace VRageRender
             m_Data.RadiusToScreen = r * 0.5f / tanHalfFovY * viewport.Height;
 
             float backgroundViewDepth = Math.Max(Params.BackgroundViewDepth, EPSILON);
+            if (Params.AdaptToFOV)
+            {
+                // use larger background view depth for low FOV values (less then 30 degrees)
+                float factor = Math.Min(1.0f, MyRender11.Environment.Matrices.FovH / MathHelper.ToRadians(30));
+                backgroundViewDepth = MathHelper.Lerp(6000, backgroundViewDepth, factor);
+            }
             m_Data.BackgroundAORadiusPixels = m_Data.RadiusToScreen / backgroundViewDepth;
 
             float foregroundViewDepth = Math.Max(Params.ForegroundViewDepth, EPSILON);

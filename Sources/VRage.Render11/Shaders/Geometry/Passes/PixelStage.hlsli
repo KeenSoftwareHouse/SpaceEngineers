@@ -24,6 +24,10 @@
 #include "FoliageStreaming/PixelStage.hlsli"
 #endif
 
+#if RENDERING_PASS == RENDERING_PASS_STATIC_GLASS
+#include "StaticGlass/PixelStage.hlsli"
+#endif
+
 #if RENDERING_PASS == RENDERING_PASS_TEST
 #include "Test/PixelStage.hlsli"
 #endif

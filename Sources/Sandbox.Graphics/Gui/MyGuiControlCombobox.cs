@@ -26,8 +26,8 @@ namespace Sandbox.Graphics.GUI
         #region Styles
         public class StyleDefinition
         {
-            public MyFontEnum ItemFontHighlight;
-            public MyFontEnum ItemFontNormal;
+            public string ItemFontHighlight;
+            public string ItemFontNormal;
             public string ItemTextureHighlight;
 
             /// <summary>
@@ -216,7 +216,7 @@ namespace Sandbox.Graphics.GUI
         private RectangleF m_openedArea;
         private RectangleF m_openedItemArea;
 
-        private MyFontEnum m_selectedItemFont;
+        private string m_selectedItemFont;
 
         private MyGuiCompositeTexture m_scrollbarTexture;
         private Vector4 m_textColor;

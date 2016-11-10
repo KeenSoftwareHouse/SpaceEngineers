@@ -142,7 +142,7 @@ float4 ComputeAtmosphere(float3 inputV, float3 position, float depth, float nati
 {
 	
 	const float3 V = -normalize(inputV);
-	const float3 L = -normalize(frame_.directionalLightVec);
+	const float3 L = -normalize(frame_.Light.directionalLightVec);
 
 	float3 planetCenter = GetPlanetCenter();
 	float2 viewAtmosphereInt;

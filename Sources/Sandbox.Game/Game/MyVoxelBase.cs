@@ -17,6 +17,7 @@ using Sandbox.Game.World;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Gui;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.ModAPI;
@@ -1036,6 +1037,7 @@ namespace Sandbox.Game.Entities
                     {
                         if (entity.PositionComp.WorldAABB.Intersects(box))
                         {
+                            MyHud.Notifications.Add(MyNotificationSingletons.CopyPasteAsteoridObstructed);
                             return false;
                         }
                     }
@@ -1046,8 +1048,9 @@ namespace Sandbox.Game.Entities
 
         public static bool IsForbiddenEntity(MyEntity entity)
         {
+            var cubeGrid = entity as MyCubeGrid;
             return (entity is MyCharacter ||
-                        (entity is MyCubeGrid && (entity as MyCubeGrid).IsStatic == false) ||
+                        (cubeGrid != null && cubeGrid.IsStatic == false && !cubeGrid.IsPreview) ||
                         (entity is MyCockpit && (entity as MyCockpit).Pilot != null));
         }
 
@@ -1140,6 +1143,32 @@ namespace Sandbox.Game.Entities
             box.Translate(SizeInMetresHalf + StorageMin);
 
             return Storage.Intersect(ref box, lazy);
+        }
+
+        /// <summary>
+        /// Use only for cut request
+        /// </summary>
+        public void SendVoxelCloseRequest()
+        {
+            MyMultiplayer.RaiseStaticEvent(s => OnVoxelClosedRequest, EntityId);
+        }
+
+        [Event, Reliable, Server]
+        static void OnVoxelClosedRequest(long entityId)
+        {
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
+            MyEntity entity;
+            MyEntities.TryGetEntityById(entityId, out entity);
+            if (entity == null)
+                return;
+
+            // Test right to closing entity (e.g. is creative mode?)
+            if (!entity.MarkedForClose)
+                entity.Close(); // close only on server, server uses replication to propagate it to clients
         }
     }
 }

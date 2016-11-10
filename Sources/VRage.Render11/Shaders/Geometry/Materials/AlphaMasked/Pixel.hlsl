@@ -68,7 +68,7 @@ void RenderArray(PixelInterface pixel, inout MaterialOutputInterface output)
 	clip(alpha - 0.2);
 
 #ifdef ALTER_DEPTH
-	output.depth = OffsetDepth(pixel.screen_position.z, frame_.projection_matrix, 40 * extras.w);
+	output.depth = OffsetDepth(pixel.screen_position.z, frame_.Environment.projection_matrix, 40 * extras.w);
 #endif
 
 #ifndef DEPTH_ONLY
@@ -90,12 +90,19 @@ void RenderArray(PixelInterface pixel, inout MaterialOutputInterface output)
 
 void RenderSingle(PixelInterface pixel, inout MaterialOutputInterface output)
 {
-	output.coverage = AlphamaskCoverageAndClip(0.5f, pixel.custom.texcoord0);
+	output.coverage = AlphamaskCoverageAndClip(0.5f, pixel.custom.texcoord0, pixel.custom.texIndices.w);
 
 #ifndef DEPTH_ONLY
+#ifdef USE_TEXTURE_INDICES
+	float4 texIndices = pixel.custom.texIndices;
+	float4 cm = ColorMetalTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.x));
+	float4 ng = NormalGlossTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.y));
+	float4 extras = ExtensionsTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.z));
+#else
 	float4 cm = ColorMetalTexture.Sample(TextureSampler, pixel.custom.texcoord0);
-	float4 extras = AmbientOcclusionTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 	float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+	float4 extras = ExtensionsTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+#endif
 #ifdef BUILD_TANGENT_IN_PIXEL
     FeedOutputBuildTangent(pixel, pixel.custom.texcoord0, pixel.custom.normal, output, ng, cm, extras);
 #else

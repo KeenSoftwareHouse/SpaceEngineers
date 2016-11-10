@@ -460,7 +460,7 @@ namespace Sandbox.Game.Entities.Character
         public string Text = "";
         public long IdentityId = 0;
         public string Author = "";
-        public MyFontEnum AuthorFont = MyFontEnum.Blue;
+        public string AuthorFont = MyFontEnum.Blue;
 
         public MyGlobalChatItem()
         {

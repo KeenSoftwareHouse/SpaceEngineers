@@ -24,7 +24,7 @@ namespace Sandbox.Game.Gui
         }
         public static readonly ComparerType Comparer = new ComparerType();
 
-        public MyFontEnum Font;
+        public string Font;
         public Vector2 Position;                                //  Normalized position in HUD fullscreen (height isn't 1.0)
         public Color Color;
         public float Scale;
@@ -41,7 +41,7 @@ namespace Sandbox.Game.Gui
         }
 
         //  IMPORTANT: This class isn't initialized by constructor, but by Start() because it's supposed to be used in memory pool
-        public MyHudText Start(MyFontEnum font, Vector2 position, Color color, float scale, MyGuiDrawAlignEnum alignement)
+        public MyHudText Start(string font, Vector2 position, Color color, float scale, MyGuiDrawAlignEnum alignement)
         {
             Font = font;
             Position = position;

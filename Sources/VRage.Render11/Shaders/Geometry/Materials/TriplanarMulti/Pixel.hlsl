@@ -49,15 +49,9 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 			break;
 		}
 
-        TriplanarMaterialConstants material;
-        material.distance_and_scale = material_.distance_and_scale[t];
-        material.distance_and_scale_far = material_.distance_and_scale_far[t];
-        material.distance_and_scale_far3 = material_.distance_and_scale_far3[t].xy;
-        material.extension_detail_scale = material_.extension_detail_scale[t];
-        material.color_far3 = material_.color_far3[t];
-        
+        TriplanarMaterialConstants material = material_.triplanarMaterials[t];
         TriplanarOutput triplanarOutput;
-        SampleTriplanar(3 * t, material, d, N, weights, voxelOffset, dpxperp, dpyperp, pixel.custom.texcoords, texcoords_ddx, texcoords_ddy, triplanarOutput);
+        SampleTriplanar(t, material, d, N, weights, voxelOffset, dpxperp, dpyperp, pixel.custom.texcoords, texcoords_ddx, texcoords_ddy, triplanarOutput);
         
 		color_metal += triplanarOutput.color_metal * mat_weights[t];
 	    normal_gloss += triplanarOutput.normal_gloss * mat_weights[t];
@@ -66,7 +60,7 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
     //color_metal.xyz = mat_weights;
 
 	output.base_color = color_metal.xyz;
-	if (frame_.debug_voxel_lod == 1.0f)
+    if (frame_.Voxels.DebugVoxelLod == 1.0f)
 	{
 		float3 debugColor = DEBUG_COLORS[clamp(voxelLodSize, 0, 15)];
 		output.base_color.xyz = debugColor;
@@ -79,7 +73,7 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 
     output.ao = ext.x;
 
-    float hardAmbient = 1-pixel.custom.ambient_occlusion;
+    float hardAmbient = 1 - pixel.custom.colorBrightnessFactor;
 	output.base_color *= hardAmbient;
 #endif
 }

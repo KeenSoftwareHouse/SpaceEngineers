@@ -54,7 +54,7 @@ namespace Sandbox.Game.Components
         {
             base.Draw();
 
-            var worldToLocal = MatrixD.Normalize(MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix));
+            //var worldToLocal = MatrixD.Normalize(MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix));
 
 			if (m_thrust.CanDraw())
 			{
@@ -74,21 +74,21 @@ namespace Sandbox.Game.Components
                     float length = m_thrust.ThrustLengthRand * flame.Radius * scale;
                     float thickness = m_thrust.ThrustThicknessRand * flame.Radius * scale;
 
-					Vector3D velocityAtNewCOM = Vector3D.Cross(m_thrust.CubeGrid.Physics.AngularVelocity, flamePosition - m_thrust.CubeGrid.Physics.CenterOfMassWorld);
-					var velocity = m_thrust.CubeGrid.Physics.LinearVelocity + velocityAtNewCOM;
+                    //Vector3D velocityAtNewCOM = Vector3D.Cross(m_thrust.CubeGrid.Physics.AngularVelocity, flamePosition - m_thrust.CubeGrid.Physics.CenterOfMassWorld);
+                    //var velocity = m_thrust.CubeGrid.Physics.LinearVelocity + velocityAtNewCOM;
 
-					if (m_thrust.CurrentStrength > 0 && length > 0)
+                    if (m_thrust.CurrentStrength > 0 && length > 0)
 					{
 						float angle = 1 - Math.Abs(Vector3.Dot(MyUtils.Normalize(MySector.MainCamera.Position - flamePosition), flameDirection));
 						float alphaCone = (1 - (float)Math.Pow(1 - angle, 30)) * 0.5f;
 						//  We move polyline particle backward, because we are stretching ball texture and it doesn't look good if stretched. This will hide it.
-						MyTransparentGeometry.AddLineBillboard(m_thrust.FlameLengthMaterial, m_thrust.ThrustColor * alphaCone, flamePosition - flameDirection * length * 0.25f,
-							GetRenderObjectID(), ref worldToLocal, flameDirection, length, thickness);
+						MyTransparentGeometry.AddLineBillboard(m_thrust.FlameLengthMaterial, m_thrust.ThrustColor * alphaCone, flamePosition - (Vector3D)flameDirection * length * 0.25f,
+                            -1, ref MatrixD.Identity, flameDirection, length, thickness);
 
 					}
 
 					if (radius > 0)
-						MyTransparentGeometry.AddPointBillboard(m_thrust.FlamePointMaterial, m_thrust.ThrustColor, flamePosition, GetRenderObjectID(), ref worldToLocal, radius, 0);
+                        MyTransparentGeometry.AddPointBillboard(m_thrust.FlamePointMaterial, m_thrust.ThrustColor, flamePosition, -1, ref MatrixD.Identity, radius, 0);
 
                     if (m_thrust.ThrustLengthRand > MyMathConstants.EPSILON && m_landingEffectUpdateCounter-- <= 0)
 					{

@@ -15,8 +15,9 @@ struct VertexShaderInterface
     float4 position_clip;
 
     float2 texcoord0;
+    float4 texIndices;
     float3 material_weights;
-    float  ambient_occlusion;
+    float colorBrightnessFactor;
 
     float3 normal_object;
     float3 normal_world;
@@ -41,7 +42,6 @@ struct VertexShaderInterface
     float3 view_blends;
     float3 view_indices_light;
     float3 view_blends_light;
-
 };
 
 void set_position(inout VertexShaderInterface obj, float4 position)
@@ -59,7 +59,7 @@ VertexShaderInterface make_vs_interface()
     data.position_scaled_untranslated = 0;
     data.texcoord0 = 0;
     data.material_weights = 0;
-    data.ambient_occlusion = 0;
+    data.colorBrightnessFactor = 0;
     data.normal_object = 0;
     data.normal_world = 0;
     data.tangent_object = 0;
@@ -115,15 +115,16 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     float4 __position_object = 0;
     float4 __color = 0;
     float3 __material_weights = 0;
-    float  __ambient_occlusion = 0;
-    float2 __texcoord0 = 0;
+    float  __colorBrightnessFactor = 0;
+	float2 __texcoord0 = 0;
+	float4 __texIndices = 0;
     float3 __normal = 0;
     float4 __tangent = 0;
     // morphing
     float4 __position_object_morph = 0;
     float3 __normal_morph = 0;
     float3 __material_weights_morph = 0;
-    float  __ambient_occlusion_morph = 0;
+    float  __colorBrightnessFactor_morph = 0;
 
     // skinning
     uint4  __blend_indices = 0;
@@ -211,7 +212,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     matrix local_matrix = instance_matrix;
     float3x3 normal_matrix = (float3x3)local_matrix;
     // hack for now :(
-    local_matrix._41_42_43 -= frame_.world_offset.xyz;
+    local_matrix._41_42_43 -= frame_.Environment.world_offset.xyz;
 
 #ifndef DEPTH_ONLY
     VertexPacked packed_vert = VertexPackedSRV[index];
@@ -220,6 +221,8 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     __texcoord0 = float2(
         f16tof32(packed_vert.packed_uv),
         f16tof32(packed_vert.packed_uv >> 16));
+	__texIndices = unpack_texIndices(packed_vert.texIndices);
+	THIS SHOULD NOT BE COMPILED, IF IT IS, PLEASE WRITE FUNCTION "unpack_texIndices"
 #endif
 #endif
 
@@ -243,7 +246,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     position_object = lerp(__position_object, __position_object_morph, morphing);
     __normal = normalize(lerp(__normal, __normal_morph, morphing));
     __material_weights = lerp(__material_weights, __material_weights_morph, morphing);
-    __ambient_occlusion = lerp(__ambient_occlusion, __ambient_occlusion_morph, morphing);
+    __colorBrightnessFactor = lerp(__colorBrightnessFactor, __colorBrightnessFactor_morph, morphing);
 #endif
 
     // CHANGING OBJECT POSITION WITH SKINNING
@@ -301,7 +304,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
         position = __instance_matrix._41_42_43_44;
 
 #ifdef DEPTH_ONLY
-        float3 forward = -frame_.directionalLightVec;
+        float3 forward = -frame_.Light.directionalLightVec;
 #else
         float3 forward = -normalize(pos_.xyz);
 #endif
@@ -320,7 +323,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
             float3 cameraDir = mul(position_instance, __instance_matrix).xyz;
 			
 			float3x3 t_local_matrix = transpose((float3x3)local_matrix);
-			result.lDir = normalize(mul(frame_.directionalLightVec, t_local_matrix));
+			result.lDir = normalize(mul(frame_.Light.directionalLightVec, t_local_matrix));
 			result.cPos = mul(cameraDir, t_local_matrix);
 			cameraDir = mul(cameraDir - position.xyz, t_local_matrix);
             result.cDir = cameraDir;
@@ -334,7 +337,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 
             int3 vvLight;
             float3 rrLight;
-            findViews(0, frame_.directionalLightVec, vvLight, rrLight);
+            findViews(0, frame_.Light.directionalLightVec, vvLight, rrLight);
 
             result.view_indices = vv;
             result.view_blends = rr;
@@ -367,7 +370,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     if ( facing > 0 )
     {
 #ifdef DEPTH_ONLY
-        float3 forward = frame_.directionalLightVec;
+        float3 forward = frame_.Light.directionalLightVec;
 #else
         float3 forward = -normalize(position.xyz);
 #endif
@@ -394,7 +397,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
             float3 cameraDir = mul(position_instance, faced_matrix).xyz;
 
 			float3x3 t_local_matrix = transpose((float3x3)local_matrix);
-			result.lDir = normalize(mul(frame_.directionalLightVec, t_local_matrix));
+			result.lDir = normalize(mul(frame_.Light.directionalLightVec, t_local_matrix));
 			result.cPos = mul(cameraDir, t_local_matrix);
 			cameraDir = mul((cameraDir - position.xyz), t_local_matrix);
             result.cDir = cameraDir;
@@ -408,7 +411,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 
             int3 vvLight;
             float3 rrLight;
-            findViews(0, frame_.directionalLightVec, vvLight, rrLight);
+            findViews(0, frame_.Light.directionalLightVec, vvLight, rrLight);
 
             result.view_indices = vv;
             result.view_blends = rr;
@@ -429,19 +432,19 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 
     result.position_local = mul(position_instance, faced_matrix);
 
-    if ( massiveRadius > 0 )
+    // Spherical effect for planet from the distance
+    if (massiveRadius > 0)
     {
-        float3 delta = result.position_local.xyz - massiveCenter;
-        float3 ndelta = normalize(delta);
-        float3 fullSphere = ndelta * massiveRadius;
+        float3 position_center = result.position_local.xyz - massiveCenter;
+        float3 nposition_center = normalize(position_center);
+        float3 fullSphere = nposition_center * massiveRadius;
 
         float distance = length(result.position_local);
         float spherizeScale = clamp((distance - 30000) / 50000.0f, 0, 0.8f);
-        float3 roundedDelta = lerp(delta, fullSphere, spherizeScale);
 
-        result.position_local.xyz = massiveCenter + roundedDelta;
+        result.position_local.xyz = lerp(result.position_local.xyz, massiveCenter + fullSphere, spherizeScale);
 
-        result.lDir.x = dot(ndelta, frame_.directionalLightVec) * spherizeScale;
+        result.lDir.x = dot(nposition_center, frame_.Light.directionalLightVec) * spherizeScale;
     }
 
 	result.position_clip = mul(result.position_local, view_proj);
@@ -453,10 +456,11 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     result.position_scaled_translated = result.position_scaled_untranslated;
     result.position_scaled_translated.xyz += voxelOffset +  centerOffset;
 
-    result.texcoord0 = __texcoord0;
+	result.texcoord0 = __texcoord0;
+	result.texIndices = __texIndices;
 
     result.material_weights = __material_weights;
-    result.ambient_occlusion = __ambient_occlusion;
+    result.colorBrightnessFactor = __colorBrightnessFactor;
 
     result.normal_object = __normal;
     result.normal_world = mul(__normal, normal_matrix);

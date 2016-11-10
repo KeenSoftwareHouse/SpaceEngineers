@@ -315,5 +315,9 @@ namespace VRage.Game
         [ProtoMember]
         [XmlArrayItem("ShadowTextureSet")]
         public MyObjectBuilder_ShadowTextureSetDefinition[] ShadowTextureSets;
+
+        [XmlArrayItem("Font", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_FontDefinition>))]
+        [ProtoMember]
+        public MyObjectBuilder_FontDefinition[] Fonts;
     }
 }

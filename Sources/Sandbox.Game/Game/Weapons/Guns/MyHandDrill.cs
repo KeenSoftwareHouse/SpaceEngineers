@@ -222,7 +222,7 @@ namespace Sandbox.Game.Weapons
                 return false;
 
             m_lastTimeDrilled = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-            m_drillBase.Drill(collectOre, assignDamagedMaterial: true);
+            m_drillBase.Drill(collectOre, assignDamagedMaterial: true, speedMultiplier: m_speedMultiplier);
             m_spikeLastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
             return true;

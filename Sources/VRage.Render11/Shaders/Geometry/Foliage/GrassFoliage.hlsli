@@ -5,7 +5,7 @@
 
 float3 CalculateWindOffset(float3 position)
 {
-    const float3 wind_d = frame_.wind_vec;
+    const float3 wind_d = frame_.Foliage.wind_vec;
     if ( !any(wind_d) )
         return 0;
 

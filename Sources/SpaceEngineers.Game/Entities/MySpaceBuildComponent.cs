@@ -72,7 +72,7 @@ namespace SpaceEngineers.Game.Entities
             return null;
         }
 
-        public override bool HasBuildingMaterials(MyEntity builder)
+        public override bool HasBuildingMaterials(MyEntity builder, bool testTotal)
         {
             if (MySession.Static.CreativeMode || (MySession.Static.IsAdminModeEnabled(Sync.MyId) && builder == MySession.Static.LocalCharacter))
                 return true;
@@ -98,19 +98,39 @@ namespace SpaceEngineers.Game.Entities
                         Debug.Fail("failed to get identityId");
             }
             bool result = true;
-            foreach (var entry in m_materialList.RequiredMaterials)
+            if (!testTotal)
             {
-                result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
-                if (!result && shipInventory != null)
+                foreach (var entry in m_materialList.RequiredMaterials)
                 {
-                    result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
-                    if (!result)
+                    result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
+                    if (!result && shipInventory != null)
                     {
-                        //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
-                        result = MyGridConveyorSystem.ConveyorSystemItemAmount(cockpit, shipInventory, identityId, entry.Key) >= entry.Value;
+                        result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
+                        if (!result)
+                        {
+                            //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
+                            result = MyGridConveyorSystem.ConveyorSystemItemAmount(cockpit, shipInventory, identityId, entry.Key) >= entry.Value;
+                        }
                     }
+                    if (!result) break;
                 }
-                if (!result) break;
+            }
+            else
+            {
+                foreach (var entry in m_materialList.TotalMaterials)
+                {
+                    result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
+                    if (!result && shipInventory != null)
+                    {
+                        result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
+                        if (!result)
+                        {
+                            //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
+                            result = MyGridConveyorSystem.ConveyorSystemItemAmount(cockpit, shipInventory, identityId, entry.Key) >= entry.Value;
+                        }
+                    }
+                    if (!result) break;
+                }
             }
             return result;
         }
@@ -139,6 +159,12 @@ namespace SpaceEngineers.Game.Entities
                 }
                 GetMaterialsSimple(definition, m_materialList);
             }
+        }
+
+        public override void GetBlockAmountPlacementMaterials(MyCubeBlockDefinition definition, int amount)
+        {
+            ClearRequiredMaterials();
+            GetMaterialsSimple(definition, m_materialList, amount);
         }
 
         public override void GetGridSpawnMaterials(MyObjectBuilder_CubeGrid grid)
@@ -192,14 +218,13 @@ namespace SpaceEngineers.Game.Entities
             m_materialList.Clear();
         }
 
-        private static void GetMaterialsSimple(MyCubeBlockDefinition definition, MyComponentList output)
+        private static void GetMaterialsSimple(MyCubeBlockDefinition definition, MyComponentList output, int amount = 1)
         {
             for (int i = 0; i < definition.Components.Length; ++i)
             {
                 var component = definition.Components[i];
-                output.AddMaterial(component.Definition.Id, component.Count, i == 0 ? 1 : 0);
+                output.AddMaterial(component.Definition.Id, component.Count * amount, i == 0 ? 1 : 0);
             }
-            return;
         }
 
         private void TakeMaterialsFromBuilder(MyEntity builder)

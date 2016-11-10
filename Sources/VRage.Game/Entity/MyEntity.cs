@@ -1202,6 +1202,7 @@ namespace VRage.Game.Entity
 
                         // Set this to false becase no one else is responsible for rendering subparts
                         subpart.Render.NeedsDrawFromParent = false;
+                        subpart.Render.PersistentFlags = Render.PersistentFlags & ~MyPersistentEntityFlags2.InScene;
 
                         subpart.PositionComp.LocalMatrix = data.InitialTransform;
                         Subparts[data.Name] = subpart;
@@ -1214,13 +1215,6 @@ namespace VRage.Game.Entity
                 {
                     MyEntityIdentifier.AllocationSuspended = idAllocationState;
                 }
-
-                if (Render.GetModel().GlassData != null)
-                {
-                    Render.NeedsDraw = true;
-                    Render.NeedsDrawFromParent = true;
-                }
-
             }
             else
             {   //entities without model has box with side length = 1 by default

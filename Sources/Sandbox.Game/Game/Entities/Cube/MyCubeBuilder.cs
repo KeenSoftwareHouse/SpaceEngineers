@@ -1149,10 +1149,14 @@ namespace Sandbox.Game.Entities
 
             if (IsCubeSizeModesAvailable && MyInput.Static.IsGameControlReleased(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE))
             {
-
+                int currDefinitionIndex = m_cubeBuildlerState.CurrentBlockDefinitionStages.IndexOf(CurrentBlockDefinition);
                 MyCubeSize newCubeSize = m_cubeBuildlerState.CubeSizeMode == MyCubeSize.Large ? MyCubeSize.Small : MyCubeSize.Large;
                 m_cubeBuildlerState.SetCubeSize(newCubeSize);
                 SetSurvivalIntersectionDist();
+                if (currDefinitionIndex != -1 && m_cubeBuildlerState.CurrentBlockDefinitionStages.Count > 0)
+                {
+                    UpdateCubeBlockStageDefinition(m_cubeBuildlerState.CurrentBlockDefinitionStages[currDefinitionIndex]);
+                }
                 return true;
             }
 
@@ -3996,7 +4000,7 @@ namespace Sandbox.Game.Entities
                         if (MyCubeGridSmallToLargeConnection.Static != null)
                         {
                             if (Sync.IsServer && !MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block) && grid.GridSizeEnum == MyCubeSize.Small)
-                                block.CubeGrid.TestDynamic = true;
+                                block.CubeGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridCopied;
                         }
                     }
 

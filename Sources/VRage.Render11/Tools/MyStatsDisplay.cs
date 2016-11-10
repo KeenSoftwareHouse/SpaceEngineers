@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using VRageMath;
 using VRageRender;
@@ -31,13 +32,13 @@ namespace VRage.Render11.Tools
             public MyLifetime Lifetime;
         }
 
-        static readonly List<string> m_orderedPages = new List<string>();
+        static readonly SortedSet<string> m_orderedPages = new SortedSet<string>();
         static readonly PageToGroupDictionary m_records = new PageToGroupDictionary();
 
-        private static IEnumerator<string> m_pageEnumerator = GetPageEnumerator();
+        static IEnumerator<string> m_pageEnumerator = GetPageEnumerator();
 
         static readonly StringBuilder m_tmpStringBuilder = new StringBuilder(4096);
-        
+
         static void WriteInternal(string pageName, string groupName, string name, MyLifetime lifetime, int value)
         {
             Debug.Assert(pageName != null && groupName != null && name != null, "Invalid dictionary keys.");
@@ -71,20 +72,7 @@ namespace VRage.Render11.Tools
         static void DrawText(StringBuilder text, int nColumn)
         {
             Vector2I pos = SCREEN_OFFSET + new Vector2I(nColumn * COLUMN_WIDTH, 0);
-            MySpritesRenderer.DrawText(pos, text, COLOR, FONT_SCALE);
-        }
-
-        static IEnumerator<string> GetPageEnumerator()
-        {
-            int i = 0;
-
-            while (true)
-            {
-                if (i >= m_orderedPages.Count)
-                    break;
-
-                yield return m_orderedPages[i++];
-            }
+            MyDebugTextHelpers.DrawText(pos, text, COLOR, FONT_SCALE);
         }
 
         public static void Draw()
@@ -145,6 +133,35 @@ namespace VRage.Render11.Tools
             m_tmpStringBuilder.Clear();
         }
 
+        public static void WriteTo(StringBuilder writeTo)
+        {
+            writeTo.Clear();
+
+            foreach (var pageName in m_orderedPages)
+            {
+                var page = m_records[pageName];
+
+                writeTo.Clear();
+                writeTo.Append(pageName);
+                writeTo.AppendLine(":");
+
+                foreach (var group in page)
+                {
+                    writeTo.Append("  ");
+                    writeTo.AppendLine(group.Key);
+
+                    foreach (var record in group.Value)
+                    {
+                        MyRecord v = record.Value;
+                        writeTo.AppendFormat("    {0}: {1:#,0}", record.Key, v.Value);
+                        writeTo.AppendLine();
+                    }
+
+                    writeTo.AppendLine();
+                }
+            }
+        }
+
         public static void Write(string group, string name, int value, string page = "Common")
         {
             WriteInternal(page, group, name, MyLifetime.ONE_FRAME, value);
@@ -153,6 +170,26 @@ namespace VRage.Render11.Tools
         public static void WritePersistent(string group, string name, int value, string page = "Common")
         {
             WriteInternal(page, group, name, MyLifetime.PERSISTENT, value);
+        }
+
+        static IEnumerator<string> GetPageEnumerator()
+        {
+            string currentPage = m_orderedPages.FirstOrDefault();
+
+            if (string.IsNullOrEmpty(currentPage))
+                yield break;
+
+            while (true)
+            {
+                yield return currentPage;
+
+                // We need to recompute all because the collection might have changed since the last time
+                var usedPages = m_orderedPages.SkipWhile(s => s != currentPage).Skip(1);
+                currentPage = usedPages.FirstOrDefault();
+
+                if (string.IsNullOrEmpty(currentPage))
+                    yield break;
+            }
         }
 
         public static bool MoveToNextPage()

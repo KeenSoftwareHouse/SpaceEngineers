@@ -14,6 +14,7 @@ void vertex_program(inout VertexShaderInterface vertex, out MaterialVertexPayloa
 	custom_output.view_blends = vertex.view_blends;
 	custom_output.view_indices_light = vertex.view_indices_light;
 	custom_output.view_blends_light = vertex.view_blends_light;
+	custom_output.texIndices = vertex.texIndices;
 #endif
 }
 

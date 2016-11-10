@@ -555,7 +555,7 @@ namespace Sandbox.Graphics.GUI
                 bool movementAllowedInPause = MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator ||
                                               MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.SpectatorDelta ||
                                               MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.SpectatorFixed;
-                bool rotationAllowedInPause = movementAllowedInPause || MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator;
+                bool rotationAllowedInPause = movementAllowedInPause;   //GK: consider removing if in the future is not different from movementAllowed
                 bool devScreenFlag = MyScreenManager.GetScreenWithFocus() is MyGuiScreenDebugBase && !MyInput.Static.IsAnyAltKeyPressed();
                 MyCameraControllerEnum cce = MySession.Static.GetCameraControllerEnum();
 
@@ -714,8 +714,6 @@ namespace Sandbox.Graphics.GUI
             MyGuiManager.MouseCursorPosition = MouseCursorPosition;
 
 
-            MyGuiManager.Camera = MySector.MainCamera != null ? MySector.MainCamera.WorldMatrix : VRageMath.MatrixD.Identity;
-            MyGuiManager.CameraView = MySector.MainCamera != null ? MySector.MainCamera.ViewMatrix : VRageMath.MatrixD.Identity;
             MyGuiManager.TotalTimeInMilliseconds = MySandboxGame.TotalTimeInMilliseconds;
 
             //We should not need this call
@@ -752,12 +750,6 @@ namespace Sandbox.Graphics.GUI
         public void Draw()
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyGuiSandbox::Draw");
-
-            MyGuiManager.Camera = MySector.MainCamera != null ? MySector.MainCamera.WorldMatrix : VRageMath.MatrixD.Identity;
-            MyGuiManager.CameraView = MySector.MainCamera != null ? MySector.MainCamera.ViewMatrix : VRageMath.MatrixD.Identity;
-
-            MyTransparentGeometry.Camera = MyGuiManager.Camera;
-            MyTransparentGeometry.CameraView = MyGuiManager.CameraView;
 
             ProfilerShort.Begin("ScreenManager.Draw");
             MyScreenManager.Draw();

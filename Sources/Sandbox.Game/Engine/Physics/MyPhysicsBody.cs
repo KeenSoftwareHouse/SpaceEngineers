@@ -1400,10 +1400,11 @@ false,
         protected void GetRigidBodyMatrix(out Matrix m)
         {
             System.Diagnostics.Debug.Assert(ClusterObjectID != MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED, "Unitialized object in cluster!");
-            m = Entity.WorldMatrix;
+            var wm = Entity.WorldMatrix;
             if (Center != Vector3.Zero)
-                m.Translation += Vector3.TransformNormal(Center, Entity.WorldMatrix);
-            m.Translation -= Offset;
+                wm.Translation += Vector3.TransformNormal(Center, wm);
+            wm.Translation -= Offset;
+            m = wm;
         }
 
         protected Matrix GetRigidBodyMatrix(MatrixD worldMatrix)

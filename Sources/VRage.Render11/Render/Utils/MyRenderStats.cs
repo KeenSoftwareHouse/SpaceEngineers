@@ -1,11 +1,5 @@
-﻿using ParallelTasks;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using VRage;
 using VRage.Library.Utils;
 using VRage.Render11.Common;
 using VRage.Stats;
@@ -59,26 +53,10 @@ namespace VRageRender
                     /* Add info about render buffers */
                     m_tmpDrawText.Append("Hardware Buffers (count/bytes):\n");
 
-                    MyBufferStats stats, total = new MyBufferStats();
-
-                    MyHwBuffers.GetConstantBufferStats(out stats);
-                    m_tmpDrawText.AppendFormat("   Constant: {0:N0}/{1:N0}\n", stats.TotalBuffers, stats.TotalBytes);
-                    total.TotalBytes += stats.TotalBytes; total.TotalBuffers += stats.TotalBuffers;
-
-                    MyHwBuffers.GetVertexBufferStats(out stats);
-                    m_tmpDrawText.AppendFormat("   Vertex: {0:N0}/{1:N0}\n", stats.TotalBuffers, stats.TotalBytes);
-                    total.TotalBytes += stats.TotalBytes; total.TotalBuffers += stats.TotalBuffers;
-
-                    MyHwBuffers.GetIndexBufferStats(out stats);
-                    m_tmpDrawText.AppendFormat("   Index: {0:N0}/{1:N0}\n", stats.TotalBuffers, stats.TotalBytes);
-                    total.TotalBytes += stats.TotalBytes; total.TotalBuffers += stats.TotalBuffers;
-
-                    MyHwBuffers.GetStructuredBufferStats(out stats);
-                    m_tmpDrawText.AppendFormat("   Structured: {0:N0}/{1:N0}\n", stats.TotalBuffers, stats.TotalBytes);
-                    total.TotalBytes += stats.TotalBytes; total.TotalBuffers += stats.TotalBuffers;
-
-                    m_tmpDrawText.AppendFormat("   Total: {0:N0}/{1:N0}\n", total.TotalBuffers, total.TotalBytes);
-
+                    foreach (var bufferStatistic in MyManagers.Buffers.GetReport())
+                    {
+                        m_tmpDrawText.AppendFormat("   {0}: {1:N0}/{2:N0}\n", bufferStatistic.Name, bufferStatistic.TotalBuffers, bufferStatistic.TotalBytes);
+                    }
 
                     m_tmpDrawText.Append("Textures:\n");
                     MyFileTextureUsageReport report = MyManagers.FileTextures.GetReport();
@@ -87,7 +65,7 @@ namespace VRageRender
                     m_tmpDrawText.AppendFormat("   Loaded: {0}\n", report.TexturesLoaded);
                     m_tmpDrawText.AppendFormat("   Memory: {0:N0}\n", report.TotalTextureMemory);
 
-                    MySpritesRenderer.DrawText(pos, m_tmpDrawText, color, scale);
+                    MyDebugTextHelpers.DrawText(pos, m_tmpDrawText, color, scale);
                 }
                 finally
                 {

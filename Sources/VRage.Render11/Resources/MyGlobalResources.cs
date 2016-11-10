@@ -1,25 +1,37 @@
 ﻿using SharpDX.DXGI;
 using VRage.Render11.Common;
+using VRageMath;
 using VRageRender;
 
 namespace VRage.Render11.Resources
 {
-    class MyGlobalResources: IManager
+    class MyGlobalResources : IManager, IManagerCallback
     {
-        public static IRtvTexture Gbuffer1Copy;
+        public static IDynamicFileArrayTexture FileArrayTextureVoxelCM;
+        public static IDynamicFileArrayTexture FileArrayTextureVoxelNG;
+        public static IDynamicFileArrayTexture FileArrayTextureVoxelExt;
 
-        public void Create()
+        public void CreateOnStartup()
         {
-            int width = MyRender11.ResolutionI.X;
-            int height = MyRender11.ResolutionI.Y;
-            int samples = MyRender11.RenderSettings.AntialiasingMode.SamplesCount();
-
-            Gbuffer1Copy = MyManagers.RwTextures.CreateRtv("MyRender11.Gbuffer1Copy", width, height, Format.R10G10B10A2_UNorm, samples);
+            MyDynamicFileArrayTextureManager manager = MyManagers.DynamicFileArrayTextures;
+            FileArrayTextureVoxelCM = manager.CreateTexture("MyGlobalResources.FileArrayTextureVoxelCM",
+                MyFileTextureEnum.COLOR_METAL, MyGeneratedTexturePatterns.ColorMetal_BC7_SRgb, Format.BC7_UNorm_SRgb);
+            FileArrayTextureVoxelNG = manager.CreateTexture("MyGlobalResources.FileArrayTextureVoxelNG",
+                MyFileTextureEnum.NORMALMAP_GLOSS, MyGeneratedTexturePatterns.NormalGloss_BC7, Format.BC7_UNorm);
+            FileArrayTextureVoxelExt = manager.CreateTexture("MyGlobalResources.FileArrayTextureVoxelExt",
+                MyFileTextureEnum.EXTENSIONS, MyGeneratedTexturePatterns.Extension_BC7_SRgb, Format.BC7_UNorm_SRgb);
         }
 
-        public void Destroy()
+        void IManagerCallback.OnUnloadData()
         {
-            MyManagers.RwTextures.DisposeTex(ref Gbuffer1Copy);
+            FileArrayTextureVoxelCM.Clear();
+            FileArrayTextureVoxelNG.Clear();
+            FileArrayTextureVoxelExt.Clear();
+        }
+
+        void IManagerCallback.OnFrameEnd()
+        {
+            
         }
     }
 }

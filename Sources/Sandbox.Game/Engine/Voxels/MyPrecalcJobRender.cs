@@ -86,11 +86,11 @@ namespace Sandbox.Engine.Voxels
                     + 1 // extra overlap so there are more vertices for mapping to parent LOD
                     + 1; // for eg. 9 vertices in row we need 9 + 1 samples (voxels)
                 //    + 1 // why not
-                  //  + 1 // martin kroslak approved
+                //  + 1 // martin kroslak approved
 
                 var clipmapCellId = MyCellCoord.GetClipmapCellHash(m_args.ClipmapId, m_args.Cell.PackId64());
                 MyIsoMesh highResMesh = IsoMeshCache.Read(clipmapCellId);
-                    
+
                 if (highResMesh == null)
                 {
                     highResMesh = MyPrecalcComponent.IsoMesher.Precalc(m_args.Storage, m_args.Cell.Lod, min, max, true, MyFakes.ENABLE_VOXEL_COMPUTED_OCCLUSION);
@@ -103,7 +103,7 @@ namespace Sandbox.Engine.Voxels
 
                 MyIsoMesh lowResMesh = null;
 
-                if (m_args.Cell.Lod < 15  && MyFakes.ENABLE_VOXEL_LOD_MORPHING)
+                if (m_args.Cell.Lod < 15 && MyFakes.ENABLE_VOXEL_LOD_MORPHING)
                 {
                     var nextLodCell = m_args.Cell;
                     nextLodCell.Lod++;
@@ -145,11 +145,9 @@ namespace Sandbox.Engine.Voxels
             if (MyPrecalcComponent.Loaded && !m_isCancelled && m_args.Storage != null)
             {
                 // Update render even if results are not valid. Not updating may result in geometry staying the same for too long.
-                MyRenderProxy.UpdateClipmapCell(
-                    m_args.ClipmapId,
-                    ref m_metadata,
-                    ref m_batches);
-                if (!IsValid)
+                if (IsValid)
+                    MyRenderProxy.UpdateClipmapCell(m_args.ClipmapId, ref m_metadata, ref m_batches);
+                else
                 {
                     // recompute the whole things when results are not valid
                     restartWork = true;
@@ -198,7 +196,7 @@ namespace Sandbox.Engine.Voxels
 
         public override void DebugDraw(Color c)
         {
-            if(m_args.DebugDraw != null)
+            if (m_args.DebugDraw != null)
                 m_args.DebugDraw(c);
         }
     }

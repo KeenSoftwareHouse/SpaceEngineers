@@ -29,13 +29,18 @@ namespace VRageRender
         internal MatrixD ViewProjectionD;
         //internal MatrixD InvViewProjectionD;
 
+        internal BoundingFrustumD ViewFrustumD;
+        internal BoundingFrustumD ViewFrustumClippedD;
+
         internal float NearClipping;
         internal float LargeDistanceFarClipping;
         internal float FarClipping;
-        internal float FovY;
 
-        internal BoundingFrustumD ViewFrustumD;
-        internal BoundingFrustumD ViewFrustumClippedD;
+        /// <summary>Field of view Horizontal</summary>
+        internal float FovH;
+
+        /// <summary>Field of view Vertical</summary>
+        internal float FovV;
     }
 
     class MyEnvironment

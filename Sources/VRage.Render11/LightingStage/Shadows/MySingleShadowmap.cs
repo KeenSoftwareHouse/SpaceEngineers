@@ -41,9 +41,9 @@ namespace VRage.Render11.LightingStage.Shadows
                 MyManagers.RwTextures.DisposeTex(ref m_depthTexture);
             }
 
-            public void AddShadowmapQuery(ref List<MyShadowmapQuery> shadowmapQueries)
+            public void AddShadowmapQuery(int index, List<MyShadowmapQuery> shadowmapQueries)
             {
-                shadowmapQueries.Add(m_shadowVolume.GetShadowmapQueryForSingleShadow(m_depthTexture));
+                shadowmapQueries.Add(m_shadowVolume.GetShadowmapQueryForSingleShadow(index, m_depthTexture));
             }
 
             public void DrawVolume()

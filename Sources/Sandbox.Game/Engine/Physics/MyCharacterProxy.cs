@@ -169,6 +169,7 @@ namespace Sandbox.Engine.Physics
                 CharacterRigidBody = new HkCharacterRigidBody(characterRBCInfo, maxCharacterSpeed, body, isOnlyVertical);
 
                 CharacterRigidBody.GetRigidBody().ContactPointCallbackEnabled = true;
+                CharacterRigidBody.GetRigidBody().ContactPointCallback -= RigidBody_ContactPointCallback;
                 CharacterRigidBody.GetRigidBody().ContactPointCallback += RigidBody_ContactPointCallback;
                 CharacterRigidBody.GetRigidBody().ContactPointCallbackDelay = 0;
 
@@ -206,6 +207,10 @@ namespace Sandbox.Engine.Physics
 
             if (CharacterRigidBody != null)
             {
+                if (CharacterRigidBody.GetRigidBody() != null)
+                {
+                    CharacterRigidBody.GetRigidBody().ContactPointCallback -= RigidBody_ContactPointCallback;
+                }
                 CharacterRigidBody.Dispose();
                 CharacterRigidBody = null;
             }

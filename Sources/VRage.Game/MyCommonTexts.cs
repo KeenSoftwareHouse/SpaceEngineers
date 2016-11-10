@@ -1094,7 +1094,7 @@ using VRage.Utils;
         public static readonly MyStringId ToolTipVideoOptionsRenderQuality = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderQuality");
 
         ///<summary>
-        ///Select a graphic adapter and/or a monitor
+        ///Select a graphic adapter and/or a monitor. Changing the adapter requires restart of the game.
         ///</summary>
         public static readonly MyStringId ToolTipVideoOptionsVideoAdapter = MyStringId.GetOrCompute("ToolTipVideoOptionsVideoAdapter");
 
@@ -1122,6 +1122,11 @@ using VRage.Utils;
         ///Horizontal field of view angle
         ///</summary>
         public static readonly MyStringId ToolTipVideoOptionsFieldOfView = MyStringId.GetOrCompute("ToolTipVideoOptionsFieldOfView");
+
+        ///<summary>
+        ///Changing adapter requires restarting the game. Restart now?
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextRestartNeededAfterAdapterSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterAdapterSwitch");
 
         ///<summary>
         ///Show on-screen control hints during gameplay
@@ -4267,4 +4272,44 @@ using VRage.Utils;
         ///Enable echo
         ///</summary>
         public static readonly MyStringId AudioSettings_EnableReverb = MyStringId.GetOrCompute("AudioSettings_EnableReverb");
+
+        ///<summary>
+        ///Ambient occlusion
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AmbientOcclusion = MyStringId.GetOrCompute("ScreenGraphicsOptions_AmbientOcclusion");
+
+        ///<summary>
+        ///HBAO
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AmbientOcclusion_HBAO = MyStringId.GetOrCompute("ScreenGraphicsOptions_AmbientOcclusion_HBAO");
+
+        ///<summary>
+        ///None
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AmbientOcclusion_None = MyStringId.GetOrCompute("ScreenGraphicsOptions_AmbientOcclusion_None");
+
+        ///<summary>
+        ///PUBLISH CAMPAIGN
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishCampaign = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishCampaign");
+
+        ///<summary>
+        ///CAMPAIGN PUBLISHED
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionCampaignPublished = MyStringId.GetOrCompute("MessageBoxCaptionCampaignPublished");
+
+        ///<summary>
+        ///CAMPAIGN PUBLISH FAILED
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionModCampaignPublishFailed = MyStringId.GetOrCompute("MessageBoxCaptionModCampaignPublishFailed");
+
+        ///<summary>
+        ///Are you sure you want to upload and publish selected campaign on Steam Workshop? Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextDoYouWishToPublishCampaign = MyStringId.GetOrCompute("MessageBoxTextDoYouWishToPublishCampaign");
+
+        ///<summary>
+        ///Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextCampaignPublished = MyStringId.GetOrCompute("MessageBoxTextCampaignPublished");
     }

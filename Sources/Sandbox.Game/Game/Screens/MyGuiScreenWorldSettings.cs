@@ -488,6 +488,11 @@ namespace Sandbox.Game.Gui
                         WorldGenerator.GetSettings(m_settings);
                         AsteroidAmount = WorldGenerator.AsteroidAmount;
                     }
+                    else
+                    {
+                        //GK: If AsteroidAmount==0 it will cause no Asteroids spawned near player in Asteroids Scenario
+                        AsteroidAmount = -1;
+                    }
                 }
                 else if (m_settings != null)
                 {

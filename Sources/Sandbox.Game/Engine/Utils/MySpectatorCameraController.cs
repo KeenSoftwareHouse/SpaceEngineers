@@ -66,7 +66,7 @@ namespace Sandbox.Engine.Utils
         //  Moves and rotates player by specified vector and angles
         public override void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
-            if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition == null)
+            if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition == null && !MySessionComponentVoxelHand.Static.Enabled)
             {
                 if (MyInput.Static.IsAnyCtrlKeyPressed())
                 {
@@ -309,7 +309,7 @@ namespace Sandbox.Engine.Utils
         private void MoveAndRotate_FreeMouse(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
             // Act normally when the cube builder is active
-            if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition != null || MyInput.Static.IsRightMousePressed())
+            if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition != null || MySessionComponentVoxelHand.Static.Enabled || MyInput.Static.IsRightMousePressed())
             {
                 MoveAndRotate_UserControlled(moveIndicator, rotationIndicator, rollIndicator);
             }

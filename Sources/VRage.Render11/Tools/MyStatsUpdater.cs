@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using VRage.Render11.Common;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
@@ -13,8 +14,11 @@ namespace VRage.Render11.Tools
         public struct MyPasses
         {
             public int GBufferObjects;
+            public int GBufferDraws;
             public int GBufferTris;
+
             public int ShadowProjectionObjects;
+            public int ShadowProjectionDraws;
             public int ShadowProjectionTris;
 
             public int DrawShadows;
@@ -26,6 +30,7 @@ namespace VRage.Render11.Tools
             }
         }
         public static int[] CSMObjects = new int[8];
+        public static int[] CSMDraws = new int[8];
         public static int[] CSMTris = new int[8];
 
         public struct MyTimestamps
@@ -57,13 +62,13 @@ namespace VRage.Render11.Tools
         {
             string group = "Resources count";
             MyStatsDisplay.Write(group, "RW textures", MyManagers.RwTextures.GetTexturesCount(), page);
-            MyStatsDisplay.Write(group, "File textures", MyManagers.FileTextures.GetMannagedTexturesCount(), page);
-            MyStatsDisplay.Write(group, "File textures (default)", MyManagers.FileTextures.GetUnmannagedTexturesCount(), page);
+            MyStatsDisplay.Write(group, "File textures", MyManagers.FileTextures.FileTexturesCount, page);
+            MyStatsDisplay.Write(group, "File textures (generated)", MyManagers.FileTextures.GeneratedTexturesCount, page);
             MyStatsDisplay.Write(group, "File array textures", MyManagers.FileArrayTextures.GetTexturesCount(), page);
             MyStatsDisplay.Write(group, "Array textures", MyManagers.ArrayTextures.GetArrayTexturesCount(), page);
             MyStatsDisplay.Write(group, "DepthStencils", MyManagers.DepthStencils.GetDepthStencilsCount(), page);
             MyStatsDisplay.Write(group, "Custom textures", MyManagers.CustomTextures.GetTexturesCount(), page);
-            MyStatsDisplay.Write(group, "Generated textures", MyManagers.GeneratedTextures.GetTexturesCount(), page);
+            MyStatsDisplay.Write(group, "Generated textures", MyManagers.GeneratedTextures.ActiveTexturesCount, page);
 
             MyStatsDisplay.Write(group, "Blend states", MyManagers.BlendStates.GetResourcesCount(), page);
             MyStatsDisplay.Write(group, "Depth stencil states", MyManagers.DepthStencilStates.GetResourcesCount(), page);
@@ -84,11 +89,26 @@ namespace VRage.Render11.Tools
             MyStatsDisplay.Write(group, "Shadows", Passes.DrawShadows, page);
             MyStatsDisplay.Write(group, "Billboards", Passes.DrawBillboards, page);
 
-            group = "Objects in passes";
+            group = "Cull proxies in passes";
             MyStatsDisplay.Write(group, "GBuffer", Passes.GBufferObjects, page);
             for (int i = 0; i < CSMObjects.Length; i++)
                 MyStatsDisplay.Write(group, "CSM" + i, CSMObjects[i], page);
             MyStatsDisplay.Write(group, "Shadow projection", Passes.ShadowProjectionObjects, page);
+
+            group = "Draw call count in passes";
+            foreach (var statsTuple in MyRender11.PassStats)
+            {
+                if (statsTuple.Value.Count == 0)
+                    continue;
+
+                int idx = 0;
+
+                foreach (var myPassStats in statsTuple.Value.OrderBy(stats => stats.Key))
+                {
+                    MyStatsDisplay.Write(group, statsTuple.Key + idx, myPassStats.Value.Draws, page);
+                    idx++;
+                }
+            }
 
             group = "Tris in passes";
             MyStatsDisplay.Write(group, "GBuffer", Passes.GBufferTris, page);
@@ -183,11 +203,11 @@ namespace VRage.Render11.Tools
 
         public static void UpdateStats()
         {
-            UpdateStateChanges("State changes");
-            UpdateGPUParams("Persistent");
-            UpdatePasses("Passes");
-            UpdateResources("Resources");
-            UpdateTimestamps("Persistent");
+            UpdateStateChanges("Common");
+            UpdateGPUParams("Common");
+            UpdatePasses("Common");
+            UpdateResources("Common");
+            UpdateTimestamps("Common");
             MyManagers.RwTexturesPool.UpdateStats();
         }
     }

@@ -136,6 +136,8 @@ namespace Sandbox.Game.Entities.Cube
         public bool InConstraint { get { return m_welded || m_constraint != null; } }
         public bool Connected { get; set; }
 
+        private bool m_isInitOnceBeforeFrameUpdate = false;
+
         private Vector3 ConnectionPosition { get { return Vector3.Transform(m_connectionPosition, this.PositionComp.LocalMatrix); } }
 
         public int DetectedGridCount { get { return m_detectedGrids.Count; } }
@@ -367,6 +369,7 @@ namespace Sandbox.Game.Entities.Cube
                 IsMaster = ob.IsMaster.Value;
                 m_connectionState.Value = new State() {IsMaster =  ob.IsMaster.Value, OtherEntityId = ob.ConnectedEntityId, MasterToSlave = deltaTransform,MasterToSlaveGrid = ob.MasterToSlaveGrid};
                 NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                m_isInitOnceBeforeFrameUpdate = true;
             }
 
             IsWorkingChanged += MyShipConnector_IsWorkingChanged;                       
@@ -739,7 +742,11 @@ namespace Sandbox.Game.Entities.Cube
 
         private void UpdateConnectionState()
         {
-            if (m_other == null && (m_connectionState.Value.OtherEntityId != 0))
+            if (m_isInitOnceBeforeFrameUpdate)
+            {
+                m_isInitOnceBeforeFrameUpdate = false;
+            }
+            else if (m_other == null && (m_connectionState.Value.OtherEntityId != 0))
             {
                 if (Sync.IsServer)
                 {

@@ -12,6 +12,8 @@ namespace Sandbox.Definitions
 	    public MyStringHash ResourceSinkGroup;
         public float SensorRadius;
         public float SensorOffset;
+        public float CutOutOffset;
+        public float CutOutRadius;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -22,6 +24,8 @@ namespace Sandbox.Definitions
 	        ResourceSinkGroup = MyStringHash.GetOrCompute(cbuilder.ResourceSinkGroup);
             SensorRadius = cbuilder.SensorRadius;
             SensorOffset = cbuilder.SensorOffset;
+            CutOutOffset = cbuilder.CutOutOffset;
+            CutOutRadius = cbuilder.CutOutRadius;
         }
     }
 }

@@ -37,10 +37,10 @@ namespace VRage.Game
             DrawAttachedTransparentBox(ref worldMatrix, ref localbox, ref color, renderObjectID, ref worldToLocal, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, lineMaterial, onlyFrontFaces, priority);
         }
 
-        public static bool FaceVisible(Vector3 center, Vector3 normal)
+        public static bool FaceVisible(Vector3D center, Vector3D normal)
         {
-            var viewDir = center - MyTransparentGeometry.Camera.Translation;
-            return Vector3.Dot(viewDir, normal) < 0;
+            var viewDir = Vector3D.Normalize(center - MyTransparentGeometry.Camera.Translation);
+            return Vector3D.Dot(viewDir, normal) < 0;
         }
 
         /// <summary>
@@ -341,8 +341,7 @@ namespace VRage.Game
 
                 //@ Front side
                 Vector3D faceNorm = Vector3D.TransformNormal(Vector3D.Forward, orientation);
-                faceNorm *= halfDeep;
-                Vector3D vctPos = translation + faceNorm;
+                Vector3D vctPos = translation + faceNorm * halfDeep;
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfHeight, ref worldMatrix);
@@ -354,7 +353,7 @@ namespace VRage.Game
                 }
 
                 //@ Back side
-                vctPos = translation - faceNorm;
+                vctPos = translation - faceNorm * halfDeep;
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfHeight, ref worldMatrix);
@@ -368,9 +367,8 @@ namespace VRage.Game
                 //@ Left side
                 MatrixD rotMat = Matrix.CreateRotationY(MathHelper.ToRadians(90f));
                 MatrixD rotated = rotMat * worldMatrix;
-                faceNorm = Vector3D.TransformNormal(Vector3.Left, worldMatrix);
-                faceNorm *= halfWidth;
-                vctPos = translation + faceNorm;
+                faceNorm = Vector3D.TransformNormal(Vector3D.Left, worldMatrix);
+                vctPos = translation + faceNorm * halfWidth;
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfDeep, halfHeight, ref rotated);
@@ -382,7 +380,7 @@ namespace VRage.Game
                 }
 
                 //@ Right side
-                vctPos = translation - faceNorm;
+                vctPos = translation - faceNorm * halfWidth;
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfDeep, halfHeight, ref rotated);
@@ -396,9 +394,8 @@ namespace VRage.Game
                 //@ Top side
                 rotMat = MatrixD.CreateRotationX(MathHelper.ToRadians(90f));
                 rotated = rotMat * worldMatrix;
-                faceNorm = Vector3D.TransformNormal(Vector3.Up, worldMatrix);
-                faceNorm *= ((localbox.Max.Y - localbox.Min.Y) / 2f);
-                vctPos = translation + faceNorm;
+                faceNorm = Vector3D.TransformNormal(Vector3D.Up, worldMatrix);
+                vctPos = translation + faceNorm * halfHeight;
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfDeep, ref rotated);
@@ -410,7 +407,7 @@ namespace VRage.Game
                 }
 
                 //@ Bottom side
-                vctPos = translation - faceNorm;
+                vctPos = translation - faceNorm * halfHeight;
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfDeep, ref rotated);
@@ -420,6 +417,7 @@ namespace VRage.Game
                     Vector3D.Transform(ref quad.Point3, ref worldToLocal, out quad.Point3);
                     MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, color, ref vctPos, renderObjectID, priority);
                 }
+
             }
 
             if (rasterization == MySimpleObjectRasterizer.Wireframe || rasterization == MySimpleObjectRasterizer.SolidAndWireframe)

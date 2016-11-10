@@ -65,6 +65,8 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
+        public bool IsOverCaret { get; protected set; }
+
         public event Action<MyScrollbar> ValueChanged;
 
         protected MyScrollbar(MyGuiControlBase control,
@@ -194,12 +196,12 @@ namespace Sandbox.Graphics.GUI
             var absolutePosition = OwnerControl.GetPositionAbsoluteCenter() + Position;
             bool mouseOverThis = MyGuiControlBase.CheckMouseOver(Size, absolutePosition, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
             bool mouseOverOwner = OwnerControl.IsMouseOver;
-            bool mouseOverCaret = MyGuiControlBase.CheckMouseOver(CaretSize, absolutePosition + GetCarretPosition(), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+            IsOverCaret = MyGuiControlBase.CheckMouseOver(CaretSize, absolutePosition + GetCarretPosition(), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
 
             switch (State)
             {
                 case StateEnum.Ready:
-                    if (MyInput.Static.IsNewPrimaryButtonPressed() && mouseOverCaret)
+                    if (MyInput.Static.IsNewPrimaryButtonPressed() && IsOverCaret)
                     {
                         captured = true;
                         State = StateEnum.Drag;
@@ -300,12 +302,12 @@ namespace Sandbox.Graphics.GUI
                 return captured;
 
             var absolutePosition = OwnerControl.GetPositionAbsoluteCenter() + Position;
-            bool mouseOverCaret = MyGuiControlBase.CheckMouseOver(CaretSize, absolutePosition + GetCarretPosition(), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+            IsOverCaret = MyGuiControlBase.CheckMouseOver(CaretSize, absolutePosition + GetCarretPosition(), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
 
             switch (State)
             {
                 case StateEnum.Ready:
-                    if (MyInput.Static.IsNewLeftMousePressed() && mouseOverCaret)
+                    if (MyInput.Static.IsNewLeftMousePressed() && IsOverCaret)
                     {
                         captured = true;
                         State = StateEnum.Drag;

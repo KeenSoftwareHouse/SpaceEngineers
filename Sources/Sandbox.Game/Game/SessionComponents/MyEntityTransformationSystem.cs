@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Input;
-using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
@@ -37,6 +34,9 @@ namespace Sandbox.Game.SessionComponents
         }
 
         private MyEntity m_controlledEntity;
+        // Collision layers of all entities in physical group of moved entity
+        private readonly Dictionary<MyEntity,int> m_cachedBodyCollisionLayers 
+            = new Dictionary<MyEntity, int>();
 
         // Object oriented bounding boxes used as dragg points for position
         private MyOrientedBoundingBoxD m_xBB;
@@ -71,6 +71,8 @@ namespace Sandbox.Game.SessionComponents
         #endregion
 
 
+        #region Rotation Fields
+
         // Rotation active flag
         private bool m_rotationActive;
         // Plane used for picking of rotation vectors
@@ -85,17 +87,25 @@ namespace Sandbox.Game.SessionComponents
         private Vector3D m_storedTranslation;
         private MatrixD m_storedWorldMatrix;
 
+        #endregion
+
+
+        #region Cache Fields
+
         // Debug
         private LineD m_lastRay;
-
-        private bool m_physicsStopped;
 
         // Previous mode cache
         private OperationMode m_previousOperation;
 
         // Results
-        private readonly List<MyLineSegmentOverlapResult<MyEntity>> m_rayCastResultList 
+        private readonly List<MyLineSegmentOverlapResult<MyEntity>> m_rayCastResultList
             = new List<MyLineSegmentOverlapResult<MyEntity>>();
+
+        #endregion
+
+
+        #region Public Properties
 
         private bool m_active;
         // Current state of session component
@@ -104,7 +114,7 @@ namespace Sandbox.Game.SessionComponents
             get { return m_active; }
             set
             {
-                if(Session == null || !Session.CreativeMode)
+                if (Session == null || !Session.CreativeMode)
                     return;
 
                 if (!value)
@@ -130,18 +140,12 @@ namespace Sandbox.Game.SessionComponents
         /// <summary>
         /// Coordinate mode - Local or World space.
         /// </summary>
-        public CoordinateMode Mode
-        {
-            get; set;
-        }
+        public CoordinateMode Mode { get; set; }
 
         /// <summary>
         /// Transformation type.
         /// </summary>
-        public OperationMode Operation
-        {
-            get; set;
-        }
+        public OperationMode Operation { get; set; }
 
         /// <summary>
         /// Currently selected entity.
@@ -164,6 +168,9 @@ namespace Sandbox.Game.SessionComponents
         {
             get { return m_lastRay; }
         }
+
+        #endregion
+
 
         public MyEntityTransformationSystem()
         {
@@ -375,11 +382,21 @@ namespace Sandbox.Game.SessionComponents
                 m_rotationActive = false;
                 m_selected = -1;
             }
+
+            // Remove speed from controlled entity no matter what. Causes a lot of issues.
+            // Namely Rotors, Pistons, Tires.
+            if (ControlledEntity != null && ControlledEntity.Physics != null)
+            {
+                ControlledEntity.Physics.ClearSpeed();
+            }
         }
 
         // Try to perform the grouping operation
         private void PerformGrouping()
         {
+            if(ControlledEntity == null)
+                return;
+
             var groupWithEntity = PickEntity();
             if (groupWithEntity != null)
             {
@@ -493,11 +510,6 @@ namespace Sandbox.Game.SessionComponents
                 SetWorldMatrix(ref worldMat);
             }
 
-            if (ControlledEntity.Physics != null)
-            {
-                ControlledEntity.Physics.ClearSpeed();
-            }
-
             UpdateGizmoPosition();
         }
 
@@ -583,7 +595,26 @@ namespace Sandbox.Game.SessionComponents
         // Changes the world matrix of entity in the generic way 
         private void SetWorldMatrix(ref MatrixD newWorldMatrix)
         {
-            if (ControlledEntity.Parent != null)
+            var cubeGrid = ControlledEntity as MyCubeGrid;
+            // Cube grids and their physical groups are special case
+            if(cubeGrid != null) {
+                var groups = MyCubeGridGroups.Static.Physical.GetGroup(cubeGrid);
+
+                var prevWorldInv = cubeGrid.PositionComp.WorldMatrixNormalizedInv;
+                // Move the cubeGrid
+                cubeGrid.PositionComp.WorldMatrix = newWorldMatrix;
+                foreach (var member in groups.m_members)
+                {
+                    // Update only top most
+                    if (member.NodeData.Parent == null && member.NodeData != cubeGrid)
+                    {
+                        // Back to world origin and then to new position
+                        var newMemberWorldMatrix = member.NodeData.PositionComp.WorldMatrix * prevWorldInv * newWorldMatrix;
+                        member.NodeData.PositionComp.WorldMatrix = newMemberWorldMatrix;
+                    }
+                }
+            }
+            else if (ControlledEntity.Parent != null)
             {
                 // world matrix of entities in hierarchy can be set just from parent
                 ControlledEntity.PositionComp.SetWorldMatrix(newWorldMatrix, ControlledEntity.Parent, true);
@@ -641,6 +672,8 @@ namespace Sandbox.Game.SessionComponents
 
         private MyEntity PickEntity()
         {
+            var hitInfo = MyPhysics.CastRay(m_lastRay.From, m_lastRay.To);
+
             m_rayCastResultList.Clear();
             MyGamePruningStructure.GetAllEntitiesInRay(ref m_lastRay, m_rayCastResultList);
 
@@ -657,13 +690,14 @@ namespace Sandbox.Game.SessionComponents
             }
 
             // No results nothing to do
-            if (m_rayCastResultList.Count == 0)
+            if (m_rayCastResultList.Count == 0 && hitInfo == null)
                 return null;
 
             MyEntity foundEntity = null;
+            double overlapDistance = Double.MaxValue;
             foreach (var overlapResult in m_rayCastResultList)
             {
-                if (overlapResult.Element.PositionComp.WorldAABB.Intersects(ref m_lastRay) 
+                if (overlapResult.Element.PositionComp.WorldAABB.Intersects(ref m_lastRay, out overlapDistance) 
                     && (
                     overlapResult.Element is MyCubeGrid 
                     || overlapResult.Element is MyFloatingObject 
@@ -675,9 +709,20 @@ namespace Sandbox.Game.SessionComponents
                 }
             }
 
+            if (hitInfo.HasValue && Vector3D.Distance(hitInfo.Value.Position, m_lastRay.From) < overlapDistance)
+            {
+                // hit info is better option
+                var hitEntity = hitInfo.Value.HkHitInfo.GetHitEntity();
+                if (hitEntity is MyCubeGrid
+                    || hitEntity is MyFloatingObject)
+                {
+                    return (MyEntity)hitEntity;
+                }
+            }
+
             if (foundEntity == null)
             {
-                // Jus to try to traverse it children again
+                // Just to try to traverse it children again
                 foundEntity = ControlledEntity;
             }
 
@@ -686,23 +731,11 @@ namespace Sandbox.Game.SessionComponents
                 return null;
             }
 
-            // Look through the top of hierarchy first
-            foreach (var hierarchyComp in foundEntity.Hierarchy.Children)
-            {
-                var entity = hierarchyComp.Entity as MyEntity;
-                if (entity.PositionComp.WorldAABB.Intersects(ref m_lastRay) 
-                    && !(entity is MyCubeBlock) 
-                    && entity != ControlledEntity)
-                {
-                    return entity;
-                }
-            }
-
             return foundEntity;
         }
 
         // Sets values of the session component to default values
-        private void SetControlledEntity(MyEntity entity)
+        public void SetControlledEntity(MyEntity entity)
         {
             if(ControlledEntity == entity)
                 return;
@@ -710,7 +743,10 @@ namespace Sandbox.Game.SessionComponents
             if (ControlledEntity != null)
             {
                 ControlledEntity.PositionComp.OnPositionChanged -= ControlledEntityPositionChanged;
+                // Restore cached collision layers
+                Physics_RestorePreviousCollisionLayerState();
             }
+
             var old = ControlledEntity;
             m_controlledEntity = entity;
 
@@ -731,7 +767,70 @@ namespace Sandbox.Game.SessionComponents
                     m_controlledEntity = null;
                 };
 
+                // Cache physics collision layers and move to NoCollisionLayer
+                Physics_ClearCollisionLayerCache();
+                Physics_MoveEntityToNoCollisionLayer(ControlledEntity);
+
                 UpdateGizmoPosition();
+            }
+        }
+
+        // Restores previous collision layers for cached entities.
+        private void Physics_RestorePreviousCollisionLayerState()
+        {
+            foreach (var cacheData in m_cachedBodyCollisionLayers)
+            {
+                cacheData.Key.Physics.RigidBody.Layer = cacheData.Value;
+            }
+        }
+
+        // Clears Collision layer cache
+        private void Physics_ClearCollisionLayerCache()
+        {
+            m_cachedBodyCollisionLayers.Clear();
+        }
+
+        // Moves entity, her hierarchy and all physical linked grids to NoCollisionLayer
+        // and caches the previous state.
+        private void Physics_MoveEntityToNoCollisionLayer(MyEntity entity)
+        {
+            var cubeGrid = entity as MyCubeGrid;
+            if (cubeGrid != null)
+            {
+                var group = MyCubeGridGroups.Static.Physical.GetGroup(cubeGrid);
+                foreach (var member in @group.m_members)
+                {
+                    if (member.NodeData.Parent == null)
+                    {
+                        Physics_MoveEntityToNoCollisionLayerRecursive(member.NodeData);
+                    }
+                }
+            }
+            else
+            {
+                Physics_MoveEntityToNoCollisionLayerRecursive(entity);   
+            }
+        }
+
+        // Moves entity with physics and its hierarchy to NoCollisionLayer and caches previous state.
+        private void Physics_MoveEntityToNoCollisionLayerRecursive(MyEntity entity)
+        {
+            if (entity.Physics != null) 
+            { 
+                // Cache previous collision layer and move to NoCollisionLayer.
+                // Assuming that adding the same entity twice should not be valid!
+                m_cachedBodyCollisionLayers.Add(entity, entity.Physics.RigidBody.Layer);
+                entity.Physics.RigidBody.Layer = MyPhysics.CollisionLayers.NoCollisionLayer;
+            }
+
+            foreach (var child in entity.Hierarchy.Children)
+            {
+                if (child.Entity.Physics != null 
+                    && child.Entity.Physics.RigidBody != null)
+                {
+                    // Cache previous collision layer and move to NoCollisionLayer.
+                    Physics_MoveEntityToNoCollisionLayerRecursive((MyEntity)child.Entity);
+                }
             }
         }
 

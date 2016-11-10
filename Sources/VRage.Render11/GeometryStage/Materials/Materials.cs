@@ -40,36 +40,35 @@ namespace VRageRender
         }
     }
 
+    struct MyVoxelMaterialEntry
+    {
+        public Vector4 DistancesAndScale;
+        public Vector3 DistancesAndScaleFar;
+        float _padding0;
+        public Vector3 DistancesAndScaleFar2;
+        float _padding1;
+        public Vector3 DistancesAndScaleFar3;
+        public float ExtensionDetailScale;
+        public Vector4 Far3Color;
+
+        public Vector4I SliceNear1;
+        public Vector4I SliceNear2;
+        public Vector4I SliceFar1;
+        public Vector4I SliceFar2;
+        public Vector4I SliceFar21;
+        public Vector4I SliceFar22;
+    }
+
     struct MyVoxelMaterialConstants
     {
-        internal Vector4 DistancesAndScale;
-        internal Vector4 DistancesAndScaleFar;
-        internal Vector2 DistancesAndScaleFar3;
-        internal float ExtensionDetailScale;
-        float _padding;
-        internal Vector4 Far3Color;        
+        public MyVoxelMaterialEntry entry;
     }
 
     struct MyVoxelMultiMaterialConstants
     {
-        internal Vector4 DistancesAndScale0;
-        internal Vector4 DistancesAndScale1;
-        internal Vector4 DistancesAndScale2;
-        internal Vector4 DistancesAndScaleFar0;
-        internal Vector4 DistancesAndScaleFar1;
-        internal Vector4 DistancesAndScaleFar2;
-        internal Vector4 DistancesAndScaleFar31;
-        internal Vector4 DistancesAndScaleFar32;
-        internal Vector4 DistancesAndScaleFar33;
-        internal Vector4 Far3Color1;
-        internal Vector4 Far3Color2;
-        internal Vector4 Far3Color3;
-
-        internal float ExtensionDetailScale0;
-        internal float ExtensionDetailScale1;
-        internal float ExtensionDetailScale2;
-
-        float _padding;
+        public MyVoxelMaterialEntry entry0;
+        public MyVoxelMaterialEntry entry1;
+        public MyVoxelMaterialEntry entry2;
     }
 
     class MyVoxelMaterials1
@@ -79,6 +78,19 @@ namespace VRageRender
         // not hash set but list
         internal static List<int> MaterialQueryResourcesTable = new List<int>();
 
+        private static string[] CreateStringArray(string str1, string str2, string str3)
+        {
+            MyRenderProxy.Assert(str1 != "");
+            MyRenderProxy.Assert(str2 != "");
+            MyRenderProxy.Assert(str3 != "");
+            
+            string[] str = new string[3];
+            str[0] = str1;
+            str[1] = str2;
+            str[2] = str3;
+            return str;
+        }
+        
         internal static void Set(MyRenderVoxelMaterialData[] list, bool update = false)
         {
             if (!update)
@@ -89,38 +101,29 @@ namespace VRageRender
                 // copy data 
                 int index = update ? list[i].Index : i;
 
-                Table[index].Near.ColorMetalXZnY_Texture = X.TEXT_(list[i].ColorMetalXZnY);
-                Table[index].Near.ColorMetalpY_Texture = X.TEXT_(list[i].ColorMetalY);
-                Table[index].Near.NormalGlossXZnY_Texture = X.TEXT_(list[i].NormalGlossXZnY);
-                Table[index].Near.NormalGlossY_Texture = X.TEXT_(list[i].NormalGlossY);
-                Table[index].Near.ExtXZnY_Texture = X.TEXT_(list[i].ExtXZnY);
-                Table[index].Near.ExtY_Texture = X.TEXT_(list[i].ExtY);
-
-                Table[index].Far1.ColorMetalXZnY_Texture = X.TEXT_(list[i].ColorMetalXZnYFar1);
-                Table[index].Far1.ColorMetalpY_Texture = X.TEXT_(list[i].ColorMetalYFar1);
-                Table[index].Far1.NormalGlossXZnY_Texture = X.TEXT_(list[i].NormalGlossXZnYFar1);
-                Table[index].Far1.NormalGlossY_Texture = X.TEXT_(list[i].NormalGlossYFar1);
-                Table[index].Far1.ExtXZnY_Texture = X.TEXT_(list[i].ExtXZnYFar1);
-                Table[index].Far1.ExtY_Texture = X.TEXT_(list[i].ExtYFar1);
-
-                Table[index].Far2.ColorMetalXZnY_Texture = X.TEXT_(list[i].ColorMetalXZnYFar2);
-                Table[index].Far2.ColorMetalpY_Texture = X.TEXT_(list[i].ColorMetalYFar2);
-                Table[index].Far2.NormalGlossXZnY_Texture = X.TEXT_(list[i].NormalGlossXZnYFar2);
-                Table[index].Far2.NormalGlossY_Texture = X.TEXT_(list[i].NormalGlossYFar2);
-                Table[index].Far2.ExtXZnY_Texture = X.TEXT_(list[i].ExtXZnYFar2);
-                Table[index].Far2.ExtY_Texture = X.TEXT_(list[i].ExtYFar2);
-
+                Table[index].Resource.ColorMetalXZnY_Filepaths = CreateStringArray(list[i].ColorMetalXZnY,
+                    list[i].ColorMetalXZnYFar1, list[i].ColorMetalXZnYFar2);
+                Table[index].Resource.ColorMetalY_Filepaths = CreateStringArray(list[i].ColorMetalY,
+                    list[i].ColorMetalYFar1, list[i].ColorMetalYFar2);
+                Table[index].Resource.NormalGlossXZnY_Filepaths = CreateStringArray(list[i].NormalGlossXZnY,
+                    list[i].NormalGlossXZnYFar1, list[i].NormalGlossXZnYFar2);
+                Table[index].Resource.NormalGlossY_Filepaths = CreateStringArray(list[i].NormalGlossY, 
+                    list[i].NormalGlossYFar1, list[i].NormalGlossYFar2);
+                Table[index].Resource.ExtXZnY_Filepaths = CreateStringArray(list[i].ExtXZnY, 
+                    list[i].ExtXZnYFar1, list[i].ExtXZnYFar2);
+                Table[index].Resource.ExtY_Filepaths = CreateStringArray(list[i].ExtY, list[i].ExtYFar1, list[i].ExtYFar2);
+                
                 Table[index].FoliageArray_Texture = list[i].ExtensionTextureArray1;
                 Table[index].FoliageArray_NormalTexture = list[i].ExtensionTextureArray2;
 
                 MyFileArrayTextureManager arrayManager = MyManagers.FileArrayTextures;
                 if (list[i].FoliageColorTextureArray != null)
-                    Table[index].FoliageColorTextureArray = arrayManager.CreateFromFiles("MyVoxelMaterial1.FoliageColorTextureArray", list[i].FoliageColorTextureArray, MyFileTextureEnum.COLOR_METAL);
+                    Table[index].FoliageColorTextureArray = arrayManager.CreateFromFiles("MyVoxelMaterial1.FoliageColorTextureArray", list[i].FoliageColorTextureArray, MyFileTextureEnum.COLOR_METAL, MyGeneratedTexturePatterns.ColorMetal_BC7_SRgb, Format.BC7_UNorm_SRgb, true);
                 else
                     Table[index].FoliageColorTextureArray = null;
                 
                 if (list[i].FoliageNormalTextureArray != null)
-                    Table[index].FoliageNormalTextureArray = arrayManager.CreateFromFiles("MyVoxelMaterial1.FoliageNormalTextureArray", list[i].FoliageNormalTextureArray, MyFileTextureEnum.NORMALMAP_GLOSS);
+                    Table[index].FoliageNormalTextureArray = arrayManager.CreateFromFiles("MyVoxelMaterial1.FoliageNormalTextureArray", list[i].FoliageNormalTextureArray, MyFileTextureEnum.NORMALMAP_GLOSS, MyGeneratedTexturePatterns.NormalGloss_BC7, Format.BC7_UNorm, true);
                 else
                     Table[index].FoliageNormalTextureArray = null;
                 
@@ -193,14 +196,78 @@ namespace VRageRender
             return pid;
         }
 
+        static Vector4I GetSlices(IDynamicFileArrayTexture tex, string[] filepaths)
+        {
+            Vector4I v;
+            v.X = tex.GetOrAddSlice(filepaths[0]);
+            v.Y = tex.GetOrAddSlice(filepaths[1]);
+            v.Z = tex.GetOrAddSlice(filepaths[2]);
+            v.W = 0;
+            return v;
+        }
+
+        static void UpdateVoxelSlices(ref MyVoxelMaterialEntry entry, IDynamicFileArrayTexture cm, string[] cmXZnY,
+            string[] cmY, IDynamicFileArrayTexture ng,
+            string[] ngXZnY, string[] ngY, IDynamicFileArrayTexture ext, string[] extXZnY, string[] extY)
+        {
+            int index = 0;
+            entry.SliceNear1.X = cm.GetOrAddSlice(cmXZnY[index]);
+            entry.SliceNear1.Y = cm.GetOrAddSlice(cmY[index]);
+            entry.SliceNear1.Z = ng.GetOrAddSlice(ngXZnY[index]);
+            entry.SliceNear1.W = ng.GetOrAddSlice(ngY[index]);
+            entry.SliceNear2.X = ext.GetOrAddSlice(extXZnY[index]);
+            entry.SliceNear2.Y = ext.GetOrAddSlice(extY[index]);
+
+            index = 1;
+            entry.SliceFar1.X = cm.GetOrAddSlice(cmXZnY[index]);
+            entry.SliceFar1.Y = cm.GetOrAddSlice(cmY[index]);
+            entry.SliceFar1.Z = ng.GetOrAddSlice(ngXZnY[index]);
+            entry.SliceFar1.W = ng.GetOrAddSlice(ngY[index]);
+            entry.SliceFar2.X = ext.GetOrAddSlice(extXZnY[index]);
+            entry.SliceFar2.Y = ext.GetOrAddSlice(extY[index]);
+
+            index = 2;
+            entry.SliceFar21.X = cm.GetOrAddSlice(cmXZnY[index]);
+            entry.SliceFar21.Y = cm.GetOrAddSlice(cmY[index]);
+            entry.SliceFar21.Z = ng.GetOrAddSlice(ngXZnY[index]);
+            entry.SliceFar21.W = ng.GetOrAddSlice(ngY[index]);
+            entry.SliceFar22.X = ext.GetOrAddSlice(extXZnY[index]);
+            entry.SliceFar22.Y = ext.GetOrAddSlice(extY[index]);
+        }
+
+        static void FillVoxelMaterialEntry(ref MyVoxelMaterialEntry entry, ref MyVoxelMaterial1 voxelMaterial1)
+        {
+            entry.DistancesAndScale = voxelMaterial1.DistanceAndScale;
+            entry.DistancesAndScaleFar = new Vector3(voxelMaterial1.DistanceAndScaleFar.X, voxelMaterial1.DistanceAndScaleFar.Y, 1);
+            entry.DistancesAndScaleFar2 = new Vector3(voxelMaterial1.DistanceAndScaleFar.Z, voxelMaterial1.DistanceAndScaleFar.W, 2);
+            entry.DistancesAndScaleFar3 = new Vector3(voxelMaterial1.DistanceAndScaleFar3.X, voxelMaterial1.DistanceAndScaleFar3.Y, 3);
+            entry.Far3Color = voxelMaterial1.Far3Color;
+            entry.ExtensionDetailScale = voxelMaterial1.ExtensionDetailScale;
+
+            IDynamicFileArrayTexture texColorMetal = MyGlobalResources.FileArrayTextureVoxelCM;
+            IDynamicFileArrayTexture texNormalGloss = MyGlobalResources.FileArrayTextureVoxelNG;
+            IDynamicFileArrayTexture texExt = MyGlobalResources.FileArrayTextureVoxelExt;
+
+            MyVoxelMaterialDetailSet set = voxelMaterial1.Resource;
+            UpdateVoxelSlices(ref entry, texColorMetal, set.ColorMetalXZnY_Filepaths, set.ColorMetalY_Filepaths,
+                texNormalGloss, set.NormalGlossXZnY_Filepaths, set.NormalGlossY_Filepaths,
+                texExt, set.ExtY_Filepaths, set.ExtY_Filepaths);
+        }
+
+        static void ResetVoxelMaterialEntry(out MyVoxelMaterialEntry entry)
+        {
+            MyVoxelMaterialEntry zero = new MyVoxelMaterialEntry();
+            entry = zero;
+        }
+
         static unsafe MyMaterialProxy_2 CreateProxy(MyVoxelMaterialTriple triple)
         {
             byte[] buffer;
             int size;
 
-            System.Diagnostics.Debug.Assert(triple.I0 < Table.Length, "Index to table incorrect");
-            System.Diagnostics.Debug.Assert(triple.I1 < Table.Length, "Index to table incorrect");
-            System.Diagnostics.Debug.Assert(triple.I2 < Table.Length, "Index to table incorrect");
+            MyRenderProxy.Assert(triple.I0 < Table.Length, "Index to table incorrect");
+            MyRenderProxy.Assert(triple.I1 < Table.Length, "Index to table incorrect");
+            MyRenderProxy.Assert(triple.I2 < Table.Length, "Index to table incorrect");
 
             //TODO: This shouldnt happen if Table is created correctly
             if (triple.I0 >= Table.Length) triple.I0 = 0;
@@ -208,18 +275,13 @@ namespace VRageRender
             if (triple.I2 >= Table.Length) triple.I2 = -1;            
             //////end of hack
 
-
             bool singleMaterial = triple.I1 == -1 && triple.I2 == -1;
 
             if(singleMaterial)
             {
                 size = sizeof(MyVoxelMaterialConstants);
                 MyVoxelMaterialConstants constantsData = new MyVoxelMaterialConstants();
-                constantsData.DistancesAndScale = Table[triple.I0].DistanceAndScale;
-                constantsData.DistancesAndScaleFar = Table[triple.I0].DistanceAndScaleFar;
-                constantsData.DistancesAndScaleFar3 = Table[triple.I0].DistanceAndScaleFar3;
-                constantsData.Far3Color = Table[triple.I0].Far3Color;
-                constantsData.ExtensionDetailScale = Table[triple.I0].ExtensionDetailScale;
+                FillVoxelMaterialEntry(ref constantsData.entry, ref Table[triple.I0]);
 
                 buffer = new byte[size];
                 fixed(byte* dstPtr = buffer)
@@ -236,21 +298,12 @@ namespace VRageRender
                 size = sizeof(MyVoxelMultiMaterialConstants);
                 MyVoxelMultiMaterialConstants constantsData = new MyVoxelMultiMaterialConstants();
 
-                constantsData.DistancesAndScale0 = Table[triple.I0].DistanceAndScale;
-                constantsData.DistancesAndScale1 = Table[triple.I1].DistanceAndScale;
-                constantsData.DistancesAndScale2 = triple.I2 >= 0 ? Table[triple.I2].DistanceAndScale : Vector4.Zero;
-                constantsData.DistancesAndScaleFar0 = Table[triple.I0].DistanceAndScaleFar;
-                constantsData.DistancesAndScaleFar1 = Table[triple.I1].DistanceAndScaleFar;
-                constantsData.DistancesAndScaleFar2 = triple.I2 >= 0 ? Table[triple.I2].DistanceAndScaleFar : Vector4.Zero;
-                constantsData.DistancesAndScaleFar31 = new Vector4(Table[triple.I0].DistanceAndScaleFar3.X, Table[triple.I0].DistanceAndScaleFar3.Y, 0, 0);
-                constantsData.DistancesAndScaleFar32 = new Vector4(Table[triple.I1].DistanceAndScaleFar3.X, Table[triple.I1].DistanceAndScaleFar3.Y, 0, 0);
-                constantsData.DistancesAndScaleFar33 = triple.I2 >= 0 ? new Vector4(Table[triple.I2].DistanceAndScaleFar3.X, Table[triple.I2].DistanceAndScaleFar3.Y, 0, 0) : Vector4.Zero;
-                constantsData.Far3Color1 = Table[triple.I0].Far3Color.ToVector4();
-                constantsData.Far3Color2 = Table[triple.I1].Far3Color.ToVector4();
-                constantsData.Far3Color3 = triple.I2 >= 0 ? Table[triple.I2].Far3Color.ToVector4() : Vector4.Zero;
-                constantsData.ExtensionDetailScale0 = Table[triple.I0].ExtensionDetailScale;
-                constantsData.ExtensionDetailScale1 = Table[triple.I1].ExtensionDetailScale;
-                constantsData.ExtensionDetailScale2 = triple.I2 >= 0 ? Table[triple.I2].ExtensionDetailScale : 0;
+                FillVoxelMaterialEntry(ref constantsData.entry0, ref Table[triple.I0]); 
+                FillVoxelMaterialEntry(ref constantsData.entry1, ref Table[triple.I1]);
+                if (triple.I2 >= 0)
+                    FillVoxelMaterialEntry(ref constantsData.entry2, ref Table[triple.I2]);
+                else
+                    ResetVoxelMaterialEntry(out constantsData.entry2);
 
                 buffer = new byte[size];
                 fixed (byte* dstPtr = buffer)
@@ -281,47 +334,12 @@ namespace VRageRender
 					BindFlag = MyBindFlag.BIND_PS, 
 					StartSlot = 0,
 					Version = version,
-					Srvs = singleMaterial
-                        ?
-                            new ShaderResourceView[] 
+					Srvs = new ISrvBindable[] 
 							{ 
-								Table[triple.I0].Near.ColorMetalArray.Srv, Table[triple.I0].Far1.ColorMetalArray.Srv, Table[triple.I0].Far2.ColorMetalArray.Srv,
-								Table[triple.I0].Near.NormalGlossArray.Srv, Table[triple.I0].Far1.NormalGlossArray.Srv, Table[triple.I0].Far2.NormalGlossArray.Srv,
-								Table[triple.I0].Near.ExtArray.Srv, Table[triple.I0].Far1.ExtArray.Srv, Table[triple.I0].Far2.ExtArray.Srv,
+                                MyGlobalResources.FileArrayTextureVoxelCM,
+                                MyGlobalResources.FileArrayTextureVoxelNG,
+                                MyGlobalResources.FileArrayTextureVoxelExt,
 							}
-						: 
-						(
-						triple.I2 == -1
-                            ?
-                            new ShaderResourceView[] 
-							{ 
-								Table[triple.I0].Near.ColorMetalArray.Srv, Table[triple.I0].Far1.ColorMetalArray.Srv, Table[triple.I0].Far2.ColorMetalArray.Srv,
-								Table[triple.I1].Near.ColorMetalArray.Srv, Table[triple.I1].Far1.ColorMetalArray.Srv, Table[triple.I1].Far2.ColorMetalArray.Srv,
-								null, null, null,
-								Table[triple.I0].Near.NormalGlossArray.Srv, Table[triple.I0].Far1.NormalGlossArray.Srv, Table[triple.I0].Far2.NormalGlossArray.Srv,
-								Table[triple.I1].Near.NormalGlossArray.Srv, Table[triple.I1].Far1.NormalGlossArray.Srv, Table[triple.I1].Far2.NormalGlossArray.Srv,
-								null, null, null,
-
-								Table[triple.I0].Near.ExtArray.Srv, Table[triple.I0].Far1.ExtArray.Srv, Table[triple.I0].Far2.ExtArray.Srv,
-								Table[triple.I1].Near.ExtArray.Srv, Table[triple.I1].Far1.ExtArray.Srv, Table[triple.I1].Far2.ExtArray.Srv,
-								null, null, null
-							}
-                            :
-                            new ShaderResourceView[] 
-							{ 
-								Table[triple.I0].Near.ColorMetalArray.Srv, Table[triple.I0].Far1.ColorMetalArray.Srv, Table[triple.I0].Far2.ColorMetalArray.Srv,
-								Table[triple.I1].Near.ColorMetalArray.Srv, Table[triple.I1].Far1.ColorMetalArray.Srv, Table[triple.I1].Far2.ColorMetalArray.Srv,
-								Table[triple.I2].Near.ColorMetalArray.Srv, Table[triple.I2].Far1.ColorMetalArray.Srv, Table[triple.I2].Far2.ColorMetalArray.Srv,
-
-								Table[triple.I0].Near.NormalGlossArray.Srv, Table[triple.I0].Far1.NormalGlossArray.Srv, Table[triple.I0].Far2.NormalGlossArray.Srv,
-								Table[triple.I1].Near.NormalGlossArray.Srv, Table[triple.I1].Far1.NormalGlossArray.Srv, Table[triple.I1].Far2.NormalGlossArray.Srv,
-								Table[triple.I2].Near.NormalGlossArray.Srv, Table[triple.I2].Far1.NormalGlossArray.Srv, Table[triple.I2].Far2.NormalGlossArray.Srv,
-
-								Table[triple.I0].Near.ExtArray.Srv, Table[triple.I0].Far1.ExtArray.Srv, Table[triple.I0].Far2.ExtArray.Srv,
-								Table[triple.I1].Near.ExtArray.Srv, Table[triple.I1].Far1.ExtArray.Srv, Table[triple.I1].Far2.ExtArray.Srv,
-								Table[triple.I2].Near.ExtArray.Srv, Table[triple.I2].Far1.ExtArray.Srv, Table[triple.I2].Far2.ExtArray.Srv,
-							}
-						)
 				};
 
             return new MyMaterialProxy_2
@@ -331,29 +349,24 @@ namespace VRageRender
                 };
         }
 
-        internal static void ReleaseResources()
-        {
-            for (int i = 0; i < Table.Length; i++)
-            {
-                MyVoxelMaterialDetailSet.ReleaseResources(ref Table[i].Near);
-                MyVoxelMaterialDetailSet.ReleaseResources(ref Table[i].Far1);
-                MyVoxelMaterialDetailSet.ReleaseResources(ref Table[i].Far2);
-                MyFileArrayTextureManager manager = MyManagers.FileArrayTextures;
-                if (Table[i].FoliageColorTextureArray != null)
-                    manager.DisposeTex(ref Table[i].FoliageColorTextureArray);
-                if (Table[i].FoliageNormalTextureArray != null)
-                    manager.DisposeTex(ref Table[i].FoliageNormalTextureArray);
-            }
-        }
+        //internal static void ReleaseResources()
+        //{
+        //    for (int i = 0; i < Table.Length; i++)
+        //    {
+        //        MyFileArrayTextureManager manager = MyManagers.FileArrayTextures;
+        //        if (Table[i].FoliageColorTextureArray != null)
+        //            manager.DisposeTex(ref Table[i].FoliageColorTextureArray);
+        //        if (Table[i].FoliageNormalTextureArray != null)
+        //            manager.DisposeTex(ref Table[i].FoliageNormalTextureArray);
+        //    }
+        //}
 
         internal static void OnResourcesRequesting()
         {
             foreach (var id in MaterialQueryResourcesTable)
             {
                 // query all textures
-                MyVoxelMaterialDetailSet.RequestResources(ref Table[id].Near);
-                MyVoxelMaterialDetailSet.RequestResources(ref Table[id].Far1);
-                MyVoxelMaterialDetailSet.RequestResources(ref Table[id].Far2);
+                MyVoxelMaterialDetailSet.RequestResources(ref Table[id].Resource);
                 //MyTextureManager.GetTexture(Table[id].FoliageArray_Texture);
                 MyFileTextureManager texManager = MyManagers.FileTextures;
                 texManager.GetTexture(Table[id].FoliageArray_Texture, MyFileTextureEnum.COLOR_METAL);
@@ -362,18 +375,6 @@ namespace VRageRender
 
         internal static void OnResourcesGather()
         {
-            foreach (var id in MaterialQueryResourcesTable)
-            {
-                MyVoxelMaterialDetailSet.ReleaseResources(ref Table[id].Near);
-                MyVoxelMaterialDetailSet.PrepareArrays(ref Table[id].Near);
-
-                MyVoxelMaterialDetailSet.ReleaseResources(ref Table[id].Far1);
-                MyVoxelMaterialDetailSet.PrepareArrays(ref Table[id].Far1);
-
-                MyVoxelMaterialDetailSet.ReleaseResources(ref Table[id].Far2);
-                MyVoxelMaterialDetailSet.PrepareArrays(ref Table[id].Far2);
-            }
-
             if (MaterialQueryResourcesTable.Count > 0)
             {
                 // because array of foliage might have changed
@@ -423,7 +424,7 @@ namespace VRageRender
             OnSessionEnd();
 
             // clear resources
-            ReleaseResources();
+            //ReleaseResources();
         }
     }
 

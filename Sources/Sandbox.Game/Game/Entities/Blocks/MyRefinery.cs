@@ -299,13 +299,17 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(Sync.IsServer);
 
             Debug.Assert(m_refineryDef != null, "m_refineryDef shouldn't be null!!!");
+            if (m_refineryDef == null)
+            {
+                MyLog.Default.WriteLine("m_refineryDef shouldn't be null!!!" + this);
+            }
 
             if(Sync.IsServer == false)
             {
                 return;
             }
 
-            if (MySession.Static == null || queueItem == null || queueItem.Prerequisites == null || OutputInventory == null || InputInventory == null || queueItem.Results == null) 
+            if (MySession.Static == null || queueItem == null || queueItem.Prerequisites == null || OutputInventory == null || InputInventory == null || queueItem.Results == null || m_refineryDef == null) 
             {
                 return;
             }

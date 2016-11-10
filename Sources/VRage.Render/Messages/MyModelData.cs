@@ -3,7 +3,7 @@ using VRageMath;
 
 namespace VRageRender.Messages
 {
-    public struct MySectionInfo
+    public struct MyRuntimeSectionInfo
     {
         public int IndexStart;
         public int TriCount;
@@ -12,7 +12,7 @@ namespace VRageRender.Messages
 
     public class MyModelData
     {
-        public List<MySectionInfo> Sections = new List<MySectionInfo>();
+        public List<MyRuntimeSectionInfo> Sections = new List<MyRuntimeSectionInfo>();
 
         public BoundingBox AABB;
 

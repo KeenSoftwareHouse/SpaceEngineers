@@ -27,7 +27,7 @@ cbuffer FirstCascadeInverseConstantBuffer : register(b12)
 
 float __pixel_shader(PostprocessVertex input) : SV_Target0
 {
-    //return Stencil[input.uv * frame_.resolution].y == 31 ? 0 : 1;
+    //return Stencil[input.uv * frame_.Screen.resolution].y == 31 ? 0 : 1;
     //return Stencil[input.position.xy].y;
     //return (Stencil[input.position.xy].y;
     float2 firstTexel = input.position.xy;
@@ -42,11 +42,11 @@ float __pixel_shader(PostprocessVertex input) : SV_Target0
 
     int secondCascadeIndex = 0;
 #ifndef MS_SAMPLE_COUNT
-    secondCascadeIndex = cascade_id_stencil(Stencil[input.uv * frame_.resolution].g);
+    secondCascadeIndex = cascade_id_stencil(Stencil[input.uv * frame_.Screen.resolution].g);
 #else
     secondCascadeIndex = cascade_id_stencil(Stencil.Load(input.position.xy, 0).g);
 #endif
-    //int secondCascadeIndex = cascade_index_by_split(linearize_depth(input.position.z, frame_.projection_matrix));
+    //int secondCascadeIndex = cascade_index_by_split(linearize_depth(input.position.z, frame_.Environment.projection_matrix));
     float3 secondTexel = WorldToShadowmap(firstWorldPosition, SecondCascadeConstants.cascade_matrix[secondCascadeIndex]);
     float secondSample = SecondTextureArray[float3(secondTexel.xy, secondCascadeIndex)];
 

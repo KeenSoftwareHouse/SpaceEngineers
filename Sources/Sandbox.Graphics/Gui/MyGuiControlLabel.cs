@@ -19,18 +19,18 @@ namespace Sandbox.Graphics.GUI
     {
         public class StyleDefinition
         {
-            public MyFontEnum Font = MyFontEnum.Blue;
+            public string Font = MyFontEnum.Blue;
             public Vector4 ColorMask = Vector4.One;
             public float TextScale = MyGuiConstants.DEFAULT_TEXT_SCALE;
         }
 
         private StyleDefinition m_styleDefinition;
 
-        private MyFontEnum m_font;
+        private string m_font;
         /// <summary>
         /// Font used for drawing. Setting null will switch to default font (ie. this never returns null).
         /// </summary>
-        public MyFontEnum Font
+        public string Font
         {
             get { return m_font; }
             set { m_font = value; }
@@ -109,7 +109,7 @@ namespace Sandbox.Graphics.GUI
             String text = null,
             Vector4? colorMask = null,
             float textScale = MyGuiConstants.DEFAULT_TEXT_SCALE,
-            MyFontEnum font = MyFontEnum.Blue,
+            string font = MyFontEnum.Blue,
             MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER)
             : base(position: position,
                    size: size,
@@ -186,6 +186,11 @@ namespace Sandbox.Graphics.GUI
 
             // String builder has priority when drawing.
             float maxWidth = AutoEllipsis ? Size.X : float.PositiveInfinity;
+            if (TextForDraw == null)
+            {
+                MyLog.Default.WriteLine("text shouldn't be null! MyGuiContolLabel:" + this);
+                return;
+            }
             MyGuiManager.DrawString(Font, TextForDraw, GetPositionAbsolute(), TextScaleWithLanguage, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), OriginAlign, maxTextWidth: maxWidth);
         }
 

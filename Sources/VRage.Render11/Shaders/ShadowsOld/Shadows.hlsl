@@ -55,7 +55,7 @@ RWTexture2D<float> Output : register(u0);
 
 float GetShadowmapValue(int2 Texel, uint2 rotationOffset)
 {
-	float2 screenUV = (Texel + 0.5f - frame_.offset_in_gbuffer) / frame_.resolution;
+	float2 screenUV = (Texel + 0.5f - frame_.Screen.offset_in_gbuffer) / frame_.Screen.resolution;
 		float3 worldPosition = ReconstructWorldPosition(DepthBuffer[Texel], screenUV);
 
 #ifndef MS_SAMPLE_COUNT
@@ -107,6 +107,6 @@ void __compute_shader(
 	uint3 GroupID : SV_GroupID,
 	uint ThreadIndex : SV_GroupIndex)
 {
-	float2 texel = frame_.offset_in_gbuffer + dispatchThreadID.xy;
+	float2 texel = frame_.Screen.offset_in_gbuffer + dispatchThreadID.xy;
 	Output[texel] = GetShadowmapValue(texel, dispatchThreadID.xy % 4);
 }

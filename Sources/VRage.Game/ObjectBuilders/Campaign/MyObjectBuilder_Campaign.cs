@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 
@@ -36,6 +37,9 @@ namespace VRage.Game.ObjectBuilders.Campaign
 
         [XmlIgnore]
         public string ModFolderPath;
+
+        [XmlIgnore]
+        public ulong PublishedFileId = 0;
 
         #endregion
 

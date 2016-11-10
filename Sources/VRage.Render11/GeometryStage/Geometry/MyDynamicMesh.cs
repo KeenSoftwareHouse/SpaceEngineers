@@ -69,7 +69,7 @@ namespace VRageRender
         }
 
         internal static void GenerateVertexData(ref Vector3D worldPointA, ref Vector3D worldPointB,
-            out MyVertexFormatPositionH4[] stream0, out MyVertexFormatTexcoordNormalTangent[] stream1)
+            out MyVertexFormatPositionH4[] stream0, out MyVertexFormatTexcoordNormalTangentTexindices[] stream1)
         {
             var worldPosition = (worldPointA + worldPointB) * 0.5f;
             var pointA = (Vector3)(worldPointA - worldPosition);
@@ -87,8 +87,9 @@ namespace VRageRender
             var offsetY = binormal * 0.025f;
 
             List<MyVertexFormatPositionH4> vertexPositionList = new List<MyVertexFormatPositionH4>();
-            List<MyVertexFormatTexcoordNormalTangent> vertexList = new List<MyVertexFormatTexcoordNormalTangent>();
+            List<MyVertexFormatTexcoordNormalTangentTexindices> vertexList = new List<MyVertexFormatTexcoordNormalTangentTexindices>();
 
+            Byte4 defaultArrayTexIndex = new Byte4(0,0,0,0);
             unsafe
             {
                 Vector3* points = stackalloc Vector3[2];
@@ -101,16 +102,16 @@ namespace VRageRender
                     float texCoordX = (i - 0.5f) * length;
 
                     vertexPositionList.Add(new MyVertexFormatPositionH4(points[i] + offsetX));
-                    vertexList.Add(new MyVertexFormatTexcoordNormalTangent(new Vector2(texCoordX, 0.0f), normal, Vector3.Cross(lineTangent, normal)));
+                    vertexList.Add(new MyVertexFormatTexcoordNormalTangentTexindices(new Vector2(texCoordX, 0.0f), normal, Vector3.Cross(lineTangent, normal), defaultArrayTexIndex));
 
                     vertexPositionList.Add(new MyVertexFormatPositionH4(points[i] + offsetY));
-                    vertexList.Add(new MyVertexFormatTexcoordNormalTangent(new Vector2(texCoordX, 0.33333f), binormal, Vector3.Cross(lineTangent, binormal)));
+                    vertexList.Add(new MyVertexFormatTexcoordNormalTangentTexindices(new Vector2(texCoordX, 0.33333f), binormal, Vector3.Cross(lineTangent, binormal), defaultArrayTexIndex));
 
                     vertexPositionList.Add(new MyVertexFormatPositionH4(points[i] - offsetX));
-                    vertexList.Add(new MyVertexFormatTexcoordNormalTangent(new Vector2(texCoordX, 0.66667f), -normal, Vector3.Cross(lineTangent, -normal)));
+                    vertexList.Add(new MyVertexFormatTexcoordNormalTangentTexindices(new Vector2(texCoordX, 0.66667f), -normal, Vector3.Cross(lineTangent, -normal), defaultArrayTexIndex));
 
                     vertexPositionList.Add(new MyVertexFormatPositionH4(points[i] - offsetY));
-                    vertexList.Add(new MyVertexFormatTexcoordNormalTangent(new Vector2(texCoordX, 1.0f), -binormal, Vector3.Cross(lineTangent, -binormal)));
+                    vertexList.Add(new MyVertexFormatTexcoordNormalTangentTexindices(new Vector2(texCoordX, 1.0f), -binormal, Vector3.Cross(lineTangent, -binormal), defaultArrayTexIndex));
                 }
             }
 

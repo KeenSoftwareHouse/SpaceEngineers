@@ -17,6 +17,9 @@ namespace Sandbox.Game.Gui
         {
             base.RecreateControls(constructor);
 
+            m_scale = 0.7f;
+            m_sliderDebugScale = 0.7f;
+
             AddCaption("Postprocess HBAO", Color.Yellow.ToVector4());
             AddShareFocusHint();
 
@@ -46,6 +49,8 @@ namespace Sandbox.Game.Gui
             m_currentPosition.Y += 0.01f;
             AddCheckBox("BackgroundAOEnable", MySector.HBAOSettings.BackgroundAOEnable,
                 (state) => MySector.HBAOSettings.BackgroundAOEnable = state.IsChecked);
+            AddCheckBox("AdaptToFOV", MySector.HBAOSettings.AdaptToFOV,
+                (state) => MySector.HBAOSettings.AdaptToFOV = state.IsChecked);
             AddSlider("BackgroundViewDepth", MySector.HBAOSettings.BackgroundViewDepth, 0, 1000,
                 (state) => MySector.HBAOSettings.BackgroundViewDepth = state.Value);
 

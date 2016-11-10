@@ -16,14 +16,14 @@ namespace VRage.Render11.PostprocessStage
     class MySaveExportedTextures : MyScreenPass
     {
         static PixelShaderId m_ps;
-        static ConstantsBufferId m_cb;
+        static IConstantBuffer m_cb;
 
         static bool m_initialized;
 
         private unsafe static void Init()
         {
             m_ps = MyShaders.CreatePs("Postprocess/PostprocessColorizeExportedEexture.hlsl");
-            m_cb = MyHwBuffers.CreateConstantsBuffer(sizeof(Vector4), "ExportedTexturesColor");
+            m_cb = MyManagers.Buffers.CreateConstantBuffer("ExportedTexturesColor", sizeof(Vector4), usage: ResourceUsage.Dynamic);
             m_initialized = true;
         }
 
@@ -44,14 +44,12 @@ namespace VRage.Render11.PostprocessStage
             RC.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             RC.AllShaderStages.SetConstantBuffer(1, m_cb);
 
-            Dictionary<Vector2I, IRtvTexture> createdRenderTextureTargets = new Dictionary<Vector2I, IRtvTexture>();
-
-            MyRwTextureManager rwTexManager = MyManagers.RwTextures;
+            MyBorrowedRwTextureManager rwTexManager = MyManagers.RwTexturesPool;
             MyFileTextureManager fileTexManager = MyManagers.FileTextures;
             foreach (var texture in texturesToRender)
             {
                 ISrvBindable tex = fileTexManager.GetTexture(texture.TextureName, MyFileTextureEnum.COLOR_METAL, true);
-                if (tex == null) 
+                if (tex == null)
                     continue;
 
                 Vector2 texSize = tex.Size;
@@ -71,13 +69,8 @@ namespace VRage.Render11.PostprocessStage
 
                 MyViewport viewport = new MyViewport(renderTargetResolution.X, renderTargetResolution.Y);
 
-                IRtvTexture renderTexture = null;
-                if (!createdRenderTextureTargets.TryGetValue(renderTargetResolution, out renderTexture))
-                {
-                    renderTexture = rwTexManager.CreateRtv("MySaveExportedTextures.RenderColoredTextures", 
+                IBorrowedRtvTexture renderTexture = rwTexManager.BorrowRtv("MySaveExportedTextures.RenderColoredTextures",
                         renderTargetResolution.X, renderTargetResolution.Y, SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb, 1, 0);
-                    createdRenderTextureTargets[renderTargetResolution] = renderTexture;
-                }
 
                 RC.SetRtv(renderTexture);
 
@@ -94,17 +87,12 @@ namespace VRage.Render11.PostprocessStage
                 MyScreenPass.DrawFullscreenQuad(viewport);
 
                 // Save to file
-                MyTextureData.ToFile(renderTexture.Resource, texture.PathToSave, ImageFileFormat.Png);
+                MyTextureData.ToFile(renderTexture, texture.PathToSave, ImageFileFormat.Png);
+                
+                renderTexture.Release();
             }
 
             texturesToRender.Clear();
-
-            foreach (var tex in createdRenderTextureTargets)
-            {
-                IRtvTexture _tex = tex.Value;
-                rwTexManager.DisposeTex(ref _tex);
-            }
-            createdRenderTextureTargets.Clear();
 
             RC.SetRtv(null);
             RC.PixelShader.SetSrvs(0, MyGBuffer.Main);

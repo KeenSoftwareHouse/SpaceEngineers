@@ -148,9 +148,9 @@ namespace VRageRender
                 {
                     adapterTestDevice = new Device(adapter, DeviceCreationFlags.None, featureLevels);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
+                    MyRender11.Log.WriteLine(string.Format("Adapter initialisation failed: {0}", ex));
                 }
 
                 bool supportedDevice = adapterTestDevice != null;
@@ -158,9 +158,12 @@ namespace VRageRender
                 bool supportsConcurrentResources = false;
                 bool supportsCommandLists = false;
                 if (supportedDevice)
-            
                 {
-                    adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
+                    Result res = adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
+                    if (res != Result.Ok)
+                    {
+                        MyRender11.Log.WriteLine(string.Format("Adapter does not support threading: {0}", res));
+                    }
                 }
 
                 // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
@@ -184,6 +187,12 @@ namespace VRageRender
                     adapter.Description.SubsystemId,
                     adapter.Description.VendorId
                     );
+
+                if (adapter != null)
+                {
+                    MyRender11.Log.WriteLine(string.Format("Shared system memory: {0}", svram));
+                    MyRender11.Log.WriteLine(string.Format("Dedicated video memory: {0}", adapter.Description.DedicatedVideoMemory));
+                }
 
                 var info = new MyAdapterInfo
                 {
@@ -303,7 +312,7 @@ namespace VRageRender
                         };
 
                         info.OutputName = "FallbackOutput";
-            
+
                         info.Name = String.Format("{0}", adapter.Description.Description);
                         info.OutputId = 0;
                         info.CurrentDisplayMode = fallbackDisplayModes[fallbackDisplayModes.Length - 1];
@@ -348,5 +357,5 @@ namespace VRageRender
 
             return m_adapterInfoList;
         }
-	}
+    }
 }

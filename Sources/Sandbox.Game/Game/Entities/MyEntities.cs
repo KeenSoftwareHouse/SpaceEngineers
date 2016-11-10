@@ -751,6 +751,20 @@ namespace Sandbox.Game.Entities
                 m_sceneComponents[i].Unload();
             }
             m_sceneComponents.Clear();
+
+            OnEntityRemove = null;
+            OnEntityAdd = null;
+            OnEntityCreate = null;
+            OnEntityDelete = null;
+
+            m_entities = new HashSet<MyEntity>();
+            m_entitiesForUpdateOnce = new CachingList<MyEntity>();
+            m_entitiesForUpdate = new CachingList<MyEntity>();
+            m_entitiesForUpdate10 = new CachingList<MyEntity>();
+            m_entitiesForUpdate100 = new CachingList<MyEntity>();
+            m_entitiesForDraw = new CachingList<IMyEntity>();
+            m_remapHelper = new MyEntityIdRemapHelper();
+            m_renderObjectToEntityMap = new Dictionary<uint, IMyEntity>();
         }
 
         //  IMPORTANT: Only adds object to the list. Caller must call Start() or Init() on the object.

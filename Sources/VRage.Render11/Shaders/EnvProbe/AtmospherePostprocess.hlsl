@@ -45,7 +45,7 @@ void __pixel_shader(PostprocessVertex vertex, out float4 output : SV_Target0)
 
 	float3 V = mul(screen_ray, transpose((float3x3)viewMatrix));
 
-	output = ComputeAtmosphere(V, V * (RadiusAtmosphere - RadiusGround), depth, 0, 1) * frame_.envAtmosphereBrightness;
+	output = ComputeAtmosphere(V, V * (RadiusAtmosphere - RadiusGround), depth, 0, 1) * frame_.Light.envAtmosphereBrightness;
 	//float max_component = max(max(max(output.r, output.g), output.b), 1.0f);
 	//output /= max_component;
 }

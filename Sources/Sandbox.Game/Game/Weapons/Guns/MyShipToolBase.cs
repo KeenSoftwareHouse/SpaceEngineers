@@ -364,8 +364,8 @@ namespace Sandbox.Game.Weapons
                         damageType = MyDamageType.Grind;
                     else if (this is IMyShipWelder)
                         damageType = MyDamageType.Weld;
-
-                    character.DoDamage(20, damageType, true, attackerId: EntityId);
+                    if (globalSphere.Intersects(character.PositionComp.WorldAABB))
+                        character.DoDamage(20, damageType, true, attackerId: EntityId);
                 }
             }
 

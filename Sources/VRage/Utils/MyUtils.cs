@@ -318,8 +318,8 @@ namespace VRage.Utils
         /// </summary>
         public static void GenerateQuad(out MyQuadD quad, ref Vector3D position, float width, float height, ref MatrixD matrix)
         {
-            Vector3 billboardAxisX = matrix.Left * width;
-            Vector3 billboardAxisY = matrix.Up * height;
+            Vector3D billboardAxisX = matrix.Left * width;
+            Vector3D billboardAxisY = matrix.Up * height;
 
             //	Coordinates of four points of a billboard's quad
             quad.Point0 = position + billboardAxisX + billboardAxisY;

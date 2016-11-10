@@ -25,7 +25,7 @@
         <SubtypeId>LargeCaliber</SubtypeId>
       </Id>
       <BasicProperties>
-        <DesiredSpeed>300</DesiredSpeed>
+        <DesiredSpeed>400</DesiredSpeed>
         <SpeedVariance>0</SpeedVariance>
         <MaxTrajectory>800</MaxTrajectory>
         <BackkickForce>50</BackkickForce>
@@ -43,7 +43,7 @@
         <SubtypeId>Missile</SubtypeId>
       </Id>
       <BasicProperties>
-        <DesiredSpeed>700</DesiredSpeed>
+        <DesiredSpeed>200</DesiredSpeed>
         <SpeedVariance>0</SpeedVariance>
         <MaxTrajectory>800</MaxTrajectory>
         <IsExplosive>true</IsExplosive>

@@ -170,8 +170,6 @@ namespace VRage.Game
         List<MyAnimatedParticle> m_particles = new List<MyAnimatedParticle>(64);
         private Vector3D? m_lastEffectPosition;
 
-        FastResourceLock ParticlesLock = new FastResourceLock(); 
-
         BoundingBoxD m_AABB = new BoundingBoxD();
 
         IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyGenerationPropertiesEnum)).Length];
@@ -754,83 +752,80 @@ namespace VRage.Game
             Vector3D previousTrail0 = previousParticlePosition;
             Vector3D previousTrail1 = previousParticlePosition;
 
-            using (ParticlesLock.AcquireExclusiveUsing())
+            while (counter < m_particles.Count)
             {
-                while (counter < m_particles.Count)
+                float motionInheritance;
+                MotionInheritance.GetInterpolatedValue(m_effect.GetElapsedTime(), out motionInheritance);
+
+                MyAnimatedParticle particle = m_particles[counter];
+
+                if (particle.Update())
                 {
-                    float motionInheritance;
-                    MotionInheritance.GetInterpolatedValue(m_effect.GetElapsedTime(), out motionInheritance);
-
-                    MyAnimatedParticle particle = m_particles[counter];
-
-                    if (particle.Update())
+                    if (motionInheritance > 0)
                     {
-                        if (motionInheritance > 0)
-                        {
-                            var delta = m_effect.GetDeltaMatrix();
-                            particle.AddMotionInheritance(ref motionInheritance, ref delta);
-                        }
+                        var delta = m_effect.GetDeltaMatrix();
+                        particle.AddMotionInheritance(ref motionInheritance, ref delta);
+                    }
 
-                        if (counter == 0)
+                    if (counter == 0)
+                    {
+                        previousParticlePosition = particle.ActualPosition;
+                        previousTrail0 = particle.Quad.Point1;
+                        previousTrail1 = particle.Quad.Point2;
+                        particle.Quad.Point0 = particle.ActualPosition;
+                        particle.Quad.Point2 = particle.ActualPosition;
+                    }
+
+                    counter++;
+
+
+                    if (particle.Type == MyParticleTypeEnum.Trail)
+                    {
+                        if (particle.ActualPosition == previousParticlePosition)
                         {
-                            previousParticlePosition = particle.ActualPosition;
+                            particle.Quad.Point0 = particle.ActualPosition;
+                            particle.Quad.Point1 = particle.ActualPosition;
+                            particle.Quad.Point2 = particle.ActualPosition;
+                            particle.Quad.Point3 = particle.ActualPosition;
+                        }
+                        else
+                        {
+                            MyPolyLineD polyLine = new MyPolyLineD();
+                            float thickness;
+                            particle.Radius.GetInterpolatedValue(particle.NormalizedTime, out thickness);
+                            polyLine.Thickness = thickness;
+                            polyLine.Point0 = particle.ActualPosition;
+                            polyLine.Point1 = previousParticlePosition;
+
+                            Vector3D direction = polyLine.Point1 - polyLine.Point0;
+                            Vector3D normalizedDirection = MyUtils.Normalize(polyLine.Point1 - polyLine.Point0);
+
+                            polyLine.LineDirectionNormalized = normalizedDirection;
+                            var camPos = MyTransparentGeometry.Camera.Translation;
+                            MyUtils.GetPolyLineQuad(out particle.Quad, ref polyLine, camPos);
+
+                            particle.Quad.Point0 = previousTrail0;// +0.15 * direction;
+                            particle.Quad.Point3 = previousTrail1;// +0.15 * direction;
                             previousTrail0 = particle.Quad.Point1;
                             previousTrail1 = particle.Quad.Point2;
-                            particle.Quad.Point0 = particle.ActualPosition;
-                            particle.Quad.Point2 = particle.ActualPosition;
                         }
-
-                        counter++;
-
-
-                        if (particle.Type == MyParticleTypeEnum.Trail)
-                        {
-                            if (particle.ActualPosition == previousParticlePosition)
-                            {
-                                particle.Quad.Point0 = particle.ActualPosition;
-                                particle.Quad.Point1 = particle.ActualPosition;
-                                particle.Quad.Point2 = particle.ActualPosition;
-                                particle.Quad.Point3 = particle.ActualPosition;
-                            }
-                            else
-                            {
-                                MyPolyLineD polyLine = new MyPolyLineD();
-                                float thickness;
-                                particle.Radius.GetInterpolatedValue(particle.NormalizedTime, out thickness);
-                                polyLine.Thickness = thickness;
-                                polyLine.Point0 = particle.ActualPosition;
-                                polyLine.Point1 = previousParticlePosition;
-
-                                Vector3D direction = polyLine.Point1 - polyLine.Point0;
-                                Vector3D normalizedDirection = MyUtils.Normalize(polyLine.Point1 - polyLine.Point0);
-
-                                polyLine.LineDirectionNormalized = normalizedDirection;
-                                var camPos = MyTransparentGeometry.Camera.Translation;
-                                MyUtils.GetPolyLineQuad(out particle.Quad, ref polyLine, camPos);
-
-                                particle.Quad.Point0 = previousTrail0;// +0.15 * direction;
-                                particle.Quad.Point3 = previousTrail1;// +0.15 * direction;
-                                previousTrail0 = particle.Quad.Point1;
-                                previousTrail1 = particle.Quad.Point2;
-                            }
-                        }
-
-                        previousParticlePosition = particle.ActualPosition;
-
-                        m_AABB = m_AABB.Include(ref previousParticlePosition);
-                        continue;
                     }
 
-                    if (inheritedGeneration != null)
-                    {
-                        inheritedGeneration.m_particlesToCreate = particlesToCreate;
-                        inheritedGeneration.EffectMatrix = MatrixD.CreateWorld(particle.ActualPosition, Vector3D.Normalize(particle.Velocity), Vector3D.Cross(Vector3D.Left, particle.Velocity));
-                        inheritedGeneration.UpdateParticlesCreation();
-                    }
+                    previousParticlePosition = particle.ActualPosition;
 
-                    m_particles.Remove(particle);
-                    MyTransparentGeometry.DeallocateAnimatedParticle(particle);
+                    m_AABB = m_AABB.Include(ref previousParticlePosition);
+                    continue;
                 }
+
+                if (inheritedGeneration != null)
+                {
+                    inheritedGeneration.m_particlesToCreate = particlesToCreate;
+                    inheritedGeneration.EffectMatrix = MatrixD.CreateWorld(particle.ActualPosition, Vector3D.Normalize(particle.Velocity), Vector3D.Cross(Vector3D.Left, particle.Velocity));
+                    inheritedGeneration.UpdateParticlesCreation();
+                }
+
+                m_particles.Remove(particle);
+                MyTransparentGeometry.DeallocateAnimatedParticle(particle);
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -901,29 +896,25 @@ namespace VRage.Game
             //VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("CreateParticle");
 
 
-            using (ParticlesLock.AcquireExclusiveUsing())
+            int maxParticles = 40;
+            while (m_particlesToCreate >= 1.0f && maxParticles-- > 0)
             {
-                int maxParticles = 40;
-                while (m_particlesToCreate >= 1.0f && maxParticles-- > 0)
-                {
-                    if (m_effect.CalculateDeltaMatrix)
-                        CreateParticle(EffectMatrix.Translation);
-                    else
-                        CreateParticle(m_lastEffectPosition.Value + positionDelta * (int)m_particlesToCreate);
+                if (m_effect.CalculateDeltaMatrix)
+                    CreateParticle(EffectMatrix.Translation);
+                else
+                    CreateParticle(m_lastEffectPosition.Value + positionDelta * (int)m_particlesToCreate);
 
-                    m_particlesToCreate -= 1.0f;
-                }
+                m_particlesToCreate -= 1.0f;
+            }
 
-                while (m_birthPerFrame >= 1.0f && maxParticles-- > 0)
-                {
-                    if (m_effect.CalculateDeltaMatrix)
-                        CreateParticle(EffectMatrix.Translation);
-                    else
-                        CreateParticle(m_lastEffectPosition.Value + positionDelta * (int)m_birthPerFrame);
+            while (m_birthPerFrame >= 1.0f && maxParticles-- > 0)
+            {
+                if (m_effect.CalculateDeltaMatrix)
+                    CreateParticle(EffectMatrix.Translation);
+                else
+                    CreateParticle(m_lastEffectPosition.Value + positionDelta * (int)m_birthPerFrame);
 
-                    m_birthPerFrame -= 1.0f;
-                }
-                
+                m_birthPerFrame -= 1.0f;
             }
 
          //   VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("OnLife");
@@ -942,14 +933,11 @@ namespace VRage.Game
 
                     float particlesToCreate = inheritedGeneration.m_particlesToCreate;
 
-                    using (ParticlesLock.AcquireSharedUsing())
+                    foreach (MyAnimatedParticle particle in m_particles)
                     {
-                        foreach (MyAnimatedParticle particle in m_particles)
-                        {
-                            inheritedGeneration.m_particlesToCreate = particlesToCreate;
-                            inheritedGeneration.EffectMatrix = MatrixD.CreateWorld(particle.ActualPosition, (Vector3D)particle.Velocity, Vector3D.Cross(Vector3D.Left, particle.Velocity));
-                            inheritedGeneration.UpdateParticlesCreation();
-                        }
+                        inheritedGeneration.m_particlesToCreate = particlesToCreate;
+                        inheritedGeneration.EffectMatrix = MatrixD.CreateWorld(particle.ActualPosition, (Vector3D)particle.Velocity, Vector3D.Cross(Vector3D.Left, particle.Velocity));
+                        inheritedGeneration.UpdateParticlesCreation();
                     }
                 }
             }
@@ -982,9 +970,14 @@ namespace VRage.Game
         }
 
 
-        public bool IsDirty { get { return true; } }
+        bool IsDirty { get { return true; } }
 
         public void SetDirty() { }
+        public void SetPositionDirty() { }
+
+        public void SetAnimDirty()
+        {
+        }
 
         #endregion
 
@@ -992,16 +985,14 @@ namespace VRage.Game
 
         public void Clear()
         {
-            using (ParticlesLock.AcquireExclusiveUsing())
+            int counter = 0;
+            while (counter < m_particles.Count)
             {
-                int counter = 0;
-                while (counter < m_particles.Count)
-                {
-                    MyAnimatedParticle particle = m_particles[counter];
-                    m_particles.Remove(particle);
-                    MyTransparentGeometry.DeallocateAnimatedParticle(particle);
-                }
+                MyAnimatedParticle particle = m_particles[counter];
+                m_particles.Remove(particle);
+                MyTransparentGeometry.DeallocateAnimatedParticle(particle);
             }
+            
 
             m_particlesToCreate = 0;
             m_lastEffectPosition = m_effect.WorldMatrix.Translation;
@@ -1700,39 +1691,38 @@ namespace VRage.Game
                 }
             }
 
-            using (ParticlesLock.AcquireSharedUsing())
+            foreach (MyAnimatedParticle particle in m_particles)
             {
-                foreach (MyAnimatedParticle particle in m_particles)
+                MyTransparentGeometry.StartParticleProfilingBlock("m_preallocatedBillboards.Allocate()");
+
+                VRageRender.MyBillboard billboard = MyTransparentGeometry.AddBillboardParticle(particle, effectBillboard, !UseLayerSorting);
+                if (billboard != null)
                 {
-                    MyTransparentGeometry.StartParticleProfilingBlock("m_preallocatedBillboards.Allocate()");
+                    billboard.Position0.AssertIsValid();
+                    billboard.Position1.AssertIsValid();
+                    billboard.Position2.AssertIsValid();
+                    billboard.Position3.AssertIsValid();
 
-                    VRageRender.MyBillboard billboard = MyTransparentGeometry.AddBillboardParticle(particle, effectBillboard, !UseLayerSorting);
-                    if (billboard != null)
+                    if (!UseLayerSorting)
                     {
-                        billboard.Position0.AssertIsValid();
-                        billboard.Position1.AssertIsValid();
-                        billboard.Position2.AssertIsValid();
-                        billboard.Position3.AssertIsValid();
-
-                        if (!UseLayerSorting)
-                        {
-                            m_billboards.Add(billboard);
-                        }
+                        m_billboards.Add(billboard);
                     }
-                    MyTransparentGeometry.EndParticleProfilingBlock();
-                    if (billboard == null)
-                        continue;
                 }
+                MyTransparentGeometry.EndParticleProfilingBlock();
+                if (billboard == null)
+                    continue;
             }
         }
 
         public void Draw(List<VRageRender.MyBillboard> collectedBillboards)
         {
+            VRage.Profiler.ProfilerShort.Begin("CPU_Draw");
             foreach (VRageRender.MyBillboard billboard in m_billboards)
             {
                 collectedBillboards.Add(billboard);
             }
             m_billboards.Clear();
+            VRage.Profiler.ProfilerShort.End();
         }
 
         //  For sorting generations if needed
@@ -1749,6 +1739,8 @@ namespace VRage.Game
             return 0;
         }
 
+        public bool NeedSorting() { return UseLayerSorting; }
+
         #endregion
 
         #region DebugDraw
@@ -1759,8 +1751,6 @@ namespace VRage.Game
         }
 
         #endregion
-
-
 
     }
 }

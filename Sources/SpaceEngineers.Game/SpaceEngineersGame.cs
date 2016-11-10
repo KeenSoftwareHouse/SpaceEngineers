@@ -29,7 +29,7 @@ namespace SpaceEngineers.Game
 {
     public partial class SpaceEngineersGame : MySandboxGame
     {
-        const int SE_VERSION = 01158005;
+        const int SE_VERSION = 01161003;
 
         #region Constructor
 
@@ -140,14 +140,13 @@ namespace SpaceEngineers.Game
                 @"Videos\Background10_720p.wmv",
                 @"Videos\Background11_720p.wmv",
                 @"Videos\Background12_720p.wmv",
-           };
+            };
 
 			SetupRender();
             FillCredits();
 
             MyPerGameSettings.VoiceChatEnabled = false;
             MyPerGameSettings.VoiceChatLogic = typeof(MyVoiceChatLogic);
-            MyRenderProxy.Settings.PerInstanceLods = false;
 
 			MyPerGameSettings.ClientStateType = typeof(MySpaceClientState);
             //MyFakes.ENABLE_HAVOK_MULTITHREADING = true;
@@ -165,7 +164,9 @@ namespace SpaceEngineers.Game
 		public static void SetupRender()
 		{
 		    MyRenderProxy.Settings.GrassMaxDrawDistance = 400;
-            MyRenderProxy.Settings.DrawMergeInstanced = false;
+            MyRenderProxy.Settings.DrawMergeInstanced = false; 
+            MyRenderProxy.Settings.PerInstanceLods = false;
+            MyRenderProxy.Settings.UseGeometryArrayTextures = true;
 		}
 
         static void FillCredits()

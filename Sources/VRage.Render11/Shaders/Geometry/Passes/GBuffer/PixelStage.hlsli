@@ -36,7 +36,12 @@ void __pixel_shader(PixelStageInput input, out GbufferOutput output, uint covera
     ApplyMultipliers(material_output);
 
 #ifdef STATIC_DECAL
-    float decalAlpha = AlphamaskTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+#ifdef USE_TEXTURE_INDICES
+	float4 texIndices = pixel.custom.texIndices;
+	float decalAlpha = AlphamaskTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.w));
+#else
+	float decalAlpha = AlphamaskTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+#endif
     float ao = material_output.ao;
     float normalAlpha = 0;
 #ifdef USE_NORMALGLOSS_TEXTURE
@@ -48,8 +53,8 @@ void __pixel_shader(PixelStageInput input, out GbufferOutput output, uint covera
     GbufferWriteBlend(output, material_output.base_color, material_output.metalness, material_output.normal, material_output.gloss, ao, material_output.emissive, decalAlpha, normalAlpha, 1);
 #elif defined(CUSTOM_DEPTH)
 	float depth = material_output.depth > 0 ? material_output.depth : input.position.z;
-    GbufferWrite(output, material_output.base_color, material_output.metalness, material_output.gloss, material_output.normal, material_output.ao, material_output.emissive, material_output.coverage, depth);
+    GbufferWrite(output, material_output.base_color, material_output.metalness, material_output.gloss, material_output.normal, material_output.ao, material_output.emissive, material_output.coverage, pixel.LOD, depth);
 #else
-    GbufferWrite(output, material_output.base_color, material_output.metalness, material_output.gloss, material_output.normal, material_output.ao, material_output.emissive, material_output.coverage);
+    GbufferWrite(output, material_output.base_color, material_output.metalness, material_output.gloss, material_output.normal, material_output.ao, material_output.emissive, material_output.coverage, pixel.LOD);
 #endif
 }

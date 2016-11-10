@@ -27,6 +27,9 @@ using VRage.Game.ModAPI;
 using VRage.Library.Utils;
 using Sandbox.Game.Audio;
 using Sandbox.ModAPI.Weapons;
+using Sandbox.Game.WorldEnvironment.Modules;
+using Sandbox.Game.WorldEnvironment;
+using Sandbox.Game.World;
 
 #endregion
 
@@ -49,6 +52,10 @@ namespace Sandbox.Game.Weapons
 
         int m_lastUpdateTime;
         float m_rotationSpeed;
+
+        //GK: Added in order to check for breakable environment items (e.g. trees) from hand tools (Driller,Grinder)
+        private int m_lastContactTime;
+        private int m_lastItemId;
 
         static MyDefinitionId m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "AngleGrinderItem");
         private float m_grinderCameraMaxShakeIntensity = 1.5f;
@@ -260,6 +267,24 @@ namespace Sandbox.Game.Weapons
 
                 if (Owner != null && Owner.ControllerInfo.IsLocallyControlled() && (Owner.IsInFirstPersonView || Owner.ForceFirstPersonCamera))
                     PerformCameraShake();
+            }
+
+            var sector = m_raycastComponent.HitEnvironmentSector;
+            if (sector != null)
+            {
+                var itemId = m_raycastComponent.EnvironmentItem;
+                if (itemId != m_lastItemId)
+                {
+                    m_lastItemId = itemId;
+                    m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                }
+                if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime > 1500 / m_speedMultiplier)
+                {
+                    var sectorProxy = sector.GetModule<MyBreakableEnvironmentProxy>();
+                    sectorProxy.BreakAt(itemId, m_raycastComponent.HitPosition, Vector3D.Zero, 0);
+                    m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                    m_lastItemId = 0;
+                }
             }
 
             if (block != null || targetDestroyable != null)

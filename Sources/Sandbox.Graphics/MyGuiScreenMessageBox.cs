@@ -31,8 +31,8 @@ namespace Sandbox.Graphics.GUI
         public class Style 
         {
             public MyGuiPaddedTexture BackgroundTexture;
-            public MyFontEnum CaptionFont;
-            public MyFontEnum TextFont;
+            public string CaptionFont;
+            public string TextFont;
             public MyGuiControlButtonStyleEnum ButtonStyle;
         }
 

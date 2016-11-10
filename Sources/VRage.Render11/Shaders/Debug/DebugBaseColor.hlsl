@@ -2,7 +2,7 @@
 
 void __vertex_shader(ScreenVertex vertex, out float4 position : SV_Position, out float2 texcoord : TEXCOORD0) 
 {
-	float2 xy = vertex.position / frame_.resolution;
+	float2 xy = vertex.position / frame_.Screen.resolution;
 	xy = xy * 2 - 1;
 	xy.y = -xy.y;
 

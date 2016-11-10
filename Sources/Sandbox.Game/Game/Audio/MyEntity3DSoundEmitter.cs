@@ -206,6 +206,7 @@ namespace Sandbox.Game.Entities
         private MyStringHash m_activeEffect = MyStringHash.NullOrEmpty;
         private static Dictionary<MyCueId, int> m_lastTimePlaying = new Dictionary<MyCueId,int>();
         private static List<MyEntity3DSoundEmitter> m_entityEmitters = new List<MyEntity3DSoundEmitter>();
+        private static bool m_enableUpdate = true;
 
         #endregion
 
@@ -973,15 +974,20 @@ namespace Sandbox.Game.Entities
                 }
                 else if (removeUnused)
                 {
-                    m_entityEmitters.RemoveAt(i);
-                    i--;
+                    if (m_enableUpdate)
+                    {
+                        m_entityEmitters.RemoveAt(i);
+                        i--;
+                    }
                 }
             }
         }
 
         public static void ClearEntityEmitters()
         {
+            m_enableUpdate = false;
             m_entityEmitters.Clear();
+            m_enableUpdate = true;
         }
 
         #endregion

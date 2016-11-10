@@ -64,7 +64,15 @@ namespace Sandbox.Game.Entities.Cube
 
         public override UseActionEnum SupportedActions
         {
-            get { return UseActionEnum.Manipulate | UseActionEnum.OpenTerminal; }
+            get 
+            {
+                UseActionEnum actions = UseActionEnum.None;
+
+                if (!m_textPanel.IsAccessibleForOnlyOwner)
+                    actions |= UseActionEnum.Manipulate | UseActionEnum.OpenTerminal;
+
+                return actions; 
+            }
         }
 
         public override bool ContinuousUsage

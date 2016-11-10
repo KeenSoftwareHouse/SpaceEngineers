@@ -10,7 +10,15 @@ namespace Sandbox
     {
         public void OnError(string header, string message, string callstack)
         {
-            System.Diagnostics.Debug.Assert(false, header + ": " + message + "\n\nStack:\n" + callstack);
+            string error = header + ": " + message + "\n\nStack:\n" + callstack;
+
+#if DEBUG
+            System.Diagnostics.Debug.Fail(error);
+#else // !DEBUG
+#if !XB1
+            VRage.Utils.MyMessageBox.Show(header, message);
+#endif // XB1
+#endif // !DEBUG
         }
     }
 }

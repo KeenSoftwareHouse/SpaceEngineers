@@ -10,7 +10,6 @@ namespace VRageRender
     internal sealed class MyFoliageRenderingPass : MyRenderingPass
     {
         private const string FoliageRenderShader = "Geometry/Foliage/Foliage.hlsl";
-        internal const int GrassStencilMask = 0x80;
 
         private static InputLayoutId m_inputLayout = InputLayoutId.NULL;
         private static VertexShaderId m_VS = VertexShaderId.NULL;
@@ -64,7 +63,7 @@ namespace VRageRender
 
             RC.SetRtvs(MyGBuffer.Main, MyDepthStencilAccess.ReadWrite);
 
-            RC.SetDepthStencilState(MyDepthStencilStateManager.WriteDepthAndStencil, GrassStencilMask);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.DefaultDepthState);
         }
 
         internal override void End()
@@ -81,9 +80,9 @@ namespace VRageRender
             RC.SetRasterizerState(null);
         }
 
-        internal unsafe void RecordCommands(MyRenderableProxy proxy, VertexBufferId stream, int voxelMatId)
+        internal unsafe void RecordCommands(MyRenderableProxy proxy, IVertexBuffer stream, int voxelMatId)
         {
-            if (stream == VertexBufferId.NULL) return;
+            if (stream == null) return;
 
             var foliageType = MyVoxelMaterials1.Table[voxelMatId].FoliageType;
 
@@ -109,7 +108,7 @@ namespace VRageRender
                 RC.AllShaderStages.SetSrv(1, texManager.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_NormalTexture, MyFileTextureEnum.NORMALMAP_GLOSS, true));
             }
 
-            RC.SetVertexBuffer(0, stream.Buffer, stream.Stride);
+            RC.SetVertexBuffer(0, stream);
             RC.DrawAuto();
         }
 

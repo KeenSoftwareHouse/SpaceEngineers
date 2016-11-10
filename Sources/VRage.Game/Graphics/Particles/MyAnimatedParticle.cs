@@ -615,18 +615,18 @@ namespace VRage.Game
         private static void GetBillboardQuadRotated(VRageRender.MyBillboard billboard, ref Vector3D position, Vector2 radius, ref Matrix transform, Vector3 left, Vector3 up)
         {
             //	Two main vectors of a billboard rotated around the view axis/vector
-            Vector3D billboardAxisX = new Vector3D();
+            Vector3 billboardAxisX = new Vector3();
             billboardAxisX.X = radius.X * left.X;
             billboardAxisX.Y = radius.X * left.Y;
             billboardAxisX.Z = radius.X * left.Z;
 
-            Vector3D billboardAxisY = new Vector3D();
+            Vector3 billboardAxisY = new Vector3();
             billboardAxisY.X = radius.Y * up.X;
             billboardAxisY.Y = radius.Y * up.Y;
             billboardAxisY.Z = radius.Y * up.Z;
 
-            Vector3 v1 = Vector3.TransformNormal(billboardAxisX + billboardAxisY, transform);
-            Vector3 v2 = Vector3.TransformNormal(billboardAxisX - billboardAxisY, transform);
+            Vector3D v1 = Vector3.TransformNormal(billboardAxisX + billboardAxisY, transform);
+            Vector3D v2 = Vector3.TransformNormal(billboardAxisX - billboardAxisY, transform);
 
 
 

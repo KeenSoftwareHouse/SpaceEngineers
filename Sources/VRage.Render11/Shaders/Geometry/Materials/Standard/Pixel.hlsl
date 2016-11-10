@@ -23,13 +23,27 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 	}
 
 #ifdef STATIC_DECAL_CUTOUT
-    float alphamask = AlphamaskTexture.Sample(TextureSampler, pixel.custom.texcoord0);
-    clip(alphamask - 0.5);
+#ifdef USE_TEXTURE_INDICES
+	{
+		float4 texIndices = pixel.custom.texIndices;
+		float4 alphamask = NormalGlossTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.w));
+	}
+#else
+	float alphamask = AlphamaskTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+#endif
+	clip(alphamask - 0.5);
 #endif
 
-    float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
-    float4 extras = ExtensionsTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+#ifdef USE_TEXTURE_INDICES
+	float4 texIndices = pixel.custom.texIndices;
+	float4 cm = ColorMetalTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.x));
+	float4 ng = NormalGlossTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.y));
+	float4 extras = ExtensionsTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.z));
+#else
 	float4 cm = ColorMetalTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+	float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+	float4 extras = ExtensionsTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+#endif
 
 #ifdef BUILD_TANGENT_IN_PIXEL
     FeedOutputBuildTangent(pixel, pixel.custom.texcoord0, pixel.custom.normal, output, ng, cm, extras);

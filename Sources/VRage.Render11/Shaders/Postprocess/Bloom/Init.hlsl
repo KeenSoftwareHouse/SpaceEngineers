@@ -4,7 +4,7 @@
 
 float2 Texel2UV(uint2 texel)
 {
-    return float2(texel) / frame_.resolution;
+    return float2(texel) / frame_.Screen.resolution;
 }
 
 float4 Sample(uint2 texel)
@@ -45,7 +45,7 @@ float4 BrightPass2(uint2 texel)
 	    float bloomAmount = saturate(bloomLuminance / 2.0f);
         
         float depth = SampleDepth(texel + offsets[i]);
-        float linearDepth = 1 - linearize_depth(depth, frame_.projection_matrix);
+        float linearDepth = 1 - linearize_depth(depth, frame_.Environment.projection_matrix);
         float depthFactor = -frame_.Post.BloomDepthStrength * exp(-linearDepth * frame_.Post.BloomDepthSlope) + 1;
 
         float emissive = SampleGBuffer2(texel + offsets[i]).b * frame_.Post.BloomEmissiveness;

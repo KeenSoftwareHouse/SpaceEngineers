@@ -171,12 +171,17 @@ namespace VRage.Render11.Resources
 
             public void OnDeviceInit()
             {
-                UnorderedAccessViewDescription desc = new UnorderedAccessViewDescription();
-                desc.Format = m_format;
-                desc.Dimension = UnorderedAccessViewDimension.Texture2DArray;
-                desc.Texture2DArray.ArraySize = 1;
-                desc.Texture2DArray.FirstArraySlice = m_slice;
-                desc.Texture2DArray.MipSlice = m_mipmap;
+                UnorderedAccessViewDescription desc = new UnorderedAccessViewDescription
+                {
+                    Format = m_format,
+                    Dimension = UnorderedAccessViewDimension.Texture2DArray,
+                    Texture2DArray =
+                    {
+                        ArraySize = 1,
+                        FirstArraySlice = m_slice,
+                        MipSlice = m_mipmap
+                    }
+                };
                 m_uav = new UnorderedAccessView(MyRender11.Device, m_owner.Resource, desc);
             }
 
@@ -201,13 +206,18 @@ namespace VRage.Render11.Resources
 
             public void OnDeviceInit()
             {
-                DepthStencilViewDescription desc = new DepthStencilViewDescription();
-                desc.Format = m_format;
-                desc.Flags = DepthStencilViewFlags.None;
-                desc.Dimension = DepthStencilViewDimension.Texture2DArray;
-                desc.Texture2DArray.ArraySize = 1;
-                desc.Texture2DArray.FirstArraySlice = m_slice;
-                desc.Texture2DArray.MipSlice = m_mipmap;
+                DepthStencilViewDescription desc = new DepthStencilViewDescription
+                {
+                    Format = m_format,
+                    Flags = DepthStencilViewFlags.None,
+                    Dimension = DepthStencilViewDimension.Texture2DArray,
+                    Texture2DArray =
+                    {
+                        ArraySize = 1,
+                        FirstArraySlice = m_slice,
+                        MipSlice = m_mipmap
+                    }
+                };
                 m_dsv = new DepthStencilView(MyRender11.Device, m_owner.Resource, desc);
                 m_dsv.DebugName = m_owner.Name;
             }
@@ -409,28 +419,38 @@ namespace VRage.Render11.Resources
             {
                 ISrvBindable tex0 = m_sourceTextures[0];
 
-                Texture2DDescription texDesc = new Texture2DDescription();
-                texDesc.ArraySize = m_sourceTextures.Count;
-                texDesc.BindFlags = BindFlags.ShaderResource;
-                texDesc.CpuAccessFlags = CpuAccessFlags.None;
-                texDesc.Format = tex0.Srv.Description.Format;
-                texDesc.Height = tex0.Size.X;
-                texDesc.MipLevels = tex0.Srv.Description.Texture2D.MipLevels;
-                texDesc.OptionFlags = ResourceOptionFlags.None;
-                texDesc.SampleDescription.Count = 1;
-                texDesc.SampleDescription.Quality = 0;
-                texDesc.Usage = ResourceUsage.Default;
-                texDesc.Width = tex0.Size.Y;
+                Texture2DDescription texDesc = new Texture2DDescription
+                {
+                    ArraySize = m_sourceTextures.Count,
+                    BindFlags = BindFlags.ShaderResource,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    Format = tex0.Srv.Description.Format,
+                    Height = tex0.Size.X,
+                    MipLevels = tex0.Srv.Description.Texture2D.MipLevels,
+                    OptionFlags = ResourceOptionFlags.None,
+                    SampleDescription =
+                    {
+                        Count = 1,
+                        Quality = 0
+                    },
+                    Usage = ResourceUsage.Default,
+                    Width = tex0.Size.Y
+                };
                 m_resource = new Texture2D(MyRender11.Device, texDesc);
                 m_resource.DebugName = m_debugName;
 
-                ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription();
-                srvDesc.Format = tex0.Srv.Description.Format;
-                srvDesc.Dimension = ShaderResourceViewDimension.Texture2DArray;
-                srvDesc.Texture2DArray.ArraySize = m_sourceTextures.Count;
-                srvDesc.Texture2DArray.FirstArraySlice = 0;
-                srvDesc.Texture2DArray.MipLevels = tex0.Srv.Description.Texture2D.MipLevels;
-                srvDesc.Texture2DArray.MostDetailedMip = 0;
+                ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription
+                {
+                    Format = tex0.Srv.Description.Format,
+                    Dimension = ShaderResourceViewDimension.Texture2DArray,
+                    Texture2DArray =
+                    {
+                        ArraySize = m_sourceTextures.Count,
+                        FirstArraySlice = 0,
+                        MipLevels = tex0.Srv.Description.Texture2D.MipLevels,
+                        MostDetailedMip = 0
+                    }
+                };
                 m_srv = new ShaderResourceView(MyRender11.Device, m_resource, srvDesc);
                 m_srv.DebugName = m_debugName;
 
@@ -451,7 +471,7 @@ namespace VRage.Render11.Resources
                     int mipmaps = tex.Srv.Description.Texture2D.MipLevels;
                     for (int m = 0; m < mipmaps; m++)
                     {
-                        MyRender11.RC.CopySubresourceRegion(tex.Resource,
+                        MyRender11.RC.CopySubresourceRegion(tex,
                             Resource.CalculateSubResourceIndex(m, 0, mipmaps), null, Resource,
                             Resource.CalculateSubResourceIndex(m, i, mipmaps));
                     }
@@ -649,25 +669,35 @@ namespace VRage.Render11.Resources
         {
             MyUavArrayTexture tex;
             m_uavArrays.AllocateOrCreate(out tex);
-            
-            Texture2DDescription desc;
-            desc.ArraySize = 6;
-            desc.BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget | BindFlags.UnorderedAccess;
-            desc.CpuAccessFlags = CpuAccessFlags.None;
-            desc.Format = format;
-            desc.Height = size;
-            desc.MipLevels = mipmapLevels;
-            desc.OptionFlags = ResourceOptionFlags.TextureCube;
-            desc.SampleDescription.Count = 1;
-            desc.SampleDescription.Quality = 0;
-            desc.Usage = ResourceUsage.Default;
-            desc.Width = size;
 
-            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription();
-            srvDesc.Format = format;
-            srvDesc.Dimension = ShaderResourceViewDimension.TextureCube;
-            srvDesc.TextureCube.MipLevels = mipmapLevels;
-            srvDesc.TextureCube.MostDetailedMip = 0;
+            Texture2DDescription desc = new Texture2DDescription
+            {
+                ArraySize = 6,
+                BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget | BindFlags.UnorderedAccess,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = format,
+                Height = size,
+                MipLevels = mipmapLevels,
+                OptionFlags = ResourceOptionFlags.TextureCube,
+                SampleDescription =
+                {
+                    Count = 1,
+                    Quality = 0
+                },
+                Usage = ResourceUsage.Default,
+                Width = size
+            };
+
+            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription
+            {
+                Format = format,
+                Dimension = ShaderResourceViewDimension.TextureCube,
+                TextureCube =
+                {
+                    MipLevels = mipmapLevels,
+                    MostDetailedMip = 0
+                }
+            };
 
             tex.InitUav(debugName, desc, srvDesc, format, format);
 
@@ -682,24 +712,34 @@ namespace VRage.Render11.Resources
             MyDepthArrayTexture tex;
             m_depthArrays.AllocateOrCreate(out tex);
 
-            Texture2DDescription desc;
-            desc.ArraySize = 6;
-            desc.BindFlags = BindFlags.ShaderResource | BindFlags.DepthStencil;
-            desc.CpuAccessFlags = CpuAccessFlags.None;
-            desc.Format = resourceFormat;
-            desc.Height = size;
-            desc.MipLevels = mipmapLevels;
-            desc.OptionFlags = ResourceOptionFlags.TextureCube;
-            desc.SampleDescription.Count = 1;
-            desc.SampleDescription.Quality = 0;
-            desc.Usage = ResourceUsage.Default;
-            desc.Width = size;
+            Texture2DDescription desc = new Texture2DDescription
+            {
+                ArraySize = 6,
+                BindFlags = BindFlags.ShaderResource | BindFlags.DepthStencil,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = resourceFormat,
+                Height = size,
+                MipLevels = mipmapLevels,
+                OptionFlags = ResourceOptionFlags.TextureCube,
+                SampleDescription =
+                {
+                    Count = 1,
+                    Quality = 0
+                },
+                Usage = ResourceUsage.Default,
+                Width = size
+            };
 
-            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription();
-            srvDesc.Format = srvFormat;
-            srvDesc.Dimension = ShaderResourceViewDimension.TextureCube;
-            srvDesc.TextureCube.MipLevels = mipmapLevels;
-            srvDesc.TextureCube.MostDetailedMip = 0;
+            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription
+            {
+                Format = srvFormat,
+                Dimension = ShaderResourceViewDimension.TextureCube,
+                TextureCube =
+                {
+                    MipLevels = mipmapLevels,
+                    MostDetailedMip = 0
+                }
+            };
 
             tex.InitDepth(debugName, desc, srvDesc, dsvFormat);
 
@@ -727,26 +767,36 @@ namespace VRage.Render11.Resources
             MyRtvArrayTexture tex;
             m_rtvArrays.AllocateOrCreate(out tex);
 
-            Texture2DDescription desc;
-            desc.ArraySize = arraySize;
-            desc.BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget;
-            desc.CpuAccessFlags = CpuAccessFlags.None;
-            desc.Format = format;
-            desc.Height = height;
-            desc.MipLevels = mipmapLevels;
-            desc.OptionFlags = ResourceOptionFlags.None;
-            desc.SampleDescription.Count = 1;
-            desc.SampleDescription.Quality = 0;
-            desc.Usage = ResourceUsage.Default;
-            desc.Width = width;
+            Texture2DDescription desc = new Texture2DDescription
+            {
+                ArraySize = arraySize,
+                BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = format,
+                Height = height,
+                MipLevels = mipmapLevels,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription =
+                {
+                    Count = 1,
+                    Quality = 0
+                },
+                Usage = ResourceUsage.Default,
+                Width = width
+            };
 
-            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription();
-            srvDesc.Format = format;
-            srvDesc.Dimension = ShaderResourceViewDimension.Texture2DArray;
-            srvDesc.Texture2DArray.ArraySize = arraySize;
-            srvDesc.Texture2DArray.FirstArraySlice = 0;
-            srvDesc.Texture2DArray.MipLevels = mipmapLevels;
-            srvDesc.Texture2DArray.MostDetailedMip = 0;
+            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription
+            {
+                Format = format,
+                Dimension = ShaderResourceViewDimension.Texture2DArray,
+                Texture2DArray =
+                {
+                    ArraySize = arraySize,
+                    FirstArraySlice = 0,
+                    MipLevels = mipmapLevels,
+                    MostDetailedMip = 0
+                }
+            };
 
 
             tex.InitRtv(debugName, desc, srvDesc, format);
@@ -763,26 +813,36 @@ namespace VRage.Render11.Resources
             MyUavArrayTexture tex;
             m_uavArrays.AllocateOrCreate(out tex);
 
-            Texture2DDescription desc;
-            desc.ArraySize = arraySize;
-            desc.BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget | BindFlags.UnorderedAccess;
-            desc.CpuAccessFlags = CpuAccessFlags.None;
-            desc.Format = format;
-            desc.Height = height;
-            desc.MipLevels = mipmapLevels;
-            desc.OptionFlags = ResourceOptionFlags.None;
-            desc.SampleDescription.Count = 1;
-            desc.SampleDescription.Quality = 0;
-            desc.Usage = ResourceUsage.Default;
-            desc.Width = width;
+            Texture2DDescription desc = new Texture2DDescription
+            {
+                ArraySize = arraySize,
+                BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget | BindFlags.UnorderedAccess,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = format,
+                Height = height,
+                MipLevels = mipmapLevels,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription =
+                {
+                    Count = 1,
+                    Quality = 0
+                },
+                Usage = ResourceUsage.Default,
+                Width = width
+            };
 
-            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription();
-            srvDesc.Format = format;
-            srvDesc.Dimension = ShaderResourceViewDimension.Texture2DArray;
-            srvDesc.Texture2DArray.ArraySize = arraySize;
-            srvDesc.Texture2DArray.FirstArraySlice = 0;
-            srvDesc.Texture2DArray.MipLevels = mipmapLevels;
-            srvDesc.Texture2DArray.MostDetailedMip = 0;
+            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription
+            {
+                Format = format,
+                Dimension = ShaderResourceViewDimension.Texture2DArray,
+                Texture2DArray =
+                {
+                    ArraySize = arraySize,
+                    FirstArraySlice = 0,
+                    MipLevels = mipmapLevels,
+                    MostDetailedMip = 0
+                }
+            };
 
 
             tex.InitUav(debugName, desc, srvDesc, format, format);
@@ -799,27 +859,37 @@ namespace VRage.Render11.Resources
             MyDepthArrayTexture tex;
             m_depthArrays.AllocateOrCreate(out tex);
 
-            Texture2DDescription desc;
-            desc.ArraySize = arraySize;
-            desc.BindFlags = BindFlags.ShaderResource | BindFlags.DepthStencil;
-            desc.CpuAccessFlags = CpuAccessFlags.None;
-            desc.Format = resourceFormat;
-            desc.Height = height;
-            desc.MipLevels = mipmapLevels;
-            desc.OptionFlags = ResourceOptionFlags.None;
-            desc.SampleDescription.Count = 1;
-            desc.SampleDescription.Quality = 0;
-            desc.Usage = ResourceUsage.Default;
-            desc.Width = width;
+            Texture2DDescription desc = new Texture2DDescription
+            {
+                ArraySize = arraySize,
+                BindFlags = BindFlags.ShaderResource | BindFlags.DepthStencil,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = resourceFormat,
+                Height = height,
+                MipLevels = mipmapLevels,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription =
+                {
+                    Count = 1,
+                    Quality = 0
+                },
+                Usage = ResourceUsage.Default,
+                Width = width
+            };
 
-            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription();
-            srvDesc.Format = srvFormat;
-            srvDesc.Dimension = ShaderResourceViewDimension.Texture2DArray;
-            srvDesc.Texture2DArray.ArraySize = arraySize;
-            srvDesc.Texture2DArray.FirstArraySlice = 0;
-            srvDesc.Texture2DArray.MipLevels = mipmapLevels;
-            srvDesc.Texture2DArray.MostDetailedMip = 0;
-            
+            ShaderResourceViewDescription srvDesc = new ShaderResourceViewDescription
+            {
+                Format = srvFormat,
+                Dimension = ShaderResourceViewDimension.Texture2DArray,
+                Texture2DArray =
+                {
+                    ArraySize = arraySize,
+                    FirstArraySlice = 0,
+                    MipLevels = mipmapLevels,
+                    MostDetailedMip = 0
+                }
+            };
+
             tex.InitDepth(debugName, desc, srvDesc, dsvFormat);
 
             if (m_isDeviceInit)

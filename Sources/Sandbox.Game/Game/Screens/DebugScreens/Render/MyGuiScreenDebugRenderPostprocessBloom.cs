@@ -23,6 +23,7 @@ namespace Sandbox.Game.Gui
             base.RecreateControls(constructor);
 
             m_scale = 0.7f;
+            m_sliderDebugScale = 0.7f;
 
             AddCaption("Postprocess Bloom", Color.Yellow.ToVector4());
             AddShareFocusHint();

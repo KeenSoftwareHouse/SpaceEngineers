@@ -766,7 +766,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
                     if (entity is MyVoxelBase)
                     {
-                        if (CubeGrid.Physics.RigidBody.IsFixed == false)
+                        if (CubeGrid.Physics.RigidBody.IsFixed == false && !CubeGrid.IsStatic)
                         {
                             CubeGrid.Physics.ConvertToStatic();
                             m_converted = true;
@@ -894,7 +894,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private void Detach()
         {
-            if (CubeGrid.Physics == null || m_attachedTo == null)
+            if (CubeGrid.Physics == null || m_attachedTo == null )
                 return;
 
             if (Sync.IsServer && m_attachedTo is MyCubeGrid)
@@ -915,8 +915,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             if (m_converted)
             {
-                CubeGrid.Physics.ConvertToDynamic(CubeGrid.GridSizeEnum == MyCubeSize.Large);
-                m_converted = false;
+                if ((!CubeGrid.IsStatic || !(attachedTo is MyVoxelBase)))
+                {
+                    CubeGrid.Physics.ConvertToDynamic(CubeGrid.GridSizeEnum == MyCubeSize.Large);
+                    m_converted = false;
+                }
             }
 
             if (MyFakes.WELD_LANDING_GEARS && MyWeldingGroups.Static.LinkExists(EntityId, CubeGrid, (MyEntity)m_attachedTo))
@@ -1124,6 +1127,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             if (Sync.IsServer)
             {
                 CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
+                CubeGrid.OnIsStaticChanged -= CubeGrid_OnIsStaticChanged;
             }
         }
 
@@ -1149,12 +1153,24 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 }
 
                 CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
+                CubeGrid.OnIsStaticChanged += CubeGrid_OnIsStaticChanged;
             }
         }
 
         protected void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
         {
             ResetLockConstraint(true,true);
+        }
+
+        protected void CubeGrid_OnIsStaticChanged(bool isStatic)
+        {
+            //GK: For now take into account only VoxelBase. TODO: check what happens when Cubegrid is attached
+            if (!isStatic && m_attachedTo is MyVoxelBase)
+            {
+                m_converted = false;
+                ResetLockConstraint(false, true);
+                m_needsToRetryLock = true;
+            }
         }
 
         public IMyEntity GetAttachedEntity()

@@ -135,8 +135,9 @@ namespace Sandbox.Graphics.GUI
             if (ItemClicked != null)
                 ItemClicked(this, new EventArgs { ItemIndex = selectedIndex, UserData = userData });
 
-            //A context menu always disappears when clicked
-            Deactivate();
+            //GK: If the item list have scrollbar and we are over the caret then let scrollbar hanlde input. In any other case disappear when clicked
+            if(!m_itemsList.IsOverScrollBar())
+                Deactivate();
         }
 
         public override MyGuiControlBase HandleInput()

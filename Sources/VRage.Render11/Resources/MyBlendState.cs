@@ -39,12 +39,20 @@ namespace VRage.Render11.Resources
         internal static IBlendState BlendTransparent;
         internal static IBlendState BlendAlphaPremult;
         internal static IBlendState BlendAlphaPremultNoAlphaChannel;
+        internal static IBlendState BlendReplace;
+        internal static IBlendState BlendReplaceNoAlphaChannel;
         internal static IBlendState BlendOutscatter;
 
         internal static IBlendState BlendDecalColor;
         internal static IBlendState BlendDecalNormal;
         internal static IBlendState BlendDecalNormalColor;
         internal static IBlendState BlendDecalNormalColorExt;
+
+        internal static IBlendState BlendDecalColorNoPremult;
+        internal static IBlendState BlendDecalNormalNoPremult;
+        internal static IBlendState BlendDecalNormalColorNoPremult;
+        internal static IBlendState BlendDecalNormalColorExtNoPremult;
+
 
         internal static IBlendState BlendWeightedTransparencyResolve;
         internal static IBlendState BlendWeightedTransparency;
@@ -140,6 +148,32 @@ namespace VRage.Render11.Resources
                 desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
                 desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
                 desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+                desc.RenderTarget[0].DestinationBlend = BlendOption.Zero;
+                desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
+                desc.RenderTarget[0].SourceBlend = BlendOption.One;
+                desc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+                BlendReplace = CreateResource("BlendReplace", ref desc);
+            }
+
+            {
+                BlendStateDescription desc = new BlendStateDescription();
+                desc.RenderTarget[0].IsBlendEnabled = true;
+                desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green | ColorWriteMaskFlags.Blue;
+                desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+                desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+                desc.RenderTarget[0].DestinationBlend = BlendOption.Zero;
+                desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
+                desc.RenderTarget[0].SourceBlend = BlendOption.One;
+                desc.RenderTarget[0].SourceAlphaBlend = BlendOption.Zero;
+                BlendReplaceNoAlphaChannel = CreateResource("BlendReplaceNoAlphaChannel", ref desc);
+            }
+
+            {
+                BlendStateDescription desc = new BlendStateDescription();
+                desc.RenderTarget[0].IsBlendEnabled = true;
+                desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+                desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+                desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
                 desc.RenderTarget[0].DestinationBlend = BlendOption.SourceColor;
                 desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.InverseSourceAlpha;
                 desc.RenderTarget[0].SourceBlend = BlendOption.Zero;
@@ -172,6 +206,10 @@ namespace VRage.Render11.Resources
                 desc.RenderTarget[2].SourceAlphaBlend = BlendOption.Zero;
 
                 BlendDecalColor = CreateResource("BlendDecalColor", ref desc);
+
+                desc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+                desc.RenderTarget[2].SourceBlend = BlendOption.SourceAlpha;
+                BlendDecalColorNoPremult = CreateResource("BlendDecalColorNoPremult", ref desc);
             }
 
             {
@@ -199,6 +237,9 @@ namespace VRage.Render11.Resources
                 desc.RenderTarget[2].SourceAlphaBlend = BlendOption.Zero;
 
                 BlendDecalNormal = CreateResource("BlendDecalNormal", ref desc);
+
+                desc.RenderTarget[2].SourceBlend = BlendOption.SourceAlpha;
+                BlendDecalNormalNoPremult = CreateResource("BlendDecalNormalNoPremult", ref desc);
             }
 
             {
@@ -227,7 +268,6 @@ namespace VRage.Render11.Resources
                 desc.RenderTarget[1].SourceAlphaBlend = BlendOption.Zero;
                 // metal/gloss
                 desc.RenderTarget[2].IsBlendEnabled = true;
-                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green;
                 desc.RenderTarget[2].BlendOperation = BlendOperation.Add;
                 desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.Add;
                 desc.RenderTarget[2].DestinationBlend = BlendOption.InverseSourceAlpha;
@@ -235,11 +275,24 @@ namespace VRage.Render11.Resources
                 desc.RenderTarget[2].SourceBlend = BlendOption.One;
                 desc.RenderTarget[2].SourceAlphaBlend = BlendOption.Zero;
 
+                // Premultiplied alpha
+                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green;
                 BlendDecalNormalColor = CreateResource("BlendDecalNormalColor", ref desc);
 
                 desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green |
                                                              ColorWriteMaskFlags.Blue;
                 BlendDecalNormalColorExt = CreateResource("BlendDecalNormalColorExt", ref desc);
+
+                // Non premultiplied alpha
+                desc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+                desc.RenderTarget[2].SourceBlend = BlendOption.SourceAlpha;
+
+                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green;
+                BlendDecalNormalColorNoPremult = CreateResource("BlendDecalNormalColorNoPremult", ref desc);
+
+                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green |
+                                                             ColorWriteMaskFlags.Blue;
+                BlendDecalNormalColorExtNoPremult = CreateResource("BlendDecalNormalColorExtNoPremult", ref desc);
             }
 
             {

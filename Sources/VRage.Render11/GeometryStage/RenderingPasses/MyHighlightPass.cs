@@ -1,27 +1,26 @@
 ﻿using SharpDX.Direct3D11;
+using System.Runtime.InteropServices;
 using VRage.Render11.Resources;
 using VRageMath;
 
 namespace VRageRender
 {
-    struct OutlineConstantsLayout
+    [StructLayout(LayoutKind.Sequential)]
+    struct HighlightConstantsLayout
     {
         internal Vector4 Color;
     };
 
     [PooledObject]
 #if XB1
-    class MyOutlinePass : MyRenderingPass, IMyPooledObjectCleaner
+    class MyHighlightPass : MyRenderingPass, IMyPooledObjectCleaner
 #else // !XB1
-    class MyOutlinePass : MyRenderingPass
+    class MyHighlightPass : MyRenderingPass
 #endif // !XB1
     {
-        internal static MyOutlinePass Instance = new MyOutlinePass();
+        internal static MyHighlightPass Instance = new MyHighlightPass();
 
-        internal DepthStencilView Dsv;
-        internal RenderTargetView Rtv;
-
-        public MyOutlinePass()
+        public MyHighlightPass()
         {
             SetImmediate(true);
         }
@@ -32,27 +31,26 @@ namespace VRageRender
 
             base.Begin();
 
-            //Context.OutputMerger.SetTargets(Dsv, Rtv);
-
-            RC.SetDepthStencilState(MyDepthStencilStateManager.OutlineMesh, 0xFF);
-            //RC.SetDS(null);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.WriteHighlightStencil, MyHighlight.HIGHLIGHT_STENCIL_MASK);
             RC.SetBlendState(null);
 
-            RC.PixelShader.SetConstantBuffer(4, MyCommon.OutlineConstants);
+            RC.PixelShader.SetConstantBuffer(4, MyCommon.HighlightConstants);
         }
 
         public void RecordCommands(MyRenderableProxy proxy, int sectionmesh, int inctanceId)
         {
-			if ((proxy.Mesh.Buffers.IB == IndexBufferId.NULL && proxy.MergedMesh.Buffers.IB == IndexBufferId.NULL)
+			if ((proxy.Mesh.Buffers.IB == null && proxy.MergedMesh.Buffers.IB == null)
                 || proxy.DrawSubmesh.IndexCount == 0)
             {
                 return;
             }
 
-            Stats.Meshes++;
+            Stats.Draws++;
 
             SetProxyConstants(proxy);
             BindProxyGeometry(proxy, RC);
+
+            MyRenderUtils.BindShaderBundle(RC, proxy.HighlightShaders);
 
             if ((proxy.Flags & MyRenderableProxyFlags.DisableFaceCulling) > 0)
                 RC.SetRasterizerState(MyRasterizerStateManager.NocullRasterizerState);
@@ -97,7 +95,7 @@ namespace VRageRender
         {
             MyRenderUtils.SetSrvs(RC, ref proxy.ObjectSrvs);
 
-            Stats.Meshes++;
+            Stats.Draws++;
             
             if (instanceIndex == -1)
             {
@@ -179,28 +177,10 @@ namespace VRageRender
         }
 #else // !XB1
         [PooledObjectCleaner]
-        public static void Cleanup(MyOutlinePass renderPass)
+        public static void Cleanup(MyHighlightPass renderPass)
         {
             renderPass.Cleanup();
         }
 #endif // !XB1
-
-        internal override void Cleanup()
-        {
-            base.Cleanup();
-
-            Dsv = null;
-            Rtv = null;
-        }
-
-        internal override MyRenderingPass Fork()
-        {
-            var renderPass = base.Fork() as MyOutlinePass;
-
-            renderPass.Dsv = Dsv;
-            renderPass.Rtv = Rtv;
-
-            return renderPass;
-        }
     }
 }

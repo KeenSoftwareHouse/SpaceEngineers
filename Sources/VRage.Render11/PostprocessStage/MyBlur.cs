@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Profiler;
+using VRage.Render11.Common;
 using VRage.Render11.Profiler;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
@@ -31,7 +32,7 @@ namespace VRageRender
             internal Vector2 _padding;
         }
 
-        private static ConstantsBufferId m_blurConstantBuffer = ConstantsBufferId.NULL;
+        private static IConstantBuffer m_blurConstantBuffer;
 
         // Item1 is horizontal, Item2 is vertical pass
         private static Dictionary<int, MyTuple<PixelShaderId, PixelShaderId>> m_blurShaders = null; 
@@ -41,8 +42,8 @@ namespace VRageRender
             int typeCount = Enum.GetValues(typeof(MyBlurDensityFunctionType)).Length;
             m_blurShaders = new Dictionary<int, MyTuple<PixelShaderId, PixelShaderId>>();
 
-            if (m_blurConstantBuffer == ConstantsBufferId.NULL)
-                m_blurConstantBuffer = MyHwBuffers.CreateConstantsBuffer(sizeof(BlurConstants), "MyBlur");
+            if (m_blurConstantBuffer == null)
+                m_blurConstantBuffer = MyManagers.Buffers.CreateConstantBuffer("MyBlur", sizeof(BlurConstants), usage: ResourceUsage.Dynamic);
         }
 
         private static int GetShaderKey(MyBlurDensityFunctionType densityFunctionType, int maxOffset, bool useDepthDiscard)

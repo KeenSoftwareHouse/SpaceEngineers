@@ -159,7 +159,7 @@ namespace VRageRender
             var side = prefiltered.Size.X;
             uint probeSide = (uint)probe.Size.X;
             
-            ConstantsBufferId constantBuffer = MyCommon.GetObjectCB(32);
+            IConstantBuffer constantBuffer = MyCommon.GetObjectCB(32);
             RC.ComputeShader.SetConstantBuffer(1, constantBuffer);
 
             RC.ComputeShader.SetSrv(0, probe);

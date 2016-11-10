@@ -121,8 +121,8 @@ namespace Sandbox.Game.Entities
             Render.AddRenderObjects();
 
 			List<MyTextureChange> textureChanges = new List<MyTextureChange>();
-			textureChanges.Add(new MyTextureChange { TextureName = m_definition.ColorMetalTexture, MaterialSlot = "ColorMetalTexture" });
-			textureChanges.Add(new MyTextureChange { TextureName = m_definition.AddMapsTexture, MaterialSlot = "AddMapsTexture" });
+			textureChanges.Add(new MyTextureChange { TextureName = m_definition.ColorMetalTexture, TextureType = MyTextureType.ColorMetal });
+            textureChanges.Add(new MyTextureChange { TextureName = m_definition.AddMapsTexture, TextureType = MyTextureType.Extensions });
 
             VRageRender.MyRenderProxy.ChangeMaterialTexture(Render.RenderObjectIDs[0], "BotFlag", textureChanges); // TODO: change the material name
 

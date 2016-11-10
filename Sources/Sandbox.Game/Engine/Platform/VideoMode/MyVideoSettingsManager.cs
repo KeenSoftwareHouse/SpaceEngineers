@@ -57,6 +57,7 @@ namespace Sandbox.Engine.Platform.VideoMode
 
         private const MyAntialiasingMode DEFAULT_ANTI_ALIASING = MyAntialiasingMode.FXAA;
         private const MyShadowsQuality DEFAULT_SHADOW_QUALITY = MyShadowsQuality.HIGH;
+        private const bool DEFAULT_AMBIENT_OCCLUSION_ENABLED = true;
         private const bool DEFAULT_TONEMAPPING = true;
         private const MyTextureQuality DEFAULT_TEXTURE_QUALITY = MyTextureQuality.MEDIUM;
         private const MyTextureAnisoFiltering DEFAULT_ANISOTROPIC_FILTERING = MyTextureAnisoFiltering.ANISO_4;
@@ -166,6 +167,7 @@ namespace Sandbox.Engine.Platform.VideoMode
             m_currentGraphicsSettings.VegetationDrawDistance       = config.VegetationDrawDistance;
             m_currentGraphicsSettings.Render.AntialiasingMode      = config.AntialiasingMode ?? DEFAULT_ANTI_ALIASING;
             m_currentGraphicsSettings.Render.ShadowQuality         = config.ShadowQuality ?? DEFAULT_SHADOW_QUALITY;
+            m_currentGraphicsSettings.Render.AmbientOcclusionEnabled  = config.AmbientOcclusionEnabled ?? DEFAULT_AMBIENT_OCCLUSION_ENABLED;
             //m_currentGraphicsSettings.Render.TonemappingEnabled    = config.Tonemapping ?? DEFAULT_TONEMAPPING;
             m_currentGraphicsSettings.Render.TextureQuality        = config.TextureQuality ?? DEFAULT_TEXTURE_QUALITY;
             m_currentGraphicsSettings.Render.AnisotropicFiltering  = config.AnisotropicFiltering ?? DEFAULT_ANISOTROPIC_FILTERING;
@@ -189,6 +191,7 @@ namespace Sandbox.Engine.Platform.VideoMode
                 var settings = new MyRenderDeviceSettings()
                 {
                     AdapterOrdinal   = videoAdapter.Value,
+                    NewAdapterOrdinal   = videoAdapter.Value,
                     BackBufferHeight = screenHeight.Value,
                     BackBufferWidth  = screenWidth.Value,
                     RefreshRate      = config.RefreshRate,
@@ -226,7 +229,7 @@ namespace Sandbox.Engine.Platform.VideoMode
                                                               (settings.WindowMode == MyWindowModeEnum.Window) ? "Window" : "Fullscreen window"));
                 MySandboxGame.Log.WriteLine("VerticalSync: " + settings.VSync);
 
-                if (settings.Equals(ref m_currentDeviceSettings))
+                if (settings.Equals(ref m_currentDeviceSettings) && settings.NewAdapterOrdinal == settings.AdapterOrdinal) // NewAdapter is not included in Equals
                     return ChangeResult.NothingChanged;
 
                 if (!IsSupportedDisplayMode(settings.AdapterOrdinal, settings.BackBufferWidth, settings.BackBufferHeight, settings.WindowMode))
@@ -273,6 +276,7 @@ namespace Sandbox.Engine.Platform.VideoMode
                 //MySandboxGame.Log.WriteLine("Render.TonemappingEnabled: " + settings.Render.TonemappingEnabled);
                 MySandboxGame.Log.WriteLine("Render.AntialiasingMode: " + settings.Render.AntialiasingMode);
                 MySandboxGame.Log.WriteLine("Render.ShadowQuality: " + settings.Render.ShadowQuality);
+                MySandboxGame.Log.WriteLine("Render.AmbientOcclusionEnabled: " + settings.Render.AmbientOcclusionEnabled);
                 MySandboxGame.Log.WriteLine("Render.TextureQuality: " + settings.Render.TextureQuality);
                 MySandboxGame.Log.WriteLine("Render.AnisotropicFiltering: " + settings.Render.AnisotropicFiltering);
                 MySandboxGame.Log.WriteLine("Render.FoliageDetails: " + settings.Render.FoliageDetails);
@@ -608,7 +612,7 @@ namespace Sandbox.Engine.Platform.VideoMode
         {
             var config = MySandboxGame.Config;
 
-            config.VideoAdapter        = m_currentDeviceSettings.AdapterOrdinal;
+            config.VideoAdapter        = m_currentDeviceSettings.NewAdapterOrdinal; // Use the new value for the next game startup
             config.ScreenWidth         = m_currentDeviceSettings.BackBufferWidth;
             config.ScreenHeight        = m_currentDeviceSettings.BackBufferHeight;
             config.RefreshRate         = m_currentDeviceSettings.RefreshRate;
@@ -627,6 +631,7 @@ namespace Sandbox.Engine.Platform.VideoMode
             //config.Tonemapping            = render.TonemappingEnabled == DEFAULT_TONEMAPPING ? (bool?)null : render.TonemappingEnabled;
             config.AntialiasingMode       = render.AntialiasingMode == DEFAULT_ANTI_ALIASING ? (MyAntialiasingMode?)null : render.AntialiasingMode;
             config.ShadowQuality          = render.ShadowQuality == DEFAULT_SHADOW_QUALITY ? (MyShadowsQuality?)null : render.ShadowQuality;
+            config.AmbientOcclusionEnabled = render.AmbientOcclusionEnabled == DEFAULT_AMBIENT_OCCLUSION_ENABLED ? (bool?)null : render.AmbientOcclusionEnabled;
             config.TextureQuality         = render.TextureQuality == DEFAULT_TEXTURE_QUALITY ? (MyTextureQuality?)null : render.TextureQuality;
             config.AnisotropicFiltering   = render.AnisotropicFiltering == DEFAULT_ANISOTROPIC_FILTERING ? (MyTextureAnisoFiltering?)null : render.AnisotropicFiltering;
             config.FoliageDetails         = render.FoliageDetails == DEFAULT_FOLIAGE_DETAILS ? (MyFoliageDetails?)null : render.FoliageDetails;

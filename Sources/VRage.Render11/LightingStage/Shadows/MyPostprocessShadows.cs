@@ -51,12 +51,12 @@ namespace VRage.Render11.LightingStage.Shadows
             
         }
 
-        unsafe ConstantsBufferId GetShadowConstants(ICascadeShadowMap csm, ref MyShadowsSettings settings)
+        unsafe IConstantBuffer GetShadowConstants(ICascadeShadowMap csm, ref MyShadowsSettings settings)
         {
             const int MAX_SLICES_COUNT = 8;
             MyRenderProxy.Assert(csm.SlicesCount <= MAX_SLICES_COUNT, "It is not supported more than 8 slices per cascade shadow map");
             int size = sizeof(Matrix)*MAX_SLICES_COUNT + sizeof(Vector4)*MAX_SLICES_COUNT;
-            ConstantsBufferId cb = MyCommon.GetObjectCB(size);
+            IConstantBuffer cb = MyCommon.GetObjectCB(size);
             var mapping = MyMapping.MapDiscard(cb);
 
             for (int i = 0; i < csm.SlicesCount; i++)

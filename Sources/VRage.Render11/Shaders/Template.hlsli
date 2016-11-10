@@ -54,7 +54,7 @@ struct ObjectConstants
     float3 	voxel_offset;
     float4 	massive_center_radius;
     float3 	voxel_scale;
-    float 	__padding3;
+    float 	__paddingVoxelData;
 #endif
     float4 	matrix_row0;
     float4 	matrix_row1;
@@ -66,9 +66,10 @@ struct ObjectConstants
     float3 	color_mul; 	// mostly for emissive, default = 1
     float 	emissive;		// default = 0
 
-    uint 	material_flags;
-	uint	depth_bias;
-    float   _____padding;
+    uint    LOD;
+	uint    depth_bias;
+    uint    material_flags;
+    float   __paddingCommon;
 
 #ifdef USE_SKINNING
     matrix bone_matrix[60];

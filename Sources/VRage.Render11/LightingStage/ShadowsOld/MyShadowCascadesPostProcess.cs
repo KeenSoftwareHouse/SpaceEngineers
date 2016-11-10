@@ -9,13 +9,12 @@ using VRage.Render11.LightingStage.Shadows;
 using VRage.Render11.Profiler;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
-using VRage.Render11.Tools;
 using VRageMath;
 
 
 namespace VRageRender
 {
-    internal class MyShadowCascadesPostProcess: MyImmediateRC
+    internal class MyShadowCascadesPostProcess : MyImmediateRC
     {
         private static VertexShaderId m_markVS = VertexShaderId.NULL;
         private static PixelShaderId m_markPS = PixelShaderId.NULL;
@@ -26,10 +25,10 @@ namespace VRageRender
         private ComputeShaderId m_gatherCS_HD = ComputeShaderId.NULL;
         private static PixelShaderId m_combinePS = PixelShaderId.NULL;
 
-        private VertexBufferId m_cascadesBoundingsVertices = VertexBufferId.NULL;
-        private IndexBufferId m_cubeIB = IndexBufferId.NULL;
+        private IVertexBuffer m_cascadesBoundingsVertices;
+        private IIndexBuffer m_cubeIB;
 
-        private static ConstantsBufferId m_inverseConstants = ConstantsBufferId.NULL;
+        private static IConstantBuffer m_inverseConstants;
 
         internal MyShadowCascadesPostProcess(int numberOfCascades)
         {
@@ -63,8 +62,8 @@ namespace VRageRender
 
         private unsafe void InitConstantBuffer()
         {
-            if (m_inverseConstants == ConstantsBufferId.NULL)
-                m_inverseConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix), "MyShadowCascadesPostProcess");
+            if (m_inverseConstants == null)
+                m_inverseConstants = MyManagers.Buffers.CreateConstantBuffer("MyShadowCascadesPostProcess", sizeof(Matrix), usage: ResourceUsage.Dynamic);
         }
 
         private void InitShaders()
@@ -89,16 +88,15 @@ namespace VRageRender
         private unsafe void InitVertexBuffer(int numberOfCascades)
         {
             DestroyVertexBuffer();
-            m_cascadesBoundingsVertices = MyHwBuffers.CreateVertexBuffer(8 * numberOfCascades, sizeof(Vector3), BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyShadowCascadesPostProcess");
+            m_cascadesBoundingsVertices = MyManagers.Buffers.CreateVertexBuffer(
+                "MyShadowCascadesPostProcess", 8 * numberOfCascades, sizeof(Vector3),
+                usage: ResourceUsage.Dynamic);
         }
 
         private void DestroyVertexBuffer()
         {
-            if (m_cascadesBoundingsVertices != VertexBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(m_cascadesBoundingsVertices);
-                m_cascadesBoundingsVertices = VertexBufferId.NULL;
-            }
+            if (m_cascadesBoundingsVertices != null)
+                MyManagers.Buffers.Dispose(m_cascadesBoundingsVertices); m_cascadesBoundingsVertices = null;
         }
 
         private unsafe void InitIndexBuffer()
@@ -120,16 +118,15 @@ namespace VRageRender
             indices[30] = 1; indices[31] = 0; indices[32] = 4;
             indices[33] = 1; indices[34] = 4; indices[35] = 5;
 
-            m_cubeIB = MyHwBuffers.CreateIndexBuffer(indexCount, Format.R16_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(indices), "MyScreenDecals");
+            m_cubeIB = MyManagers.Buffers.CreateIndexBuffer(
+                "MyScreenDecals", indexCount, new IntPtr(indices),
+                MyIndexBufferFormat.UShort, ResourceUsage.Immutable);
         }
 
         private void DestroyIndexBuffer()
         {
-            if (m_cubeIB != IndexBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(m_cubeIB);
-                m_cubeIB = IndexBufferId.NULL;
-            }
+            if (m_cubeIB != null)
+                MyManagers.Buffers.Dispose(m_cubeIB); m_cubeIB = null;
         }
 
         internal static void Combine(IDepthArrayTexture targetArray, MyShadowCascades firstCascades, MyShadowCascades secondCascades)
@@ -189,7 +186,7 @@ namespace VRageRender
             return groups;
         }
 
-        internal void GatherArray(IUavTexture postprocessTarget, ISrvBindable cascadeArray, MyProjectionInfo[] cascadeInfo, ConstantsBufferId cascadeConstantBuffer)
+        internal void GatherArray(IUavTexture postprocessTarget, ISrvBindable cascadeArray, MyProjectionInfo[] cascadeInfo, IConstantBuffer cascadeConstantBuffer)
         {
             MyShadowsQuality shadowsQuality = MyRender11.RenderSettings.ShadowQuality.GetShadowsQuality();
             if (!MyRender11.Settings.EnableShadows || !MyRender11.DebugOverrides.Shadows || shadowsQuality == MyShadowsQuality.DISABLED)
@@ -211,7 +208,7 @@ namespace VRageRender
 
             RC.ComputeShader.SetUav(0, postprocessTarget);
 
-            RC.ComputeShader.SetSrv(0, MyRender11.MultisamplingEnabled ? MyScreenDependants.m_resolvedDepth.SrvDepth : MyGBuffer.Main.DepthStencil.SrvDepth);
+            RC.ComputeShader.SetSrv(0, MyGBuffer.Main.ResolvedDepthStencil.SrvDepth);
             RC.ComputeShader.SetSrv(1, MyGBuffer.Main.DepthStencil.SrvStencil);
             RC.ComputeShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MySamplerStateManager.Shadowmap);
             if (!MyStereoRender.Enable)
@@ -249,8 +246,8 @@ namespace VRageRender
             //RC.SetRS(MyRasterizerState.CullCW);
 
             RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
-            RC.SetVertexBuffer(0, m_cascadesBoundingsVertices.Buffer, m_cascadesBoundingsVertices.Stride);
-            RC.SetIndexBuffer(m_cubeIB.Buffer, m_cubeIB.Format);
+            RC.SetVertexBuffer(0, m_cascadesBoundingsVertices);
+            RC.SetIndexBuffer(m_cubeIB);
             RC.SetInputLayout(m_inputLayout);
             RC.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
             if (!MyStereoRender.Enable)
@@ -276,7 +273,7 @@ namespace VRageRender
             Vector3D* lightVertices = stackalloc Vector3D[vertexCount];
             Vector3* tmpFloatVertices = stackalloc Vector3[vertexCount];
 
-            var mapping = MyMapping.MapDiscard(m_cascadesBoundingsVertices.Buffer);
+            var mapping = MyMapping.MapDiscard(m_cascadesBoundingsVertices);
             for (int cascadeIndex = 0; cascadeIndex < MyShadowCascades.Settings.NewData.CascadesCount; ++cascadeIndex)
             {
                 var inverseViewProj = MatrixD.Invert(cascadeInfo[cascadeIndex].CurrentLocalToProjection);

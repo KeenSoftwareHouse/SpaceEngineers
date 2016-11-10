@@ -71,8 +71,8 @@ PS_INPUT __vertex_shader(uint VertexId : SV_VertexID)
 #if defined (STREAKS)
     if (emitter.Flags & EMITTERFLAG_STREAKS)
     {
-        float3 cameraFacingPos = mul(float4(pa.Position, 1), frame_.view_matrix).xyz;
-        float3x3 mat = (float3x3)frame_.view_matrix;
+        float3 cameraFacingPos = mul(float4(pa.Position, 1), frame_.Environment.view_matrix).xyz;
+        float3x3 mat = (float3x3)frame_.Environment.view_matrix;
         float2 vsVelocity = mul(pa.Velocity.xyz * emitter.StreakMultiplier, mat).xy;
 
         float2 ellipsoidRadius = calcEllipsoidRadius(radius, vsVelocity) * offset;
@@ -80,8 +80,8 @@ PS_INPUT __vertex_shader(uint VertexId : SV_VertexID)
         float2 extrusionVector = normalize(vsVelocity);
         float2 tangentVector = float2(extrusionVector.y, -extrusionVector.x);
         cameraFacingPos.xy += ellipsoidRadius.y * extrusionVector + ellipsoidRadius.x * tangentVector;
-        wPos = mul(float4(cameraFacingPos, 1), frame_.inv_view_matrix).xyz;
-        pPos = mul(float4(cameraFacingPos, 1), frame_.projection_matrix);
+        wPos = mul(float4(cameraFacingPos, 1), frame_.Environment.inv_view_matrix).xyz;
+        pPos = mul(float4(cameraFacingPos, 1), frame_.Environment.projection_matrix);
     }
     else
 #endif
@@ -95,18 +95,18 @@ PS_INPUT __vertex_shader(uint VertexId : SV_VertexID)
         // individual billboarding
         float2 localVertex = radius * offset;
         float3 look = normalize(GetEyeCenterPosition() - pa.Position);
-        float3 upCamera = float3(frame_.view_matrix._12, frame_.view_matrix._22, frame_.view_matrix._32);
+        float3 upCamera = float3(frame_.Environment.view_matrix._12, frame_.Environment.view_matrix._22, frame_.Environment.view_matrix._32);
         float3 right = cross(upCamera, look);
         float3 up = cross(look, right);
         float3x3 bbm = float3x3(right, up, look);
         wPos = mul(float3(localVertex, 0), bbm) + pa.Position;
-        pPos = mul(float4(wPos, 1), frame_.view_projection_matrix);
+        pPos = mul(float4(wPos, 1), frame_.Environment.view_projection_matrix);
 
         // collective billboarding
-        //float3 cameraFacingPos = mul(float4(pa.Position, 1), frame_.view_matrix).xyz;
+        //float3 cameraFacingPos = mul(float4(pa.Position, 1), frame_.Environment.view_matrix).xyz;
         //cameraFacingPos.xy += radius * offset;
-        //wPos = mul(float4(cameraFacingPos, 1), frame_.inv_view_matrix).xyz;
-        //pPos = mul(float4(cameraFacingPos, 1), frame_.projection_matrix);
+        //wPos = mul(float4(cameraFacingPos, 1), frame_.Environment.inv_view_matrix).xyz;
+        //pPos = mul(float4(cameraFacingPos, 1), frame_.Environment.projection_matrix);
     }
         
     // COLOR / OPACITY
@@ -130,7 +130,7 @@ PS_INPUT __vertex_shader(uint VertexId : SV_VertexID)
         float depth = -pPos.z / pPos.w;
 
         // shadow
-        float shadow = calculate_shadow_fast_particle(wPos, depth);
+        float shadow = 1;//calculate_shadow_fast_particle(wPos, depth);
 
         // volumetric light
         float3 dirLight = 1;
@@ -140,8 +140,8 @@ PS_INPUT __vertex_shader(uint VertexId : SV_VertexID)
             float scalarDistanceToParticle = dot(emitterToParticle, pa.Normal);
             float3 projectedParticle = wPos - scalarDistanceToParticle * pa.Normal;
             float3 planarNormal = normalize(projectedParticle - pa.Origin);
-            float emitterNdotL = saturate(dot(-frame_.directionalLightVec, planarNormal));
-            dirLight = emitterNdotL * frame_.directionalLightColor;
+            float emitterNdotL = saturate(dot(-frame_.Light.directionalLightVec, planarNormal));
+            dirLight = emitterNdotL * frame_.Light.directionalLightColor;
         }
 
         // ambient
@@ -170,8 +170,8 @@ void __pixel_shader(PS_INPUT In, out float4 accumTarget : SV_TARGET0, out float4
 {
     // SOFT PARTICLES
     float depth = g_DepthTexture[In.Position.xy].r;
-    float targetDepth = linearize_depth(depth, frame_.projection_matrix);
-    float particleDepth = linearize_depth(In.Position.z, frame_.projection_matrix);
+    float targetDepth = linearize_depth(depth, frame_.Environment.projection_matrix);
+    float particleDepth = linearize_depth(In.Position.z, frame_.Environment.projection_matrix);
     float depthFade = CalcSoftParticle(In.OITWeight_SoftParticle.y, targetDepth, particleDepth);
 
     // COLOR & LIGHT

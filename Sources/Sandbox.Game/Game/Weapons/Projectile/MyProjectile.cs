@@ -253,8 +253,8 @@ namespace Sandbox.Game.Weapons
 
                 //particle effect defined in materialProperties.sbc
                 Vector3D particleHitPosition = hitInfo.Position + line.Direction * -0.2;
-                MyMaterialPropertiesHelper.Static.TryCreateCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Hit, particleHitPosition, hitInfo.Normal, m_projectileAmmoDefinition.PhysicalMaterial, materialType);
-                if (surfaceImpact != MySurfaceImpactEnum.CHARACTER)
+                bool createdEffect = MyMaterialPropertiesHelper.Static.TryCreateCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Hit, particleHitPosition, hitInfo.Normal, m_projectileAmmoDefinition.PhysicalMaterial, materialType);
+                if (!createdEffect && surfaceImpact != MySurfaceImpactEnum.CHARACTER)
                     MyParticleEffects.CreateBasicHitParticles(m_projectileAmmoDefinition.ProjectileOnHitEffectName, ref hitInfo.Position, ref hitInfo.Normal, ref line.Direction, entity, m_weapon, 1, OwnerEntity);
                 
                 CreateDecal(materialType);
@@ -373,6 +373,9 @@ namespace Sandbox.Game.Weapons
                     MyCubeGrid grid = entity as MyCubeGrid;
                     if (grid != null)
                     {
+                        var tmp = line.To;
+                        line.To = line.From;
+                        line.From = line.To;
                         bool success = grid.GetIntersectionWithLine(ref line, ref m_cubeGridHitInfo);
                         if (success)
                         {

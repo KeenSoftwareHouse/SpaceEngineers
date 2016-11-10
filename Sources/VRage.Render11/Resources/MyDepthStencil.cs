@@ -17,7 +17,7 @@ namespace VRage.Render11.Resources
         ISrvBindable SrvStencil { get; }
     }
 
-    internal interface IDepthStencilInternal : IDepthStencil, IResource
+    internal interface IDepthStencilInternal : IDepthStencil
     {
         DepthStencilView Dsv { get; }
         DepthStencilView Dsv_ro { get; }
@@ -168,6 +168,9 @@ namespace VRage.Render11.Resources
             {
                 get { return m_srvStencil; }
             }
+
+            public Format Format { get { return m_dsvFormat; } }
+
 
             public void OnDeviceInit()
             {

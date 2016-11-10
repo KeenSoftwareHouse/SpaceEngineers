@@ -452,6 +452,12 @@ namespace Sandbox.Game.Entities.Character.Components
 
         public override void OnAddedToContainer()
         {
+            if (MySandboxGame.IsDedicated)
+            {
+                Container.Remove<MyCharacterRagdollComponent>();
+                return;
+            }
+
             if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("RagdollComponent.OnAddedToContainer");
             base.OnAddedToContainer();
             NeedsUpdateAfterSimulation = true;

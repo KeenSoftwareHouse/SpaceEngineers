@@ -17,7 +17,7 @@ namespace VRage.Render11.RenderContext
         protected CommonShaderStage m_shaderStage;
         protected MyRenderContextStatistics m_statistics;
 
-        Buffer[] m_constantBuffers = new Buffer[8];
+        IConstantBuffer[] m_constantBuffers = new IConstantBuffer[8];
         SamplerState[] m_samplers = new SamplerState[16];
         ShaderResourceView[] m_srvs = new ShaderResourceView[32];
 
@@ -45,12 +45,16 @@ namespace VRage.Render11.RenderContext
                 m_srvs[i] = null;
         }
 
-        internal void SetConstantBuffer(int slot, Buffer constantBuffer)
+        internal void SetConstantBuffer(int slot, IConstantBuffer constantBuffer)
         {
+            Buffer buffer = null;
+            if (constantBuffer != null)
+                buffer = constantBuffer.Buffer;
+
             if (constantBuffer == m_constantBuffers[slot])
                 return;
             m_constantBuffers[slot] = constantBuffer;
-            m_shaderStage.SetConstantBuffer(slot, constantBuffer);
+            m_shaderStage.SetConstantBuffer(slot, buffer);
             m_statistics.SetConstantBuffers++;
         }
 
@@ -170,16 +174,6 @@ namespace VRage.Render11.RenderContext
                     null,
                     null);
             }
-        }
-
-        // todo: temporary method:
-        internal void SetRawSrv(int slot, ShaderResourceView srv)
-        {
-            if (srv == m_srvs[slot])
-                return;
-            m_srvs[slot] = srv;
-            m_shaderStage.SetShaderResource(slot, srv);
-            m_statistics.SetSrvs++;
         }
     }
 
@@ -310,25 +304,6 @@ namespace VRage.Render11.RenderContext
                 m_statistics.SetUavs++;
             }
         }
-
-        internal void SetRawUav(int slot, UnorderedAccessView uav)
-        {
-            if (uav == m_uavs[slot])
-                return;
-            m_uavs[slot] = uav; 
-            m_deviceContext.ComputeShader.SetUnorderedAccessView(slot, uav);
-            m_statistics.SetUavs++;
-        }
-
-        internal void SetRawUav(int slot, UnorderedAccessView uav, int uavInitialCount)
-        {
-            if (uav == m_uavs[slot] && uavInitialCount == m_uavsInitialCount[slot])
-                return;
-            m_uavs[slot] = uav;
-            m_uavsInitialCount[slot] = uavInitialCount; 
-            m_deviceContext.ComputeShader.SetUnorderedAccessView(slot, uav, uavInitialCount);
-            m_statistics.SetUavs++;
-        }
     }
 
 
@@ -348,7 +323,7 @@ namespace VRage.Render11.RenderContext
             m_computeStage = computeStage;
         }
 
-        internal void SetConstantBuffer(int slot, Buffer constantBuffer)
+        internal void SetConstantBuffer(int slot, IConstantBuffer constantBuffer)
         {
             m_vertexStage.SetConstantBuffer(slot, constantBuffer);
             m_geometryStage.SetConstantBuffer(slot, constantBuffer);
@@ -361,14 +336,6 @@ namespace VRage.Render11.RenderContext
             m_vertexStage.SetSrv(slot, srv);
             m_pixelStage.SetSrv(slot, srv);
             m_computeStage.SetSrv(slot, srv);
-        }
-
-        // todo: temporary method:
-        internal void SetRawSrv(int slot, ShaderResourceView srv)
-        {
-            m_vertexStage.SetRawSrv(slot, srv);
-            m_pixelStage.SetRawSrv(slot, srv);
-            m_computeStage.SetRawSrv(slot, srv);
         }
     }
 }

@@ -28,6 +28,7 @@ namespace VRageRender
         
         TEXCOORD0_H,
         TEXCOORD0,
+        TEXINDICES,
 
         NORMAL,
         TANGENT_SIGN_OF_BITANGENT,

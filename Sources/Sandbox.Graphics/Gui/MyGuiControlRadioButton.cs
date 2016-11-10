@@ -130,8 +130,8 @@ namespace Sandbox.Graphics.GUI
         {
             public MyGuiCompositeTexture NormalTexture;
             public MyGuiCompositeTexture HighlightTexture;
-            public MyFontEnum NormalFont;
-            public MyFontEnum HighlightFont;
+            public string NormalFont;
+            public string HighlightFont;
             public MyGuiBorderThickness Padding;
         }
 
@@ -197,7 +197,7 @@ namespace Sandbox.Graphics.GUI
         private MyGuiControlRadioButtonStyleEnum m_visualStyle;
         private StyleDefinition m_styleDef;
         private StringBuilder m_text;
-        private MyFontEnum m_font;
+        private string m_font;
         private RectangleF m_internalArea;
 
 

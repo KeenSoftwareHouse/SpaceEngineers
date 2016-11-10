@@ -17,11 +17,13 @@ struct PixelInterface
 	float emissive;
 	float3 position_ws;
 	uint material_flags;
+    uint LOD;
 	// USER DATA 
 	MaterialVertexPayload custom;
 };
 
-void init_ps_interface(inout PixelInterface pix) {
+void init_ps_interface(inout PixelInterface pix)
+{
 	pix.key_color = 0;
 	pix.custom_alpha = 0;
 	pix.position_ws = 0;
@@ -29,6 +31,12 @@ void init_ps_interface(inout PixelInterface pix) {
 	pix.emissive = 0;
 	pix.material_flags = 0;
 	pix.hologram = 0;
+#ifdef USE_MERGE_INSTANCING
+    pix.LOD = 0;
+#else
+    pix.LOD = object_.LOD;
+#endif
+
 #ifndef PASS_OBJECT_VALUES_THROUGH_STAGES
 	pix.material_flags = object_.material_flags;
 	pix.key_color = object_.key_color;

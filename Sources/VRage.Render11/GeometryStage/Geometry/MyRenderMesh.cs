@@ -1,21 +1,13 @@
-﻿using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using VRage.FileSystem;
-using VRage.Import;
-using VRage.Library.Utils;
+using VRage.Render11.Common;
 using VRage.Render11.Resources;
-using VRage.Utils;
 using VRageMath;
-using VRageMath.PackedVector;
 using VRageRender.Import;
 using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
 
 namespace VRageRender
 {
@@ -51,8 +43,8 @@ namespace VRageRender
     class MyRenderMeshInfo
     {
         internal MyVertexInputLayout VertexLayout;
-        internal VertexBufferId[] VB;
-        internal IndexBufferId IB = IndexBufferId.NULL;
+        internal IVertexBuffer[] VB;
+        internal IIndexBuffer IB;
         internal int Id;
         internal Dictionary<MyMeshDrawTechnique, MyDrawSubmesh[]> Parts = new Dictionary<MyMeshDrawTechnique, MyDrawSubmesh[]>();
         internal Dictionary<MyMeshDrawTechnique, MySubmeshInfo[]> PartsMetadata = new Dictionary<MyMeshDrawTechnique, MySubmeshInfo[]>(); // well, we need this too after all
@@ -76,17 +68,17 @@ namespace VRageRender
 
         internal void ReleaseBuffers()
         {
-            if(IB != IndexBufferId.NULL)
+            if(IB != null)
             {
-                MyHwBuffers.Destroy(IB);
-                IB = IndexBufferId.NULL;
+                MyManagers.Buffers.Dispose(IB);
+                IB = null;
             }
             if(VB != null)
             {
                 foreach(var vb in VB)
                 {
                     //vb.Dispose();
-                    MyHwBuffers.Destroy(vb);
+                    MyManagers.Buffers.Dispose(vb);
                 }
                 VB = null;
             }
@@ -205,7 +197,7 @@ namespace VRageRender
                 foreach (var vb in lod.m_meshInfo.VB)
                 {
                     MyPerformanceCounter.PerAppLifetime.ModelVertexBuffersSize += vb.ByteSize;
-                    MyPerformanceCounter.PerAppLifetime.MyModelsVertexesCount += vb.Capacity;
+                    MyPerformanceCounter.PerAppLifetime.MyModelsVertexesCount += vb.ElementCount;
                 }
 
                 MyPerformanceCounter.PerAppLifetime.ModelIndexBuffersSize += lod.m_meshInfo.IB.ByteSize;

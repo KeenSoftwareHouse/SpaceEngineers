@@ -66,7 +66,7 @@ namespace VRageRender
         public float EnvShadowFadeoutMultiplier;
 
         public float EnvAtmosphereBrightness;
-        public float _pad0, _pad1, _pad2;
+        public Vector3 __pad;
 
         static MyEnvironmentLightData()
         {

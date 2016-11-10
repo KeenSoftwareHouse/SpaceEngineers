@@ -569,7 +569,7 @@ namespace Sandbox.Game.Gui
             foreach (var entry in materials)
             {
                 MyFixedPoint inventoryCount = m_selectedAssembler.InputInventory.GetItemAmount(entry.Key);
-                var font = (disassembling || entry.Value <= inventoryCount) ? MyFontEnum.White : MyFontEnum.Red;
+                string font = (disassembling || entry.Value <= inventoryCount) ? MyFontEnum.White : MyFontEnum.Red;
                 m_materialsList.Add(entry.Key, (double)entry.Value, (double)inventoryCount, font);
             }
         }

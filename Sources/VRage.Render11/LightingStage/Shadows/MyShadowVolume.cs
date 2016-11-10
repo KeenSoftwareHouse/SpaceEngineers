@@ -76,7 +76,7 @@ namespace VRage.Render11.LightingStage.Shadows
             lineBatch.Commit();
         }
 
-        public MyShadowmapQuery GetShadowmapQueryForSingleShadow(IDsvBindable dsvBindable)
+        public MyShadowmapQuery GetShadowmapQueryForSingleShadow(int index, IDsvBindable dsvBindable)
         {
             MyProjectionInfo projInfo = new MyProjectionInfo();
             projInfo.WorldCameraOffsetPosition = MyRender11.Environment.Matrices.CameraPosition;
@@ -90,7 +90,7 @@ namespace VRage.Render11.LightingStage.Shadows
             query.ProjectionFactor = (float)Math.Sqrt(dsvBindable.Size.X * dsvBindable.Size.Y / (m_matrixShadowToWorldAt0Space.Left.Length() * m_matrixShadowToWorldAt0Space.Up.Length()));
 
             query.QueryType = MyFrustumEnum.ShadowProjection;
-            query.CascadeIndex = 0;
+            query.Index = index;
             return query;
         }
 
@@ -108,7 +108,7 @@ namespace VRage.Render11.LightingStage.Shadows
             query.ProjectionFactor = (float)Math.Sqrt(dsvBindable.Size.X * dsvBindable.Size.Y / (m_matrixShadowToWorldAt0Space.Left.Length() * m_matrixShadowToWorldAt0Space.Up.Length()));
 
             query.QueryType = MyFrustumEnum.ShadowCascade;
-            query.CascadeIndex = cascadeIndex;
+            query.Index = cascadeIndex;
             return query;
         }
     }

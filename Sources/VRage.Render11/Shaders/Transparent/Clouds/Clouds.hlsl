@@ -60,11 +60,11 @@ void __pixel_shader(PsInput input, out float4 output : SV_Target0)
 	float alphaSample = AlphamaskTexture.Sample(Sampler, input.uv) * Color.w;
 
 
-	float3 cameraForward = float3(frame_.view_matrix._13, frame_.view_matrix._23, frame_.view_matrix._33);
+	float3 cameraForward = float3(frame_.Environment.view_matrix._13, frame_.Environment.view_matrix._23, frame_.Environment.view_matrix._33);
 	float3 centerPosition = float3(World._41, World._42, World._43);
 	float layerScale = length(float3(World._13, World._23, World._33));
 
-	float3 cameraPosition = float3(frame_.view_matrix._41, frame_.view_matrix._42, frame_.view_matrix._43);
+	float3 cameraPosition = float3(frame_.Environment.view_matrix._41, frame_.Environment.view_matrix._42, frame_.Environment.view_matrix._43);
 	float distance = length(input.positionWorld.xyz - cameraPosition);
 	alphaSample *= pow(min(distance / (layerScale / 12), 1.0), 3.0);
 
@@ -80,7 +80,7 @@ void __pixel_shader(PsInput input, out float4 output : SV_Target0)
 
 	// Extremely simple shading
 	//float3 normalSample = normalize(mul(NormalGlossTexture.Sample(PointSampler, input.uv).xyz, (float3x3)World));
-	float shadingMultiplier = clamp(pow(abs((1 - dot(input.normal, frame_.directionalLightVec)) / 2), 2.0), 0.025, 1);
+	float shadingMultiplier = clamp(pow(abs((1 - dot(input.normal, frame_.Light.directionalLightVec)) / 2), 2.0), 0.025, 1);
 
 	output = float4(colorSample, alphaSample) * shadingMultiplier * edgeFactor;
 }
@@ -125,7 +125,7 @@ void __compute_shader(
 	float fogDensity = lerp(0, highestFogDensity, 1 - saturate(abs(CameraAltitude - LayerAltitude) / (LayerThickness / 2)));
 	float fogMultiplier = uniform_fog(max(1 - depthSample*500, 0), fogDensity);
 
-	float4 fogColor = D3DX_R8G8B8A8_UNORM_to_FLOAT4(frame_.fog_color);
+	float4 fogColor = D3DX_R8G8B8A8_UNORM_to_FLOAT4(frame_.Fog.color);
 
 #ifndef MS_SAMPLE_COUNT
 	float4 sample = Input[texel];

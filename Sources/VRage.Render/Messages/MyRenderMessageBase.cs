@@ -39,7 +39,11 @@ namespace VRageRender.Messages
     {
         public string TargetTexture { get; set; }
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        /// <summary>If it has a target offscreen texture, then the message has to be processed earlier</summary>
+        public override MyRenderMessageType MessageClass
+        {
+            get { return TargetTexture == null ? MyRenderMessageType.Draw : MyRenderMessageType.StateChangeOnce; }
+        }
     }
 
     public abstract class MyDebugRenderMessage : MyRenderMessageBase

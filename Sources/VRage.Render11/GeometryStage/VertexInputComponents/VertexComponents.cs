@@ -109,10 +109,10 @@ namespace VRageRender
 
             code.Append("__position_object = unpack_voxel_position(input.position);\\\n");
             code.Append("__material_weights = unpack_voxel_weights(input.position.w);\\\n");
-            code.Append("__ambient_occlusion = unpack_voxel_ao(input.position.w);\\\n");
+            code.Append("__colorBrightnessFactor = unpack_voxel_ao(input.position.w);\\\n");
             code.Append("__position_object_morph = unpack_voxel_position(input.position_morph);\\\n");
             code.Append("__material_weights_morph = unpack_voxel_weights(input.position_morph.w);\\\n");
-            code.Append("__ambient_occlusion_morph = unpack_voxel_ao(input.position_morph.w);\\\n");
+            code.Append("__colorBrightnessFactor_morph = unpack_voxel_ao(input.position_morph.w);\\\n");
         }
     }
 
@@ -151,6 +151,18 @@ namespace VRageRender
             AddSingle("TEXCOORD", "float2 texcoord0", Format.R32G32_Float, component, list, dict, declaration);
 
             code.Append("__texcoord0 = input.texcoord0;\\\n");
+        }
+    }
+
+    internal sealed class MyTexIndicesComponent : MyComponent
+    {
+        internal override void AddComponent(MyVertexInputComponent component,
+            List<InputElement> list, Dictionary<string, int> dict,
+            StringBuilder declaration, StringBuilder code)
+        {
+            AddSingle("TEXCOORD", "uint4 texIndices", Format.R8G8B8A8_UInt, component, list, dict, declaration);
+
+            code.Append("__texIndices = (float4) input.texIndices;\\\n");
         }
     }
 
@@ -335,6 +347,7 @@ namespace VRageRender
             m_mapComponent[MyVertexInputComponentType.CUSTOM_UNORM4_1] = new MyCustomUnorm4_1Component();
             m_mapComponent[MyVertexInputComponentType.TEXCOORD0_H] = new MyTexcoord0HalfComponent();
             m_mapComponent[MyVertexInputComponentType.TEXCOORD0] = new MyTexcoord0Component();
+            m_mapComponent[MyVertexInputComponentType.TEXINDICES] = new MyTexIndicesComponent();
             m_mapComponent[MyVertexInputComponentType.NORMAL] = new MyNormalComponent();
             m_mapComponent[MyVertexInputComponentType.VOXEL_NORMAL] = new MyVoxelNormalComponent();
             m_mapComponent[MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT] = new MyTangentBitanSgnComponent();

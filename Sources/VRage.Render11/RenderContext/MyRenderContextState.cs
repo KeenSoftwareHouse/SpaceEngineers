@@ -1,7 +1,10 @@
-﻿using SharpDX.Direct3D;
+﻿using System.Diagnostics;
+using System.Linq;
+using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
+using VRage.Render11.Resources;
 using VRageMath;
 using VRageRender;
 
@@ -12,14 +15,19 @@ namespace VRage.Render11.RenderContext.Internal
         DeviceContext m_deviceContext;
         MyRenderContextStatistics m_statistics;
 
-        #region InputAssembler
+
+        #region Cache fields
+
         InputLayout m_inputLayout;
         PrimitiveTopology m_primitiveTopology;
-        Buffer m_indexBufferRef;
-        Format m_indexBufferFormat;
+
+        IIndexBuffer m_indexBufferRef;
+        MyIndexBufferFormat m_indexBufferFormat;
         int m_indexBufferOffset;
-        Buffer[] m_vertexBuffers = new Buffer[8];
-        int[] m_vertexBuffersStrides = new int[8];
+
+        readonly IVertexBuffer[] m_vertexBuffers = new IVertexBuffer[8];
+        readonly int[] m_vertexBuffersStrides = new int[8];
+
         #endregion
 
         #region OutputMerger
@@ -55,7 +63,7 @@ namespace VRage.Render11.RenderContext.Internal
             m_inputLayout = null;
             m_primitiveTopology = PrimitiveTopology.Undefined;
             m_indexBufferRef = null;
-            m_indexBufferFormat = Format.Unknown;
+            m_indexBufferFormat = 0;
             m_indexBufferOffset = 0;
             for (int i = 0; i < m_vertexBuffers.Length; i++)
                 m_vertexBuffers[i] = null;
@@ -102,48 +110,41 @@ namespace VRage.Render11.RenderContext.Internal
             m_statistics.SetPrimitiveTopologies++;
         }
 
-        internal void SetIndexBuffer(Buffer ib, Format f, int offset)
+        internal void SetIndexBuffer(IIndexBuffer ib, MyIndexBufferFormat format, int offset)
         {
-            if (ib == m_indexBufferRef && f == m_indexBufferFormat && offset == m_indexBufferOffset)
+            if (ib == m_indexBufferRef
+                && format == m_indexBufferFormat
+                && offset == m_indexBufferOffset)
                 return;
 
             m_indexBufferRef = ib;
-            m_indexBufferFormat = f;
+            m_indexBufferFormat = format;
             m_indexBufferOffset = offset;
-            m_deviceContext.InputAssembler.SetIndexBuffer(ib, f, offset);
+            m_deviceContext.InputAssembler.SetIndexBuffer(ib.Buffer, (Format)format, offset);
             m_statistics.SetIndexBuffers++;
         }
 
-        internal void SetVertexBuffer(int slot, Buffer vb, int stride)
+        internal void SetVertexBuffer(int slot, IVertexBuffer vb, int stride)
         {
             MyRenderProxy.Assert(slot < m_vertexBuffers.Length);
 
             if (vb == m_vertexBuffers[slot] && stride == m_vertexBuffersStrides[slot])
                 return;
+
             m_vertexBuffers[slot] = vb;
             m_vertexBuffersStrides[slot] = stride;
-            m_deviceContext.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(vb, stride, 0));
+
+            m_deviceContext.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(vb != null ? vb.Buffer : null, stride, 0));
             m_statistics.SetVertexBuffers++;
         }
 
-        internal void SetVertexBuffers(int startSlot, Buffer[] vbs, int[] strides)
+        internal void SetVertexBuffers(int startSlot, IVertexBuffer[] vbs, int[] strides)
         {
+            Debug.Assert(strides != null);
             MyRenderProxy.Assert(startSlot + vbs.Length < m_vertexBuffers.Length);
 
-            bool same = true;
             for (int i = startSlot; i < startSlot + vbs.Length; i++)
-                if (vbs[i] != m_vertexBuffers[i] || strides[i] != m_vertexBuffersStrides[i])
-                    same = false;
-            if (same)
-                return;
-
-            for (int i = 0; i < vbs.Length; i++)
-            {
-                m_vertexBuffers[i + startSlot] = vbs[i];
-                m_vertexBuffersStrides[i + startSlot] = strides[i];
-            }
-            m_deviceContext.InputAssembler.SetVertexBuffers(startSlot, vbs, strides, null);
-            m_statistics.SetVertexBuffers++;
+                SetVertexBuffer(i, vbs[i], strides[i]);
         }
 
         internal void SetBlendState(BlendState bs)

@@ -25,7 +25,7 @@ namespace VRage.Render11.LightingStage.Shadows
         internal Vector3 ProjectionDir;
         internal float ProjectionFactor;
         internal MyFrustumEnum QueryType;
-        internal int CascadeIndex;
+        internal int Index;
 
         internal HashSet<uint> IgnoredEntities;
     }
@@ -123,12 +123,17 @@ namespace VRage.Render11.LightingStage.Shadows
         {
             if (Settings.NewData.FreezeShadowMaps)
                 return;
-    
+
+            int index = 0;
             foreach (var shadowmap in m_objectsPoolSingleShadowmap.Active)
             {
                 if (shadowmap.IsUpdated)
-                    shadowmap.AddShadowmapQuery(ref shadowmapQueries);
+                {
+                    shadowmap.AddShadowmapQuery(index, shadowmapQueries);
+                    index++;
+                }
             }
+
             foreach (var csm in m_objectsPoolCsm.Active)
             {
                 if (!Settings.NewData.FreezeShadowVolumePositions)

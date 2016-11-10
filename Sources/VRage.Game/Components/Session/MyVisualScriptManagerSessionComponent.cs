@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Game.Components;
 using VRage.Game.VisualScripting;
@@ -13,17 +16,38 @@ namespace VRage.Game.SessionComponents
     public class MyVisualScriptManagerSessionComponent : MySessionComponentBase
     {
         private static bool                                         m_firstUpdate = true;
-        private List<IMyLevelScript>                                m_levelScripts;
+        private CachingList<IMyLevelScript>                         m_levelScripts;
         private MyObjectBuilder_VisualScriptManagerSessionComponent m_objectBuilder;
         private MyVSStateMachineManager                             m_smManager;
         // there are all of the found paths
         private readonly Dictionary<string, string>                 m_relativePathsToAbsolute = new Dictionary<string, string>();
         // just the State machine paths
         private readonly List<string>                               m_stateMachineDefinitionFilePaths = new List<string>();  
+        // Names of running level scripts
+        private string[]                                            m_runningLevelScriptNames; 
+        // Exceptions of failed level scripts
+        private string[]                                            m_failedLevelScriptExceptionTexts;
 
         public MyVSStateMachineManager SMManager
         {
             get { return m_smManager; }
+        }
+
+        /// <summary>
+        /// Array of running level script names.
+        /// </summary>
+        public string[] RunningLevelScriptNames
+        {
+            get { return m_runningLevelScriptNames; }
+        }
+
+        /// <summary>
+        /// Array of exceptions raised when the scripts were running.
+        /// The name of the script is at the same index. (RunningLevelScriptNames)
+        /// </summary>
+        public string[] FailedLevelScriptExceptionTexts
+        {
+            get { return m_failedLevelScriptExceptionTexts; }
         }
 
         public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
@@ -115,7 +139,17 @@ namespace VRage.Game.SessionComponents
             // Provider will compile all required scripts for the session.
             MyVSAssemblyProvider.Init(m_relativePathsToAbsolute.Values);
             // Retrive the Level script instances
-            m_levelScripts = MyVSAssemblyProvider.GetLevelScriptInstances();
+            m_levelScripts = new CachingList<IMyLevelScript>();
+            var scriptInstances = MyVSAssemblyProvider.GetLevelScriptInstances();
+            if(scriptInstances != null)
+            {
+                scriptInstances.ForEach(script => m_levelScripts.Add(script));
+            }
+            m_levelScripts.ApplyAdditions();
+
+            // Store the names of the level scripts
+            m_runningLevelScriptNames = m_levelScripts.Select(x => x.GetType().Name).ToArray();
+            m_failedLevelScriptExceptionTexts = new string[m_runningLevelScriptNames.Length];
 
             // mission manager initialization - state machine definitions
             m_smManager = new MyVSStateMachineManager();
@@ -145,12 +179,30 @@ namespace VRage.Game.SessionComponents
             if (m_levelScripts == null) return;
             foreach (var levelScript in m_levelScripts)
             {
-                if(m_firstUpdate)
-                    levelScript.GameStarted();
-                else
-                    levelScript.Update();
+                try
+                {
+                    if(m_firstUpdate)
+                        levelScript.GameStarted();
+                    else
+                        levelScript.Update();
+                }
+                catch (Exception e)
+                {
+                    var brokenScriptName = levelScript.GetType().Name;
+                    for (int index = 0; index < m_runningLevelScriptNames.Length; index++)
+                    {
+                        if (m_runningLevelScriptNames[index] == brokenScriptName)
+                        {
+                            m_runningLevelScriptNames[index] += " - failed";
+                            m_failedLevelScriptExceptionTexts[index] = e.ToString();
+                        }
+                    }
+
+                    m_levelScripts.Remove(levelScript);
+                }
             }
 
+            m_levelScripts.ApplyRemovals();
             m_firstUpdate = false;
         }
 
@@ -174,6 +226,7 @@ namespace VRage.Game.SessionComponents
             m_smManager = null;
 
             m_levelScripts.Clear();
+            m_levelScripts.ApplyRemovals();
         }
 
         public override MyObjectBuilder_SessionComponent GetObjectBuilder()

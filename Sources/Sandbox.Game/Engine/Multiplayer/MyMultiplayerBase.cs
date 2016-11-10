@@ -269,7 +269,7 @@ namespace Sandbox.Engine.Multiplayer
         public event Action<ulong, ChatMemberStateChangeEnum> ClientLeft;
         public event Action HostLeft;
         public event Action<ulong, string, ChatEntryTypeEnum> ChatMessageReceived;
-        public event Action<string, string, MyFontEnum> ScriptedChatMessageReceived;
+        public event Action<string, string, string> ScriptedChatMessageReceived;
         public event Action<ulong> ClientKicked;
 
         internal MyMultiplayerBase(MySyncLayer syncLayer)
@@ -435,9 +435,10 @@ namespace Sandbox.Engine.Multiplayer
 
             MySandboxGame.Log.WriteLineAndConsole("World request received: " + GetMemberName(sender));
 
-            if (IsClientKickedOrBanned(sender))
+            if (IsClientKickedOrBanned(sender) || MySandboxGame.ConfigDedicated.Banned.Contains(sender))
             {
-                MySandboxGame.Log.WriteLineAndConsole("Sending no world, because client has been kicked or banned: " + GetMemberName(sender));
+                MySandboxGame.Log.WriteLineAndConsole("Sending no world, because client has been kicked or banned: " + GetMemberName(sender) + " (Client is probably modified.)");
+                RaiseClientLeft(sender, ChatMemberStateChangeEnum.Banned);
                 return;
             }
 
@@ -684,7 +685,7 @@ namespace Sandbox.Engine.Multiplayer
                 handler(steamUserID, messageText, chatEntryType);
         }
 
-        protected void RaiseScriptedChatMessageReceived(string author, string messageText, MyFontEnum font)
+        protected void RaiseScriptedChatMessageReceived(string author, string messageText, string font)
         {
             var handler = ScriptedChatMessageReceived;
             if (handler != null)
@@ -867,6 +868,6 @@ namespace Sandbox.Engine.Multiplayer
         public string Text;
         public string Author;
         public long Target;
-        public MyFontEnum Font;
+        public string Font;
     }
 }

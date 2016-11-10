@@ -29,12 +29,22 @@ namespace VRageRender
             RC.SetBlendState(null);
         }
 
-        internal static void RunWithStencil(IRtvBindable destinationResource, ISrvBindable sourceResource, IBlendState blendState, IDepthStencilState depthStencilState, int stencilMask)
+        internal static void RunWithStencil(IRtvBindable destinationResource, ISrvBindable sourceResource, IBlendState blendState,
+            IDepthStencilState depthStencilState = null, int stencilMask = 0x0, IDepthStencil depthStencil = null)
         {
-            RC.SetDepthStencilState(depthStencilState, stencilMask);
             RC.SetBlendState(blendState);
             RC.SetRasterizerState(null);
-            RC.SetRtv(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadOnly, destinationResource);
+            if (depthStencilState == null)
+            {
+                RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);
+                RC.SetRtv(null, MyDepthStencilAccess.ReadOnly, destinationResource);
+            }
+            else
+            {
+                RC.SetDepthStencilState(depthStencilState, stencilMask);
+                RC.SetRtv(depthStencil ?? MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadOnly, destinationResource);
+            }
+
             RC.PixelShader.SetSrv(0, sourceResource);
             RC.PixelShader.Set(m_copyPixelShader);
 
@@ -42,14 +52,15 @@ namespace VRageRender
             RC.SetBlendState(null);
         }
 
-        internal static void RunWithPixelStencilTest(IRtvBindable dst, ISrvBindable src, IBlendState bs = null, bool inverseTest = false)
+        internal static void RunWithPixelStencilTest(IRtvBindable dst, ISrvBindable src, IBlendState bs = null,
+            bool inverseTest = false, IDepthStencil depthStencil = null)
         {
             RC.SetDepthStencilState(null);
             RC.SetBlendState(bs);
             RC.SetRasterizerState(null);
             RC.SetRtv(dst);
             RC.PixelShader.SetSrv(0, src);
-            RC.PixelShader.SetSrv(1, MyGBuffer.Main.DepthStencil.SrvStencil);
+            RC.PixelShader.SetSrv(1, depthStencil == null ? MyGBuffer.Main.DepthStencil.SrvStencil : depthStencil.SrvStencil);
             if (!inverseTest)
                 RC.PixelShader.Set(m_stencilTestPixelShader);
             else

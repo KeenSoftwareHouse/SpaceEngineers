@@ -34,6 +34,7 @@ namespace VRage.Game.ModAPI
         int? ScreenHeight { get; }
         int? ScreenWidth { get; }
         MyShadowsQuality? ShadowQuality { get; }
+        bool? AmbientOcclusionEnabled { get; }
         bool ShowCrosshair { get; }
         bool ShowPlayerNamesOnHud { get; }
         MyTextureQuality? TextureQuality { get; }

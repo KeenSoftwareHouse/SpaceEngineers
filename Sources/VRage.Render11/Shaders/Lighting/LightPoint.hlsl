@@ -12,9 +12,9 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 	)
 {
 	uint2 tileCoord = vertex.position.xy;
-	tileCoord = tileCoord % frame_.resolution;
+	tileCoord = tileCoord % frame_.Screen.resolution;
 	tileCoord /= 16;
-    uint tileIndex = mad(frame_.tiles_x, tileCoord.y, tileCoord.x);// tileCoord.y * frame_.tiles_x + tileCoord.x;
+    uint tileIndex = mad(frame_.Screen.tiles_x, tileCoord.y, tileCoord.x);// tileCoord.y * frame_.Screen.tiles_x + tileCoord.x;
 
 	uint numLights = min(TileIndices[tileIndex], MAX_TILE_LIGHTS);
 
@@ -28,7 +28,7 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 		discard;
 
 	// in view space
-	float3 N = mul(input.N, (float3x3) frame_.view_matrix);
+	float3 N = mul(input.N, (float3x3) frame_.Environment.view_matrix);
 	float3 V = input.VView;
 
 	float3 acc = 0;
@@ -36,7 +36,7 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 	[loop]
 	for(uint i = 0; i < numLights; i++) 
 	{
-        uint index = TileIndices[frame_.tiles_num + mad(MAX_TILE_LIGHTS, tileIndex, i)];
+        uint index = TileIndices[frame_.Screen.tiles_num + mad(MAX_TILE_LIGHTS, tileIndex, i)];
 		PointLightData light = LightList[index];
 
 		float3 L = light.positionView - input.positionView;
@@ -60,7 +60,7 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 
         attenuation = saturate((attenuation - cutoff) / (1 - cutoff));
 		
-        float ao = saturate(1 - (1 - input.ao) * frame_.aoPointLight);
+        float ao = saturate(1 - (1 - input.ao) * frame_.Light.aoPointLight);
 		float3 light_factor = attenuation * light.color * ao;
         acc += light_factor * MaterialRadiance(input.albedo, input.f0, input.gloss * light.glossFactor, N, L, V, H, light.diffuseFactor);
 	}

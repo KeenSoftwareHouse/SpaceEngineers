@@ -110,7 +110,7 @@ namespace Sandbox.Game.WorldEnvironment
                     }
 
                     MyRenderProxy.UpdateRenderInstanceBufferRange(InstanceBufferId, Instances);
-                    MyRenderProxy.UpdateRenderInstanceBufferSettings(InstanceBufferId, -1, m_parent.Lod == 0);
+                    MyRenderProxy.UpdateRenderInstanceBufferSettings(InstanceBufferId, m_parent.Lod == 0);
                     MyRenderProxy.SetInstanceBuffer(RenderObjectId, InstanceBufferId, 0, Instances.Length, bounds);
 
                     MyRenderProxy.UpdateRenderObject(RenderObjectId, ref m_parent.WorldMatrix, false, (BoundingBoxD)bounds);

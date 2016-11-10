@@ -44,7 +44,7 @@ namespace Sandbox.Game.Weapons.Guns
 
         public override void DebugDraw()
         {
-            MyRenderProxy.DebugDrawSphere(Center, m_radius, Color.Red, 1.0f, true);
+            MyRenderProxy.DebugDrawSphere(Center, m_radius, Color.Yellow, 1.0f, true);
         }
     }
 }

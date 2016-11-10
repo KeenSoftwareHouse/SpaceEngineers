@@ -21,6 +21,8 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.SessionComponents;
+using VRage.Game.VisualScripting.Missions;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -44,6 +46,8 @@ namespace Sandbox.Game.Screens
         private MyGuiControlButton m_enlargeTriggerButton;
         private MyGuiControlButton m_shrinkTriggerButton;
         private MyGuiControlListbox m_triggersListBox;
+        private MyGuiControlListbox m_smListBox;
+        private MyGuiControlListbox m_levelScriptListBox;
         private MyGuiControlTextbox m_selectedTriggerNameBox;
         private MyGuiControlTextbox m_selectedEntityNameBox;
         private MyGuiControlTextbox m_selectedFunctionalBlockNameBox;
@@ -52,6 +56,7 @@ namespace Sandbox.Game.Screens
 
         private readonly MyTriggerManipulator m_triggerManipulator;
         private readonly MyEntityTransformationSystem m_transformSys;
+        private readonly MyVisualScriptManagerSessionComponent m_scriptManager;
 
         private readonly StringBuilder m_helperStringBuilder = new StringBuilder();
 
@@ -73,6 +78,7 @@ namespace Sandbox.Game.Screens
             m_transformSys = MySession.Static.GetComponent<MyEntityTransformationSystem>();
             m_transformSys.ControlledEntityChanged += TransformSysOnControlledEntityChanged;
             m_transformSys.RayCasted += TransformSysOnRayCasted;
+            m_scriptManager = MySession.Static.GetComponent<MyVisualScriptManagerSessionComponent>();
 
             // Switch to spectator
             MySession.Static.SetCameraController(MyCameraControllerEnum.SpectatorFreeMouse);
@@ -138,6 +144,12 @@ namespace Sandbox.Game.Screens
 
         private void HandleShortcuts()
         {
+            // Deselect
+            if (MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsNewKeyPressed(MyKeys.D))
+            {
+                m_transformSys.SetControlledEntity(null);
+            }
+
             if(MyInput.Static.IsAnyShiftKeyPressed() && MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsAnyAltKeyPressed())
                 return;
 
@@ -176,6 +188,9 @@ namespace Sandbox.Game.Screens
             MyDebugDrawSettings.ENABLE_DEBUG_DRAW = false;
             MyDebugDrawSettings.DEBUG_DRAW_UPDATE_TRIGGER = false;
 
+            // Disable transform sys
+            m_transformSys.Active = false;
+
             return base.CloseScreen();
         }
 
@@ -194,6 +209,77 @@ namespace Sandbox.Game.Screens
             // Update triggers and their GUI
             m_triggerManipulator.CurrentPosition = MyAPIGateway.Session.Camera.Position;
             UpdateTriggerList();
+
+            // Update the level script listbox -- only change can be sudden fail of the script
+            for (int index = 0; index < m_scriptManager.FailedLevelScriptExceptionTexts.Length; index++)
+            {
+                var failedLevelScriptExceptionText = m_scriptManager.FailedLevelScriptExceptionTexts[index];
+                if (failedLevelScriptExceptionText != null && (bool)m_levelScriptListBox.Items[index].UserData)
+                {
+                    m_levelScriptListBox.Items[index].Text.Append(" - failed");
+                    m_levelScriptListBox.Items[index].FontOverride = MyFontEnum.Red;
+                    m_levelScriptListBox.Items[index].ToolTip.AddToolTip(failedLevelScriptExceptionText, font: MyFontEnum.Red);
+                }
+            }
+
+            // Update running state machines
+            if (m_scriptManager.SMManager.RunningMachines != null)
+            {
+                foreach (var stateMachine in m_scriptManager.SMManager.RunningMachines)
+                {
+                    var indexOf = m_smListBox.Items.FindIndex(item => (MyVSStateMachine) item.UserData == stateMachine);
+                    if (indexOf == -1)
+                    {
+                        // new Entry
+                        m_smListBox.Add(new MyGuiControlListbox.Item(new StringBuilder(stateMachine.Name),
+                            userData: stateMachine, toolTip: "Cursors:"));
+                        indexOf = m_smListBox.Items.Count - 1;
+                    }
+
+                    var listItem = m_smListBox.Items[indexOf];
+                    // Remove tooltips for missing cursors
+                    for (int index = listItem.ToolTip.ToolTips.Count - 1; index >= 0; index--)
+                    {
+                        var toolTip = listItem.ToolTip.ToolTips[index];
+
+                        var found = false;
+                        foreach (var cursor in stateMachine.ActiveCursors)
+                        {
+                            if (toolTip.Text.CompareTo(cursor.Node.Name) == 0)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found && index != 0)
+                        {
+                            // remove missing
+                            listItem.ToolTip.ToolTips.RemoveAtFast(index);
+                        }
+                    }
+
+                    foreach (var cursor in stateMachine.ActiveCursors)
+                    {
+                        var found = false;
+                        for (int index = listItem.ToolTip.ToolTips.Count - 1; index >= 0; index--)
+                        {
+                            var text = listItem.ToolTip.ToolTips[index];
+                            if (text.Text.CompareTo(cursor.Node.Name) == 0)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            // Add missing
+                            listItem.ToolTip.AddToolTip(cursor.Node.Name);
+                        }
+                    }
+                }
+            }
 
             return base.Update(hasFocus);
         }
@@ -308,11 +394,41 @@ namespace Sandbox.Game.Screens
 
             // Listbox for queried triggers
             m_triggersListBox = CreateListBox();
+            m_triggersListBox.Size = new Vector2(0f, 0.06f);
             m_triggersListBox.ItemDoubleClicked += TriggersListBoxOnItemDoubleClicked;
             PositionControl(m_triggersListBox);
             // Because something is reseting the value
             m_triggersListBox.ItemSize = new Vector2(SCREEN_SIZE.X, ITEM_SIZE.Y);
 
+            // Running Level Scripts
+            PositionControl(CreateLabel("Running Level Scripts"));
+            m_levelScriptListBox = CreateListBox();
+            m_levelScriptListBox.Size = new Vector2(0f, 0.06f);
+            PositionControl(m_levelScriptListBox);
+            // Because something is reseting the value
+            m_triggersListBox.ItemSize = new Vector2(SCREEN_SIZE.X, ITEM_SIZE.Y);
+
+            // Fill with levelscripts -- they wont change during the process
+            if (m_scriptManager.RunningLevelScriptNames != null)
+            {
+                foreach (var runningLevelScriptName in m_scriptManager.RunningLevelScriptNames)
+                {
+                    // user data are there to tell if the script already failed or not
+                    m_levelScriptListBox.Add(new MyGuiControlListbox.Item(new StringBuilder(runningLevelScriptName),
+                        userData: false));
+                }
+            }
+
+            // Running State machines
+            PositionControl(CreateLabel("Running state machines"));
+            m_smListBox = CreateListBox();
+            m_smListBox.Size = new Vector2(0f, 0.06f);
+            PositionControl(m_smListBox);
+            // Because something is reseting the value
+            m_smListBox.ItemSize = new Vector2(SCREEN_SIZE.X, ITEM_SIZE.Y);
+
+            // Activate transfomation system
+            m_transformSys.Active = true;
         }
 
         #region GUI callbacks

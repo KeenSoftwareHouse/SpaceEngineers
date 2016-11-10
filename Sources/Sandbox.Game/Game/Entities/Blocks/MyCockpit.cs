@@ -971,15 +971,15 @@ namespace Sandbox.Game.Entities
         {
             if (Render.NearFlag)
             {
-                VRageRender.MyRenderProxy.ChangeModel(Render.RenderObjectIDs[0], 0, string.IsNullOrEmpty(m_cockpitInteriorModel) ? BlockDefinition.Model : m_cockpitInteriorModel, true);
+                VRageRender.MyRenderProxy.ChangeModel(Render.RenderObjectIDs[0], string.IsNullOrEmpty(m_cockpitInteriorModel) ? BlockDefinition.Model : m_cockpitInteriorModel);
                 if (!ForceFirstPersonCamera)
                     m_headLocalXAngle = DEFAULT_FPS_CAMERA_X_ANGLE;
                 VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(Render.RenderObjectIDs[0], Render.Visible, Render.NearFlag);
             }
             else
             {
-                VRageRender.MyRenderProxy.ChangeModel(Render.RenderObjectIDs[0], 0, string.IsNullOrEmpty(m_cockpitInteriorModel) ? BlockDefinition.Model : m_cockpitInteriorModel, true);
-                VRageRender.MyRenderProxy.ChangeModel(Render.RenderObjectIDs[0], 0, BlockDefinition.Model, false);
+                VRageRender.MyRenderProxy.ChangeModel(Render.RenderObjectIDs[0], string.IsNullOrEmpty(m_cockpitInteriorModel) ? BlockDefinition.Model : m_cockpitInteriorModel);
+                VRageRender.MyRenderProxy.ChangeModel(Render.RenderObjectIDs[0], BlockDefinition.Model);
                 if (!string.IsNullOrEmpty(m_cockpitGlassModel))
                     VRageRender.MyRenderProxy.UpdateCockpitGlass(false, m_cockpitGlassModel, PositionComp.WorldMatrix, GlassDirt);
             }

@@ -227,8 +227,8 @@ namespace VRageRender
 
             var sphereMesh = MyMeshes.GetMeshId(X.TEXT_("Models/Debug/Sphere.mwm"), 1.0f);
             var buffers = MyMeshes.GetLodMesh(sphereMesh, 0).Buffers;
-            RC.SetVertexBuffer(0, buffers.VB0.Buffer, buffers.VB0.Stride);
-            RC.SetIndexBuffer(buffers.IB.Buffer, buffers.IB.Format);
+            RC.SetVertexBuffer(0, buffers.VB0);
+            RC.SetIndexBuffer(buffers.IB);
 
             RC.VertexShader.Set(m_proxyVs);
             RC.SetInputLayout(m_proxyIL);

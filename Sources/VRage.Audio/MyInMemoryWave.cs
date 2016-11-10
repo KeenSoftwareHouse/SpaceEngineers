@@ -55,10 +55,15 @@ namespace VRage.Audio
 
         public void Dispose()
         {
+            if (m_buffer != null && m_buffer.Stream != null)
+            {
+                m_buffer.Stream.Dispose();
+            }
+
             if (Streamed)
             {
+                m_owner.LoadedStreamedWaves[m_path].Dispose();
                 m_owner.LoadedStreamedWaves.Remove(m_path);
-                m_buffer.Stream.Dispose();
             }
         }
 

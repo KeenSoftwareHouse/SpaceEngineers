@@ -64,7 +64,7 @@ void __pixel_shader(PostprocessVertex input, out float4 output : SV_Target0)
 
 #ifdef DEPTH_DISCARD_THRESHOLD
     float depthSample = SampleDepth(input.position.xy);
-    float linearDepth = -linearize_depth(depthSample, frame_.projection_matrix);
+    float linearDepth = compute_depth(depthSample);
 #endif
 
     [unroll]
@@ -80,7 +80,7 @@ void __pixel_shader(PostprocessVertex input, out float4 output : SV_Target0)
 
 #ifdef DEPTH_DISCARD_THRESHOLD  // Really expensive, avoid using this flag if at all possible
         float depthSampleAtOffset = SampleDepth(texel);
-        float linearDepthAtOffset = -linearize_depth(depthSampleAtOffset, frame_.projection_matrix);
+        float linearDepthAtOffset = compute_depth(depthSampleAtOffset);
         if ( !depth_not_background(depthSampleAtOffset) || (abs(linearDepth - linearDepthAtOffset) > DEPTH_DISCARD_THRESHOLD) )
         {
             result = SampleInput(input.position.xy);

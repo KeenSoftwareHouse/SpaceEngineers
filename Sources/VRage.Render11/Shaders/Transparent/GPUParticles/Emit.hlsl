@@ -52,7 +52,7 @@ void __compute_shader(uint3 id : SV_DispatchThreadID)
             float3 vec = (saturate(rndLength) * (1 - emitter.EmitterSizeMin) + emitter.EmitterSizeMin) * rndNormal;
             float3 localPos = vec * emitter.EmitterSize * emitter.Scale;
             float3 emitterPos = mul(float4(localPos, 1), emitter.RotationMatrix).xyz;
-            pa.Position = emitterPos + frame_.cameraPositionDelta + emitter.PositionDelta * simFactor;
+            pa.Position = emitterPos + frame_.Environment.cameraPositionDelta + emitter.PositionDelta * simFactor;
 
             pa.Acceleration = mul(emitter.Acceleration, (float3x3)emitter.RotationMatrix) + emitter.Gravity;
 

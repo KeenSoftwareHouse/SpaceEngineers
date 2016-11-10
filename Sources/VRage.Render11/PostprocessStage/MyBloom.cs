@@ -39,7 +39,7 @@ namespace VRageRender
             }
         }
 
-        internal static ConstantsBufferId GetCB_blur(MyStereoRegion region, Vector2I uavSize)
+        internal static IConstantBuffer GetCB_blur(MyStereoRegion region, Vector2I uavSize)
         {
             int offX = 0;
             int maxX = uavSize.X - 1;
@@ -61,7 +61,7 @@ namespace VRageRender
             return buffer;
         }
         
-        internal static ConstantsBufferId GetCBSize(float width, float height)
+        internal static IConstantBuffer GetCBSize(float width, float height)
         {
             var buffer = MyCommon.GetObjectCB(8);
             var mapping = MyMapping.MapDiscard(buffer);
@@ -82,7 +82,7 @@ namespace VRageRender
             int screenX = MyRender11.ResolutionI.X;
             int screenY = MyRender11.ResolutionI.Y;
             Format formatLBuffer = MyGBuffer.LBufferFormat;
-            MyRwTexturePool rwTexturePool = MyManagers.RwTexturesPool;
+            MyBorrowedRwTextureManager rwTexturePool = MyManagers.RwTexturesPool;
             IBorrowedUavTexture uavHalfScreen = rwTexturePool.BorrowUav("MyBloom.UavHalfScreen", screenX / 2, screenY / 2, formatLBuffer);
             IBorrowedUavTexture uavBlurScreen = rwTexturePool.BorrowUav("MyBloom.UavBlurScreen", screenX / BLOOM_TARGET_SIZE_DIVIDER, screenY / BLOOM_TARGET_SIZE_DIVIDER, formatLBuffer);
             IBorrowedUavTexture uavBlurScreenHelper = rwTexturePool.BorrowUav("MyBloom.UavBlurScreenHelper", screenX / BLOOM_TARGET_SIZE_DIVIDER, screenY / BLOOM_TARGET_SIZE_DIVIDER, formatLBuffer);

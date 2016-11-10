@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using SharpDX.Direct3D11;
 using VRage.Library.Utils;
 using VRage.Render11.Common;
 using VRage.Render11.Resources;
@@ -13,35 +14,6 @@ using VRageRender.Voxels;
 
 namespace VRageRender
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct MyTextureDebugMultipliers
-    {
-        public float AlbedoMultiplier;
-        public float MetalnessMultiplier;
-        public float GlossMultiplier;
-        public float AoMultiplier;
-
-        public float EmissiveMultiplier;
-        public float ColorMaskMultiplier;
-        public float AlbedoShift;
-        public float MetalnessShift;
-
-        public float GlossShift;
-        public float AoShift;
-        public float EmissiveShift;
-        public float ColorMaskShift;
-
-        public static MyTextureDebugMultipliers Defaults = new MyTextureDebugMultipliers
-        {
-            AlbedoMultiplier = 1.0f,
-            MetalnessMultiplier = 1.0f,
-            GlossMultiplier = 1.0f,
-            AoMultiplier = 1.0f,
-            EmissiveMultiplier = 1.0f,
-            ColorMaskMultiplier = 1.0f,
-        };
-    }
-
     static class MyCommon
     {
         // constant buffers
@@ -53,13 +25,13 @@ namespace VRageRender
         internal const int ALPHAMASK_VIEWS_SLOT = 5;
 
         // srvs
-            // geometry
+        // geometry
         internal const int BIG_TABLE_INDICES = 10;
         internal const int BIG_TABLE_VERTEX_POSITION = 11;
         internal const int BIG_TABLE_VERTEX = 12;
         internal const int INSTANCE_INDIRECTION = 13;
         internal const int INSTANCE_DATA = 14;
-            // lighting
+        // lighting
         internal const int SKYBOX_SLOT = 10;
         internal const int SKYBOX_IBL_SLOT = 11;
         internal const int AO_SLOT = 12;
@@ -77,16 +49,16 @@ namespace VRageRender
         const float MAX_FRAMETIME = 66.0f;
         const int DEFAULT_SEED = 0x4A6F7921;
 
-        internal static ConstantsBufferId FrameConstantsStereoLeftEye { get; set; }
-        internal static ConstantsBufferId FrameConstantsStereoRightEye { get; set; }
-        
-        internal static ConstantsBufferId FrameConstants { get; set; }
-        internal static ConstantsBufferId ProjectionConstants { get; set; }
-        internal static ConstantsBufferId ObjectConstants { get; set; }
-        internal static ConstantsBufferId FoliageConstants { get; set; }
-        internal static ConstantsBufferId MaterialFoliageTableConstants { get; set; }
-        internal static ConstantsBufferId OutlineConstants { get; set; }
-        internal static ConstantsBufferId AlphamaskViewsConstants { get; set; }
+        internal static IConstantBuffer FrameConstantsStereoLeftEye { get; set; }
+        internal static IConstantBuffer FrameConstantsStereoRightEye { get; set; }
+
+        internal static IConstantBuffer FrameConstants { get; set; }
+        internal static IConstantBuffer ProjectionConstants { get; set; }
+        internal static IConstantBuffer ObjectConstants { get; set; }
+        internal static IConstantBuffer FoliageConstants { get; set; }
+        internal static IConstantBuffer MaterialFoliageTableConstants { get; set; }
+        internal static IConstantBuffer HighlightConstants { get; set; }
+        internal static IConstantBuffer AlphamaskViewsConstants { get; set; }
 
         internal static UInt64 FrameCounter = 0;
 
@@ -97,16 +69,16 @@ namespace VRageRender
         }
         internal static unsafe void Init()
         {
-            FrameConstantsStereoLeftEye = MyHwBuffers.CreateConstantsBuffer(sizeof(MyFrameConstantsLayout), "FrameConstantsStereoLeftEye");
-            FrameConstantsStereoRightEye = MyHwBuffers.CreateConstantsBuffer(sizeof(MyFrameConstantsLayout), "FrameConstantsStereoRightEye");
+            FrameConstantsStereoLeftEye = MyManagers.Buffers.CreateConstantBuffer("FrameConstantsStereoLeftEye", sizeof(MyFrameConstantsLayout), usage: ResourceUsage.Dynamic);
+            FrameConstantsStereoRightEye = MyManagers.Buffers.CreateConstantBuffer("FrameConstantsStereoRightEye", sizeof(MyFrameConstantsLayout), usage: ResourceUsage.Dynamic);
 
-            FrameConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(MyFrameConstantsLayout), "FrameConstants");
-            ProjectionConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix), "ProjectionConstants");
-            ObjectConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix), "ObjectConstants");
-            FoliageConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Vector4), "FoliageConstants");
-            MaterialFoliageTableConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Vector4) * 256, "MaterialFoliageTableConstants");
-            OutlineConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(OutlineConstantsLayout), "OutlineConstants");
-            AlphamaskViewsConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix) * 181, "AlphamaskViewsConstants");
+            FrameConstants = MyManagers.Buffers.CreateConstantBuffer("FrameConstants", sizeof(MyFrameConstantsLayout), usage: ResourceUsage.Dynamic);
+            ProjectionConstants = MyManagers.Buffers.CreateConstantBuffer("ProjectionConstants", sizeof(Matrix), usage: ResourceUsage.Dynamic);
+            ObjectConstants = MyManagers.Buffers.CreateConstantBuffer("ObjectConstants", sizeof(Matrix), usage: ResourceUsage.Dynamic);
+            FoliageConstants = MyManagers.Buffers.CreateConstantBuffer("FoliageConstants", sizeof(Vector4), usage: ResourceUsage.Dynamic);
+            MaterialFoliageTableConstants = MyManagers.Buffers.CreateConstantBuffer("MaterialFoliageTableConstants", sizeof(Vector4) * 256, usage: ResourceUsage.Dynamic);
+            HighlightConstants = MyManagers.Buffers.CreateConstantBuffer("HighlightConstants", sizeof(HighlightConstantsLayout), usage: ResourceUsage.Dynamic);
+            AlphamaskViewsConstants = MyManagers.Buffers.CreateConstantBuffer("AlphamaskViewsConstants", sizeof(Matrix) * 181, usage: ResourceUsage.Dynamic);
 
             UpdateAlphamaskViewsConstants();
         }
@@ -117,102 +89,162 @@ namespace VRageRender
             return texManager.GetTexture("Textures/Miscellaneous/ambient_brdf.dds", MyFileTextureEnum.CUSTOM, true);
         }
 
-        internal static Dictionary<int, ConstantsBufferId> m_objectsConstantBuffers = new Dictionary<int, ConstantsBufferId>();
+        internal static Dictionary<int, IConstantBuffer> m_objectsConstantBuffers = new Dictionary<int, IConstantBuffer>();
 
-        internal static ConstantsBufferId GetObjectCB(int size)
+        internal static IConstantBuffer GetObjectCB(int size)
         {
             // align size
-            size = ((size + 15)/16)*16;
-            if(!m_objectsConstantBuffers.ContainsKey(size))
+            size = ((size + 15) / 16) * 16;
+            if (!m_objectsConstantBuffers.ContainsKey(size))
             {
-                m_objectsConstantBuffers[size] = MyHwBuffers.CreateConstantsBuffer(size, "CommonObjectCB" + size);
+                m_objectsConstantBuffers[size] = MyManagers.Buffers.CreateConstantBuffer("CommonObjectCB" + size, size, usage: ResourceUsage.Dynamic);
 
             }
             return m_objectsConstantBuffers[size];
         }
 
-        internal static Dictionary<int, ConstantsBufferId> m_materialsConstantBuffers = new Dictionary<int, ConstantsBufferId>();
+        internal static Dictionary<int, IConstantBuffer> m_materialsConstantBuffers = new Dictionary<int, IConstantBuffer>();
 
-        internal static ConstantsBufferId GetMaterialCB(int size)
+        internal static IConstantBuffer GetMaterialCB(int size)
         {
             // align size
             size = ((size + 15) / 16) * 16;
             if (!m_materialsConstantBuffers.ContainsKey(size))
             {
-                m_materialsConstantBuffers[size] = MyHwBuffers.CreateConstantsBuffer(size, "CommonMaterialCB" + size);
+                m_materialsConstantBuffers[size] = MyManagers.Buffers.CreateConstantBuffer("CommonMaterialCB" + size, size, usage: ResourceUsage.Dynamic);
 
             }
             return m_materialsConstantBuffers[size];
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        struct MyFrameConstantsLayout
+        #region Frame constants layout
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct MyEnvironmentLayout
         {
-            internal Matrix ViewProjection;
             internal Matrix View;
             internal Matrix Projection;
+            internal Matrix ViewProjection;
             internal Matrix InvView;
             internal Matrix InvProjection;
             internal Matrix InvViewProjection;
             internal Matrix ViewProjectionWorld;
+
+            internal Matrix BackgroundOrientation;
+
             internal Vector4 WorldOffset;
-
             internal Vector3 EyeOffsetInWorld;
-            internal float  _Padding1;
+            internal float __pad0;
 
+            internal Vector3 CameraPositionDelta;
+            internal float __pad1;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct MyScreenLayout
+        {
             internal Vector2I GBufferOffset;
             internal Vector2I ResolutionOfGBuffer;
 
             internal Vector2 Resolution;
-            internal float FrameTime;
-            internal float FrameTimeDelta;
-
-            internal Vector4 TerrainTextureDistances;
-
-            internal Vector2 TerrainDetailRange;
             internal uint TilesNum;
             internal uint TilesX;
+        }
 
-            internal Vector4 FoliageClippingScaling;
-
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct MyFoliageLayout
+        {
+            internal Vector4 ClippingScaling;
             internal Vector3 WindVector;
+            float __pad;
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct MyFogLayout
+        {
+            internal float Density;
+            internal float Mult;
+            internal uint Color;             // sRGB
+            float __pad;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct MyVoxelLayout
+        {
+            internal Vector4 LodRange0;
+            internal Vector4 LodRange1;
+            internal Vector4 LodRange2;
+            internal Vector4 LodRange3;
+
+            internal Vector4 MassiveLodRange0;
+            internal Vector4 MassiveLodRange1;
+            internal Vector4 MassiveLodRange2;
+            internal Vector4 MassiveLodRange3;
+            internal Vector4 MassiveLodRange4;
+            internal Vector4 MassiveLodRange5;
+            internal Vector4 MassiveLodRange6;
+            internal Vector4 MassiveLodRange7;
+
             internal float DebugVoxelLod;
+            Vector3 __pad;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct MyTextureDebugMultipliers
+        {
+            public float AlbedoMultiplier;
+            public float MetalnessMultiplier;
+            public float GlossMultiplier;
+            public float AoMultiplier;
+
+            public float EmissiveMultiplier;
+            public float ColorMaskMultiplier;
+            public float AlbedoShift;
+            public float MetalnessShift;
+
+            public float GlossShift;
+            public float AoShift;
+            public float EmissiveShift;
+            public float ColorMaskShift;
+
+            internal static MyTextureDebugMultipliers Defaults = new MyTextureDebugMultipliers
+            {
+                AlbedoMultiplier = 1.0f,
+                MetalnessMultiplier = 1.0f,
+                GlossMultiplier = 1.0f,
+                AoMultiplier = 1.0f,
+                EmissiveMultiplier = 1.0f,
+                ColorMaskMultiplier = 1.0f,
+            };
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct MyFrameConstantsLayout
+        {
+            internal MyEnvironmentLayout Environment;
+
+            internal MyScreenLayout Screen;
+
+            internal MyFoliageLayout Foliage;
 
             internal MyEnvironmentLightData EnvironmentLight;
+
             internal MyPostprocessSettings.Layout Postprocess;
 
-            internal float FogDensity;
-            internal float FogMult;
-            internal uint FogColor;             // sRGB
-            internal float RandomSeed;
+            internal MyFogLayout Fog;
 
-            internal Vector4 VoxelLodRange0;
-            internal Vector4 VoxelLodRange1;
-            internal Vector4 VoxelLodRange2;
-            internal Vector4 VoxelLodRange3;
-
-            internal Vector4 VoxelMassiveLodRange0;
-            internal Vector4 VoxelMassiveLodRange1;
-            internal Vector4 VoxelMassiveLodRange2;
-            internal Vector4 VoxelMassiveLodRange3;
-            internal Vector4 VoxelMassiveLodRange4;
-            internal Vector4 VoxelMassiveLodRange5;
-            internal Vector4 VoxelMassiveLodRange6;
-            internal Vector4 VoxelMassiveLodRange7;
-
-            internal float EnableVoxelAo;
-            internal float VoxelAoMin;
-            internal float VoxelAoMax;
-            internal float VoxelAoOffset;
-
-            internal Matrix BackgroundOrientation;
+            internal MyVoxelLayout Voxel;
 
             internal MyTextureDebugMultipliers TextureDebugMultipliers;
 
-            internal Vector3 CameraPositionDelta;
-            internal float _pad0;
-            
+
+            internal float FrameTime;
+            internal float FrameTimeDelta;
+            internal float RandomSeed;
+            float __pad;
         }
+
+        #endregion
 
         internal static void MoveToNextFrame()
         {
@@ -252,48 +284,124 @@ namespace VRageRender
 
         private static void UpdateFrameConstantsInternal(MyEnvironmentMatrices envMatrices, ref MyFrameConstantsLayout constants, MyStereoRegion typeofFC)
         {
-            constants.View = Matrix.Transpose(envMatrices.ViewAt0);
-            constants.Projection = Matrix.Transpose(envMatrices.Projection);
-            constants.ViewProjection = Matrix.Transpose(envMatrices.ViewProjectionAt0);
-            constants.InvView = Matrix.Transpose(envMatrices.InvViewAt0);
-            constants.InvProjection = Matrix.Transpose(envMatrices.InvProjection);
-            constants.InvViewProjection = Matrix.Transpose(envMatrices.InvViewProjectionAt0);
-            constants.ViewProjectionWorld = Matrix.Transpose(envMatrices.ViewProjection);
-            constants.WorldOffset = new Vector4(envMatrices.CameraPosition, 0);
+            constants.Environment.View = Matrix.Transpose(envMatrices.ViewAt0);
+            constants.Environment.Projection = Matrix.Transpose(envMatrices.Projection);
+            constants.Environment.ViewProjection = Matrix.Transpose(envMatrices.ViewProjectionAt0);
+            constants.Environment.InvView = Matrix.Transpose(envMatrices.InvViewAt0);
+            constants.Environment.InvProjection = Matrix.Transpose(envMatrices.InvProjection);
+            constants.Environment.InvViewProjection = Matrix.Transpose(envMatrices.InvViewProjectionAt0);
+            constants.Environment.ViewProjectionWorld = Matrix.Transpose(envMatrices.ViewProjection);
+            constants.Environment.WorldOffset = new Vector4(envMatrices.CameraPosition, 0);
 
-            constants.Resolution = MyRender11.ResolutionF;
+            constants.Screen.Resolution = MyRender11.ResolutionF;
             if (typeofFC != MyStereoRegion.FULLSCREEN)
             {
-                constants.Resolution.X /= 2;
+                constants.Screen.Resolution.X /= 2;
 
                 Vector3 eyeOffset = new Vector3(envMatrices.ViewAt0.M41, envMatrices.ViewAt0.M42, envMatrices.ViewAt0.M43);
                 Vector3 eyeOffsetInWorld = Vector3.Transform(eyeOffset, Matrix.Transpose(MyRender11.Environment.Matrices.ViewAt0));
-                constants.EyeOffsetInWorld = eyeOffsetInWorld;
+                constants.Environment.EyeOffsetInWorld = eyeOffsetInWorld;
             }
 
-            constants.GBufferOffset = new Vector2I(0, 0);
+            constants.Screen.GBufferOffset = new Vector2I(0, 0);
             if (typeofFC == MyStereoRegion.RIGHT)
-                constants.GBufferOffset.X = MyRender11.ResolutionI.X / 2;
+                constants.Screen.GBufferOffset.X = MyRender11.ResolutionI.X / 2;
 
-            constants.ResolutionOfGBuffer = MyRender11.ResolutionI;
+            constants.Screen.ResolutionOfGBuffer = MyRender11.ResolutionI;
         }
 
         internal static void UpdateFrameConstants()
         {
+            // environment
             MyFrameConstantsLayout constants = new MyFrameConstantsLayout();
             UpdateFrameConstantsInternal(MyRender11.Environment.Matrices, ref constants, MyStereoRegion.FULLSCREEN);
-            constants.CameraPositionDelta = MyRender11.Environment.Matrices.CameraPosition - m_lastCameraPosition;
+            constants.Environment.CameraPositionDelta = MyRender11.Environment.Matrices.CameraPosition - m_lastCameraPosition;
             m_lastCameraPosition = MyRender11.Environment.Matrices.CameraPosition;
 
-            constants.TerrainTextureDistances = new Vector4(
-                MyRender11.Settings.TerrainDetailD0,
-                1.0f / (MyRender11.Settings.TerrainDetailD1 - MyRender11.Settings.TerrainDetailD0),
-                MyRender11.Settings.TerrainDetailD2,
-                1.0f / (MyRender11.Settings.TerrainDetailD3 - MyRender11.Settings.TerrainDetailD2));
-            
-            constants.TerrainDetailRange.X = 0;
-            constants.TerrainDetailRange.Y = 0;
+            // skybox
+            constants.Environment.BackgroundOrientation = Matrix.CreateFromQuaternion(MyRender11.Environment.Data.SkyboxOrientation);
 
+            // screen
+            constants.Screen.TilesNum = (uint)MyScreenDependants.TilesNum;
+            constants.Screen.TilesX = (uint)MyScreenDependants.TilesX;
+
+            // foliage
+            constants.Foliage.ClippingScaling = new Vector4(
+                //MyRender.Settings.GrassGeometryClippingDistance,
+                MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance(),
+                MyRender11.Settings.GrassGeometryScalingNearDistance,
+                MyRender11.Settings.GrassGeometryScalingFarDistance,
+                MyRender11.Settings.GrassGeometryDistanceScalingFactor);
+            constants.Foliage.WindVector = new Vector3(
+                (float)Math.Cos(MyRender11.Settings.WindAzimuth * Math.PI / 180.0),
+                0,
+                (float)Math.Sin(MyRender11.Settings.WindAzimuth * Math.PI / 180.0)) * MyRender11.Settings.WindStrength;
+
+            // postprocess
+            constants.Postprocess = MyRender11.Postprocess.GetProcessedData();
+
+            // lighting data
+            constants.EnvironmentLight = MyRender11.Environment.Data.EnvironmentLight;
+            if (!MyRender11.DebugOverrides.Sun)
+                constants.EnvironmentLight.SunColorRaw = new Vector3(0, 0, 0);
+
+            // fog
+            constants.Fog.Density = MyRender11.Environment.Fog.FogDensity;
+            constants.Fog.Mult = MyRender11.Environment.Fog.FogMultiplier;
+            constants.Fog.Color = MyRender11.Environment.Fog.FogColor.PackedValue;
+
+            // voxels
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 0, out constants.Voxel.LodRange0.X, out constants.Voxel.LodRange0.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 1, out constants.Voxel.LodRange0.Z, out constants.Voxel.LodRange0.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 2, out constants.Voxel.LodRange1.X, out constants.Voxel.LodRange1.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 3, out constants.Voxel.LodRange1.Z, out constants.Voxel.LodRange1.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 4, out constants.Voxel.LodRange2.X, out constants.Voxel.LodRange2.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 5, out constants.Voxel.LodRange2.Z, out constants.Voxel.LodRange2.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 6, out constants.Voxel.LodRange3.X, out constants.Voxel.LodRange3.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 7, out constants.Voxel.LodRange3.Z, out constants.Voxel.LodRange3.W);
+
+            //
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 0, out constants.Voxel.MassiveLodRange0.X, out constants.Voxel.MassiveLodRange0.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 1, out constants.Voxel.MassiveLodRange0.Z, out constants.Voxel.MassiveLodRange0.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 2, out constants.Voxel.MassiveLodRange1.X, out constants.Voxel.MassiveLodRange1.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 3, out constants.Voxel.MassiveLodRange1.Z, out constants.Voxel.MassiveLodRange1.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 4, out constants.Voxel.MassiveLodRange2.X, out constants.Voxel.MassiveLodRange2.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 5, out constants.Voxel.MassiveLodRange2.Z, out constants.Voxel.MassiveLodRange2.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 6, out constants.Voxel.MassiveLodRange3.X, out constants.Voxel.MassiveLodRange3.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 7, out constants.Voxel.MassiveLodRange3.Z, out constants.Voxel.MassiveLodRange3.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 8, out constants.Voxel.MassiveLodRange4.X, out constants.Voxel.MassiveLodRange4.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 9, out constants.Voxel.MassiveLodRange4.Z, out constants.Voxel.MassiveLodRange4.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 10, out constants.Voxel.MassiveLodRange5.X, out constants.Voxel.MassiveLodRange5.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 11, out constants.Voxel.MassiveLodRange5.Z, out constants.Voxel.MassiveLodRange5.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 12, out constants.Voxel.MassiveLodRange6.X, out constants.Voxel.MassiveLodRange6.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 13, out constants.Voxel.MassiveLodRange6.Z, out constants.Voxel.MassiveLodRange6.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 14, out constants.Voxel.MassiveLodRange7.X, out constants.Voxel.MassiveLodRange7.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 15, out constants.Voxel.MassiveLodRange7.Z, out constants.Voxel.MassiveLodRange7.W);
+
+            constants.Voxel.DebugVoxelLod = MyRender11.Settings.DebugClipmapLodColor ? 1.0f : 0.0f;
+
+            // debug multipliers
+            constants.TextureDebugMultipliers = new MyTextureDebugMultipliers
+            {
+                AlbedoMultiplier = MyRender11.Settings.AlbedoMultiplier,
+                AlbedoShift = MyRender11.Settings.AlbedoShift,
+                MetalnessMultiplier = MyRender11.Settings.MetalnessMultiplier,
+                MetalnessShift = MyRender11.Settings.MetalnessShift,
+                GlossMultiplier = MyRender11.Settings.GlossMultiplier,
+                GlossShift = MyRender11.Settings.GlossShift,
+                AoMultiplier = MyRender11.Settings.AoMultiplier,
+                AoShift = MyRender11.Settings.AoShift,
+                EmissiveMultiplier = MyRender11.Settings.EmissiveMultiplier,
+                EmissiveShift = MyRender11.Settings.EmissiveShift,
+                ColorMaskMultiplier = MyRender11.Settings.ColorMaskMultiplier,
+                ColorMaskShift = MyRender11.Settings.ColorMaskShift,
+            };
+
+            // misc
             if (m_fixedTimeStep > 0)
             {
                 m_frameTime = m_frameTime + m_fixedTimeStep;
@@ -313,91 +421,7 @@ namespace VRageRender
 
             constants.RandomSeed = m_random.NextFloat();
 
-            constants.FoliageClippingScaling = new Vector4(
-                //MyRender.Settings.GrassGeometryClippingDistance,
-                MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance(),
-                MyRender11.Settings.GrassGeometryScalingNearDistance,
-                MyRender11.Settings.GrassGeometryScalingFarDistance,
-                MyRender11.Settings.GrassGeometryDistanceScalingFactor);
-            constants.WindVector = new Vector3(
-                (float)Math.Cos(MyRender11.Settings.WindAzimuth * Math.PI / 180.0),
-                0, 
-                (float)Math.Sin(MyRender11.Settings.WindAzimuth * Math.PI / 180.0)) * MyRender11.Settings.WindStrength;
-
-            // postprocess
-            constants.Postprocess = MyRender11.Postprocess.GetProcessedData();
-
-            constants.TilesNum = (uint)MyScreenDependants.TilesNum;
-            constants.TilesX = (uint)MyScreenDependants.TilesX;
-
-            // lighting data
-            constants.EnvironmentLight = MyRender11.Environment.Data.EnvironmentLight;
-            if (!MyRender11.DebugOverrides.Sun)
-                constants.EnvironmentLight.SunColorRaw = new Vector3(0, 0, 0);
-
-            // fog
-            constants.FogDensity = MyRender11.Environment.Fog.FogDensity;
-            constants.FogMult = MyRender11.Environment.Fog.FogMultiplier;
-            constants.FogColor = MyRender11.Environment.Fog.FogColor.PackedValue;
-
-            // skybox
-            constants.BackgroundOrientation = Matrix.CreateFromQuaternion(MyRender11.Environment.Data.SkyboxOrientation);
-
-            // voxels
-            constants.DebugVoxelLod = MyRender11.Settings.DebugClipmapLodColor ? 1.0f : 0.0f;
-            constants.EnableVoxelAo = MyRender11.Settings.EnableVoxelAo ? 1f : 0f;
-            constants.VoxelAoMin = MyRender11.Settings.VoxelAoMin;
-            constants.VoxelAoMax = MyRender11.Settings.VoxelAoMax;
-            constants.VoxelAoOffset = MyRender11.Settings.VoxelAoOffset;
-
-            // debug multipliers
-            constants.TextureDebugMultipliers = new MyTextureDebugMultipliers
-            {
-                AlbedoMultiplier = MyRender11.Settings.AlbedoMultiplier,
-                AlbedoShift = MyRender11.Settings.AlbedoShift,
-                MetalnessMultiplier = MyRender11.Settings.MetalnessMultiplier,
-                MetalnessShift = MyRender11.Settings.MetalnessShift,
-                GlossMultiplier = MyRender11.Settings.GlossMultiplier,
-                GlossShift = MyRender11.Settings.GlossShift,
-                AoMultiplier = MyRender11.Settings.AoMultiplier,
-                AoShift = MyRender11.Settings.AoShift,
-                EmissiveMultiplier = MyRender11.Settings.EmissiveMultiplier,
-                EmissiveShift = MyRender11.Settings.EmissiveShift,
-                ColorMaskMultiplier = MyRender11.Settings.ColorMaskMultiplier,
-                ColorMaskShift = MyRender11.Settings.ColorMaskShift,
-            };
-
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 0, out constants.VoxelLodRange0.X, out constants.VoxelLodRange0.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 1, out constants.VoxelLodRange0.Z, out constants.VoxelLodRange0.W);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 2, out constants.VoxelLodRange1.X, out constants.VoxelLodRange1.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 3, out constants.VoxelLodRange1.Z, out constants.VoxelLodRange1.W);
-
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 4, out constants.VoxelLodRange2.X, out constants.VoxelLodRange2.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 5, out constants.VoxelLodRange2.Z, out constants.VoxelLodRange2.W);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 6, out constants.VoxelLodRange3.X, out constants.VoxelLodRange3.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 7, out constants.VoxelLodRange3.Z, out constants.VoxelLodRange3.W);
-
-            //
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 0, out constants.VoxelMassiveLodRange0.X, out constants.VoxelMassiveLodRange0.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 1, out constants.VoxelMassiveLodRange0.Z, out constants.VoxelMassiveLodRange0.W);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 2, out constants.VoxelMassiveLodRange1.X, out constants.VoxelMassiveLodRange1.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 3, out constants.VoxelMassiveLodRange1.Z, out constants.VoxelMassiveLodRange1.W);
-
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 4, out constants.VoxelMassiveLodRange2.X, out constants.VoxelMassiveLodRange2.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 5, out constants.VoxelMassiveLodRange2.Z, out constants.VoxelMassiveLodRange2.W);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 6, out constants.VoxelMassiveLodRange3.X, out constants.VoxelMassiveLodRange3.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 7, out constants.VoxelMassiveLodRange3.Z, out constants.VoxelMassiveLodRange3.W);
-
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 8, out constants.VoxelMassiveLodRange4.X, out constants.VoxelMassiveLodRange4.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 9, out constants.VoxelMassiveLodRange4.Z, out constants.VoxelMassiveLodRange4.W);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 10, out constants.VoxelMassiveLodRange5.X, out constants.VoxelMassiveLodRange5.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 11, out constants.VoxelMassiveLodRange5.Z, out constants.VoxelMassiveLodRange5.W);
-
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 12, out constants.VoxelMassiveLodRange6.X, out constants.VoxelMassiveLodRange6.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 13, out constants.VoxelMassiveLodRange6.Z, out constants.VoxelMassiveLodRange6.W);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 14, out constants.VoxelMassiveLodRange7.X, out constants.VoxelMassiveLodRange7.Y);
-            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 15, out constants.VoxelMassiveLodRange7.Z, out constants.VoxelMassiveLodRange7.W);
-
+            // send constants to device
             var mapping = MyMapping.MapDiscard(MyCommon.FrameConstants);
             mapping.WriteAndPosition(ref constants);
             mapping.Unmap();

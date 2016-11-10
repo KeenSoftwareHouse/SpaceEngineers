@@ -73,19 +73,29 @@ namespace Sandbox.Game.WorldEnvironment.Modules
             // TODO: per item max impact energy
             if (impactEnergy > ItemResilience(itemId))
             {
-                var normal = e.ContactPointEvent.ContactPoint.Normal;
-
-                impactEnergy = MathHelper.Clamp(impactEnergy, 0, ItemResilience(itemId) * 10);
-
-                Impact impact = new Impact(e.Position, normal, impactEnergy);
-
-                m_sector.RaiseItemEvent(this, itemId, impact);
-                DisableItemAndCreateDebris(ref impact, itemId);
+                BreakAt(itemId, e.Position, e.ContactPointEvent.ContactPoint.Normal, impactEnergy);
             }
 
             // Meteor destroy always
             if (other is MyMeteor)
                 m_sector.EnableItem(itemId, false);
+        }
+
+        /// <summary>
+        /// Break item at specified id of Environment Sector
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <param name="hitpos"></param>
+        /// <param name="hitnormal"></param>
+        /// <param name="impactEnergy"></param>
+        public void BreakAt(int itemId, Vector3D hitpos, Vector3D hitnormal, double impactEnergy)
+        {
+            impactEnergy = MathHelper.Clamp(impactEnergy, 0, ItemResilience(itemId) * 10);
+
+            Impact impact = new Impact(hitpos, hitnormal, impactEnergy);
+
+            m_sector.RaiseItemEvent(this, itemId, impact);
+            DisableItemAndCreateDebris(ref impact, itemId);
         }
 
         [Serializable]

@@ -28,9 +28,9 @@ namespace VRage.Game
         [ProtoMember]
         public Vector2 Size;
         [ProtoMember]
-        public MyFontEnum NormalFont;
+        public string NormalFont;
         [ProtoMember]
-        public MyFontEnum HighlightFont;
+        public string HighlightFont;
         [ProtoMember]
         public float HorizontalPadding;
         [ProtoMember]

@@ -6,6 +6,7 @@ using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
@@ -290,6 +291,13 @@ namespace Sandbox.Game.SessionComponents
                 CurrentShape.CutOut(m_currentVoxelMap);
             }
 
+            var scrolldir = Math.Sign(MyInput.Static.DeltaMouseScrollWheelValue());
+            if (scrolldir != 0 && MyInput.Static.IsAnyCtrlKeyPressed())
+            {
+                var delta = (float)CurrentShape.GetBoundaries().HalfExtents.Length() * 0.5f; //Take into account size of brush when zooming
+                SetBrushZoom(m_position + scrolldir * delta);
+            }
+
             if (phys != null && m_editing != edited)
             {
                 phys.QueueInvalidate = edited;
@@ -425,7 +433,7 @@ namespace Sandbox.Game.SessionComponents
 
                     foreach (var entity in m_foundElements)
                     {
-                        if (MyVoxelBase.IsForbiddenEntity(entity))
+                        if (!(entity is MyCharacter) && MyVoxelBase.IsForbiddenEntity(entity))
                         {
                             worldMatrix = entity.PositionComp.WorldMatrix;
                             box = (BoundingBoxD)entity.PositionComp.LocalAABB;

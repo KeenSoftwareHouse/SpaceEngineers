@@ -36,6 +36,7 @@ using VRage.Audio;
 using VRage.Game.Components;
 using VRage.FileSystem;
 using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Game.Entity.UseObject;
 using VRage.Game.ObjectBuilders;
 using VRage.Input;
@@ -56,7 +57,8 @@ namespace Sandbox.Game.Entities.Character
 {
     public class MyCharacterRaycastDetectorComponent : MyCharacterDetectorComponent
     {
-        List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
+        private readonly List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
+        private readonly List<MyUseObjectsComponentBase> m_hitUseComponents = new List<MyUseObjectsComponentBase>();
 
         protected override void DoDetection(bool useHead)
         {
@@ -85,102 +87,115 @@ namespace Sandbox.Game.Entities.Character
             }
 
             Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
-
-            //EnableDetectorsInArea(from);
-            GatherDetectorsInArea(from);
-            float closestDetector = float.MaxValue;
-            IMyEntity closestEntity = null;
-            IMyUseObject closestInteractive = null;
-            foreach(var entity in m_detectableEntities)
-            {
-                if (entity == Character)
-                    continue;
-                var use = entity.Components.Get<MyUseObjectsComponentBase>() as MyUseObjectsComponent;
-                if(use != null)
-                {
-                    float detectorDistance;
-                    var interactive = use.RaycastDetectors(from, to, out detectorDistance);
-                    if(Math.Abs(detectorDistance) < Math.Abs(closestDetector))
-                    {
-                        closestDetector = detectorDistance;
-                        closestEntity = entity;
-                        closestInteractive = interactive;
-                    }
-                }
-
-                //Floating object handling - give FO useobject component!
-                var use2 = entity as IMyUseObject;
-                if (use2 != null)
-                {
-                    var m = use2.ActivationMatrix;
-                    var ray = new RayD(from, to - from);
-                    var obb = new MyOrientedBoundingBoxD(m);
-                    var dist = obb.Intersects(ref ray);
-                    if(dist.HasValue && Math.Abs(dist.Value) < Math.Abs(closestDetector))
-                    {
-                        closestDetector = (float)dist.Value;
-                        closestEntity = entity;
-                        closestInteractive = use2;
-                    }
-                }
-            }
-            m_detectableEntities.Clear();
-            //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, true);
-            //VRageRender.MyRenderProxy.DebugDrawSphere(headPos, 0.05f, Color.Red.ToVector3(), 1.0f, false);
-
             StartPosition = from;
 
+            // Processing of hit entities 
             MyPhysics.CastRay(from, to, m_hits, MyPhysics.CollisionLayers.FloatingObjectCollisionLayer);
-
-            bool hasInteractive = false;
-
+            bool hasUseObject = false;
             int index = 0;
-            while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.GetHitEntity() == Character
-                || m_hits[index].HkHitInfo.GetHitEntity() == null
-                || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT)
-                || m_hits[index].HkHitInfo.Body.Layer == MyPhysics.CollisionLayers.VoxelLod1CollisionLayer)) // Skip invalid hits and self character
+            while (index < m_hits.Count)
             {
+                var hitEntity = m_hits[index].HkHitInfo.GetHitEntity();
+
+                // Skip invalid hits
+                if (m_hits[index].HkHitInfo.Body == null
+                    || hitEntity == null 
+                    || hitEntity == Character
+                    || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT)
+                    || m_hits[index].HkHitInfo.Body.Layer == MyPhysics.CollisionLayers.VoxelLod1CollisionLayer)
+                {
+                    index++;
+                    continue;
+                }
+
+                // Cube Grids are special case
+                var cubeGrid = hitEntity as MyCubeGrid;
+                if (cubeGrid != null)
+                {
+                    // Correct the hit position (Physics offset)
+                    var correctedPosition = m_hits[index].Position 
+                        - m_hits[index].HkHitInfo.Normal * m_hits[index].HkHitInfo.GetConvexRadius();
+                    // For hit cube grids get the fat hit fatblock instead.
+                    var slimBlock = cubeGrid.GetTargetedBlock(correctedPosition);
+                    if (slimBlock != null && slimBlock.FatBlock != null)
+                    {
+                        hitEntity = slimBlock.FatBlock;
+                    }
+                }
+
+                m_hitUseComponents.Clear();
+                var hitUseObject = hitEntity as IMyUseObject;
+                // Retrive all above use components from parent structure. (Because of subParts)
+                GetUseComponentsFromParentStructure(hitEntity, m_hitUseComponents);
+                // Check for UseObjects and entities with UseObjectComponentBase.
+                // Assuming that entity cannot be IMyUseObject and have UseObjectComponentBase in hierarchy
+                // at the same time.
+                if(hitUseObject != null || m_hitUseComponents.Count > 0)
+                {
+                    if (m_hitUseComponents.Count > 0)
+                    {
+                        // Process the valid hit entity
+                        var closestDetectorDistance = float.MaxValue;
+                        MyUseObjectsComponentBase hitUseComp = null;
+                        // Evaluate the set of found detectors and try to find the closest one
+                        foreach (var hitUseComponent in m_hitUseComponents)
+                        {
+                            float detectorDistance;
+                            var interactive = hitUseComponent.RaycastDetectors(from, to, out detectorDistance);
+                            if (Math.Abs(detectorDistance) < Math.Abs(closestDetectorDistance))
+                            {
+                                closestDetectorDistance = detectorDistance;
+                                hitUseComp = hitUseComponent;
+                                hitEntity = hitUseComponent.Entity;
+                                hitUseObject = interactive;
+                            }
+                        }
+
+                        // Detector found
+                        if (hitUseComp != null)
+                        {
+                            // Process successful hit with results
+                            var detectorPhysics = hitUseComp.DetectorPhysics;
+                            HitMaterial = detectorPhysics.GetMaterialAt(HitPosition);
+                            HitBody = m_hits[index].HkHitInfo.Body;
+                            HitPosition = m_hits[index].Position;
+                            DetectedEntity = hitEntity;
+                        }
+                    } 
+                    else
+                    {
+                        // Case for hitting IMyUseObject already before even looking for UseComponent.
+                        // Floating object case.
+                        HitMaterial = hitEntity.Physics.GetMaterialAt(HitPosition);
+                        HitBody = m_hits[index].HkHitInfo.Body;
+                    }
+
+                    // General logic for processing both cases.
+                    if (hitUseObject != null)
+                    {
+                        HitPosition = m_hits[index].Position;
+                        DetectedEntity = hitEntity;
+
+                        if (UseObject != null && UseObject != hitEntity)
+                        {
+                            UseObject.OnSelectionLost();
+                        }
+
+                        if (hitUseObject.SupportedActions != UseActionEnum.None && Character == MySession.Static.ControlledEntity)
+                        {
+                            HandleInteractiveObject(hitUseObject);
+
+                            UseObject = hitUseObject;
+                            hasUseObject = true;
+                        }
+                    }
+                    break;
+                }
+
                 index++;
             }
 
-            if (index < m_hits.Count && m_hits[index].HkHitInfo.HitFraction > closestDetector - 0.05f)//compensation
-            {
-                // TODO: Uncomment to enforce that character must face object by front to activate it
-                //if (TestInteractionDirection(head.Forward, h.Position - GetPosition()))
-                //return;
-                HitPosition = from + dir * closestDetector;
-                MyUseObjectsComponentBase useObject;
-                if(closestEntity.Components.TryGet<MyUseObjectsComponentBase>(out useObject))
-                {
-                    var detectorPhysics = useObject.DetectorPhysics;
-                    HitMaterial = detectorPhysics.GetMaterialAt(HitPosition);
-                    HitBody = ((MyPhysicsBody)detectorPhysics).RigidBody;
-                }
-                else
-                {
-                    HitMaterial = closestEntity.Physics.GetMaterialAt(HitPosition);
-                    HitBody = ((MyPhysicsBody)closestEntity.Physics).RigidBody;
-                }
-
-                DetectedEntity = closestEntity;
-                var interactive = closestInteractive;
-
-                if (UseObject != null && interactive != null && UseObject != interactive)
-                {
-                    UseObject.OnSelectionLost();
-                }
-
-                //if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, (Vector3D)h.Position)) < interactive.InteractiveDistance && Character == MySession.Static.ControlledEntity)
-                if (interactive != null && interactive.SupportedActions != UseActionEnum.None && closestDetector * MyConstants.DEFAULT_INTERACTIVE_DISTANCE < interactive.InteractiveDistance && Character == MySession.Static.ControlledEntity)
-                {
-                    HandleInteractiveObject(interactive);
-
-                    UseObject = interactive;
-                    hasInteractive = true;
-                }
-            }
-
-            if (!hasInteractive)
+            if (!hasUseObject)
             {
                 if (UseObject != null)
                 {
@@ -191,6 +206,21 @@ namespace Sandbox.Game.Entities.Character
             }
 
             ProfilerShort.End();
+        }
+
+        // Retrieves UseComponents from provided entity and above parent structure.
+        private void GetUseComponentsFromParentStructure(IMyEntity currentEntity, List<MyUseObjectsComponentBase> useComponents)
+        {
+            var useComp = currentEntity.Components.Get<MyUseObjectsComponentBase>();
+            if (useComp != null)
+            {
+                useComponents.Add(useComp);
+            }
+
+            if (currentEntity.Parent != null)
+            {
+                GetUseComponentsFromParentStructure(currentEntity.Parent, useComponents);
+            }
         }
     }
 }

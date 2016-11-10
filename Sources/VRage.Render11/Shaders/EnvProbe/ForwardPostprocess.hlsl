@@ -23,5 +23,5 @@ void __pixel_shader(PostprocessVertex vertex, out float4 output : SV_Target0)
 
 	float3 V = mul(screen_ray, transpose((float3x3)viewMatrix));
 
-    output = float4(SkyboxColorReflected(V) * frame_.envSkyboxBrightness, 0);
+    output = float4(SkyboxColorReflected(V) * frame_.Light.envSkyboxBrightness, 0);
 }

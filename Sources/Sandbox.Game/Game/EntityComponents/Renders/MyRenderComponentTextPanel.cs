@@ -8,12 +8,22 @@ using VRageMath;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
 using VRage.Game.Components;
+using VRage.Game;
+using VRage.Utils;
+using Sandbox.Definitions;
 
 namespace Sandbox.Game.Components
 {
     class MyRenderComponentTextPanel : MyRenderComponent
     {
         const string PANEL_MATERIAL_NAME = "ScreenArea";
+        private MyTextPanel m_textPanel;
+
+        public MyRenderComponentTextPanel(MyTextPanel panel)
+        {
+            m_textPanel = panel;
+        }
+
         #region overrides
         public override void OnAddedToContainer()
         {
@@ -28,9 +38,15 @@ namespace Sandbox.Game.Components
                 MyRenderProxy.UpdateModelProperties(this.RenderObjectIDs[0], 0, -1, PANEL_MATERIAL_NAME, null, null, 1);
             }
         }
-        public void RenderTextToTexture(long entityId,string text, float scale, Color fontColor, Color backgroundColor, int textureResolution,int aspectRatio)
+        public void RenderTextToTexture(string text, float scale, Color fontColor, Color backgroundColor, int textureResolution, int aspectRatio)
         {
-            MyRenderProxy.RenderTextToTexture(RenderObjectIDs[0], entityId, PANEL_MATERIAL_NAME, text, scale, fontColor, backgroundColor, textureResolution, aspectRatio);
+            string offscreenTexture = "LCDOffscreenTexture_" + m_textPanel.EntityId;
+
+            int width = textureResolution * aspectRatio;
+            int height = textureResolution;
+            MyRenderProxy.CreateGeneratedTexture(offscreenTexture, width, height);
+            MyRenderProxy.DrawString((int)MyDefinitionManager.Static.GetFontSafe(m_textPanel.Font.SubtypeName).Id.SubtypeId, Vector2.Zero, fontColor, new StringBuilder(text), scale, float.PositiveInfinity, offscreenTexture);
+            MyRenderProxy.RenderOffscreenTextureToMaterial(RenderObjectIDs[0], PANEL_MATERIAL_NAME, offscreenTexture, backgroundColor);
         }
         public override void ReleaseRenderObjectID(int index)
         {
@@ -46,6 +62,7 @@ namespace Sandbox.Game.Components
             base.UpdateRenderEntity(colorMaskHSV);
             (Container.Entity as MyTextPanel).OnColorChanged();
         }
+
         #endregion
     }
 }

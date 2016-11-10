@@ -2,8 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Sandbox.Engine.Networking;
+using Sandbox.Game.Multiplayer;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
+using Sandbox.Graphics.GUI;
+using SteamSDK;
+using VRage;
+using VRage.Compression;
 using VRage.FileSystem;
 using VRage.Game.Components.Session;
 using VRage.Game.ObjectBuilders.Campaign;
@@ -136,32 +142,6 @@ namespace Sandbox.Game
             var vanillaFiles =
                 MyFileSystem.GetFiles(Path.Combine(MyFileSystem.ContentPath, CAMPAIGN_CONTENT_RELATIVE_PATH), "*.vs",
                     MySearchOption.TopDirectoryOnly);
-            var localModFolders = Directory.GetDirectories(MyFileSystem.ModsPath);
-            var modFiles = MyFileSystem.GetFiles(MyFileSystem.ModsPath, "*.sbm", MySearchOption.TopDirectoryOnly);
-            var localModCampaignFiles = new List<string>();
-            var modCampaignFiles = new List<string>();
-
-            // Gather local mod campaign files
-            foreach (var localModFolder in localModFolders)
-            {
-                localModCampaignFiles.AddRange(
-                    MyFileSystem.GetFiles(Path.Combine(localModFolder, CAMPAIGN_CONTENT_RELATIVE_PATH), "*.vs",
-                        MySearchOption.TopDirectoryOnly));
-            }
-
-            // Gather campaign files from workshop zips
-            foreach (var modFile in modFiles)
-            {
-                try
-                {
-                    modCampaignFiles.AddRange(MyFileSystem.GetFiles(Path.Combine(modFile, CAMPAIGN_CONTENT_RELATIVE_PATH),
-                        "*.vs", MySearchOption.TopDirectoryOnly));
-                }
-                catch (Exception e)
-                {
-                    MySandboxGame.Log.WriteLine("ERROR: Reading mod file: " + modFile + "\n" + e);
-                }
-            }
 
             // Load vanilla files
             foreach (var vanillaFile in vanillaFiles)
@@ -178,6 +158,41 @@ namespace Sandbox.Game
                 }
             }
 
+            MySandboxGame.Log.WriteLine("MyCampaignManager.Constructor() - END");
+        }
+
+        private readonly List<MySteamWorkshop.SubscribedItem> m_subscribedCampaignItems
+            = new List<MySteamWorkshop.SubscribedItem>();
+
+        /// <summary>
+        /// DO NOT RUN FROM MAIN THREAD!
+        /// </summary>
+        public void RefreshModData()
+        {
+            RefreshLocalModData();
+            RefreshSubscribedModData();
+        }
+
+        private void RefreshLocalModData()
+        {
+            var localModFolders = Directory.GetDirectories(MyFileSystem.ModsPath);
+            var localModCampaignFiles = new List<string>();
+
+            // Remove all local mods
+            foreach (var campaignList in m_campaignsByNames.Values)
+            {
+                campaignList.RemoveAll(campaign => campaign.IsLocalMod);
+            }
+
+            // Gather local mod campaign files
+            foreach (var localModFolder in localModFolders)
+            {
+                localModCampaignFiles.AddRange(
+                    MyFileSystem.GetFiles(Path.Combine(localModFolder, CAMPAIGN_CONTENT_RELATIVE_PATH), "*.vs",
+                        MySearchOption.TopDirectoryOnly));
+            }
+
+            // Add local mods data to campaign structure
             foreach (var localModCampaignFile in localModCampaignFiles)
             {
                 MyObjectBuilder_VSFiles ob;
@@ -192,23 +207,125 @@ namespace Sandbox.Game
                     }
                 }
             }
+        }
 
-            foreach (var modCampaignFile in modCampaignFiles)
+        // Removes unsubscribed items and adds newly subscribed items
+        private void RefreshSubscribedModData()
+        {
+            if (MySteamWorkshop.GetSubscribedCampaignsBlocking(m_subscribedCampaignItems))
             {
-                MyObjectBuilder_VSFiles ob;
-                if (MyObjectBuilderSerializer.DeserializeXML(modCampaignFile, out ob))
+                var toRemove = new List<MyObjectBuilder_Campaign>();
+                // Remove unsubed items
+                foreach (var campaignList in m_campaignsByNames.Values)
                 {
-                    if (ob.Campaign != null)
+                    foreach (var campaign in campaignList)
                     {
-                        ob.Campaign.IsVanilla = false;
-                        ob.Campaign.IsLocalMod = false;
-                        ob.Campaign.ModFolderPath = GetModFolderPath(modCampaignFile);
-                        LoadCampaignData(ob.Campaign);
+                        if(campaign.PublishedFileId == 0)
+                            continue;
+
+                        var found = false;
+                        for (var index = 0; index < m_subscribedCampaignItems.Count; index++)
+                        {
+                            var subscribedItem = m_subscribedCampaignItems[index];
+                            if (subscribedItem.PublishedFileId == campaign.PublishedFileId)
+                            {
+                                // Remove the result as processed (the entry should not appear elsewhere)
+                                m_subscribedCampaignItems.RemoveAtFast(index);
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            toRemove.Add(campaign);
+                        }
+                    }
+
+                    toRemove.ForEach(campaignToRemove => campaignList.Remove(campaignToRemove));
+                    toRemove.Clear();
+                }
+
+                // Download the subscribed items
+                MySteamWorkshop.DownloadModsBlocking(m_subscribedCampaignItems);
+
+                // Load data for rest of the results
+                foreach (var subscribedItem in m_subscribedCampaignItems)
+                {
+                    var modPath = Path.Combine(MyFileSystem.ModsPath, subscribedItem.PublishedFileId + ".sbm");
+                    var visualScriptingFiles = MyFileSystem.GetFiles(modPath, "*.vs", MySearchOption.AllDirectories);
+
+                    foreach (var modFile in visualScriptingFiles)
+                    {
+                        MyObjectBuilder_VSFiles ob;
+                        if (MyObjectBuilderSerializer.DeserializeXML(modFile, out ob))
+                        {
+                            if (ob.Campaign != null)
+                            {
+                                ob.Campaign.IsVanilla = false;
+                                ob.Campaign.IsLocalMod = false;
+                                ob.Campaign.PublishedFileId = subscribedItem.PublishedFileId;
+                                ob.Campaign.ModFolderPath = GetModFolderPath(modFile);
+                                LoadCampaignData(ob.Campaign);
+                            }
+                        }
                     }
                 }
             }
+        }
 
-            MySandboxGame.Log.WriteLine("MyCampaignManager.Constructor() - END");
+        /// <summary>
+        /// Runs publish process for active campaign.
+        /// </summary>
+        public void PublishActive()
+        {
+            var publishedSteamId = MySteamWorkshop.GetWorkshopIdFromLocalMod(m_activeCampaign.ModFolderPath);
+            MySteamWorkshop.PublishModAsync(
+                    m_activeCampaign.ModFolderPath,
+                    m_activeCampaign.Name,
+                    m_activeCampaign.Description,
+                    publishedSteamId,
+                    new []{MySteamWorkshop.WORKSHOP_CAMPAIGN_TAG},
+                    PublishedFileVisibility.Public,
+                    OnPublishFinished
+                );   
+        }
+
+        // Called when campaign gets uploaded to steam workshop
+        private void OnPublishFinished(bool publishSuccess, Result publishResult, ulong publishedFileId)
+        {
+            if (publishSuccess)
+            {
+                // Create metadata for further identification of the mod
+                MySteamWorkshop.GenerateModInfo(m_activeCampaign.ModFolderPath, publishedFileId, Sync.MyId);
+                // Success open the steam overlay with mod opened
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                    styleEnum: MyMessageBoxStyleEnum.Info,
+                    messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextCampaignPublished),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionCampaignPublished),
+                    callback: (a) =>
+                    {
+                        MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
+                    }));
+            }
+            else
+            {
+                // Failed upload -- Tell whats the problem
+                MyStringId error;
+                switch (publishResult)
+                {
+                    case Result.AccessDenied:
+                        error = MyCommonTexts.MessageBoxTextPublishFailed_AccessDenied;
+                        break;
+                    default:
+                        error = MyCommonTexts.MessageBoxTextWorldPublishFailed;
+                        break;
+                }
+
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                    messageText: MyTexts.Get(error),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionModCampaignPublishFailed)));
+            }
         }
 
         // Takes the path the campaign file and returns path to mod folder
@@ -293,7 +410,23 @@ namespace Sandbox.Game
                 // Finid new unique name for the folder
                 targetDirectory = Path.Combine(MyFileSystem.SavesPath, directory.Name + " " + MyUtils.GetRandomInt(int.MaxValue).ToString("########"));
             }
-            MyUtils.CopyDirectory(directory.FullName, targetDirectory);
+
+            if (File.Exists(absolutePath))
+            {
+                // It is a local mod or vanilla file
+                MyUtils.CopyDirectory(directory.FullName, targetDirectory);
+            }
+            else
+            {
+                // Its is a workshop mod
+                var tmpPath = Path.Combine(Path.GetTempPath(), "TMP_CAMPAIGN_MOD_FOLDER");
+                var worldFolderAbsolutePath = Path.Combine(tmpPath, Path.GetDirectoryName(relativePath));
+
+                // Extract the mod to temp, copy the world folder to target directory, remove the temp folder
+                MyZipArchive.ExtractToDirectory(m_activeCampaign.ModFolderPath, tmpPath);
+                MyUtils.CopyDirectory(worldFolderAbsolutePath, targetDirectory);
+                Directory.Delete(tmpPath, true);
+            }
 
             // >> LOCALIZATION
             // Set localization for loaded level in the after load event

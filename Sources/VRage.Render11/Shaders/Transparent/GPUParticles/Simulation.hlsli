@@ -1,18 +1,20 @@
-// Calculate the view space position given a point in screen space and a texel offset
-float3 calcViewSpacePositionFromDepth(float2 normalizedScreenPosition, int2 texelOffset)
+#include <VertexTransformations.hlsli>
+
+float2 getScreenUV(float2 normalizedScreenPosition)
 {
-    float2 uv;
-
-    // Add the texel offset to the normalized screen position
-    normalizedScreenPosition.x += (float)texelOffset.x / frame_.resolution.x;
-    normalizedScreenPosition.y += (float)texelOffset.y / frame_.resolution.y;
-
     // Scale, bias and convert to texel range
-    uv.x = (0.5 + normalizedScreenPosition.x * 0.5) * frame_.resolution.x;
-    uv.y = (1 - (0.5 + normalizedScreenPosition.y * 0.5)) * frame_.resolution.y;
+    return float2(
+        (0.5 + normalizedScreenPosition.x * 0.5) * frame_.Screen.resolution.x,
+        (1 - (0.5 + normalizedScreenPosition.y * 0.5)) * frame_.Screen.resolution.y);
+}
+
+// Calculate the view space position given a point in screen space and a texel offset
+float3 calcViewSpacePositionFromDepth(float2 normalizedScreenPosition)
+{
+    float2 uv = getScreenUV(normalizedScreenPosition);
 
     // Fetch the depth value at this point
-    float depth = g_DepthTexture[uv.xy].r;
+    float depth = g_DepthTexture[uv].r;
 
     // Generate a point in screen space with this depth
     float4 viewSpacePosOfDepthBuffer;
@@ -21,37 +23,34 @@ float3 calcViewSpacePositionFromDepth(float2 normalizedScreenPosition, int2 texe
     viewSpacePosOfDepthBuffer.w = 1;
 
     // Transform into view space using the inverse projection matrix
-    viewSpacePosOfDepthBuffer = mul(viewSpacePosOfDepthBuffer, frame_.inv_proj_matrix);
+    viewSpacePosOfDepthBuffer = mul(viewSpacePosOfDepthBuffer, frame_.Environment.inv_proj_matrix);
     viewSpacePosOfDepthBuffer.xyz /= viewSpacePosOfDepthBuffer.w;
 
     return viewSpacePosOfDepthBuffer.xyz;
+}
+float3 fetchNormal(float2 normalizedScreenPosition)
+{
+    float2 uv = getScreenUV(normalizedScreenPosition);
+    float2 gbuffer1 = g_GBuffer1Texture[uv].xy;
+    float3 nview = unpack_normals2(gbuffer1.xy);
+    return view_to_world(nview);
 }
 
 void Collide(in out Particle pa, float frameTimeDelta, float3 vNewPosition, float bounciness)
 {
     // Also obtain screen space position
-    float4 screenSpaceParticlePosition = mul(float4(vNewPosition, 1), frame_.view_projection_matrix);
+    float4 screenSpaceParticlePosition = mul(float4(vNewPosition, 1), frame_.Environment.view_projection_matrix);
     screenSpaceParticlePosition.xyz /= screenSpaceParticlePosition.w;
 
     // Only do depth buffer collisions if the particle is onscreen, otherwise assume no collisions
     if (screenSpaceParticlePosition.x > -1 && screenSpaceParticlePosition.x < 1 && screenSpaceParticlePosition.y > -1 && screenSpaceParticlePosition.y < 1)
     {
-        float3 viewSpaceParticlePosition = mul(float4(vNewPosition, 1), frame_.view_matrix).xyz;
-        float3 viewSpacePosOfDepthBuffer = calcViewSpacePositionFromDepth(screenSpaceParticlePosition.xy, int2(0, 0));
-        if ((viewSpaceParticlePosition.z > viewSpacePosOfDepthBuffer.z) && (viewSpaceParticlePosition.z < viewSpacePosOfDepthBuffer.z + COLLISION_THICKNESS))
+        float3 viewSpaceParticlePosition = mul(float4(vNewPosition, 1), frame_.Environment.view_matrix).xyz;
+        float3 viewSpacePosOfDepthBuffer = calcViewSpacePositionFromDepth(screenSpaceParticlePosition.xy);
+        if ((viewSpaceParticlePosition.z > viewSpacePosOfDepthBuffer.z - COLLISION_THICKNESS) && (viewSpaceParticlePosition.z < viewSpacePosOfDepthBuffer.z))
         {
             // Generate the surface normal. Ideally, we would use the normals from the G-buffer as this would be more reliable than deriving them
-
-            // Take three points on the depth buffer
-            float3 p0 = viewSpacePosOfDepthBuffer;
-            float3 p1 = calcViewSpacePositionFromDepth(screenSpaceParticlePosition.xy, int2(1, 0));
-            float3 p2 = calcViewSpacePositionFromDepth(screenSpaceParticlePosition.xy, int2(0, 1));
-
-            // Generate the view space normal from the two vectors
-            float3 viewSpaceNormal = normalize(cross(p2 - p0, p1 - p0));
-
-            // Transform into world space using the inverse view matrix
-            float3 surfaceNormal = normalize(mul(-viewSpaceNormal, (float3x3)frame_.inv_view_matrix).xyz);
+            float3 surfaceNormal = fetchNormal(screenSpaceParticlePosition.xy);
 
             // The velocity is reflected in the collision plane
             float3 newVelocity = reflect(pa.Velocity, surfaceNormal);

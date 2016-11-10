@@ -2173,6 +2173,32 @@ namespace Sandbox.Game.Entities.Character
             UpdateLooting(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
         }
 
+        public override void UpdateAfterSimulation100()
+        {
+            base.UpdateAfterSimulation100();
+            //GK: For now put this here in order to not to take to much bandwidth. May split implementation for client and server in the future
+            UpdateHudDeathLocation();
+        }
+
+        private void UpdateHudDeathLocation()
+        {
+            if (m_currentLootingCounter > 0 && m_isDeathPlayer && SyncObject != null && SyncObject.Entity != null && SyncObject.Entity.PositionComp != null)
+            {
+                // Update corpse location
+                string bodyLocationName = MyTexts.Get(MySpaceTexts.GPS_Body_Location_Name).ToString();
+                MyGps deathLocation = MySession.Static.Gpss.GetGpsByName(MySession.Static.LocalPlayerId, bodyLocationName) as MyGps;
+
+                if (deathLocation != null)
+                {
+                    deathLocation.Coords = SyncObject.Entity.PositionComp.GetPosition();
+                    deathLocation.Coords.X = Math.Round(deathLocation.Coords.X, 2);
+                    deathLocation.Coords.Y = Math.Round(deathLocation.Coords.Y, 2);
+                    deathLocation.Coords.Z = Math.Round(deathLocation.Coords.Z, 2);
+                    MySession.Static.Gpss.SendModifyGps(GetPlayerIdentityId(), deathLocation);
+                }
+            }
+        }
+
         private bool UpdateLooting(float amount)
         {
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
@@ -2190,22 +2216,7 @@ namespace Sandbox.Game.Entities.Character
                         return true;
                     }
                 }
-                else if (SyncObject != null && SyncObject.Entity != null && SyncObject.Entity.PositionComp != null && m_isDeathPlayer)
-                {
-                    // Update corpse location
-                    string bodyLocationName = MyTexts.Get(MySpaceTexts.GPS_Body_Location_Name).ToString();
-                    MyGps deathLocation = MySession.Static.Gpss.GetGpsByName(MySession.Static.LocalPlayerId, bodyLocationName) as MyGps;
-
-                    if (deathLocation != null)
-                    {
-                        deathLocation.Coords = SyncObject.Entity.PositionComp.GetPosition();
-                        deathLocation.Coords.X = Math.Round(deathLocation.Coords.X, 2);
-                        deathLocation.Coords.Y = Math.Round(deathLocation.Coords.Y, 2);
-                        deathLocation.Coords.Z = Math.Round(deathLocation.Coords.Z, 2);
-                        MySession.Static.Gpss.SendModifyGps(GetPlayerIdentityId(), deathLocation);
                     }
-                }
-            }
             return false;
         }
 
@@ -2316,6 +2327,11 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentWeapon != null)
             {
+                //GK: Cannot check if paused as a workaround check if client is on Menu Screen and stop any shooting
+                if (MyScreenManager.GetScreenWithFocus() is MyGuiScreenMainMenuBase)
+                {
+                    EndShootAll();
+                }
                 //UpdateWeaponPosition();
 
                 if (m_currentWeapon.IsShooting)
@@ -6243,7 +6259,7 @@ namespace Sandbox.Game.Entities.Character
             if (statChangeData != null)
                 damageInfo = (MyDamageInformation)statChangeData;
 
-            Kill(true, damageInfo);
+            Kill(false, damageInfo);
         }
 
         void IMyCharacter.TriggerCharacterAnimationEvent(string eventName, bool sync)

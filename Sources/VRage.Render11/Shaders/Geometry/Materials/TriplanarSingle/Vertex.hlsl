@@ -10,10 +10,10 @@ void vertex_program(inout VertexShaderInterface vertex, out MaterialVertexPayloa
 	// Because the ground has no thickness, we need to simulate some when the sun is underneath the surface
 	if (object_.massive_center_radius.w > 0)
 	{
-		float normalLightDot = dot(vertex.normal_object, frame_.directionalLightVec);
+		float normalLightDot = dot(vertex.normal_object, frame_.Light.directionalLightVec);
 		if (normalLightDot > 0)
 		{
-            vertex.position_clip -= normalize(WorldToClip(frame_.directionalLightVec)) * 0.15f;
+            vertex.position_clip -= normalize(WorldToClip(frame_.Light.directionalLightVec)) * 0.15f;
 		}
 	}
 #endif
@@ -21,7 +21,7 @@ void vertex_program(inout VertexShaderInterface vertex, out MaterialVertexPayloa
 	float dist = length(vertex.position_local.xyz - get_camera_position());
 	custom_output.normal = vertex.normal_object;
 	custom_output.texcoords = vertex.position_scaled_untranslated.xyz;
-	custom_output.ambient_occlusion = vertex.ambient_occlusion;
+    custom_output.colorBrightnessFactor = vertex.colorBrightnessFactor;
 	custom_output.distance = dist;
 	custom_output.world_matrix = vertex._local_matrix;
 }

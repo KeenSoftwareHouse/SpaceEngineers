@@ -49,13 +49,13 @@ void __compute_shader(
     float maxz = 0;
 
 #ifndef MS_SAMPLE_COUNT
-    SurfaceInterface gbuffer = read_gbuffer(frame_.offset_in_gbuffer + dispatchThreadID.xy);
+    SurfaceInterface gbuffer = read_gbuffer(frame_.Screen.offset_in_gbuffer + dispatchThreadID.xy);
 
     minz = min(minz, gbuffer.native_depth);
     maxz = max(maxz, gbuffer.native_depth);
 #else
     [unroll] for (uint sample = 0; sample < MS_SAMPLE_COUNT; ++sample) {
-		SurfaceInterface gbuffer = read_gbuffer(frame_.offset_in_gbuffer + dispatchThreadID.xy, sample);
+		SurfaceInterface gbuffer = read_gbuffer(frame_.Screen.offset_in_gbuffer + dispatchThreadID.xy, sample);
 
         minz = min(minz, gbuffer.native_depth);
         maxz = max(maxz, gbuffer.native_depth);
@@ -79,19 +79,19 @@ void __compute_shader(
     GroupMemoryBarrierWithGroupSync();
 
     #ifndef COMPLEMENTARY_DEPTH
-        float tileNear = linearize_depth(asfloat(sMinZ), frame_.projection_matrix);
-        float tileFar = linearize_depth(asfloat(sMaxZ), frame_.projection_matrix);
+        float tileNear = linearize_depth(asfloat(sMinZ), frame_.Environment.projection_matrix);
+        float tileFar = linearize_depth(asfloat(sMaxZ), frame_.Environment.projection_matrix);
     #else
-        float tileNear = linearize_depth(asfloat(sMaxZ), frame_.projection_matrix);
-        float tileFar = linearize_depth(asfloat(sMinZ), frame_.projection_matrix);
+        float tileNear = linearize_depth(asfloat(sMaxZ), frame_.Environment.projection_matrix);
+        float tileFar = linearize_depth(asfloat(sMinZ), frame_.Environment.projection_matrix);
     #endif
 
 
-    float2 tile_scale = frame_.resolution / (float)(2 * NUMTHREADS);
+    float2 tile_scale = frame_.Screen.resolution / (float)(2 * NUMTHREADS);
 	float2 tile_bias = tile_scale - float2(GroupID.xy);
 
-	float4 c1 = float4(frame_.projection_matrix._11 * tile_scale.x, 0, -tile_bias.x, 0);
-    float4 c2 = float4(0, -frame_.projection_matrix._22 * tile_scale.y, -tile_bias.y, 0);
+	float4 c1 = float4(frame_.Environment.projection_matrix._11 * tile_scale.x, 0, -tile_bias.x, 0);
+    float4 c2 = float4(0, -frame_.Environment.projection_matrix._22 * tile_scale.y, -tile_bias.y, 0);
     float4 c4 = float4(0, 0, -1, 0);
 
 
@@ -108,7 +108,7 @@ void __compute_shader(
     	frustum_planes[i] /= length(frustum_planes[i].xyz);
     }
     
-    uint tileIndex = GroupID.y * frame_.tiles_x + GroupID.x;
+    uint tileIndex = GroupID.y * frame_.Screen.tiles_x + GroupID.x;
 
     [loop]
 	for (uint index = ThreadIndex; index < pointlights_num; index += GROUP_THREADS) {
@@ -124,7 +124,7 @@ void __compute_shader(
         [branch] if (in_frustum) {
             uint listIndex;
             InterlockedAdd(sTileNumLights, 1, listIndex);
-            TileIndices[frame_.tiles_num + tileIndex * MAX_TILE_LIGHTS + listIndex] = index;
+            TileIndices[frame_.Screen.tiles_num + tileIndex * MAX_TILE_LIGHTS + listIndex] = index;
         }
     }
 

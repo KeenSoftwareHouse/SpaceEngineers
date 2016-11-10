@@ -39,8 +39,8 @@ namespace Sandbox.Graphics.GUI
         #region Styles and static data
         public class StyleDefinition
         {
-            public MyFontEnum NormalFont;
-            public MyFontEnum HighlightFont;
+            public string NormalFont;
+            public string HighlightFont;
             public MyGuiCompositeTexture NormalTexture;
             public MyGuiCompositeTexture HighlightTexture;
         }
@@ -891,7 +891,7 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
-        public MyFontEnum TextFont
+        public string TextFont
         {
             get;
             private set;

@@ -386,7 +386,7 @@ namespace VRageRender
 
                             var text = new StringBuilder(message.Text);
 
-                            MySpritesRenderer.DrawText(message.Coord, text, message.Color, message.Scale, message.Align);
+                            MyDebugTextHelpers.DrawText(message.Coord, text, message.Color, message.Scale, message.Align);
 
                             break;
                         }
@@ -437,7 +437,7 @@ namespace VRageRender
 
                             if (drawCondition)
                             {
-                                MySpritesRenderer.DrawText(new Vector2((float)clipPosition.X, (float)clipPosition.Y) * MyRender11.ViewportResolution,
+                                MyDebugTextHelpers.DrawText(new Vector2((float)clipPosition.X, (float)clipPosition.Y) * MyRender11.ViewportResolution,
                                     new StringBuilder(message.Text), message.Color, message.Scale, message.Align);
                             }
 

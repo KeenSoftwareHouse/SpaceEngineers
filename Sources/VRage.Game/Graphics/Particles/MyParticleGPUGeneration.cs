@@ -2,9 +2,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -34,9 +36,10 @@ namespace VRage.Game
 
         FastResourceLock ParticlesLock = new FastResourceLock();
         bool m_dirty;
+        bool m_animDirty;
         bool m_positionDirty;
         uint m_renderId = MyRenderProxy.RENDER_ID_UNASSIGNED;
-
+        private MyGPUEmitter m_emitter;
         float m_currentParticlesPerSecond = 0;
 
         
@@ -527,21 +530,13 @@ namespace VRage.Game
         {
         }
 
-        public bool IsDirty
+        private bool m_animatedTimeValues;
+        bool IsDirty
         {
             get
             {
-                bool animatedTimeValues =                     
-                    Velocity.GetKeysCount() > 1 || 
-                    VelocityVar.GetKeysCount() > 1 || 
-                    DirectionCone.GetKeysCount() > 1 ||
-                    DirectionConeVar.GetKeysCount() > 1 || 
-                    EmitterSize.GetKeysCount() > 1 || 
-                    EmitterSizeMin.GetKeysCount() > 1;
-
                 bool particlesPerSecondChanges = m_currentParticlesPerSecond != GetParticlesPerSecond();
-
-                return m_dirty || animatedTimeValues || particlesPerSecondChanges;
+                return m_dirty || particlesPerSecondChanges;
             }
         }
         public bool IsPositionDirty { get { return m_positionDirty; } }
@@ -549,6 +544,12 @@ namespace VRage.Game
         public void SetDirty()
         {
             m_dirty = true;
+        }
+
+        public void SetAnimDirty()
+        {
+            m_animDirty = true;
+            
         }
         public void SetPositionDirty()
         {
@@ -561,48 +562,63 @@ namespace VRage.Game
             return MatrixD.CreateTranslation(pos * m_effect.GetEmitterScale()) * GetEffect().WorldMatrix;
         }
 
-        void FillData(ref MyGPUEmitter emitter)
+        void FillDataComplete(ref MyGPUEmitter emitter)
         {
             float time;
+
+            m_animatedTimeValues = Velocity.GetKeysCount() > 1 ||
+                                   VelocityVar.GetKeysCount() > 1 ||
+                                   DirectionCone.GetKeysCount() > 1 ||
+                                   DirectionConeVar.GetKeysCount() > 1 ||
+                                   EmitterSize.GetKeysCount() > 1 ||
+                                   EmitterSizeMin.GetKeysCount() > 1;
+
             MyAnimatedPropertyVector4 color;
-            MyAnimatedPropertyFloat radius;
-            MyAnimatedPropertyFloat colorIntensity;
-
             Color.GetKey(0, out time, out color);
-            Radius.GetKey(0, out time, out radius);
-            ColorIntensity.GetKey(0, out time, out colorIntensity);
-
-            emitter.GID = m_renderId;
-            m_currentParticlesPerSecond = GetParticlesPerSecond();
-            emitter.ParticlesPerSecond = m_show ? m_currentParticlesPerSecond : 0;
-
-            float intensity;
             color.GetKey(0, out time, out emitter.Data.Color0);
             color.GetKey(1, out emitter.Data.ColorKey1, out emitter.Data.Color1);
             color.GetKey(2, out emitter.Data.ColorKey2, out emitter.Data.Color2);
             color.GetKey(3, out time, out emitter.Data.Color3);
 
+            m_currentParticlesPerSecond = GetParticlesPerSecond();
+            emitter.ParticlesPerSecond = m_show ? m_currentParticlesPerSecond : 0;
+
             // unmultiply colors and factor by intensity
+            MyAnimatedPropertyFloat colorIntensity;
+            float intensity;
+            ColorIntensity.GetKey(0, out time, out colorIntensity);
             colorIntensity.GetInterpolatedValue<float>(0, out intensity);
             emitter.Data.Color0.X *= intensity;
             emitter.Data.Color0.Y *= intensity;
             emitter.Data.Color0.Z *= intensity;
-            emitter.Data.Color0 *= m_effect.UserColorMultiplier;
             colorIntensity.GetInterpolatedValue<float>(emitter.Data.ColorKey1, out intensity);
             emitter.Data.Color1.X *= intensity;
             emitter.Data.Color1.Y *= intensity;
             emitter.Data.Color1.Z *= intensity;
-            emitter.Data.Color1 *= m_effect.UserColorMultiplier;
             colorIntensity.GetInterpolatedValue<float>(emitter.Data.ColorKey2, out intensity);
             emitter.Data.Color2.X *= intensity;
             emitter.Data.Color2.Y *= intensity;
             emitter.Data.Color2.Z *= intensity;
-            emitter.Data.Color2 *= m_effect.UserColorMultiplier;
             colorIntensity.GetInterpolatedValue<float>(1.0f, out intensity);
             emitter.Data.Color3.X *= intensity;
             emitter.Data.Color3.Y *= intensity;
             emitter.Data.Color3.Z *= intensity;
+
+            emitter.Data.Color0 *= m_effect.UserColorMultiplier;
+            emitter.Data.Color1 *= m_effect.UserColorMultiplier;
+            emitter.Data.Color2 *= m_effect.UserColorMultiplier;
             emitter.Data.Color3 *= m_effect.UserColorMultiplier;
+
+            MyAnimatedPropertyFloat radius;
+            Radius.GetKey(0, out time, out radius);
+            radius.GetKey(0, out time, out emitter.Data.ParticleSize0);
+            radius.GetKey(1, out emitter.Data.ParticleSizeKeys1, out emitter.Data.ParticleSize1);
+            radius.GetKey(2, out emitter.Data.ParticleSizeKeys2, out emitter.Data.ParticleSize2);
+            radius.GetKey(3, out time, out emitter.Data.ParticleSize3);
+            emitter.Data.ParticleSize0 *= m_effect.UserRadiusMultiplier;
+            emitter.Data.ParticleSize1 *= m_effect.UserRadiusMultiplier;
+            emitter.Data.ParticleSize2 *= m_effect.UserRadiusMultiplier;
+            emitter.Data.ParticleSize3 *= m_effect.UserRadiusMultiplier;
 
             emitter.Data.ColorVar = ColorVar;
             if (emitter.Data.ColorVar > 1.0f)
@@ -617,38 +633,24 @@ namespace VRage.Game
 
             emitter.Data.Bounciness = Bounciness;
 
-            MatrixD mat = CalculateWorldMatrix(); 
-            emitter.Data.RotationMatrix = mat;
-            emitter.Data.Direction = Direction;
-            Velocity.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.Velocity);
-            VelocityVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.VelocityVar);
-            float cone;
-            DirectionCone.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out cone);
-            emitter.Data.DirectionCone = MathHelper.ToRadians(cone);
-            DirectionConeVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out cone);
-            emitter.Data.DirectionConeVar = MathHelper.ToRadians(cone);
-
-            emitter.Data.NumParticlesToEmitThisFrame = 0;
-
             emitter.Data.ParticleLifeSpan = Life;
 
-            radius.GetKey(0, out time, out emitter.Data.ParticleSize0);
-            radius.GetKey(1, out emitter.Data.ParticleSizeKeys1, out emitter.Data.ParticleSize1);
-            radius.GetKey(2, out emitter.Data.ParticleSizeKeys2, out emitter.Data.ParticleSize2);
-            radius.GetKey(3, out time, out emitter.Data.ParticleSize3);
-            emitter.Data.ParticleSize0 *= m_effect.UserRadiusMultiplier;
-            emitter.Data.ParticleSize1 *= m_effect.UserRadiusMultiplier;
-            emitter.Data.ParticleSize2 *= m_effect.UserRadiusMultiplier;
-            emitter.Data.ParticleSize3 *= m_effect.UserRadiusMultiplier;
+            emitter.Data.Direction = Direction;
 
-            EmitterSize.GetInterpolatedValue<Vector3>(m_effect.GetElapsedTime(), out emitter.Data.EmitterSize);
-            EmitterSizeMin.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.EmitterSizeMin);
             emitter.Data.RotationVelocity = RotationVelocity;
             emitter.Data.RotationVelocityVar = RotationVelocityVar;
 
             emitter.Data.Acceleration = Acceleration;
-            emitter.Data.Gravity = m_effect.Gravity * Gravity;
             emitter.Data.StreakMultiplier = StreakMultiplier;
+
+            emitter.Data.SoftParticleDistanceScale = SoftParticleDistanceScale;
+            emitter.Data.AnimationFrameTime = AnimationFrameTime;
+            emitter.Data.OITWeightFactor = OITWeightFactor;
+
+            emitter.AtlasTexture = (Material.GetValue<MyTransparentMaterial>()).Texture;
+            emitter.AtlasDimension = new Vector2I((int)ArraySize.GetValue<Vector3>().X, (int)ArraySize.GetValue<Vector3>().Y);
+            emitter.AtlasFrameOffset = ArrayOffset;
+            emitter.AtlasFrameModulo = ArrayModulo;
 
             GPUEmitterFlags flags = 0;
 
@@ -662,17 +664,33 @@ namespace VRage.Game
 
             emitter.Data.Flags = flags;
 
-            emitter.Data.SoftParticleDistanceScale = SoftParticleDistanceScale;
-            emitter.Data.AnimationFrameTime = AnimationFrameTime;
-            emitter.Data.OITWeightFactor = OITWeightFactor;
+            emitter.GID = m_renderId;
 
-            emitter.Data.Scale = m_effect.GetEmitterScale();
+            FillData(ref emitter);
+        }
 
-            emitter.AtlasTexture = (Material.GetValue<MyTransparentMaterial>()).Texture;
-            emitter.AtlasDimension = new Vector2I((int)ArraySize.GetValue<Vector3>().X, (int)ArraySize.GetValue<Vector3>().Y);
-            emitter.AtlasFrameOffset = ArrayOffset;
-            emitter.AtlasFrameModulo = ArrayModulo;
+        void FillData(ref MyGPUEmitter emitter)
+        {
+            MatrixD mat = CalculateWorldMatrix();
+            emitter.Data.RotationMatrix = mat;
             emitter.WorldPosition = mat.Translation;
+            emitter.Data.Scale = m_effect.GetEmitterScale();
+            emitter.Data.Gravity = m_effect.Gravity * Gravity;
+
+
+            emitter.ParticlesPerSecond = GetParticlesPerSecond();
+            
+
+            Velocity.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.Velocity);
+            VelocityVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.VelocityVar);
+            float cone;
+            DirectionCone.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out cone);
+            emitter.Data.DirectionCone = MathHelper.ToRadians(cone);
+            DirectionConeVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out cone);
+            emitter.Data.DirectionConeVar = MathHelper.ToRadians(cone);
+
+            EmitterSize.GetInterpolatedValue<Vector3>(m_effect.GetElapsedTime(), out emitter.Data.EmitterSize);
+            EmitterSizeMin.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.EmitterSizeMin);
         }
 
         private float GetParticlesPerSecond()
@@ -848,6 +866,9 @@ namespace VRage.Game
                     }
                 }
             }
+            Debug.WriteLine("ParticlesPerSecond {0}, Velocity {1}", 
+                  ParticlesPerSecond.GetKeysCount(),
+                      Velocity.GetKeysCount());
         }
 
         public void Deserialize(XmlReader reader)
@@ -873,33 +894,62 @@ namespace VRage.Game
 
         #region Draw
 
+        public bool NeedSorting() { return false; }
+
         public void PrepareForDraw(ref VRageRender.MyBillboard effectBillboard)
         {
         }
 
         public void Draw(List<VRageRender.MyBillboard> collectedBillboards)
         {
+            VRage.Profiler.ProfilerShort.Begin("GPU_Draw");
             if (m_renderId == MyRenderProxy.RENDER_ID_UNASSIGNED)
                 m_renderId = MyRenderProxy.CreateGPUEmitter();
+            
             if (IsDirty)
             {
-                MyGPUEmitter emitter = new MyGPUEmitter();
-                FillData(ref emitter);
-                MyParticlesManager.GPUEmitters.Add(emitter);
-
-                m_dirty = false;
+                ProfilerShort.Begin("GPU_FillDataComplete");
+                m_emitter = new MyGPUEmitter();
+                FillDataComplete(ref m_emitter);
+                MyParticlesManager.GPUEmitters.Add(m_emitter);
+                ProfilerShort.End();
+                m_dirty = m_animDirty = m_positionDirty = false;
             }
-            else if (m_effect.IsPositionDirty)
+            else if (m_animatedTimeValues || m_animDirty)
             {
+                ProfilerShort.Begin("GPU_FillData");
+                FillData(ref m_emitter);
+                MyParticlesManager.GPUEmitters.Add(m_emitter);
+                ProfilerShort.End();
+                m_animDirty = false;
+            }
+            else if (IsPositionDirty)
+            {
+                ProfilerShort.Begin("GPU_FillPosition");
                 var transform = new MyGPUEmitterTransformUpdate()
                 {
                     GID = m_renderId,
-                    Transform = CalculateWorldMatrix()
+                    Transform = CalculateWorldMatrix(),
+                    Scale = m_effect.GetEmitterScale(),
+                    Gravity = m_effect.Gravity * Gravity,
+                    ParticlesPerSecond = GetParticlesPerSecond()
                 };
                 MyParticlesManager.GPUEmitterTransforms.Add(transform);
+                ProfilerShort.End();
 
                 m_positionDirty = false;
             }
+            else if (ParticlesPerSecond.GetKeysCount() > 1)
+            {
+                ProfilerShort.Begin("GPU_FillLight");
+                MyParticlesManager.GPUEmittersLight.Add(new MyGPUEmitterLight()
+                {
+                    GID = m_renderId,
+                    ParticlesPerSecond = GetParticlesPerSecond()
+                });
+                ProfilerShort.End();
+            }
+            ProfilerShort.End();
         }
 
         #endregion

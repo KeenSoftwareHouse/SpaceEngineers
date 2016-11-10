@@ -193,19 +193,30 @@ namespace Sandbox.Game.Gui
 
         private void OnRemoveFloating(MyGuiControlButton obj)
         {
+            if (Sync.IsServer == false)
+            {
+                MyMultiplayer.RaiseStaticEvent(x => RemoveFloating_Impelentation);
+            }
+            else
+            {
+                RemoveFloating_Impelentation();
+            }
+        }
+
+        [Event, Reliable, Server]
+        static void RemoveFloating_Impelentation()
+        {
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
             foreach (var entity in MyEntities.GetEntities())
             {
                 MyFloatingObject floating = entity as MyFloatingObject;
                 if (floating != null)
                 {
-                    if (Sync.IsServer)
-                    {
-                        floating.Close();
-                    }
-                    else
-                    {
-                        floating.SendCloseRequest();
-                    }
+                    floating.SendCloseRequest();
                 }
             }
         }
@@ -345,6 +356,12 @@ namespace Sandbox.Game.Gui
         [Event, Reliable, Server]
         static void CycleRequest_Implementation(MyEntityCyclingOrder order, bool reset, bool findLarger, float metricValue, long currentEntityId,CyclingOptions options)
         {
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
+
             if (reset)
             {
                 metricValue = float.MinValue;
@@ -458,6 +475,11 @@ namespace Sandbox.Game.Gui
         [Event, Reliable, Server]
         static void UploadSettingsToServer(MyTrashRemovalSettings newSettings)
         {
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
             MyTrashRemoval.PreviewSettings = newSettings;
         }
 

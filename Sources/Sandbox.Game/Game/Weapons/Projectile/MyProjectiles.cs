@@ -38,6 +38,7 @@ namespace Sandbox.Game.Weapons
             {
                 m_projectiles.DeallocateAll();
             }
+            m_projectiles = null;
         }
 
         //  Add new projectile to the list  

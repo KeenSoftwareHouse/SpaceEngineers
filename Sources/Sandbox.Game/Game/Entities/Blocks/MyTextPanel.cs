@@ -32,7 +32,7 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_TextPanel))]
     public partial class MyTextPanel : MyFunctionalBlock
     {
-        private const int NUM_DECIMALS = 1;
+        private const int NUM_DECIMALS = 3;
         public const double MAX_DRAW_DISTANCE = 100.0;
         private const int DEFAULT_RESOLUTION = 512;
         private const int MAX_NUMBER_CHARACTERS = 100000;
@@ -78,10 +78,10 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         void m_backgroundColor_ValueChanged(SyncBase obj)
-            {
-                    m_backgroundColorChanged = true;
-                    RaisePropertiesChanged();
-                }
+        {
+            m_backgroundColorChanged = true;
+            RaisePropertiesChanged();
+        }
 
         Sync<Color> m_fontColor;
         bool m_fontColorChanged = true;
@@ -91,11 +91,26 @@ namespace Sandbox.Game.Entities.Blocks
             set { m_fontColor.Value = value; }
         }
 
+        Sync<MyDefinitionId> m_font;
+        bool m_fontChanged = true;
+        public MyDefinitionId Font
+        {
+            get { return m_font; }
+            set { m_font.Value = value; }
+        }
+
+
         void m_fontColor_ValueChanged(SyncBase obj)
-            {
-                    m_fontColorChanged = true;
-                    RaisePropertiesChanged();
-                }
+        {
+            m_fontColorChanged = true;
+            RaisePropertiesChanged();
+        }
+
+        void m_font_ValueChanged(SyncBase obj)
+        {
+            m_fontChanged = true;
+            RaisePropertiesChanged();
+        }
 
         bool m_descriptionChanged = true;
         public StringBuilder PublicDescription
@@ -178,7 +193,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             get { return m_accessFlag; }
             set { m_accessFlag.Value = value; }
-                }
+        }
 
         private Sync<ShowTextOnScreenFlag> m_showFlag;
         public ShowTextOnScreenFlag ShowTextFlag
@@ -188,18 +203,18 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         void m_showFlag_ValueChanged(SyncBase obj)
+        {
+            if (m_showFlag != ShowTextOnScreenFlag.NONE)
             {
-                    if (m_showFlag != ShowTextOnScreenFlag.NONE)
-                    {
-                        m_forceUpdateText = true;
-                    }
-                    else
-                    {
-                        ReleaseRenderTexture();
-                        m_forceUpdateText = false;
-                        m_previousTextureID = null;
-                    }
-                }
+                m_forceUpdateText = true;
+            }
+            else
+            {
+                ReleaseRenderTexture();
+                m_forceUpdateText = false;
+                m_previousTextureID = null;
+            }
+        }
 
         public bool IsAccessibleForOnlyOwner
         {
@@ -264,8 +279,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         void m_changeInterval_ValueChanged(SyncBase obj)
         {
-                    RaisePropertiesChanged();
-                }
+            RaisePropertiesChanged();
+        }
 
         bool m_fontSizeChanged = true;
         private readonly Sync<float> m_fontSize;
@@ -276,10 +291,10 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         void m_fontSize_ValueChanged(SyncBase obj)
-            {
-                    m_fontSizeChanged = true;
-                    RaisePropertiesChanged();
-                }
+        {
+            m_fontSizeChanged = true;
+            RaisePropertiesChanged();
+        }
 
         internal new MyRenderComponentTextPanel Render
         {
@@ -351,14 +366,17 @@ namespace Sandbox.Game.Entities.Blocks
                     return;
                 }
 
-                if (ShowTextOnScreen&&(NeedsToDrawText() || m_isOutofRange || m_forceUpdateText))
+                if (ShowTextOnScreen && (NeedsToDrawText() || m_isOutofRange || m_forceUpdateText))
                 {
                     m_descriptionChanged = false;
                     m_forceUpdateText = false;
                     m_fontColorChanged = false;
                     m_fontSizeChanged = false;
                     m_backgroundColorChanged = false;
-                    Render.RenderTextToTexture(EntityId, ShowTextFlag == ShowTextOnScreenFlag.PUBLIC ? m_publicDescription.ToString() : m_privateDescription.ToString(), FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio);
+                    m_fontChanged = false;
+                    Render.RenderTextToTexture(ShowTextFlag == ShowTextOnScreenFlag.PUBLIC ? m_publicDescription.ToString() : m_privateDescription.ToString(),
+                        FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor,
+                        BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio);
                     FailedToRenderTexture = false;
                 }
 
@@ -409,7 +427,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         bool NeedsToDrawText()
         {
-            return ShowTextOnScreen && (m_descriptionChanged || m_fontSizeChanged || m_fontColorChanged || m_backgroundColorChanged);
+            return ShowTextOnScreen && (m_descriptionChanged || m_fontSizeChanged || m_fontColorChanged || m_fontChanged || m_backgroundColorChanged);
         }
 
         public void AddImagesToSelection()
@@ -515,7 +533,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             UpdateText();
             UpdateIsWorking();
-            if(Render == null)
+            if (Render == null)
             {
                 Debug.Fail("Closed entity!");
                 return;
@@ -586,7 +604,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_privateDescription = new StringBuilder();
             m_privateTitle = new StringBuilder();
 
-            Render = new MyRenderComponentTextPanel();
+            Render = new MyRenderComponentTextPanel(this);
             m_definitions.Clear();
             foreach (var textureDefinition in MyDefinitionManager.Static.GetLCDTexturesDefinitions())
             {
@@ -597,8 +615,10 @@ namespace Sandbox.Game.Entities.Blocks
             m_fontColor.Value = Color.White;
             m_changeInterval.Value = 0;
             m_fontSize.Value = 1.0f;
+            m_font.Value = new MyDefinitionId(typeof(MyObjectBuilder_FontDefinition), "Debug");
 
             m_backgroundColor.ValueChanged += m_backgroundColor_ValueChanged;
+            m_font.ValueChanged += m_font_ValueChanged;
             m_fontColor.ValueChanged += m_fontColor_ValueChanged;
             m_showFlag.ValueChanged += m_showFlag_ValueChanged;
             m_changeInterval.ValueChanged += m_changeInterval_ValueChanged;
@@ -652,12 +672,20 @@ namespace Sandbox.Game.Entities.Blocks
 
             MyTerminalControlFactory.AddControl(showTextOnScreen);
 
+
+            var comboFont = new MyTerminalControlCombobox<MyTextPanel>("Font", MySpaceTexts.BlockPropertyTitle_Font, MySpaceTexts.Blank);
+            comboFont.ComboBoxContent = (x) => FillFontComboBoxContent(x);
+            comboFont.Getter = (x) => (long)x.Font.SubtypeId;
+            comboFont.Setter = (x, y) => x.Font = new MyDefinitionId(typeof(MyObjectBuilder_FontDefinition), MyStringHash.TryGet((int)y));
+            MyTerminalControlFactory.AddControl(comboFont);
+            MyTerminalControlFactory.AddControl(new MyTerminalControlSeparator<MyTextPanel>());
+
             var changeFontSlider = new MyTerminalControlSlider<MyTextPanel>("FontSize", MySpaceTexts.BlockPropertyTitle_LCDScreenTextSize, MySpaceTexts.Blank);
             changeFontSlider.SetLimits(0.1f, 10.0f);
             changeFontSlider.DefaultValue = 1.0f;
             changeFontSlider.Getter = (x) => x.FontSize;
             changeFontSlider.Setter = (x, v) => x.FontSize = v;
-            changeFontSlider.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.FontSize, 1));
+            changeFontSlider.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.FontSize, NUM_DECIMALS));
             changeFontSlider.EnableActions();
             MyTerminalControlFactory.AddControl(changeFontSlider);
 
@@ -733,6 +761,10 @@ namespace Sandbox.Game.Entities.Blocks
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             Render.NeedsDrawFromParent = true;
             this.ChangeInterval = ob.ChangeInterval;
+            if (!ob.Font.IsNull())
+            {
+                Font = ob.Font;
+            }
             FontSize = ob.FontSize;
             ShowTextFlag = ob.ShowText;
             if (ob.SelectedImages != null)
@@ -752,7 +784,7 @@ namespace Sandbox.Game.Entities.Blocks
                 RaisePropertiesChanged();
             }
 
-            
+
             ResourceSink.Update();
             ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -769,6 +801,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             ob.AccessFlag = m_accessFlag;
             ob.ChangeInterval = ChangeInterval;
+            ob.Font = Font;
             ob.FontSize = FontSize;
             ob.ShowText = ShowTextFlag;
             ob.FontColor = FontColor;
@@ -1011,7 +1044,14 @@ namespace Sandbox.Game.Entities.Blocks
             items.Add(new MyTerminalControlComboBoxItem() { Key = (long)ShowTextOnScreenFlag.NONE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextNone });
             items.Add(new MyTerminalControlComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PUBLIC, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPublic });
             items.Add(new MyTerminalControlComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PRIVATE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPrivate });
+        }
 
+        public static void FillFontComboBoxContent(List<MyTerminalControlComboBoxItem> items)
+        {
+            foreach (var font in MyDefinitionManager.Static.GetFontDefinitions())
+            {
+                items.Add(new MyTerminalControlComboBoxItem() { Key = (long)(font.Id.SubtypeId), Value = MyStringId.GetOrCompute(font.Id.SubtypeName) });
+            }
         }
 
         private void TextPanel_ClientRemoved(ulong playerId)
@@ -1050,7 +1090,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return false;
             }
 
-            MatrixD localOffset = MatrixD.CreateTranslation( this.PositionComp.LocalVolume.Center);
+            MatrixD localOffset = MatrixD.CreateTranslation(this.PositionComp.LocalVolume.Center);
             MatrixD matrix = localOffset * WorldMatrix;
 
             Vector3D position = matrix.Translation;
@@ -1068,7 +1108,8 @@ namespace Sandbox.Game.Entities.Blocks
             string currentDescription = m_publicDescription.ToString();
             if (BlockDefinition.TextureResolution * BlockDefinition.TextureResolution * BlockDefinition.TextureAspectRadio <= freeResources && currentDescription.Length > 0)
             {
-                Render.RenderTextToTexture(EntityId, currentDescription, FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio);
+                Render.RenderTextToTexture(currentDescription, FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION,
+                    FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio);
                 FailedToRenderTexture = false;
             }
         }
@@ -1127,13 +1168,13 @@ namespace Sandbox.Game.Entities.Blocks
         private void SendRemoveSelectedImageRequest(int[] selection)
         {
             MyMultiplayer.RaiseEvent(this, x => x.OnRemoveSelectedImageRequest, selection);
-    }
+        }
 
         [Event, Reliable, Server, Broadcast]
         void OnRemoveSelectedImageRequest(int[] selection)
         {
             RemoveItems(selection);
-}
+        }
 
         private void SendAddImagesToSelectionRequest(int[] selection)
         {

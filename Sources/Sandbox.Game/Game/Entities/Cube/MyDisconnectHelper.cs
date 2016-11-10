@@ -120,7 +120,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (!MySession.Static.Settings.StationVoxelSupport)
                 {
                     if (grid.IsStatic)
-                        grid.TestDynamic = true;
+                        grid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                 }
             }
             ProfilerShort.End();

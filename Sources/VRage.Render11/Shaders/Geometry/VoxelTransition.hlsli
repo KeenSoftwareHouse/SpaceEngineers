@@ -17,7 +17,7 @@ float3 triplanar_weights(float3 n)
 void ProcessDithering(PixelInterface pixel, inout MaterialOutputInterface output)
 {
 #ifdef DITHERED
-	float3 lightDir = normalize(frame_.directionalLightVec);
+	float3 lightDir = normalize(frame_.Light.directionalLightVec);
 	float3 nrm = normalize(pixel.custom.normal.xyz);
 	float shadowTreshold = -0.2f;
 

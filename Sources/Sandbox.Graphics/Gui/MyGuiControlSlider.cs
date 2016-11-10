@@ -59,7 +59,7 @@ namespace Sandbox.Graphics.GUI
             int labelDecimalPlaces = 1,
             float labelScale = MyGuiConstants.DEFAULT_TEXT_SCALE,
             float labelSpaceWidth = 0f,
-            MyFontEnum labelFont = MyFontEnum.White,
+            string labelFont = MyFontEnum.White,
             String toolTip = null,
             MyGuiControlSliderStyleEnum visualStyle = MyGuiControlSliderStyleEnum.Default,
             MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,

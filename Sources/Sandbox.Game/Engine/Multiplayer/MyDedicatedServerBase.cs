@@ -335,6 +335,12 @@ namespace Sandbox.Engine.Multiplayer
         {
             MyLog.Default.WriteLineAndConsole("Server ValidateAuthTicketResponse (" + response.ToString() + "), owner: " + steamOwner.ToString());
 
+            if (IsClientKickedOrBanned(steamOwner) || MySandboxGame.ConfigDedicated.Banned.Contains(steamOwner))
+            {
+                UserRejected(steamID, JoinResult.BannedByAdmins);
+                RaiseClientKicked(steamID);
+            }
+
             if (response == AuthSessionResponseEnum.OK)
             {
                 if (MemberLimit > 0 && m_members.Count - 1 >= MemberLimit) // Unfortunately, DS counds into the members, so subtract it
@@ -721,7 +727,7 @@ namespace Sandbox.Engine.Multiplayer
         {
             MyConnectedClientData clientData;
             m_memberData.TryGetValue(steamUserID, out clientData);
-            return clientData.Name;
+            return clientData.Name == null ? ("ID:" + steamUserID) : clientData.Name;
         }
 
         void SendClientData(ulong steamTo, ulong connectedSteamID, string connectedClientName, bool join)

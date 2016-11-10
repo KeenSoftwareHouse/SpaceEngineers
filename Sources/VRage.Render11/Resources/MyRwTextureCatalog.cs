@@ -6,9 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using VRage.Render11.Common;
 using VRage.Render11.Resources.Internal;
+using VRage.Render11.Resources.Textures;
 
 namespace VRage.Render11.Resources
 {
+    // TODO: Not used
     internal class MyRwTextureCatalog : IManager, IManagerDevice, IManagerCallback
     {
         private Dictionary<string, MyTextureKeyIdentity> m_textureKeysCatalog = new Dictionary<string, MyTextureKeyIdentity>();

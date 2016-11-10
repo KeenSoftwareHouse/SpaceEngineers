@@ -92,7 +92,7 @@ namespace Sandbox.Game.SessionComponents
 
         // local exclusive highlights
         private readonly Dictionary<int, long>          m_exclusiveKeysToIds = new Dictionary<int, long>();
-        // Local highlighted ids
+        // Local highlighted ids (EntityIds)
         private readonly HashSet<long>                  m_highlightedIds = new HashSet<long>(); 
         // This could be removed probably
         private readonly MyHudSelectedObject            m_highlightCalculationHelper = new MyHudSelectedObject();
@@ -137,6 +137,26 @@ namespace Sandbox.Game.SessionComponents
                 data,
                 exclusiveKey,
                 true);
+        }
+
+        /// <summary>
+        /// Determines whenever is the entity highlighted by the system or not.
+        /// </summary>
+        /// <param name="entityId">Id of entity.</param>
+        /// <returns>Highlighted.</returns>
+        public bool IsHighlighted(long entityId)
+        {
+            return m_highlightedIds.Contains(entityId);
+        }
+
+        /// <summary>
+        /// Is the entity locked for highlights by the system?
+        /// </summary>
+        /// <param name="entityId">Id of the entity.</param>
+        /// <returns>Reserved value.</returns>
+        public bool IsReserved(long entityId)
+        {
+            return m_exclusiveKeysToIds.ContainsValue(entityId);
         }
 
         // Determines if the highlight is local or global request.

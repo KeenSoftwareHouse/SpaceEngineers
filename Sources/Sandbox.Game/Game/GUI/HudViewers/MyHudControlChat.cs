@@ -22,7 +22,7 @@ namespace Sandbox.Game.GUI.HudViewers
             Vector2? position = null,
             Vector2? size = null,
             Vector4? backgroundColor = null,
-            MyFontEnum font = MyFontEnum.White,
+            string font = MyFontEnum.White,
             float textScale = 0.7f,
             MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM,
             StringBuilder contents = null,

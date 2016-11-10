@@ -28,23 +28,23 @@ namespace Sandbox.Graphics.GUI
 
 		public struct MyControlBlockInfoStyle
 		{
-			public MyFontEnum BlockNameLabelFont;
+            public string BlockNameLabelFont;
 			public MyStringId ComponentsLabelText;
-			public MyFontEnum ComponentsLabelFont;
+            public string ComponentsLabelFont;
 			public MyStringId InstalledRequiredLabelText;
-			public MyFontEnum InstalledRequiredLabelFont;
+            public string InstalledRequiredLabelFont;
             public MyStringId RequiredAvailableLabelText;
 			public MyStringId RequiredLabelText;
-			public MyFontEnum IntegrityLabelFont;
+            public string IntegrityLabelFont;
 			public Vector4 IntegrityBackgroundColor;
 			public Vector4 IntegrityForegroundColor;
 			public Vector4 IntegrityForegroundColorOverCritical;
 			public Vector4 LeftColumnBackgroundColor;
 			public Vector4 TitleBackgroundColor;
-			public MyFontEnum ComponentLineMissingFont;
-			public MyFontEnum ComponentLineAllMountedFont;
-			public MyFontEnum ComponentLineAllInstalledFont;
-			public MyFontEnum ComponentLineDefaultFont;
+            public string ComponentLineMissingFont;
+            public string ComponentLineAllMountedFont;
+            public string ComponentLineAllInstalledFont;
+            public string ComponentLineDefaultFont;
 			public Vector4 ComponentLineDefaultColor;
 			public bool EnableBlockTypeLabel;
 			public bool ShowAvailableComponents;
@@ -497,7 +497,7 @@ namespace Sandbox.Graphics.GUI
                     if (i < BlockInfo.Components.Count)
                     {
                         var info = BlockInfo.Components[i];
-                        MyFontEnum font;
+                        string font;
                         Vector4 color = Vector4.One;
 
                         if (m_progressMode && BlockInfo.BlockIntegrity > 0)

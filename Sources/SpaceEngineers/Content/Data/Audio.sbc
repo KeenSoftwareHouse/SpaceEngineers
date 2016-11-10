@@ -4445,6 +4445,7 @@
       <MaxDistance>20</MaxDistance>
       <Volume>0.85</Volume>
       <Loopable>true</Loopable>
+      <SoundLimit>5</SoundLimit>
       <Waves>
         <Wave Type="D3">
           <Start>ARC\TOOL\ArcToolLrgGrindStart3d.xwm</Start>
@@ -4480,7 +4481,7 @@
       <MaxDistance>20</MaxDistance>
       <Loopable>true</Loopable>
       <PreventSynchronization>5</PreventSynchronization>
-      <SoundLimit>2</SoundLimit>
+      <SoundLimit>5</SoundLimit>
       <Waves>
         <Wave Type="D3">
           <Start>Real\TOOL\RealToolLrgGrindStart3d.wav</Start>
@@ -4514,6 +4515,7 @@
       </Id>
       <Category>TOOL_LRG</Category>
       <MaxDistance>25</MaxDistance>
+      <PreventSynchronization>5</PreventSynchronization>
       <Volume>0.8</Volume>
       <Waves>
         <Wave Type="D3">
@@ -4543,6 +4545,7 @@
       </Id>
       <Category>R_TOOL_LRG</Category>
       <MaxDistance>15</MaxDistance>
+      <PreventSynchronization>5</PreventSynchronization>
       <Waves>
         <Wave Type="D3">
           <Start>Real\TOOL\RealToolLrgWeldIdle3d.wav </Start>

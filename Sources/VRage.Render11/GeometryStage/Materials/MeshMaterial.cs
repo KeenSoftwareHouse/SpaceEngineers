@@ -29,333 +29,392 @@ using VRage.Render11.Common;
 using VRage.Render11.Resources;
 using System.IO;
 using VRage.Render11.RenderContext;
+using VRageMath.PackedVector;
 using VRageRender.Import;
 
 namespace VRageRender
 {
-	struct MyMeshMaterialId
-	{
-		internal int Index;
+    struct MyMeshMaterialId
+    {
+        public class CustomMergingEqualityComparer : IEqualityComparer<MyMeshMaterialId>
+        {
+            public bool Equals(MyMeshMaterialId x, MyMeshMaterialId y)
+            {
+                //return x == y;
 
-		public static bool operator ==(MyMeshMaterialId x, MyMeshMaterialId y)
-		{
-			return x.Index == y.Index;
-		}
+                var first = x.Info;
+                var second = y.Info;
 
-		public static bool operator !=(MyMeshMaterialId x, MyMeshMaterialId y)
-		{
-			return x.Index != y.Index;
-		}
+                return
+                    first.ColorMetal_Texture == second.ColorMetal_Texture
+                    && first.NormalGloss_Texture == second.NormalGloss_Texture
+                    && first.Alphamask_Texture == second.Alphamask_Texture
+                    && first.Extensions_Texture == second.Extensions_Texture
+                    && first.TextureTypes == second.TextureTypes
+                    && first.Technique == second.Technique
+                    && first.Facing == second.Facing;
+            }
 
-		internal static readonly MyMeshMaterialId NULL = new MyMeshMaterialId { Index = -1 };
+            public int GetHashCode(MyMeshMaterialId obj)
+            {
+                return 1;
+            }
+        }
 
-		internal MyMeshMaterialInfo Info { get { return MyMeshMaterials1.Table[Index]; } }
-	}
+        internal int Index;
+
+        public static bool operator ==(MyMeshMaterialId x, MyMeshMaterialId y)
+        {
+            return x.Index == y.Index;
+        }
+
+        public static bool operator !=(MyMeshMaterialId x, MyMeshMaterialId y)
+        {
+            return x.Index != y.Index;
+        }
+
+        internal static readonly MyMeshMaterialId NULL = new MyMeshMaterialId { Index = -1 };
+
+        internal MyMeshMaterialInfo Info { get { return MyMeshMaterials1.Table[Index]; } }
+    }
+
+    struct MyGeometryTextureSystemReference
+    {
+        public bool IsUsed;
+
+        public IDynamicFileArrayTexture ColorMetalTexture;
+        public IDynamicFileArrayTexture NormalGlossTexture;
+        public IDynamicFileArrayTexture ExtensionTexture;
+        public IDynamicFileArrayTexture AlphamaskTexture;
+
+        public int ColorMetalIndex;
+        public int NormalGlossIndex;
+        public int ExtensionIndex;
+        public int AlphamaskIndex;
+
+        public Vector4I TextureSliceIndices
+        {
+            get { return new Vector4I(ColorMetalIndex, NormalGlossIndex, ExtensionIndex, AlphamaskIndex); }
+            set
+            {
+                ColorMetalIndex = value.X;
+                NormalGlossIndex = value.Y;
+                ExtensionIndex = value.Z;
+                AlphamaskIndex = value.W;
+            }
+        }
+    }
 
     struct MyMeshMaterialInfo
     {
         internal MyMeshMaterialId Id; // key - direct index, out 
         internal int RepresentationKey; // key - external ref, out 
         internal MyStringId Name;
-        internal string ContentPath;
         internal MyFileTextureEnum TextureTypes;
-        internal MyStringId ColorMetal_Texture;
-        internal MyStringId NormalGloss_Texture;
-        internal MyStringId Extensions_Texture;
-        internal MyStringId Alphamask_Texture;
+        internal string ColorMetal_Texture;
+        internal string NormalGloss_Texture;
+        internal string Extensions_Texture;
+        internal string Alphamask_Texture;
+        public MyGeometryTextureSystemReference GeometryTextureRef;
         internal MyMeshDrawTechnique Technique;
         internal MyFacingEnum Facing;
         internal Vector2 WindScaleAndFreq;
 
-        static string GetFilepath(string contentPath, string filepath)
-        {
-            if (string.IsNullOrEmpty(filepath))
-                return null;
-
-            if (!string.IsNullOrEmpty(contentPath))
-            {
-                // Mod models may still refer to vanilla texture
-                string path = Path.Combine(contentPath, filepath);
-                if (MyFileSystem.FileExists(path))
-                    return path;
-            }
-
-            return Path.Combine(MyFileSystem.ContentPath, filepath);
-        }
-
         internal static void RequestResources(ref MyMeshMaterialInfo info)
         {
-            MyFileTextureManager texManager = MyManagers.FileTextures;
-            string contentPath = info.ContentPath;
-
-            texManager.GetTexture(GetFilepath(contentPath, info.ColorMetal_Texture.ToString()), MyFileTextureEnum.COLOR_METAL, false, info.Facing == MyFacingEnum.Impostor);
-            texManager.GetTexture(GetFilepath(contentPath, info.NormalGloss_Texture.ToString()), MyFileTextureEnum.NORMALMAP_GLOSS);
-            texManager.GetTexture(GetFilepath(contentPath, info.Extensions_Texture.ToString()), MyFileTextureEnum.EXTENSIONS);
-            texManager.GetTexture(GetFilepath(contentPath, info.Alphamask_Texture.ToString()), MyFileTextureEnum.ALPHAMASK);
+            if (!info.GeometryTextureRef.IsUsed)
+            {
+                MyFileTextureManager texManager = MyManagers.FileTextures;
+                texManager.GetTexture(info.ColorMetal_Texture, MyFileTextureEnum.COLOR_METAL, false,
+                    info.Facing == MyFacingEnum.Impostor);
+                texManager.GetTexture(info.NormalGloss_Texture, MyFileTextureEnum.NORMALMAP_GLOSS);
+                texManager.GetTexture(info.Extensions_Texture, MyFileTextureEnum.EXTENSIONS);
+                texManager.GetTexture(info.Alphamask_Texture, MyFileTextureEnum.ALPHAMASK);
+            }
+            else
+            {
+                if (info.GeometryTextureRef.ColorMetalTexture != null)
+                    info.GeometryTextureRef.ColorMetalTexture.Update();
+                if (info.GeometryTextureRef.NormalGlossTexture != null)
+                    info.GeometryTextureRef.NormalGlossTexture.Update();
+                if (info.GeometryTextureRef.ExtensionTexture != null)
+                    info.GeometryTextureRef.ExtensionTexture.Update();
+                if (info.GeometryTextureRef.AlphamaskTexture != null)
+                    info.GeometryTextureRef.AlphamaskTexture.Update();
+            }
         }
 
         internal static MyMaterialProxy_2 CreateProxy(ref MyMeshMaterialInfo info)
         {
-            MyFileTextureManager texManager = MyManagers.FileTextures;
-            string contentPath = info.ContentPath;
-
-            var A = texManager.GetTexture(GetFilepath(contentPath, info.ColorMetal_Texture.ToString()), MyFileTextureEnum.COLOR_METAL);
-            var B = texManager.GetTexture(GetFilepath(contentPath, info.NormalGloss_Texture.ToString()), MyFileTextureEnum.NORMALMAP_GLOSS);
-            var C = texManager.GetTexture(GetFilepath(contentPath, info.Extensions_Texture.ToString()), MyFileTextureEnum.EXTENSIONS);
-            var D = texManager.GetTexture(GetFilepath(contentPath, info.Alphamask_Texture.ToString()), MyFileTextureEnum.ALPHAMASK);
-
-			var materialSrvs = new MySrvTable
-					{ 
-                        BindFlag = MyBindFlag.BIND_PS, 
+            ISrvBindable A, B, C, D;
+            if (!info.GeometryTextureRef.IsUsed)
+            {
+                MyFileTextureManager texManager = MyManagers.FileTextures;
+                A = texManager.GetTexture(info.ColorMetal_Texture, MyFileTextureEnum.COLOR_METAL);
+                B = texManager.GetTexture(info.NormalGloss_Texture, MyFileTextureEnum.NORMALMAP_GLOSS);
+                C = texManager.GetTexture(info.Extensions_Texture, MyFileTextureEnum.EXTENSIONS);
+                D = texManager.GetTexture(info.Alphamask_Texture, MyFileTextureEnum.ALPHAMASK);
+            }
+            else
+            {
+                A = info.GeometryTextureRef.ColorMetalTexture;
+                B = info.GeometryTextureRef.NormalGlossTexture;
+                C = info.GeometryTextureRef.ExtensionTexture;
+                D = info.GeometryTextureRef.AlphamaskTexture;
+            }
+            var materialSrvs = new MySrvTable
+                    {
+                        BindFlag = MyBindFlag.BIND_PS,
                         StartSlot = 0,
-                        Srvs = new ShaderResourceView[] { A.Srv, B.Srv, C.Srv, D.Srv },
+                        Srvs = new ISrvBindable[] { A, B, C, D },
                         Version = info.Id.GetHashCode()
                     };
             return
-				new MyMaterialProxy_2 { MaterialSrvs = materialSrvs };
+                new MyMaterialProxy_2 { MaterialSrvs = materialSrvs };
         }
     }
 
-	class MyMeshMaterials1
-	{
-		#region DATA
-		static MyFreelist<MyMeshMaterialInfo> MaterialsPool = new MyFreelist<MyMeshMaterialInfo>(256);
+    class MyMeshMaterials1
+    {
+        #region DATA
+        static MyFreelist<MyMeshMaterialInfo> MaterialsPool = new MyFreelist<MyMeshMaterialInfo>(256);
 
-		internal static MyMeshMaterialInfo[] Table { get { return MaterialsPool.Data; } }
+        internal static MyMeshMaterialInfo[] Table { get { return MaterialsPool.Data; } }
 
-		static Dictionary<MyMeshMaterialId, MyMaterialProxyId> MaterialProxyIndex = new Dictionary<MyMeshMaterialId, MyMaterialProxyId>();
-		internal static Dictionary<int, MyMeshMaterialId> MaterialRkIndex = new Dictionary<int, MyMeshMaterialId>();
+        static Dictionary<MyMeshMaterialId, MyMaterialProxyId> MaterialProxyIndex = new Dictionary<MyMeshMaterialId, MyMaterialProxyId>();
+        internal static Dictionary<int, MyMeshMaterialId> MaterialRkIndex = new Dictionary<int, MyMeshMaterialId>();
 
-		static Dictionary<MyStringId, MyMeshMaterialId> MaterialNameIndex = new Dictionary<MyStringId, MyMeshMaterialId>(MyStringId.Comparer); // only for uniquely named materials! used by destruction models
+        static Dictionary<MyStringId, MyMeshMaterialId> MaterialNameIndex = new Dictionary<MyStringId, MyMeshMaterialId>(MyStringId.Comparer); // only for uniquely named materials! used by destruction models
 
-		internal static HashSet<int> MergableRKs = new HashSet<int>();
+        internal static HashSet<int> MergableRKs = new HashSet<int>();
 
-		static List<MyMeshMaterialId> MaterialQueryResourcesTable = new List<MyMeshMaterialId>();
-		#endregion
+        static List<MyMeshMaterialId> MaterialQueryResourcesTable = new List<MyMeshMaterialId>();
+        #endregion
 
-		internal static MyMeshMaterialId DebugMaterialId;
-		internal static MyMeshMaterialId NullMaterialId;
+        internal static MyMeshMaterialId DebugMaterialId;
+        internal static MyMeshMaterialId NullMaterialId;
 
-		static readonly HashSet<MyStringId> MERGABLE_MATERIAL_NAMES;
-		static MyMeshMaterials1()
-		{
-			MERGABLE_MATERIAL_NAMES = new HashSet<MyStringId>(MyStringId.Comparer) ;
-            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("BlockSheet")); 
-            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("CubesSheet")); 
-            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("CubesMetalSheet")); 
-            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("RoofSheet")); 
-            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("StoneSheet")); 
-            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("House_Texture")); 
+        static readonly HashSet<MyStringId> MERGABLE_MATERIAL_NAMES;
+        static MyMeshMaterials1()
+        {
+            MERGABLE_MATERIAL_NAMES = new HashSet<MyStringId>(MyStringId.Comparer);
+            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("BlockSheet"));
+            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("CubesSheet"));
+            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("CubesMetalSheet"));
+            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("RoofSheet"));
+            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("StoneSheet"));
+            MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("House_Texture"));
             MERGABLE_MATERIAL_NAMES.Add(X.TEXT_("RoofSheetRound"));
-		}
+        }
 
-		internal static bool IsMergable(MyMeshMaterialId matId)
-		{
-			return MergableRKs.Contains(Table[matId.Index].RepresentationKey);
-		}
+        internal static bool IsMergable(MyMeshMaterialId matId)
+        {
+            return MergableRKs.Contains(Table[matId.Index].RepresentationKey);
+        }
 
-		internal static MyMeshMaterialId GetMaterialId(string name)
-		{
-			return MaterialNameIndex.Get(X.TEXT_(name));
-		}
+        internal static MyMeshMaterialId GetMaterialId(string name)
+        {
+            return MaterialNameIndex.Get(X.TEXT_(name));
+        }
 
-		internal static MyMaterialProxyId GetProxyId(MyMeshMaterialId id)
-		{
-			if (MaterialProxyIndex.ContainsKey(id))
-			{
-				return MaterialProxyIndex[id];
-			}
+        internal static MyMaterialProxyId GetProxyId(MyMeshMaterialId id)
+        {
+            if (MaterialProxyIndex.ContainsKey(id))
+            {
+                return MaterialProxyIndex[id];
+            }
 
-			MyRender11.Log.WriteLine("MeshMaterialId missing");
+            MyRender11.Log.WriteLine("MeshMaterialId missing");
 
-			return MaterialProxyIndex[DebugMaterialId];
-		}
+            return MaterialProxyIndex[DebugMaterialId];
+        }
 
-		internal static int CalculateRK(ref MyMeshMaterialInfo desc)
-		{
-			var key = desc.ColorMetal_Texture.GetHashCode();
-			MyHashHelper.Combine(ref key, desc.NormalGloss_Texture.GetHashCode());
-			MyHashHelper.Combine(ref key, desc.Extensions_Texture.GetHashCode());
-			MyHashHelper.Combine(ref key, desc.Alphamask_Texture.GetHashCode());
-			MyHashHelper.Combine(ref key, desc.Technique.GetHashCode());
+        internal static int CalculateRK(ref MyMeshMaterialInfo desc)
+        {
+            var key = desc.ColorMetal_Texture.GetHashCode();
+            MyHashHelper.Combine(ref key, desc.NormalGloss_Texture.GetHashCode());
+            MyHashHelper.Combine(ref key, desc.Extensions_Texture.GetHashCode());
+            MyHashHelper.Combine(ref key, desc.Alphamask_Texture.GetHashCode());
+            MyHashHelper.Combine(ref key, desc.Technique.GetHashCode());
+            MyHashHelper.Combine(ref key, desc.Name.GetHashCode());
+            return key;
+        }
 
-			MyHashHelper.Combine(ref key, desc.Name.GetHashCode());
-			if (desc.ContentPath != null)
-			{
-				MyHashHelper.Combine(ref key, desc.ContentPath.GetHashCode());
-			}
+        internal static MyMeshMaterialId GetMaterialId(ref MyMeshMaterialInfo desc, string assetFile = null)
+        {
+            var rk = CalculateRK(ref desc);
 
-			return key;
-		}
+            if (!MaterialRkIndex.ContainsKey(rk))
+            {
+                var id = MaterialRkIndex[rk] = new MyMeshMaterialId { Index = MaterialsPool.Allocate() };
 
-		internal static MyMeshMaterialId GetMaterialId(ref MyMeshMaterialInfo desc, string assetFile = null)
-		{
-			var rk = CalculateRK(ref desc);
+                desc.Id = id;
+                desc.RepresentationKey = rk;
 
-			if (!MaterialRkIndex.ContainsKey(rk))
-			{
-				var id = MaterialRkIndex[rk] = new MyMeshMaterialId { Index = MaterialsPool.Allocate() };
+                MaterialsPool.Data[id.Index] = desc;
+                MaterialProxyIndex[id] = MyMaterials1.AllocateProxy();
 
-				desc.Id = id;
-				desc.RepresentationKey = rk;
+                MaterialQueryResourcesTable.Add(id);
 
-				MaterialsPool.Data[id.Index] = desc;
-				MaterialProxyIndex[id] = MyMaterials1.AllocateProxy();
+                MaterialNameIndex[desc.Name] = id;
 
-				MaterialQueryResourcesTable.Add(id);
+                if (MERGABLE_MATERIAL_NAMES.Contains(desc.Name))
+                {
+                    MergableRKs.Add(desc.RepresentationKey);
+                }
 
-				var nameIndex = desc.Name;
+                else if (assetFile != null)
+                {
+                    VRageRender.MyRender11.Log.WriteLine(String.Format("Asset {0} tries to overrwrite material {1} with different textures", assetFile, desc.Name.ToString()));
+                }
 
-				if (MERGABLE_MATERIAL_NAMES.Contains(nameIndex))
-				{
-					MergableRKs.Add(desc.RepresentationKey);
-				}
+                return id;
+            }
 
-				if (!MaterialNameIndex.ContainsKey(nameIndex))
-				{
-					MaterialNameIndex[nameIndex] = id;
-				}
-				else if (assetFile != null)
-				{
-					VRageRender.MyRender11.Log.WriteLine(String.Format("Asset {0} tries to overrwrite material {1} with different textures", assetFile, desc.Name.ToString()));
-				}
+            return MaterialRkIndex[rk];
+        }
 
-				return id;
-			}
-
-			return MaterialRkIndex[rk];
-		}
-
-		internal static MyMeshMaterialId GetMaterialId(string name, string contentPath, string colorMetalTexture, string normalGlossTexture, string extensionTexture, string technique)
-		{
-			MyMeshMaterialInfo desc;
-			desc = new MyMeshMaterialInfo
-			{
-				Name = X.TEXT_(name),
-				ContentPath = contentPath,
-				ColorMetal_Texture = X.TEXT_(colorMetalTexture),
-				NormalGloss_Texture = X.TEXT_(normalGlossTexture),
-				Extensions_Texture = X.TEXT_(extensionTexture),
+        internal static MyMeshMaterialId GetMaterialId(string name, string contentPath, string colorMetalTexture, string normalGlossTexture, string extensionTexture, string technique)
+        {
+            MyMeshMaterialInfo desc;
+            desc = new MyMeshMaterialInfo
+            {
+                Name = X.TEXT_(name),
+                ColorMetal_Texture = MyResourceUtils.GetTextureFullPath(colorMetalTexture, contentPath),
+                NormalGloss_Texture = MyResourceUtils.GetTextureFullPath(normalGlossTexture, contentPath),
+                Extensions_Texture = MyResourceUtils.GetTextureFullPath(extensionTexture, contentPath),
+                Alphamask_Texture = String.Empty,
                 Technique = ConvertToDrawTechnique(technique),
                 TextureTypes = GetMaterialTextureTypes(colorMetalTexture, normalGlossTexture, extensionTexture, null),
-				Facing = MyFacingEnum.None,
-			};
+                Facing = MyFacingEnum.None,
+            };
 
-			return GetMaterialId(ref desc);
-		}
+            return GetMaterialId(ref desc);
+        }
 
-		internal static MyMeshMaterialId GetMaterialId(MyMaterialDescriptor importDesc, string contentPath, string assetFile = null)
-		{
-			MyMeshMaterialInfo desc;
-			if (importDesc != null)
-			{
-                string colorMetalTexture = importDesc.Textures.Get("ColorMetalTexture", "");
-                string normalGlossTexture = importDesc.Textures.Get("NormalGlossTexture", "");
-                string extensionTexture = importDesc.Textures.Get("AddMapsTexture", "");
-                string alphamaskTexture = importDesc.Textures.Get("AlphamaskTexture", null);
+        public static MyMeshMaterialInfo ConvertImportDescToMeshMaterialInfo(MyMaterialDescriptor importDesc,
+            string contentPath, string assetFile = null)
+        {
+            string colorMetalTexture = importDesc.Textures.Get("ColorMetalTexture", "");
+            string normalGlossTexture = importDesc.Textures.Get("NormalGlossTexture", "");
+            string extensionTexture = importDesc.Textures.Get("AddMapsTexture", "");
+            string alphamaskTexture = importDesc.Textures.Get("AlphamaskTexture", null);
 
-				desc = new MyMeshMaterialInfo
-				{
-					Name = X.TEXT_(importDesc.MaterialName),
-					ContentPath = contentPath,
-                    ColorMetal_Texture = X.TEXT_(colorMetalTexture),
-                    NormalGloss_Texture = X.TEXT_(normalGlossTexture),
-                    Extensions_Texture = X.TEXT_(extensionTexture),
-                    Alphamask_Texture = X.TEXT_(alphamaskTexture),
-                    TextureTypes = GetMaterialTextureTypes(colorMetalTexture, normalGlossTexture, extensionTexture, alphamaskTexture),
-                    Technique = ConvertToDrawTechnique(importDesc.Technique),
-					Facing = importDesc.Facing,
-					WindScaleAndFreq = importDesc.WindScaleAndFreq
-				};
-			}
-			else
-			{
-				return NullMaterialId;
-			}
+            MyMeshMaterialInfo info = new MyMeshMaterialInfo
+            {
+                Name = X.TEXT_(importDesc.MaterialName),
+                ColorMetal_Texture = MyResourceUtils.GetTextureFullPath(colorMetalTexture, contentPath),
+                NormalGloss_Texture = MyResourceUtils.GetTextureFullPath(normalGlossTexture, contentPath),
+                Extensions_Texture = MyResourceUtils.GetTextureFullPath(extensionTexture, contentPath),
+                Alphamask_Texture = MyResourceUtils.GetTextureFullPath(alphamaskTexture, contentPath),
+                TextureTypes = GetMaterialTextureTypes(colorMetalTexture, normalGlossTexture, extensionTexture, alphamaskTexture),
+                Technique = ConvertToDrawTechnique(importDesc.Technique),
+                Facing = importDesc.Facing,
+                WindScaleAndFreq = importDesc.WindScaleAndFreq
+            };
+            return info;
+        }
 
-			return GetMaterialId(ref desc, assetFile);
-		}
+        internal static MyMeshMaterialId GetMaterialId(MyMaterialDescriptor importDesc, string contentPath, string assetFile = null)
+        {
+            MyMeshMaterialInfo info;
+            if (importDesc != null)
+            {
+                info = ConvertImportDescToMeshMaterialInfo(importDesc, contentPath, assetFile);
+            }
+            else
+            {
+                return NullMaterialId;
+            }
 
-		internal static void OnResourcesRequesting()
-		{
-			foreach (var id in MaterialQueryResourcesTable)
-			{
-				// ask for resources
-				MyMeshMaterialInfo.RequestResources(ref MaterialsPool.Data[id.Index]);
-			}
-		}
+            return GetMaterialId(ref info, assetFile);
+        }
 
-		internal static void OnResourcesGathering()
-		{
-			if (MaterialQueryResourcesTable.Count > 0)
-			{
-				// update proxies foreach material
-				foreach (var id in MaterialQueryResourcesTable)
-				{
-					MyMaterials1.ProxyPool.Data[MaterialProxyIndex[id].Index] = MyMeshMaterialInfo.CreateProxy(ref MaterialsPool.Data[id.Index]);
-				}
-			}
+        internal static void OnResourcesRequesting()
+        {
+            foreach (var id in MaterialQueryResourcesTable)
+            {
+                // ask for resources
+                MyMeshMaterialInfo.RequestResources(ref MaterialsPool.Data[id.Index]);
+            }
+        }
 
-			MaterialQueryResourcesTable.Clear();
-		}
+        internal static void OnResourcesGathering()
+        {
+            if (MaterialQueryResourcesTable.Count > 0)
+            {
+                // update proxies foreach material
+                foreach (var id in MaterialQueryResourcesTable)
+                {
+                    MyMaterials1.ProxyPool.Data[MaterialProxyIndex[id].Index] = MyMeshMaterialInfo.CreateProxy(ref MaterialsPool.Data[id.Index]);
+                }
+            }
 
-		internal static void CreateCommonMaterials()
-		{
-			var nullMatDesc = new MyMeshMaterialInfo
-			{
-				Name = X.TEXT_("__NULL_MATERIAL"),
-				ColorMetal_Texture = MyStringId.NullOrEmpty,
-				NormalGloss_Texture = MyStringId.NullOrEmpty,
-				Extensions_Texture = MyStringId.NullOrEmpty,
-				Alphamask_Texture = MyStringId.NullOrEmpty,
-				Technique = MyMeshDrawTechnique.MESH
-			};
-			NullMaterialId = GetMaterialId(ref nullMatDesc);
+            MaterialQueryResourcesTable.Clear();
+        }
 
-			var debugMatDesc = new MyMeshMaterialInfo
-			{
-				Name = X.TEXT_("__DEBUG_MATERIAL"),
-				ColorMetal_Texture = MyRender11.DebugMode ? X.TEXT_("Pink") : MyStringId.NullOrEmpty,
-				NormalGloss_Texture = MyStringId.NullOrEmpty,
-				Extensions_Texture = MyStringId.NullOrEmpty,
-				Alphamask_Texture = MyStringId.NullOrEmpty,
+        internal static void CreateCommonMaterials()
+        {
+            var nullMatDesc = new MyMeshMaterialInfo
+            {
+                Name = X.TEXT_("__NULL_MATERIAL"),
+                ColorMetal_Texture = string.Empty,
+                NormalGloss_Texture = string.Empty,
+                Extensions_Texture = string.Empty,
+                Alphamask_Texture = string.Empty,
                 Technique = MyMeshDrawTechnique.MESH
-			};
-			DebugMaterialId = GetMaterialId(ref debugMatDesc);
-		}
+            };
+            NullMaterialId = GetMaterialId(ref nullMatDesc);
 
-		internal static void Init()
-		{
-			//MyCallbacks.RegisterResourceRequestListener(new OnResourceRequestDelegate(OnResourcesRequesting));
-			//MyCallbacks.RegisterResourceGatherListener(new OnResourceGatherDelegate(OnResourcesGathering));
+            var debugMatDesc = new MyMeshMaterialInfo
+            {
+                Name = X.TEXT_("__DEBUG_MATERIAL"),
+                ColorMetal_Texture = MyRender11.DebugMode ? "PINK" : string.Empty,
+                NormalGloss_Texture = string.Empty,
+                Extensions_Texture = string.Empty,
+                Alphamask_Texture = string.Empty,
+                Technique = MyMeshDrawTechnique.MESH
+            };
+            DebugMaterialId = GetMaterialId(ref debugMatDesc);
+        }
 
-			CreateCommonMaterials();
-		}
+        internal static void Init()
+        {
+            //MyCallbacks.RegisterResourceRequestListener(new OnResourceRequestDelegate(OnResourcesRequesting));
+            //MyCallbacks.RegisterResourceGatherListener(new OnResourceGatherDelegate(OnResourcesGathering));
+
+            CreateCommonMaterials();
+        }
 
         internal static void OnDeviceReset()
         {
             InvalidateMaterials();
         }
 
-		internal static void InvalidateMaterials()
-		{
-			foreach (var id in MaterialRkIndex.Values)
-			{
-				MaterialQueryResourcesTable.Add(id);
-			}
-		}
+        internal static void InvalidateMaterial(MyMeshMaterialId id)
+        {
+            MaterialQueryResourcesTable.Add(id);
+        }
 
-		internal static void OnSessionEnd()
-		{
-			MergableRKs.Clear();
-			MaterialQueryResourcesTable.Clear();
-			MaterialRkIndex.Clear();
-			MaterialsPool.Clear();
-			MaterialProxyIndex.Clear();
-			MaterialNameIndex.Clear();
+        internal static void InvalidateMaterials()
+        {
+            foreach (var id in MaterialRkIndex.Values)
+            {
+                MaterialQueryResourcesTable.Add(id);
+            }
+        }
 
-			CreateCommonMaterials();
-		}
+        internal static void OnSessionEnd()
+        {
+            MergableRKs.Clear();
+            MaterialQueryResourcesTable.Clear();
+            MaterialRkIndex.Clear();
+            MaterialsPool.Clear();
+            MaterialProxyIndex.Clear();
+            MaterialNameIndex.Clear();
+
+            CreateCommonMaterials();
+        }
 
         public static MyFileTextureEnum GetMaterialTextureTypes(string colorMetalTexture,
             string normalGlossTexture, string extensionTexture, string alphamaskTexture)
@@ -397,22 +456,34 @@ namespace VRageRender
         }
 
         /// <summary>Bind blend states for alpha blending</summary>
-        public static void BindMaterialTextureBlendStates(MyRenderContext rc, MyFileTextureEnum textures)
+        public static void BindMaterialTextureBlendStates(MyRenderContext rc, MyFileTextureEnum textures, bool premultipliedAlpha)
         {
             textures &= ~MyFileTextureEnum.ALPHAMASK;
             switch (textures)
             {
                 case MyFileTextureEnum.COLOR_METAL:
-                    rc.SetBlendState(MyBlendStateManager.BlendDecalNormal);
+                    if (premultipliedAlpha)
+                        rc.SetBlendState(MyBlendStateManager.BlendDecalColor);
+                    else
+                        rc.SetBlendState(MyBlendStateManager.BlendDecalColorNoPremult);
                     break;
                 case MyFileTextureEnum.NORMALMAP_GLOSS:
-                    rc.SetBlendState(MyBlendStateManager.BlendDecalColor);
+                    if (premultipliedAlpha)
+                        rc.SetBlendState(MyBlendStateManager.BlendDecalNormal);
+                    else
+                        rc.SetBlendState(MyBlendStateManager.BlendDecalNormalNoPremult);
                     break;
                 case MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS:
-                    rc.SetBlendState(MyBlendStateManager.BlendDecalNormalColor);
+                    if (premultipliedAlpha)
+                        rc.SetBlendState(MyBlendStateManager.BlendDecalNormalColor);
+                    else
+                        rc.SetBlendState(MyBlendStateManager.BlendDecalNormalColorNoPremult);
                     break;
                 case MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS | MyFileTextureEnum.EXTENSIONS:
-                    rc.SetBlendState(MyBlendStateManager.BlendDecalNormalColorExt);
+                    if (premultipliedAlpha)
+                        rc.SetBlendState(MyBlendStateManager.BlendDecalNormalColorExt);
+                    else
+                        rc.SetBlendState(MyBlendStateManager.BlendDecalNormalColorExtNoPremult);
                     break;
                 default:
                     throw new Exception("Unknown texture bundle type");
@@ -427,6 +498,6 @@ namespace VRageRender
             return ret;
         }
 
-	}
+    }
 
 }

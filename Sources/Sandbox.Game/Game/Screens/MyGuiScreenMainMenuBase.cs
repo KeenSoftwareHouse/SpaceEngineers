@@ -65,9 +65,9 @@ namespace Sandbox.Game.Screens
                 m_pauseGame = pauseGame;
 
                 // Pause if not paused and should be
-                if(m_pauseGame && !MySandboxGame.IsPaused)
+                if(m_pauseGame)
                 {
-                    MySandboxGame.UserPauseToggle();
+                    MySandboxGame.PausePush();
                 }
             }
             else
@@ -124,7 +124,7 @@ namespace Sandbox.Game.Screens
         {
             if (m_pauseGame)
             {
-                MySandboxGame.UserPauseToggle();
+                MySandboxGame.PausePop();
             }
 
             bool ret = base.CloseScreen();

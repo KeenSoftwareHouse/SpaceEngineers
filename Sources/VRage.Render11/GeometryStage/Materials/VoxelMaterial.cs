@@ -33,58 +33,36 @@ namespace VRageRender
     {
         // texturing part
 
-        internal MyStringId ColorMetalXZnY_Texture;
-        internal MyStringId ColorMetalpY_Texture;
-        internal MyStringId NormalGlossXZnY_Texture;
-        internal MyStringId NormalGlossY_Texture;
-        internal MyStringId ExtXZnY_Texture;
-        internal MyStringId ExtY_Texture;
-
-        internal IFileArrayTexture ColorMetalArray;
-        internal IFileArrayTexture NormalGlossArray;
-        internal IFileArrayTexture ExtArray;
+        internal string[] ColorMetalXZnY_Filepaths;
+        internal string[] ColorMetalY_Filepaths;
+        internal string[] NormalGlossXZnY_Filepaths;
+        internal string[] NormalGlossY_Filepaths;
+        internal string[] ExtXZnY_Filepaths;
+        internal string[] ExtY_Filepaths;
 
         internal static void RequestResources(ref MyVoxelMaterialDetailSet set)
         {
             MyFileTextureManager texManager = MyManagers.FileTextures;
-            texManager.GetTexture(set.ColorMetalXZnY_Texture.ToString(), MyFileTextureEnum.COLOR_METAL);
-            texManager.GetTexture(set.ColorMetalpY_Texture.ToString(), MyFileTextureEnum.COLOR_METAL);
+            foreach (var filepath in set.ColorMetalXZnY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.COLOR_METAL);
+            foreach (var filepath in set.ColorMetalY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.COLOR_METAL);
 
-            texManager.GetTexture(set.NormalGlossXZnY_Texture.ToString(), MyFileTextureEnum.NORMALMAP_GLOSS);
-            texManager.GetTexture(set.NormalGlossY_Texture.ToString(), MyFileTextureEnum.NORMALMAP_GLOSS);
+            foreach (var filepath in set.NormalGlossXZnY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.NORMALMAP_GLOSS);
+            foreach (var filepath in set.NormalGlossY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.NORMALMAP_GLOSS);
 
-            texManager.GetTexture(set.ExtXZnY_Texture.ToString(), MyFileTextureEnum.EXTENSIONS);
-            texManager.GetTexture(set.ExtY_Texture.ToString(), MyFileTextureEnum.EXTENSIONS);
-        }
-
-        internal static void ReleaseResources(ref MyVoxelMaterialDetailSet set)
-        {
-            MyFileArrayTextureManager texManager = MyManagers.FileArrayTextures;
-            texManager.DisposeTex(ref set.ColorMetalArray);
-            texManager.DisposeTex(ref set.NormalGlossArray);
-            texManager.DisposeTex(ref set.ExtArray);
-        }
-
-        internal static void PrepareArrays(ref MyVoxelMaterialDetailSet set)
-        {
-            MyFileArrayTextureManager texManager = MyManagers.FileArrayTextures;
-            set.ColorMetalArray = texManager.CreateFromFiles("VoxelMaterial CM Array " + set.ColorMetalXZnY_Texture.ToString(),
-                    new string[] { set.ColorMetalXZnY_Texture.ToString(), set.ColorMetalpY_Texture.ToString() }, 
-                    MyFileTextureEnum.COLOR_METAL);
-            set.NormalGlossArray = texManager.CreateFromFiles("VoxelMaterial NG Array " + set.NormalGlossXZnY_Texture.ToString(),
-                    new string[] { set.NormalGlossXZnY_Texture.ToString(), set.NormalGlossY_Texture.ToString() },
-                    MyFileTextureEnum.NORMALMAP_GLOSS);
-            set.ExtArray = texManager.CreateFromFiles("VoxelMaterial EA Array " + set.ExtXZnY_Texture.ToString(),
-                    new string[] { set.ExtXZnY_Texture.ToString(), set.ExtY_Texture.ToString() }, 
-                    MyFileTextureEnum.EXTENSIONS);
+            foreach (var filepath in set.ExtXZnY_Filepaths) 
+                texManager.GetTexture(filepath, MyFileTextureEnum.EXTENSIONS);
+            foreach (var filepath in set.ExtY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.EXTENSIONS);
         }
     }
 
     struct MyVoxelMaterial1
     {
-        internal MyVoxelMaterialDetailSet Near;
-        internal MyVoxelMaterialDetailSet Far1;
-        internal MyVoxelMaterialDetailSet Far2;
+        internal MyVoxelMaterialDetailSet Resource;
 
         // foliage 
         internal string FoliageArray_Texture;

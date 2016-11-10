@@ -61,7 +61,7 @@ namespace VRageRender
             VertexShader vertexShader, InputLayout inputLayout,
             int materialIndex, int indexCount, int startIndex, int baseVertex)
         {
-            if (stream.m_stream == VertexBufferId.NULL) return;
+            if (stream.m_stream == null) return;
 
             //var worldMatrix = proxy.WorldMatrix;
             //worldMatrix.Translation = Vector3D.Zero;
@@ -93,7 +93,7 @@ namespace VRageRender
                 stream.Append = true;
             }
 
-            RC.SetTarget(stream.m_stream.Buffer, offset);
+            RC.SetTarget(stream.m_stream, offset);
             RC.AllShaderStages.SetConstantBuffer(MyCommon.FOLIAGE_SLOT, MyCommon.FoliageConstants);
 
             float densityFactor = MyVoxelMaterials1.Table[voxelMatId].FoliageDensity * MyRender11.Settings.GrassDensityFactor;

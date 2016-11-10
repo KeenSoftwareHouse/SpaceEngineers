@@ -42,7 +42,7 @@ namespace Sandbox.Graphics.GUI
             Color defaultColor,
             MyStringId dialogAmountCaption,
             bool placeSlidersVertically = false,
-            MyFontEnum font = MyFontEnum.Blue)
+            string font = MyFontEnum.Blue)
             : base(position: position,
                    toolTip: null,
                    isActiveControl: false)
@@ -111,7 +111,7 @@ namespace Sandbox.Graphics.GUI
             Size = m_minSize;
         }
 
-        MyGuiControlSlider MakeSlider(MyFontEnum font, byte defaultVal)
+        MyGuiControlSlider MakeSlider(string font, byte defaultVal)
         {
             MyGuiControlSlider slider=new MyGuiControlSlider(
                 position: Vector2.Zero,
@@ -143,7 +143,7 @@ namespace Sandbox.Graphics.GUI
 
         }
 
-        MyGuiControlLabel MakeLabel(float scale, MyFontEnum font)
+        MyGuiControlLabel MakeLabel(float scale, string font)
         {
             return new MyGuiControlLabel(
                 text: String.Empty,

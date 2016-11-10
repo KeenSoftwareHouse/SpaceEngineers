@@ -47,7 +47,7 @@ namespace Sandbox.Game.Gui
 
         public readonly int Priority;
 
-        public MyFontEnum Font;
+        public string Font;
 
         public bool Alive
         {
@@ -57,7 +57,7 @@ namespace Sandbox.Game.Gui
 
         public MyHudNotificationBase(
             int disapearTimeMs,
-            MyFontEnum font              = MyFontEnum.White,
+            string font = MyFontEnum.White,
             MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
             int priority                 = 0,
             MyNotificationLevel level    = MyNotificationLevel.Normal)
@@ -182,7 +182,7 @@ namespace Sandbox.Game.Gui
         public MyHudNotification(
             MyStringId text              = default(MyStringId),
             int disappearTimeMs          = 2500,
-            MyFontEnum font              = MyFontEnum.White,
+            string font = MyFontEnum.White,
             MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
             int priority                 = 0,
             MyNotificationLevel level    = MyNotificationLevel.Normal) :
@@ -205,7 +205,7 @@ namespace Sandbox.Game.Gui
 
         public MyHudNotificationDebug(string text,
             int disapearTimeMs           = 2500,
-            MyFontEnum font              = MyFontEnum.White,
+            string font = MyFontEnum.White,
             MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
             int priority                 = 0,
             MyNotificationLevel level    =  MyNotificationLevel.Debug):
@@ -226,7 +226,7 @@ namespace Sandbox.Game.Gui
 
         public MyHudMissingComponentNotification(MyStringId text,
             int disapearTimeMs           = 2500,
-            MyFontEnum font              = MyFontEnum.White,
+            string font = MyFontEnum.White,
             MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
             int priority                 = 0,
             MyNotificationLevel level    = MyNotificationLevel.Normal) :

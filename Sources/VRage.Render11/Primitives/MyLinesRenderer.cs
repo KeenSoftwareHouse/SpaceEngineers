@@ -30,7 +30,7 @@ namespace VRageRender
         {
             CustomViewProjection = null;
             IgnoreDepth = false;
-            if(List == null)
+            if (List == null)
             {
                 List = new List<MyVertexFormatPositionColor>();
             }
@@ -126,7 +126,7 @@ namespace VRageRender
 
         internal unsafe void Add6FacedConvex(Vector3[] vertices, Color color)
         {
-            fixed(Vector3* verticesPtr = vertices)
+            fixed (Vector3* verticesPtr = vertices)
             {
                 Add6FacedConvex(verticesPtr, color);
             }
@@ -195,14 +195,14 @@ namespace VRageRender
         internal void AddSphereRing(BoundingSphere sphere, Color color, Matrix onb)
         {
             float increment = 1.0f / 32;
-            for (float i=0; i < 1; i += increment)
+            for (float i = 0; i < 1; i += increment)
             {
-                float a0 = 2* (float)Math.PI * i;
-                float a1 = 2* (float)Math.PI * (i + increment);
+                float a0 = 2 * (float)Math.PI * i;
+                float a1 = 2 * (float)Math.PI * (i + increment);
 
                 Add(
                     Vector3.Transform(new Vector3(Math.Cos(a0), 0, Math.Sin(a0)) * sphere.Radius, onb) + sphere.Center,
-                    Vector3.Transform(new Vector3(Math.Cos(a1), 0, Math.Sin(a1)) * sphere.Radius, onb) + sphere.Center, 
+                    Vector3.Transform(new Vector3(Math.Cos(a1), 0, Math.Sin(a1)) * sphere.Radius, onb) + sphere.Center,
                     color);
             }
         }
@@ -216,7 +216,7 @@ namespace VRageRender
     class MyLinesRenderer : MyImmediateRC
     {
         static int m_currentBufferSize;
-        static VertexBufferId m_VB;
+        static IVertexBuffer m_VB;
         internal static List<MyVertexFormatPositionColor> m_vertices = new List<MyVertexFormatPositionColor>();
         static List<MyLinesBatch> m_batches = new List<MyLinesBatch>();
 
@@ -233,7 +233,9 @@ namespace VRageRender
             m_inputLayout = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3, MyVertexInputComponentType.COLOR4));
 
             m_currentBufferSize = 100000;
-            m_VB = MyHwBuffers.CreateVertexBuffer(m_currentBufferSize, sizeof(MyVertexFormatPositionColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyLinesRenderer");
+            m_VB = MyManagers.Buffers.CreateVertexBuffer(
+                "MyLinesRenderer", m_currentBufferSize, sizeof(MyVertexFormatPositionColor),
+                usage: ResourceUsage.Dynamic);
         }
 
         static unsafe void CheckBufferSize(int requiredSize)
@@ -241,7 +243,7 @@ namespace VRageRender
             if (m_currentBufferSize < requiredSize)
             {
                 m_currentBufferSize = (int)(requiredSize * 1.33f);
-                MyHwBuffers.ResizeVertexBuffer(m_VB, m_currentBufferSize);
+                MyManagers.Buffers.Resize(m_VB, m_currentBufferSize);
             }
         }
 
@@ -258,7 +260,7 @@ namespace VRageRender
             batch.VertexCount = batch.List.Count;
             batch.StartVertex = m_vertices.Count;
 
-            if(batch.VertexCount > 0)
+            if (batch.VertexCount > 0)
             {
                 m_batches.Add(batch);
                 m_vertices.AddList(batch.List);
@@ -270,7 +272,7 @@ namespace VRageRender
             }
         }
 
-        internal static unsafe void Draw(IRtvBindable renderTarget, IDepthStencil depth)
+        internal static unsafe void Draw(IRtvBindable renderTarget, bool nullDepth = false)
         {
             RC.SetScreenViewport();
             RC.SetPrimitiveTopology(PrimitiveTopology.LineList);
@@ -285,16 +287,16 @@ namespace VRageRender
             RC.SetDepthStencilState(MyDepthStencilStateManager.DefaultDepthState);
 
             CheckBufferSize(m_vertices.Count);
-            RC.SetVertexBuffer(0, m_VB.Buffer, m_VB.Stride);
+            RC.SetVertexBuffer(0, m_VB);
 
-            RC.SetRtv(depth, MyDepthStencilAccess.ReadOnly, renderTarget);
-            
+            RC.SetRtv(nullDepth ? null : MyGBuffer.Main.ResolvedDepthStencil, MyDepthStencilAccess.ReadOnly, renderTarget);
+
             RC.AllShaderStages.SetConstantBuffer(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
 
-            if(m_batches.Count > 0)
+            if (m_batches.Count > 0)
             {
-                var mapping = MyMapping.MapDiscard(m_VB.Buffer);
-                mapping.WriteAndPosition(m_vertices.GetInternalArray(), 0, m_vertices.Count);
+                var mapping = MyMapping.MapDiscard(m_VB);
+                mapping.WriteAndPosition(m_vertices.GetInternalArray(), m_vertices.Count);
                 mapping.Unmap();
 
                 Matrix prevMatrix = Matrix.Zero;
@@ -320,9 +322,9 @@ namespace VRageRender
                         mapping.Unmap();
                     }
 
-                    if(batch.IgnoreDepth)
+                    if (batch.IgnoreDepth)
                     {
-                        RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);   
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);
                     }
                     else
                     {
@@ -338,7 +340,7 @@ namespace VRageRender
 
             m_vertices.Clear();
 
-            foreach(var batch in m_batches)
+            foreach (var batch in m_batches)
             {
                 m_batchesPool.Deallocate(batch);
             }

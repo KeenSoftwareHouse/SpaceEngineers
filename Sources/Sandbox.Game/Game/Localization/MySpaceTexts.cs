@@ -4815,7 +4815,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationCharacterBroadcastingOn = MyStringId.GetOrCompute("NotificationCharacterBroadcastingOn");
 
         ///<summary>
-        ///Can not place asteroids over ships and players
+        ///Can not place asteroids/voxels over ships(except stations) and players
         ///</summary>
         public static readonly MyStringId NotificationCopyPasteAsteroidObstructed = MyStringId.GetOrCompute("NotificationCopyPasteAsteroidObstructed");
 
@@ -5900,7 +5900,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_BackgroundColor = MyStringId.GetOrCompute("BlockPropertyTitle_BackgroundColor");
 
         ///<summary>
-        ///Font
+        ///Color
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_FontColor = MyStringId.GetOrCompute("BlockPropertyTitle_FontColor");
 
@@ -9023,5 +9023,10 @@ namespace Sandbox.Game.Localization
         ///Show block in inventory screen. If you access the block directly it will be visible regardless of this setting.
         ///</summary>
         public static readonly MyStringId Terminal_ShowInInventoryToolTip = MyStringId.GetOrCompute("Terminal_ShowInInventoryToolTip");
+
+        ///<summary>
+        ///Font
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Font = MyStringId.GetOrCompute("BlockPropertyTitle_Font");
     }
 }

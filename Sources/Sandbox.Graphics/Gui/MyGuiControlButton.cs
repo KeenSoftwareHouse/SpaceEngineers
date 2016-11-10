@@ -26,8 +26,8 @@ namespace Sandbox.Graphics.GUI
         #region Styles
         public class StyleDefinition
         {
-            public MyFontEnum NormalFont;
-            public MyFontEnum HighlightFont;
+            public string NormalFont = MyFontEnum.Blue;
+            public string HighlightFont = MyFontEnum.White;
             public MyGuiCompositeTexture NormalTexture;
             public MyGuiCompositeTexture HighlightTexture;
             public Vector2? SizeOverride;
@@ -472,7 +472,7 @@ namespace Sandbox.Graphics.GUI
 
         public MyGuiDrawAlignEnum TextAlignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
 
-        public MyFontEnum TextFont;
+        public string TextFont;
 
         public bool DrawCrossTextureWhenDisabled = false;
 

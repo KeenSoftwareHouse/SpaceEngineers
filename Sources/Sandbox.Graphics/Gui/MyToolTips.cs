@@ -43,7 +43,7 @@ namespace Sandbox.Graphics.GUI
 
         public void AddToolTip(String toolTip,
             float textScale = MyGuiConstants.TOOL_TIP_TEXT_SCALE,
-            MyFontEnum font = MyFontEnum.Blue)
+            string font = MyFontEnum.Blue)
         {
             if (toolTip != null)
                 ToolTips.Add(new MyColoredText(toolTip, Color.White, font: font, textScale: textScale));

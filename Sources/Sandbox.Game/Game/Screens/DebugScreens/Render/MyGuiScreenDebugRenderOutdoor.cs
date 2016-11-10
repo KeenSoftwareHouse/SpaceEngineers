@@ -21,6 +21,7 @@ namespace Sandbox.Game.Gui
             base.RecreateControls(constructor);
 
             m_scale = 0.7f;
+            m_sliderDebugScale = 0.7f;
 
             AddCaption("Outdoor", Color.Yellow.ToVector4());
             AddShareFocusHint();
@@ -54,10 +55,6 @@ namespace Sandbox.Game.Gui
 
             m_currentPosition.Y += 0.01f;
             AddLabel("Lights", Color.Yellow.ToVector4(), 1.2f);
-            AddCheckBox("Enable voxel ambient", MyRenderProxy.Settings.EnableVoxelAo, (x) => MyRenderProxy.Settings.EnableVoxelAo = x.IsChecked);
-            AddSlider("Voxel AO min", MyRenderProxy.Settings.VoxelAoMin, 0f, 1f, (x) => MyRenderProxy.Settings.VoxelAoMin = x.Value);
-            AddSlider("Voxel AO max", MyRenderProxy.Settings.VoxelAoMax, 0f, 1f, (x) => MyRenderProxy.Settings.VoxelAoMax = x.Value);
-            AddSlider("Voxel AO offset", MyRenderProxy.Settings.VoxelAoOffset, -2f, 2f, (x) => MyRenderProxy.Settings.VoxelAoOffset = x.Value);
         }
 
         protected override void ValueChanged(MyGuiControlBase sender)

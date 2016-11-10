@@ -653,7 +653,7 @@ namespace SpaceEngineers.Game.World
             if (prefabDef.CubeGrids != null && prefabDef.CubeGrids.Length > 0)
             {
                 MyObjectBuilder_CubeGrid firstGrid = prefabDef.CubeGrids[0];
-                if (firstGrid.UsePositionForSpawn)
+                if (firstGrid.UsePositionForSpawn && !MyEntities.IsWorldLimited())
                 {
                     position = new Vector3D(
                         firstGrid.PositionAndOrientation.Value.Position.x,
@@ -721,7 +721,10 @@ namespace SpaceEngineers.Game.World
             if (shipCockpits.Count > 0)
                 cockpit = shipCockpits[0];
 
-            System.Diagnostics.Debug.Assert(cockpit != null, "character is spawning in ship without cockpit !");
+            // No cockpit on grid. It's not good, but it's safe.
+            // Can be caused by modded respawn ship, wrongly loaded definition (not probably), 
+            // or not spawned RS because of blocked place (because of grid spawn paralelization).
+            //System.Diagnostics.Debug.Assert(cockpit != null, "Character is spawning in ship without cockpit!");
 
             // Create character
             MatrixD matrix = MatrixD.Identity;

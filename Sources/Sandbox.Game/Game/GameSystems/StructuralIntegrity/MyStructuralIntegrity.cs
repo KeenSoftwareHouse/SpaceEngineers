@@ -126,7 +126,7 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
                     }
                 }
 
-                m_cubeGrid.TestDynamic = true;
+                m_cubeGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
             }
         }
 

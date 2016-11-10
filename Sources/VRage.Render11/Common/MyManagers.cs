@@ -1,4 +1,5 @@
-﻿using VRage.Render11.LightingStage.Shadows;
+﻿using VRage.Render11.GeometryStage2;
+using VRage.Render11.LightingStage.Shadows;
 using VRage.Render11.Resources;
 using VRageRender;
 
@@ -22,6 +23,11 @@ namespace VRage.Render11.Common
         void OnFrameEnd();
     }
 
+    interface IManagerUpdate
+    {
+        void OnUpdate();
+    }
+
     class MyManagers
     {
         public static MyDeferredRenderContextManager DeferredRCs = new MyDeferredRenderContextManager();
@@ -39,13 +45,17 @@ namespace VRage.Render11.Common
         public static MyDepthStencilManager DepthStencils = new MyDepthStencilManager();
         public static MyArrayTextureManager ArrayTextures = new MyArrayTextureManager();
 
-        public static MyRwTexturePool RwTexturesPool = new MyRwTexturePool();
+        public static MyBorrowedRwTextureManager RwTexturesPool = new MyBorrowedRwTextureManager();
+        public static MyDynamicFileArrayTextureManager DynamicFileArrayTextures = new MyDynamicFileArrayTextureManager();
         public static MyRwTextureCatalog RwTexturesCatalog = new MyRwTextureCatalog();
         public static MyGlobalResources GlobalResources = new MyGlobalResources();
+
+        public static MyBufferManager Buffers = new MyBufferManager();
 
         public static MyShadowCoreManager ShadowCore = new MyShadowCoreManager();
         public static MyShadowManager Shadow = new MyShadowManager();
         public static MyEnvironmentProbe EnvironmentProbe = new MyEnvironmentProbe();
+        public static MyGeometryTextureSystem GeometryTextureSystem = new MyGeometryTextureSystem();
 
         static MyGeneralManager m_generalManager = new MyGeneralManager();
 
@@ -66,15 +76,19 @@ namespace VRage.Render11.Common
             m_generalManager.RegisterManager(MyManagers.CustomTextures);
             m_generalManager.RegisterManager(MyManagers.DepthStencils);
             m_generalManager.RegisterManager(MyManagers.FileArrayTextures);
+            m_generalManager.RegisterManager(MyManagers.DynamicFileArrayTextures);
             m_generalManager.RegisterManager(MyManagers.ArrayTextures);
 
             m_generalManager.RegisterManager(MyManagers.RwTexturesCatalog);
             m_generalManager.RegisterManager(MyManagers.RwTexturesPool);
             m_generalManager.RegisterManager(MyManagers.GlobalResources);
 
+            m_generalManager.RegisterManager(MyManagers.Buffers);
+
             m_generalManager.RegisterManager(MyManagers.ShadowCore);
             m_generalManager.RegisterManager(MyManagers.Shadow);
             m_generalManager.RegisterManager(MyManagers.EnvironmentProbe);
+            m_generalManager.RegisterManager(MyManagers.GeometryTextureSystem);
         }
 
         public static void OnDeviceInit()
@@ -100,6 +114,11 @@ namespace VRage.Render11.Common
         public static void OnFrameEnd()
         {
             m_generalManager.OnFrameEnd();
+        }
+
+        public static void OnUpdate()
+        {
+            m_generalManager.OnUpdate();
         }
     }
 }

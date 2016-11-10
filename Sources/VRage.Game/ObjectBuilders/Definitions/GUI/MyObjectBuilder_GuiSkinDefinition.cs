@@ -107,9 +107,9 @@ namespace ObjectBuilders.Definitions.GUI
         {
             public SerializableCompositeTexture Texture;
 
-            public MyFontEnum Font;
+            public string Font;
 
-            public MyFontEnum CornerTextFont = MyFontEnum.White;
+            public string CornerTextFont = MyFontEnum.White;
 
             public float CornerTextSize = 0.8f;
         }
@@ -131,8 +131,8 @@ namespace ObjectBuilders.Definitions.GUI
         {
             public float TextScale;
 
-            public MyFontEnum ItemFontHighlight;
-            public MyFontEnum ItemFontNormal;
+            public string ItemFontHighlight;
+            public string ItemFontNormal;
 
             public SerializableVector2 ItemSize;
             public SerializableVector2 ItemOffset;
@@ -148,7 +148,7 @@ namespace ObjectBuilders.Definitions.GUI
 
         public class LabelStyleDefinition : StyleDefinitionBase
         {
-            public MyFontEnum Font;
+            public string Font;
 
             public ColorDefinition Color;
             
@@ -175,7 +175,7 @@ namespace ObjectBuilders.Definitions.GUI
 
         public class ComboboxStateDefinition
         {
-            public MyFontEnum ItemFont;
+            public string ItemFont;
             public SerializableCompositeTexture Texture;
         }
 
@@ -213,7 +213,7 @@ namespace ObjectBuilders.Definitions.GUI
         public class TextboxStateDefinition
         {
             public SerializableCompositeTexture Texture;
-            public MyFontEnum Font;
+            public string Font;
         }
 
         public class TextboxStyleDefinition : StyleDefinitionBase

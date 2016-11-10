@@ -36,7 +36,7 @@ namespace SpaceEngineers.Game.Entities.UseObjects
 
         public override MatrixD ActivationMatrix
         {
-            get { return (MatrixD)LocalMatrix * Block.WorldMatrix; }
+            get { return ((MatrixD)LocalMatrix) * Block.WorldMatrix; }
         }
 
         public override MatrixD WorldMatrix

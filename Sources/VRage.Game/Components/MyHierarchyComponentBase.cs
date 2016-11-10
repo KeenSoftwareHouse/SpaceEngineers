@@ -102,6 +102,13 @@ namespace VRage.Game.Components
             //MyEntities.Remove(child);  // if it's already in the world, remove it
 
             MyHierarchyComponentBase childHierarchy = child.Components.Get<MyHierarchyComponentBase>();
+
+            if (m_children.Contains(childHierarchy))
+            {
+                Debug.Fail("The child is already in the hierarchy.");
+                return;
+            }
+
             childHierarchy.Parent = this;
 
             if (preserveWorldPos)

@@ -238,9 +238,9 @@ namespace VRageRender
                 MeshId sphereMesh = cloudLayer.Value.Mesh;
                 LodMeshId lodMesh = MyMeshes.GetLodMesh(sphereMesh, 0);
                 MyMeshBuffers buffers = lodMesh.Buffers;
-                immediateContext.SetVertexBuffer(0, buffers.VB0.Buffer, buffers.VB0.Stride);
-                immediateContext.SetVertexBuffer(1, buffers.VB1.Buffer, buffers.VB1.Stride);
-                immediateContext.SetIndexBuffer(buffers.IB.Buffer, buffers.IB.Format);
+                immediateContext.SetVertexBuffer(0, buffers.VB0);
+                immediateContext.SetVertexBuffer(1, buffers.VB1);
+                immediateContext.SetIndexBuffer(buffers.IB);
 
                 immediateContext.PixelShader.SetSrv(0, cloudLayer.Value.TextureInfo.ColorMetalTexture);
                 immediateContext.PixelShader.SetSrv(1, cloudLayer.Value.TextureInfo.AlphaTexture);

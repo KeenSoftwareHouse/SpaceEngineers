@@ -668,6 +668,11 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         void OnClosedRequest()
         {
+            if (!MySession.Static.CreativeMode && !MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
             Close();
         }
 

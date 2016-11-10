@@ -34,6 +34,9 @@ namespace Sandbox.Common.ObjectBuilders
         public List<string> SelectedImages = null;
 
         [ProtoMember]
+        public SerializableDefinitionId Font = new MyDefinitionId(typeof(MyObjectBuilder_FontDefinition), "Debug");
+
+        [ProtoMember]
         public float FontSize = 1.0f;
 
         [ProtoMember]

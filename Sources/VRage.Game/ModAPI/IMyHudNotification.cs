@@ -12,7 +12,7 @@
         /// Get or set the font for this notification.
         /// Setting it will immediatly update it if the notification is shown.
         /// </summary>
-        MyFontEnum Font { get; set;  }
+        string Font { get; set; }
 
         /// <summary>
         /// Get or set the time for the notification to be shown, in miliseconds.

@@ -122,7 +122,7 @@ namespace VRageRender
             RC.ComputeShader.SetUav(0, null);
 
             // Backup the result for later process
-            RC.CopySubresourceRegion(output.Resource, 0, new ResourceRegion(0, 0, 0, 1, 1, 1), m_prevLum.Resource, 0);
+            RC.CopySubresourceRegion(output, 0, new ResourceRegion(0, 0, 0, 1, 1, 1), m_prevLum, 0);
 
             input.Release();
             return output;

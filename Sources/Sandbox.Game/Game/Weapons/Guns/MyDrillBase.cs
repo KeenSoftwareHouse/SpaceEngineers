@@ -22,6 +22,9 @@ using VRage.Game.ModAPI.Interfaces;
 using VRage.Library.Utils;
 using VRage.Profiler;
 using VRage.Voxels;
+using Sandbox.Game.WorldEnvironment.Modules;
+using Sandbox.Game.WorldEnvironment;
+using Sandbox.Game.World;
 
 namespace Sandbox.Game.Weapons
 {
@@ -46,7 +49,7 @@ namespace Sandbox.Game.Weapons
 
         public virtual void OnWorldPositionChanged(ref MatrixD worldMatrix)
         {
-            m_sphere = new BoundingSphereD(worldMatrix.Translation + worldMatrix.Forward * m_centerOffset, m_radius);
+            m_sphere.Center = worldMatrix.Translation + worldMatrix.Forward * m_centerOffset;
         }
     }
 
@@ -83,6 +86,8 @@ namespace Sandbox.Game.Weapons
 
         // Last time of contact of drill with an object.
         private int m_lastContactTime;
+        //GK: Added in order to check for breakable environment items (e.g. trees) from hand tools (Driller,Grinder)
+        private int m_lastItemId;
 
         public MyParticleEffect DustParticles;
         private MySlimBlock m_target;
@@ -164,7 +169,7 @@ namespace Sandbox.Game.Weapons
             m_soundEmitter = new MyEntity3DSoundEmitter(m_drillEntity, true);
         }
 
-        public bool Drill(bool collectOre = true, bool performCutout = true, bool assignDamagedMaterial = false)
+        public bool Drill(bool collectOre = true, bool performCutout = true, bool assignDamagedMaterial = false, float speedMultiplier = 1f)
         {
             ProfilerShort.Begin("MyDrillBase::Drill()");
 
@@ -282,6 +287,21 @@ namespace Sandbox.Game.Weapons
                                     character.DoDamage(20, MyDamageType.Drill, true, attackerId: m_drillEntity != null ? m_drillEntity.EntityId : 0);
                                 drillingSuccess = true;
                             }
+                        }
+                    }
+                    else if (entity is MyEnvironmentSector)
+                    {
+                        if (m_lastItemId != entry.Value.ItemId)
+                        {
+                            m_lastItemId = entry.Value.ItemId;
+                            m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                        }
+                        if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime > MyDrillConstants.DRILL_UPDATE_INTERVAL_IN_MILISECONDS * speedMultiplier)
+                        {
+                            var sectorProxy = (entity as MyEnvironmentSector).GetModule<MyBreakableEnvironmentProxy>();
+                            sectorProxy.BreakAt(entry.Value.ItemId, entry.Value.DetectionPoint, Vector3D.Zero, 0);
+                            drillingSuccess = true;
+                            m_lastItemId = 0;
                         }
                     }
                     if (drillingSuccess)
@@ -647,9 +667,7 @@ namespace Sandbox.Game.Weapons
         public void DebugDraw()
         {
             m_sensor.DebugDraw();
-            BoundingSphere bsphere = m_cutOut.Sphere;
-            var color = new Vector3(0, 1, 1);
-            MyRenderProxy.DebugDrawSphere(bsphere.Center, bsphere.Radius, color, 0.6f, true);
+            MyRenderProxy.DebugDrawSphere((Vector3)m_cutOut.Sphere.Center, (float)m_cutOut.Sphere.Radius, Color.Red, 0.6f, true);
         }
 
         private Vector3 ComputeDebrisDirection()

@@ -1052,7 +1052,7 @@ namespace Sandbox.Engine.Voxels
                         }
 
                         if (type == OperationType.Cut)
-                            grid.TestDynamic = true;
+                            grid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                     }
                 }
 

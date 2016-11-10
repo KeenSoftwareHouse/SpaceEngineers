@@ -2004,6 +2004,12 @@ namespace Sandbox.Game.Entities
             //we need new material for every HSV and texture combination, therefore we need to create new materials for each model
             List<MyExportModel.Material> newModelMaterials = CreateMaterialsForModel(materials, colorMaskHSV, renderModel);
 
+            //GK: extract model is obsolete functionallity. Maybe remove or refactor? Exporting useful mostly for creating prefab files
+            if (newModelMaterials.Count == 0)
+            {
+                return;
+            }
+
             for (int i = 0; i < modelVerticesCount; ++i)
             {
                 vertices.Add(Vector3.Transform(model.GetVertex(i), matrix));
@@ -2697,19 +2703,23 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public static bool ShouldBeStatic(MyCubeGrid grid)
+        static bool ShouldBeStatic(MyCubeGrid grid, MyCubeGrid.MyTestDynamicReason testReason)
         {
             if (grid.GridSizeEnum == MyCubeSize.Small && MyCubeGridSmallToLargeConnection.Static != null &&
                 MyCubeGridSmallToLargeConnection.Static.TestGridSmallToLargeConnection(grid))
                 return true;
 
-
-            foreach (var block in grid.GetBlocks())
+            if (testReason == MyTestDynamicReason.GridSplit)
             {
-                if (IsInVoxels(block))
-                    return true;
+                foreach (var block in grid.GetBlocks())
+                {
+                    if (IsInVoxels(block))
+                        return true;
+                }
+                return false;
             }
-            return false;
+
+            return grid.IsStatic;
         }
 
         public static bool IsInVoxels(MySlimBlock block,bool checkForPhysics = true)

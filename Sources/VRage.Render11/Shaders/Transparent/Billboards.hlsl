@@ -34,7 +34,7 @@ VsOut __vertex_shader(VsIn vertex, uint vertex_id : SV_VertexID)
     result.index = billboard_index;
     result.wposition = vertex.position.xyz;
 #ifdef LIT_PARTICLE
-    //float3 vs_pos = mul(float4(vertex.position.xyz, 1), frame_.view_matrix).xyz;
+    //float3 vs_pos = mul(float4(vertex.position.xyz, 1), frame_.Environment.view_matrix).xyz;
 	float3 V = normalize(get_camera_position() - vertex.position.xyz);
     result.light = calculate_shadow_fast_particle(vertex.position.xyz, -result.position.z / result.position.w) + ambient_diffuse(V);
 #endif
@@ -58,7 +58,7 @@ float4 SaturateAlpha(float4 resultColor, float alpha, float alphaSaturation)
 float4 CalculateColor(VsOut input, float particleDepth, bool minTexture, float alphaCutout)
 {
     float depth = Depth[input.position.xy].r;
-    float targetDepth = linearize_depth(depth, frame_.projection_matrix);
+    float targetDepth = linearize_depth(depth, frame_.Environment.projection_matrix);
     float softParticleFade = CalcSoftParticle(BillboardBuffer[input.index].SoftParticleDistanceScale, targetDepth, particleDepth);
 
 	float4 billboardColor = float4(BillboardBuffer[input.index].Color.xyz, BillboardBuffer[input.index].Color.w);
@@ -100,7 +100,7 @@ void __pixel_shader(VsOut vertex, out float4 accumTarget : SV_TARGET0, out float
 	float alphaCutout = 0;
 #endif
 
-	float linearDepth = linearize_depth(vertex.position.z, frame_.projection_matrix);
+	float linearDepth = linearize_depth(vertex.position.z, frame_.Environment.projection_matrix);
 
 #ifdef REFLECTIVE
     float reflective = BillboardBuffer[vertex.index].reflective;

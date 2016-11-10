@@ -24,7 +24,7 @@ namespace VRageRender
 
         internal ISrvBindable Texture;
 
-        internal void AddSprite(Vector2 clipOffset, Vector2 clipScale, Vector2 texOffset, Vector2 texScale, 
+        internal void AddSprite(Vector2 clipOffset, Vector2 clipScale, Vector2 texOffset, Vector2 texScale,
             Vector2 origin, Vector2 tangent, Byte4 color)
         {
             MySpritesRenderer.StackTop.m_instances.Add(new MyVertexFormatSpritePositionTextureRotationColor(
@@ -37,7 +37,7 @@ namespace VRageRender
         internal void AddSprite(MyVertexFormatSpritePositionTextureRotationColor sprite)
         {
             MySpritesRenderer.StackTop.m_instances.Add(sprite);
-            Count ++;
+            Count++;
         }
 
         internal void Commit()
@@ -60,17 +60,12 @@ namespace VRageRender
         static List<MySpritesContext> m_contextsStack = new List<MySpritesContext>();
         static int m_currentStackTop = 0;
 
-        //internal static SpriteScissorStack m_scissorStack = new SpriteScissorStack();
-        //internal static List<MyVertexFormatSpritePositionTextureRotationColor> m_instances = new List<MyVertexFormatSpritePositionTextureRotationColor>();
-        //static List<MySpritesBatch> m_batches = new List<MySpritesBatch>();
-        //static MySpritesBatch m_internalBatch;
-
         static VertexShaderId m_vs;
         static PixelShaderId m_ps;
         static InputLayoutId m_inputLayout = InputLayoutId.NULL;
 
         static int m_currentBufferSize;
-        static VertexBufferId m_VB;
+        static IVertexBuffer m_VB;
 
         internal unsafe static void Init()
         {
@@ -85,7 +80,9 @@ namespace VRageRender
                 ));
 
             m_currentBufferSize = 100000;
-            m_VB = MyHwBuffers.CreateVertexBuffer(m_currentBufferSize, sizeof(MyVertexFormatSpritePositionTextureRotationColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MySpritesRenderer");
+            m_VB = MyManagers.Buffers.CreateVertexBuffer(
+                "MySpritesRenderer", m_currentBufferSize, sizeof(MyVertexFormatSpritePositionTextureRotationColor),
+                usage: ResourceUsage.Dynamic);
 
             m_contextsStack.Add(new MySpritesContext());
         }
@@ -95,6 +92,7 @@ namespace VRageRender
             get { return m_contextsStack[m_currentStackTop]; }
         }
 
+        /// <summary>Add target resolution state to the stack</summary>
         internal static void PushState(Vector2 ? targetResolution = null)
         {
             FlushInternalBatch();
@@ -119,7 +117,7 @@ namespace VRageRender
             if (m_currentBufferSize < requiredSize)
             {
                 m_currentBufferSize = (int)(requiredSize * 1.33f);
-                MyHwBuffers.ResizeVertexBuffer(m_VB, m_currentBufferSize);
+                MyManagers.Buffers.Resize(m_VB, m_currentBufferSize);
             }
         }
 
@@ -133,11 +131,6 @@ namespace VRageRender
 
             StackTop.m_internalBatch.Start = StackTop.m_instances.Count;
             StackTop.m_internalBatch.Count = 0;
-        }
-
-        static MySpritesBatch CreateBatch()
-        {
-            return new MySpritesBatch { Start = StackTop.m_instances.Count };
         }
 
         static void AddSingleSprite(ISrvBindable textureSrv, MyVertexFormatSpritePositionTextureRotationColor sprite)
@@ -252,9 +245,9 @@ namespace VRageRender
             RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil, 0);
 
             CheckBufferSize(StackTop.m_instances.Count);
-            RC.SetVertexBuffer(0, m_VB.Buffer, m_VB.Stride);
+            RC.SetVertexBuffer(0, m_VB);
 
-            var mapping = MyMapping.MapDiscard(m_VB.Buffer);
+            var mapping = MyMapping.MapDiscard(m_VB);
             for (int i = 0; i < StackTop.m_instances.Count; i++)
             {
                 var helper = StackTop.m_instances[i];
@@ -269,7 +262,7 @@ namespace VRageRender
 
             foreach (var batch in StackTop.m_batches)
             {
-                if(batch.ScissorRectangle.HasValue)
+                if (batch.ScissorRectangle.HasValue)
                 {
                     RC.SetRasterizerState(MyRasterizerStateManager.ScissorTestRasterizerState);
 
@@ -298,9 +291,10 @@ namespace VRageRender
             StackTop.m_instances.Clear();
             StackTop.m_batches.Clear();
         }
+    }
 
-#region Helpers
-
+    internal static class MyDebugTextHelpers
+    {
         internal static void CalculateSpriteClipspace(RectangleF destination, Vector2 screenSize, out Vector2 clipOffset, out Vector2 clipScale)
         {
             Vector2 scale = destination.Size / screenSize;
@@ -309,7 +303,6 @@ namespace VRageRender
             clipScale = scale * 2;
             clipOffset = translation * 2 - 1;
             clipOffset.Y = -clipOffset.Y;
-            //clipOffset += new Vector2(0.5f, -0.5f) * clipScale;
         }
 
         internal static Vector2 MeasureText(StringBuilder text, float scale)
@@ -320,7 +313,6 @@ namespace VRageRender
         internal static float DrawText(Vector2 screenCoord, StringBuilder text, VRageMath.Color color, float scale, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
         {
             var font = MyRender11.DebugFont;
-
             return font.DrawString(
                 MyUtils.GetCoordAligned(screenCoord, font.MeasureString(text, scale), align),
                 color,
@@ -336,7 +328,5 @@ namespace VRageRender
                 text,
                 scale);
         }
-
-#endregion
     }
 }

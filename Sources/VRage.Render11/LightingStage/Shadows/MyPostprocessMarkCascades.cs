@@ -20,17 +20,17 @@ namespace VRage.Render11.LightingStage.Shadows
             public Matrix ShadowSpaceToDepthMapSpace;
         }
 
-        ConstantsBufferId m_markerConstantBuffer = ConstantsBufferId.NULL;
+        IConstantBuffer m_markerConstantBuffer;
         PixelShaderId m_psMarker = PixelShaderId.NULL;
         VertexShaderId m_vsMarker = VertexShaderId.NULL;
 
         PixelShaderId m_psDrawCoverage = PixelShaderId.NULL;
 
-        IndexBufferId m_indexBuffer = IndexBufferId.NULL;
-        VertexBufferId m_vertexBuffer = VertexBufferId.NULL;
+        IIndexBuffer m_indexBuffer;
+        IVertexBuffer m_vertexBuffer;
         InputLayoutId m_inputLayout = InputLayoutId.NULL;
 
-        unsafe VertexBufferId CreateVertexBuffer()
+        unsafe IVertexBuffer CreateVertexBuffer()
         {
             Vector3* vertices = stackalloc Vector3[8];
             vertices[0] = new Vector3D(-1, -1, 0);
@@ -41,10 +41,12 @@ namespace VRage.Render11.LightingStage.Shadows
             vertices[5] = new Vector3D(-1, 1, 1);
             vertices[6] = new Vector3D(1, 1, 1);
             vertices[7] = new Vector3D(1, -1, 1);
-            return MyHwBuffers.CreateVertexBuffer(8, sizeof(Vector3), BindFlags.VertexBuffer, ResourceUsage.Dynamic, new IntPtr(vertices), "MyPostprocessMarkCascades.VertexBuffer");
+            return MyManagers.Buffers.CreateVertexBuffer(
+                "MyPostprocessMarkCascades.VertexBuffer", 8, sizeof(Vector3), new IntPtr(vertices),
+                ResourceUsage.Dynamic);
         }
 
-        unsafe IndexBufferId CreateIndexBuffer()
+        unsafe IIndexBuffer CreateIndexBuffer()
         {
             const int indexCount = 36;
             ushort* indices = stackalloc ushort[indexCount];
@@ -61,13 +63,15 @@ namespace VRage.Render11.LightingStage.Shadows
             indices[30] = 1; indices[31] = 0; indices[32] = 4;
             indices[33] = 1; indices[34] = 4; indices[35] = 5;
 
-            return MyHwBuffers.CreateIndexBuffer(indexCount, Format.R16_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(indices), "MyPostprocessMarkCascades.IndexBuffer");
+            return MyManagers.Buffers.CreateIndexBuffer(
+                "MyPostprocessMarkCascades.IndexBuffer", indexCount, new IntPtr(indices),
+                MyIndexBufferFormat.UShort, ResourceUsage.Immutable);
         }
 
         unsafe void IManagerDevice.OnDeviceInit()
         {
-            if (m_markerConstantBuffer == ConstantsBufferId.NULL)
-                m_markerConstantBuffer = MyHwBuffers.CreateConstantsBuffer(sizeof(MyMarkerConstants), "MyPostprocessMarkCascades.MarkerConstantBuffer");
+            if (m_markerConstantBuffer == null)
+                m_markerConstantBuffer = MyManagers.Buffers.CreateConstantBuffer("MyPostprocessMarkCascades.MarkerConstantBuffer", sizeof(MyMarkerConstants), usage: ResourceUsage.Dynamic);
 
             if (m_psMarker == PixelShaderId.NULL)
                 m_psMarker = MyShaders.CreatePs("Shadows\\StencilMarker.hlsl");
@@ -84,31 +88,31 @@ namespace VRage.Render11.LightingStage.Shadows
 
         void IManagerDevice.OnDeviceReset()
         {
-            MyHwBuffers.Destroy(m_vertexBuffer);
+            MyManagers.Buffers.Dispose(m_vertexBuffer);
             m_vertexBuffer = CreateVertexBuffer();
 
-            MyHwBuffers.Destroy(m_indexBuffer);
+            MyManagers.Buffers.Dispose(m_indexBuffer);
             m_indexBuffer = CreateIndexBuffer();
         }
 
         void IManagerDevice.OnDeviceEnd()
         {
-            MyHwBuffers.Destroy(m_vertexBuffer);
-            MyHwBuffers.Destroy(m_indexBuffer);
+            MyManagers.Buffers.Dispose(m_indexBuffer);
+            MyManagers.Buffers.Dispose(m_vertexBuffer);
         }
 
         public void MarkOneCascade(int numCascade, IDepthStencil depthStencil, Matrix worldToProjection,
             ICascadeShadowMapSlice slice)
         {
             MyRenderContext RC = MyRender11.RC;
-            RC.SetVertexBuffer(0, m_vertexBuffer.Buffer, m_vertexBuffer.Stride);
-            RC.SetIndexBuffer(m_indexBuffer.Buffer, m_indexBuffer.Format);
+            RC.SetVertexBuffer(0, m_vertexBuffer);
+            RC.SetIndexBuffer(m_indexBuffer);
             RC.SetInputLayout(m_inputLayout);
             RC.SetViewport(0, 0, MyRender11.ResolutionI.X, MyRender11.ResolutionI.Y);
             RC.SetDepthStencilState(MyDepthStencilStateManager.MarkIfInsideCascadeOld[numCascade], 0xf - numCascade);
             RC.SetRasterizerState(MyRasterizerStateManager.NocullRasterizerState);
             RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
-            
+
             MyMapping mapping = MyMapping.MapDiscard(m_markerConstantBuffer);
             Matrix shadowToProjection = slice.MatrixShadowToWorldAt0Space * worldToProjection;
             shadowToProjection = Matrix.Transpose(shadowToProjection);
@@ -143,7 +147,7 @@ namespace VRage.Render11.LightingStage.Shadows
             MyRenderContext RC = MyRender11.RC;
             RC.SetBlendState(null);
             RC.SetRtv(outTex);
-            
+
             RC.PixelShader.Set(m_psDrawCoverage);
             RC.PixelShader.SetSrv(1, depthStencil.SrvStencil);
 

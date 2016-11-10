@@ -37,7 +37,8 @@ namespace VRage
         public const bool EnableShaderDebuggingInNSight = false;
         public const bool EnableShaderPreprocessorInNSight = false; // In NSight, all preprocessors will be processed and you will see postprocessed code
 
-        public static bool LogRenderGIDs = false;
+        public const bool LogRenderGIDs = false;
+        public const bool ReinterpretFormatsStoredInFiles = true; // if it is enabled, linear formats for textures will be reinterpret as SRGB
 
 #if !XB1
         /// <summary>

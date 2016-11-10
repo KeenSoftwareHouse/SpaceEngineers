@@ -128,7 +128,7 @@ namespace Sandbox.Game.Weapons
                                        MyDrillConstants.DRILL_SHIP_DUST_STONES_EFFECT,
                                        MyDrillConstants.DRILL_SHIP_SPARKS_EFFECT,
                                        new MyDrillSensorSphere(def.SensorRadius, def.SensorOffset),
-                                       new MyDrillCutOut(def.SensorOffset, def.SensorRadius),
+                                       new MyDrillCutOut(def.CutOutOffset, def.CutOutRadius),
                                        HEAD_SLOWDOWN_TIME_IN_SECONDS, -0.4f, 0.4f, 1
             );
 

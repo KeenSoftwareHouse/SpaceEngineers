@@ -37,7 +37,7 @@ namespace Sandbox.Game.World
         public static MySSAOSettings SSAOSettings;
         public static MyHBAOData HBAOSettings;
         public static MyShadowsSettings ShadowSettings = new MyShadowsSettings();
-
+        
         internal static MyParticleDustProperties ParticleDustProperties;
         public static VRageRender.MyImpostorProperties[] ImpostorProperties;
         public static bool UseGenerator = false;
@@ -46,7 +46,17 @@ namespace Sandbox.Game.World
 
         public static MyEnvironmentDefinition EnvironmentDefinition;
 
-        public static MyCamera MainCamera;
+        private static MyCamera m_camera;
+        public static MyCamera MainCamera
+        {
+            get { return m_camera;  }
+            set
+            {
+                m_camera = value;
+                Graphics.MyGuiManager.SetCamera(MainCamera);
+                MyTransparentGeometry.SetCamera(MainCamera);
+            }
+        }
 
         public static void SetDefaults()
         {
@@ -85,6 +95,10 @@ namespace Sandbox.Game.World
             SunRotationAxis = SunProperties.SunRotationAxis;
 
             MyRenderProxy.UpdateShadowsSettings(ShadowSettings);
+
+            MyMaterialsSettings materialsSettings = new MyMaterialsSettings();
+            materialsSettings.CopyFrom(environment.MaterialsSettings);
+            MyRenderProxy.UpdateMaterialsSettings(materialsSettings);
 
             // TODO: Delete MyPostprocessSettingsWrapper and move to have bundled
             // settings in MySector and change all references to point here

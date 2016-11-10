@@ -24,24 +24,24 @@ float3 calculate_light(SurfaceInterface surface, float3 lightVector, float3 ligh
 
 float3 main_directional_light(SurfaceInterface surface)
 {
-    return calculate_light(surface, -frame_.directionalLightVec, frame_.directionalLightColor, 
-        frame_.directionalLightGlossFactor, frame_.directionalLightDiffuseFactor);
+    return calculate_light(surface, -frame_.Light.directionalLightVec, frame_.Light.directionalLightColor, 
+        frame_.Light.directionalLightGlossFactor, frame_.Light.directionalLightDiffuseFactor);
 }
 
 float3 env_main_directional_light(SurfaceInterface surface, float intensity)
 {
-    return calculate_light(surface, -frame_.directionalLightVec, frame_.directionalLightColor * intensity, 
-        frame_.directionalLightGlossFactor, frame_.directionalLightDiffuseFactor);
+    return calculate_light(surface, -frame_.Light.directionalLightVec, frame_.Light.directionalLightColor * intensity, 
+        frame_.Light.directionalLightGlossFactor, frame_.Light.directionalLightDiffuseFactor);
 }
 
 float3 back_directional_light1(SurfaceInterface surface)
 {
-    return calculate_light(surface, -frame_.backLightVec1, frame_.backLightColor1, frame_.backLightGlossFactor, 1.0f);
+    return calculate_light(surface, -frame_.Light.backLightVec1, frame_.Light.backLightColor1, frame_.Light.backLightGlossFactor, 1.0f);
 }
 
 float3 back_directional_light2(SurfaceInterface surface)
 {
-    return calculate_light(surface, -frame_.backLightVec2, frame_.backLightColor2, frame_.backLightGlossFactor, 1.0f);
+    return calculate_light(surface, -frame_.Light.backLightVec2, frame_.Light.backLightColor2, frame_.Light.backLightGlossFactor, 1.0f);
 }
 
 // scattering
@@ -54,10 +54,10 @@ float uniform_fog(float dist, float density)
 float3 add_fog(float3 color, float dist, float3 ray, float3 viewer)
 {
 	dist = clamp(dist, 0, 1000);
-	float c = frame_.fog_mult;
-	float b = frame_.fog_density;
+	float c = frame_.Fog.mult;
+	float b = frame_.Fog.density;
 
-    float3 fog_color = srgb_to_rgb(D3DX_R8G8B8A8_UNORM_to_FLOAT4(frame_.fog_color).xyz);
+    float3 fog_color = srgb_to_rgb(D3DX_R8G8B8A8_UNORM_to_FLOAT4(frame_.Fog.color).xyz);
 	float fog0 = c * uniform_fog(dist, b);
 
     return lerp( color, fog_color, fog0 );

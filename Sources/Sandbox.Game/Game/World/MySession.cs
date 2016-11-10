@@ -488,11 +488,11 @@ namespace Sandbox.Game.World
             Static.ServerSaving = saveStarted;
             if (Static.ServerSaving)
             {
-                MySandboxGame.UserPauseToggle();
+                MySandboxGame.PausePush();
             }
             else
             {
-                MySandboxGame.UserPauseToggle();
+                MySandboxGame.PausePop();
             }
         }
 
@@ -2252,10 +2252,10 @@ namespace Sandbox.Game.World
             if(OnUnloading != null)
                 OnUnloading();
 
-            if(MySandboxGame.IsPaused)
-            {
-                MySandboxGame.UserPauseToggle();
-            }
+            MySandboxGame.PausePop();
+
+            if (MyHud.RotatingWheelVisible) //may happen when exiting while pasting large grids
+                MyHud.PopRotatingWheelVisible();
 
             Engine.Platform.Game.EnableSimSpeedLocking = false;
             MySpectatorCameraController.Static.CleanLight();

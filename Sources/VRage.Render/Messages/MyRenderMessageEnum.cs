@@ -34,10 +34,11 @@
         UpdateColorEmissivity,
         ChangeModel,
         ChangeModelMaterial,
-        TextNotDrawnToTexture,//Output
         RenderTextureFreed,//Output
+        CreateGeneratedTexture,
+        ResetGeneratedTexture,
         ChangeMaterialTexture,
-        DrawTextToMaterial,
+        RenderOffscreenTextureToMaterial,
 
         UpdateGameplayFrame,
 
@@ -61,6 +62,7 @@
 
         CreateGPUEmitter,
         UpdateGPUEmitters,
+        UpdateGPUEmittersLight,
         UpdateGPUEmittersTransform,
         RemoveGPUEmitter,
 
@@ -69,6 +71,7 @@
         SetLightShadowIgnore,
         ClearLightShadowIgnore,
         UpdateShadowSettings,
+        UpdateMaterialsSettings,
 
         ReloadEffects,
         ReloadModels,

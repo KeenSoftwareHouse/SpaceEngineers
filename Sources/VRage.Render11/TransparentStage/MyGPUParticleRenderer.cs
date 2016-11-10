@@ -1,8 +1,6 @@
 ﻿using SharpDX.Direct3D;
 using System;
-using System.Diagnostics;
 using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 using VRage.Profiler;
 using VRage.Render11.Common;
 using VRage.Render11.Profiler;
@@ -44,28 +42,28 @@ namespace VRageRender
         private static ComputeShaderId m_csEmitSkipFix = ComputeShaderId.NULL;
         private static ComputeShaderId m_csResetParticles = ComputeShaderId.NULL;
 
-        private static MyRWStructuredBuffer m_particleBuffer;
-        private static MyRWStructuredBuffer m_deadListBuffer;
-        private static MyRWStructuredBuffer m_skippedParticleCountBuffer;
-        private static ConstantsBufferId m_activeListConstantBuffer = ConstantsBufferId.NULL;
+        private static ISrvUavBuffer m_particleBuffer;
+        private static IUavBuffer m_deadListBuffer;
+        private static ISrvUavBuffer m_skippedParticleCountBuffer;
+        private static IConstantBuffer m_activeListConstantBuffer;
 
-        private static ConstantsBufferId m_emitterConstantBuffer = ConstantsBufferId.NULL;
-        private static StructuredBufferId m_emitterStructuredBuffer = StructuredBufferId.NULL;
+        private static IConstantBuffer m_emitterConstantBuffer;
+        private static ISrvBuffer m_emitterStructuredBuffer;
 
-        private static MyRWStructuredBuffer m_aliveIndexBuffer;
-        private static MyIndirectArgsBuffer m_indirectDrawArgsBuffer;
+        private static ISrvUavBuffer m_aliveIndexBuffer;
+        private static IIndirectResourcesBuffer m_indirectDrawArgsBuffer;
 
-        private static IndexBufferId m_ib = IndexBufferId.NULL;
+        private static IIndexBuffer m_ib;
 
-        private static MyReadStructuredBuffer[] m_debugCounterBuffers = new MyReadStructuredBuffer[2];
+        private static IReadBuffer[] m_debugCounterBuffers = new IReadBuffer[2];
         static int m_debugCounterBuffersIndex = 0;
 
         //private static int m_numDeadParticlesOnInit;
         //private static int m_numDeadParticlesAfterEmit;
 
         private static MyGPUEmitterData[] m_emitterData = new MyGPUEmitterData[MyGPUEmitters.MAX_LIVE_EMITTERS];
-        private static ISrvBindable[] m_emitterTextures = new ISrvBindable[MyGPUEmitters.MAX_LIVE_EMITTERS];
-        internal static void Run(ISrvBindable depthRead)
+
+        internal static void Run(ISrvBindable depthRead, ISrvBindable gbufferNormalsRead)
         {
             // The maximum number of supported GPU particles
             ISrvBindable textureArraySrv;
@@ -96,17 +94,17 @@ namespace VRageRender
 
             MyGpuProfiler.IC_BeginBlock("Emit");
             // Emit particles into the system
-            Emit(emitterCount, m_emitterData);
+            Emit(emitterCount, m_emitterData, depthRead);
             MyGpuProfiler.IC_EndBlock();
 
             // Run the simulation for this frame
             MyGpuProfiler.IC_BeginBlock("Simulate");
-            Simulate(depthRead);
+            Simulate(depthRead, gbufferNormalsRead);
             MyGpuProfiler.IC_EndBlock();
 
             // Copy the atomic counter in the alive list UAV into a constant buffer for access by subsequent passes
-            RC.CopyStructureCount(m_activeListConstantBuffer, 0, m_aliveIndexBuffer.m_uav);
-        
+            RC.CopyStructureCount(m_activeListConstantBuffer, 0, m_aliveIndexBuffer);
+
             // Only read number of alive and dead particle back to the CPU in debug as we don't want to stall the GPU in release code
 
             ProfilerShort.Begin("Debug - ReadCounter");
@@ -114,7 +112,7 @@ namespace VRageRender
             int numActiveParticlesAfterSimulation = ReadCounter(m_aliveIndexBuffer);
             MyGpuProfiler.IC_EndBlock();
             ProfilerShort.End();
-    
+
             MyGpuProfiler.IC_BeginBlock("Render");
             Render(textureArraySrv, depthRead);
             MyGpuProfiler.IC_EndBlock();
@@ -129,7 +127,7 @@ namespace VRageRender
         {
             RC.ComputeShader.Set(m_csInitDeadList);
 
-            RC.ComputeShader.SetRawUav(0, m_deadListBuffer.m_uav, 0);
+            RC.ComputeShader.SetUav(0, m_deadListBuffer, 0);
 
             // Disaptch a set of 1d thread groups to fill out the dead list, one thread per particle
             RC.Dispatch(align(MyGPUEmitters.MAX_PARTICLES, 256) / 256, 1, 1);
@@ -139,7 +137,7 @@ namespace VRageRender
         {
             InitDeadList();
 
-            RC.ComputeShader.SetRawUav(0, m_particleBuffer.m_uav);
+            RC.ComputeShader.SetUav(0, m_particleBuffer);
             RC.ComputeShader.Set(m_csResetParticles);
             RC.Dispatch(align(MyGPUEmitters.MAX_PARTICLES, 256) / 256, 1, 1);
         }
@@ -147,10 +145,10 @@ namespace VRageRender
         private const int MAX_EMITTERS = 8;
 
         // Per-frame emission of particles into the GPU simulation
-        private static void Emit(int emitterCount, MyGPUEmitterData[] emitterData)
+        private static void Emit(int emitterCount, MyGPUEmitterData[] emitterData, ISrvBindable depthRead)
         {
             // update emitter data
-            var mapping = MyMapping.MapDiscard(m_emitterStructuredBuffer.Buffer);
+            var mapping = MyMapping.MapDiscard(m_emitterStructuredBuffer);
             int maxParticlesToEmitThisFrame = 0;
             for (int i = 0; i < emitterCount; i++)
             {
@@ -173,13 +171,14 @@ namespace VRageRender
             if (maxParticlesToEmitThisFrame > 0)
             {
                 // Set resources but don't reset any atomic counters
-                RC.ComputeShader.SetRawUav(0, m_particleBuffer.m_uav);
-                RC.ComputeShader.SetRawUav(1, m_deadListBuffer.m_uav);
-                RC.ComputeShader.SetRawUav(2, m_skippedParticleCountBuffer.m_uav, 0);
+                RC.ComputeShader.SetUav(0, m_particleBuffer);
+                RC.ComputeShader.SetUav(1, m_deadListBuffer);
+                RC.ComputeShader.SetUav(2, m_skippedParticleCountBuffer, 0);
 
                 RC.ComputeShader.SetConstantBuffer(1, m_emitterConstantBuffer);
 
-                RC.ComputeShader.SetRawSrv(1, m_emitterStructuredBuffer.Srv);
+                RC.ComputeShader.SetSrv(0, depthRead);
+                RC.ComputeShader.SetSrv(1, m_emitterStructuredBuffer);
 
                 RC.ComputeShader.Set(m_csEmit);
                 RC.Dispatch(numThreadGroupsX, numThreadGroupsY, 1);
@@ -192,15 +191,16 @@ namespace VRageRender
         }
 
         // Per-frame simulation step
-        private static void Simulate(ISrvBindable depthRead)
+        private static void Simulate(ISrvBindable depthRead, ISrvBindable gbufferNormalsRead)
         {
-            RC.ComputeShader.SetRawUav(0, m_particleBuffer.m_uav);
-            RC.ComputeShader.SetRawUav(1, m_deadListBuffer.m_uav);
-            RC.ComputeShader.SetRawUav(2, m_aliveIndexBuffer.m_uav, 0);
-            RC.ComputeShader.SetRawUav(3, m_indirectDrawArgsBuffer.m_uav);
+            RC.ComputeShader.SetUav(0, m_particleBuffer);
+            RC.ComputeShader.SetUav(1, m_deadListBuffer);
+            RC.ComputeShader.SetUav(2, m_aliveIndexBuffer, 0);
+            RC.ComputeShader.SetUav(3, m_indirectDrawArgsBuffer);
 
             RC.ComputeShader.SetSrv(0, depthRead);
-            RC.ComputeShader.SetRawSrv(1, m_emitterStructuredBuffer.Srv);
+            RC.ComputeShader.SetSrv(1, m_emitterStructuredBuffer);
+            RC.ComputeShader.SetSrv(2, gbufferNormalsRead);
 
             RC.ComputeShader.Set(m_csSimulate);
 
@@ -228,18 +228,18 @@ namespace VRageRender
                 else RC.PixelShader.Set(m_ps);
             }
 
-            RC.SetVertexBuffer(0, null, 0);
-            RC.SetIndexBuffer(m_ib.Buffer, SharpDX.DXGI.Format.R32_UInt);
+            RC.SetVertexBuffer(0, null);
+            RC.SetIndexBuffer(m_ib);
             RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
 
             RC.AllShaderStages.SetConstantBuffer(1, m_activeListConstantBuffer);
 
             RC.AllShaderStages.SetSrv(0, depthRead);
             RC.PixelShader.SetSrvs(1, textureArraySRV);
-            
-            RC.VertexShader.SetRawSrv(0, m_particleBuffer.m_srv);
-            RC.VertexShader.SetRawSrv(1, m_emitterStructuredBuffer.Srv);
-            RC.VertexShader.SetRawSrv(2, m_aliveIndexBuffer.m_srv);
+
+            RC.VertexShader.SetSrv(0, m_particleBuffer);
+            RC.VertexShader.SetSrv(1, m_emitterStructuredBuffer);
+            RC.VertexShader.SetSrv(2, m_aliveIndexBuffer);
             ISrvBindable skybox = MyRender11.IsIntelBrokenCubemapsWorkaround
                 ? MyGeneratedTextureManager.IntelFallbackCubeTex
                 : (ISrvBindable)MyManagers.EnvironmentProbe.Cubemap;
@@ -247,9 +247,9 @@ namespace VRageRender
 
             // bind render target?
             if (!MyStereoRender.Enable)
-                RC.DrawIndexedInstancedIndirect(m_indirectDrawArgsBuffer.Buffer, 0);
+                RC.DrawIndexedInstancedIndirect(m_indirectDrawArgsBuffer, 0);
             else
-                MyStereoRender.DrawIndexedInstancedIndirectGPUParticles(RC, m_indirectDrawArgsBuffer.Buffer, 0);
+                MyStereoRender.DrawIndexedInstancedIndirectGPUParticles(RC, m_indirectDrawArgsBuffer, 0);
 
             MyRender11.ProcessDebugOutput();
             RC.VertexShader.SetSrv(MyCommon.SKYBOX_IBL_SLOT, null);
@@ -274,7 +274,7 @@ namespace VRageRender
             m_ps = MyShaders.CreatePs("Transparent/GPUParticles/Render.hlsl", macrosRender);
             m_psOIT = MyShaders.CreatePs("Transparent/GPUParticles/Render.hlsl", macrosRenderOIT);
 
-            var macroDebug = new[] { new ShaderMacro("DEBUG_UNIFORM_ACCUM", null)};
+            var macroDebug = new[] { new ShaderMacro("DEBUG_UNIFORM_ACCUM", null) };
             m_psDebugUniformAccum = MyShaders.CreatePs("Transparent/GPUParticles/Render.hlsl", MyShaders.ConcatenateMacros(macrosRender, macroDebug));
             m_psDebugUniformAccumOIT = MyShaders.CreatePs("Transparent/GPUParticles/Render.hlsl", MyShaders.ConcatenateMacros(macrosRenderOIT, macroDebug));
 
@@ -283,28 +283,32 @@ namespace VRageRender
 
         private static void InitDevice()
         {
-            m_particleBuffer = new MyRWStructuredBuffer(MyGPUEmitters.MAX_PARTICLES, PARTICLE_STRIDE, MyRWStructuredBuffer.UavType.Default, true, "MyGPUParticleRenderer::particleBuffer");
-            m_deadListBuffer = new MyRWStructuredBuffer(MyGPUEmitters.MAX_PARTICLES, sizeof(uint), MyRWStructuredBuffer.UavType.Append, false, "MyGPUParticleRenderer::deadListBuffer");
-            m_skippedParticleCountBuffer = new MyRWStructuredBuffer(1, sizeof(uint), MyRWStructuredBuffer.UavType.Counter, true, "MyGPUParticleRenderer::skippedParticleCountBuffer");
- 
+            m_particleBuffer = MyManagers.Buffers.CreateSrvUav(
+                "MyGPUParticleRenderer::particleBuffer", MyGPUEmitters.MAX_PARTICLES, PARTICLE_STRIDE);
+            m_deadListBuffer = MyManagers.Buffers.CreateUav(
+                "MyGPUParticleRenderer::deadListBuffer", MyGPUEmitters.MAX_PARTICLES, sizeof(uint),
+                uavType: MyUavType.Append);
+            m_skippedParticleCountBuffer = MyManagers.Buffers.CreateSrvUav(
+                "MyGPUParticleRenderer::skippedParticleCountBuffer", 1, sizeof(uint),
+                uavType: MyUavType.Counter);
+
             // Create a staging buffer that is used to read GPU atomic counter into that can then be mapped for reading 
             // back to the CPU for debugging purposes
-            m_debugCounterBuffers[0] = new MyReadStructuredBuffer(1, sizeof(uint), "MyGPUParticleRenderer::debugCounterBuffers[0]");
-            m_debugCounterBuffers[1] = new MyReadStructuredBuffer(1, sizeof(uint), "MyGPUParticleRenderer::debugCounterBuffers[1]");
+            m_debugCounterBuffers[0] = MyManagers.Buffers.CreateRead("MyGPUParticleRenderer::debugCounterBuffers[0]", 1, sizeof(uint));
+            m_debugCounterBuffers[1] = MyManagers.Buffers.CreateRead("MyGPUParticleRenderer::debugCounterBuffers[1]", 1, sizeof(uint));
 
-            var description = new SharpDX.Direct3D11.BufferDescription(4 * sizeof(uint),
-                SharpDX.Direct3D11.ResourceUsage.Default, SharpDX.Direct3D11.BindFlags.ConstantBuffer, SharpDX.Direct3D11.CpuAccessFlags.None, 
-                SharpDX.Direct3D11.ResourceOptionFlags.None, sizeof(uint));
-            m_activeListConstantBuffer = MyHwBuffers.CreateConstantsBuffer(description, "MyGPUParticleRenderer::activeListConstantBuffer");
+            m_activeListConstantBuffer = MyManagers.Buffers.CreateConstantBuffer("MyGPUParticleRenderer::activeListConstantBuffer", 4 * sizeof(uint));
 
-            m_emitterConstantBuffer = MyHwBuffers.CreateConstantsBuffer(EMITTERCONSTANTBUFFER_SIZE, "MyGPUParticleRenderer::emitterConstantBuffer");
-            m_emitterStructuredBuffer = MyHwBuffers.CreateStructuredBuffer(MyGPUEmitters.MAX_LIVE_EMITTERS, EMITTERDATA_SIZE, true, null,
-                "MyGPUParticleRenderer::emitterStructuredBuffer");
+            m_emitterConstantBuffer = MyManagers.Buffers.CreateConstantBuffer("MyGPUParticleRenderer::emitterConstantBuffer", EMITTERCONSTANTBUFFER_SIZE, usage: ResourceUsage.Dynamic);
+            m_emitterStructuredBuffer = MyManagers.Buffers.CreateSrv(
+                "MyGPUParticleRenderer::emitterStructuredBuffer", MyGPUEmitters.MAX_LIVE_EMITTERS, EMITTERDATA_SIZE,
+                usage: ResourceUsage.Dynamic);
 
-            m_aliveIndexBuffer = new MyRWStructuredBuffer(MyGPUEmitters.MAX_PARTICLES, sizeof(float), MyRWStructuredBuffer.UavType.Counter, true,
-                "MyGPUParticleRenderer::aliveIndexBuffer");
+            m_aliveIndexBuffer = MyManagers.Buffers.CreateSrvUav(
+                "MyGPUParticleRenderer::aliveIndexBuffer", MyGPUEmitters.MAX_PARTICLES, sizeof(float),
+                uavType: MyUavType.Counter);
 
-            m_indirectDrawArgsBuffer = new MyIndirectArgsBuffer(5, sizeof(uint), "MyGPUParticleRenderer::indirectDrawArgsBuffer");
+            m_indirectDrawArgsBuffer = MyManagers.Buffers.CreateIndirectArgsBuffer("MyGPUParticleRenderer::indirectDrawArgsBuffer", 5, sizeof(uint));
 
             unsafe
             {
@@ -324,8 +328,9 @@ namespace VRageRender
                 }
                 fixed (uint* ptr = indices)
                 {
-                    m_ib = MyHwBuffers.CreateIndexBuffer(MyGPUEmitters.MAX_PARTICLES * 6, SharpDX.DXGI.Format.R32_UInt,
-                        SharpDX.Direct3D11.BindFlags.IndexBuffer, SharpDX.Direct3D11.ResourceUsage.Immutable, new IntPtr(ptr), "MyGPUParticleRenderer::indexBuffer");
+                    m_ib = MyManagers.Buffers.CreateIndexBuffer(
+                        "MyGPUParticleRenderer::indexBuffer", MyGPUEmitters.MAX_PARTICLES * 6, new IntPtr(ptr),
+                        MyIndexBufferFormat.UInt, ResourceUsage.Immutable);
                 }
             }
 
@@ -335,44 +340,19 @@ namespace VRageRender
         internal static void OnDeviceReset()
         {
             DoneDevice();
-            InitDevice();
         }
         private static void DoneDevice()
         {
-            MyHwBuffers.Destroy(ref m_ib);
-            MyHwBuffers.Destroy(ref m_activeListConstantBuffer);
-
-            if (m_indirectDrawArgsBuffer != null)
-            {
-                m_indirectDrawArgsBuffer.Release(); m_indirectDrawArgsBuffer = null;
-            }
-            if (m_debugCounterBuffers[0] != null)
-            {
-                m_debugCounterBuffers[0].Release(); m_debugCounterBuffers[0] = null;
-            } 
-            if (m_debugCounterBuffers[1] != null)
-            {
-                m_debugCounterBuffers[1].Release(); m_debugCounterBuffers[1] = null;
-            }   
-            if (m_aliveIndexBuffer != null)
-            {
-                m_aliveIndexBuffer.Release(); m_aliveIndexBuffer = null;
-            }
-            if (m_deadListBuffer != null)
-            {
-                m_deadListBuffer.Release(); m_deadListBuffer = null;
-            }
-            if (m_skippedParticleCountBuffer != null)
-            {
-                m_skippedParticleCountBuffer.Release(); m_skippedParticleCountBuffer = null;
-            }
-            if (m_particleBuffer != null)
-            {
-                m_particleBuffer.Release(); m_particleBuffer = null;
-            }
-            MyHwBuffers.Destroy(ref m_emitterConstantBuffer);
-            MyHwBuffers.Destroy(ref m_emitterStructuredBuffer);
-
+            MyManagers.Buffers.Dispose(m_ib); m_ib = null;
+            MyManagers.Buffers.Dispose(m_activeListConstantBuffer); m_activeListConstantBuffer = null;
+            MyManagers.Buffers.Dispose(m_indirectDrawArgsBuffer); m_indirectDrawArgsBuffer = null;
+            MyManagers.Buffers.Dispose(m_debugCounterBuffers); m_debugCounterBuffers = new IReadBuffer[m_debugCounterBuffers.Length];
+            MyManagers.Buffers.Dispose(m_aliveIndexBuffer); m_aliveIndexBuffer = null;
+            MyManagers.Buffers.Dispose(m_deadListBuffer); m_deadListBuffer = null;
+            MyManagers.Buffers.Dispose(m_skippedParticleCountBuffer); m_skippedParticleCountBuffer = null;
+            MyManagers.Buffers.Dispose(m_particleBuffer); m_particleBuffer = null;
+            MyManagers.Buffers.Dispose(m_emitterConstantBuffer); m_emitterConstantBuffer = null;
+            MyManagers.Buffers.Dispose(m_emitterStructuredBuffer); m_emitterStructuredBuffer = null;
         }
 
         internal static void OnDeviceEnd()
@@ -407,17 +387,17 @@ namespace VRageRender
         // IMPORTANT: This method can be called only once per frame. If it is not, it will stall CPU for quite long time
         // Helper function to read atomic UAV counters back onto the CPU.
         // The method reads in the current frame the value from the previous frame
-        private static int ReadCounter(IUnorderedAccessBindable uav)
+        private static int ReadCounter(IUavBindable uav)
         {
             int count = 0;
 
             if (VRage.MyCompilationSymbols.DX11Debug)
             {
                 // Copy the UAV counter to a staging resource
-                RC.CopyStructureCount(m_debugCounterBuffers[m_debugCounterBuffersIndex].m_resource as SharpDX.Direct3D11.Buffer, 0, uav.Uav);
+                RC.CopyStructureCount(m_debugCounterBuffers[m_debugCounterBuffersIndex], 0, uav);
 
                 m_debugCounterBuffersIndex = m_debugCounterBuffersIndex == 1 ? 0 : 1;
-                var mapping = MyMapping.MapRead(m_debugCounterBuffers[m_debugCounterBuffersIndex].m_resource);
+                var mapping = MyMapping.MapRead(m_debugCounterBuffers[m_debugCounterBuffersIndex]);
                 mapping.ReadAndPosition(ref count);
                 mapping.Unmap();
             }

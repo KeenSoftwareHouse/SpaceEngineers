@@ -217,6 +217,10 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 float coefficient = (MyShipGrinderConstants.GRINDER_COOLDOWN_IN_MILISECONDS * 0.001f) / (targetCount>0?targetCount:1);
                 foreach (var block in targets)
                 {
+                    // remove projected blocks
+                    if (block.CubeGrid.Physics == null || !block.CubeGrid.Physics.Enabled)
+                        continue;
+
                     // Don't weld yourself
                     if (block == SlimBlock) 
                         continue;

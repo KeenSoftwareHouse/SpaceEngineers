@@ -34,7 +34,7 @@ namespace Sandbox.Game.Gui
     [StaticEventOwner]
     class MyGuiScreenDebugSpawnMenu : MyGuiScreenDebugBase
     {
-        struct SpawnAsteroidInfo
+        public struct SpawnAsteroidInfo
         {
             [Serialize(MyObjectFlags.Nullable)]
             public string Asteroid;
@@ -86,7 +86,7 @@ namespace Sandbox.Game.Gui
             return "MyGuiScreenDebugSpawnMenu";
         }
 
-        private static SpawnAsteroidInfo m_lastAsteroidInfo;
+        public static SpawnAsteroidInfo m_lastAsteroidInfo;
 
         static MyGuiScreenDebugSpawnMenu()
         {
@@ -533,7 +533,23 @@ namespace Sandbox.Game.Gui
             MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
         }
 
-        private static String MakeStorageName(String storageNameBase)
+        public static void RecreateAsteroidBeforePaste(float dragVectorLength){
+            var seed = m_lastAsteroidInfo.RandomSeed;
+            var radius = m_lastAsteroidInfo.ProceduralRadius;
+            var storageNameBase = "ProcAsteroid" + "-" + seed + "r" + radius;
+            var storageName = MyGuiScreenDebugSpawnMenu.MakeStorageName(storageNameBase);
+
+            MyStorageBase storage = null;
+            if (m_lastAsteroidInfo.IsProcedural)
+                storage = CreateProceduralAsteroidStorage(seed, radius);
+            else
+                storage = CreateAsteroidStorage(m_lastAsteroidInfo.Asteroid, seed);
+            var builder = CreateAsteroidObjectBuilder(storageName);
+
+            MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, dragVectorLength);
+        }
+
+        public static String MakeStorageName(String storageNameBase)
         {
             String storageName = storageNameBase;
 
@@ -600,7 +616,7 @@ namespace Sandbox.Game.Gui
         private void CreateSlider(float usableWidth, float min, float max, ref MyGuiControlSlider slider)
         {
             slider = AddSlider(String.Empty, 5, min, max, null);
-            slider.Size = new Vector2(400f/MyGuiConstants.GUI_OPTIMAL_SIZE.X, slider.Size.Y);
+            slider.Size = new Vector2(400f / MyGuiConstants.GUI_OPTIMAL_SIZE.X, slider.Size.Y);
             slider.LabelDecimalPlaces = 4;
 
             slider.DebugScale = m_sliderDebugScale;
@@ -782,14 +798,17 @@ namespace Sandbox.Game.Gui
         [Event, Reliable, Server]
         static void SpawnPlanet_Server(string planetName, float size, int seed, Vector3D pos)
         {
-            var storageNameBase = planetName + "-" + seed + "d" + size;
+            if (MySession.Static.CreativeMode || MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                var storageNameBase = planetName + "-" + seed + "d" + size;
 
-            var storageName = MakeStorageName(storageNameBase);
+                var storageName = MakeStorageName(storageNameBase);
 
-            MyWorldGenerator.AddPlanet(storageNameBase, planetName, planetName, pos, seed, size, MyRandom.Instance.NextLong(), userCreated: true);
+                MyWorldGenerator.AddPlanet(storageNameBase, planetName, planetName, pos, seed, size, MyRandom.Instance.NextLong(), userCreated: true);
 
-            if (MySession.Static.RequiresDX < 11)
-                MySession.Static.RequiresDX = 11;
+                if (MySession.Static.RequiresDX < 11)
+                    MySession.Static.RequiresDX = 11;
+            }
         }
 
         #endregion

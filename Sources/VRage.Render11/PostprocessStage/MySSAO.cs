@@ -72,7 +72,7 @@ namespace VRageRender
             m_ps = MyShaders.CreatePs("Postprocess/SSAO/Ssao.hlsl");
         }
 
-        internal static void Run(IRtvBindable dst, MyGBuffer gbuffer, ISrvBindable resolvedDepth)
+        internal static void Run(IRtvBindable dst, MyGBuffer gbuffer)
         {
             RC.ClearRtv(dst, new SharpDX.Color4(1, 1, 1, 1));
 
@@ -94,7 +94,7 @@ namespace VRageRender
 
             RC.PixelShader.SetSrvs(0, gbuffer);
             RC.PixelShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
-            RC.PixelShader.SetSrv(5, resolvedDepth);
+            RC.PixelShader.SetSrv(5, gbuffer.ResolvedDepthStencil.SrvDepth);
             RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);
 
             DrawFullscreenQuad();

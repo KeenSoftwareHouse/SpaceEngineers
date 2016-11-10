@@ -13,7 +13,7 @@ namespace VRage.Game.ModAPI
     {
         IMyConfigDedicated ConfigDedicated { get; }
         string GetTypeName(Type type);
-        void ShowNotification(string message, int disappearTimeMs = 2000, MyFontEnum font = MyFontEnum.White);
+        void ShowNotification(string message, int disappearTimeMs = 2000, string font = MyFontEnum.White);
 
         /// <summary>
         /// Create a notification object.
@@ -24,7 +24,7 @@ namespace VRage.Game.ModAPI
         /// <param name="disappearTimeMs"></param>
         /// <param name="font"></param>
         /// <returns>The notification object.</returns>
-        IMyHudNotification CreateNotification(string message, int disappearTimeMs = 2000, MyFontEnum font = MyFontEnum.White);
+        IMyHudNotification CreateNotification(string message, int disappearTimeMs = 2000, string font = MyFontEnum.White);
 
         void ShowMessage(string sender, string messageText);
         void SendMessage(string messageText);

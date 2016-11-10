@@ -39,7 +39,7 @@ void __geometry_shader(point RenderingVertexOutput input[1], inout TriangleStrea
     float4 position = input[0].position;
     float3 viewVector = get_camera_position() - position.xyz;
     float viewVectorLength = length(viewVector);
-    const float far_clip = frame_.foliage_clipping_scaling.x;
+    const float far_clip = frame_.Foliage.clipping_scaling.x;
 
     [branch]
     if ( viewVectorLength < far_clip && position.w )
@@ -65,7 +65,7 @@ void __geometry_shader(point RenderingVertexOutput input[1], inout TriangleStrea
         onb = mul(rotate_z(sinCosHammersley.x, sinCosHammersley.y), onb);
 
 #ifndef ROCK_FOLIAGE
-        scale *= lerp(1, frame_.foliage_clipping_scaling.w, saturate((viewVectorLength - frame_.foliage_clipping_scaling.y) / frame_.foliage_clipping_scaling.z));
+        scale *= lerp(1, frame_.Foliage.clipping_scaling.w, saturate((viewVectorLength - frame_.Foliage.clipping_scaling.y) / frame_.Foliage.clipping_scaling.z));
 #endif
 
         float critical_point = far_clip * 0.5f;
@@ -107,5 +107,5 @@ void __pixel_shader(RenderingPixelInput input, out GbufferOutput output)
 	float gloss = ng.w;
     float3 normal = Normal(ng.xyz, float4(input.tangent, 1), input.normal, normalLength);
 
-    GbufferWrite(output, colorSample.xyz, 0, gloss, normal, ao, emissive, 0);
+    GbufferWrite(output, colorSample.xyz, 0, gloss, normal, ao, emissive, 0, 0);
 }

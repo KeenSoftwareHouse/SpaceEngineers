@@ -301,8 +301,8 @@ namespace VRageRender
             
             // get shader for streaming
             MyFileTextureEnum textureTypes = proxy.Material == MyMeshMaterialId.NULL ? MyFileTextureEnum.UNSPECIFIED : proxy.Material.Info.TextureTypes;
-            var bundle = MyMaterialShaders.Get(MyStringId.GetOrCompute(MyMaterialShaders.MULTI_MATERIAL_TAG),
-                MyStringId.GetOrCompute(MyMaterialShaders.FOLIAGE_STREAMING_PASS), MyMeshes.VoxelLayout,
+            var bundle = MyMaterialShaders.Get(MyMaterialShaders.MULTI_MATERIAL_TAG,
+                MyMaterialShaders.FOLIAGE_STREAMING_PASS_ID, MyMeshes.VoxelLayout,
                 renderable.Lods[0].VertexShaderFlags &~ MyShaderUnifiedFlags.USE_VOXEL_MORPHING, textureTypes);
 
             MyRender11.FoliageGenerator.RecordCommands(proxy, m_streams[materialId], materialId,

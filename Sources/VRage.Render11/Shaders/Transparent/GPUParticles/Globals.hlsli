@@ -1,6 +1,6 @@
 #include <Frame.hlsli>
 
-#define COLLISION_THICKNESS 0.1
+#define COLLISION_THICKNESS 1000.0
 
 #define EMITTERFLAG_STREAKS 1
 #define EMITTERFLAG_COLLIDE 2
@@ -92,6 +92,7 @@ struct Particle
 
 // The opaque scene depth buffer read as a texture
 Texture2D<float>      g_DepthTexture                    : register(t0);
+Texture2D<float4>     g_GBuffer1Texture                 : register(t2);
 
 // A buffer containing the pre-computed view space positions of the particles
 StructuredBuffer<EmittersStructuredBuffer> g_Emitters   : register(t1);

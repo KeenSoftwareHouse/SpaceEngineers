@@ -28,7 +28,7 @@ namespace Sandbox.Graphics
 
     public struct MyFontDescription
     {
-        public MyFontEnum Id;
+        public string Id;
         public string Path;
         public bool IsDebug;
     }
@@ -46,11 +46,23 @@ namespace Sandbox.Graphics
 
         public static int TotalTimeInMilliseconds;
 
-        public static VRageMath.MatrixD Camera;
-        public static VRageMath.MatrixD CameraView;
+        public static MatrixD Camera 
+        {
+            get { return m_camera.WorldMatrix; }
+        }
+
+        public static VRageMath.MatrixD CameraView
+        {
+            get { return m_camera.ViewMatrix; }
+        }
 
         public const int FAREST_TIME_IN_PAST = -60 * 1000;
 
+        private static VRage.Game.Utils.MyCamera m_camera;
+        public static void SetCamera(VRage.Game.Utils.MyCamera camera)
+        {
+            m_camera = camera;
+        }
 
 
         //  Textures for GUI elements such as screen background, etc... for wide or tall screens and backgrounds
@@ -118,7 +130,7 @@ namespace Sandbox.Graphics
         static bool m_fullScreenHudEnabled = false;
         public static bool FullscreenHudEnabled { get { return m_fullScreenHudEnabled; } set { m_fullScreenHudEnabled = value; } }
 
-        static Dictionary<int, VRageRender.MyFont> m_fontsById = new Dictionary<int, VRageRender.MyFont>();
+        static Dictionary<MyStringHash, VRageRender.MyFont> m_fontsById = new Dictionary<MyStringHash, VRageRender.MyFont>();
 
         //static MyEffectSpriteBatchOriginal m_spriteEffect;
 
@@ -198,8 +210,8 @@ namespace Sandbox.Graphics
 
             foreach (var font in fonts)
             {
-                m_fontsById[(int)font.Id] = new VRageRender.MyFont(font.Path);
-                VRageRender.MyRenderProxy.CreateFont((int)font.Id, font.Path, font.IsDebug);
+                m_fontsById[MyStringHash.GetOrCompute(font.Id)] = new VRageRender.MyFont(font.Path);
+                VRageRender.MyRenderProxy.CreateFont((int)MyStringHash.GetOrCompute(font.Id), font.Path, font.IsDebug);
             }
 
             VRageRender.MyRenderProxy.PreloadTextures(@"Textures\GUI\Icons", true);
@@ -276,7 +288,7 @@ namespace Sandbox.Graphics
         /// Scale is uniform, preserves aspect ratio.</param>
         /// <param name="useFullClientArea">True uses full client rectangle. False limits to GUI rectangle</param>
         public static void DrawString(
-            MyFontEnum font,
+            string font,
             StringBuilder text,
             Vector2 normalizedCoord,
             float scale,
@@ -297,7 +309,7 @@ namespace Sandbox.Graphics
 #endif
 
             VRageRender.MyRenderProxy.DrawString(
-                (int)font,
+                (int)MyStringHash.Get(font),
                 screenCoord,
                 colorMask ?? new Color(MyGuiConstants.LABEL_TEXT_COLOR),
                 text,
@@ -305,26 +317,26 @@ namespace Sandbox.Graphics
                 screenMaxWidth);
         }
 
-        public static Vector2 MeasureString(MyFontEnum font, StringBuilder text, float scale)
+        public static Vector2 MeasureString(string font, StringBuilder text, float scale)
         {
             //  Fix the scale for screen resolution
             float fixedScale = scale * m_safeScreenScale;
-            Vector2 sizeInPixelsScaled = m_fontsById[(int)font].MeasureString(text, fixedScale);
+            Vector2 sizeInPixelsScaled = m_fontsById[MyStringHash.Get(font)].MeasureString(text, fixedScale);
             return GetNormalizedSizeFromScreenSize(sizeInPixelsScaled);
         }
 
-        internal static int ComputeNumCharsThatFit(MyFontEnum font, StringBuilder text, float scale, float maxTextWidth)
+        internal static int ComputeNumCharsThatFit(string font, StringBuilder text, float scale, float maxTextWidth)
         {
             float fixedScale = scale * m_safeScreenScale;
             float screenMaxWidth = GetScreenSizeFromNormalizedSize(new Vector2(maxTextWidth, 0f)).X;
-            return m_fontsById[(int)font].ComputeCharsThatFit(text, fixedScale, screenMaxWidth);
+            return m_fontsById[MyStringHash.Get(font)].ComputeCharsThatFit(text, fixedScale, screenMaxWidth);
         }
 
-        public static float GetFontHeight(MyFontEnum font, float scale)
+        public static float GetFontHeight(string font, float scale)
         {
             //  Fix the scale for screen resolution
             float fixedScale = scale * m_safeScreenScale * MyRenderGuiConstants.FONT_SCALE;
-            Vector2 sizeInPixelsScaled = new Vector2(0.0f, fixedScale* m_fontsById[(int)font].LineHeight);
+            Vector2 sizeInPixelsScaled = new Vector2(0.0f, fixedScale * m_fontsById[MyStringHash.Get(font)].LineHeight);
             return GetNormalizedSizeFromScreenSize(sizeInPixelsScaled).Y;
         }
 
@@ -774,9 +786,6 @@ namespace Sandbox.Graphics
         public static void Update(int totalTimeInMS)
         {
             TotalTimeInMilliseconds = totalTimeInMS;
-
-            MyTransparentGeometry.Camera = MyGuiManager.Camera;
-            MyTransparentGeometry.CameraView = MyGuiManager.CameraView;      
         }
 
 

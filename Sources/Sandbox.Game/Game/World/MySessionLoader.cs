@@ -515,5 +515,12 @@ namespace Sandbox.Game.World
             //  This will quit actual game-play screen and move us to fly-through with main menu on top
             MyGuiSandbox.BackToMainMenu();
         }
+
+        public static void ExitGame()
+        {
+            MyAnalyticsTracker.SendGameEnd("Exit to Windows", MySandboxGame.TotalTimeInMilliseconds / 1000);
+            MyScreenManager.CloseAllScreensNowExcept(null);
+            MySandboxGame.ExitThreadSafe();
+        }
     }
 }

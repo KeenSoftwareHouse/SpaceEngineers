@@ -137,7 +137,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_previewImage.BorderEnabled = true;
             m_previewImage.BorderColor = MyGuiConstants.THEMED_GUI_LINE_COLOR.ToVector4();
 
-            Size = new Vector2(Math.Max(m_titleLabel.Size.X, m_previewImage.Size.X),
+            Size = new Vector2(m_previewImage.Size.X,
                 m_titleLabel.Size.Y + m_previewImage.Size.Y);
 
             Elements.Add(m_titleLabel);
@@ -157,10 +157,10 @@ namespace Sandbox.Game.Screens.Helpers
         {
             m_titleLabel.Position = Size * -0.5f;
             m_previewImage.Position = m_titleLabel.Position + new Vector2(0f, m_titleLabel.Size.Y);
-            m_workshopIconNormal.Position = m_titleLabel.Position + Size - new Vector2(0.001f, 0.002f);
-            m_workshopIconHighlight.Position = m_titleLabel.Position + Size - new Vector2(0.001f, 0.002f);
-            m_localmodIconNormal.Position = m_titleLabel.Position + Size - new Vector2(0.001f, 0.002f);
-            m_localmodIconHighlight.Position = m_titleLabel.Position + Size - new Vector2(0.001f, 0.002f);
+            m_workshopIconNormal.Position = Size * 0.5f - new Vector2(0.001f, 0.002f);
+            m_workshopIconHighlight.Position = Size * 0.5f - new Vector2(0.001f, 0.002f);
+            m_localmodIconNormal.Position = Size * 0.5f - new Vector2(0.001f, 0.002f);
+            m_localmodIconHighlight.Position = Size * 0.5f - new Vector2(0.001f, 0.002f);
         }
 
         protected override void OnHasHighlightChanged()

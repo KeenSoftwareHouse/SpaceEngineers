@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX;
-using SharpDX.Direct3D;
+﻿using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using Vector2 = VRageMath.Vector2;
 using VRageRender.Vertex;
@@ -17,7 +13,7 @@ namespace VRageRender
     class MyStereoStencilMask : MyImmediateRC
     {
         static Vector2[] m_VBdata;
-        static VertexBufferId m_VB = VertexBufferId.NULL;
+        static IVertexBuffer m_VB;
 
         static VertexShaderId m_vs;
         static PixelShaderId m_ps;
@@ -25,9 +21,11 @@ namespace VRageRender
 
         private static void InitInternal(Vector2[] vertsForMask)
         {
-            m_VB = MyHwBuffers.CreateVertexBuffer(vertsForMask.Length, MyVertexFormat2DPosition.STRIDE, BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyStereoStencilMask.VB");
-            MyMapping mapping = MyMapping.MapDiscard(RC, m_VB.Buffer);
-            mapping.WriteAndPosition(vertsForMask, 0, vertsForMask.Length);
+            m_VB = MyManagers.Buffers.CreateVertexBuffer(
+                "MyStereoStencilMask.VB", vertsForMask.Length, MyVertexFormat2DPosition.STRIDE, 
+                usage: ResourceUsage.Dynamic);
+            MyMapping mapping = MyMapping.MapDiscard(RC, m_VB);
+            mapping.WriteAndPosition(vertsForMask, vertsForMask.Length);
             mapping.Unmap();
 
             m_vs = MyShaders.CreateVs("Stereo/StereoStencilMask.hlsl");
@@ -36,7 +34,7 @@ namespace VRageRender
             m_il = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION2));
         }
 
-        static Vector2[] m_tmpInitUndefinedMaskVerts = new Vector2 [6];
+        static readonly Vector2[] m_tmpInitUndefinedMaskVerts = new Vector2 [6];
         private static Vector2[] GetUndefinedMask()
         {
             // this offset represents percent of the screen, that are not displayed in the OpenVR
@@ -75,7 +73,7 @@ namespace VRageRender
             RC.SetRtvs(MyGBuffer.Main, MyDepthStencilAccess.ReadWrite);
             RC.SetScreenViewport();
             RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
-            RC.SetVertexBuffer(0, m_VB.Buffer, m_VB.Stride);
+            RC.SetVertexBuffer(0, m_VB);
             RC.SetInputLayout(m_il);
 
             RC.SetRasterizerState(MyRasterizerStateManager.NocullRasterizerState);

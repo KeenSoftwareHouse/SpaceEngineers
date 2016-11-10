@@ -56,9 +56,6 @@ namespace VRageRender.Messages
     {
         public uint ID;
 
-        // Force the buffer lod (for the model), -1 should be automatic.
-        public int ForcedLod;
-
         // Weather instances should be lodded individually.
         public bool SetPerInstanceLod;
 

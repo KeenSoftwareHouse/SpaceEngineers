@@ -114,6 +114,7 @@ namespace Sandbox.Engine.Networking
         /// </summary>
         public const string WORKSHOP_DEVELOPMENT_TAG = "development";
         public const string WORKSHOP_WORLD_TAG = "world";
+        public const string WORKSHOP_CAMPAIGN_TAG = "campaign";
         public const string WORKSHOP_MOD_TAG = "mod";
         public const string WORKSHOP_BLUEPRINT_TAG = "blueprint";
         public const string WORKSHOP_SCENARIO_TAG = "scenario";
@@ -532,6 +533,22 @@ namespace Sandbox.Engine.Networking
             try
             {
                 return GetSubscribedItemsBlocking(results, WORKSHOP_WORLD_TAG);
+            }
+            finally
+            {
+                MySandboxGame.Log.WriteLine("MySteamWorkshop.GetSubscribedWorldsBlocking - END");
+            }
+        }
+
+        /// <summary>
+        /// Do NOT call this method from update thread.
+        /// </summary>
+        public static bool GetSubscribedCampaignsBlocking(List<SubscribedItem> results)
+        {
+            MySandboxGame.Log.WriteLine("MySteamWorkshop.GetSubscribedWorldsBlocking - START");
+            try
+            {
+                return GetSubscribedItemsBlocking(results, WORKSHOP_CAMPAIGN_TAG);
             }
             finally
             {

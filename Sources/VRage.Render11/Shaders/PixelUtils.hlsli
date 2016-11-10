@@ -1,22 +1,8 @@
 #ifndef PIXEL_UTILS_H
 #define PIXEL_UTILS_H
 
-#include <Frame.hlsli>
-
 #define AO_BUMP_POW 4
 #define NORMAL_DOT_FACTOR 4
-
-float3 compute_screen_ray(float2 uv)
-{
-    const float ray_x = 1. / frame_.projection_matrix._11;
-    const float ray_y = 1. / frame_.projection_matrix._22;
-    return float3(lerp(-ray_x, ray_x, uv.x), -lerp(-ray_y, ray_y, uv.y), -1.);
-}
-
-float compute_depth(float hw_depth)
-{
-    return -linearize_depth(hw_depth, frame_.projection_matrix);
-}
 
 float3x3 PixelTangentSpace(float3 N, float3 pos_ddx, float3 pos_ddy, float2 uv_ddx, float2 uv_ddy)
 {

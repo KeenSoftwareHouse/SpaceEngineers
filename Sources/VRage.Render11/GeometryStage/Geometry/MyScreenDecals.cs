@@ -1,13 +1,8 @@
 ﻿using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using VRage;
 using VRage.Render11.Common;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
@@ -34,10 +29,10 @@ namespace VRageRender
     struct MyDecalTextures
     {
         public MyFileTextureEnum DecalType;
-        public string NormalmapTexture;
-        public string ColorMetalTexture;
-        public string AlphamaskTexture;
-        public string ExtensionsTexture;
+        public ITexture ColorMetalTexture;
+        public ITexture NormalmapTexture;
+        public ITexture ExtensionsTexture;
+        public ITexture AlphamaskTexture;
     }
 
     [StructLayout(LayoutKind.Explicit)]
@@ -70,7 +65,7 @@ namespace VRageRender
 
         static int m_decalsQueueSize = 1024;
 
-        static IndexBufferId m_IB = IndexBufferId.NULL;
+        static IIndexBuffer m_IB;
 
         static VertexShaderId m_vs = VertexShaderId.NULL;
         static PixelShaderId m_psNormalMap = PixelShaderId.NULL;
@@ -101,7 +96,7 @@ namespace VRageRender
                 MyMeshMaterials1.GetMaterialTextureMacros(MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS));
             m_psNormalColorExtMap = MyShaders.CreatePs("Decals/Decals.hlsl",
                 MyMeshMaterials1.GetMaterialTextureMacros(
-                MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS| MyFileTextureEnum.EXTENSIONS));
+                MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS | MyFileTextureEnum.EXTENSIONS));
 
             InitIB();
         }
@@ -122,11 +117,8 @@ namespace VRageRender
 
         internal static void OnDeviceEnd()
         {
-            if (m_IB != IndexBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(m_IB);
-                m_IB = IndexBufferId.NULL;
-            }
+            if (m_IB != null)
+                MyManagers.Buffers.Dispose(m_IB); m_IB = null;
         }
 
         static unsafe void InitIB()
@@ -157,11 +149,13 @@ namespace VRageRender
                 }
             }
 
-            if (m_IB == IndexBufferId.NULL)
+            if (m_IB == null)
             {
                 fixed (ushort* I = indicesData)
                 {
-                    m_IB = MyHwBuffers.CreateIndexBuffer(indicesData.Length, Format.R16_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(I), "MyScreenDecals");
+                    m_IB = MyManagers.Buffers.CreateIndexBuffer(
+                        "MyScreenDecals", indicesData.Length, new IntPtr(I),
+                        MyIndexBufferFormat.UShort, ResourceUsage.Immutable);
                 }
             }
         }
@@ -271,6 +265,7 @@ namespace VRageRender
             {
                 m_decals.Remove(node);
                 m_nodeMap.Remove(node.Value.ID);
+                MyRenderProxy.RemoveMessageId(node.Value.ID, MyRenderProxy.ObjectType.ScreenDecal);
             }
 
             m_entityDecals.Remove(id);
@@ -303,10 +298,12 @@ namespace VRageRender
 
             m_decals.Remove(node);
             m_nodeMap.Remove(decal.ID);
+            MyRenderProxy.RemoveMessageId(decal.ID, MyRenderProxy.ObjectType.ScreenDecal);
         }
 
         public static void RegisterMaterials(Dictionary<string, List<MyDecalMaterialDesc>> descriptions)
         {
+            MyFileTextureManager texManager = MyManagers.FileTextures;
             m_materials.Clear();
             foreach (var pair in descriptions)
             {
@@ -315,11 +312,11 @@ namespace VRageRender
                 {
                     list.Add(new MyDecalTextures()
                     {
-                        DecalType = MyMeshMaterials1.GetMaterialTextureTypes(desc.NormalmapTexture, desc.ColorMetalTexture, desc.ExtensionsTexture, null),
-                        NormalmapTexture = desc.NormalmapTexture,
-                        ColorMetalTexture = desc.ColorMetalTexture,
-                        ExtensionsTexture = desc.ExtensionsTexture,
-                        AlphamaskTexture = desc.AlphamaskTexture,
+                        DecalType = MyMeshMaterials1.GetMaterialTextureTypes(desc.ColorMetalTexture, desc.NormalmapTexture, desc.ExtensionsTexture, null),
+                        ColorMetalTexture = texManager.GetTexture(desc.ColorMetalTexture, MyFileTextureEnum.COLOR_METAL),
+                        NormalmapTexture = texManager.GetTexture(desc.NormalmapTexture, MyFileTextureEnum.NORMALMAP_GLOSS),
+                        ExtensionsTexture = texManager.GetTexture(desc.ExtensionsTexture, MyFileTextureEnum.EXTENSIONS),
+                        AlphamaskTexture = texManager.GetTexture(desc.AlphamaskTexture, MyFileTextureEnum.ALPHAMASK),
                     });
                 }
 
@@ -341,7 +338,7 @@ namespace VRageRender
             return true;
         }
 
-        unsafe static void DrawBatches(MyRenderContext rc, MyStringId material, int matIndex, bool transparent)
+        static unsafe void DrawBatches(MyRenderContext rc, IRtvTexture gbuffer1Copy, MyStringId material, int matIndex, bool transparent)
         {
             if (m_jobs.Count == 0)
                 return;
@@ -349,7 +346,7 @@ namespace VRageRender
             var matDesc = m_materials[material][matIndex];
 
             rc.PixelShader.SetSrv(0, MyGBuffer.Main.DepthStencil.SrvDepth);
-            rc.PixelShader.SetSrv(1, MyGlobalResources.Gbuffer1Copy);
+            rc.PixelShader.SetSrv(1, gbuffer1Copy);
             if (transparent)
             {
                 rc.PixelShader.Set(m_psColorMapTransparent);
@@ -375,15 +372,14 @@ namespace VRageRender
                     default:
                         throw new Exception("Unknown decal type");
                 }
-                MyMeshMaterials1.BindMaterialTextureBlendStates(rc, type);
+                MyMeshMaterials1.BindMaterialTextureBlendStates(rc, type, true);
             }
 
             // factor 1 makes overwriting of gbuffer color & subtracting from ao
-            MyFileTextureManager texManager = MyManagers.FileTextures;
-            rc.PixelShader.SetSrv(3, texManager.GetTexture(matDesc.AlphamaskTexture,  MyFileTextureEnum.ALPHAMASK));
-            rc.PixelShader.SetSrv(4, texManager.GetTexture(matDesc.ColorMetalTexture, MyFileTextureEnum.COLOR_METAL));
-            rc.PixelShader.SetSrv(5, texManager.GetTexture(matDesc.NormalmapTexture, MyFileTextureEnum.NORMALMAP_GLOSS));
-            rc.PixelShader.SetSrv(6, texManager.GetTexture(matDesc.ExtensionsTexture, MyFileTextureEnum.EXTENSIONS));
+            rc.PixelShader.SetSrv(3, matDesc.AlphamaskTexture);
+            rc.PixelShader.SetSrv(4, matDesc.ColorMetalTexture);
+            rc.PixelShader.SetSrv(5, matDesc.NormalmapTexture);
+            rc.PixelShader.SetSrv(6, matDesc.ExtensionsTexture);
 
             var decalCb = MyCommon.GetObjectCB(sizeof(MyDecalConstants) * DECAL_BATCH_SIZE);
 
@@ -412,7 +408,7 @@ namespace VRageRender
         }
 
         /// <param name="visibleRenderIDs">Optional list of visible render object IDs</param>
-        internal static void Draw(bool transparent, HashSet<uint> visibleRenderIDs = null, float squaredDistanceMax = VISIBLE_DECALS_SQ_TH)
+        internal static void Draw(IRtvTexture gbuffer1Copy, bool transparent, HashSet<uint> visibleRenderIDs = null, float squaredDistanceMax = VISIBLE_DECALS_SQ_TH)
         {
             if (m_decals.Count == 0)
                 return;
@@ -429,7 +425,7 @@ namespace VRageRender
             if (!visibleDecals)
                 return;
 
-            DrawInternal(transparent, sinceStartTs);
+            DrawInternal(gbuffer1Copy, transparent, sinceStartTs);
         }
 
         /// <returns>True if visible decals are found</returns>
@@ -507,7 +503,7 @@ namespace VRageRender
             AddDecalForDraw(node.Value);
         }
 
-        unsafe static void DrawInternal(bool transparent, uint sinceStartTs)
+        unsafe static void DrawInternal(IRtvTexture gbuffer1Copy, bool transparent, uint sinceStartTs)
         {
             var RC = MyImmediateRC.RC;
             int nPasses = MyStereoRender.Enable ? 2 : 1;
@@ -526,9 +522,9 @@ namespace VRageRender
                 }
 
                 RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
-                RC.SetIndexBuffer(m_IB.Buffer, m_IB.Format);
+                RC.SetIndexBuffer(m_IB);
                 RC.SetInputLayout(null);
-                
+
                 RC.VertexShader.Set(m_vs);
                 RC.SetDepthStencilState(MyDepthStencilStateManager.DepthTestReadOnly);
                 RC.PixelShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
@@ -539,7 +535,7 @@ namespace VRageRender
                 foreach (var pair in m_materialsToDraw)
                 {
                     PrepareMaterialBatches(RC, pair.Value, sinceStartTs);
-                    DrawBatches(RC, pair.Key.Material, pair.Key.Index, transparent);
+                    DrawBatches(RC, gbuffer1Copy, pair.Key.Material, pair.Key.Index, transparent);
                     m_jobs.Clear();
                 }
             }
@@ -547,7 +543,7 @@ namespace VRageRender
             // Clear materials to draw outside eye rendering passes
             foreach (var pair in m_materialsToDraw)
                 pair.Value.Clear();
-            
+
             RC.SetBlendState(null);
             RC.PixelShader.SetSrv(0, null);
 

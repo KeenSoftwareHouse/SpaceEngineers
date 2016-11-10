@@ -7,6 +7,9 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRageMath;
 using VRageRender;
+using Sandbox.Game.WorldEnvironment.Modules;
+using Sandbox.Game.WorldEnvironment;
+using Sandbox.Game.World;
 
 namespace Sandbox.Game.Weapons.Guns
 {
@@ -98,6 +101,7 @@ namespace Sandbox.Game.Weapons.Guns
             MyPhysics.CastRay(m_origin, FrontPoint, m_hits, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
 
             DetectionInfo value = new DetectionInfo();
+            bool encounteredModel = false;
             foreach (var hit in m_hits)
             {
 				var hitInfo = hit.HkHitInfo;
@@ -142,6 +146,16 @@ namespace Sandbox.Game.Weapons.Guns
                     else
                     {
                         m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, detectionPoint);
+                    }
+
+                    if (entity is MyEnvironmentSector && !encounteredModel)
+                    {
+                        var sector = entity as MyEnvironmentSector;
+                        var shapekey = hitInfo.GetShapeKey(0);
+                        var itemId = sector.GetItemFromShapeKey(shapekey);
+                        if (sector.DataView.Items[itemId].ModelIndex < 0) continue;
+                        encounteredModel = true;
+                        m_entitiesInRange[entity.EntityId] = new DetectionInfo(sector, detectionPoint, itemId);
                     }
                 }
             }

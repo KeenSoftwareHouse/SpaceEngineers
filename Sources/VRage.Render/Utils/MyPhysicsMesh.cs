@@ -28,7 +28,7 @@ namespace VRageRender.Utils
             if (matName.Contains("/"))
                 matName = matName.Substring(matName.IndexOf('/') + 1);
 
-            MySectionInfo sectionInfo = new MySectionInfo()
+            MyRuntimeSectionInfo sectionInfo = new MyRuntimeSectionInfo()
             {
                 IndexStart = indexStart,
                 TriCount = triCount,

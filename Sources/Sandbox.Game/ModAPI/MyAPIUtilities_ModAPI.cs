@@ -38,14 +38,14 @@ namespace Sandbox.ModAPI
             return type.Name;
         }
 
-        void IMyUtilities.ShowNotification(string message, int disappearTimeMs, MyFontEnum font)
+        void IMyUtilities.ShowNotification(string message, int disappearTimeMs, string font)
         {
             var not = new MyHudNotification(MyCommonTexts.CustomText, disappearTimeMs, font);
             not.SetTextFormatArguments( message);
             MyHud.Notifications.Add(not);
         }
 
-        IMyHudNotification IMyUtilities.CreateNotification(string message, int disappearTimeMs, MyFontEnum font)
+        IMyHudNotification IMyUtilities.CreateNotification(string message, int disappearTimeMs, string font)
         {
             var notification = new MyHudNotification(MyCommonTexts.CustomText, disappearTimeMs, font);
             notification.SetTextFormatArguments(message);

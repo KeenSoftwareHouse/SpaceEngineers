@@ -113,6 +113,7 @@ namespace VRageRender
                         DepthBuffer = ShadowmapsPool[casterIndex],
                         Viewport = new MyViewport(SpotlightShadowmapSize, SpotlightShadowmapSize),
                         QueryType = MyFrustumEnum.ShadowProjection,
+                        Index = casterIndex,
                         ProjectionInfo = new MyProjectionInfo
                         {
                             WorldCameraOffsetPosition = MyRender11.Environment.Matrices.CameraPosition,

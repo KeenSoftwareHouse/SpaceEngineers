@@ -144,7 +144,7 @@
 
       <BlurEnable>true</BlurEnable>
       <BlurRadius4>true</BlurRadius4>
-      <BlurSharpness>1.0</BlurSharpness>
+      <BlurSharpness>50.0</BlurSharpness>
 
       <BlurSharpnessFunctionEnable>false</BlurSharpnessFunctionEnable>
       <BlurSharpnessFunctionForegroundScale>4.0</BlurSharpnessFunctionForegroundScale>
@@ -165,6 +165,46 @@
         <DisplayFrozenShadowCascade>false</DisplayFrozenShadowCascade>
       </Data>
     </ShadowSettings>
+
+    <MaterialsSettings>
+      <Data>
+      </Data>
+      <ChangeableMaterials>
+        <ChangeableMaterial>
+          <MaterialName>ScreenArea</MaterialName> <!-- used on LCD panels-->
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>Display</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>Emissive</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>Emissive0</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>Emissive1</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>Emissive2</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>Emissive3</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>Emissive4</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>GlassInside</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>GlassOutside</MaterialName>
+        </ChangeableMaterial>
+        <ChangeableMaterial>
+          <MaterialName>Glass</MaterialName>
+        </ChangeableMaterial>
+      </ChangeableMaterials>
+    </MaterialsSettings>
 
     <EnvironmentTexture>Textures\BackgroundCube\Final\BackgroundCube.dds</EnvironmentTexture>
     <EnvironmentOrientation Yaw="60.3955536" Pitch="-61.1861954" Roll="90.90578" />

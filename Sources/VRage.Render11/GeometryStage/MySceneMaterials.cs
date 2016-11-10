@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using SharpDX.Direct3D11;
+using VRage.Render11.Common;
 using VRage.Render11.Resources;
 
 namespace VRageRender
 {
     static class MySceneMaterials
     {
-        internal static StructuredBufferId m_buffer = StructuredBufferId.NULL;
+        internal static ISrvBuffer m_buffer;
 
         static readonly List<MyPerMaterialData> Data = new List<MyPerMaterialData>();
         static readonly Dictionary<int, int> HashIndex = new Dictionary<int, int>();
@@ -19,7 +18,9 @@ namespace VRageRender
 
         internal unsafe static void Init()
         {
-            m_buffer = MyHwBuffers.CreateStructuredBuffer(4096, sizeof(MyPerMaterialData), true, null, "MySceneMaterials");
+            m_buffer = MyManagers.Buffers.CreateSrv(
+                "MySceneMaterials", 4096, sizeof(MyPerMaterialData),
+                usage: ResourceUsage.Dynamic);
         }
 
         internal static void PreFrame()
@@ -62,24 +63,17 @@ namespace VRageRender
 
         internal static void OnDeviceReset()
         {
-            if (m_buffer != StructuredBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(m_buffer);
-                m_buffer = StructuredBufferId.NULL;
-            }
+            if (m_buffer != null)
+                MyManagers.Buffers.Dispose(m_buffer); m_buffer = null;
+
             Init();
         }
 
-        internal unsafe static void MoveToGPU()
+        internal static unsafe void MoveToGPU()
         {
-            fixed (void* ptr = TransferData)
-            {
-                var intPtr = new IntPtr(ptr);
-
-                var mapping = MyMapping.MapDiscard(m_buffer.Buffer);
-                mapping.WriteAndPosition(TransferData, 0, sizeof(MyPerMaterialData) * TransferHashIndex.Count);
-                mapping.Unmap();
-            }
+            var mapping = MyMapping.MapDiscard(m_buffer);
+            mapping.WriteAndPosition(TransferData, sizeof(MyPerMaterialData) * TransferHashIndex.Count);
+            mapping.Unmap();
         }
     }
 }

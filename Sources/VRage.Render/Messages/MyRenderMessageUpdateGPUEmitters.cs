@@ -154,15 +154,6 @@ namespace VRageRender.Messages
         public int MaxParticles() { return (int)(ParticlesPerSecond * Data.ParticleLifeSpan) + 1;  }
     }
 
-    public struct MyGPUEmitterTransformUpdate
-    {
-        // unique identifier of the emitter, so render system can pair emitted particles with their emitter over multiple frames
-        public uint GID;
-
-        // world space position
-        public MatrixD Transform;
-    }
-
     public class MyRenderMessageUpdateGPUEmitters : MyRenderMessageBase
     {
         public MyGPUEmitter[] Emitters = null;

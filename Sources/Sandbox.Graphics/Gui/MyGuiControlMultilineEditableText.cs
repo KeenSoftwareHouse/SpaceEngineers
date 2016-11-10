@@ -34,7 +34,7 @@ namespace Sandbox.Graphics.GUI
             Vector2? position = null,
             Vector2? size = null,
             Vector4? backgroundColor = null,
-            MyFontEnum font = MyFontEnum.Blue,
+            string font = MyFontEnum.Blue,
             float textScale = MyGuiConstants.DEFAULT_TEXT_SCALE,
             MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
             StringBuilder contents = null,

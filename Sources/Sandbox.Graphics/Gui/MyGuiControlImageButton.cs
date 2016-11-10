@@ -60,8 +60,8 @@ namespace Sandbox.Gui
         public class StateDefinition
         {
             public MyGuiCompositeTexture Texture;
-            public MyFontEnum Font;
-            public MyFontEnum CornerTextFont;
+            public string Font;
+            public string CornerTextFont;
             public float CornerTextSize;
         }
 
@@ -383,12 +383,12 @@ namespace Sandbox.Gui
 
         public MyGuiDrawAlignEnum TextAlignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
 
-        public MyFontEnum TextFont;
+        public string TextFont;
 
         /// <summary>
         /// Corner text font.
         /// </summary>
-        public MyFontEnum CornerTextFont;
+        public string CornerTextFont;
 
         /// <summary>
         /// Corner text size where 1.0f is the standard size.

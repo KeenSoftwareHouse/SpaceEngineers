@@ -18,8 +18,14 @@ namespace VRage.Game
 
     public class MyTransparentGeometry
     {
-        public static VRageMath.MatrixD Camera;
-        public static VRageMath.MatrixD CameraView;
+        public static VRageMath.MatrixD Camera { get { return m_camera.WorldMatrix; } }
+        public static VRageMath.MatrixD CameraView { get { return m_camera.ViewMatrix; } }
+        
+        private static VRage.Game.Utils.MyCamera m_camera;
+        public static void SetCamera(VRage.Game.Utils.MyCamera camera)
+        {
+            m_camera = camera;
+        }
 
         public const int MAX_TRANSPARENT_GEOMETRY_COUNT = 50000;
 
@@ -160,7 +166,7 @@ namespace VRage.Game
 
             MyQuadD quad;
             Vector3 diff = MyTransparentGeometry.Camera.Translation - origin;
-            if (MyUtils.GetBillboardQuadAdvancedRotated(out quad, origin, radius, radius, angle, (origin + MyTransparentGeometry.Camera.Forward * diff.Length())) != false)
+            if (MyUtils.GetBillboardQuadAdvancedRotated(out quad, origin, radius, radius, angle, (origin + (Vector3D)MyTransparentGeometry.Camera.Forward * diff.Length())) != false)
             {
                 VRageRender.MyBillboard billboard = VRageRender.MyRenderProxy.BillboardsPoolWrite.Allocate();
                 if (billboard == null)
@@ -197,15 +203,13 @@ namespace VRage.Game
             Vector3 n0, Vector3 n1, Vector3 n2,
             Vector2 uv0, Vector2 uv1, Vector2 uv2,
             string material, int parentID, Vector3 worldPosition,
-            int priority = 0, bool colorize = false, bool window = true)
+            int priority = 0, bool colorize = false)
         {
             VRageRender.MyTriangleBillboard billboard = VRageRender.MyRenderProxy.TriangleBillboardsPoolWrite.Allocate();
             if (billboard == null)
                 return;
 
             var materialInstance = MyTransparentMaterials.GetMaterial(material);
-
-            billboard.Window = window;
 
             billboard.Position0 = p0;
             billboard.Position1 = p1;

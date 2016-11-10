@@ -454,7 +454,7 @@ namespace Sandbox.Game.Gui
             bool anyNaturalGravity = anyGravity && !Vector3.IsZero(naturalGravity);
 
             // Background and text drawing
-            MyFontEnum totalGravityFont, artificialGravityFont = MyFontEnum.Blue, naturalGravityFont = MyFontEnum.Blue;
+            string totalGravityFont, artificialGravityFont = MyFontEnum.Blue, naturalGravityFont = MyFontEnum.Blue;
             StringBuilder totalGravityText, artificialGravityText = null, naturalGravityText = null;
             MyGuiPaddedTexture backgroundTexture;
             if (anyGravity)
@@ -750,7 +750,7 @@ namespace Sandbox.Game.Gui
             Vector3D closestPoint = nearestPlanet.GetClosestSurfacePointGlobal(ref controlledEntityPosition);
             float distanceToSeaLevel = (float)Vector3D.Distance(closestPoint, controlledEntityPosition);
 
-            MyFontEnum altitudeFont = MyFontEnum.Blue;
+            string altitudeFont = MyFontEnum.Blue;
             var altitudeAlignment = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
             var altitude = distanceToSeaLevel;
 
@@ -1203,7 +1203,7 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void DrawNetgraphScaleForPacketScale(Vector2 position, int optimalLengthOfBarInPx, float optimalDataSizeOfBarInBytes, int stepCount, StringBuilder unitForScale, bool showIntervals, bool alignToRight = true, float textScale = 0.7f, MyFontEnum fontType = MyFontEnum.White)
+        private void DrawNetgraphScaleForPacketScale(Vector2 position, int optimalLengthOfBarInPx, float optimalDataSizeOfBarInBytes, int stepCount, StringBuilder unitForScale, bool showIntervals, bool alignToRight = true, float textScale = 0.7f, string fontType = MyFontEnum.White)
         {
             int step = optimalLengthOfBarInPx / stepCount;
             float stepValue = (float)(Math.Truncate((optimalDataSizeOfBarInBytes / stepCount) * 100.0) * 0.01f);
@@ -1259,7 +1259,7 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void DrawNetgraphScaleForAverageScale(Vector2 position, int optimalLengthOfBarInPx, float maximumValueOfScale, int stepCount, bool alignToRight = true, float textScale = 0.7f, MyFontEnum fontType = MyFontEnum.White)
+        private void DrawNetgraphScaleForAverageScale(Vector2 position, int optimalLengthOfBarInPx, float maximumValueOfScale, int stepCount, bool alignToRight = true, float textScale = 0.7f, string fontType = MyFontEnum.White)
         {
             int step = optimalLengthOfBarInPx / stepCount;
             float stepValue = (maximumValueOfScale) / stepCount;

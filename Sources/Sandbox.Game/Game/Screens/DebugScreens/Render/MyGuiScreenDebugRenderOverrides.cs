@@ -26,9 +26,11 @@ namespace Sandbox.Game.Screens.DebugScreens
         {
             base.RecreateControls(constructor);
 
+            m_scale = 0.7f;
+            m_sliderDebugScale = 0.7f;
+
             m_currentPosition = -m_size.Value / 2.0f + new Vector2(0.02f, 0.10f);
             m_currentPosition.Y += 0.01f;
-            m_scale = 0.7f;
 
             AddCaption("Overrides", Color.Yellow.ToVector4());
             AddShareFocusHint();

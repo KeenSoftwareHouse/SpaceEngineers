@@ -54,10 +54,11 @@ namespace VRageRender
                     new Vector2I(CubeMapResolution, CubeMapResolution), nProbe, MyRender11.Settings.EnvMapDepth);
             var viewProj = MatrixD.CreateTranslation(-m_position)*localViewProj;
 
-            cullQuery.AddForwardPass(ref localViewProj, ref viewProj,
+            cullQuery.AddForwardPass(nProbe, ref localViewProj, ref viewProj,
                 new MyViewport(0, 0, CubeMapResolution, CubeMapResolution), CubemapDepth.SubresourceDsv(nProbe),
                 m_workCubemap.SubresourceRtv(nProbe));
             cullQuery.FrustumCullQueries[cullQuery.Size - 1].Type = MyFrustumEnum.EnvironmentProbe;
+            cullQuery.FrustumCullQueries[cullQuery.Size - 1].Index = nProbe;
         }
 
         void PostprocessProbe(int nProbe)
@@ -78,8 +79,8 @@ namespace VRageRender
             }
             else if (blendWeight == 1)
             {
-                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered.Resource, m_prevWorkCubemapPrefiltered.Resource);
-                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered.Resource, Cubemap.Resource);
+                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered, m_prevWorkCubemapPrefiltered);
+                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered, Cubemap);
             }
         }
 
@@ -155,9 +156,8 @@ namespace VRageRender
                 MyGpuProfiler.IC_EndBlock();
 
                 MyGpuProfiler.IC_BeginBlock("CopyResource");
-                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered.Resource,
-                    m_prevWorkCubemapPrefiltered.Resource);
-                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered.Resource, Cubemap.Resource);
+                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered, m_prevWorkCubemapPrefiltered);
+                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered, Cubemap);
                 MyGpuProfiler.IC_EndBlock();
 
                 m_lastUpdateTime = MyRender11.CurrentDrawTime;

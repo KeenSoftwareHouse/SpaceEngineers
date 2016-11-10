@@ -538,7 +538,7 @@ namespace Sandbox.Game.Weapons
             {
                 CurrentEffect = 2;
             }
-            if (CurrentEffect == 2 && m_raycastComponent.HitCharacter != null)
+            if (CurrentEffect == 2 && (m_raycastComponent.HitCharacter != null || m_raycastComponent.HitEnvironmentSector != null))
                 CurrentEffect = 1;
 
             //MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "Updating effect!", Color.Red, 1.0f);

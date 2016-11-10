@@ -54,8 +54,16 @@ namespace Sandbox.Game.GUI.DebugInputComponents
             AddShortcut(MyKeys.Multiply, true, false, false, false, () => "Trigger: Rename", RenameTrigger);
             AddShortcut(MyKeys.T, true, true, false, false, () => "Copy camera data", CopyCameraDataToClipboard);
             AddShortcut(MyKeys.N, true, true, false, false, () => "Spawn empty entity", SpawnEntityDebug);
+            AddShortcut(MyKeys.B, true, true, false, false, () => "Reload Screen", ReloadScreen);
 
             m_lastCapturedCameraMatrix = MatrixD.Identity;
+        }
+
+        private bool ReloadScreen()
+        {
+            MyScreenManager.CloseScreen(typeof(MyGuiScreenNewGame));
+            MyScreenManager.AddScreen(new MyGuiScreenNewGame());
+            return true;
         }
 
         private bool ResetMissionsAndRunGameStarted()

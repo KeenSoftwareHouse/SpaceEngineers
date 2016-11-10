@@ -184,6 +184,7 @@
     <Compile Include="Collections\SerializableDictionaryHack.cs" />
     <Compile Include="Collections\SmallBitField.cs" />
     <Compile Include="Collections\ThreadSafeStore.cs" />
+    <Compile Include="Collections\TypeSwitch.cs" />
     <Compile Include="Collections\UniqueListReader.cs" />
     <Compile Include="Collections\MyBinaryHeap.cs" />
     <Compile Include="Collections\MySinglyLinkedList.cs" />

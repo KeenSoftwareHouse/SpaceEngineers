@@ -24,6 +24,7 @@ using BoundingFrustum = VRageMath.BoundingFrustum;
 using VRage.Collections;
 using VRage.OpenVRWrapper;
 using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
 
 
 namespace VRageRender
@@ -185,7 +186,7 @@ namespace VRageRender
             EndDrawGBufferPass(rc);
         }
 
-        internal static void DrawIndexedInstancedIndirectGBufferPass(MyRenderContext rc, Buffer bufferForArgsRef, int alignedByteOffsetForArgs)
+        internal static void DrawIndexedInstancedIndirectGBufferPass(MyRenderContext rc, IBuffer bufferForArgsRef, int alignedByteOffsetForArgs)
         {
             BeginDrawGBufferPass(rc);
             rc.DrawIndexedInstancedIndirect(bufferForArgsRef, alignedByteOffsetForArgs);
@@ -206,7 +207,7 @@ namespace VRageRender
             rc.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
         }
 
-        internal static void DrawIndexedInstancedIndirectGPUParticles(MyRenderContext rc, Buffer bufferForArgsRef, int alignedByteOffsetForArgs)
+        internal static void DrawIndexedInstancedIndirectGPUParticles(MyRenderContext rc, IBuffer bufferForArgsRef, int alignedByteOffsetForArgs)
         {
             rc.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstantsStereoLeftEye);
             SetViewport(rc, MyStereoRegion.LEFT);

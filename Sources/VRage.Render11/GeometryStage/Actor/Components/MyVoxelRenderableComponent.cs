@@ -137,8 +137,9 @@ namespace VRageRender
             renderableProxy.VoxelCommonObjectData.VoxelOffset = m_voxelOffset;
             renderableProxy.VoxelCommonObjectData.MassiveCenterRadius = Vector4.Zero; // Set in UpdateLodState
             renderableProxy.VoxelCommonObjectData.VoxelScale = m_voxelScale;
+            renderableProxy.CommonObjectData.LOD = (uint)m_voxelLod;
 
-            MyStringId shaderMaterial = MyStringId.GetOrCompute(MyMaterialShaders.MapTechniqueToShaderMaterial(technique));
+            MyStringId shaderMaterial = MyMaterialShaders.MapTechniqueToShaderMaterial(technique);
 
             Mesh.AssignLodMeshToProxy(renderableProxy);
             AssignShadersToProxy(renderableProxy, shaderMaterial, lod.VertexLayout1, lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | MyShaderUnifiedFlags.DITHERED);
@@ -189,7 +190,7 @@ namespace VRageRender
 
             My64BitValueHelper.SetBits(ref sortingKey, 36, 2, (ulong)lod.RenderableProxies[proxyIndex].Type);
             My64BitValueHelper.SetBits(ref sortingKey, 32, 4, (ulong)drawSubmesh.MaterialId.Index);
-            My64BitValueHelper.SetBits(ref sortingKey, 26, 6, (ulong)MyShaderMaterial.GetID(MyMaterialShaders.MapTechniqueToShaderMaterial(technique)));
+            My64BitValueHelper.SetBits(ref sortingKey, 26, 6, (ulong)MyShaderMaterial.GetID(MyMaterialShaders.MapTechniqueToShaderMaterial(technique).String));
             My64BitValueHelper.SetBits(ref sortingKey, 22, 4, (ulong)m_voxelLod);
             My64BitValueHelper.SetBits(ref sortingKey, 16, 6, (ulong)lod.VertexShaderFlags);
             //My64BitValueHelper.SetBits(ref sortingKey, 14, 6, (ulong)lod.VertexLayout1.Index);
@@ -225,6 +226,7 @@ namespace VRageRender
                     foreach (MyRenderableProxy renderableProxy in lod.RenderableProxies)
                     {
                         renderableProxy.VoxelCommonObjectData.MassiveCenterRadius = massiveCenterRadius;
+                        renderableProxy.CommonObjectData.LOD =(uint)m_voxelLod;
                     }
                 }
             }

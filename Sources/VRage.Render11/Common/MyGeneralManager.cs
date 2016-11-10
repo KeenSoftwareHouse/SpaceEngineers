@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using VRage.Render11.Resources;
 using VRageRender;
 
@@ -36,7 +37,7 @@ namespace VRage.Render11.Common
 
             if (manager is IManagerDevice)
             {
-                IManagerDevice managerDevice = (IManagerDevice) manager;
+                IManagerDevice managerDevice = (IManagerDevice)manager;
                 if (m_deviceState == MyGeneralManagerState.INIT)
                     managerDevice.OnDeviceEnd();
             }
@@ -54,7 +55,7 @@ namespace VRage.Render11.Common
                 if (manager is IManagerDevice)
                     ((IManagerDevice)manager).OnDeviceInit();
             }
-    }
+        }
 
         public void OnDeviceReset()
         {
@@ -73,7 +74,7 @@ namespace VRage.Render11.Common
             if (m_deviceState == MyGeneralManagerState.NOT_INIT)
                 return;
 
-            foreach (IManager manager in m_allManagers)
+            foreach (IManager manager in Enumerable.Reverse(m_allManagers))
             {
                 if (manager is IManagerDevice)
                     ((IManagerDevice)manager).OnDeviceEnd();
@@ -83,7 +84,7 @@ namespace VRage.Render11.Common
 
         public void OnUnloadData()
         {
-            foreach (IManager manager in m_allManagers)
+            foreach (IManager manager in Enumerable.Reverse(m_allManagers))
             {
                 if (manager is IManagerCallback)
                     ((IManagerCallback)manager).OnUnloadData();
@@ -95,7 +96,16 @@ namespace VRage.Render11.Common
             foreach (IManager manager in m_allManagers)
             {
                 if (manager is IManagerCallback)
-                    ((IManagerCallback) manager).OnFrameEnd();
+                    ((IManagerCallback)manager).OnFrameEnd();
+            }
+        }
+
+        public void OnUpdate()
+        {
+            foreach (IManager manager in m_allManagers)
+            {
+                if (manager is IManagerUpdate)
+                    ((IManagerUpdate)manager).OnUpdate();
             }
         }
     }

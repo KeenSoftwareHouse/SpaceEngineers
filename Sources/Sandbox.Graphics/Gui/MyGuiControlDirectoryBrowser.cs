@@ -215,6 +215,9 @@ namespace Sandbox.Gui.DirectoryBrowser
         // Handles doubleclicks on per item basis
         private void OnItemDoubleClicked(MyGuiControlTable myGuiControlTable, EventArgs eventArgs)
         {
+            if (eventArgs.RowIndex >= RowsCount)
+                return;
+
             var row = GetRow(eventArgs.RowIndex);
             
             if(row == null) return;

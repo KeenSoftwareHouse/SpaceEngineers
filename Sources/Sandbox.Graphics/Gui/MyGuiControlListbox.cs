@@ -18,8 +18,8 @@ namespace Sandbox.Graphics.GUI
         #region Styles
         public class StyleDefinition
         {
-            public MyFontEnum ItemFontHighlight;
-            public MyFontEnum ItemFontNormal;
+            public string ItemFontHighlight;
+            public string ItemFontNormal;
             public Vector2 ItemSize;
             public string ItemTextureHighlight;
 
@@ -191,7 +191,7 @@ namespace Sandbox.Graphics.GUI
             public readonly string Icon;
             public readonly MyToolTips ToolTip;
             public readonly object UserData;
-            public MyFontEnum? FontOverride;
+            public string FontOverride;
             public Vector4 ColorMask = Vector4.One;
             public bool Visible {
                 get 
@@ -213,7 +213,7 @@ namespace Sandbox.Graphics.GUI
             /// <summary>
             /// Do not construct directly. Use AddItem on listbox for that.
             /// </summary>
-            public Item(StringBuilder text = null, String toolTip = null, string icon = null, object userData = null, MyFontEnum? fontOverride = null)
+            public Item(StringBuilder text = null, String toolTip = null, string icon = null, object userData = null, string fontOverride = null)
             {
                 Text         = new StringBuilder((text != null) ? text.ToString() : "");
                 ToolTip      = (toolTip != null) ? new MyToolTips(toolTip) : null;
@@ -223,7 +223,7 @@ namespace Sandbox.Graphics.GUI
                 Visible      = true;
             }
             //same as above, but designed to have realtime updates of text inside. So no copy of text :-)
-            public Item(ref StringBuilder text, String toolTip = null, string icon = null, object userData = null, MyFontEnum? fontOverride = null)
+            public Item(ref StringBuilder text, String toolTip = null, string icon = null, object userData = null, string fontOverride = null)
             {
                 Text = text;
                 ToolTip = (toolTip != null) ? new MyToolTips(toolTip) : null;
@@ -444,7 +444,7 @@ namespace Sandbox.Graphics.GUI
                 {
                     Color color     = ApplyColorMaskModifiers(item.ColorMask * ColorMask, Enabled, transitionAlpha);
                     bool isHighlit  = SelectedItems.Contains(item) || item == m_mouseOverItem;
-                    MyFontEnum font = item.FontOverride ?? (isHighlit ? m_styleDef.ItemFontHighlight : m_styleDef.ItemFontNormal);
+                    string font = item.FontOverride ?? (isHighlit ? m_styleDef.ItemFontHighlight : m_styleDef.ItemFontNormal);
 
                     
                     if (isHighlit)
@@ -691,6 +691,11 @@ namespace Sandbox.Graphics.GUI
                     maxlen = item.Text.Length;
 
             return maxlen*itemStep;
+        }
+
+        public bool IsOverScrollBar()
+        {
+            return m_scrollBar.IsOverCaret;
         }
 
         private void RefreshInternals()

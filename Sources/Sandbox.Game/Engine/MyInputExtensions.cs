@@ -21,8 +21,8 @@ namespace VRage.Input
         public static float GetDeveloperRoll(this IMyInput self)
         {
             float roll = 0f;
-            roll += self.IsKeyPress(MyKeys.Q) ? -1f : 0f;
-            roll += self.IsKeyPress(MyKeys.E) ?  1f : 0f;
+            roll += self.IsGameControlPressed(MyControlsSpace.ROLL_LEFT) ? -1f : 0f;
+            roll += self.IsGameControlPressed(MyControlsSpace.ROLL_RIGHT) ?  1f : 0f;
             return roll;
         }
 

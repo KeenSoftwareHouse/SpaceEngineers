@@ -27,7 +27,7 @@ cbuffer SSAO_params : register( b1 )
 };
 
 float2 view_to_screenspace(float3 pos) {
-	float4 projected = mul(float4(pos, 1), frame_.projection_matrix);
+	float4 projected = mul(float4(pos, 1), frame_.Environment.projection_matrix);
 	float2 clipspace = projected.xy / projected.w;
 	clipspace.y *= -1;
 	return clipspace * 0.5 + 0.5;
@@ -67,10 +67,10 @@ float ao_batch4(int i, float2 rot, float3 position, float3 T, float3 B, float ra
 		[unroll] for(j=0; j<4; j++) {
 			// this complex calculation is placed here because of stero rendering
 			// the calculation modifies screencord to proper place in gbuffer
-			float2 screencoord = (frame_.offset_in_gbuffer + clamp(occlProjPos[j] * frame_.resolution, 0, frame_.resolution - 1)) / frame_.resolution_of_gbuffer;
+			float2 screencoord = (frame_.Screen.offset_in_gbuffer + clamp(occlProjPos[j] * frame_.Screen.resolution, 0, frame_.Screen.resolution - 1)) / frame_.Screen.resolution_of_gbuffer;
 
 			float nonlinearDepth = DepthResolved.SampleLevel(PointSampler, screencoord, 0).x;
-			zi[j] = -linearize_depth(nonlinearDepth, frame_.projection_matrix);
+			zi[j] = -linearize_depth(nonlinearDepth, frame_.Environment.projection_matrix);
 		}
 	
 // compute ao portion of the sample	
@@ -145,7 +145,7 @@ float4 __pixel_shader(PostprocessVertex input) : SV_Target0
 	float	bias	= radius * radius_bias;
 
 	float3 N = gbuffer.N;
-	N = normalize(mul(N, (float3x3)frame_.view_matrix));
+	N = normalize(mul(N, (float3x3)frame_.Environment.view_matrix));
 
 	float2	rndrot;		
 	float	noise	= dot(testPixel, float2(8.1,5.7));		
@@ -166,12 +166,12 @@ float4 __pixel_shader(PostprocessVertex input) : SV_Target0
 	if(gbuffer.native_depth == DEPTH_CLEAR)
 		discard;
 
-	//float vignette = input.position - frame_.resolution;
+	//float vignette = input.position - frame_.Screen.resolution;
 
 	// unimportant calculation
 /*	float margin = 1.f;
 	float2 vignette_dist = saturate(input.position.xy / margin);
-	vignette_dist = min(vignette_dist, saturate((frame_.resolution - input.position.xy - frame_.offset_in_gbuffer) / margin));
+	vignette_dist = min(vignette_dist, saturate((frame_.Screen.resolution - input.position.xy - frame_.Screen.offset_in_gbuffer) / margin));
 	float vignette = min(vignette_dist.x, vignette_dist.y);
 	*/
 	float depth = gbuffer.depth;
@@ -181,7 +181,7 @@ float4 __pixel_shader(PostprocessVertex input) : SV_Target0
 	float3 B = float3(0,1,0);
 	
 // view space normal	
-	N = normalize(mul(N, (float3x3)frame_.view_matrix));
+	N = normalize(mul(N, (float3x3)frame_.Environment.view_matrix));
 
     float	radius = lerp(min_radius, max_radius, 1 - pow(abs(radius_grow), -depth));
 	float	bias	= radius * radius_bias;

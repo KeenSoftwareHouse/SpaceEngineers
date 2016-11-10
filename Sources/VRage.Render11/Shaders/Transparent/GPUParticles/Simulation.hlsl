@@ -36,8 +36,8 @@ void __compute_shader(uint3 id : SV_DispatchThreadID)
     // If the partile is alive
     if (pa.Age > 0.0f)
     {    
-        pa.Position -= frame_.cameraPositionDelta;
-        pa.Origin -= frame_.cameraPositionDelta;
+        pa.Position -= frame_.Environment.cameraPositionDelta;
+        pa.Origin -= frame_.Environment.cameraPositionDelta;
 
         pa = Simulate(pa, frame_.frameTimeDelta);
 

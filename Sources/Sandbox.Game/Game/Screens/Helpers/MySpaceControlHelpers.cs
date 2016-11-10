@@ -216,7 +216,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override void Activate()
         {
-            MySandboxGame.UserPauseToggle();
+            MySandboxGame.PauseToggle();
         }
     }
 

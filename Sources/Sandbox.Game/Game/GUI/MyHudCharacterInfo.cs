@@ -388,14 +388,14 @@ namespace Sandbox.Game.Gui
             energyItem.Value.Clear().AppendDecimal((float)Math.Round(BatteryEnergy, 1), 1).Append(" %");
             healthItem.Value.Clear().AppendDecimal(HealthRatio * 100f, 0).Append(" %");
             inventoryItem.Value.Clear().AppendDecimal((double)InventoryVolume * 1000, 0).Append(" l");
-            energyItem.NameFont = energyItem.ValueFont = IsBatteryEnergyLow ? (MyFontEnum?)MyFontEnum.Red : null;
-            healthItem.NameFont = healthItem.ValueFont = IsHealthLow ? (MyFontEnum?)MyFontEnum.Red : null;
+            energyItem.NameFont = energyItem.ValueFont = IsBatteryEnergyLow ? MyFontEnum.Red : null;
+            healthItem.NameFont = healthItem.ValueFont = IsHealthLow ? MyFontEnum.Red : null;
             if (!MySession.Static.CreativeMode)
-                inventoryItem.NameFont = inventoryItem.ValueFont = IsInventoryFull ? (MyFontEnum?)MyFontEnum.Red : null;
+                inventoryItem.NameFont = inventoryItem.ValueFont = IsInventoryFull ? MyFontEnum.Red : null;
 
             items[(int)LineEnum.BroadcastRange].Value.Clear().AppendDecimal(BroadcastRange, 0).Append(" m");
 
-            oxygenItem.NameFont = oxygenItem.ValueFont = IsOxygenLevelLow ? (MyFontEnum?)MyFontEnum.Red : null;
+            oxygenItem.NameFont = oxygenItem.ValueFont = IsOxygenLevelLow ? MyFontEnum.Red : null;
             oxygenItem.Visible = MySession.Static.Settings.EnableOxygen;
 
             var character = MySession.Static.LocalCharacter;

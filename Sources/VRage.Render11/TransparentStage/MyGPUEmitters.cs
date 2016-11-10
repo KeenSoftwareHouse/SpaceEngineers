@@ -130,18 +130,32 @@ namespace VRageRender
                 else MyRenderProxy.Assert(false, "invalid emitter id: " + def[i].GID);
             }
         }
-        internal static void UpdateTransforms(uint[] GIDs, MatrixD[] transforms)
+        internal static void UpdateTransforms(MyGPUEmitterTransformUpdate[] emitters)
         {
-            MyRenderProxy.Assert(GIDs.Length == transforms.Length);
-            for (int i = 0; i < GIDs.Length; i++)
+            for (int i = 0; i < emitters.Length; i++)
             {
                 MyLiveData emitter;
-                if (m_emitters.TryGetValue(GIDs[i], out emitter))
+                if (m_emitters.TryGetValue(emitters[i].GID, out emitter))
                 {
-                    emitter.GPUEmitter.WorldPosition = transforms[i].Translation;
-                    emitter.GPUEmitter.Data.RotationMatrix = MatrixD.Transpose(transforms[i]);
+                    emitter.GPUEmitter.WorldPosition = emitters[i].Transform.Translation;
+                    emitter.GPUEmitter.Data.RotationMatrix = MatrixD.Transpose(emitters[i].Transform);
+                    emitter.GPUEmitter.Data.Gravity = emitters[i].Gravity;
+                    emitter.GPUEmitter.Data.Scale = emitters[i].Scale;
+                    emitter.GPUEmitter.ParticlesPerSecond = emitters[i].ParticlesPerSecond;
                 }
-                else MyRenderProxy.Assert(false, "invalid emitter id: " + GIDs[i]);
+                else MyRenderProxy.Assert(false, "invalid emitter id: " + emitters[i].GID);
+            }
+        }
+        internal static void UpdateLight(MyGPUEmitterLight[] emitters)
+        {
+            for (int i = 0; i < emitters.Length; i++)
+            {
+                MyLiveData emitter;
+                if (m_emitters.TryGetValue(emitters[i].GID, out emitter))
+                {
+                    emitter.GPUEmitter.ParticlesPerSecond = emitters[i].ParticlesPerSecond;
+                }
+                else MyRenderProxy.Assert(false, "invalid emitter id: " + emitters[i].GID);
             }
         }
         internal static void ReloadTextures()
@@ -229,7 +243,7 @@ namespace VRageRender
                         texts = GetTextureArrayFileList();
                     }
                     if (texts.Length > 0)
-                        m_textureArray = arrayManager.CreateFromFiles("gpuParticles", texts, MyFileTextureEnum.GPUPARTICLES);
+                        m_textureArray = arrayManager.CreateFromFiles("gpuParticles", texts, MyFileTextureEnum.GPUPARTICLES, "", false);
                 }
 
                 m_textureArrayDirty = false;

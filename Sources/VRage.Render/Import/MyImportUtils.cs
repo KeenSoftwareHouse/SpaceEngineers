@@ -19,7 +19,8 @@ namespace VRageRender.Import
         FOLIAGE,                    // Alpha masked foliage
 
         //Leave decal type last because it is alpha blended, meshes are sorted by this enum
-        DECAL,                      //  Decal with alpha blending
+        DECAL,                      //  Decal with alpha blending (premultiplied alpha)
+        DECAL_NOPREMULT,            //  Decal with alpha blending (no premultiplied alpha)
         DECAL_CUTOUT,               //  Decal with alpha cutout
         HOLO,                       //  Advanced type of blended object, it has some special features decal doesnt have (cull none, no physics, sorting..)
 

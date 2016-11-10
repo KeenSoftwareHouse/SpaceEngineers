@@ -223,14 +223,14 @@ namespace Sandbox.Game.EntityComponents
         private void thrust_EnabledChanged(MyTerminalBlock obj)
         {
             MarkDirty();
-            if (!CubeGrid.Physics.RigidBody.IsActive)
+            if (CubeGrid.Physics != null && !CubeGrid.Physics.RigidBody.IsActive)
                 CubeGrid.ActivatePhysics();
         }
 
         private void ComponentStack_IsFunctionalChanged()
         {
             MarkDirty();
-            if (!CubeGrid.Physics.RigidBody.IsActive)
+            if (CubeGrid.Physics != null && !CubeGrid.Physics.RigidBody.IsActive)
                 CubeGrid.ActivatePhysics();
         }
 
@@ -309,8 +309,8 @@ namespace Sandbox.Game.EntityComponents
             var thruster = thrustEntity as MyThrust;
             if (thruster == null)
                 return 0f;
-
-            return thruster.BlockDefinition.ForceMagnitude * CalculateForceMultiplier(thruster, planetaryInfluence, inAtmosphere);
+            float thrustMultiplayer = (thrustEntity is ModAPI.IMyThrust) ? (thrustEntity as ModAPI.IMyThrust).ThrustMultiplier : 1f;
+            return thruster.BlockDefinition.ForceMagnitude * thrustMultiplayer * CalculateForceMultiplier(thruster, planetaryInfluence, inAtmosphere);
         }
 
         protected override float MaxPowerConsumption(MyEntity thrustEntity)

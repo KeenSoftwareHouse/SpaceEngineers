@@ -15,6 +15,7 @@ namespace VRageRender
     public struct MyRenderDeviceSettings : IEquatable<MyRenderDeviceSettings>
     {
         public int AdapterOrdinal;
+        public int NewAdapterOrdinal; // A new value for the adapter that will be used after a restart
         public MyWindowModeEnum WindowMode;
         public int BackBufferWidth;
         public int BackBufferHeight;
@@ -40,6 +41,7 @@ namespace VRageRender
         public MyRenderDeviceSettings(int adapter, MyWindowModeEnum windowMode, int width, int height, int refreshRate, bool vsync, bool useStereoRendering, bool settingsMandatory)
         {
             this.AdapterOrdinal = adapter;
+            this.NewAdapterOrdinal = adapter;
             this.WindowMode = windowMode;
             this.BackBufferWidth = width;
             this.BackBufferHeight = height;
@@ -109,6 +111,7 @@ namespace VRageRender
         public static readonly MyRenderSettings Default;
 
         public const int EnvMapResolution = 256; // it needs to be initialised on the game startup (it cannot be changed runtime)
+        public bool UseGeometryArrayTextures; // it needs to be initialised on the game startup (it cannot be changed during game)
 
         public bool EnableHWOcclusionQueries;
 
@@ -145,10 +148,6 @@ namespace VRageRender
         public bool DebugClipmapLodColor;
         public bool SkipLodUpdates;
 
-        public bool EnableVoxelAo;
-        public float VoxelAoMin;
-        public float VoxelAoMax;
-        public float VoxelAoOffset;
         public MyRenderQualityEnum VoxelQuality;
 
         public bool EnableVoxelMerging;
@@ -184,7 +183,7 @@ namespace VRageRender
         public bool DisplayGbufferNormalView;
         public bool DisplayGbufferGlossiness;
         public bool DisplayGbufferMetalness;
-        public bool DisplayGbufferMaterialID;
+        public bool DisplayGbufferLOD;
         public bool DisplayGbufferAO;
         public bool DisplayEmissive;
         public bool DisplayEdgeMask;
@@ -286,6 +285,8 @@ namespace VRageRender
         {
             Default = new MyRenderSettings()
             {
+                UseGeometryArrayTextures = false,
+
                 EnableHWOcclusionQueries = true,
                 SkipLOD_NEAR = false,
                 SkipLOD_0 = false,
@@ -312,10 +313,6 @@ namespace VRageRender
                 DebugRenderClipmapCells = false,
                 DebugClipmapLodColor = false,
                 SkipLodUpdates = false,
-                EnableVoxelAo = true,
-                VoxelAoMin = 0.600f,
-                VoxelAoMax = 1.000f,
-                VoxelAoOffset = 0.210f,
                 VoxelQuality = MyRenderQualityEnum.NORMAL,
                 EnableVoxelMerging = false,
                 Wireframe = false,
@@ -340,7 +337,7 @@ namespace VRageRender
                 DisplayGbufferNormalView = false,
                 DisplayGbufferGlossiness = false,
                 DisplayGbufferMetalness = false,
-                DisplayGbufferMaterialID = false,
+                DisplayGbufferLOD = false,
                 DisplayGbufferAO = false,
                 DisplayEmissive = false,
                 DisplayEdgeMask = false,
@@ -480,6 +477,7 @@ namespace VRageRender
 
         //Dx11; All new renderers should be designed with these in mind.
         public MyAntialiasingMode AntialiasingMode;
+        public bool AmbientOcclusionEnabled;
         public MyShadowsQuality ShadowQuality;
         //public bool TonemappingEnabled;
         public MyTextureQuality TextureQuality;
@@ -501,6 +499,7 @@ namespace VRageRender
                 VoxelQuality == other.VoxelQuality &&
                 AntialiasingMode == other.AntialiasingMode &&
                 ShadowQuality == other.ShadowQuality &&
+                AmbientOcclusionEnabled == other.AmbientOcclusionEnabled &&
              //   TonemappingEnabled == other.TonemappingEnabled &&
                 TextureQuality == other.TextureQuality &&
                 AnisotropicFiltering == other.AnisotropicFiltering &&

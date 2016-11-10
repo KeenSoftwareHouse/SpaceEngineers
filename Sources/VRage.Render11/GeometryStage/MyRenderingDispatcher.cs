@@ -6,6 +6,8 @@ using System.Diagnostics;
 using VRage;
 using VRage.Generics;
 using VRage.Profiler;
+using VRage.Import;
+using VRageRender.Import;
 using VRage.Render11.Common;
 
 namespace VRageRender
@@ -107,15 +109,23 @@ namespace VRageRender
                         MyRenderableProxy renderableProxy = renderableProxies[proxyIndex];
                         ulong sortKey = cullProxy.SortingKeys[proxyIndex];
 
+                        var item = new MyRenderCullResultFlat
+                        {
+                            SortKey = sortKey,
+                            RenderProxy = renderableProxy,
+                        };
+
+                        if (renderableProxy.Material != MyMeshMaterialId.NULL && renderableProxy.Material.Info.Technique == MyMeshDrawTechnique.GLASS)
+                        {
+                            if (queryType == MyFrustumEnum.MainFrustum)
+                                MyStaticGlassRenderer.Renderables.Add(item);
+
+                            continue;
+                        }
+
                         for (int queueIndex = 0; queueIndex < m_affectedQueueIds.Count; ++queueIndex)
                         {
                             var queueId = m_affectedQueueIds[queueIndex];
-                            var item = new MyRenderCullResultFlat
-                            {
-                                SortKey = sortKey,
-                                RenderProxy = renderableProxy,
-                            };
-
                             m_passElements[queueId].Add(item);
                         }
                     }

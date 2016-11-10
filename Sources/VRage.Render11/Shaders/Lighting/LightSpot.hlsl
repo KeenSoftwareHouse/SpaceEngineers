@@ -49,7 +49,7 @@ void __pixel_shader(float4 svPos : SV_Position, out float3 output : SV_Target0
 
     clip(ldac);
 
-    float4 smPos = mul(float4(surface.position - frame_.eye_offset_in_world, 1), Spotlight.shadowMatrix);
+    float4 smPos = mul(float4(surface.position - frame_.Environment.eye_offset_in_world, 1), Spotlight.shadowMatrix);
     smPos /= smPos.w;
     float3 mask = ReflectorMask.Sample(TextureSampler, smPos.xy);
 
@@ -77,10 +77,10 @@ void __pixel_shader(float4 svPos : SV_Position, out float3 output : SV_Target0
 			shadow += SpotlightShadowmap.SampleCmpLevelZero(ShadowmapSampler, smPos.xy + PCF_SHADOW_SAMPLES[i].xy / 512.f, smPos.z) * PCF_SHADOW_SAMPLES[i].z;
 		}
 
-        shadow = 1 - (1 - shadow) * (1 - frame_.shadowFadeout);
+        shadow = 1 - (1 - shadow) * (1 - frame_.Light.shadowFadeout);
 	}
 
-    float ao = saturate(1 - (1 - surface.ao) * frame_.aoSpotLight);
+    float ao = saturate(1 - (1 - surface.ao) * frame_.Light.aoSpotLight);
     float3 light_factor = falloff * attenuation * mask * shadow * ao;
     output = light_factor * calculate_light(surface, L, Spotlight.color, Spotlight.glossFactor, Spotlight.diffuseFactor);
 }

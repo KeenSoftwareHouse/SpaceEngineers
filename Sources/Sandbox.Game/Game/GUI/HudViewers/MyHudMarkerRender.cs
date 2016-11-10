@@ -525,7 +525,7 @@ namespace Sandbox.Game.GUI.HudViewers
             /// <param name="color"></param>
             /// <param name="fontColor"></param>
             /// <param name="font"></param>
-            public void GetColorAndFontForRelationship(MyRelationsBetweenPlayerAndBlock relationship, out Color color, out Color fontColor, out MyFontEnum font)
+            public void GetColorAndFontForRelationship(MyRelationsBetweenPlayerAndBlock relationship, out Color color, out Color fontColor, out string font)
             {
                 color = Color.White;
                 fontColor = Color.White;
@@ -561,7 +561,7 @@ namespace Sandbox.Game.GUI.HudViewers
             /// <param name="poiColor">The colour of the POI.</param>
             /// <param name="fontColor">The colour that should be used with this font.</param>
             /// <param name="font">The font to be used for this POI.</param>
-            public void GetPOIColorAndFontInformation(out Color poiColor, out Color fontColor, out MyFontEnum font)
+            public void GetPOIColorAndFontInformation(out Color poiColor, out Color fontColor, out string font)
             {
                 poiColor = Color.White;
                 fontColor = Color.White;
@@ -657,7 +657,7 @@ namespace Sandbox.Game.GUI.HudViewers
                 //ProfilerShort.BeginNextBlock("Obtain style");
                 Color markerColor = Color.White;
                 Color fontColor = Color.White;
-                MyFontEnum font = MyFontEnum.White;
+                string font = MyFontEnum.White;
                 GetPOIColorAndFontInformation(out markerColor, out fontColor, out font);
 
                 //  This will bound the rectangle in circle, although it isn't real circle because we work in [0,1] dimensions, 

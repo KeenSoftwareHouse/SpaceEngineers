@@ -2,6 +2,7 @@
 using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
 using Buffer = SharpDX.Direct3D11.Buffer;
@@ -154,11 +155,13 @@ namespace VRageRender
 
         internal int Lod;
 
-        internal Buffer ObjectBuffer; // different if instancing component/skinning components are on
+        internal IConstantBuffer ObjectBuffer; // different if instancing component/skinning components are on
 
         internal MyActorComponent Parent;
 
         internal MyMeshMaterialId Material;
+        // Used to know what materials have been omitted after geometry part merging
+        internal HashSet<string> UnusedMaterials;
 
 #if XB1
         public void ObjectCleaner()
@@ -197,13 +200,15 @@ namespace VRageRender
             ObjectBuffer = null;
             Parent = null;
             Material = MyMeshMaterialId.NULL;
+            UnusedMaterials = UnusedMaterials ?? new HashSet<string>();
+            UnusedMaterials.Clear();
         }
 	};
 
     struct MyConstantsPack
     {
         internal byte[] Data;
-        internal Buffer CB;
+        internal IConstantBuffer CB;
         internal int Version;
         internal MyBindFlag BindFlag;
 
@@ -230,7 +235,7 @@ namespace VRageRender
     struct MySrvTable
     {
         internal int StartSlot;
-        internal ShaderResourceView[] Srvs;
+        internal ISrvBindable[] Srvs;
         internal MyBindFlag BindFlag;
         internal int Version;
     }

@@ -601,7 +601,9 @@ namespace Sandbox.Game
             }
         }
 
-        void ApplyExplosionOnVoxel(ref MyExplosionInfo explosionInfo)   
+        private static HashSet<MyVoxelBase> m_VoxelsToCutTmp = new HashSet<MyVoxelBase>(); 
+
+        void ApplyExplosionOnVoxel(ref MyExplosionInfo explosionInfo)
         {
             if (MySession.Static.EnableVoxelDestruction == false)
             {
@@ -618,15 +620,14 @@ namespace Sandbox.Game
 
                 //  If explosion sphere intersects a voxel map, we need to cut out a sphere, spawn debrises, etc
                 List<MyVoxelBase> voxelMaps = MySession.Static.VoxelMaps.GetAllOverlappingWithSphere(ref m_explosionSphere);
-                voxelMaps.Sort(delegate(MyVoxelBase x, MyVoxelBase y) {
-                    return y.GetOrePriority() - x.GetOrePriority();
-                });
 
-                foreach(var voxelMap in voxelMaps)
+                for (int i = voxelMaps.Count - 1; i > 0; --i)
                 {
-                    // If the voxel is to be ignored.
-                    if (voxelMap.GetOrePriority() == MyVoxelConstants.PRIORITY_IGNORE_EXTRACTION) continue;
+                    m_VoxelsToCutTmp.Add(voxelMaps[i].RootVoxel);
+                }
 
+                foreach (var voxelMap in m_VoxelsToCutTmp)
+                {
                     bool createDebris = first; // We want to create debris
                     /*
                     if (explosionInfo.HitEntity != null) // but not when we hit prefab
@@ -643,6 +644,8 @@ namespace Sandbox.Game
 
                     first = false;
                 }
+
+                m_VoxelsToCutTmp.Clear();
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
 

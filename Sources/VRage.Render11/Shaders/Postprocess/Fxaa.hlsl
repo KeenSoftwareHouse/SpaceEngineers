@@ -15,7 +15,7 @@ float4 __pixel_shader(PostprocessVertex input) : SV_Target0
 	FxaaTex tex = { LinearSampler, Source };
 
 	float3 result = FxaaPixelShader( input.uv, 0, tex, tex, tex, 
-		1/frame_.resolution, 0, 0, 0, 
+		1/frame_.Screen.resolution, 0, 0, 0, 
 		1, // try 1, sth about subpixel
 		0.125,
 		0.0625,

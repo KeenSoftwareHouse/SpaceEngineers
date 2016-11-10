@@ -2174,7 +2174,7 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Notifications")]
         [VisualScriptingMember(true)]
-        public static void ShowNotification(string message, int disappearTimeMs, MyFontEnum font = MyFontEnum.White, long playerId = 0)
+        public static void ShowNotification(string message, int disappearTimeMs, string font = MyFontEnum.White, long playerId = 0)
         {
             if(playerId == 0)
             {
@@ -2194,7 +2194,7 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Notifications")]
         [VisualScriptingMember(true)]
-        public static void SendChatMessage(string message, string author = "", long playerId = 0, MyFontEnum font = MyFontEnum.Blue)
+        public static void SendChatMessage(string message, string author = "", long playerId = 0, string font = MyFontEnum.Blue)
         {
             ScriptedChatMsg msg;
             msg.Text = message;
@@ -2205,7 +2205,7 @@ namespace Sandbox.Game
         }
 
         [Event, Reliable, Client]
-        private static void ShowNotificationSync(string message, int disappearTimeMs, MyFontEnum font = MyFontEnum.White)
+        private static void ShowNotificationSync(string message, int disappearTimeMs, string font = MyFontEnum.White)
         {
             if (MyAPIGateway.Utilities != null)
                 MyAPIGateway.Utilities.ShowNotification(message, disappearTimeMs, font);
@@ -2213,7 +2213,7 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Notifications")]
         [VisualScriptingMember(true)]
-        public static int AddNotification(string message, MyFontEnum font = MyFontEnum.White, long playerId = 0)
+        public static int AddNotification(string message, string font = MyFontEnum.White, long playerId = 0)
         {
             var messageId = MyStringId.GetOrCompute(message);
             foreach (var pair in m_addedNotificationsById)
@@ -2234,7 +2234,7 @@ namespace Sandbox.Game
         }
 
         [Event, Reliable, Client]
-        private static void AddNotificationSync(MyStringId message, MyFontEnum font, int notificationId)
+        private static void AddNotificationSync(MyStringId message, string font, int notificationId)
         {
             var notification = new MyHudNotification(message, 0, font);
             MyHud.Notifications.Add(notification);
@@ -2801,7 +2801,10 @@ namespace Sandbox.Game
                     cubeGrids.Add(cubeGrid);
                 }
             }
-
+            if (!MySandboxGame.IsDedicated)
+            {
+                MyHud.PushRotatingWheelVisible();
+            }
             MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.TryPasteGrid_Implementation, cubeGrids, false, ownerId, Vector3.Zero, false, true);
         }
 

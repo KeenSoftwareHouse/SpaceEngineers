@@ -423,6 +423,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SetTransparencyForSubparts(MyEntity renderEntity, float transparency)
         {
+            renderEntity.Render.CastShadows = false;
 
             if (renderEntity.Subparts == null)
                 return;
@@ -430,6 +431,7 @@ namespace Sandbox.Game.Entities.Blocks
             foreach (var subpart in renderEntity.Subparts)
             {
                 subpart.Value.Render.Transparency = transparency;
+                subpart.Value.Render.CastShadows = false;
                 subpart.Value.Render.RemoveRenderObjects();
                 subpart.Value.Render.AddRenderObjects();
 
@@ -1183,12 +1185,10 @@ namespace Sandbox.Game.Entities.Blocks
             //GR: The projector block orientation (which is relative to the Cubegrid orientation)
             Quaternion projQuat = Quaternion.Identity;
             Orientation.GetQuaternion(out projQuat);
-            blockOrientationQuat = Quaternion.Multiply(projQuat, blockOrientationQuat);
 
-            //GR: The orienation settings of the projector
+            //AB: The orienation settings of the projector 
             //Take into account order of multiplication to review!
-            blockOrientationQuat = Quaternion.Multiply(ProjectionRotationQuaternion, blockOrientationQuat);
-
+            blockOrientationQuat = Quaternion.Multiply(Quaternion.Multiply(projQuat, ProjectionRotationQuaternion), blockOrientationQuat);
 
             Vector3I projectedMin = CubeGrid.WorldToGridInteger(projectedBlock.CubeGrid.GridIntegerToWorld(projectedBlock.Min));
             Vector3I projectedMax = CubeGrid.WorldToGridInteger(projectedBlock.CubeGrid.GridIntegerToWorld(projectedBlock.Max));
@@ -1270,19 +1270,24 @@ namespace Sandbox.Game.Entities.Blocks
             MyCubeGrid.MyBlockLocation location = new MyCubeGrid.MyBlockLocation(cubeBlock.BlockDefinition.Id, projectedMin, projectedMax, pos, quat, 0, owner);
 
             MyObjectBuilder_CubeBlock objectBuilder = null;
-            //Find original grid builder
-            foreach (var blockBuilder in m_originalGridBuilder.CubeBlocks)
+
+            if (m_originalGridBuilder != null)
             {
-                if ((Vector3I)blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
+                //Find original grid builder
+                foreach (var blockBuilder in m_originalGridBuilder.CubeBlocks)
                 {
-                    objectBuilder = (MyObjectBuilder_CubeBlock)blockBuilder.Clone();
-                    objectBuilder.SetupForProjector();
+                    if ((Vector3I)blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
+                    {
+                        objectBuilder = (MyObjectBuilder_CubeBlock)blockBuilder.Clone();
+                        objectBuilder.SetupForProjector();
+                    }
                 }
             }
 
             if (objectBuilder == null)
             {
-                System.Diagnostics.Debug.Fail("Original object builder could not be found! (AlexFlorea)");
+                //Original object builder not found because projector was destroyed
+                //System.Diagnostics.Debug.Fail("Original object builder could not be found! (AlexFlorea)");
                 objectBuilder = cubeBlock.GetObjectBuilder();
                 location.EntityId = MyEntityIdentifier.AllocateId();
             }

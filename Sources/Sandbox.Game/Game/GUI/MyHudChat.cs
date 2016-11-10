@@ -22,7 +22,7 @@ namespace Sandbox.Game.Gui
         static readonly int MAX_MESSAGES_IN_CHAT = 10;
         static readonly int MAX_MESSAGE_TIME = 15000; //ms
 
-        public Queue<Tuple<string, string, MyFontEnum>> MessagesQueue = new Queue<Tuple<string, string, MyFontEnum>>();
+        public Queue<Tuple<string, string, string>> MessagesQueue = new Queue<Tuple<string, string, string>>();
 
         private int m_lastUpdateTime = int.MaxValue;
 
@@ -48,9 +48,9 @@ namespace Sandbox.Game.Gui
             UpdateTimestamp();
         }
 
-        public void ShowMessage(string sender, string messageText, MyFontEnum font = MyFontEnum.Blue)
+        public void ShowMessage(string sender, string messageText, string font = MyFontEnum.Blue)
         {
-            MessagesQueue.Enqueue(new Tuple<string, string, MyFontEnum>(sender, messageText, font));
+            MessagesQueue.Enqueue(new Tuple<string, string, string>(sender, messageText, font));
 
             if (MessagesQueue.Count > MAX_MESSAGES_IN_CHAT)
                 MessagesQueue.Dequeue();
@@ -73,7 +73,7 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        public void multiplayer_ScriptedChatMessageReceived(string message, string author, MyFontEnum font)
+        public void multiplayer_ScriptedChatMessageReceived(string message, string author, string font)
         {
             if (MySteam.IsActive)
             {

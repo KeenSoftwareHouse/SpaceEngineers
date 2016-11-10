@@ -773,7 +773,8 @@ special effects - however, it is more demanding on your computer's performance (
 If the game doesn't run smoothly, decrease it.</value>
   </data>
   <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
-    <value>Select a graphic adapter and/or a monitor</value>
+    <value>Select a graphic adapter and/or a monitor.
+Changing the adapter requires restart of the game.</value>
   </data>
   <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
     <value>Select a screen resolution. We recommend using an aspect ratio compatible with your monitor.
@@ -790,6 +791,10 @@ If the game doesn't run smoothly, decrease your screen resolution.</value>
   </data>
   <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
     <value>Horizontal field of view angle</value>
+  </data>
+  <data name="MessageBoxTextRestartNeededAfterAdapterSwitch" xml:space="preserve">
+    <value>Changing adapter requires restarting the game.
+Restart now?</value>
   </data>
   <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
     <value>Show on-screen control hints during gameplay</value>
@@ -2694,5 +2699,30 @@ On - All performance warnings of this session are displayed.</value>
   </data>
   <data name="AudioSettings_EnableReverb" xml:space="preserve">
     <value>Enable echo</value>
+  </data>
+<data name="ScreenGraphicsOptions_AmbientOcclusion" xml:space="preserve">
+    <value>Ambient occlusion</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AmbientOcclusion_HBAO" xml:space="preserve">
+    <value>HBAO</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AmbientOcclusion_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishCampaign" xml:space="preserve">
+    <value>PUBLISH CAMPAIGN</value>
+  </data>
+  <data name="MessageBoxCaptionCampaignPublished" xml:space="preserve">
+    <value>CAMPAIGN PUBLISHED</value>
+  </data>
+  <data name="MessageBoxCaptionModCampaignPublishFailed" xml:space="preserve">
+    <value>CAMPAIGN PUBLISH FAILED</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishCampaign" xml:space="preserve">
+    <value>Are you sure you want to upload and publish selected campaign on Steam Workshop?
+Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextCampaignPublished" xml:space="preserve">
+    <value>Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).</value>
   </data>
 </root>

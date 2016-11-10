@@ -1626,6 +1626,12 @@ namespace Sandbox.Game.Entities
 
         public void DrawHud(IMyCameraController camera, long playerId)
         {
+            if (camera is Sandbox.Engine.Utils.MySpectatorCameraController)
+            {
+                MyHud.Crosshair.Recenter();
+                return;
+            }
+
             if (GridSelectionSystem != null)
                 GridSelectionSystem.DrawHud(camera, playerId);
 

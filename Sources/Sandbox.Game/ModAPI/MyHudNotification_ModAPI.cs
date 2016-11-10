@@ -28,7 +28,7 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        MyFontEnum IMyHudNotification.Font
+        string IMyHudNotification.Font
         {
             get { return Font; }
             set { Font = value; }

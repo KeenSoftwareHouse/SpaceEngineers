@@ -47,11 +47,12 @@ namespace VRage.Game
         int m_particlesCount;
         float m_distance;
 
-        List<IMyParticleGeneration> m_generations = new List<IMyParticleGeneration>();
-        List<IMyParticleGeneration> m_sortedGenerations = new List<IMyParticleGeneration>();
+        readonly List<IMyParticleGeneration> m_generations = new List<IMyParticleGeneration>();
+        readonly List<IMyParticleGeneration> m_sortedGenerations = new List<IMyParticleGeneration>();
+        List<IMyParticleGeneration> m_drawGenerations;
         List<MyParticleEffect> m_instances;
-        List<MyParticleLight> m_particleLights = new List<MyParticleLight>();
-        List<MyParticleSound> m_particleSounds = new List<MyParticleSound>();
+        readonly List<MyParticleLight> m_particleLights = new List<MyParticleLight>();
+        readonly List<MyParticleSound> m_particleSounds = new List<MyParticleSound>();
 
         BoundingBoxD m_AABB = new BoundingBoxD();
 
@@ -59,12 +60,65 @@ namespace VRage.Game
         int m_updateCounter = 0;
 
         public bool EnableLods;
-        public float UserEmitterScale;
-        public float UserBirthMultiplier;
-        public float UserRadiusMultiplier;
-        public float UserScale;
-		public Vector3 UserAxisScale;
-        public Vector4 UserColorMultiplier;
+
+        private float m_userEmitterScale;
+        public float UserEmitterScale
+        {
+            get { return m_userEmitterScale; }
+            set
+            {
+                m_userEmitterScale = value;
+                SetPositionDirty();
+            } 
+        }
+
+        private float m_userScale;
+        public float UserScale
+        {
+            get { return m_userScale; }
+            set
+            {
+                m_userScale = value;
+                SetPositionDirty();
+            }
+        }
+        public Vector3 UserAxisScale;
+        
+
+
+        private float m_userBirthMultiplier;
+        public float UserBirthMultiplier
+        {
+            get { return m_userBirthMultiplier; }
+            set
+            {
+                m_userBirthMultiplier = value;
+                SetAnimDirty();
+            } 
+        }
+
+        private float m_userRadiusMultiplier;
+        public float UserRadiusMultiplier
+        {
+            get { return m_userRadiusMultiplier; }
+            set
+            {
+                m_userRadiusMultiplier = value;
+                SetDirty();
+            } 
+        }
+        
+        private Vector4 m_userColorMultiplier;
+        public Vector4 UserColorMultiplier 
+        {
+            get { return m_userColorMultiplier; } 
+            set
+            {
+                m_userColorMultiplier = value;
+                SetDirty();
+            } 
+        }
+
         public bool UserDraw;
         private int m_showOnlyThisGeneration = -1;
         [Browsable(false)]
@@ -100,17 +154,25 @@ namespace VRage.Game
 
         public bool CalculateDeltaMatrix;
         public bool Near;
-        public Matrix DeltaMatrix;
+        public MatrixD DeltaMatrix;
         //public LastFrameVisibilityEnum WasVisibleLastFrame = LastFrameVisibilityEnum.AlwaysVisible;
         public uint RenderCounter = 0;
         public Vector3 Velocity;
 
-        public Vector3 Gravity;
+        private Vector3 m_gravity;
+        public Vector3 Gravity
+        {
+            get { return m_gravity; }
+            set
+            {
+                m_gravity = value;
+                SetPositionDirty();
+            }
+        }
 
-        bool m_positionDirty = false;
+        private bool m_needSorting;
         private bool m_newLoop = false;
 
-        
         #endregion
 
         #region Start & Close
@@ -338,6 +400,29 @@ namespace VRage.Game
             }
         }
 
+        public void SetAnimDirty()
+        {
+            foreach (IMyParticleGeneration generation in m_generations)
+            {
+                generation.SetAnimDirty();
+            }
+        }
+
+        public void SetPositionDirty()
+        {
+            foreach (IMyParticleGeneration generation in m_generations)
+            {
+                generation.SetPositionDirty();
+            }
+            if (m_instances != null)
+            {
+                foreach (var i in m_instances)
+                {
+                    i.SetPositionDirty();
+                }
+            }
+        }
+
         private void SetDirtyInstances()
         {
             foreach (var generation in m_generations)
@@ -406,7 +491,8 @@ namespace VRage.Game
 
         public MatrixD GetDeltaMatrix()
         {
-            DeltaMatrix = MatrixD.Invert(m_lastWorldMatrix) * m_worldMatrix;
+            var lastWorldInv = MatrixD.Invert(m_lastWorldMatrix);
+            MatrixD.Multiply(ref lastWorldInv, ref m_worldMatrix, out DeltaMatrix);
             return DeltaMatrix;
         }
 
@@ -416,6 +502,8 @@ namespace VRage.Game
                 return m_isStopped; //efect is not enabled at all and must be deleted
             if (WorldMatrix == MatrixD.Zero)
                 return true;
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("ParticleEffect-Update");
 
             System.Diagnostics.Debug.Assert(WorldMatrix != MatrixD.Zero, "Effect world matrix was not set!");
 
@@ -428,8 +516,6 @@ namespace VRage.Game
             {
                 m_updateCounter = 0;
             }
-
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("ParticleEffect-UpdateGen");
 
             //m_distance = MySector.MainCamera.GetDistanceWithFOV(WorldMatrix.Translation) / (100.0f); //precalculate for LODs
             m_distance = (float)Vector3D.Distance(MyTransparentGeometry.Camera.Translation, WorldMatrix.Translation) / (100.0f); //precalculate for LODs
@@ -446,6 +532,7 @@ namespace VRage.Game
                 m_worldMatrix = MatrixD.CreateWorld(position, Vector3D.Normalize(Velocity), m_worldMatrix.Up);
             }
 
+            m_needSorting = false;
             for (int i = 0; i < m_generations.Count;i++ )
             {
                 if (m_showOnlyThisGeneration >= 0 && i != m_showOnlyThisGeneration)
@@ -457,17 +544,21 @@ namespace VRage.Game
                 m_birthRate += m_generations[i].GetBirthRate();
 
                 m_generations[i].MergeAABB(ref m_AABB);
+                m_needSorting |= m_generations[i].NeedSorting();
             }
 
 
-            foreach (var particleLight in m_particleLights)
+            if (!MyParticlesManager.Paused)
             {
-                particleLight.Update();
-            }
+                foreach (var particleLight in m_particleLights)
+                {
+                    particleLight.Update();
+                }
 
-            foreach (var particleSound in m_particleSounds)
-            {
-                particleSound.Update();
+                foreach (var particleSound in m_particleSounds)
+                {
+                    particleSound.Update();
+                }
             }
 
             m_elapsedTime += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
@@ -477,12 +568,13 @@ namespace VRage.Game
                 SetRandomDuration();
             }
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             m_lastWorldMatrix = m_worldMatrix;
 
             if (OnUpdate != null)
                 OnUpdate(this, null);
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             if (m_isStopped)
             {
@@ -634,10 +726,11 @@ namespace VRage.Game
             {
                 //MyUtils.AssertIsValid(value);
 
-                if (value != m_worldMatrix)
+                if (!value.EqualsFast(ref m_worldMatrix, 0.001))
+                {
                     SetPositionDirty();
-
-                m_worldMatrix = value;                
+                    m_worldMatrix = value;
+                }
             }
         }
 
@@ -713,24 +806,6 @@ namespace VRage.Game
         public BoundingBoxD GetAABB()
         {
             return m_AABB;
-        }
-
-        public void SetPositionDirty()
-        {
-            m_positionDirty = true;
-
-            if (m_instances != null)
-            {
-                foreach (var i in m_instances)
-                {
-                    i.SetPositionDirty();
-                }
-            }
-        }
-
-        public bool IsPositionDirty
-        {
-            get { return m_positionDirty; }
         }
 
 
@@ -1061,8 +1136,7 @@ namespace VRage.Game
 
         public void PrepareForDraw()
         {
-            //if (WasVisibleLastFrame != LastFrameVisibilityEnum.NotVisibleLastFrame)
-           // if (RenderCounter == 0 || ((MyRender.RenderCounter - RenderCounter) < FRAMES_TO_SKIP)) //more than FRAMES_TO_SKIP frames consider effect as invisible
+            if (m_needSorting)
             {
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Sort generations");
                 m_sortedGenerations.Clear();
@@ -1073,23 +1147,24 @@ namespace VRage.Game
                 }
 
                 m_sortedGenerations.Sort();
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-                VRageRender.MyBillboard effectBillboard = null;
-
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("PrepareForDraw generations");
-                foreach (IMyParticleGeneration generation in m_sortedGenerations)
-                {
-                    generation.PrepareForDraw(ref effectBillboard);
-                }
+                m_drawGenerations = m_sortedGenerations;
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
+            else m_drawGenerations = m_generations;
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("PrepareForDraw generations");
+            VRageRender.MyBillboard effectBillboard = null;
+            foreach (IMyParticleGeneration generation in m_drawGenerations)
+            {
+                generation.PrepareForDraw(ref effectBillboard);
+            }
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
         public void Draw(List<VRageRender.MyBillboard> collectedBillboards)
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Draw generations");
-            foreach (IMyParticleGeneration generation in m_sortedGenerations)
+            foreach (IMyParticleGeneration generation in m_drawGenerations)
             {
                 generation.Draw(collectedBillboards);
             }

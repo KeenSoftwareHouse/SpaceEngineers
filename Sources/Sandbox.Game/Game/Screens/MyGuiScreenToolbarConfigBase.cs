@@ -337,7 +337,7 @@ namespace Sandbox.Game.Gui
         {
             if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.PAUSE_GAME))
             {
-                MySandboxGame.UserPauseToggle();
+                MySandboxGame.PauseToggle();
             }
         }
 

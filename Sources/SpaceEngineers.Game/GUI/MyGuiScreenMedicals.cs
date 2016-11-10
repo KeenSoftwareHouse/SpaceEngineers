@@ -91,10 +91,7 @@ namespace SpaceEngineers.Game.GUI
 
             RecreateControls(true);
 
-            if(MySandboxGame.IsPaused == false)
-            {
-                MySandboxGame.UserPauseToggle();
-            }
+            MySandboxGame.PausePush();
         }
 
         public override string GetFriendlyName()
@@ -104,10 +101,7 @@ namespace SpaceEngineers.Game.GUI
 
         protected override void OnClosed()
         {
-            if (MySandboxGame.IsPaused)
-            {
-                MySandboxGame.UserPauseToggle();
-            }
+            MySandboxGame.PausePop();
             base.OnClosed();
         }
 

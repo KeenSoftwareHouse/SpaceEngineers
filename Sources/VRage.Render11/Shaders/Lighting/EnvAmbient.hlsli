@@ -16,7 +16,7 @@ static const float IBL_MAX_MIPMAP = 8;
 
 float3 ApplySkyboxOrientation(float3 v)
 {
-    v = mul(float4(-v, 0.0f), frame_.background_orientation).xyz;
+    v = mul(float4(-v, 0.0f), frame_.Environment.background_orientation).xyz;
     // This is because DX9 code does the same (see MyBackgroundCube.cs)
     v.z *= -1;
     return v;
@@ -46,7 +46,7 @@ float3 ambient_specular(float3 f0, float gloss, float3 N, float3 V)
 	float3 sample = SkyboxIBLTex.SampleLevel(TextureSampler, R, (1 - gloss) * IBL_MAX_MIPMAP).xyz;
 	float2 env_brdf = AmbientBRDFTex.Sample(DefaultSampler, float2(gloss, nv));
 
-    return sample * (f0 * env_brdf.x + env_brdf.y) * frame_.ambientSpecularFactor;
+    return sample * (f0 * env_brdf.x + env_brdf.y) * frame_.Light.ambientSpecularFactor;
 }
 
 float3 ambient_diffuse(float3 N)
@@ -54,7 +54,7 @@ float3 ambient_diffuse(float3 N)
     N.x = -N.x;
 
 	float3 skybox = SkyboxIBLTex.SampleLevel(TextureSampler, N, IBL_MAX_MIPMAP).xyz;
-    return skybox * frame_.ambientDiffuseFactor;
+    return skybox * frame_.Light.ambientDiffuseFactor;
 }
 
 float3 ambient_diffuse(float3 albedo, float3 normal)
@@ -65,7 +65,7 @@ float3 ambient_diffuse(float3 albedo, float3 normal)
 float3 ambient_global(float3 color, float dist)
 {
     dist = clamp(dist, 0, 1000);
-    float ambient = frame_.ambientGlobalMultiplier * exp(-dist * (1 - frame_.ambientGlobalDensity)) + frame_.ambientGlobalMinimum;
+    float ambient = frame_.Light.ambientGlobalMultiplier * exp(-dist * (1 - frame_.Light.ambientGlobalDensity)) + frame_.Light.ambientGlobalMinimum;
 
     return color * ambient;
 }

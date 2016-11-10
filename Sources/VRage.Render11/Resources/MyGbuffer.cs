@@ -1,6 +1,7 @@
 ﻿using SharpDX;
 using SharpDX.Direct3D11;
 using VRage.Render11.Common;
+using VRage.Render11.Profiler;
 using VRageRender;
 using Format = SharpDX.DXGI.Format;
 
@@ -8,52 +9,108 @@ namespace VRage.Render11.Resources
 {
     internal class MyScreenDependants
     {
-        internal static IDepthStencil m_resolvedDepth;
-        internal static IRtvTexture m_ambientOcclusion;
-        internal static IRtvTexture m_ambientOcclusionHelper;
+        #region Fields
 
-        internal static MyRWStructuredBuffer m_tileIndices;
+        internal static ISrvUavBuffer TileIndices;
 
         internal static int TilesNum;
         internal static int TilesX;
         internal static int TilesY;
 
+        public static int Width { get; private set; }
+        public static int Height { get; private set; }
+
+        #endregion
+
+
+        internal static IBorrowedDepthStencilTexture GetResolvedDepthRtv()
+        {
+            return MyManagers.RwTexturesPool.BorrowDepthStencil("MyScreenDependants.ResolvedDepth", Width, Height);
+        }
+
+        internal static IBorrowedRtvTexture GetAmbientOcclusionRtv()
+        {
+            return MyManagers.RwTexturesPool.BorrowRtv("MyScreenDependants.AmbientOcclusion", Width, Height, Format.R8_UNorm, 1);
+        }
+
+        internal static IBorrowedRtvTexture GetAmbientOcclusionHelper()
+        {
+            return MyManagers.RwTexturesPool.BorrowRtv("MyScreenDependants.AmbientOcclusionHelper", Width, Height, Format.R8_UNorm, 1);
+        }
+
         internal static void Resize(int width, int height, int samplesNum, int samplesQuality)
         {
-            MyDepthStencilManager dsManager = MyManagers.DepthStencils;
-            dsManager.DisposeTex(ref m_resolvedDepth);
-            m_resolvedDepth = dsManager.CreateDepthStencil("MyScreenDependants.ResolvedDepth", width, height);
+            Width = width;
+            Height = height;
 
-            MyRwTextureManager texManager = MyManagers.RwTextures; 
-            texManager.DisposeTex(ref m_ambientOcclusionHelper);
-            m_ambientOcclusionHelper = texManager.CreateRtv("MyScreenDependants.AmbientOcclusionHelper", width, height, Format.R8_UNorm, 1, 0);
-            texManager.DisposeTex(ref m_ambientOcclusion);
-            m_ambientOcclusion = texManager.CreateRtv("MyScreenDependants.AmbientOcclusion", width, height, Format.R8_UNorm, 1, 0);
-            
             TilesX = (width + MyLightRendering.TILE_SIZE - 1) / MyLightRendering.TILE_SIZE;
             TilesY = ((height + MyLightRendering.TILE_SIZE - 1) / MyLightRendering.TILE_SIZE);
             TilesNum = TilesX * TilesY;
-            if (m_tileIndices != null)
-                m_tileIndices.Release();
-            m_tileIndices = new MyRWStructuredBuffer(TilesNum + TilesNum * MyRender11Constants.MAX_POINT_LIGHTS, sizeof(uint), MyRWStructuredBuffer.UavType.Default, true, "MyScreenDependants::tileIndices");
+
+            if (TileIndices != null)
+                MyManagers.Buffers.Dispose(TileIndices);
+
+            TileIndices = MyManagers.Buffers.CreateSrvUav("MyScreenDependants::tileIndices", TilesNum + TilesNum * MyRender11Constants.MAX_POINT_LIGHTS, sizeof(uint));
         }
     }
 
-    internal class MyGBuffer: MyImmediateRC
+    internal class MyGBuffer : MyImmediateRC
     {
         internal const Format LBufferFormat = Format.R11G11B10_Float;
 
-        IDepthStencil m_depthStencil;
+        int m_samplesCount;
+        int m_samplesQuality;
+
+        IDepthStencil m_depthStencil, m_resolvedDepthStencil;
         IRtvTexture m_gbuffer0;
         IRtvTexture m_gbuffer1;
         IRtvTexture m_gbuffer2;
         IRtvTexture m_lbuffer;
 
-        int m_samplesCount;
-        int m_samplesQuality;
-
         public int SamplesCount { get { return m_samplesCount; } }
         public int SamplesQuality { get { return m_samplesQuality; } }
+
+        internal IDepthStencil DepthStencil { get { return m_depthStencil; } }
+        internal IDepthStencil ResolvedDepthStencil { get { return MyRender11.MultisamplingEnabled ? m_resolvedDepthStencil : m_depthStencil; } }
+        internal IRtvTexture GBuffer0 { get { return m_gbuffer0; } }
+        internal IRtvTexture GBuffer1 { get { return m_gbuffer1; } }
+        internal IRtvTexture GBuffer2 { get { return m_gbuffer2; } }
+        internal IRtvTexture LBuffer { get { return m_lbuffer; } }
+
+
+        public void ResolveMultisample()
+        {
+            if (MyRender11.MultisamplingEnabled)
+            {
+                MyRender11.RC.ClearDsv(m_resolvedDepthStencil, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
+                MyGpuProfiler.IC_BeginBlock("MarkAAEdges");
+                MyAAEdgeMarking.Run();
+                MyGpuProfiler.IC_EndBlock();
+                MyDepthResolve.Run(m_resolvedDepthStencil, m_depthStencil);
+            }
+        }
+
+        public IBorrowedRtvTexture GetGbuffer1CopyRtv()
+        {
+            int width = MyRender11.ResolutionI.X;
+            int height = MyRender11.ResolutionI.Y;
+            int samples = MyRender11.RenderSettings.AntialiasingMode.SamplesCount();
+
+            var gbuffer1Copy = MyManagers.RwTexturesPool.BorrowRtv("MyGlobalResources.Gbuffer1Copy", width, height, Format.R10G10B10A2_UNorm, samples, SamplesQuality);
+            RC.CopyResource(GBuffer1, gbuffer1Copy);
+            return gbuffer1Copy;
+        }
+
+        public IBorrowedDepthStencilTexture GetDepthStencilCopyRtv()
+        {
+            int width = MyRender11.ResolutionI.X;
+            int height = MyRender11.ResolutionI.Y;
+            int samples = MyRender11.RenderSettings.AntialiasingMode.SamplesCount();
+
+            var depthStencilCopy = MyManagers.RwTexturesPool.BorrowDepthStencil("DepthStencilCopy", width, height, samples, SamplesQuality);
+            RC.CopyResource(DepthStencil, depthStencilCopy);
+            return depthStencilCopy;
+        }
 
         internal void Resize(int width, int height, int samplesNum, int samplesQuality)
         {
@@ -64,9 +121,11 @@ namespace VRage.Render11.Resources
 
             MyDepthStencilManager dsManager = MyManagers.DepthStencils;
             m_depthStencil = dsManager.CreateDepthStencil("MyGBuffer.DepthStencil", width, height, samplesCount: samplesNum, samplesQuality: samplesQuality);
+            if (MyRender11.MultisamplingEnabled)
+                m_resolvedDepthStencil = dsManager.CreateDepthStencil("MyGBuffer.ResolvedDepth", width, height);
 
             MyRwTextureManager rwManager = MyManagers.RwTextures;
-            m_gbuffer0 = rwManager.CreateRtv("MyGBuffer.GBuffer0", width, height, Format.R8G8B8A8_UNorm_SRgb, 
+            m_gbuffer0 = rwManager.CreateRtv("MyGBuffer.GBuffer0", width, height, Format.R8G8B8A8_UNorm_SRgb,
                 samplesNum, samplesQuality);
             m_gbuffer1 = rwManager.CreateRtv("MyGBuffer.GBuffer1", width, height, Format.R10G10B10A2_UNorm,
                 samplesNum, samplesQuality);
@@ -82,29 +141,23 @@ namespace VRage.Render11.Resources
             MyRwTextureManager rwManager = MyManagers.RwTextures;
 
             dsManager.DisposeTex(ref m_depthStencil);
+            dsManager.DisposeTex(ref m_resolvedDepthStencil);
             rwManager.DisposeTex(ref m_gbuffer0);
             rwManager.DisposeTex(ref m_gbuffer1);
             rwManager.DisposeTex(ref m_gbuffer2);
             rwManager.DisposeTex(ref m_lbuffer);
         }
 
-        internal IDepthStencil DepthStencil { get { return m_depthStencil; } }
-        internal IRtvTexture GBuffer0 { get { return m_gbuffer0; } }
-        internal IRtvTexture GBuffer1 { get { return m_gbuffer1; } }
-        internal IRtvTexture GBuffer2 { get { return m_gbuffer2; } }
-        internal IRtvTexture LBuffer { get { return m_lbuffer; } }
-
         internal void Clear(VRageMath.Color clearColor)
         {
             RC.ClearDsv(DepthStencil,
                 DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, MyRender11.DepthClearValue, 0);
 
-			var v3 = clearColor.ToVector3();
+            var v3 = clearColor.ToVector3();
             RC.ClearRtv(m_gbuffer0, new Color4(v3.X, v3.Y, v3.Z, 1));
             RC.ClearRtv(m_gbuffer1, Color4.Black);
             RC.ClearRtv(m_gbuffer2, Color4.Black);
             RC.ClearRtv(m_lbuffer, Color4.Black);
-    
         }
 
         internal static MyGBuffer Main;

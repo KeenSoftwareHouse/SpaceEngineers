@@ -19,8 +19,8 @@ namespace Sandbox.Graphics.GUI
         {
             public MyGuiCompositeTexture BackgroundTexture;
             public Vector2 BackgroundPaddingSize;
-            public MyFontEnum ItemFontHighlight;
-            public MyFontEnum ItemFontNormal;
+            public string ItemFontHighlight;
+            public string ItemFontNormal;
             public MyGuiBorderThickness ItemMargin; // outer margin of each item used when spacing items
             public MyGuiBorderThickness ItemPadding; // internal padding of each item used when drawing text
             public MyGuiBorderThickness ContentPadding; // internal padding surrounding items

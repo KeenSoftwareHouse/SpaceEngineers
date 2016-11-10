@@ -311,7 +311,7 @@ namespace Sandbox.Game.Entities.Character.Components
                 Character.CanJump = true;
             }
 
-            MatrixD WorldMatrix = Character.WorldMatrix;
+            MatrixD worldMatrix = Character.WorldMatrix;
             float RotationSpeed = Character.RotationSpeed;
             float RotationFactor = 0.02f;
 
@@ -329,20 +329,20 @@ namespace Sandbox.Game.Entities.Character.Components
                     }
                     else
                     {
-                        rotationXMatrix = MatrixD.CreateFromAxisAngle(WorldMatrix.Right, -rotationIndicator.X * RotationSpeed * RotationFactor);
+                        rotationXMatrix = MatrixD.CreateFromAxisAngle(worldMatrix.Right, -rotationIndicator.X * RotationSpeed * RotationFactor);
                     }
                 }
 
                 if (Math.Abs(rotationIndicator.Y) > float.Epsilon)
                 {
-                    rotationYMatrix = MatrixD.CreateFromAxisAngle(WorldMatrix.Up, -rotationIndicator.Y * RotationSpeed * RotationFactor);
+                    rotationYMatrix = MatrixD.CreateFromAxisAngle(worldMatrix.Up, -rotationIndicator.Y * RotationSpeed * RotationFactor);
                 }
 
                 if (!Character.Definition.VerticalPositionFlyingOnly)
                 {
                     if (Math.Abs(roll) > float.Epsilon)
                     {
-                        rotationZMatrix = MatrixD.CreateFromAxisAngle(WorldMatrix.Forward, roll * RotationFactor);
+                        rotationZMatrix = MatrixD.CreateFromAxisAngle(worldMatrix.Forward, roll * RotationFactor);
                     }
                 }
 
@@ -350,13 +350,13 @@ namespace Sandbox.Game.Entities.Character.Components
                 float rotationHeight = Character.ModelCollision.BoundingBoxSizeHalf.Y;
 
                 MatrixD physicsMatrix = Character.Physics.GetWorldMatrix();
-                Vector3D translation = physicsMatrix.Translation + WorldMatrix.Up * rotationHeight;
+                Vector3D translation = physicsMatrix.Translation + (Vector3D)(worldMatrix.Up * rotationHeight);
 
                 // Compute rotation
                 MatrixD fullRotation = rotationXMatrix * rotationYMatrix * rotationZMatrix;
-                MatrixD rotatedMatrix = WorldMatrix.GetOrientation();
+                MatrixD rotatedMatrix = worldMatrix.GetOrientation();
                 rotatedMatrix = rotatedMatrix * fullRotation;
-                rotatedMatrix.Translation = translation - rotatedMatrix.Up * rotationHeight;
+                rotatedMatrix.Translation = translation - (Vector3D)(rotatedMatrix.Up * rotationHeight);
 
                 // Update game character
                 Character.WorldMatrix = rotatedMatrix;

@@ -25,6 +25,8 @@ namespace VRageRender.Messages
 
         // To add larger-scale occlusion in the distance; Enabling this may have a small performance impact
         public bool BackgroundAOEnable;
+        // Adapt BackgroundViewDepth when very low FOV is used?
+        public bool AdaptToFOV;
         // View-space depth at which the AO footprint should stop falling off with depth
         public float BackgroundViewDepth;
 
@@ -73,15 +75,16 @@ namespace VRageRender.Messages
                 LargeScaleAO = 1.0f,
                 PowerExponent = 5.0f,
 
-                BackgroundViewDepth = 0,
-
                 DepthClampToEdge = false,
 
                 DepthThresholdEnable = false,
                 ForegroundAOEnable = true,
                 ForegroundViewDepth = 7.0f,
 
-                BackgroundAOEnable = false,
+                BackgroundAOEnable = true,
+                AdaptToFOV = true,
+                BackgroundViewDepth = 200,
+
                 DepthThreshold = 0,
                 DepthThresholdSharpness = 100.0f,
 
@@ -99,7 +102,7 @@ namespace VRageRender.Messages
 
     public class MyRenderMessageUpdateHBAO : MyRenderMessageBase
     {
-        public MyHBAOData Data;
+        public MyHBAOData Settings;
 
         public override MyRenderMessageType MessageClass
         {

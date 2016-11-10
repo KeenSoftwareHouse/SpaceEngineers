@@ -192,6 +192,25 @@ namespace VRageRender.Vertex
         internal static unsafe int STRIDE = sizeof(MyVertexFormatTexcoordNormalTangent);
     }
 
+    struct MyVertexFormatTexcoordNormalTangentTexindices
+    {
+        internal Byte4 Normal;
+        internal Byte4 Tangent;
+        internal HalfVector2 Texcoord;
+        internal Byte4 TexIndices;
+
+        internal MyVertexFormatTexcoordNormalTangentTexindices(Vector2 texcoord, Vector3 normal, Vector3 tangent, Byte4 texIndices)
+        {
+            Texcoord = new HalfVector2(texcoord.X, texcoord.Y);
+            Normal = VF_Packer.PackNormalB4(ref normal);
+            Vector4 T = new Vector4(tangent, 1);
+            Tangent = VF_Packer.PackTangentSignB4(ref T);
+            TexIndices = texIndices;
+        }
+
+        internal static unsafe int STRIDE = sizeof(MyVertexFormatTexcoordNormalTangentTexindices);
+    }
+    
     unsafe struct MyVertexFormatCubeInstance
     {
 #if XB1

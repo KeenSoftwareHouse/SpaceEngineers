@@ -1869,7 +1869,7 @@ namespace Sandbox.Game.Gui
             }
             if (!textboxHasFocus && MyInput.Static.IsNewGameControlPressed(MyControlsSpace.PAUSE_GAME))
             {
-                MySandboxGame.UserPauseToggle();
+                MySandboxGame.PauseToggle();
             }
 
             if (!textboxHasFocus && MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsKeyPress(MyKeys.A))

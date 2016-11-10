@@ -14,6 +14,7 @@ namespace VRageRender
     {
         internal IDsvBindable Dsv;
         internal IRasterizerState DefaultRasterizer;
+        internal bool IsCascade;
 
         internal sealed override void Begin()
         {
@@ -53,7 +54,7 @@ namespace VRageRender
             if (!IsProxyValidForDraw(proxy))
                 return;
 
-            Stats.Meshes++;
+            Stats.Draws++;
 
             SetProxyConstants(proxy);
             BindProxyGeometry(proxy, RC);
@@ -161,6 +162,7 @@ namespace VRageRender
 
             Dsv = null;
             DefaultRasterizer = null;
+            IsCascade = false;
         }
 
         internal override MyRenderingPass Fork()
@@ -169,8 +171,14 @@ namespace VRageRender
 
             renderPass.Dsv = Dsv;
             renderPass.DefaultRasterizer = DefaultRasterizer;
+            renderPass.IsCascade = IsCascade;
 
             return renderPass;
+        }
+
+        protected override MyFrustumEnum FrustumType
+        {
+            get { return IsCascade ? MyFrustumEnum.ShadowCascade : MyFrustumEnum.ShadowProjection; }
         }
     }
 }

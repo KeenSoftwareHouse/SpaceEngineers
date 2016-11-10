@@ -170,7 +170,7 @@ namespace Sandbox.Game.WorldEnvironment.Modules
 
                 //if there is modifier pick one based on chance
                 if (mod != null)
-                    ops = mod.Options.Sample(MyHashRandomUtils.UniformFloatFromSeed(map.Item)).Changes;
+                    ops = mod.Options.Sample(MyHashRandomUtils.UniformFloatFromSeed(map.Item + map.Matrix.GetHashCode())).Changes;
 
                 AddVoxelMap(map.Item, map.Storage.SubtypeName, map.Matrix, map.Name, map.EntityId, ops);
             }

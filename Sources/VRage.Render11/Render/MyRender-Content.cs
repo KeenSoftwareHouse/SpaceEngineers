@@ -1,10 +1,8 @@
-﻿using SharpDX.DXGI;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using VRage.OpenVRWrapper;
 using VRage.Render11.Common;
 using VRage.Render11.Resources;
-using VRage.Render11.Tools;
 using VRage.Utils;
 using VRageRender.Voxels;
 
@@ -14,13 +12,12 @@ namespace VRageRender
     {
         internal static unsafe void InitSubsystemsOnce()
         {
+            MyManagers.GlobalResources.CreateOnStartup();
         }
 
         internal static unsafe void InitSubsystems()
         {
             MyManagers.OnDeviceInit();
-            //MyRwTextures.Init();
-            MyHwBuffers.Init();
             ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
             MyRender11.Init();
             MyCommon.Init();
@@ -32,7 +29,7 @@ namespace VRageRender
             MyLinesRenderer.Init();
             MySpritesRenderer.Init();
             MyPrimitivesRenderer.Init();
-            MyOutline.Init();
+            MyHighlight.Init();
             MyBlur.Init();
             MyTransparentRendering.Init();
 
@@ -84,16 +81,14 @@ namespace VRageRender
         {
             MyManagers.OnDeviceReset();
 
-            MyHwBuffers.OnDeviceReset();
             MyShaders.OnDeviceReset();
             MyMaterialShaders.OnDeviceReset();
-            //MyRwTextures.OnDeviceReset();
 
             MyTransparentRendering.OnDeviceReset();
 
             ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
 
-            MyBillboardRenderer.OnDeviceRestart();
+            MyBillboardRenderer.OnDeviceReset();
             MyScreenDecals.OnDeviceReset();
 
             MyMeshMaterials1.OnDeviceReset();
@@ -119,15 +114,14 @@ namespace VRageRender
 
         internal static void OnDeviceEnd()
         {
-            MyManagers.OnDeviceEnd();
-
+            // Reversed order of calling End -- Managers last
             MyScreenDecals.OnDeviceEnd();
             MyShaders.OnDeviceEnd();
             MyMaterialShaders.OnDeviceEnd();
             MyVoxelMaterials1.OnDeviceEnd();
-            //MyRwTextures.OnDeviceEnd();
-            MyHwBuffers.OnDeviceEnd();
             MyTransparentRendering.OnDeviceEnd();
+
+            MyManagers.OnDeviceEnd();
         }
 
         #region Content load
@@ -149,11 +143,8 @@ namespace VRageRender
             // Remove leftover persistent debug draw messages
             m_debugDrawMessages.Clear();
 
-            MyScene.DynamicRenderablesDBVH.Clear();
-            if (MyScene.SeparateGeometry)
-                MyScene.StaticRenderablesDBVH.Clear();
-            MyScene.GroupsDBVH.Clear();
-            MyScene.FoliageDBVH.Clear();
+            MyScene.Clear();
+
             MyClipmapFactory.RemoveAll();
             MyClipmap.UnloadCache();
 
@@ -172,6 +163,7 @@ namespace VRageRender
             MyPrimitivesRenderer.Unload();
 
             MyTransparentRendering.OnSessionEnd();
+            MyBillboardRenderer.OnSessionEnd();
 
             //MyAssetsLoader.ClearMeshes();
         }
@@ -230,10 +222,6 @@ namespace VRageRender
         
         internal static void RemoveScreenResources()
         {
-            MyRwTextureManager texManager = MyManagers.RwTextures;
-
-            MyManagers.GlobalResources.Destroy();
-
             if(m_lastScreenDataResource != null && m_lastScreenDataResource != Backbuffer)
             {
                 m_lastScreenDataResource.Release();
@@ -245,7 +233,6 @@ namespace VRageRender
                 m_lastDataStream.Dispose();
                 m_lastDataStream = null;
             }
-
         }
 
         internal static void CreateScreenResources()
@@ -261,11 +248,7 @@ namespace VRageRender
 
             RemoveScreenResources();
 
-            MyRwTextureManager texManager = MyManagers.RwTextures;
-            MyManagers.GlobalResources.Create();
-
             MyHBAO.InitScreenResources();
         }
-
     }
 }

@@ -107,6 +107,6 @@ namespace VRage.Game
         public string Author;
         [ProtoMember]
         [XmlAttribute("f"), DefaultValue(MyFontEnum.Blue)]
-        public MyFontEnum Font;
+        public string Font;
     }
 }

@@ -3064,7 +3064,7 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
     <value>Broadcasting On</value>
   </data>
   <data name="NotificationCopyPasteAsteroidObstructed" xml:space="preserve">
-    <value>Can not place asteroids over ships and players</value>
+    <value>Can not place asteroids/voxels over ships(except stations) and players</value>
   </data>
   <data name="DisplayName_Block_AdvancedRotor" xml:space="preserve">
     <value>Advanced Rotor</value>
@@ -3718,7 +3718,7 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Backgr.</value>
   </data>
   <data name="BlockPropertyTitle_FontColor" xml:space="preserve">
-    <value>Font</value>
+    <value>Color</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenDefinitionsTextures" xml:space="preserve">
     <value>Loaded textures</value>
@@ -5642,5 +5642,8 @@ When this is 0 then the backup feature is disabled and all backups are deleted u
   </data>
   <data name="Terminal_ShowInInventoryToolTip" xml:space="preserve">
     <value>Show block in inventory screen. If you access the block directly it will be visible regardless of this setting.</value>
+  </data>
+  <data name="BlockPropertyTitle_Font" xml:space="preserve">
+    <value>Font</value>
   </data>
 </root>

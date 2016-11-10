@@ -11089,10 +11089,12 @@
       <MountPoints>
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="0.5" />
         <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="0.5" EndY="0.5" />
-        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0.5" StartY="0" EndX="1" EndY="0.25" />
-        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="0.5" EndY="0.25" />
-        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.5" StartY="0" EndX="1" EndY="0.5" />
+        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="0.2" EndY="0.5" />
+        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0.2" StartY="0" EndX="0.8" EndY="0.4" />
+        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0.8" StartY="0" EndX="1" EndY="0.1" />
+        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="0.2" EndY="0.1" />
+        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.2" StartY="0" EndX="0.8" EndY="0.4" />
+        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.8" StartY="0" EndX="1" EndY="0.5" />
       </MountPoints>
       <Variants>
         <Variant Color="Red" Suffix="_red" />
@@ -11966,10 +11968,12 @@
       <MountPoints>
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="0.5" />
         <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="0.5" EndY="0.5" />
-        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0.5" StartY="0" EndX="1" EndY="0.25" />
-        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="0.5" EndY="0.25" />
-        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.5" StartY="0" EndX="1" EndY="0.5" />
+        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="0.2" EndY="0.5" />
+        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0.2" StartY="0" EndX="0.8" EndY="0.4" />
+        <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0.8" StartY="0" EndX="1" EndY="0.1" />
+        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="0.2" EndY="0.1" />
+        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.2" StartY="0" EndX="0.8" EndY="0.4" />
+        <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.8" StartY="0" EndX="1" EndY="0.5" />
       </MountPoints>
       <Variants>
         <Variant Color="Red" Suffix="_red" />
@@ -14952,6 +14956,7 @@
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <MirroringY>Z</MirroringY>
+	  <MirroringZ>Y</MirroringZ>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
 	    <Effects>
@@ -16018,8 +16023,7 @@
         <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
       </MountPoints>
-      <MirroringZ>Y</MirroringZ>
-      <MirroringY>Z</MirroringY>
+      <MirroringY>X</MirroringY>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\OxygenGeneratorConstruction_1.mwm" />
         <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\OxygenGeneratorConstruction_2.mwm" />
@@ -17244,8 +17248,10 @@
       <BuildTimeSeconds>20</BuildTimeSeconds>
       
       <ResourceSinkGroup>Defense</ResourceSinkGroup>
-      <SensorRadius>1.1</SensorRadius>
+      <SensorRadius>1.3</SensorRadius>
       <SensorOffset>0.8</SensorOffset>
+      <CutOutRadius>2.2</CutOutRadius>
+      <CutOutOffset>0.6</CutOutOffset>
       
       <DeformationRatio>0.2</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
@@ -17310,6 +17316,8 @@
       <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <SensorRadius>1.9</SensorRadius>
       <SensorOffset>2.8</SensorOffset>
+      <CutOutRadius>3</CutOutRadius>
+      <CutOutOffset>2.8</CutOutOffset>
       
       <DeformationRatio>0.2</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
@@ -17824,8 +17832,7 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\OxygenGeneratorConstruction_2.mwm" />
       </BuildProgressModels>
       <Center x="1" y="1" z="0" />
-      <MirroringY>Z</MirroringY>
-      <MirroringZ>Y</MirroringZ>
+      <MirroringY>X</MirroringY>
       <BuildTimeSeconds>13</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
       <ResourceSourceGroup>Reactors</ResourceSourceGroup>
@@ -17889,6 +17896,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
+        <MountPoint Side="Front" StartX="0.1" StartY="0.7" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.3" />
         <MountPoint Side="Left" StartX="0" StartY="0.2" EndX="0.1" EndY="0.8" />
         <MountPoint Side="Right" StartX="0.9" StartY="0.2" EndX="1" EndY="0.8" />
@@ -19736,6 +19744,7 @@
       <BlockPairName>SmallAtmoThrust</BlockPairName>
       <Center x="0" y="0" z="1" />
       <MirroringZ>Y</MirroringZ>
+	  <MirroringY>Z</MirroringY>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>25</BuildTimeSeconds>
 
@@ -20787,7 +20796,7 @@
         </BlockVariant>
       </BlockVariants>
       <BlockPairName>Suspension3x3</BlockPairName>
-      <MirroringY>ZThenOffsetX</MirroringY>
+      <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
@@ -21825,6 +21834,7 @@
         <MountPoint Side="Back" StartX="0" StartY="0.375" EndX="1" EndY="0.625" />
         <MountPoint Side="Front" StartX="2" StartY="0.375" EndX="3" EndY="0.625" />
       </MountPoints>
+	  <MirroringX>Y</MirroringX>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\SolarHydroponicsConstruction_1.mwm" />
         <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\SolarHydroponicsConstruction_2.mwm" />
@@ -22177,6 +22187,10 @@
           <TypeId>CubeBlock</TypeId>
           <SubtypeId>Window1x1Side</SubtypeId>
         </BlockVariant>
+		<BlockVariant>
+          <TypeId>CubeBlock</TypeId>
+          <SubtypeId>Window1x1Inv</SubtypeId>
+        </BlockVariant>
       </BlockVariants>
       <IsAirTight>true</IsAirTight>
       <MirroringX>HalfY</MirroringX>
@@ -22229,6 +22243,7 @@
       </Id>
       <DisplayName>DisplayName_Block_Window1x1Inv</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Window1x1Inv.dds</Icon>
+	  <GuiVisible>false</GuiVisible>
       <CubeSize>Large</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
@@ -23016,6 +23031,8 @@
         <MountPoint Side="Right" StartX="2.6" StartY="0.3" EndX="2.7" EndY="2.7" />
       </MountPoints>
       <AutorotateMode>OppositeDirections</AutorotateMode>
+	  <MirroringY>Z</MirroringY>
+	  <MirroringZ>Y</MirroringZ>
     </Definition>
     <Definition>
       <Id>
@@ -23053,6 +23070,8 @@
         <MountPoint Side="Right" StartX="2.6" StartY="0.3" EndX="2.7" EndY="2.7" />
       </MountPoints>
       <AutorotateMode>OppositeDirections</AutorotateMode>
+	  <MirroringY>Z</MirroringY>
+	  <MirroringZ>Y</MirroringZ>
     </Definition>
     <Definition>
       <Id>
@@ -23461,6 +23480,14 @@
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Large\SpaceBallBlockConstruction_1.mwm" />
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\SpaceBallBlockConstruction_2.mwm" />
       </BuildProgressModels>
+      <MountPoints>
+        <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+      </MountPoints>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <MaxVirtualMass>20000</MaxVirtualMass>
@@ -23492,6 +23519,14 @@
       <BuildProgressModels>
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\SpaceBallBlockConstruction_1.mwm" />
       </BuildProgressModels>
+      <MountPoints>
+        <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+      </MountPoints>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <MaxVirtualMass>5000</MaxVirtualMass>
@@ -25965,30 +26000,23 @@
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>Window1x1Inv</Name>
+      <Name>Window1x2Face</Name>
       <Position>
         <X>6</X>
         <Y>14</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>Window1x2Face</Name>
-      <Position>
-        <X>7</X>
-        <Y>14</Y>
-      </Position>
-    </BlockPosition>
-    <BlockPosition>
       <Name>Window2x3Flat</Name>
       <Position>
-        <X>8</X>
+        <X>7</X>
         <Y>14</Y>
       </Position>
     </BlockPosition>    
     <BlockPosition>
       <Name>Window3x3Flat</Name>
       <Position>
-        <X>9</X>
+        <X>8</X>
         <Y>14</Y>
       </Position>
     </BlockPosition>

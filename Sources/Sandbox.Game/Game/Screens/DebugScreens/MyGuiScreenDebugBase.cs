@@ -374,7 +374,7 @@ namespace Sandbox.Game.Gui
 
         #endregion
 
-        protected MyGuiControlTextbox AddTextbox(String value, Action<MyGuiControlTextbox> onTextChanged, Vector4? color = null, float scale = 1.0f, MyGuiControlTextboxType type = MyGuiControlTextboxType.Normal, List<MyGuiControlBase> controlGroup = null, MyFontEnum font = MyFontEnum.Debug)
+        protected MyGuiControlTextbox AddTextbox(String value, Action<MyGuiControlTextbox> onTextChanged, Vector4? color = null, float scale = 1.0f, MyGuiControlTextboxType type = MyGuiControlTextboxType.Normal, List<MyGuiControlBase> controlGroup = null, string font = MyFontEnum.Debug)
         {
             var textbox = new MyGuiControlTextbox(m_currentPosition, value, 6, color, scale, type);
             textbox.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
@@ -394,7 +394,7 @@ namespace Sandbox.Game.Gui
 
         #region Label
 
-        protected MyGuiControlLabel AddLabel(String text, Vector4 color, float scale, List<MyGuiControlBase> controlGroup = null, MyFontEnum font = MyFontEnum.Debug)
+        protected MyGuiControlLabel AddLabel(String text, Vector4 color, float scale, List<MyGuiControlBase> controlGroup = null, string font = MyFontEnum.Debug)
         {
             MyGuiControlLabel label = new MyGuiControlLabel(
                 position: m_currentPosition,

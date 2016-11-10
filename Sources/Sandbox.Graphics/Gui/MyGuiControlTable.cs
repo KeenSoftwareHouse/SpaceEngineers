@@ -87,12 +87,12 @@ namespace Sandbox.Graphics.GUI
 
         public class StyleDefinition
         {
-            public MyFontEnum HeaderFontHighlight;
-            public MyFontEnum HeaderFontNormal;
+            public string HeaderFontHighlight;
+            public string HeaderFontNormal;
             public string HeaderTextureHighlight;
             public MyGuiBorderThickness Padding;
-            public MyFontEnum RowFontHighlight;
-            public MyFontEnum RowFontNormal;
+            public string RowFontHighlight;
+            public string RowFontNormal;
             public float RowHeight;
             public string RowTextureHighlight;
             public float TextScale;

@@ -17,17 +17,17 @@ namespace VRage.Render11.Profiler.Internal
 
         public override Vector2 MeasureText(StringBuilder text, float scale)
         {
-            return MySpritesRenderer.MeasureText(text, scale);
+            return MyDebugTextHelpers.MeasureText(text, scale);
         }
 
         public override float DrawText(Vector2 screenCoord, StringBuilder text, Color color, float scale)
         {
-            return MySpritesRenderer.DrawText(screenCoord, text, color, scale);
+            return MyDebugTextHelpers.DrawText(screenCoord, text, color, scale);
         }
 
         public override float DrawTextShadow(Vector2 screenCoord, StringBuilder text, Color color, float scale)
         {
-            return MySpritesRenderer.DrawTextShadow(screenCoord, text, color, scale);
+            return MyDebugTextHelpers.DrawTextShadow(screenCoord, text, color, scale);
         }
 
         public override void DrawOnScreenLine(Vector3 v0, Vector3 v1, Color color)
@@ -51,7 +51,7 @@ namespace VRage.Render11.Profiler.Internal
             m_lineBatch.End();
 
             //GetRenderProfiler().StartProfilingBlock("MySpritesRenderer.Draw");
-            MyLinesRenderer.Draw(MyRender11.Backbuffer, null);
+            MyLinesRenderer.Draw(MyRender11.Backbuffer, true);
             //MyCommon.UpdateFrameConstants();
             MySpritesRenderer.Draw(MyRender11.Backbuffer, new MyViewport(ViewportSize.X, ViewportSize.Y));
             //GetRenderProfiler().EndProfilingBlock();

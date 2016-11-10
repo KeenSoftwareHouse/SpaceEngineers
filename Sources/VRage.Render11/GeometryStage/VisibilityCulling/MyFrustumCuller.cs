@@ -102,7 +102,7 @@ namespace VRageRender
                                 continue;
                             }
                             renderableComponent.UpdateInstanceLods();
-                        }
+
 
                         // Proxies can get removed in UpdateInstanceLods
                         if (cullProxy.RenderableProxies == null)
@@ -110,12 +110,19 @@ namespace VRageRender
                             m_tmpIndicesToRemove.Add(cullProxyIndex);
                             continue;
                         }
+                        }
+
+                        cullProxy.Updated = true;
+                    }
+
+
 
                         foreach (MyRenderableProxy proxy in cullProxy.RenderableProxies)
                         {
                             bool shouldCastShadows = proxy.Flags.HasFlags(MyRenderableProxyFlags.CastShadows)
-                                                     && (proxy.Flags.HasFlags(MyRenderableProxyFlags.DrawOutsideViewDistance) || frustumQuery.CascadeIndex < 4);
+                                                     && (proxy.Flags.HasFlags(MyRenderableProxyFlags.DrawOutsideViewDistance) || frustumQuery.Index < 4);
 
+                       
                             if (isShadowFrustum && !shouldCastShadows)
                             {
                                 m_tmpIndicesToRemove.Add(cullProxyIndex);
@@ -124,11 +131,9 @@ namespace VRageRender
                             var worldMat = proxy.WorldMatrix;
                             worldMat.Translation -= MyRender11.Environment.Matrices.CameraPosition;
                             proxy.CommonObjectData.LocalMatrix = worldMat;
-                            proxy.CommonObjectData.MaterialIndex = MySceneMaterials.GetDrawMaterialIndex(proxy.PerMaterialIndex);
                         }
-                        cullProxy.Updated = true;
+                    
                     }
-                }
 
                 for (int removeIndex = m_tmpIndicesToRemove.Count - 1; removeIndex >= 0; --removeIndex)
                 {
@@ -156,15 +161,15 @@ namespace VRageRender
                     while (m_shadowCascadeProxies2.Count < MyShadowCascades.Settings.NewData.CascadesCount)
                         m_shadowCascadeProxies2.Add(new HashSet<MyCullProxy_2>());
 
-                    bool isHighCascade = frustumQuery.CascadeIndex < 3;
+                    bool isHighCascade = frustumQuery.Index < 3;
 
                     // List 1
                     for (int cullProxyIndex = 0; cullProxyIndex < cullProxies.Count; ++cullProxyIndex)
                     {
                         var cullProxy = cullProxies[cullProxyIndex];
 
-                        if ((isHighCascade && (cullProxy.FirstFullyContainingCascadeIndex < frustumQuery.CascadeIndex - 1)) ||
-                            (!isHighCascade && cullProxy.FirstFullyContainingCascadeIndex < frustumQuery.CascadeIndex) ||
+                        if ((isHighCascade && (cullProxy.FirstFullyContainingCascadeIndex < frustumQuery.Index - 1)) ||
+                            (!isHighCascade && cullProxy.FirstFullyContainingCascadeIndex < frustumQuery.Index) ||
                             cullProxy.RenderableProxies == null)
                         {
                             cullProxies.RemoveAtFast(cullProxyIndex);
@@ -176,27 +181,29 @@ namespace VRageRender
                         {
                             foreach (var renderableProxy in cullProxy.RenderableProxies)
                             {
-                                MyStatsUpdater.CSMObjects[frustumQuery.CascadeIndex]++;
-                                MyStatsUpdater.CSMTris[frustumQuery.CascadeIndex] += (renderableProxy.InstanceCount > 0 ? renderableProxy.InstanceCount : 1) * renderableProxy.DrawSubmesh.IndexCount / 3;
+                                MyStatsUpdater.CSMObjects[frustumQuery.Index]++;
+                                MyStatsUpdater.CSMTris[frustumQuery.Index] += (renderableProxy.InstanceCount > 0 ? renderableProxy.InstanceCount : 1) * renderableProxy.DrawSubmesh.IndexCount / 3;
                             }
 
                             if (frustumQuery.IsInsideList[cullProxyIndex])
                             {
-                                cullProxy.FirstFullyContainingCascadeIndex = (uint)frustumQuery.CascadeIndex;
+                                cullProxy.FirstFullyContainingCascadeIndex = (uint)frustumQuery.Index;
                             }
                         }
                     }
 
+                    MyStatsUpdater.CSMObjects[frustumQuery.Index] += cullProxies.Count;
+
                     // List 2
                     var cullProxies2 = frustumQuery.List2;
-                    m_shadowCascadeProxies2[frustumQuery.CascadeIndex].Clear();
+                    m_shadowCascadeProxies2[frustumQuery.Index].Clear();
                     for (int cullProxyIndex = 0; cullProxyIndex < cullProxies2.Count; ++cullProxyIndex)
                     {
                         var cullProxy2 = cullProxies2[cullProxyIndex];
                         bool containedInHigherCascade = false;
 
                         // Cull items if they're fully contained in higher resolution cascades
-                        for (int hashSetIndex = 0; hashSetIndex < frustumQuery.CascadeIndex; ++hashSetIndex)
+                        for (int hashSetIndex = 0; hashSetIndex < frustumQuery.Index; ++hashSetIndex)
                         {
                             if (m_shadowCascadeProxies2[hashSetIndex].Contains(cullProxy2))
                             {
@@ -210,7 +217,7 @@ namespace VRageRender
 
                         if (!containedInHigherCascade && frustumQuery.IsInsideList2[cullProxyIndex])
                         {
-                            m_shadowCascadeProxies2[frustumQuery.CascadeIndex].Add(cullProxy2);
+                            m_shadowCascadeProxies2[frustumQuery.Index].Add(cullProxy2);
                         }
                     }
                 }
@@ -232,6 +239,8 @@ namespace VRageRender
                             MyStatsUpdater.Passes.ShadowProjectionTris += Math.Max(proxy.InstanceCount, 1) * proxy.DrawSubmesh.IndexCount / 3;
                         }
                     }
+
+                    MyStatsUpdater.Passes.ShadowProjectionObjects += cullProxies.Count;
                 }
                 ProfilerShort.End();
                 if (frustumQuery.Ignored != null)

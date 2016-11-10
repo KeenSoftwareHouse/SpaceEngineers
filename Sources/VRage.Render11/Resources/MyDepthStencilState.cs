@@ -31,12 +31,10 @@ namespace VRage.Render11.Resources
         internal static IDepthStencilState DepthTestWrite;
         internal static IDepthStencilState DepthTestReadOnly;
         internal static IDepthStencilState IgnoreDepthStencil;
-        internal static IDepthStencilState WriteDepthAndStencil;
         internal static IDepthStencilState MarkEdgeInStencil;
-        internal static IDepthStencilState OutlineMesh;
-        internal static IDepthStencilState TestOutlineMeshStencil;
-        internal static IDepthStencilState TestHighlightMeshStencil;
-        internal static IDepthStencilState TestSkipGrassStencil;
+        internal static IDepthStencilState WriteHighlightStencil;
+        internal static IDepthStencilState TestHighlightOuterStencil;
+        internal static IDepthStencilState TestHighlightInnerStencil;
         internal static IDepthStencilState TestEdgeStencil;
         internal static IDepthStencilState TestDepthAndEdgeStencil;
         internal static IDepthStencilState[] MarkIfInsideCascade;
@@ -95,22 +93,6 @@ namespace VRage.Render11.Resources
 
             {
                 DepthStencilStateDescription desc = new DepthStencilStateDescription();
-                desc.DepthComparison = MyRender11.UseComplementaryDepthBuffer ? Comparison.Greater : Comparison.Less;
-                desc.DepthWriteMask = DepthWriteMask.All;
-                desc.IsDepthEnabled = true;
-                desc.IsStencilEnabled = true;
-                desc.StencilReadMask = 0xFF;
-                desc.StencilWriteMask = 0xFF;
-                desc.BackFace.Comparison = Comparison.Always;
-                desc.BackFace.DepthFailOperation = StencilOperation.Keep;
-                desc.BackFace.FailOperation = StencilOperation.Replace;
-                desc.BackFace.PassOperation = StencilOperation.Replace;
-                desc.FrontFace = desc.BackFace;
-                MyDepthStencilStateManager.WriteDepthAndStencil = CreateResource("WriteDepthAndStencil", ref desc);
-            }
-
-            {
-                DepthStencilStateDescription desc = new DepthStencilStateDescription();
                 desc.IsDepthEnabled = false;
                 desc.IsStencilEnabled = true;
                 desc.StencilReadMask = 0xFF;
@@ -130,57 +112,41 @@ namespace VRage.Render11.Resources
                 desc.DepthWriteMask = DepthWriteMask.Zero;
                 desc.IsStencilEnabled = true;
                 desc.StencilReadMask = 0x00;
-                desc.StencilWriteMask = 0x40;
+                desc.StencilWriteMask = MyHighlight.HIGHLIGHT_STENCIL_MASK;
                 desc.BackFace.Comparison = Comparison.Always;
                 desc.BackFace.DepthFailOperation = StencilOperation.Keep;
                 desc.BackFace.FailOperation = StencilOperation.Replace;
                 desc.BackFace.PassOperation = StencilOperation.Replace;
                 desc.FrontFace = desc.BackFace;
-                MyDepthStencilStateManager.OutlineMesh = CreateResource("OutlineMesh", ref desc);
+                MyDepthStencilStateManager.WriteHighlightStencil = CreateResource("WriteHighlightStencil", ref desc);
             }
 
             {
                 DepthStencilStateDescription desc = new DepthStencilStateDescription();
                 desc.IsDepthEnabled = false;
                 desc.IsStencilEnabled = true;
-                desc.StencilReadMask = 0x40;
+                desc.StencilReadMask = MyHighlight.HIGHLIGHT_STENCIL_MASK;
                 desc.StencilWriteMask = 0x0;
                 desc.BackFace.Comparison = Comparison.NotEqual;
                 desc.BackFace.DepthFailOperation = StencilOperation.Keep;
                 desc.BackFace.FailOperation = StencilOperation.Keep;
                 desc.BackFace.PassOperation = StencilOperation.Keep;
                 desc.FrontFace = desc.BackFace;
-                MyDepthStencilStateManager.TestOutlineMeshStencil = CreateResource("TestOutlineMeshStencil", ref desc);
+                MyDepthStencilStateManager.TestHighlightOuterStencil = CreateResource("TestHighlightOuterStencil", ref desc);
             }
 
             {
                 DepthStencilStateDescription desc = new DepthStencilStateDescription();
                 desc.IsDepthEnabled = false;
                 desc.IsStencilEnabled = true;
-                desc.StencilReadMask = 0x40;
+                desc.StencilReadMask = MyHighlight.HIGHLIGHT_STENCIL_MASK;
                 desc.StencilWriteMask = 0x0;
                 desc.BackFace.Comparison = Comparison.Equal;
                 desc.BackFace.DepthFailOperation = StencilOperation.Keep;
                 desc.BackFace.FailOperation = StencilOperation.Keep;
                 desc.BackFace.PassOperation = StencilOperation.Keep;
                 desc.FrontFace = desc.BackFace;
-                MyDepthStencilStateManager.TestHighlightMeshStencil = CreateResource("TestHighlightMeshStencil", ref desc);
-            }
-
-            {
-                DepthStencilStateDescription desc = new DepthStencilStateDescription();
-                desc.DepthComparison = Comparison.Never;
-                desc.IsDepthEnabled = false;
-                desc.DepthWriteMask = DepthWriteMask.Zero;
-                desc.IsStencilEnabled = true;
-                desc.StencilReadMask = 0x80;
-                desc.StencilWriteMask = 0;
-                desc.BackFace.Comparison = Comparison.NotEqual;
-                desc.BackFace.DepthFailOperation = StencilOperation.Keep;
-                desc.BackFace.FailOperation = StencilOperation.Keep;
-                desc.BackFace.PassOperation = StencilOperation.Keep;
-                desc.FrontFace = desc.BackFace;
-                TestSkipGrassStencil = CreateResource("TestSkipGrassStencil", ref desc);
+                MyDepthStencilStateManager.TestHighlightInnerStencil = CreateResource("TestHighlightInnerStencil", ref desc);
             }
 
             {

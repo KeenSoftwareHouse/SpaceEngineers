@@ -35,10 +35,10 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
         shadow = calculate_shadow_fast(input.position, input.stencil);
 #endif
 
-        shadow = 1 - (1 - shadow) * (1 - frame_.shadowFadeout);
+        shadow = 1 - (1 - shadow) * (1 - frame_.Light.shadowFadeout);
 #endif
-        float lightAO = saturate(1 - (1 - input.ao) * frame_.aoDirLight);
-        float indirectAO = saturate(1 - (1 - input.ao) * frame_.aoIndirectLight);
+        float lightAO = saturate(1 - (1 - input.ao) * frame_.Light.aoDirLight);
+        float indirectAO = saturate(1 - (1 - input.ao) * frame_.Light.aoIndirectLight);
 
         float3 shaded = 0;
 		// emissive
@@ -59,8 +59,8 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 	}
 	else 	
 	{
-		output = SkyboxColor(input.V) * frame_.skyboxBrightness;
+		output = SkyboxColor(input.V) * frame_.Light.skyboxBrightness;
 
-        output += GetSunColor(-frame_.directionalLightVec, input.V, frame_.SunDiscColor, frame_.SunDiscInnerDot, frame_.SunDiscOuterDot); // multiplier 5
+        output += GetSunColor(-frame_.Light.directionalLightVec, input.V, frame_.Light.SunDiscColor, frame_.Light.SunDiscInnerDot, frame_.Light.SunDiscOuterDot); // multiplier 5
 	}
 }

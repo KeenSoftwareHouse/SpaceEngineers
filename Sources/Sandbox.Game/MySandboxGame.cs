@@ -1311,27 +1311,38 @@ namespace Sandbox
 
         protected virtual void LoadGui()
         {
-            MyGuiSandbox.LoadContent(new MyFontDescription[]
-            {
-                new MyFontDescription { Id = MyFontEnum.Debug,          Path = @"Fonts\white_shadow\FontData.xml", IsDebug = true },
-                new MyFontDescription { Id = MyFontEnum.Red,            Path = @"Fonts\red\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.Green,          Path = @"Fonts\green\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.Blue,           Path = @"Fonts\blue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.White,          Path = @"Fonts\white\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.DarkBlue,       Path = @"Fonts\DarkBlue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.UrlNormal,      Path = @"Fonts\blue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.UrlHighlight,   Path = @"Fonts\white\FontData.xml" },
+            var fontDefinitions = MyDefinitionManager.Static.GetFontDefinitions();
 
-                new MyFontDescription { Id = MyFontEnum.ErrorMessageBoxCaption, Path = @"Fonts\white\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.ErrorMessageBoxText,    Path = @"Fonts\red\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.InfoMessageBoxCaption,  Path = @"Fonts\white\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.InfoMessageBoxText,     Path = @"Fonts\blue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.ScreenCaption,          Path = @"Fonts\white\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.GameCredits,            Path = @"Fonts\blue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.LoadingScreen,          Path = @"Fonts\blue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.BuildInfo,              Path = @"Fonts\blue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.BuildInfoHighlight,     Path = @"Fonts\red\FontData.xml" },
-            });
+            MyFontDescription[] fontDescriptions = fontDefinitions.Select(x => new MyFontDescription() 
+            { 
+                Id = x.Id.SubtypeName,
+                Path = x.Path,
+                IsDebug = x.Default
+            }).ToArray();
+
+            MyGuiSandbox.LoadContent(fontDescriptions);
+
+            //MyGuiSandbox.LoadContent(new MyFontDescription[]
+            //{
+            //    new MyFontDescription { Id = MyFontEnum.Debug,          Path = @"Fonts\white_shadow\FontData.xml", IsDebug = true },
+            //    new MyFontDescription { Id = MyFontEnum.Red,            Path = @"Fonts\red\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.Green,          Path = @"Fonts\green\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.Blue,           Path = @"Fonts\blue\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.White,          Path = @"Fonts\white\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.DarkBlue,       Path = @"Fonts\DarkBlue\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.UrlNormal,      Path = @"Fonts\blue\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.UrlHighlight,   Path = @"Fonts\white\FontData.xml" },
+
+            //    new MyFontDescription { Id = MyFontEnum.ErrorMessageBoxCaption, Path = @"Fonts\white\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.ErrorMessageBoxText,    Path = @"Fonts\red\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.InfoMessageBoxCaption,  Path = @"Fonts\white\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.InfoMessageBoxText,     Path = @"Fonts\blue\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.ScreenCaption,          Path = @"Fonts\white\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.GameCredits,            Path = @"Fonts\blue\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.LoadingScreen,          Path = @"Fonts\blue\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.BuildInfo,              Path = @"Fonts\blue\FontData.xml" },
+            //    new MyFontDescription { Id = MyFontEnum.BuildInfoHighlight,     Path = @"Fonts\red\FontData.xml" },
+            //});
         }
 
         private void WriteHavokCodeToLog()
@@ -1817,24 +1828,12 @@ namespace Sandbox
         {
             get 
             { 
-                if(Sync.MultiplayerActive == false || (Sync.MultiplayerActive && Sync.IsServer == true  && Sync.Clients.Count < 2)) 
-                {
-                    return m_isPaused;
-                }
-                else
-                {
-                    if (m_isPaused)
-                    {
-                        m_isPaused = false;
-                        MyAudio.Static.ResumeGameSounds();
-                    }
-                }
-                return false;
+                return m_isPaused;
             }
 
             private set
             {
-                if (Sync.MultiplayerActive == false || (Sync.MultiplayerActive && Sync.IsServer == true && Sync.Clients.Count < 2))
+                if (Sync.MultiplayerActive == false)
                 {
                     if (m_isPaused != value)
                     {
@@ -1861,7 +1860,7 @@ namespace Sandbox
                         MyAudio.Static.ResumeGameSounds();
                     m_isPaused = false;
                 }
-                MyParticlesManager.Paused = value;
+                MyParticlesManager.Paused = m_isPaused;
             }
         }
 
@@ -1878,10 +1877,9 @@ namespace Sandbox
             UpdatePauseState(--m_pauseStackCount);
         }
 
-        private static bool m_isUserPaused = false;
-        public static void UserPauseToggle()
+        public static void PauseToggle()
         {
-            if (m_isUserPaused)
+            if (IsPaused)
             {
                 PausePop();
             }
@@ -1889,7 +1887,6 @@ namespace Sandbox
             {
                 PausePush();
             }
-            m_isUserPaused = !m_isUserPaused;
         }
 
         [Conditional("DEBUG")]
@@ -2345,6 +2342,9 @@ namespace Sandbox
                         {
                             var rMessage = (MyRenderMessageError)message;
                             ErrorConsumer.OnError("Renderer error", rMessage.Message, rMessage.Callstack);
+
+                            if (rMessage.ShouldTerminate)
+                                ExitThreadSafe();
                             break;
                         }
                     case MyRenderMessageEnum.ScreenshotTaken:
@@ -2366,20 +2366,6 @@ namespace Sandbox
                             {
                                 MySandboxGame.Static.OnScreenshotTaken(MySandboxGame.Static, null);
                             }
-                            break;
-                        }
-                    case MyRenderMessageEnum.TextNotDrawnToTexture:
-                        {
-                            if (MySession.Static == null)
-                                break;
-
-                            var rMessage = (MyRenderMessageTextNotDrawnToTexture)message;
-                            MyTextPanel panel = MyEntities.GetEntityById(rMessage.EntityId) as MyTextPanel;
-                            if (panel != null)
-                            {
-                                panel.FailedToRenderTexture = true;
-                            }
-
                             break;
                         }
 

@@ -4,13 +4,14 @@ using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using SharpDX.Direct3D;
 using VRage.Render11.Common;
 using VRage.Render11.Profiler;
 using VRage.Render11.Resources;
 using VRage.Render11.Tools;
 using VRageMath;
-
+using VRageRender.Utils;
 using Resource = SharpDX.Direct3D11.Resource;
 
 
@@ -257,6 +258,7 @@ namespace VRageRender
                 MyVoxelMaterials1.InvalidateMaterials();
                 MyMeshMaterials1.InvalidateMaterials();
                 MyManagers.FileTextures.DisposeTex(MyFileTextureManager.MyFileTextureHelper.IsQualityDependantFilter);
+                MyManagers.DynamicFileArrayTextures.ReloadAll();
 
                 //MyVoxelMaterials.ReloadTextures();
                 //MyMaterialProxyFactory.ReloadTextures();
@@ -299,13 +301,6 @@ namespace VRageRender
             ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
         }
 
-        internal static bool m_profilingStarted = false;
-
-        const int PresentTimesStored = 5;
-        internal static Queue<float> m_presentTimes = new Queue<float>();
-        internal static Stopwatch m_presentTimer;
-        internal static int m_consecutivePresentFails = 0;
-
         internal static void Present()
         {
             if (m_swapchain != null)
@@ -316,7 +311,7 @@ namespace VRageRender
                     if (m_screenshot.Value.SizeMult == VRageMath.Vector2.One)
                     {
                         MyCopyToRT.ClearAlpha(Backbuffer);
-                        SaveScreenshotFromResource(Backbuffer.Resource);
+                        SaveScreenshotFromResource(Backbuffer);
                     }
                     else
                     {
@@ -336,6 +331,8 @@ namespace VRageRender
 
                     MyStatsUpdater.Timestamps.Update(ref MyStatsUpdater.Timestamps.Present, ref MyStatsUpdater.Timestamps.PreviousPresent);
 
+                    MyManagers.OnUpdate();
+
                     if (VRage.OpenVRWrapper.MyOpenVR.Static != null)
                     {
                         MyGpuProfiler.IC_BeginBlock("OpenVR.FrameDone");
@@ -347,65 +344,40 @@ namespace VRageRender
                         GetRenderProfiler().EndProfilingBlock();
                         MyGpuProfiler.IC_EndBlock();
                     }
-
-                    m_consecutivePresentFails = 0;
-
-                    GetRenderProfiler().StartProfilingBlock("Stopwatch");
-                    if (m_presentTimer == null)
-                    {
-                        m_presentTimer = new Stopwatch();
-                    }
-                    else
-                    {
-                        m_presentTimer.Stop();
-
-                        if (m_presentTimes.Count >= PresentTimesStored)
-                        {
-                            m_presentTimes.Dequeue();
-                        }
-                        m_presentTimes.Enqueue(m_presentTimer.ElapsedMilliseconds);
-                    }
-
-                    m_presentTimer.Restart();
-                    GetRenderProfiler().EndProfilingBlock();
                 }
-                catch(SharpDXException e)
+                catch (SharpDXException e)
                 {
-                    Log.WriteLine("Device removed - resetting device; reason: " + e.Message);
-                    HandleDeviceReset();
-                    Log.WriteLine("Device removed - resetting completed");
+                    Log.WriteLine("Graphics device error! Reason:\n" + e.Message);
 
-                    m_consecutivePresentFails++;
-
-                    if (m_consecutivePresentFails == 5)
+                    if (e.Descriptor == SharpDX.DXGI.ResultCode.DeviceRemoved)
                     {
-                        Log.WriteLine("Present failed");
-                        Log.IncreaseIndent();
-
-                        if (e.Descriptor == SharpDX.DXGI.ResultCode.DeviceRemoved)
-                        {
-                            Log.WriteLine("Device removed: " + Device.DeviceRemovedReason);
-                        }
-
-                        var timings = "";
-                        while (m_presentTimes.Count > 0)
-                        {
-                            timings += m_presentTimes.Dequeue();
-                            if (m_presentTimes.Count > 0)
-                            {
-                                timings += ", ";
-                            }
-                        }
-
-                        Log.WriteLine("Last present timings = [ " + timings + " ]");
-                        Log.DecreaseIndent();
+                        Log.WriteLine("Device removed reason:\n" + Device.DeviceRemovedReason);
                     }
+
+                    Log.WriteLine("Exception stack trace:\n" + e.StackTrace);
+
+                    StringBuilder sb = new StringBuilder();
+
+                    foreach (var column in MyRenderStats.m_stats.Values)
+                    {
+                        foreach (var stats in column)
+                        {
+                            sb.Clear();
+                            stats.WriteTo(sb);
+                            Log.WriteLine(sb.ToString());
+                        }
+                    }
+
+                    MyStatsUpdater.UpdateStats();
+                    MyStatsDisplay.WriteTo(sb);
+                    Log.WriteLine(sb.ToString());
+                    
+                    throw new MyDeviceErrorException("The graphics device encountered a problem.\nSee the log for more details.");
                 }
 
                 GetRenderProfiler().StartProfilingBlock("GPU profiler");
                 MyGpuProfiler.EndFrame();
                 MyGpuProfiler.StartFrame();
-                m_profilingStarted = true;
                 GetRenderProfiler().EndProfilingBlock();
 
                 // waiting for change to fullscreen - window migh overlap or some other dxgi excuse to fail :(

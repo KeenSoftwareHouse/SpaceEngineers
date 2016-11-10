@@ -955,7 +955,11 @@ namespace Sandbox.Game.GameSystems
 
             ProfilerShort.BeginNextBlock("RecomputeThrustParameters");
             if (m_thrustsChanged)
+            {
                 RecomputeThrustParameters();
+                if (Entity is MyCubeGrid && Entity.Physics != null && !Entity.Physics.RigidBody.IsActive)
+                    (Entity as MyCubeGrid).ActivatePhysics();
+            }
 
             ProfilerShort.BeginNextBlock("UpdateThrusts");
             if (Enabled && Entity.Physics != null)
@@ -975,6 +979,7 @@ namespace Sandbox.Game.GameSystems
                     TurnOffThrusterFlame(m_dataByFuelType);
             }
             m_dampenersEnabledLastFrame = DampenersEnabled;
+            m_thrustsChanged = false;
             ProfilerShort.End();
         }
 
@@ -1047,8 +1052,6 @@ namespace Sandbox.Game.GameSystems
                 m_totalMaxNegativeThrust += group.MaxNegativeThrust;
                 m_totalMaxPositiveThrust += group.MaxPositiveThrust;
             }
-
-            m_thrustsChanged = false;
         }
 
         private void RecomputeTypeThrustParameters(FuelTypeData fuelData)
@@ -1130,7 +1133,7 @@ namespace Sandbox.Game.GameSystems
                 var fuelData = m_dataByFuelType[typeIndex];
 
                 ProfilerShort.Begin("UpdatePowerAndThrustStrength");
-                if ((Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive))
+                if ((Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive || m_thrustsChanged))
                     UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, null, true);
 
                 ProfilerShort.End();
@@ -1153,7 +1156,7 @@ namespace Sandbox.Game.GameSystems
                     FuelTypeData fuelData = group.DataByFuelType[typeIndex];
 
                     ProfilerShort.Begin("UpdatePowerAndThrustStrength");
-                    if ((Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive))
+                    if ((Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive || m_thrustsChanged))
                         UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, group, true);
 
                     ProfilerShort.End();
@@ -1170,6 +1173,7 @@ namespace Sandbox.Game.GameSystems
             ProfilerShort.End();
 
             m_controlThrustChanged = false;
+            m_thrustsChanged = false;
         }
 
         public Vector3 GetAutoPilotThrustForDirection(Vector3 direction)
@@ -1261,9 +1265,43 @@ namespace Sandbox.Game.GameSystems
                     networkThrust = ControlTrustNetwork;
                 }
 
+                // Get maximal thrust available on Grid in velocity direction.
+                Vector3 maxDirThrust = Vector3.Zero;
+                if (localVelocity.X > 0)
+                    maxDirThrust.X = m_totalMaxNegativeThrust.X;
+                else if (localVelocity.X < 0)
+                    maxDirThrust.X = m_totalMaxPositiveThrust.X;
+
+                if (localVelocity.Y > 0)
+                    maxDirThrust.Y = m_totalMaxNegativeThrust.Y;
+                else if (localVelocity.Y < 0)
+                    maxDirThrust.Y = m_totalMaxPositiveThrust.Y;
+
+                if (localVelocity.Z > 0)
+                    maxDirThrust.Z = m_totalMaxNegativeThrust.Z;
+                else if (localVelocity.Z < 0)
+                    maxDirThrust.Z = m_totalMaxPositiveThrust.Z;
+
+                // Get maximal thrust available on Thrust group in velocity direction.
+                // Not all groups has to have thrust available in desired direction.
+                Vector3 maxDirFuelDataThrust = Vector3.Zero;
+                if (localVelocity.X > 0)
+                    maxDirFuelDataThrust.X = fuelData.MaxNegativeThrust.X;
+                else if (localVelocity.X < 0)
+                    maxDirFuelDataThrust.X = fuelData.MaxPositiveThrust.X;
+
+                if (localVelocity.Y > 0)
+                    maxDirFuelDataThrust.Y = fuelData.MaxNegativeThrust.Y;
+                else if (localVelocity.Y < 0)
+                    maxDirFuelDataThrust.Y = fuelData.MaxPositiveThrust.Y;
+
+                if (localVelocity.Z > 0)
+                    maxDirFuelDataThrust.Z = fuelData.MaxNegativeThrust.Z;
+                else if (localVelocity.Z < 0)
+                    maxDirFuelDataThrust.Z = fuelData.MaxPositiveThrust.Z;
+
                 slowdownControl = Vector3.IsZeroVector(controlThrust + networkThrust, 0.001f) * Vector3.IsZeroVector(fuelData.ThrustOverride);
-                Vector3 maxThrust = m_totalMaxNegativeThrust + m_totalMaxPositiveThrust;
-                Vector3 ratioOfTotal = (fuelData.MaxPositiveThrust + fuelData.MaxNegativeThrust) / (maxThrust);
+                Vector3 ratioOfTotal = maxDirFuelDataThrust / maxDirThrust;
                 if (!ratioOfTotal.X.IsValid())
                     ratioOfTotal.X = 1;
                 if (!ratioOfTotal.Y.IsValid())

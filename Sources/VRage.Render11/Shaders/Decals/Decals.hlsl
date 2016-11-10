@@ -2,11 +2,11 @@
 
 #ifdef RENDER_TO_TRANSPARENT
 #define OIT
+#include <Transparent/OIT/Globals.hlsli>
 #endif
 
 #include <Common.hlsli>
 #include <Frame.hlsli>
-#include <Transparent/OIT/Globals.hlsli>
 #include <VertexTransformations.hlsli>
 #include <PixelUtils.hlsli>
 #include <GBuffer/GBufferWrite.hlsli>
@@ -32,7 +32,7 @@ struct DecalConstants
 
 cbuffer DecalConstants : register ( b2 )
 {
-	DecalConstants Decals[512];
+    DecalConstants Decals[512];
 };
 
 struct VsOut
@@ -60,7 +60,7 @@ VsOut __vertex_shader(uint vertex_id : SV_VertexID)
 	float4 wposition = mul(float4(vertexPosition.xyz, 1), worldMatrix);
 
 	VsOut result;
-	result.position = mul(wposition, frame_.view_projection_matrix);
+	result.position = mul(wposition, frame_.Environment.view_projection_matrix);
 	result.normal = normalize(mul(float3(0,0,-1), (float3x3)worldMatrix));
 	result.id = decalId;
 	return result;
@@ -70,12 +70,12 @@ VsOut __vertex_shader(uint vertex_id : SV_VertexID)
 // decalPosL: decal pixel position in decal coordinates
 void GetDecalPosition(uint decalId, float2 screencoord, float depth, out float3 decalPosV, out float4 decalPosL)
 {
-    screencoord -= frame_.offset_in_gbuffer;
-    float2 uv = screencoord / frame_.resolution;
+    screencoord -= frame_.Screen.offset_in_gbuffer;
+    float2 uv = screencoord / frame_.Screen.resolution;
 
     float3 screen_ray = compute_screen_ray(uv);
     float3 Vinv = view_to_world(screen_ray);
-    decalPosV = Vinv * depth - frame_.eye_offset_in_world;
+    decalPosV = Vinv * depth - frame_.Environment.eye_offset_in_world;
 
     decalPosL = mul(float4(decalPosV, 1), Decals[decalId].InvWorldMatrix);
     decalPosL /= decalPosL.w;

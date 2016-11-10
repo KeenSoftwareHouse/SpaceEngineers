@@ -9,6 +9,17 @@ namespace VRageRender
 {
     public static class MeshIdExtensions
     {
+        internal static int GetIndexCount(this MeshId meshId)
+        {
+            int indexCount = 0;
+            if (MyMeshes.IsMergedVoxelMesh(meshId))
+                indexCount = MyMeshes.GetMergedLodMesh(meshId, 0).Info.IndicesNum;
+            else
+                indexCount = MyMeshes.GetLodMesh(meshId, 0).Info.IndicesNum;
+
+            return indexCount;
+        }
+
         internal static BoundingBox? GetBoundingBox(this MeshId meshId, int lod)
         {
             return MyMeshes.IsMergedVoxelMesh(meshId) ? MyMeshes.GetMergedLodMesh(meshId, 0).Info.BoundingBox : MyMeshes.GetLodMesh(meshId, lod).Info.BoundingBox;
@@ -32,17 +43,6 @@ namespace VRageRender
                 buffers = MyMeshes.GetLodMesh(meshId, 0).Buffers;
 
             return buffers;
-        }
-
-        internal static int GetIndexCount(this MeshId meshId)
-        {
-            int indexCount = 0;
-            if (MyMeshes.IsMergedVoxelMesh(meshId))
-                indexCount = MyMeshes.GetMergedLodMesh(meshId, 0).Info.IndicesNum;
-            else
-                indexCount = MyMeshes.GetLodMesh(meshId, 0).Info.IndicesNum;
-
-            return indexCount;
         }
 
         internal static bool ShouldHaveFoliage(this MeshId meshId)

@@ -542,8 +542,8 @@ namespace Sandbox.Game.Entities.Cube
                     // Convert free small grids to dynamic
                     foreach (var smallGrid in m_tmpGrids)
                     {
-                        if (!smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
-                            smallGrid.TestDynamic = true;
+                        if (smallGrid.TestDynamic == MyCubeGrid.MyTestDynamicReason.NoReason && !SmallGridIsStatic(smallGrid))
+                            smallGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                     }
                 }
 
@@ -559,8 +559,8 @@ namespace Sandbox.Game.Entities.Cube
                     if (Sync.IsServer && block.CubeGrid.GetBlocks().Count > 0)
                     {
                         // Convert free small grid to dynamic
-                        if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
-                            block.CubeGrid.TestDynamic = true;
+                        if (block.CubeGrid.TestDynamic == MyCubeGrid.MyTestDynamicReason.NoReason && !SmallGridIsStatic(block.CubeGrid))
+                            block.CubeGrid.TestDynamic =  MyCubeGrid.MyTestDynamicReason.GridSplit;
                     }
                     return;
                 }
@@ -593,8 +593,8 @@ namespace Sandbox.Game.Entities.Cube
                 if (Sync.IsServer && !m_mapSmallGridToConnectedBlocks.TryGetValue(block.CubeGrid, out connections) && block.CubeGrid.GetBlocks().Count > 0)
                 {
                     // Convert free small grid to dynamic
-                    if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
-                        block.CubeGrid.TestDynamic = true;
+                    if (block.CubeGrid.TestDynamic == MyCubeGrid.MyTestDynamicReason.NoReason && !SmallGridIsStatic(block.CubeGrid))
+                        block.CubeGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                 }
             }
 
@@ -659,8 +659,8 @@ namespace Sandbox.Game.Entities.Cube
                 // Convert free small grids to dynamic
                 foreach (var smallGrid in m_tmpGrids)
                 {
-                    if (smallGrid.IsStatic && !smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
-                        smallGrid.TestDynamic = true;
+                    if (smallGrid.IsStatic && smallGrid.TestDynamic == MyCubeGrid.MyTestDynamicReason.NoReason && !SmallGridIsStatic(smallGrid))
+                        smallGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                 }
             }
 
@@ -948,12 +948,12 @@ namespace Sandbox.Game.Entities.Cube
             {
                 // Test dynamic
                 if (!m_mapSmallGridToConnectedBlocks.TryGetValue(originalGrid, out connections) || connections.Count == 0)
-                    originalGrid.TestDynamic = true;
+                    originalGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
 
                 foreach (var split in gridSplits)
                 {
                     if (!m_mapSmallGridToConnectedBlocks.TryGetValue(split, out connections) || connections.Count == 0)
-                        split.TestDynamic = true;
+                        split.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                 }
             }
         }

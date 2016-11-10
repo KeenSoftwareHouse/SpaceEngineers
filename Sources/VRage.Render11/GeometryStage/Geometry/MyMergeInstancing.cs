@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using VRage.Render11.Common;
 using VRage.Render11.Resources;
 using VRageMath;
@@ -54,9 +55,9 @@ namespace VRageRender
     {
         internal MyMeshTableSrv m_meshTable;
 
-        internal StructuredBufferId m_indirectionBuffer = StructuredBufferId.NULL;
-        internal StructuredBufferId m_instanceBuffer = StructuredBufferId.NULL;
-        internal ShaderResourceView[] m_srvs = new ShaderResourceView[2];
+        internal ISrvBuffer m_indirectionBuffer;
+        internal ISrvBuffer m_instanceBuffer;
+        internal ISrvBindable[] m_srvs = new ISrvBindable[2];
 
         Dictionary<uint, MyInstanceInfo> m_entities = new Dictionary<uint, MyInstanceInfo>();
 
@@ -98,7 +99,8 @@ namespace VRageRender
             m_entities[ID] = new MyInstanceInfo { InstanceIndex = instanceIndex, PageHandles = new List<MyPackedPoolHandle>() };
 
             int pageOffset = -1;
-            foreach (var id in m_meshTable.Pages(MyMeshTableSrv.MakeKey(model)))
+            var key = MyMeshTableSrv.MakeKey(model);
+            foreach (var id in m_meshTable.Pages(key))
             {
                 if (pageOffset == -1)
                     pageOffset = id;
@@ -146,15 +148,11 @@ namespace VRageRender
 
         internal void OnDeviceReset()
         {
-            if (m_indirectionBuffer != StructuredBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(m_indirectionBuffer);
-                MyHwBuffers.Destroy(m_instanceBuffer);
-            }
+            if (m_indirectionBuffer != null)
+                MyManagers.Buffers.Dispose(m_indirectionBuffer); m_indirectionBuffer = null;
+            if (m_instanceBuffer != null)
+                MyManagers.Buffers.Dispose(m_instanceBuffer); m_instanceBuffer = null;
 
-            m_indirectionBuffer = StructuredBufferId.NULL;
-            m_instanceBuffer = StructuredBufferId.NULL;
-            
             Array.Clear(m_srvs, 0, m_srvs.Length);
 
             m_tableDirty = true;
@@ -163,18 +161,18 @@ namespace VRageRender
 
         internal unsafe void MoveToGPU()
         {
-            var context = MyImmediateRC.RC;
-
             if (m_tableDirty)
             {
                 var array = m_instancingTable.Data;
 
                 fixed (void* ptr = array)
                 {
-                    var intPtr = new IntPtr(ptr);
-                    MyHwBuffers.ResizeAndUpdateStaticStructuredBuffer(ref m_indirectionBuffer, array.Length, sizeof(MyInstancingTableEntry), intPtr,
-                        "MyMergeInstancing/Tables", context);
-                    m_srvs[0] = m_indirectionBuffer.Srv;
+                    // m_indirectionBuffer used to be resized each time here; it is now only resized when it needs to grow
+                    // If this causes issues, change it back to resize to exactly array.Length each time
+                    CreateResizeOrFill(
+                        "MyMergeInstancing/Tables", ref m_indirectionBuffer, array.Length,
+                        array, new IntPtr(ptr));
+                    m_srvs[0] = m_indirectionBuffer;
                 }
 
                 m_tableDirty = false;
@@ -186,28 +184,35 @@ namespace VRageRender
 
                 fixed (void* ptr = array)
                 {
-                    var intPtr = new IntPtr(ptr);
-
-                    if (m_instanceBuffer != StructuredBufferId.NULL && m_instanceBuffer.Capacity < array.Length)
-                    {
-                        MyHwBuffers.Destroy(m_instanceBuffer);
-                        m_instanceBuffer = StructuredBufferId.NULL;
-                        m_srvs[1] = null;
-                    }
-                    if (m_instanceBuffer == StructuredBufferId.NULL)
-                    {
-                        m_instanceBuffer = MyHwBuffers.CreateStructuredBuffer(array.Length, sizeof(MyPerInstanceData), true, intPtr, "MyMergeInstancing instances");
-                        m_srvs[1] = m_instanceBuffer.Srv;
-                    }
-                    else
-                    {
-                        var mapping = MyMapping.MapDiscard(MyImmediateRC.RC, m_instanceBuffer.Buffer);
-                        mapping.WriteAndPosition(array, 0, array.Length);
-                        mapping.Unmap();
-                    }
+                    CreateResizeOrFill(
+                        "MyMergeInstancing instances", ref m_instanceBuffer, array.Length,
+                        array, new IntPtr(ptr));
+                    m_srvs[1] = m_instanceBuffer;
                 }
 
                 m_instancesDataDirty = false;
+            }
+        }
+
+        void CreateResizeOrFill<TDataElement>(string name, ref ISrvBuffer buffer, int size, TDataElement[] data, IntPtr rawData)
+            where TDataElement : struct
+        {
+            if (buffer != null && buffer.ElementCount < size)
+            {
+                MyManagers.Buffers.Resize(buffer, size, newData: rawData);
+            }
+            if (buffer == null)
+            {
+                // We can't create ptr to a generic array here, we have to get it through param :'(
+                buffer = MyManagers.Buffers.CreateSrv(
+                    name, size, Marshal.SizeOf<TDataElement>(),
+                    rawData, ResourceUsage.Dynamic);
+            }
+            else
+            {
+                var mapping = MyMapping.MapDiscard(MyImmediateRC.RC, buffer);
+                mapping.WriteAndPosition(data, data.Length * Marshal.SizeOf<TDataElement>());
+                mapping.Unmap();
             }
         }
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Profiler;
+using VRage.Render11.Common;
 using VRage.Render11.Resources;
 using VRageMath;
 using VRageRender.Messages;
@@ -20,7 +21,7 @@ namespace VRageRender
 
         internal MyInstancingInfo Info { get { return MyInstancing.Instancings.Data[Index]; } }
 
-        internal VertexBufferId VB { get { return MyInstancing.Data[Index].VB; } }
+        internal IVertexBuffer VB { get { return MyInstancing.Data[Index].VB; } }
 
         #region Equals
         public static bool operator ==(InstancingId x, InstancingId y)
@@ -102,7 +103,7 @@ namespace VRageRender
 
     struct MyInstancingData
     {
-        internal VertexBufferId VB;
+        internal IVertexBuffer VB;
     }
 
     static class MyInstancing
@@ -150,7 +151,7 @@ namespace VRageRender
             };
 
             MyArrayHelpers.Reserve(ref Data, id.Index + 1);
-            Data[id.Index] = new MyInstancingData { VB = VertexBufferId.NULL };
+            Data[id.Index] = new MyInstancingData();
 
             if (type == MyRenderInstanceBufferType.Cube)
             {
@@ -171,11 +172,8 @@ namespace VRageRender
 
         internal static void RemoveResource(InstancingId id)
         {
-            if (Data[id.Index].VB != VertexBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(Data[id.Index].VB);
-                Data[id.Index].VB = VertexBufferId.NULL;
-            }
+            if (Data[id.Index].VB != null)
+                MyManagers.Buffers.Dispose(Data[id.Index].VB); Data[id.Index].VB = null;
         }
 
         internal static void Remove(uint GID, InstancingId id)
@@ -344,7 +342,7 @@ namespace VRageRender
                 Matrix invBinding = decalTopo.MatrixBinding * localCubeMatrixInv;
                 Matrix transform = invBinding * skinningMatrix;
 
-                m_tmpDecalsUpdate.Add(new MyDecalPositionUpdate() { ID = decal.DecalId, Transform = transform  });
+                m_tmpDecalsUpdate.Add(new MyDecalPositionUpdate() { ID = decal.DecalId, Transform = transform });
             }
 
             MyScreenDecals.UpdateDecals(m_tmpDecalsUpdate);
@@ -358,7 +356,24 @@ namespace VRageRender
 
             fixed (byte* ptr = info.Data)
             {
-                MyHwBuffers.ResizeAndUpdateStaticVertexBuffer(ref Data[id.Index].VB, info.VisibleCapacity, info.Stride, new IntPtr(ptr), info.DebugName);
+                IVertexBuffer buffer = Data[id.Index].VB;
+                if (buffer == null)
+                {
+                    Data[id.Index].VB = MyManagers.Buffers.CreateVertexBuffer(
+                        info.DebugName, info.VisibleCapacity, info.Stride,
+                        new IntPtr(ptr), SharpDX.Direct3D11.ResourceUsage.Dynamic);
+                }
+                else if (buffer.ElementCount < info.VisibleCapacity ||
+                         buffer.Description.StructureByteStride != info.Stride)
+                {
+                    MyManagers.Buffers.Resize(Data[id.Index].VB, info.VisibleCapacity, info.Stride, new IntPtr(ptr));
+                }
+                else
+                {
+                    var mapping = MyMapping.MapDiscard(MyImmediateRC.RC, buffer);
+                    mapping.WriteAndPosition(info.Data, info.VisibleCapacity * info.Stride);
+                    mapping.Unmap();
+                }
             }
         }
 

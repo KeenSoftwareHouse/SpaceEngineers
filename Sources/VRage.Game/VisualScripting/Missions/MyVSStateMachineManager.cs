@@ -9,7 +9,12 @@ namespace VRage.Game.VisualScripting
     public class MyVSStateMachineManager
     {
         private readonly CachingList<MyVSStateMachine> m_runningMachines = new CachingList<MyVSStateMachine>();
-        private readonly Dictionary<string, MyObjectBuilder_ScriptSM> m_machineDefinitions = new Dictionary<string, MyObjectBuilder_ScriptSM>();    
+        private readonly Dictionary<string, MyObjectBuilder_ScriptSM> m_machineDefinitions = new Dictionary<string, MyObjectBuilder_ScriptSM>();
+
+        public IEnumerable<MyVSStateMachine> RunningMachines
+        {
+            get { return m_runningMachines; }
+        }
 
         public void Update()
         {

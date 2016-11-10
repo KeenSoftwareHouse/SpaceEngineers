@@ -92,6 +92,9 @@ namespace VRage.Game.Models
             InputLineInObjectSpace = line;
 
             NormalInObjectSpace = MyUtils.GetNormalVectorFromTriangle(ref Triangle.InputTriangle);
+            // fixme: calculated normal for degenerated triangles was NaN; here should be some better calculation of normal from degenerated triangle
+            if (!NormalInObjectSpace.IsValid())
+                NormalInObjectSpace = new Vector3(0, 0, 1);
             IntersectionPointInObjectSpace = line.From + line.Direction * Triangle.Distance;
 
             if (Entity is IMyVoxelBase)

@@ -27,8 +27,14 @@ namespace VRageRender
         DriverError
     }
 
-    public class MyDeviceLostException : Exception
+    public class MyDeviceErrorException : Exception
     {
+        public string Message;
+
+        public MyDeviceErrorException(string message)
+        {
+            Message = message;
+        }
     }
 
     public delegate void OnShaderCacheProgressDelegate(float percents, string file, string profile, string vertexLayout, string macros, string message, bool importantMessage);

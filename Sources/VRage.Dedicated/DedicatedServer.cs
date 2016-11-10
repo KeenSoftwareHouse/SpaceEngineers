@@ -154,7 +154,7 @@ namespace VRage.Dedicated
                     game.Run();
                 }
 
-                if (MySandboxGame.IsConsoleVisible && !MySandboxGame.IsReloading)
+                if (MySandboxGame.IsConsoleVisible && !MySandboxGame.IsReloading && !Console.IsInputRedirected)
                 {
                     Console.WriteLine("Server stopped, press any key to close this window");
                     Console.ReadKey(false);

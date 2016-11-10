@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRageMath.PackedVector;
 
 namespace VRageMath
 {
@@ -30,6 +31,13 @@ namespace VRageMath
             Y = xyz.Y;
             Z = xyz.Z;
             W = w;
+        }
+
+        public static explicit operator Byte4(Vector4I xyzw)
+        {
+            Byte4 b4;
+            b4 = new Byte4(xyzw.X, xyzw.Y, xyzw.Z, xyzw.W);
+            return b4;
         }
 
         public class EqualityComparer : IEqualityComparer<Vector4I>, IComparer<Vector4I>

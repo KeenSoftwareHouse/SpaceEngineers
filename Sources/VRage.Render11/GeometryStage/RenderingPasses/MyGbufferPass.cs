@@ -1,10 +1,7 @@
 ﻿using System.Diagnostics;
-using VRage.Import;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
 using VRageRender.Import;
-using Matrix = VRageMath.Matrix;
-using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
@@ -26,14 +23,14 @@ namespace VRageRender
             RC.SetRtvs(GBuffer, MyDepthStencilAccess.ReadWrite);
         }
 
-        protected unsafe override sealed void RecordCommandsInternal(MyRenderableProxy proxy)
+        protected sealed override unsafe void RecordCommandsInternal(MyRenderableProxy proxy)
         {
-            if ((proxy.Mesh.Buffers.IB == IndexBufferId.NULL && proxy.MergedMesh.Buffers.IB == IndexBufferId.NULL)
+            if ((proxy.Mesh.Buffers.IB == null && proxy.MergedMesh.Buffers.IB == null)
                 || proxy.DrawSubmesh.IndexCount == 0
                 || proxy.Flags.HasFlags(MyRenderableProxyFlags.SkipInMainView))
                 return;
 
-            ++Stats.Meshes;
+            ++Stats.Draws;
 
             SetProxyConstants(proxy);
             BindProxyGeometry(proxy, RC);
@@ -60,10 +57,19 @@ namespace VRageRender
                 {
                     switch (technique)
                     {
-                        case MyMeshDrawTechnique.DECAL_CUTOUT:
                         case MyMeshDrawTechnique.DECAL:
                             SetDepthStencilView(true);
-                            MyMeshMaterials1.BindMaterialTextureBlendStates(RC, proxy.Material.Info.TextureTypes);
+                            MyMeshMaterials1.BindMaterialTextureBlendStates(RC, proxy.Material.Info.TextureTypes, true);
+                            RC.SetRasterizerState(MyRasterizerStateManager.NocullDecalRasterizerState);
+                            break;
+                        case MyMeshDrawTechnique.DECAL_NOPREMULT:
+                            SetDepthStencilView(true);
+                            MyMeshMaterials1.BindMaterialTextureBlendStates(RC, proxy.Material.Info.TextureTypes, false);
+                            RC.SetRasterizerState(MyRasterizerStateManager.NocullDecalRasterizerState);
+                            break;
+                        case MyMeshDrawTechnique.DECAL_CUTOUT:
+                            SetDepthStencilView(true);
+                            RC.SetBlendState(null);
                             RC.SetRasterizerState(MyRasterizerStateManager.NocullDecalRasterizerState);
                             break;
                         default:
@@ -78,9 +84,18 @@ namespace VRageRender
                     switch (technique)
                     {
                         case MyMeshDrawTechnique.DECAL:
+                            SetDepthStencilView(true);
+                            MyMeshMaterials1.BindMaterialTextureBlendStates(RC, proxy.Material.Info.TextureTypes, true);
+                            RC.SetRasterizerState(MyRasterizerStateManager.DecalRasterizerState);
+                            break;
+                        case MyMeshDrawTechnique.DECAL_NOPREMULT:
+                            SetDepthStencilView(true);
+                            MyMeshMaterials1.BindMaterialTextureBlendStates(RC, proxy.Material.Info.TextureTypes, false);
+                            RC.SetRasterizerState(MyRasterizerStateManager.DecalRasterizerState);
+                            break;
                         case MyMeshDrawTechnique.DECAL_CUTOUT:
                             SetDepthStencilView(true);
-                            MyMeshMaterials1.BindMaterialTextureBlendStates(RC, proxy.Material.Info.TextureTypes);
+                            RC.SetBlendState(null);
                             RC.SetRasterizerState(MyRasterizerStateManager.DecalRasterizerState);
                             break;
                         default:
@@ -212,6 +227,11 @@ namespace VRageRender
             base.End();
 
             RC.EndProfilingBlock();
+        }
+
+        protected override MyFrustumEnum FrustumType
+        {
+            get { return MyFrustumEnum.MainFrustum; }
         }
 
 #if XB1

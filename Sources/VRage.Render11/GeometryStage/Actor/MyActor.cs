@@ -11,7 +11,23 @@ namespace VRageRender
 {
     internal class MyActor
     {
+        #region Fields
+
+        private MyIDTracker<MyActor> m_ID;
         internal MatrixD WorldMatrix;
+        internal BoundingBoxD Aabb;
+        internal Matrix? RelativeTransform;
+        internal BoundingBox? LocalAabb;
+        private bool m_renderProxyDirty;
+        private bool m_visible;
+
+        #endregion // Fields
+
+        private readonly MyIndexedComponentContainer<MyActorComponent> m_components = new MyIndexedComponentContainer<MyActorComponent>();
+
+        public bool IsVisible { get { return m_visible; } }
+
+        public bool RenderDirty { get { return m_renderProxyDirty; } }
 
         internal Matrix LocalMatrix
         {
@@ -23,19 +39,6 @@ namespace VRageRender
             }
         }
 
-        internal BoundingBoxD Aabb;
-        internal Matrix? m_relativeTransform;
-        internal BoundingBox? m_localAabb;
-
-        private bool m_renderProxyDirty;
-        private bool m_visible;
-
-        internal bool IsVisible { get { return m_visible; } }
-
-        internal bool RenderDirty { get { return m_renderProxyDirty; } }
-
-        private MyIDTracker<MyActor> m_ID;
-
         internal void Construct()
         {
             m_components.Clear();
@@ -44,8 +47,8 @@ namespace VRageRender
 
             MyUtils.Init(ref m_ID);
             m_ID.Clear();
-            m_localAabb = null;
-            m_relativeTransform = null;
+            LocalAabb = null;
+            RelativeTransform = null;
 
             Aabb = BoundingBoxD.CreateInvalid();
         }
@@ -98,9 +101,9 @@ namespace VRageRender
 
         internal void SetLocalAabb(BoundingBox localAabb)
         {
-            m_localAabb = localAabb;
+            LocalAabb = localAabb;
 
-            Aabb = m_localAabb.Value.Transform(WorldMatrix);
+            Aabb = LocalAabb.Value.Transform(ref WorldMatrix);
 
             for (int i = 0; i < m_components.Count; i++)
                 m_components[i].OnAabbChange();
@@ -108,7 +111,7 @@ namespace VRageRender
 
         internal void SetRelativeTransform(Matrix? m)
         {
-            m_relativeTransform = m;
+            RelativeTransform = m;
         }
 
         internal void SetVisibility(bool visibility)
@@ -125,16 +128,16 @@ namespace VRageRender
         internal void SetMatrix(ref MatrixD matrix)
         {
             WorldMatrix = matrix;
-            if (m_localAabb.HasValue)
+            if (LocalAabb.HasValue)
             {
-                Aabb = (BoundingBoxD)m_localAabb.Value.Transform(WorldMatrix);
+                Aabb = LocalAabb.Value.Transform(ref matrix);
             }
             // figure out final matrix
 
             for (int i = 0; i < m_components.Count; i++)
                 m_components[i].OnMatrixChange();
 
-            if (m_localAabb.HasValue)
+            if (LocalAabb.HasValue)
             {
                 for (int i = 0; i < m_components.Count; i++)
                     m_components[i].OnAabbChange();
@@ -153,8 +156,6 @@ namespace VRageRender
         {
             return (float)Aabb.Distance(MyRender11.Environment.Matrices.CameraPosition);
         }
-
-        private readonly MyIndexedComponentContainer<MyActorComponent> m_components = new MyIndexedComponentContainer<MyActorComponent>();
 
         internal void AddComponent<T>(MyActorComponent component) where T : MyActorComponent
         {

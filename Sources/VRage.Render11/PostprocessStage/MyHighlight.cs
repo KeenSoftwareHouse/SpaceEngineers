@@ -14,8 +14,8 @@ using VRageMath;
 
 namespace VRageRender
 {
-    struct MyOutlineDesc {
-        internal MyStringId Material;
+    struct MyHighlightDesc
+    {
         internal int SectionIndex;
         internal Color Color;
         internal float Thickness;
@@ -23,9 +23,10 @@ namespace VRageRender
         internal int InstanceId;
     }
 
-    class MyOutline : MyImmediateRC
+    class MyHighlight : MyImmediateRC
     {
-        private static Dictionary<uint, List<MyOutlineDesc>> m_outlines = new Dictionary<uint, List<MyOutlineDesc>>();
+        public const byte HIGHLIGHT_STENCIL_MASK = 0x40;
+        private static Dictionary<uint, List<MyHighlightDesc>> m_highlights = new Dictionary<uint, List<MyHighlightDesc>>();
         private static List<uint> m_keysToRemove = new List<uint>();
 
         internal static void Init()
@@ -34,7 +35,7 @@ namespace VRageRender
 
         /// <param name="sectionIndex">-1 for all the mesh</param>
         /// <param name="thickness">Zero or negative remove the outline</param>
-        internal static void HandleOutline(uint ID, int sectionIndex, Color? outlineColor, float thickness, ulong pulseTimeInFrames)
+        internal static void HandleHighlight(uint ID, int sectionIndex, Color? outlineColor, float thickness, ulong pulseTimeInFrames)
         {
             if (thickness > 0)
                 Add(ID, sectionIndex, outlineColor.Value, thickness, pulseTimeInFrames);
@@ -44,7 +45,7 @@ namespace VRageRender
 
         /// <param name="sectionIndices">null for all the mesh</param>
         /// <param name="thickness">Zero or negative remove the outline</param>
-        internal static void HandleOutline(uint ID, int[] sectionIndices, Color? outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId)
+        internal static void HandleHighlight(uint ID, int[] sectionIndices, Color? outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId)
         {
             if (thickness > 0)
             {
@@ -66,10 +67,10 @@ namespace VRageRender
 
         private static void Add(uint ID, int sectionIndex, Color outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId = -1)
         {
-            if (!m_outlines.ContainsKey(ID))
-                m_outlines[ID] = new List<MyOutlineDesc>();
+            if (!m_highlights.ContainsKey(ID))
+                m_highlights[ID] = new List<MyHighlightDesc>();
 
-            m_outlines[ID].Add(new MyOutlineDesc
+            m_highlights[ID].Add(new MyHighlightDesc
             {
                 SectionIndex = sectionIndex,
                 Color = outlineColor,
@@ -81,28 +82,26 @@ namespace VRageRender
 
         private static void Remove(uint ID)
         {
-            m_outlines.Remove(ID);
+            m_highlights.Remove(ID);
         }
 
-        internal static bool AnyOutline()
+        internal static void Run(IRtvBindable target, ICustomTexture fxaaTarget, IDepthStencil depthStencilCopy)
         {
-            return m_outlines.Count > 0;
-        }
+            if (!HasHighlights)
+                return;
 
-        internal static IBorrowedRtvTexture Run()
-        {
-            ProfilerShort.Begin("MyOutline.Run");
-            MyGpuProfiler.IC_BeginBlock("MyOutline.Run");
+            ProfilerShort.Begin("MyHighlight.Run");
+            MyGpuProfiler.IC_BeginBlock("MyHighlight.Run");
             // set resolved depth/ stencil
             // render all with proper depth-stencil state
             // blur
             // blend to main target testing with stencil again
 
-            MyOutlinePass.Instance.ViewProjection = MyRender11.Environment.Matrices.ViewProjectionAt0;
-            MyOutlinePass.Instance.Viewport = new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
+            MyHighlightPass.Instance.ViewProjection = MyRender11.Environment.Matrices.ViewProjectionAt0;
+            MyHighlightPass.Instance.Viewport = new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
 
-            MyOutlinePass.Instance.PerFrame();
-            MyOutlinePass.Instance.Begin();
+            MyHighlightPass.Instance.PerFrame();
+            MyHighlightPass.Instance.Begin();
 
             RC.VertexShader.SetSrvs(0, null, null, null, null, null, null);
             RC.GeometryShader.SetSrvs(0, null, null, null, null, null, null);
@@ -110,13 +109,13 @@ namespace VRageRender
             RC.ComputeShader.SetSrvs(0, null, null, null, null, null, null);
 
             int samples = MyRender11.RenderSettings.AntialiasingMode.SamplesCount();
-            IBorrowedRtvTexture rgba8_1 = MyManagers.RwTexturesPool.BorrowRtv("MyOutline.Rgba8_1", Format.R8G8B8A8_UNorm_SRgb, samples);
+            IBorrowedRtvTexture rgba8_1 = MyManagers.RwTexturesPool.BorrowRtv("MyHighlight.Rgba8_1", Format.R8G8B8A8_UNorm_SRgb, samples);
             RC.ClearRtv(rgba8_1, new SharpDX.Color4(0, 0, 0, 0));
-            RC.SetRtv(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadWrite, rgba8_1);
+            RC.SetRtv(depthStencilCopy, MyDepthStencilAccess.DepthReadOnly, rgba8_1);
 
             float maxThickness = 0f;
 
-            foreach (var pair in m_outlines)
+            foreach (var pair in m_highlights)
             {
                 MyActor actor = MyIDTracker<MyActor>.FindByID(pair.Key);
                 MyRenderableComponent renderableComponent;
@@ -137,7 +136,7 @@ namespace VRageRender
                     continue;
                 }
 
-                foreach (MyOutlineDesc descriptor in pair.Value)
+                foreach (MyHighlightDesc descriptor in pair.Value)
                 {
 
                     if (!renderableComponent.IsRenderedStandAlone)
@@ -162,11 +161,11 @@ namespace VRageRender
                 }
             }
 
-            MyOutlinePass.Instance.End();
+            MyHighlightPass.Instance.End();
             RC.SetBlendState(null);
 
             foreach (var outlineKey in m_keysToRemove)
-                m_outlines.Remove(outlineKey);
+                m_highlights.Remove(outlineKey);
 
             m_keysToRemove.SetSize(0);
 
@@ -175,32 +174,75 @@ namespace VRageRender
 
             if (maxThickness > 0)
             {
-                IBorrowedRtvTexture rgba8_2 = MyManagers.RwTexturesPool.BorrowRtv("MyOutline.Rgba8_2", Format.R8G8B8A8_UNorm_SRgb);
+                IBorrowedRtvTexture rgba8_2 = MyManagers.RwTexturesPool.BorrowRtv("MyHighlight.Rgba8_2", Format.R8G8B8A8_UNorm_SRgb);
                 MyBlur.Run(renderTargetview, rgba8_2, initialSourceView,
                     (int)Math.Round(maxThickness), MyBlur.MyBlurDensityFunctionType.Exponential, 0.25f,
-                    MyDepthStencilStateManager.TestSkipGrassStencil, MyFoliageRenderingPass.GrassStencilMask);
+                    MyDepthStencilStateManager.IgnoreDepthStencil);
                 rgba8_2.Release();
             }
 
             MyGpuProfiler.IC_EndBlock();
             ProfilerShort.End();
 
-            return rgba8_1;
+            BlendHighlight(target, rgba8_1, fxaaTarget, depthStencilCopy);
+        }
+
+        public static bool HasHighlights
+        {
+            get { return m_highlights.Count > 0; }
+        }
+
+        private static void BlendHighlight(IRtvBindable target, ISrvBindable outlined, ICustomTexture fxaaTarget, IDepthStencil depthStencilCopy)
+        {
+            MyGpuProfiler.IC_BeginBlock("Highlight Blending");
+            ProfilerShort.Begin("Highlight Blending");
+            if (fxaaTarget != null)
+            {
+                MyBlendTargets.RunWithStencil(
+                    fxaaTarget.SRgb,
+                    outlined,
+                    MyBlendStateManager.BlendAdditive,
+                    MyDepthStencilStateManager.TestHighlightOuterStencil,
+                    HIGHLIGHT_STENCIL_MASK,
+                    depthStencilCopy);
+                MyBlendTargets.RunWithStencil(
+                    fxaaTarget.SRgb,
+                    outlined,
+                    MyBlendStateManager.BlendTransparent,
+                    MyDepthStencilStateManager.TestHighlightInnerStencil,
+                    HIGHLIGHT_STENCIL_MASK,
+                    depthStencilCopy);
+            }
+            else
+            {
+                if (MyRender11.MultisamplingEnabled)
+                {
+                    MyBlendTargets.RunWithPixelStencilTest(target, outlined, MyBlendStateManager.BlendAdditive, false, depthStencilCopy);
+                    MyBlendTargets.RunWithPixelStencilTest(target, outlined, MyBlendStateManager.BlendTransparent, true, depthStencilCopy);
+                }
+                else
+                {
+                    MyBlendTargets.RunWithStencil(target, outlined, MyBlendStateManager.BlendAdditive,
+                        MyDepthStencilStateManager.TestHighlightOuterStencil, HIGHLIGHT_STENCIL_MASK,
+                        depthStencilCopy);
+                    MyBlendTargets.RunWithStencil(target, outlined, MyBlendStateManager.BlendTransparent,
+                        MyDepthStencilStateManager.TestHighlightInnerStencil, HIGHLIGHT_STENCIL_MASK,
+                        depthStencilCopy);
+                }
+            }
+            ProfilerShort.End();
+            MyGpuProfiler.IC_EndBlock();
         }
 
         private static void RecordMeshPartCommands(MeshId model, MyActor actor, MyGroupRootComponent group,
-            MyCullProxy_2 proxy, MyOutlineDesc desc, ref float maxThickness)
+            MyCullProxy_2 proxy, MyHighlightDesc desc, ref float maxThickness)
         {
             MeshSectionId sectionId;
             bool found = MyMeshes.TryGetMeshSection(model, 0, desc.SectionIndex, out sectionId);
             if (!found)
                 return;
 
-            OutlineConstantsLayout constants = new OutlineConstantsLayout();
-            maxThickness = Math.Max(desc.Thickness, maxThickness);
-            constants.Color = desc.Color.ToVector4();
-            if (desc.PulseTimeInFrames > 0)
-                constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.GameplayFrameCounter / (float)desc.PulseTimeInFrames), 2.0);
+            WriteHighlightConstants(ref desc, ref maxThickness);
 
             MyMeshSectionInfo1 section = sectionId.Info;
             MyMeshSectionPartInfo1[] meshes = section.Meshes;
@@ -219,49 +261,38 @@ namespace VRageRender
                 if (!found)
                     return;
 
-                var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
-                mapping.WriteAndPosition(ref constants);
-                mapping.Unmap();
-
-                MyOutlinePass.Instance.RecordCommands(ref proxy.Proxies[materialGroup.Index], actorIndex, meshes[idx].PartIndex);
+                MyHighlightPass.Instance.RecordCommands(ref proxy.Proxies[materialGroup.Index], actorIndex, meshes[idx].PartIndex);
             }
         }
 
         private static void RecordMeshPartCommands(MeshId model, LodMeshId lodModelId,
             MyRenderableComponent rendercomp, MyRenderLod renderLod,
-            MyOutlineDesc desc, ref float maxThickness)
+            MyHighlightDesc desc, ref float maxThickness)
         {
-            OutlineConstantsLayout constants = new OutlineConstantsLayout();
+            WriteHighlightConstants(ref desc, ref maxThickness);
+
             var submeshCount = lodModelId.Info.PartsNum;
             for (int submeshIndex = 0; submeshIndex < submeshCount; ++submeshIndex)
             {
                 var part = MyMeshes.GetMeshPart(model, rendercomp.CurrentLod, submeshIndex);
 
-                maxThickness = Math.Max(desc.Thickness, maxThickness);
-                constants.Color = desc.Color.ToVector4();
-                if (desc.PulseTimeInFrames > 0)
-                    constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.GameplayFrameCounter / (float)desc.PulseTimeInFrames), 2.0);
-
-                var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
-                mapping.WriteAndPosition(ref constants);
-                mapping.Unmap();
-
                 MyRenderUtils.BindShaderBundle(RC, renderLod.RenderableProxies[submeshIndex].HighlightShaders);
-                MyOutlinePass.Instance.RecordCommands(renderLod.RenderableProxies[submeshIndex], -1, desc.InstanceId);
+                MyHighlightPass.Instance.RecordCommands(renderLod.RenderableProxies[submeshIndex], -1, desc.InstanceId);
             }
         }
 
         /// <returns>True if the section was found</returns>
         private static void RecordMeshSectionCommands(MeshId model, LodMeshId lodModelId,
             MyRenderableComponent rendercomp, MyRenderLod renderLod,
-            MyOutlineDesc desc, ref float maxThickness)
+            MyHighlightDesc desc, ref float maxThickness)
         {
             MeshSectionId sectionId;
             bool found = MyMeshes.TryGetMeshSection(model, rendercomp.CurrentLod, desc.SectionIndex, out sectionId);
             if (!found)
                 return;
 
-            OutlineConstantsLayout constants = new OutlineConstantsLayout();
+            WriteHighlightConstants(ref desc, ref maxThickness);
+
             MyMeshSectionInfo1 section = sectionId.Info;
             MyMeshSectionPartInfo1[] meshes = section.Meshes;
             for (int idx = 0; idx < meshes.Length; idx++)
@@ -273,22 +304,24 @@ namespace VRageRender
                     return;
                 }
 
-                maxThickness = Math.Max(desc.Thickness, maxThickness);
-                constants.Color = desc.Color.ToVector4();
-                if (desc.PulseTimeInFrames > 0)
-                    constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.GameplayFrameCounter / (float)desc.PulseTimeInFrames), 2.0);
-
-                var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
-                mapping.WriteAndPosition(ref constants);
-                mapping.Unmap();
-
-                MyRenderUtils.BindShaderBundle(RC, renderLod.RenderableProxies[sectionInfo.PartIndex].HighlightShaders);
-
                 MyRenderableProxy proxy = renderLod.RenderableProxies[sectionInfo.PartIndex];
-                MyOutlinePass.Instance.RecordCommands(proxy, sectionInfo.PartSubmeshIndex, desc.InstanceId);
+                MyHighlightPass.Instance.RecordCommands(proxy, sectionInfo.PartSubmeshIndex, desc.InstanceId);
             }
 
             return;
+        }
+
+        private static void WriteHighlightConstants(ref MyHighlightDesc desc, ref float maxThickness)
+        {
+            maxThickness = Math.Max(desc.Thickness, maxThickness);
+            HighlightConstantsLayout constants = new HighlightConstantsLayout();
+            constants.Color = desc.Color.ToVector4();
+            if (desc.PulseTimeInFrames > 0)
+                constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.GameplayFrameCounter / (float)desc.PulseTimeInFrames), 2.0);
+
+            var mapping = MyMapping.MapDiscard(MyCommon.HighlightConstants);
+            mapping.WriteAndPosition(ref constants);
+            mapping.Unmap();
         }
 
         static void DebugRecordMeshPartCommands(MeshId model, int sectionIndex, MyRenderableComponent render,

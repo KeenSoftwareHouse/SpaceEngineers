@@ -24,6 +24,10 @@
 #include "FoliageStreaming/VertexStage.hlsli"
 #endif
 
+#if RENDERING_PASS == RENDERING_PASS_STATIC_GLASS
+#include "StaticGlass/VertexStage.hlsli"
+#endif
+
 #if RENDERING_PASS == RENDERING_PASS_TEST
 #include "Test/VertexStage.hlsli"
 #endif

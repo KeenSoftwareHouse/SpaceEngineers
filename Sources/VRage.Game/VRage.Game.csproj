@@ -17,7 +17,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -26,7 +26,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -69,7 +69,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'">
     <OutputPath>bin\x64\Release Official\</OutputPath>
-    <DefineConstants>TRACE;OFFICIAL_BUILD</DefineConstants>
+    <DefineConstants>TRACE;OFFICIAL_BUILD,WINDOWS</DefineConstants>
     <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -308,6 +308,7 @@
     <Compile Include="ObjectBuilders\Definitions\GUI\MyObjectBuilder_GuiSkinDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\GUI\SerializableCompositeTexture.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DroneBehaviorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FontDefinition.cs" />
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlImageButton.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlockBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DefinitionsToPreload.cs" />

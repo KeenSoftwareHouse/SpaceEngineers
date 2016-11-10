@@ -1458,7 +1458,7 @@ namespace Sandbox.Game.Weapons
             // real rotation:
             float needRotation = lookAtPositionEuler.Y;
             float needElevation = lookAtPositionEuler.X;
-            float step = m_rotationSpeed * (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_rotationInterval_ms);
+            float stepRotation = m_rotationSpeed * (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_rotationInterval_ms);
             float diffRot = needRotation - m_rotation;
 
 
@@ -1478,7 +1478,7 @@ namespace Sandbox.Game.Weapons
 
             if (diffRotAbs > 0.001f)
             {
-                float value = MathHelper.Clamp(step, float.Epsilon, diffRotAbs);
+                float value = MathHelper.Clamp(stepRotation, float.Epsilon, diffRotAbs);
                 m_rotation += diffRot > 0 ? value : -value;
                 playAimingSound = true;
                 //needUpdateMatrix = true;
@@ -1496,7 +1496,7 @@ namespace Sandbox.Game.Weapons
                     m_rotation = m_rotation + MathHelper.TwoPi;
 
             // real elevation
-            step = m_elevationSpeed * (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_elevationInterval_ms);
+            float stepElevation = m_elevationSpeed * (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_elevationInterval_ms);
 
             float diffElev = needElevation - m_elevation;
             float diffElevAbs = Math.Abs(diffElev);
@@ -1505,7 +1505,7 @@ namespace Sandbox.Game.Weapons
             {
                 if (diffElevAbs > 0.001f)
                 {
-                    float value = MathHelper.Clamp(step, float.Epsilon, diffElevAbs);
+                    float value = MathHelper.Clamp(stepElevation, float.Epsilon, diffElevAbs);
                     m_elevation += diffElev > 0 ? value : -value;
                     //needUpdateMatrix = true;
                 }
@@ -1537,7 +1537,7 @@ namespace Sandbox.Game.Weapons
                 // test intervals of the aiming:
                 float stapR = Math.Abs(Math.Abs(needRotation) - Math.Abs(m_rotation));
                 float stapE = Math.Abs(Math.Abs(needElevation) - Math.Abs(m_elevation));
-                if (stapR <= float.Epsilon && stapE <= float.Epsilon)
+                if (stapE <= 0.1f && stapR <= float.Epsilon)
                 {
                     return true;
                 }

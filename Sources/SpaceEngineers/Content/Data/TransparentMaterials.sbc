@@ -1796,7 +1796,7 @@
     <TransparentMaterial>
       <Id>
         <TypeId>TransparentMaterialDefinition</TypeId>
-        <SubtypeId>GlassCW</SubtypeId>
+        <SubtypeId>GlassInside</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
       <AlphaSaturation>1</AlphaSaturation>
@@ -1826,7 +1826,7 @@
 	<TransparentMaterial>
       <Id>
         <TypeId>TransparentMaterialDefinition</TypeId>
-        <SubtypeId>GlassCCW</SubtypeId>
+        <SubtypeId>GlassOutside</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
       <AlphaSaturation>1</AlphaSaturation>
@@ -1874,6 +1874,36 @@
         <X>1</X>
         <Y>1</Y>
       </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>Glass</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <Emissivity>0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <SoftParticleDistanceScale>1</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\SquareWindowDirt.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <NeedSort>true</NeedSort>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+      <Color>
+        <X>0</X>
+        <Y>0.15</Y>
+        <Z>0.4</Z>
+        <W>0.156</W>
+      </Color>
+      <Reflectivity>0.196</Reflectivity>
     </TransparentMaterial>
 	<TransparentMaterial>
     <Id>
@@ -2993,7 +3023,7 @@
 	<TransparentMaterial>
       <Id>
         <TypeId>TransparentMaterialDefinition</TypeId>
-        <SubtypeId>CockpitGlassCW</SubtypeId>
+        <SubtypeId>CockpitGlassInside</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
       <AlphaSaturation>1</AlphaSaturation>
@@ -3023,7 +3053,7 @@
 	<TransparentMaterial>
       <Id>
         <TypeId>TransparentMaterialDefinition</TypeId>
-        <SubtypeId>CockpitGlassCCW</SubtypeId>
+        <SubtypeId>CockpitGlassOutside</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
       <AlphaSaturation>1</AlphaSaturation>
@@ -3049,6 +3079,36 @@
 		<W>0.2</W>
       </Color>
 	  <Reflectivity>0.862</Reflectivity>
-    </TransparentMaterial>			
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>CockpitGlass</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <Emissivity>0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <SoftParticleDistanceScale>1</SoftParticleDistanceScale>
+      <Texture>Textures\Models\Cubes\cockpit_interior_me.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <NeedSort>true</NeedSort>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+      <Color>
+        <X>0</X>
+        <Y>0.0</Y>
+        <Z>0.0</Z>
+        <W>0.01</W>
+      </Color>
+      <Reflectivity>0.196</Reflectivity>
+    </TransparentMaterial>
   </TransparentMaterials>
 </Definitions>

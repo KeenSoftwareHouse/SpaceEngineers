@@ -90,6 +90,7 @@ namespace Sandbox.Engine.Utils
         readonly string SHIP_SOUNDS_SPEED = "ShipSoundsAreBasedOnSpeed";
         readonly string ANTIALIASING_MODE = "AntialiasingMode";
         readonly string SHADOW_MAP_RESOLUTION = "ShadowMapResolution";
+        readonly string AMBIENT_OCCLUSION_ENABLED = "AmbientOcclusionEnabled";
         readonly string MULTITHREADED_RENDERING = "MultithreadedRendering";
         //readonly string TONEMAPPING = "Tonemapping";
         readonly string TEXTURE_QUALITY = "TextureQuality";
@@ -266,6 +267,12 @@ namespace Sandbox.Engine.Utils
         {
             get { return GetOptionalEnum<MyShadowsQuality>(SHADOW_MAP_RESOLUTION); }
             set { SetOptionalEnum(SHADOW_MAP_RESOLUTION, value); }
+        }
+
+        public bool? AmbientOcclusionEnabled
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(AMBIENT_OCCLUSION_ENABLED)); }
+            set { SetParameterValue(AMBIENT_OCCLUSION_ENABLED, value); }
         }
 
         public MyTextureQuality? TextureQuality

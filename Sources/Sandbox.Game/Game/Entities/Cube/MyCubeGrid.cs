@@ -463,7 +463,14 @@ namespace Sandbox.Game.Entities
         internal bool EnableSmallToLargeConnections { get { return m_enableSmallToLargeConnections; } }
 
         // Flag if SI should check connectivity of the grid
-        internal bool TestDynamic = false;
+        // PM: It got more advanced when started to be used to test dynamic generally
+        internal enum MyTestDynamicReason
+        {
+            NoReason,
+            GridCopied,
+            GridSplit
+        }
+        internal MyTestDynamicReason TestDynamic = MyTestDynamicReason.NoReason;
 
         internal new MyRenderComponentCubeGrid Render
         {
@@ -891,10 +898,10 @@ namespace Sandbox.Game.Entities
 
             if (originalGrid.IsStatic)
             {
-                newGrid.TestDynamic = true;
+                newGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                 //GR: Always testing dynamic for original grid (can be any of the 2 grids)
                 //if (!MySession.Static.EnableConvertToStation)
-                originalGrid.TestDynamic = true;
+                originalGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
             }
 
             newGrid.Physics.AngularVelocity = originalGrid.Physics.AngularVelocity;
@@ -997,11 +1004,9 @@ namespace Sandbox.Game.Entities
                     {
                         if (!MySession.Static.Settings.StationVoxelSupport)
                         {
-                        newGrid.TestDynamic = true;
-                        //GR: Always testing dynamic for original grid (can be any of the 2 grids)
-                        //if (!MySession.Static.EnableConvertToStation)
-                        originalGrid.TestDynamic = true;
-                    }
+                            newGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
+                            originalGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
+                        }
                     }
 
                     newGrid.Physics.AngularVelocity = originalGrid.Physics.AngularVelocity;
@@ -1706,13 +1711,13 @@ namespace Sandbox.Game.Entities
 
             StepStructuralIntegrity();
 
-            if (TestDynamic)
+            if (TestDynamic != MyTestDynamicReason.NoReason)
             {
-                if (!MyCubeGrid.ShouldBeStatic(this) && IsStatic)
+                if (!MyCubeGrid.ShouldBeStatic(this, TestDynamic) && IsStatic)
                 {
                     ConvertToDynamic();
                 }
-                TestDynamic = false;
+                TestDynamic = MyCubeGrid.MyTestDynamicReason.NoReason;
             }
 
             DoLazyUpdates();
@@ -3079,6 +3084,10 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         void BuildBlocksRequest(uint colorMaskHsv, HashSet<MyBlockLocation> locations, long builderEntityId, bool instantBuild, long ownerId)
         {
+            if (!MySession.Static.CreativeMode && !MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                instantBuild = false;
+            }
             m_tmpBuildList.Clear();
             Debug.Assert(m_tmpBuildList != locations, "The build block message was received via loopback using the temporary build list. This causes erasing ot the message.");
 
@@ -3134,6 +3143,10 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         private void BuildBlocksAreaRequest(MyCubeGrid.MyBlockBuildArea area, long builderEntityId, bool instantBuild, long ownerId)
         {
+            if (!MySession.Static.CreativeMode && !MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                instantBuild = false;
+            }
             try
             {
                 bool isAdmin = MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value);
@@ -3144,6 +3157,22 @@ namespace Sandbox.Game.Entities
                 }
 
                 if (!IsWithinWorldLimits(ownerId, area.BuildAreaSize.X * area.BuildAreaSize.Y * area.BuildAreaSize.Z, MyDefinitionManager.Static.GetCubeBlockDefinition(area.DefinitionId).BlockPairName))
+                {
+                    return;
+                }
+
+                var definition = MyDefinitionManager.Static.GetCubeBlockDefinition(area.DefinitionId) as MyCubeBlockDefinition;
+                if (definition == null)
+                {
+                    Debug.Fail("Block definition not found");
+                    return;
+                }
+
+                int amount = area.BuildAreaSize.X * area.BuildAreaSize.Y * area.BuildAreaSize.Z;
+                MyCubeBuilder.BuildComponent.GetBlockAmountPlacementMaterials(definition, amount);
+                MyEntity builder = null;
+                MyEntities.TryGetEntityById(builderEntityId, out builder);
+                if (!MyCubeBuilder.BuildComponent.HasBuildingMaterials(builder, true) && isAdmin == false)
                 {
                     return;
                 }
@@ -3418,6 +3447,11 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         void RazeBlocksAreaRequest(Vector3I pos, Vector3UByte size)
         {
+            if (!MySession.Static.CreativeMode && !MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
             try
             {
                 Vector3UByte offset;
@@ -3981,8 +4015,16 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(Skeleton != null, "Skeleton null in MultiplyBlockSkeleton!");
             Debug.Assert(Physics != null, "Physics null in MultiplyBlockSkeleton!");
+            if (Skeleton == null)
+            {
+                MyLog.Default.WriteLine("Skeleton null in MultiplyBlockSkeleton!" + this);
+            }
+            if (Physics == null)
+            {
+                MyLog.Default.WriteLine("Physics null in MultiplyBlockSkeleton!" + this);
+            }
 
-            if (block == null)
+            if (block == null || Skeleton == null || Physics == null)
                 return;
 
             var min = block.Min * MyGridSkeleton.BoneDensity;
@@ -7726,6 +7768,11 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         private void PasteBlocksToGridServer_Implementation(List<MyObjectBuilder_CubeGrid> gridsToMerge, long inventoryEntityId, bool multiBlock, bool instantBuild)
         {
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
             bool isAdmin = (MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value));
 
             MyEntities.RemapObjectBuilderCollection(gridsToMerge);
@@ -8253,6 +8300,40 @@ namespace Sandbox.Game.Entities
             AfterPaste(results, Vector3.Zero, false);
         }
 
+        /// <summary>
+        /// Use only for cut request
+        /// </summary>
+        public void SendGridCloseRequest()
+        {
+            MyMultiplayer.RaiseStaticEvent(s => OnGridClosedRequest, EntityId);
+        }
+
+        [Event, Reliable, Server]
+        static void OnGridClosedRequest(long entityId)
+        {
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
+            MyEntity entity;
+            MyEntities.TryGetEntityById(entityId, out entity);
+            if (entity == null)
+                return;
+
+            foreach (var block in (entity as MyCubeGrid).GetBlocks())
+            {
+                block.RemoveAuthorship();
+                var cockpit = block.FatBlock as MyCockpit;
+                if (cockpit != null && cockpit.Pilot != null)
+                    cockpit.Use();
+            }
+
+            // Test right to closing entity (e.g. is creative mode?)
+            if (!entity.MarkedForClose)
+                entity.Close(); // close only on server, server uses replication to propagate it to clients
+        }
+
         private class PasteGridData : ParallelTasks.WorkData
         {
             List<MyObjectBuilder_CubeGrid> m_entities;
@@ -8263,9 +8344,12 @@ namespace Sandbox.Game.Entities
             bool m_instantBuild;
             List<MyCubeGrid> m_results;
             bool m_canPlaceGrid;
+            //GK: Added minimum event info, because at parallel task completion (OnPasteCompleted) we no longer have MyEventContext.Current
+            public readonly EndpointId SenderEndpointId;
+            public readonly bool IsLocallyInvoked;
 
             public PasteGridData(List<MyObjectBuilder_CubeGrid> entities, bool detectDisconnects, long inventoryEntityId, Vector3 objectVelocity, bool multiBlock,
-            bool instantBuild)
+            bool instantBuild, EndpointId senderEndpointId, bool isLocallyInvoked)
             {
                 m_entities = new List<MyObjectBuilder_CubeGrid>(entities);
                 m_detectDisconnects = detectDisconnects;
@@ -8273,6 +8357,8 @@ namespace Sandbox.Game.Entities
                 m_objectVelocity = objectVelocity;
                 m_multiBlock = multiBlock;
                 m_instantBuild = instantBuild;
+                SenderEndpointId = senderEndpointId;
+                IsLocallyInvoked = isLocallyInvoked;
             }
 
             public void TryPasteGrid()
@@ -8358,6 +8444,14 @@ namespace Sandbox.Game.Entities
 
             public void Callback()
             {
+                if (!IsLocallyInvoked)
+                {
+                    MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.SendHudNotificationAfterPaste, SenderEndpointId);
+                }
+                else if (!MySandboxGame.IsDedicated)
+                {
+                    MyHud.PopRotatingWheelVisible();
+                }
                 if (m_canPlaceGrid && m_results.Count > 0)
                 {
                     foreach (var grid in m_results)
@@ -8374,9 +8468,9 @@ namespace Sandbox.Game.Entities
                         grid.Close();
                     }
 
-                    if (!MyEventContext.Current.IsLocallyInvoked)
+                    if (!IsLocallyInvoked)
                     {
-                        MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.ShowPasteFailedOperation, MyEventContext.Current.Sender);
+                        MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.ShowPasteFailedOperation, SenderEndpointId);
                     }
                 }
             }
@@ -8386,7 +8480,13 @@ namespace Sandbox.Game.Entities
         public static void TryPasteGrid_Implementation(List<MyObjectBuilder_CubeGrid> entities, bool detectDisconnects, long inventoryEntityId, Vector3 objectVelocity, bool multiBlock,
             bool instantBuild)
         {
-            PasteGridData workData = new PasteGridData(entities, detectDisconnects, inventoryEntityId, objectVelocity, multiBlock, instantBuild);
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.SendHudNotificationAfterPaste, MyEventContext.Current.Sender);
+                return;
+            }
+            PasteGridData workData = new PasteGridData(entities, detectDisconnects, inventoryEntityId, objectVelocity, multiBlock, instantBuild, MyEventContext.Current.Sender, MyEventContext.Current.IsLocallyInvoked);
             Parallel.Start(TryPasteGrid_ImplementationInternal, OnPasteCompleted, workData);
         }
 
@@ -8420,6 +8520,12 @@ namespace Sandbox.Game.Entities
             MyHud.Notifications.Add(MyNotificationSingletons.PasteFailed);
         }
 
+        [Event, Reliable, Client]
+        public static void SendHudNotificationAfterPaste()
+        {
+            MyHud.PopRotatingWheelVisible();
+        }
+
         private static void ChangeOwnership(long inventoryEntityId, MyCubeGrid grid)
         {
             MyEntity inventoryOwner;
@@ -8439,7 +8545,7 @@ namespace Sandbox.Game.Entities
             {
                 if (pastedGrid.IsStatic)
                 {
-                    pastedGrid.TestDynamic = true;
+                    pastedGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridCopied;
                 }
 
                 MyEntities.Add(pastedGrid);

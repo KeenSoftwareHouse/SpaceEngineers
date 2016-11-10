@@ -426,6 +426,16 @@ namespace Sandbox.Game.World
 
                 // Deploy ship
                 ProfilerShort.Begin("Spawn cargo ship");
+                Stack<Action> callbacks = new Stack<Action>();
+                callbacks.Push(delegate()
+                {
+                    InitAutopilot(tmpGridList, shipDestination, direction);
+                    foreach (var grid in tmpGridList)
+                    {
+                        Debug.Assert(grid.Physics.Enabled);
+                        grid.ActivatePhysics(); //last chance to activate physics
+                    }
+                });
                 MyPrefabManager.Static.SpawnPrefab(
                     resultList: tmpGridList,
                     prefabName: shipPrefab.SubtypeId,
@@ -438,9 +448,16 @@ namespace Sandbox.Game.World
                                      VRage.Game.ModAPI.SpawningOptions.SpawnRandomCargo |
                                      VRage.Game.ModAPI.SpawningOptions.DisableDampeners,
                                      ownerId: shipPrefab.ResetOwnership ? spawnGroupId : 0,
-                    updateSync: true);
+                    callbacks: callbacks);
                 ProfilerShort.End();
+                ProfilerShort.End();
+            }
 
+            ProfilerShort.End();
+        }
+
+        private static void InitAutopilot(List<MyCubeGrid> tmpGridList, Vector3D shipDestination, Vector3D direction)
+        {
                 foreach (var grid in tmpGridList)
                 {
                     var cockpit = grid.GetFirstBlockOfType<MyCockpit>();
@@ -451,11 +468,7 @@ namespace Sandbox.Game.World
                         break;
                     }
                 }
-
-                ProfilerShort.End();
             }
 
-            ProfilerShort.End();
         }
     }
-}

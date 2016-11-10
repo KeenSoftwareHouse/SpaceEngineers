@@ -1131,6 +1131,7 @@
         <Mapping Name="Died" AnimationSubtypeName="DiedDeer" />
       </AnimationMappings>
 
+	  <UsableByPlayer>false</UsableByPlayer>
       <VisibleOnHud>false</VisibleOnHud>
 
       <Inventory>

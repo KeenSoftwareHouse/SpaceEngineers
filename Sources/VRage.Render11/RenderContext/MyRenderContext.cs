@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using VRage.Profiler;
 using VRage.Render11.Profiler;
 using VRage.Render11.RenderContext.Internal;
 using VRage.Render11.Resources;
-using Buffer = SharpDX.Direct3D11.Buffer;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
 using Resource = SharpDX.Direct3D11.Resource;
 using VRageRender;
@@ -25,7 +24,7 @@ namespace VRage.Render11.RenderContext
         ReadOnly
     }
 
-    
+
     internal class MyRenderContext : System.IDisposable
     {
         #region Member variables
@@ -47,6 +46,7 @@ namespace VRage.Render11.RenderContext
 
         [ThreadStatic]
         static RenderTargetView[] m_tmpRtvs;
+
         #region Properties
 
         internal MyVertexStage VertexShader
@@ -71,7 +71,7 @@ namespace VRage.Render11.RenderContext
 
         internal MyAllShaderStages AllShaderStages
         {
-            get { return m_allShaderStages; }   
+            get { return m_allShaderStages; }
         }
 
         internal MyFrameProfilingContext ProfilingQueries
@@ -261,7 +261,7 @@ namespace VRage.Render11.RenderContext
         internal void ClearDsv(IDepthStencil ds, DepthStencilClearFlags clearFlags,
             float depth, byte stencil)
         {
-            IDepthStencilInternal dsInternal = (IDepthStencilInternal) ds;
+            IDepthStencilInternal dsInternal = (IDepthStencilInternal)ds;
             m_deviceContext.ClearDepthStencilView(dsInternal.Dsv, clearFlags, depth, stencil);
             CheckErrors();
         }
@@ -272,13 +272,13 @@ namespace VRage.Render11.RenderContext
             m_deviceContext.ClearDepthStencilView(dsv.Dsv, clearFlags, depth, stencil);
             CheckErrors();
         }
-        
+
         internal void ClearRtv(IRtvBindable rtv, RawColor4 colorRGBA)
         {
             m_deviceContext.ClearRenderTargetView(rtv.Rtv, colorRGBA);
             CheckErrors();
         }
-        
+
         internal void ClearState()
         {
             m_state.Clear();
@@ -296,23 +296,36 @@ namespace VRage.Render11.RenderContext
             CheckErrors();
         }
 
-        internal void CopyResource(Resource source, Resource destination)
+        // TODO: Code that uses temporary resources (that calls this method) should be changed to use Managers and their interfaces
+        internal void CopyResource(IResource source, Resource destination)
         {
-            m_deviceContext.CopyResource(source, destination);
+            m_deviceContext.CopyResource(source.Resource, destination);
             CheckErrors();
         }
 
-        internal void CopyStructureCount(Buffer dstBufferRef, int dstAlignedByteOffset, UnorderedAccessView srcViewRef)
+        internal void CopyResource(IResource source, IResource destination)
         {
-            m_deviceContext.CopyStructureCount(dstBufferRef, dstAlignedByteOffset, srcViewRef);
+            CopyResource(source, destination.Resource);
+        }
+
+        internal void CopyStructureCount(IBuffer dstBufferRef, int dstAlignedByteOffset, IUavBindable srcViewRef)
+        {
+            m_deviceContext.CopyStructureCount(dstBufferRef.Buffer, dstAlignedByteOffset, srcViewRef.Uav);
             CheckErrors();
         }
 
-        internal void CopySubresourceRegion(Resource source, int sourceSubresource, ResourceRegion? sourceRegion, 
+        // TODO: Code that uses temporary resources (that calls this method) should be changed to use Managers and their interfaces
+        internal void CopySubresourceRegion(IResource source, int sourceSubresource, ResourceRegion? sourceRegion,
             Resource destination, int destinationSubResource, int dstX = 0, int dstY = 0, int dstZ = 0)
         {
-            m_deviceContext.CopySubresourceRegion(source, sourceSubresource, sourceRegion, destination, destinationSubResource, dstX, dstY, dstZ);
+            m_deviceContext.CopySubresourceRegion(source.Resource, sourceSubresource, sourceRegion, destination, destinationSubResource, dstX, dstY, dstZ);
             CheckErrors();
+        }
+
+        internal void CopySubresourceRegion(IResource source, int sourceSubresource, ResourceRegion? sourceRegion,
+            IResource destination, int destinationSubResource, int dstX = 0, int dstY = 0, int dstZ = 0)
+        {
+            CopySubresourceRegion(source, sourceSubresource, sourceRegion, destination.Resource, destinationSubResource, dstX, dstY, dstZ);
         }
 
         internal void Draw(int vertexCount, int startVertexLocation)
@@ -354,9 +367,9 @@ namespace VRage.Render11.RenderContext
             CheckErrors();
         }
 
-        internal void DrawIndexedInstancedIndirect(Buffer bufferForArgsRef, int alignedByteOffsetForArgs)
+        internal void DrawIndexedInstancedIndirect(IBuffer bufferForArgsRef, int alignedByteOffsetForArgs)
         {
-            m_deviceContext.DrawIndexedInstancedIndirect(bufferForArgsRef, alignedByteOffsetForArgs);
+            m_deviceContext.DrawIndexedInstancedIndirect(bufferForArgsRef.Buffer, alignedByteOffsetForArgs);
             m_statistics.Draws++;
             CheckErrors();
         }
@@ -391,7 +404,7 @@ namespace VRage.Render11.RenderContext
             m_deviceContext.GenerateMips(srv.Srv);
             CheckErrors();
         }
-        
+
         internal T GetData<T>(Asynchronous data, AsynchronousFlags flags) where T : struct
         {
             return m_deviceContext.GetData<T>(data, flags);
@@ -419,16 +432,16 @@ namespace VRage.Render11.RenderContext
             CheckErrors();
         }
 
-        internal DataBox MapSubresource(Resource resourceRef, int subresource, MapMode mapType,
+        internal DataBox MapSubresource(IResource resourceRef, int subresource, MapMode mapType,
             MapFlags mapFlags)
         {
-            return m_deviceContext.MapSubresource(resourceRef, subresource, mapType, mapFlags);
+            return m_deviceContext.MapSubresource(resourceRef.Resource, subresource, mapType, mapFlags);
             CheckErrors();
         }
 
-        internal DataBox MapSubresource(Resource resource, int mipSlice, int arraySlice, MapMode mode, MapFlags flags, out int mipSize)
+        internal DataBox MapSubresource(IResource resource, int mipSlice, int arraySlice, MapMode mode, MapFlags flags, out int mipSize)
         {
-            return m_deviceContext.MapSubresource(resource, mipSlice, arraySlice, mode, flags, out mipSize);
+            return m_deviceContext.MapSubresource(resource.Resource, mipSlice, arraySlice, mode, flags, out mipSize);
             CheckErrors();
         }
 
@@ -453,15 +466,21 @@ namespace VRage.Render11.RenderContext
             CheckErrors();
         }
 
+        // TODO: Code that uses temporary resources (that calls this method) should be changed to use Managers and their interfaces
         internal void UnmapSubresource(Resource resourceRef, int subresource)
         {
             m_deviceContext.UnmapSubresource(resourceRef, subresource);
             CheckErrors();
         }
 
-        internal void UpdateSubresource(DataBox source, Resource resource, int subresource = 0)
+        internal void UnmapSubresource(IResource resourceRef, int subresource)
         {
-            m_deviceContext.UpdateSubresource(source, resource, subresource);
+            UnmapSubresource(resourceRef.Resource, subresource);
+        }
+
+        internal void UpdateSubresource(DataBox source, IResource resource, int subresource = 0)
+        {
+            m_deviceContext.UpdateSubresource(source, resource.Resource, subresource);
             CheckErrors();
         }
 
@@ -481,21 +500,26 @@ namespace VRage.Render11.RenderContext
             CheckErrors();
         }
 
-        internal void SetIndexBuffer(Buffer indexBufferRef, Format format, int offset = 0)
+        internal void SetIndexBuffer(IIndexBuffer indexBufferRef, int offset = 0)
         {
-            m_state.SetIndexBuffer(indexBufferRef, format, offset);
+            m_state.SetIndexBuffer(indexBufferRef, indexBufferRef != null ? indexBufferRef.Format : 0, offset);
             CheckErrors();
         }
 
-        internal void SetVertexBuffer(int slot, Buffer vb, int stride)
+        internal void SetVertexBuffer(int slot, IVertexBuffer vb, int stride = -1)
         {
+            if (vb != null && stride < 0)
+                stride = vb.Description.StructureByteStride;
+
             m_state.SetVertexBuffer(slot, vb, stride);
             CheckErrors();
         }
 
-        internal void SetVertexBuffers(int startSlot, Buffer[] vbs, int[] strides)
+        internal void SetVertexBuffers(int startSlot, IVertexBuffer[] vbs, int[] strides = null)
         {
-            m_state.SetVertexBuffers(startSlot, vbs, strides); 
+            strides = strides ?? vbs.Select(vb => vb != null ? vb.Description.StructureByteStride : -1).ToArray();
+
+            m_state.SetVertexBuffers(startSlot, vbs, strides);
             CheckErrors();
         }
         #endregion
@@ -506,7 +530,7 @@ namespace VRage.Render11.RenderContext
             BlendState dxstate = null;
             if (bs != null)
             {
-                IBlendStateInternal bsInternal = (IBlendStateInternal) bs;
+                IBlendStateInternal bsInternal = (IBlendStateInternal)bs;
                 dxstate = bsInternal.Resource;
             }
             m_state.SetBlendState(dxstate);
@@ -523,23 +547,23 @@ namespace VRage.Render11.RenderContext
             DepthStencilState dxstate = null;
             if (dss != null)
             {
-                IDepthStencilStateInternal dssInternal = (IDepthStencilStateInternal) dss;
+                IDepthStencilStateInternal dssInternal = (IDepthStencilStateInternal)dss;
                 dxstate = dssInternal.Resource;
             }
             m_state.SetDepthStencilState(dxstate, stencilRef);
-            CheckErrors();         
+            CheckErrors();
         }
-      
+
         internal void SetRtv(IRtvBindable rtv)
         {
             InternalSetRtvs(null, MyDepthStencilAccess.ReadOnly, rtv);
-            CheckErrors();    
+            CheckErrors();
         }
-        
+
         internal void SetRtvs(params IRtvBindable[] rtvs)
         {
             InternalSetRtvs(null, MyDepthStencilAccess.ReadOnly, rtvs);
-            CheckErrors();    
+            CheckErrors();
         }
 
         internal void SetRtv(IDsvBindable dsvBind, IRtvBindable rtv)
@@ -548,31 +572,31 @@ namespace VRage.Render11.RenderContext
             if (dsvBind != null)
                 dsv = dsvBind.Dsv;
             InternalSetRtvs(dsv, rtv);
-            CheckErrors();    
+            CheckErrors();
         }
 
         internal void SetRtv(IDepthStencil ds, MyDepthStencilAccess access)
         {
             InternalSetRtvs(ds, access);
-            CheckErrors();    
+            CheckErrors();
         }
 
         internal void SetRtv(IDepthStencil ds, MyDepthStencilAccess access, IRtvBindable rtv)
         {
             InternalSetRtvs(ds, access, rtv);
-            CheckErrors();    
+            CheckErrors();
         }
 
         internal void SetRtvs(IDepthStencil ds, MyDepthStencilAccess access, params IRtvBindable[] rtvs)
         {
             InternalSetRtvs(ds, access, rtvs);
-            CheckErrors();    
+            CheckErrors();
         }
 
         internal void SetRtvs(MyGBuffer gbuffer, MyDepthStencilAccess access)
         {
             InternalSetRtvs(gbuffer.DepthStencil, access, gbuffer.GBuffer0, gbuffer.GBuffer1, gbuffer.GBuffer2);
-            CheckErrors();    
+            CheckErrors();
         }
 
         void InternalSetRtvs(IDepthStencil ds, MyDepthStencilAccess access, params IRtvBindable[] rtvs)
@@ -583,7 +607,7 @@ namespace VRage.Render11.RenderContext
                 dsv = null;
             else
             {
-                IDepthStencilInternal dsInternal = (IDepthStencilInternal) ds;
+                IDepthStencilInternal dsInternal = (IDepthStencilInternal)ds;
                 switch (access)
                 {
                     case MyDepthStencilAccess.ReadWrite:
@@ -626,6 +650,7 @@ namespace VRage.Render11.RenderContext
             m_state.SetTargets(dsv, m_tmpRtvs, rtvs.Length);
             CheckErrors();
         }
+
         #endregion
 
         #region Rasterizer
@@ -635,11 +660,11 @@ namespace VRage.Render11.RenderContext
             RasterizerState dxstate = null;
             if (rs != null)
             {
-                IRasterizerStateInternal rsInternal = (IRasterizerStateInternal) rs;
+                IRasterizerStateInternal rsInternal = (IRasterizerStateInternal)rs;
                 dxstate = rsInternal.Resource;
             }
             m_state.SetRasterizerState(dxstate);
-            CheckErrors(); 
+            CheckErrors();
         }
 
         internal void SetScissorRectangle(int left, int top, int right, int bottom)
@@ -674,16 +699,17 @@ namespace VRage.Render11.RenderContext
             SetViewport(new SharpDX.ViewportF(0, 0, MyRender11.ResolutionF.X, MyRender11.ResolutionF.Y));
             CheckErrors();
         }
+
         #endregion Rasterizer methods
 
         #region StreamOutput
 
-        internal void SetTarget(Buffer buffer, int offsets)
+        internal void SetTarget(IBuffer buffer, int offsets)
         {
-            m_state.SetTarget(buffer, offsets);
+            m_state.SetTarget(buffer.Buffer, offsets);
             CheckErrors();
         }
-        #endregion
 
+        #endregion
     }
 }

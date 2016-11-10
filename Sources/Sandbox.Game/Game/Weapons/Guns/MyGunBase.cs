@@ -43,17 +43,19 @@ namespace Sandbox.Game.Weapons
 
         private class WeaponEffect
         {
-            public MyModelDummy Dummy;
+            public string Name;
+            public Matrix LocalMatrix;
             public int EffectId;
             public MyWeaponDefinition.WeaponEffectAction Action;
             public MyParticleEffect Effect;
 
-            public WeaponEffect(MyModelDummy dummy, int effectId, MyWeaponDefinition.WeaponEffectAction action, MyParticleEffect effect)
+            public WeaponEffect(string name, Matrix localMatrix, int effectId, MyWeaponDefinition.WeaponEffectAction action, MyParticleEffect effect)
             {
-                this.Dummy = dummy;
+                this.Name = name;
                 this.EffectId = effectId;
                 this.Effect = effect;
                 this.Action = action;
+                this.LocalMatrix = localMatrix;
             }
         }
 
@@ -83,10 +85,10 @@ namespace Sandbox.Game.Weapons
         {
             get
             {
-                if (WeaponProperties != null && WeaponProperties.AmmoDefinition != null)
-                {
-                    return WeaponProperties.AmmoDefinition.BackkickForce;
-                }
+                //if (WeaponProperties != null && WeaponProperties.AmmoDefinition != null)
+                //{
+                //    return WeaponProperties.AmmoDefinition.BackkickForce;
+                //}
                 return 0;
             }
         }
@@ -367,7 +369,7 @@ namespace Sandbox.Game.Weapons
                             {
                                 for (int j = 0; j < m_activeEffects.Count; j++)
                                 {
-                                    if (m_activeEffects[j].Dummy == dummy && m_activeEffects[j].EffectId == effectId)
+                                    if (m_activeEffects[j].Name == dummy.Name && m_activeEffects[j].EffectId == effectId)
                                     {
                                         add = false;
                                         break;
@@ -376,13 +378,12 @@ namespace Sandbox.Game.Weapons
                             }
                             if (add && MyParticlesManager.TryCreateParticleEffect(effectId, out effect))
                             {
+                                var dummyNormalized = MatrixD.Normalize(dummy.Matrix);
+                                effect.WorldMatrix = MatrixD.Multiply(dummyNormalized, WorldMatrix);
+
                                 if (WeaponProperties.WeaponDefinition.WeaponEffects[i].Loop)
                                 {
-                                    m_activeEffects.Add(new WeaponEffect(dummy, effectId, action, effect));
-                                }
-                                else
-                                {
-                                    effect.WorldMatrix = MatrixD.Multiply(MatrixD.Normalize(dummy.Matrix), WorldMatrix);
+                                    m_activeEffects.Add(new WeaponEffect(dummy.Name, dummyNormalized, effectId, action, effect));
                                 }
                             }
                         }
@@ -397,7 +398,7 @@ namespace Sandbox.Game.Weapons
             {
                 if (!m_activeEffects[i].Effect.IsStopped || m_activeEffects[i].Effect.GetParticlesCount() > 0)
                 {
-                    m_activeEffects[i].Effect.WorldMatrix = MatrixD.Multiply(MatrixD.Normalize(m_activeEffects[i].Dummy.Matrix), WorldMatrix);
+                    m_activeEffects[i].Effect.WorldMatrix = MatrixD.Multiply(m_activeEffects[i].LocalMatrix, WorldMatrix);
                 }
                 else
                 {

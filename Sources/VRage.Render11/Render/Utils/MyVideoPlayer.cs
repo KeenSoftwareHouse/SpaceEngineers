@@ -188,14 +188,14 @@ namespace VRageRender
 
         protected override unsafe void OnFrame(byte[] frameData)
         {
-            var mapping = MyMapping.MapDiscard(m_texture.Resource);
+            var mapping = MyMapping.MapDiscard(m_texture);
 
             int lineSize = SharpDX.DXGI.FormatHelper.SizeOfInBytes(VideoFormat) * VideoWidth;
             int frameDataPos = 0;
 
             for(int y=0; y<VideoHeight; y++)
             {
-                mapping.WriteAndPositionByRow(frameData, frameDataPos, lineSize);
+                mapping.WriteAndPositionByRow(frameData, lineSize, frameDataPos);
                 frameDataPos += lineSize;
             }
             

@@ -13,9 +13,9 @@ namespace VRageRender
     {
         static VertexShaderId m_VSCopy;
         static InputLayoutId m_IL = InputLayoutId.NULL;
-        static VertexBufferId m_VBFullscreen = VertexBufferId.NULL;
-        static VertexBufferId m_VBLeftPart = VertexBufferId.NULL;
-        static VertexBufferId m_VBRightPart = VertexBufferId.NULL;
+        static IVertexBuffer m_VBFullscreen;
+        static IVertexBuffer m_VBLeftPart;
+        static IVertexBuffer m_VBRightPart;
 
         static VRageRender.Vertex.MyVertexFormatPositionTextureH[] m_vbData = new VRageRender.Vertex.MyVertexFormatPositionTextureH[4];
 
@@ -24,8 +24,9 @@ namespace VRageRender
             m_VSCopy = MyShaders.CreateVs("Postprocess/PostprocessCopy.hlsl");
 
             {
-                m_VBFullscreen = MyHwBuffers.CreateVertexBuffer(4, VRageRender.Vertex.MyVertexFormatPositionTextureH.STRIDE,
-                    BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyScreenPass.VBFullscreen");
+                m_VBFullscreen = MyManagers.Buffers.CreateVertexBuffer(
+                    "MyScreenPass.VBFullscreen", 4, VRageRender.Vertex.MyVertexFormatPositionTextureH.STRIDE,
+                    usage: ResourceUsage.Dynamic);
                 m_vbData[0] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(-1, -1, 0),
                     new VRageMath.PackedVector.HalfVector2(0, 1f));
                 m_vbData[1] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(-1, 1, 0),
@@ -34,14 +35,15 @@ namespace VRageRender
                     new VRageMath.PackedVector.HalfVector2(1, 1f));
                 m_vbData[3] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(1, 1, 0),
                     new VRageMath.PackedVector.HalfVector2(1, 0f));
-                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBFullscreen.Buffer);
-                mapping.WriteAndPosition(m_vbData, 0, 4);
+                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBFullscreen);
+                mapping.WriteAndPosition(m_vbData, 4);
                 mapping.Unmap();
             }
 
             {
-                m_VBLeftPart = MyHwBuffers.CreateVertexBuffer(4, VRageRender.Vertex.MyVertexFormatPositionTextureH.STRIDE,
-                    BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyVRScreenPass.VBLeftPart");
+                m_VBLeftPart = MyManagers.Buffers.CreateVertexBuffer(
+                    "MyVRScreenPass.VBLeftPart", 4, VRageRender.Vertex.MyVertexFormatPositionTextureH.STRIDE,
+                    usage: ResourceUsage.Dynamic);
                 m_vbData[0] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(-1, -1, 0),
                     new VRageMath.PackedVector.HalfVector2(0, 1));
                 m_vbData[1] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(-1, 1, 0),
@@ -50,14 +52,15 @@ namespace VRageRender
                     new VRageMath.PackedVector.HalfVector2(0.5f, 1));
                 m_vbData[3] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(0, 1, 0),
                     new VRageMath.PackedVector.HalfVector2(0.5f, 0f));
-                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBLeftPart.Buffer);
-                mapping.WriteAndPosition(m_vbData, 0, 4);
+                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBLeftPart);
+                mapping.WriteAndPosition(m_vbData, 4);
                 mapping.Unmap();
             }
 
             {
-                m_VBRightPart = MyHwBuffers.CreateVertexBuffer(4, VRageRender.Vertex.MyVertexFormatPositionTextureH.STRIDE,
-                    BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyVRScreenPass.VBRightPart");
+                m_VBRightPart = MyManagers.Buffers.CreateVertexBuffer(
+                    "MyVRScreenPass.VBRightPart", 4, VRageRender.Vertex.MyVertexFormatPositionTextureH.STRIDE,
+                    usage: ResourceUsage.Dynamic);
                 m_vbData[0] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(0, -1, 0),
                     new VRageMath.PackedVector.HalfVector2(0.5f, 1));
                 m_vbData[1] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(0, 1, 0),
@@ -66,8 +69,8 @@ namespace VRageRender
                     new VRageMath.PackedVector.HalfVector2(1, 1));
                 m_vbData[3] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(1, 1, 0),
                     new VRageMath.PackedVector.HalfVector2(1, 0));
-                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBRightPart.Buffer);
-                mapping.WriteAndPosition(m_vbData, 0, 4);
+                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBRightPart);
+                mapping.WriteAndPosition(m_vbData, 4);
                 mapping.Unmap();
             }
 
@@ -80,16 +83,16 @@ namespace VRageRender
         {
             if (customViewport.HasValue)
                 RC.SetViewport(customViewport.Value.OffsetX, customViewport.Value.OffsetY, customViewport.Value.Width, customViewport.Value.Height);
-            else 
+            else
                 RC.SetScreenViewport();
 
             // set vertex buffer:
             if (!MyStereoRender.Enable || MyStereoRender.RenderRegion == MyStereoRegion.FULLSCREEN)
-                RC.SetVertexBuffer(0, m_VBFullscreen.Buffer, m_VBFullscreen.Stride);
+                RC.SetVertexBuffer(0, m_VBFullscreen);
             else if (MyStereoRender.RenderRegion == MyStereoRegion.LEFT)
-                RC.SetVertexBuffer(0, m_VBLeftPart.Buffer, m_VBLeftPart.Stride);
+                RC.SetVertexBuffer(0, m_VBLeftPart);
             else if (MyStereoRender.RenderRegion == MyStereoRegion.RIGHT)
-                RC.SetVertexBuffer(0, m_VBRightPart.Buffer, m_VBRightPart.Stride);
+                RC.SetVertexBuffer(0, m_VBRightPart);
 
             if (MyStereoRender.Enable)
                 MyStereoRender.PSBindRawCB_FrameConstants(RC);
@@ -99,7 +102,7 @@ namespace VRageRender
             RC.VertexShader.Set(m_VSCopy);
             RC.Draw(4, 0);
             RC.SetPrimitiveTopology(SharpDX.Direct3D.PrimitiveTopology.TriangleList);
-            
+
             if (MyStereoRender.Enable)
                 RC.PixelShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
         }

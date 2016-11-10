@@ -1,6 +1,7 @@
 ﻿using Sandbox.Game.Gui;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
+using Sandbox.Game.Entities;
 using System;
 using System;
 using VRage.Audio;
@@ -14,7 +15,7 @@ namespace Sandbox.Game.Screens
     {
         private static readonly float ANIMATION_PERIOD = 10;
         private static readonly int NUMER_OF_PERIODS = 3;
-        private MyCueId m_highlightSound = new MyCueId(MyStringHash.GetOrCompute("SoundBlockAlert2"));
+        private MySoundPair m_highlightSound = new MySoundPair("SoundBlockAlert2");
         private IMySourceVoice m_currentSoundID;
 
         public MyHudQuestlog QuestInfo;
@@ -44,7 +45,7 @@ namespace Sandbox.Game.Screens
             {
                 m_currentFrame = 0;
                 if (m_currentSoundID == null && MyAudio.Static != null)
-                    m_currentSoundID = MyAudio.Static.PlaySound(m_highlightSound);
+                    m_currentSoundID = MyAudio.Static.PlaySound(m_highlightSound.SoundId);
             }
             else
             {
@@ -60,7 +61,7 @@ namespace Sandbox.Game.Screens
                 RecreateControls();
                 m_currentFrame = 0;
                 if (m_currentSoundID == null)
-                    m_currentSoundID = MyAudio.Static.PlaySound(m_highlightSound);
+                    m_currentSoundID = MyAudio.Static.PlaySound(m_highlightSound.SoundId);
             }
             else
             {

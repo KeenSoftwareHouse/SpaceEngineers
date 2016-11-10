@@ -3,14 +3,11 @@ using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Render11.Common;
 using VRage.Render11.LightingStage.Shadows;
 using VRage.Render11.Profiler;
 using VRage.Render11.Resources;
-using VRage.Render11.Tools;
 using VRageMath;
 
 
@@ -58,7 +55,7 @@ namespace VRageRender
 
         private MyShadowCascadesPostProcess m_cascadePostProcessor;
         
-        private ConstantsBufferId m_csmConstants = ConstantsBufferId.NULL;
+        private IConstantBuffer m_csmConstants;
         private IDepthArrayTexture m_cascadeShadowmapArray;
         private IDepthArrayTexture m_cascadeShadowmapBackup;
 
@@ -100,7 +97,7 @@ namespace VRageRender
         #region Properties
         internal IDepthArrayTexture CascadeShadowmapArray { get { return m_cascadeShadowmapArray; } }
         internal IDepthArrayTexture CascadeShadowmapBackup { get { return m_cascadeShadowmapBackup; } }
-        internal ConstantsBufferId CascadeConstantBuffer { get { return m_csmConstants; } }
+        internal IConstantBuffer CascadeConstantBuffer { get { return m_csmConstants; } }
         internal MyProjectionInfo[] CascadeInfo { get { return m_cascadeInfo; } }
 
         internal static IDepthArrayTexture CombineShadowmapArray { get { return m_combinedShadowmapArray; } }
@@ -163,12 +160,13 @@ namespace VRageRender
         private unsafe void InitConstantBuffer()
         {
             DestroyConstantBuffer();
-            m_csmConstants = MyHwBuffers.CreateConstantsBuffer((sizeof(Matrix) + 2 * sizeof(Vector4) + sizeof(Vector4)) * 8 + sizeof(Vector4), "MyShadowCascades");
+            m_csmConstants = MyManagers.Buffers.CreateConstantBuffer("MyShadowCascades", (sizeof(Matrix) + 2 * sizeof(Vector4) + sizeof(Vector4)) * 8 + sizeof(Vector4), usage: ResourceUsage.Dynamic);
         }
 
         private void DestroyConstantBuffer()
         {
-            m_csmConstants = ConstantsBufferId.NULL;
+            MyManagers.Buffers.Dispose(m_csmConstants);
+            m_csmConstants = null;
         }
 
         private void InitCascadeTextures(int cascadeResolution)
@@ -253,7 +251,7 @@ namespace VRageRender
                 return;
 
             MyGpuProfiler.IC_BeginBlock("PrepareCascades");
-            MyImmediateRC.RC.CopyResource(m_cascadeShadowmapArray.Resource, m_cascadeShadowmapBackup.Resource);
+            MyImmediateRC.RC.CopyResource(m_cascadeShadowmapArray, m_cascadeShadowmapBackup);
 
             bool stabilize = true;
             const float DirectionDifferenceThreshold = 0.0175f;
@@ -366,7 +364,7 @@ namespace VRageRender
                 query.ProjectionFactor = (float)(shadowmapSize * shadowmapSize / (bSphere.Radius * bSphere.Radius * 4));
 
                 query.QueryType = MyFrustumEnum.ShadowCascade;
-                query.CascadeIndex = cascadeIndex;
+                query.Index = cascadeIndex;
 
                 appendShadowmapQueries.Add(query);
             }
@@ -378,7 +376,7 @@ namespace VRageRender
             MyGpuProfiler.IC_EndBlock();
         }
 
-        internal void FillConstantBuffer(ConstantsBufferId constantBuffer)
+        internal void FillConstantBuffer(IConstantBuffer constantBuffer)
         {
             var mapping = MyMapping.MapDiscard(constantBuffer);
             for (int cascadeIndex = 0; cascadeIndex < m_initializedShadowCascadesCount; ++cascadeIndex)
@@ -389,7 +387,7 @@ namespace VRageRender
             for (int cascadeIndex = m_initializedShadowCascadesCount; cascadeIndex < MaxShadowCascades; ++cascadeIndex)
                 mapping.WriteAndPosition(ref Matrix.Zero);
 
-            mapping.WriteAndPosition(ShadowCascadeSplitDepths, 0, ShadowCascadeSplitDepths.Length);
+            mapping.WriteAndPosition(ShadowCascadeSplitDepths, ShadowCascadeSplitDepths.Length);
 
             float zero = 0;
             for (int splitIndex = ShadowCascadeSplitDepths.Length; splitIndex < MaxShadowCascades; ++splitIndex)

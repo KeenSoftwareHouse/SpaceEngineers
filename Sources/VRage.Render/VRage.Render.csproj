@@ -193,7 +193,8 @@
     <Compile Include="Messages\MyRenderMessageDrawSpriteAtlas.cs" />
     <Compile Include="Messages\MyRenderMessageDrawSpriteNormalized.cs" />
     <Compile Include="Messages\MyRenderMessageDrawString.cs" />
-    <Compile Include="Messages\MyRenderMessageDrawTextToMaterial.cs" />
+    <Compile Include="Messages\MyRenderMessageCreateGeneratedTexture.cs" />
+    <Compile Include="Messages\MyRenderMessageRenderOffscreenTextureToMaterial.cs" />
     <Compile Include="Messages\MyRenderMessageDrawVideo.cs" />
     <Compile Include="Messages\MyRenderMessageEnableAtmosphere.cs" />
     <Compile Include="Messages\MyRenderMessageEnum.cs" />
@@ -232,9 +233,11 @@
     <Compile Include="Messages\MyRenderMessageUpdateEnvironment.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateFogSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateGameplayFrame.cs" />
+    <Compile Include="Messages\MyRenderMessageUpdateGPUEmittersLight.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateGPUEmitters.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateGPUEmittersTransform.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateHBAO.cs" />
+    <Compile Include="Messages\MyRenderMessageUpdateMaterialsSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateModelHighlight.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateModelProperties.cs" />
     <Compile Include="Messages\MyRenderMessageUpdatePostprocessSettings.cs" />
@@ -256,7 +259,6 @@
     <Compile Include="Messages\OutputMessages\MyRenderMessageRenderTextureFreed.cs" />
     <Compile Include="Messages\OutputMessages\MyRenderMessageRequireClipmapCell.cs" />
     <Compile Include="Messages\OutputMessages\MyRenderMessageScreenshotTaken.cs" />
-    <Compile Include="Messages\OutputMessages\MyRenderMessageTextNotDrawnToTexture.cs" />
     <Compile Include="Messages\OutputMessages\MyRenderMessageVideoAdaptersResponse.cs" />
     <Compile Include="Models\MyMesh.cs" />
     <Compile Include="Models\MyMeshMaterial.cs" />
@@ -272,6 +274,7 @@
     <Compile Include="MyEnvironmentData.cs" />
     <Compile Include="MyFont.cs" />
     <Compile Include="MyImpostorProperties.cs" />
+    <Compile Include="MyMaterialsSettings.cs" />
     <Compile Include="MyMessageQueue.cs" />
     <Compile Include="Profiler\MyNullRenderProfiler.cs" />
     <Compile Include="MyPerformanceCounter.cs" />

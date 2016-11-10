@@ -26,10 +26,14 @@ float3 ColorizeGray(float3 texcolor, float3 hsvmask, float coloring)
 }
 
 #ifdef ALPHA_MASKED
-int AlphamaskCoverageAndClip(float threshold, float2 texcoord0)
+int AlphamaskCoverageAndClip(float threshold, float2 texcoord0, float alphamaskTexIndex)
 {
 #if !defined(MS_SAMPLE_COUNT) || defined(DEPTH_ONLY)
-    float alpha = AlphamaskTexture.Sample(TextureSampler, texcoord0).x;
+#ifdef USE_TEXTURE_INDICES
+	float alpha = AlphamaskTexture.Sample(TextureSampler, float3(texcoord0, alphamaskTexIndex));
+#else
+	float alpha = AlphamaskTexture.Sample(TextureSampler, texcoord0).x;
+#endif
     clip(alpha - threshold);
     return 0;
 #else
@@ -64,7 +68,6 @@ void FeedOutputInternal(PixelInterface pixel, inout MaterialOutputInterface outp
 
     // bc7 compression artifacts can give byte value 1 for 0, which should more visible than small shift
     output.emissive = saturate(extras.y - 1 / 255. + pixel.emissive);
-
     output.ao = extras.x;
 }
 

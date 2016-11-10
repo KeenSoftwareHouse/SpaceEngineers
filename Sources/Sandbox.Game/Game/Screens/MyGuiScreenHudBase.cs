@@ -183,9 +183,8 @@ namespace Sandbox.Game.Gui
             {
                 case MyHudObjectHighlightStyle.OutlineHighlight:
                 {
-                    var data = new MyHighlightSystem.MyHighlightData(status.Instance.Owner.EntityId);
-                    //MyRenderProxy.UpdateModelHighlight((uint)status.Instance.RenderObjectID, null, status.SubpartIndices, null, -1, 0, status.Instance.InstanceID);
-                    MySession.Static.GetComponent<MyHighlightSystem>().RequestHighlightChange(data);
+                    if (!MySession.Static.GetComponent<MyHighlightSystem>().IsReserved(status.Instance.Owner.EntityId))
+                        MyRenderProxy.UpdateModelHighlight((uint)status.Instance.RenderObjectID, null, status.SubpartIndices, null, -1, 0, status.Instance.InstanceID);
                     break;
                 }
             }
@@ -223,13 +222,8 @@ namespace Sandbox.Game.Gui
             Color color = MySector.EnvironmentDefinition.ContourHighlightColor;
             float thickness = MySector.EnvironmentDefinition.ContourHighlightThickness;
             ulong pulseTimeInFrames = (ulong)Math.Round(MySector.EnvironmentDefinition.HighlightPulseInSeconds * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
-            var data = new MyHighlightSystem.MyHighlightData(
-                entityId: selection.InteractiveObject.Owner.EntityId, 
-                outlineColor: color, 
-                thickness: (int)thickness, 
-                pulseTimeInFrames: pulseTimeInFrames
-                );
-            MySession.Static.GetComponent<MyHighlightSystem>().RequestHighlightChange(data);
+            if (!MySession.Static.GetComponent<MyHighlightSystem>().IsReserved(selection.InteractiveObject.Owner.EntityId))
+                MyRenderProxy.UpdateModelHighlight((uint)selection.InteractiveObject.RenderObjectID, selection.SectionIndices, selection.SubpartIndices, color, thickness, pulseTimeInFrames, selection.InteractiveObject.InstanceID);
         }
 
         public static void DrawSelectedObjectHighlightDummy(MyHudSelectedObject selection, string atlasTexture, MyAtlasTextureCoordinate textureCoord)

@@ -600,7 +600,7 @@ namespace Sandbox.Game.Entities
             Vector3 l2 = Vector3.Zero;
             Vector3 l3 = Vector3.Zero;
 
-            float alpha = 0.3f;
+            float alpha = 0.1f;
             Color color = Color.Gray;
 
             switch (plane)
@@ -610,7 +610,7 @@ namespace Sandbox.Game.Entities
                     {
                         color = new Color(1.0f, 0, 0, alpha);
 
-                        center.X -= localGridBB.Center.X + (plane == MySymmetrySettingModeEnum.XPlaneOdd ? localGrid.GridSize * 0.5f : 0);
+                        center.X -= localGridBB.Center.X + (plane == MySymmetrySettingModeEnum.XPlaneOdd ? localGrid.GridSize * 0.50025f : 0);
                         center.Y = 0;
                         center.Z = 0;
 
@@ -626,7 +626,7 @@ namespace Sandbox.Game.Entities
                         color = new Color(0.0f, 1.0f, 0, alpha);
 
                         center.X = 0;
-                        center.Y -= localGridBB.Center.Y + (plane == MySymmetrySettingModeEnum.YPlaneOdd ? localGrid.GridSize * 0.5f : 0);
+                        center.Y -= localGridBB.Center.Y + (plane == MySymmetrySettingModeEnum.YPlaneOdd ? localGrid.GridSize * 0.50025f : 0);
                         center.Z = 0;
 
                         l0 = new Vector3(localGridBB.HalfExtents.X * sizeMultiplier + sizeOffset, 0, localGridBB.HalfExtents.Z * sizeMultiplier + sizeOffset) + localGridBB.Center + center;
@@ -642,7 +642,7 @@ namespace Sandbox.Game.Entities
 
                         center.X = 0;
                         center.Y = 0;
-                        center.Z -= localGridBB.Center.Z - (plane == MySymmetrySettingModeEnum.ZPlaneOdd ? localGrid.GridSize * 0.5f : 0);
+                        center.Z -= localGridBB.Center.Z - (plane == MySymmetrySettingModeEnum.ZPlaneOdd ? localGrid.GridSize * 0.50025f : 0);
 
                         l0 = new Vector3(localGridBB.HalfExtents.X * sizeMultiplier + sizeOffset, localGridBB.HalfExtents.Y * sizeMultiplier + sizeOffset, 0) + localGridBB.Center + center;
                         l1 = new Vector3(-localGridBB.HalfExtents.X * sizeMultiplier - sizeOffset, localGridBB.HalfExtents.Y * sizeMultiplier + sizeOffset, 0) + localGridBB.Center + center;
