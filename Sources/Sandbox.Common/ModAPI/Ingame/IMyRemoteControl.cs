@@ -64,5 +64,9 @@ namespace Sandbox.ModAPI.Ingame
 
         // CH: TODO: Uncomment later for drones
         Vector3D GetFreeDestination(Vector3D originalDestination, float checkRadius, float shipRadius);
+
+        float GetDistanceToSeaLevel();
+        Vector3D GetNearestCenter();
+        bool HasPlanetNearby();
     }
 }
