@@ -115,8 +115,8 @@
     <Compile Include="IMyServerCallback.cs" />
     <Compile Include="MyChannelEnum.cs" />
     <Compile Include="MyClientEntry.cs" />
-    <Compile Include="MyRakNetConnectionException.cs" />
-    <Compile Include="MyRakNetStartupException.cs" />
+    <Compile Condition="Exists('..\..\3rd\RakNet\$(Configuration)\$(Platform)\RakNet.dll')" Include="MyRakNetConnectionException.cs" />
+    <Compile Condition="Exists('..\..\3rd\RakNet\$(Configuration)\$(Platform)\RakNet.dll')" Include="MyRakNetStartupException.cs" />
     <Compile Include="MyRakNetClient.cs" />
     <Compile Include="MyRakNetLogger.cs" />
     <Compile Include="MyRakNetPeer.cs" />

@@ -108,6 +108,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
+  </ImportGroup>
   <ItemGroup>
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
@@ -127,7 +130,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Windows.Forms" />
-	<Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime" />
+    <Reference Condition="!Exists('..\VRage.OpenVRWrapper\VRage.OpenVRWrapper.csproj') And '$(Platform)' == 'x64'" Include="VRage.OpenVRWrapper">
+      <HintPath>$(SteamBin64)\VRage.OpenVRWrapper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Input\IMyControlNameLookup.cs" />
