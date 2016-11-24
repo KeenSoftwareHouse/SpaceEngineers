@@ -127,6 +127,17 @@ namespace Sandbox.Engine.Utils
             set { m_data.IgnoreLastSession = value; }
         }
 
+        /// <summary>
+        /// 0 - dont' apppend
+        /// 1 - append
+        /// 2 - follow global setting
+        /// </summary>
+        public int AppendDateToLogName
+        {
+            get { return m_data.AppendDateToLogName; }
+            set { m_data.AppendDateToLogName = value; }
+        }
+
         public void Load(string path = null)
         {
             if (string.IsNullOrEmpty(path))

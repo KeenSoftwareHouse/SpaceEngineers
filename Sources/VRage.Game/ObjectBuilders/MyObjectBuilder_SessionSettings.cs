@@ -490,5 +490,6 @@ namespace VRage.Game
         public string WorldName = "";
         public bool PauseGameWhenEmpty = false;
         public bool IgnoreLastSession = false;
+        public int AppendDateToLogName = 2;
     }
 }
