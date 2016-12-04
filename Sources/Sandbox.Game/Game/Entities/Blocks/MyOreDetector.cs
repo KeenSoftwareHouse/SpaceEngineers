@@ -7,6 +7,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using System.Text;
+using System.Diagnostics;
 using Sandbox.Game.EntityComponents;
 using VRageMath;
 using Sandbox.ModAPI;
@@ -28,7 +29,8 @@ namespace Sandbox.Game.Entities.Cube
         private MyOreDetectorDefinition m_definition;
         private Dictionary <string, Vector3D> m_closestEachElement = new Dictionary <string, Vector3D>(); //I use the same collection to reduce heap allocations.
 
-        private MyOreDetectorComponent m_oreDetectorComponent = new MyOreDetectorComponent();        
+        private MyOreDetectorComponent m_oreDetectorComponent = new MyOreDetectorComponent();  
+        int ticksSinceOreMarkersCalled = 0;  
 
         Sync<bool> m_broadcastUsingAntennas;
 
@@ -157,12 +159,17 @@ namespace Sandbox.Game.Entities.Cube
             base.UpdateBeforeSimulation100();
             if (HasLocalPlayerAccess())
             {
-                m_oreDetectorComponent.Update (PositionComp.GetPosition(), false);
+                m_oreDetectorComponent.Update (PositionComp.GetPosition());
             }
 
             else
             {
                 m_oreDetectorComponent.Clear();
+            }
+
+            if (ticksSinceOreMarkersCalled < Stopwatch.Frequency)
+            {
+                ticksSinceOreMarkersCalled++;
             }
         }
 
@@ -184,8 +191,7 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     m_oreDetectorComponent.DetectionRadius = (value / 100f) * m_definition.MaximumRange;
                     RaisePropertiesChanged();
-                }
-                
+                }                
             }
         }
 
@@ -209,45 +215,49 @@ namespace Sandbox.Game.Entities.Cube
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
 
         public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
-        {                                                           
-            usersList.Clear();
-            Vector3D blockCoordinates = new Vector3D (base.PositionComp.GetPosition());
-            m_oreDetectorComponent.Update (blockCoordinates, true);
-
-            foreach (MyEntityOreDeposit deposit in m_oreDetectorComponent.DetectedDeposits)
+        {                 
+            if (ticksSinceOreMarkersCalled == Stopwatch.Frequency) //counter will stop so it can wait forever.
             {
-                for (int i = 0; i < deposit.Materials.Count; i++)
-                {                                                 
-                    MyEntityOreDeposit.Data depositData = deposit.Materials[i];
-                    Vector3D cachesPosition = new Vector3D();
-                    depositData.ComputeWorldPosition (deposit.VoxelMap, out cachesPosition);                    
-                    string cachesElement = deposit.Materials[i].Material.MinedOre;
+                ticksSinceOreMarkersCalled = 0;
+                usersList.Clear();
+                Vector3D blockCoordinates = new Vector3D (base.PositionComp.GetPosition());
+                m_oreDetectorComponent.Update (blockCoordinates, false);
 
-                    if (m_closestEachElement.ContainsKey (cachesElement) == false)
-                    {
-                        m_closestEachElement.Add (cachesElement, cachesPosition); //I decided Dictionary was the best way to group nearest markers since all I need is two variables.                            
-                    }
+                foreach (MyEntityOreDeposit deposit in m_oreDetectorComponent.DetectedDeposits)
+                {
+                    for (int i = 0; i < deposit.Materials.Count; i++)
+                    {                                                 
+                        MyEntityOreDeposit.Data depositData = deposit.Materials[i];
+                        Vector3D cachesPosition = new Vector3D();
+                        depositData.ComputeWorldPosition (deposit.VoxelMap, out cachesPosition);                    
+                        string cachesElement = deposit.Materials[i].Material.MinedOre;
 
-                    else
-                    {      
-                        Vector3D difference = blockCoordinates - cachesPosition;                        
-                        Vector3D previousDifference = m_closestEachElement[cachesElement] - cachesPosition; 
-                        float distanceToCache = (float) difference.LengthSquared(); //explicitly converted in order to estimate the actual hud markers as close as possible.                   
-                        float previousDistance = (float) previousDifference.LengthSquared();
+                        if (m_closestEachElement.ContainsKey (cachesElement) == false)
+                        {
+                            m_closestEachElement.Add (cachesElement, cachesPosition); //I decided Dictionary was the best way to group nearest markers since all I need is two variables.                            
+                        }
+
+                        else
+                        {      
+                            Vector3D difference = blockCoordinates - cachesPosition;                        
+                            Vector3D previousDifference = m_closestEachElement[cachesElement] - cachesPosition; 
+                            float distanceToCache = (float) difference.LengthSquared(); //explicitly converted in order to estimate the actual hud markers as close as possible.                   
+                            float previousDistance = (float) previousDifference.LengthSquared();
                                                                            
-                        if (distanceToCache < previousDistance)    
-                        {                                                                             
-                            m_closestEachElement[cachesElement] = cachesPosition; //I only want the nearest of each element. 
-                        }                                                       
+                            if (distanceToCache < previousDistance)    
+                            {                                                                             
+                                m_closestEachElement[cachesElement] = cachesPosition; //I only want the nearest of each element. 
+                            }                                                       
+                        }
                     }
                 }
-            }
                        
-            foreach (KeyValuePair <string, Vector3D> marker in m_closestEachElement)
-            {
-                usersList.Add (new ModAPI.Ingame.MyOreMarker (marker.Key, marker.Value));
+                foreach (KeyValuePair <string, Vector3D> marker in m_closestEachElement)
+                {
+                    usersList.Add (new ModAPI.Ingame.MyOreMarker (marker.Key, marker.Value));
+                }
+                m_closestEachElement.Clear();
             }
-            m_closestEachElement.Clear();
         }       
     }
 }

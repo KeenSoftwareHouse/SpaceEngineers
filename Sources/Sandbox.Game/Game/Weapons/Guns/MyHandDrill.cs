@@ -391,7 +391,7 @@ namespace Sandbox.Game.Weapons
         {
             base.UpdateBeforeSimulation100();
             m_drillBase.UpdateSoundEmitter();
-            m_oreDetectorBase.Update (PositionComp.GetPosition(), false);
+            m_oreDetectorBase.Update (PositionComp.GetPosition());
         }
 
         public void UpdateSoundEmitter()

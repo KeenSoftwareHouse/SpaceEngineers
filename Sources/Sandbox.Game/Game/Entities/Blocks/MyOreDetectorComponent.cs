@@ -201,24 +201,19 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool SetRelayedRequest { get; set; }
 
-        public void Update (Vector3D position, bool onlyUpdateMember, bool checkControl = true)
+        public void Update (Vector3D position, bool checkControl = true)
         {           
-            if (onlyUpdateMember == false) 
-            {
-                Clear(); //It should only clear hud markers if it's prepared to renew them.
-
-                if (!SetRelayedRequest && checkControl && !OnCheckControl())
-                {
-                    //m_depositGroupsByEntity.Clear(); I commented this out because it, in some states, causes DetectedDeposits to ouput as empty. m_depositGroupsByEntity seems to take more than one method one to fully update.
-                    return;
-                }
-                SetRelayedRequest = false;
-            }     
+            if (!SetRelayedRequest && checkControl && !OnCheckControl())
+            {                
+                //m_depositGroupsByEntity.Clear(); I commented this out because it, in some states, causes DetectedDeposits to ouput incorrectly as empty. m_depositGroupsByEntity seems to take more than one method run to fully update.
+                return;
+            }            
             
             else
             {
                 DetectedDeposits.Clear();
             } 
+            SetRelayedRequest = false;    
             var sphere = new BoundingSphereD (position, DetectionRadius);
             MyGamePruningStructure.GetAllVoxelMapsInSphere (ref sphere, m_inRangeCache);
 
@@ -239,7 +234,7 @@ namespace Sandbox.Game.Entities.Cube
                 foreach (var voxelMap in m_inRangeCache)
                 {
                     if (!m_depositGroupsByEntity.ContainsKey (voxelMap))
-                        m_depositGroupsByEntity.Add (voxelMap, new MyOreDepositGroup(voxelMap));
+                        m_depositGroupsByEntity.Add (voxelMap, new MyOreDepositGroup (voxelMap));
                 }
                 m_inRangeCache.Clear();
             }
@@ -255,14 +250,14 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if (deposit != null)
                     {                              
-                        switch (onlyUpdateMember) //the method has been divided into these two choices because previously, oremarkers could not be fetched without a radio antenna.
+                        switch (checkControl) //the method has been divided into these two choices because previously, oremarkers could not be fetched without a radio antenna.
                         {
                             case true:                                
-                                DetectedDeposits.Add (deposit);
+                                MyHud.OreMarkers.RegisterMarker (deposit);                    
                                 break;
 
-                            case false:      
-                                MyHud.OreMarkers.RegisterMarker (deposit);                    
+                            case false:                                      
+                                DetectedDeposits.Add (deposit);
                                 break;
                         }                      
                     }
