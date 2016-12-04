@@ -203,17 +203,22 @@ namespace Sandbox.Game.Entities.Cube
 
         public void Update (Vector3D position, bool checkControl = true)
         {           
-            if (!SetRelayedRequest && checkControl && !OnCheckControl())
-            {                
-                //m_depositGroupsByEntity.Clear(); I commented this out because it, in some states, causes DetectedDeposits to ouput incorrectly as empty. m_depositGroupsByEntity seems to take more than one method run to fully update.
-                return;
-            }            
-            
+            if (checkControl == true)
+            {
+                Clear(); 
+
+                if (!SetRelayedRequest && !OnCheckControl())
+                {                
+                    //m_depositGroupsByEntity.Clear(); I commented this out because it, in some states, causes DetectedDeposits to ouput incorrectly as empty. m_depositGroupsByEntity seems to take more than one run to fully load.
+                    return;
+                }            
+                SetRelayedRequest = false;
+            }
+
             else
             {
-                DetectedDeposits.Clear();
-            } 
-            SetRelayedRequest = false;    
+                DetectedDeposits.Clear(); //Deposits needs to remove duplicates but also leave the HUD unchanged.
+            }
             var sphere = new BoundingSphereD (position, DetectionRadius);
             MyGamePruningStructure.GetAllVoxelMapsInSphere (ref sphere, m_inRangeCache);
 
@@ -253,7 +258,7 @@ namespace Sandbox.Game.Entities.Cube
                         switch (checkControl) //the method has been divided into these two choices because previously, oremarkers could not be fetched without a radio antenna.
                         {
                             case true:                                
-                                MyHud.OreMarkers.RegisterMarker (deposit);                    
+                                MyHud.OreMarkers.RegisterMarker (deposit);                        
                                 break;
 
                             case false:                                      

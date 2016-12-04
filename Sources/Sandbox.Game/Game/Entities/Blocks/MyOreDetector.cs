@@ -30,7 +30,7 @@ namespace Sandbox.Game.Entities.Cube
         private Dictionary <string, Vector3D> m_closestEachElement = new Dictionary <string, Vector3D>(); //I use the same collection to reduce heap allocations.
 
         private MyOreDetectorComponent m_oreDetectorComponent = new MyOreDetectorComponent();  
-        int ticksSinceOreMarkersCalled = 0;  
+        int MethodCallRateCounter = 0;  
 
         Sync<bool> m_broadcastUsingAntennas;
 
@@ -167,9 +167,9 @@ namespace Sandbox.Game.Entities.Cube
                 m_oreDetectorComponent.Clear();
             }
 
-            if (ticksSinceOreMarkersCalled < Stopwatch.Frequency)
+            if (MethodCallRateCounter < Stopwatch.Frequency)
             {
-                ticksSinceOreMarkersCalled++;
+                MethodCallRateCounter++;
             }
         }
 
@@ -216,9 +216,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
         {                 
-            if (ticksSinceOreMarkersCalled == Stopwatch.Frequency) //counter will stop so it can wait forever.
+            if (MethodCallRateCounter == Stopwatch.Frequency) //counter will stop so it can wait forever.
             {
-                ticksSinceOreMarkersCalled = 0;
+                MethodCallRateCounter = 0;
                 usersList.Clear();
                 Vector3D blockCoordinates = new Vector3D (base.PositionComp.GetPosition());
                 m_oreDetectorComponent.Update (blockCoordinates, false);
