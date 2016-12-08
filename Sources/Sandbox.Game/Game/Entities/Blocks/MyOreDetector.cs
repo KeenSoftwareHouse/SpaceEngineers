@@ -30,12 +30,14 @@ namespace Sandbox.Game.Entities.Cube
         private Dictionary <string, Vector3D> m_closestEachElement = new Dictionary <string, Vector3D>(); //I use the same collection to reduce heap allocations.
 
         private MyOreDetectorComponent m_oreDetectorComponent = new MyOreDetectorComponent();  
-        int MethodCallRateCounter = 0;  
+        bool getOreRateLimited; 
 
         Sync<bool> m_broadcastUsingAntennas;
 
         public MyOreDetector()
         {
+ 	    getOreRateLimited = true;
+	
 #if XB1 // XB1_SYNC_NOREFLECTION
             m_broadcastUsingAntennas = SyncType.CreateAndAddProp<bool>();
 #endif // XB1
@@ -156,6 +158,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public override void UpdateBeforeSimulation100()
         {
+	    getOreRateLimited = true;
+	    
             base.UpdateBeforeSimulation100();
             if (HasLocalPlayerAccess())
             {
@@ -165,11 +169,6 @@ namespace Sandbox.Game.Entities.Cube
             else
             {
                 m_oreDetectorComponent.Clear();
-            }
-
-            if (MethodCallRateCounter < Stopwatch.Frequency)
-            {
-                MethodCallRateCounter++;
             }
         }
 
@@ -216,9 +215,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
         {                 
-            if (MethodCallRateCounter == Stopwatch.Frequency) //counter will stop so it can wait forever.
+            if (getOreRateLimited)
             {
-                MethodCallRateCounter = 0;
+                getOreRateLimited = false;
                 usersList.Clear();
                 Vector3D blockCoordinates = new Vector3D (base.PositionComp.GetPosition());
                 m_oreDetectorComponent.Update (blockCoordinates, false);
