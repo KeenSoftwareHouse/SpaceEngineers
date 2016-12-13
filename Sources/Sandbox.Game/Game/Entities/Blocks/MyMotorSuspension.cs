@@ -686,8 +686,8 @@ namespace Sandbox.Game.Entities.Cube
             data.SetSuspensionDamping(m_damping);
             data.SetSuspensionStrength(m_strenth);
             //Min/MaxHeight also define the limits of the suspension and SuspensionTravel lowers this limit
-            data.SetSuspensionMinLimit((BlockDefinition.MinHeight - m_height)*SuspensionTravel);
-            data.SetSuspensionMaxLimit((BlockDefinition.MaxHeight - m_height)*SuspensionTravel);
+            data.SetSuspensionMinLimit((BlockDefinition.MinHeight - m_height)*SuspensionTravel+m_height);
+            data.SetSuspensionMaxLimit((BlockDefinition.MaxHeight - m_height)*SuspensionTravel+m_height);
             m_constraint = new HkConstraint(rotorBody, CubeGrid.Physics.RigidBody, data);
 
             m_constraint.WantRuntime = true;
