@@ -485,9 +485,9 @@ namespace Sandbox.Game.Entities.Cube
             if (SafeConstraint != null)
             {
                 (m_constraint.ConstraintData as HkWheelConstraintData).SetSuspensionMinLimit(
-                    (BlockDefinition.MinHeight - m_height) * SuspensionTravel);
+                    (BlockDefinition.MinHeight - m_height) * SuspensionTravel + m_height);
                 (m_constraint.ConstraintData as HkWheelConstraintData).SetSuspensionMaxLimit(
-                    (BlockDefinition.MaxHeight - m_height) * SuspensionTravel);
+                    (BlockDefinition.MaxHeight - m_height) * SuspensionTravel + m_height);
             }
         }
 
