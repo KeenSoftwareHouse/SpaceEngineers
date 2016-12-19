@@ -230,6 +230,16 @@ namespace VRageMath
         }
 
         /// <summary>
+        /// Interpolates between two values using a cubic equation.
+        /// </summary>
+        /// <param name="value1">Source value.</param><param name="value2">Source value.</param><param name="amount">Weighting value.</param>
+        public static double SmoothStep(double value1, double value2, double amount)
+        {
+            Debug.Assert(amount >= 0f && amount <= 1f, "Wrong amount value for SmoothStep");
+            return MathHelper.Lerp(value1, value2, SCurve3(amount));
+        }
+
+        /// <summary>
         /// Interpolates between zero and one using cubic equiation, solved by de Casteljau.
         /// </summary>
         /// <param name="amount">Weighting value [0..1].</param>
@@ -292,13 +302,13 @@ namespace VRageMath
             return (float)((double)value1 * (double)num4 + (double)value2 * (double)num5 + (double)tangent1 * (double)num6 + (double)tangent2 * (double)num7);
         }
 
-        public static Vector3D CalculateBezierPoint(float t, Vector3D p0, Vector3D p1, Vector3D p2, Vector3D p3)
+        public static Vector3D CalculateBezierPoint(double t, Vector3D p0, Vector3D p1, Vector3D p2, Vector3D p3)
         {
-            float u = 1 - t;
-            float tt = t * t;
-            float uu = u * u;
-            float uuu = uu * u;
-            float ttt = tt * t;
+            double u = 1 - t;
+            double tt = t * t;
+            double uu = u * u;
+            double uuu = uu * u;
+            double ttt = tt * t;
 
             Vector3D p = uuu * p0; //first term
             p += 3 * uu * t * p1; //second term

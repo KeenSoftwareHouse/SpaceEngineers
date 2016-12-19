@@ -150,7 +150,29 @@
     <Compile Include="Common\MyManagers.cs" />
     <Compile Include="Common\MyObjectPoolManager.cs" />
     <Compile Include="Common\MyRenderUtils.cs" />
-    <Compile Include="GeometryStage2\MyGeometryTextureSystem.cs" />
+    <Compile Include="GeometryStage2\Common\MyIDGenerator.cs" />
+    <Compile Include="GeometryStage2\Common\MyTypes.cs" />
+    <Compile Include="GeometryStage2\Culling\MyCpuCulledEntity.cs" />
+    <Compile Include="GeometryStage2\Instancing\MyInstanceComponent.cs" />
+    <Compile Include="GeometryStage2\Instancing\MyLodStrategy.cs" />
+    <Compile Include="GeometryStage2\Model\MyLod.cs" />
+    <Compile Include="GeometryStage2\Model\MyMaterialManager.cs" />
+    <Compile Include="GeometryStage2\Model\MyMaterial.cs" />
+    <Compile Include="GeometryStage2\Model\MyModelBufferManager.cs" />
+    <Compile Include="GeometryStage2\Model\MyPart.cs" />
+    <Compile Include="GeometryStage2\Culling\MyCpuFrustumCulling.cs" />
+    <Compile Include="GeometryStage2\Model\MySection.cs" />
+    <Compile Include="GeometryStage2\MyDebugGeometryStage2.cs" />
+    <Compile Include="GeometryStage2\Rendering\MyPassIdResolver.cs" />
+    <Compile Include="GeometryStage2\Rendering\MyRenderPass.cs" />
+    <Compile Include="GeometryStage2\Rendering\MyShaderBundleResolver.cs" />
+    <Compile Include="GeometryStage2\Rendering\MyGeometryRenderer.cs" />
+    <Compile Include="GeometryStage2\Model\MyModel.cs" />
+    <Compile Include="GeometryStage2\Model\MyMwmData.cs" />
+    <Compile Include="GeometryStage2\Model\MyModelFactory.cs" />
+    <Compile Include="GeometryStage2\Model\MyMwmUtils.cs" />
+    <Compile Include="GeometryStage2\Instancing\MyInstanceManager.cs" />
+    <Compile Include="GeometryStage\MyGeometryTextureSystem.cs" />
     <Compile Include="GeometryStage\RenderingPasses\MyHighlightPass.cs" />
     <Compile Include="LightingStage\Shadows\MyCascadeShadowMap.cs" />
     <Compile Include="LightingStage\Shadows\MyCsmPlacementStrategy.cs" />
@@ -194,8 +216,8 @@
     <Compile Include="GeometryStage\RenderingWork\MyRenderCullResultFlat.cs" />
     <Compile Include="GeometryStage\RenderingWork\MyRenderingWorkRecordCommands.cs" />
     <Compile Include="LightingStage\EnvironmentProve\MyEnvironmentProbe.cs" />
-    <Compile Include="LightingStage\MyAtmosphere.cs" />
-    <Compile Include="LightingStage\MyClouds.cs" />
+    <Compile Include="TransparentStage\MyAtmosphere.cs" />
+    <Compile Include="TransparentStage\MyClouds.cs" />
     <Compile Include="LightingStage\EnvironmentProve\MyEnvProbeProcessing.cs" />
     <Compile Include="LightingStage\ShadowsOld\MyShadowCascades.cs" />
     <Compile Include="LightingStage\ShadowsOld\MyShadowCascadesPostProcess.cs" />
@@ -213,6 +235,7 @@
     <Compile Include="Resources\MyDynamicFileArrayTexture.cs" />
     <Compile Include="Resources\MyFileTextureParams.cs" />
     <Compile Include="Resources\MyGeneratedTexturePatterns.cs" />
+    <Compile Include="Resources\MyTextureStatistics.cs" />
     <Compile Include="Resources\Textures\MyBorrowedRwTextures.cs" />
     <Compile Include="Resources\Textures\MyRwTextures.cs" />
     <Compile Include="Tools\MyHdrDebugTools.cs" />
@@ -249,7 +272,7 @@
     <Compile Include="GeometryStage\RenderingPasses\MyGbufferPass.cs" />
     <Compile Include="GeometryStage\VertexInputComponents\VertexComponents.cs" />
     <Compile Include="LightingStage\ShadowsOld\MyShadows.cs" />
-    <Compile Include="LightingStage\MyLightRendering.cs" />
+    <Compile Include="LightingStage\MyLightsRendering.cs" />
     <Compile Include="LightingStage\MyAAEdgeMarking.cs" />
     <Compile Include="PostprocessStage\MyBloom.cs" />
     <Compile Include="LightingStage\MyDepthResolve.cs" />
@@ -289,7 +312,7 @@
     <Compile Include="Render\Utils\MyPackedPool.cs" />
     <Compile Include="Render\MyRender-DebugMessages.cs" />
     <Compile Include="Render\Utils\MyRenderStats.cs" />
-    <Compile Include="LightingStage\MyLight.cs" />
+    <Compile Include="LightingStage\MyLights.cs" />
     <Compile Include="Render\Utils\MyScreenshot.cs" />
     <Compile Include="Render\Utils\MyDebugRenderer.cs" />
     <Compile Include="Render\MyRenderConstants.cs" />
@@ -315,6 +338,7 @@
     <Compile Include="Resources\MyTextureAtlas.cs" />
     <Compile Include="Tools\MyStatsDisplay.cs" />
     <Compile Include="Tools\MyDebugTextureDisplay.cs" />
+    <Compile Include="Render\MyOcclusionQueryRenderer.cs" />
     <Compile Include="TransparentStage\MyFlareRenderer.cs" />
     <Compile Include="TransparentStage\MyGPUEmitters.cs" />
     <Compile Include="TransparentStage\MyGPUParticleRenderer.cs" />
@@ -323,7 +347,6 @@
     <Content Include="Shaders\Debug\DebugLOD.hlsl" />
     <Content Include="Shaders\Debug\HeatMap.hlsli" />
     <Content Include="Shaders\Debug\DisplayHdrIntensity.hlsl" />
-    <Content Include="Shaders\EnvProbe\AtmospherePostprocess.hlsl" />
     <Content Include="Shaders\Postprocess\Bloom\Blur.hlsl" />
     <Content Include="Shaders\Postprocess\Bloom\Defines.hlsli" />
     <Content Include="Shaders\Postprocess\Bloom\Downscale2.hlsl" />
@@ -398,10 +421,6 @@
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
       <Name>VRage</Name>
     </ProjectReference>
-    <ProjectReference Include="..\XB1Interface\XB1Interface.csproj" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
-      <Project>{b6068a9d-54a1-425a-9dfb-87fd9ec5e822}</Project>
-      <Name>XB1Interface</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Shaders\Geometry\AlphamaskViews.hlsli" />
@@ -423,7 +442,7 @@
     <Content Include="Shaders\Shadows\Shadows.hlsli" />
     <Content Include="Shaders\Shadows\StencilMarker.hlsl" />
     <Content Include="Shaders\Stereo\StereoStencilMask.hlsl" />
-    <Content Include="Shaders\Transparent\Atmosphere\Atmosphere.hlsl" />
+    <Content Include="Shaders\Transparent\Atmosphere\AtmosphereGBuffer.hlsl" />
     <Content Include="Shaders\Transparent\Atmosphere\AtmosphereCommon.hlsli" />
     <Content Include="Shaders\Transparent\Atmosphere\AtmospherePrecompute.hlsl" />
     <Content Include="Shaders\Postprocess\Blur.hlsl" />
@@ -537,7 +556,18 @@
     <Content Include="Shaders\VertexTransformations.hlsli" />
     <Content Include="Shaders\Geometry\VoxelTransition.hlsli" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Shaders\Debug\DebugDepthReprojection.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Shaders\Transparent\Atmosphere\AtmosphereEnv.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Shaders\Transparent\Atmosphere\AtmosphereVS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Shaders\Primitives\OcclusionQuery.hlsl" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

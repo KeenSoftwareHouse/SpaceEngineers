@@ -18,6 +18,7 @@ namespace Sandbox.Game.Screens.Helpers
         public string Name;
         public string Description;
         public Vector3D Coords;
+        public Color GPSColor;
         public bool ShowOnHud;
         public bool AlwaysVisible;
         public TimeSpan? DiscardAt;//final=null. Not final=time at which we should drop it from the list, relative to ElapsedPlayTime
@@ -69,12 +70,17 @@ namespace Sandbox.Game.Screens.Helpers
             Coords = builder.coords;
             ShowOnHud = builder.showOnHud;
             AlwaysVisible = builder.alwaysVisible;
+            if (builder.color != Color.Transparent && builder.color != Color.Black)
+                GPSColor = builder.color;
+            else
+                GPSColor = new Color(117, 201, 241);
             if (!builder.isFinal)
                 SetDiscardAt();
             UpdateHash();
         }
         public MyGps()
         {
+            GPSColor = new Color(117, 201, 241);
             SetDiscardAt();
         }
 

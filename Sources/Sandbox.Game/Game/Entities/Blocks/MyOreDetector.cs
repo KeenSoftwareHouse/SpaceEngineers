@@ -66,7 +66,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -77,7 +77,7 @@ namespace Sandbox.Game.Entities.Cube
             sinkComp.Init(
                 m_definition.ResourceSinkGroup,
                 MyEnergyConstants.MAX_REQUIRED_POWER_ORE_DETECTOR,
-                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0f);
             ResourceSink = sinkComp;
            
             ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;

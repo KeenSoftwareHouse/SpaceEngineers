@@ -8,6 +8,7 @@ using VRage;
 using VRage.Render11.Common;
 using VRage.Render11.Profiler;
 using VRage.Render11.Resources;
+using VRage.Render11.Resources.Internal;
 using VRageMath;
 
 namespace VRageRender
@@ -31,36 +32,47 @@ namespace VRageRender
         }
 
         static PixelShaderId m_ps;
-        static PixelShaderId m_atmosphere;
+        //static PixelShaderId m_atmosphere;
         static ComputeShaderId m_mipmap;
         static ComputeShaderId m_prefilter;
         static ComputeShaderId m_blend;
 
         static int m_viewportSize = MyRenderSettings.EnvMapResolution;
 
-        internal static void Init()
+        private static IConstantBuffer TransformConstants;
+
+        private static VertexShaderId m_proxyVs;
+        private static InputLayoutId m_proxyIL;
+
+        internal static unsafe void Init()
         {
             m_ps = MyShaders.CreatePs("EnvProbe/ForwardPostprocess.hlsl");
-            m_atmosphere = MyShaders.CreatePs("EnvProbe/AtmospherePostprocess.hlsl");
+            //m_atmosphere = MyShaders.CreatePs("EnvProbe/AtmospherePostprocess.hlsl");
             m_mipmap = MyShaders.CreateCs("EnvProbe/EnvPrefilteringMipmap.hlsl");
             m_prefilter = MyShaders.CreateCs("EnvProbe/EnvPrefiltering.hlsl");
             m_blend = MyShaders.CreateCs("EnvProbe/EnvPrefilteringBlend.hlsl");
+
+            TransformConstants = MyManagers.Buffers.CreateConstantBuffer("TransformConstants", sizeof(Matrix) * 2 + sizeof(Vector4), usage: ResourceUsage.Dynamic);
         }
 
-        internal unsafe static void RunForwardPostprocess(IRtvBindable rt, ISrvBindable depth, ref Matrix viewMatrix, uint? atmosphereId)
+        internal static unsafe void RunForwardPostprocess(IRtvBindable rt, IDsvBindable depthDsv, ISrvBindable depthSrv, 
+            ref Matrix viewMatrix, ref Matrix projMatrix)
         {
             MyGpuProfiler.IC_BeginBlock("Postprocess");
-            var transpose = Matrix.Transpose(viewMatrix);
-            var mapping = MyMapping.MapDiscard(RC, MyCommon.ProjectionConstants);
-            mapping.WriteAndPosition(ref transpose);
+            var viewMatrixT = Matrix.Transpose(viewMatrix);
+            var projMatrixT = Matrix.Transpose(projMatrix);
+            var mapping = MyMapping.MapDiscard(RC, TransformConstants);
+            mapping.WriteAndPosition(ref viewMatrixT);
+            mapping.WriteAndPosition(ref projMatrixT);
+            mapping.WriteAndPosition(ref MyRender11.Environment.Data.EnvironmentLight.SunLightDirection);
             mapping.Unmap();
 
             RC.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
-            RC.AllShaderStages.SetConstantBuffer(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.OBJECT_SLOT, TransformConstants);
 
             RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);
             RC.SetRtv(rt);
-            RC.PixelShader.SetSrv(0, depth);
+            RC.PixelShader.SetSrv(0, depthSrv);
             MyFileTextureManager texManager = MyManagers.FileTextures;
             RC.PixelShader.SetSrv(MyCommon.SKYBOX_SLOT, texManager.GetTexture(MyRender11.Environment.Data.Skybox, MyFileTextureEnum.CUBEMAP, true));
             RC.PixelShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
@@ -69,59 +81,15 @@ namespace VRageRender
             MyScreenPass.DrawFullscreenQuad(new MyViewport(m_viewportSize, m_viewportSize));
             MyGpuProfiler.IC_EndBlock();
 
-            MyGpuProfiler.IC_BeginBlock("Atmosphere");
-            if (atmosphereId != null)
+            var nearestAtmosphereId = MyAtmosphereRenderer.GetNearestAtmosphereId();
+            if (nearestAtmosphereId != null)
             {
-                var atmosphere = MyAtmosphereRenderer.GetAtmosphere(atmosphereId.Value);
-                var constants = new AtmosphereConstants();
-                //TODO(AF) These values are computed in MyAtmosphere as well. Find a way to remove the duplication
-                var worldMatrix = atmosphere.WorldMatrix;
-                worldMatrix.Translation -= MyRender11.Environment.Matrices.CameraPosition;
-
-                double distance = worldMatrix.Translation.Length();
-                double atmosphereTop = atmosphere.AtmosphereRadius * atmosphere.Settings.AtmosphereTopModifier * atmosphere.PlanetScaleFactor * atmosphere.Settings.RayleighTransitionModifier;
-                float rayleighHeight = atmosphere.Settings.RayleighHeight;
-                float t = 0.0f;
-                if (distance > atmosphereTop)
-                {
-                    if (distance > atmosphereTop * 2.0f)
-                    {
-                        t = 1.0f;
-                    }
-                    else
-                    {
-                        t = (float)((distance - atmosphereTop) / atmosphereTop);
-                    }
-                }
-                rayleighHeight = MathHelper.Lerp(atmosphere.Settings.RayleighHeight, atmosphere.Settings.RayleighHeightSpace, t);
-
-
-                constants.PlanetCentre = (Vector3)worldMatrix.Translation;
-                constants.AtmosphereRadius = atmosphere.AtmosphereRadius * atmosphere.Settings.AtmosphereTopModifier;
-                constants.GroundRadius = atmosphere.PlanetRadius * 1.01f * atmosphere.Settings.SeaLevelModifier;
-                constants.BetaRayleighScattering = atmosphere.BetaRayleighScattering / atmosphere.Settings.RayleighScattering;
-                constants.BetaMieScattering = atmosphere.BetaMieScattering / atmosphere.Settings.MieColorScattering;
-                constants.HeightScaleRayleighMie = atmosphere.HeightScaleRayleighMie * new Vector2(rayleighHeight, atmosphere.Settings.MieHeight);
-                constants.MieG = atmosphere.Settings.MieG;
-                constants.PlanetScaleFactor = atmosphere.PlanetScaleFactor;
-                constants.AtmosphereScaleFactor = atmosphere.AtmosphereScaleFactor;
-                constants.Intensity = atmosphere.Settings.Intensity;
-                constants.FogIntensity = atmosphere.Settings.FogIntensity;
-            
-                var cb = MyCommon.GetObjectCB(sizeof(AtmosphereConstants));
-            
-                mapping = MyMapping.MapDiscard(RC, cb);
-                mapping.WriteAndPosition(ref constants);
-                mapping.Unmap();
-
-                RC.SetBlendState(MyBlendStateManager.BlendAdditive);
-                RC.PixelShader.SetConstantBuffer(2, cb);
-                RC.PixelShader.SetSrv(2, MyAtmosphereRenderer.GetAtmosphereLuts(atmosphereId.Value).TransmittanceLut);
-                RC.PixelShader.Set(m_atmosphere);
-
-                MyScreenPass.DrawFullscreenQuad(new MyViewport(MyEnvironmentProbe.CubeMapResolution, MyEnvironmentProbe.CubeMapResolution));
+                MyGpuProfiler.IC_BeginBlock("Atmosphere");
+                RC.PixelShader.SetSrv(0, depthSrv);
+                var viewProj = viewMatrix * projMatrix;
+                MyAtmosphereRenderer.RenderEnvProbe(MyRender11.Environment.Matrices.CameraPosition, ref viewProj, nearestAtmosphereId.Value);
+                MyGpuProfiler.IC_EndBlock();
             }
-            MyGpuProfiler.IC_EndBlock();
 
             RC.SetRtv(null);
 
@@ -234,7 +202,7 @@ namespace VRageRender
                     RC.ComputeShader.SetSrv(1, src1.SubresourceSrv(j, i));
 
                     // The single parameter version of SetUnorderedAccessView allocates
-                    RC.ComputeShader.SetUav(0, dst.SubresourceUav(j, i), -1);
+                    RC.ComputeShader.SetUav(0, dst.SubresourceUav(j, i));
                     RC.Dispatch((mipSide + 7) / 8, (mipSide + 7) / 8, 1);
 
                     mipSide >>= 1;

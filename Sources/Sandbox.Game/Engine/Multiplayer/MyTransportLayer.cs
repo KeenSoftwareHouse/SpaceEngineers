@@ -1,26 +1,15 @@
-﻿using ProtoBuf;
-#if !XB1 // XB1_NOPROTOBUF
-using ProtoBuf.Meta;
-#endif //!XB1
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Gui;
+﻿using Sandbox.Engine.Networking;
 using Sandbox.Game.Multiplayer;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using VRage;
-using VRage.Utils;
 using VRage.Compiler;
 using VRage.Trace;
-using VRageRender;
 using VRage.Plugins;
-using VRage.Replication;
 using VRage.Library.Collections;
 using VRage.Network;
 using VRage.Library.Utils;
@@ -58,7 +47,7 @@ namespace Sandbox.Engine.Multiplayer
     public interface ITransportCallback
     {
         string MessageType { get; }
-        void Receive(ByteStream source, ulong sender, TimeSpan timestamp);
+        void Receive(ByteStream source, ulong sender, MyTimeSpan timestamp);
     }
 
     public interface ITransportCallback<TMsg> : ITransportCallback
@@ -94,21 +83,22 @@ namespace Sandbox.Engine.Multiplayer
         struct Success<T> { }
         struct Failure<T> { }
 
-        struct StatName<T> { public static string Name = typeof(T).Name + ": {0}x; {1} B"; }
+        struct StatName<T> { public static readonly string Name = typeof(T).Name + ": {0}x; {1} B"; }
 
         class Buffer
         {
             public byte[] Data;
             public ulong Sender;
+            public MyTimeSpan ReceivedTime;
         }
 
-        Dictionary<ushort, CallbackInfo> m_callbacks = new Dictionary<ushort, CallbackInfo>();
-        HashSet<ulong> m_pendingFlushes = new HashSet<ulong>();
-        static Dictionary<Type, Tuple<ushort, P2PMessageEnum>> TypeMap;
+        readonly Dictionary<ushort, CallbackInfo> m_callbacks = new Dictionary<ushort, CallbackInfo>();
+        readonly HashSet<ulong> m_pendingFlushes = new HashSet<ulong>();
+        static readonly Dictionary<Type, Tuple<ushort, P2PMessageEnum>> TypeMap;
 
-        static readonly int MessageTypeCount = (int)MyEnum<MyMessageId>.Range.Max + 1;
-        Queue<int>[] m_slidingWindows = Enumerable.Range(0, MessageTypeCount).Select(s => new Queue<int>(120)).ToArray();
-        int[] m_thisFrameTraffic = new int[MessageTypeCount];
+        static readonly int m_messageTypeCount = (int)MyEnum<MyMessageId>.Range.Max + 1;
+        readonly Queue<int>[] m_slidingWindows = Enumerable.Range(0, m_messageTypeCount).Select(s => new Queue<int>(120)).ToArray();
+        readonly int[] m_thisFrameTraffic = new int[m_messageTypeCount];
 
         static MyTransportLayer()
         {
@@ -150,16 +140,15 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-        ByteStream m_sendStream;
-        ByteStream m_receiveStream;
+        readonly ByteStream m_sendStream;
+        readonly ByteStream m_receiveStream;
 
         bool m_isBuffering;
-        int m_channel;
+        readonly int m_channel;
 
         List<Buffer> m_buffer;
         AddMessageDelegate m_loopback;
         Dictionary<MyMessageId, Action<MyPacket>> m_handlers = new Dictionary<MyMessageId, Action<MyPacket>>();
-        MyReplicationLayer m_replicationLayer;
 
         public Dictionary<string, NetworkStat> SendStats = new Dictionary<string, NetworkStat>();
         public Dictionary<string, NetworkStat> ReceiveStats = new Dictionary<string, NetworkStat>();
@@ -194,6 +183,7 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public int Channel { get { return m_channel; } }
+        public Action<ulong> DisconnectPeerOnError { get; set; }
 
         public MyTransportLayer(int channel)
         {
@@ -202,22 +192,23 @@ namespace Sandbox.Engine.Multiplayer
             m_channel = channel;
             m_sendStream = new ByteStream(64 * 1024, true);
             m_receiveStream = new ByteStream();
+            DisconnectPeerOnError = null;
 
-            m_loopback = MyNetworkReader.SetHandler(channel, HandleMessage, MyReceiveQueue.Mode.Timer, Timer);
+            m_loopback = MyNetworkReader.SetHandler(channel, HandleMessage, (x) => DisconnectPeerOnError(x), MyReceiveQueue.Mode.Timer, Timer);
         }
 
-        private void OnMessageRecieved(byte[] data, uint length, ulong sender)
+        /*private void OnMessageRecieved(byte[] data, uint length, ulong sender)
         {
-            HandleMessage(data, (int)length, sender, TimeSpan.Zero);
-        }
+            HandleMessage(data, (int)length, sender, MyTimeSpan.Zero);
+        }*/
 
-        TimeSpan Timer()
+        MyTimeSpan Timer()
         {
             //if (Sync.Layer != null)
             //{
             //return Sync.Layer.Interpolation.Timer.CurrentTime;
             //}
-            return TimeSpan.Zero;
+            return MyTimeSpan.Zero;
         }
 
         public void SendFlush(ulong sendTo)
@@ -316,7 +307,7 @@ namespace Sandbox.Engine.Multiplayer
 
             int totalSum = 0;
             NetProfiler.Begin("Avg per frame (60 frames window)");
-            for (int i = 0; i < MessageTypeCount; i++)
+            for (int i = 0; i < m_messageTypeCount; i++)
             {
                 var window = m_slidingWindows[i];
                 window.Enqueue(m_thisFrameTraffic[i]);
@@ -362,7 +353,7 @@ namespace Sandbox.Engine.Multiplayer
                 NetProfiler.Begin("Processing buffered events");
                 foreach (var b in m_buffer)
                 {
-                    ProcessMessage(b.Data, b.Data.Length, b.Sender, TimeSpan.Zero);
+                    ProcessMessage(b.Data, b.Data.Length, b.Sender, MyTimeSpan.Zero, b.ReceivedTime);
                 }
                 NetProfiler.End();
             }
@@ -385,7 +376,7 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-        private void HandleMessage(byte[] data, int dataSize, ulong sender, TimeSpan timestamp)
+        private void HandleMessage(byte[] data, int dataSize, ulong sender, MyTimeSpan timestamp, MyTimeSpan receivedTime)
         {
             if (dataSize < sizeof(byte)) // This would cause crash, message has to contain at least MyMessageId
                 return;
@@ -396,6 +387,9 @@ namespace Sandbox.Engine.Multiplayer
                 ByteCountReceived += dataSize;
 
             MyMessageId id = (MyMessageId)data[0];
+            
+            LogStats(ReceiveStats, "", dataSize, 1, P2PMessageEnum.Reliable);
+
 
             m_thisFrameTraffic[(int)id] += dataSize;
 
@@ -410,24 +404,24 @@ namespace Sandbox.Engine.Multiplayer
                 buff.Sender = sender;
                 buff.Data = new byte[dataSize];
                 Array.Copy(data, buff.Data, dataSize);
+                buff.ReceivedTime = MyTimeSpan.FromTicks(Stopwatch.GetTimestamp());
                 m_buffer.Add(buff);
             }
             else // Process event
             {
                 NetProfiler.Begin("Live data", 0);
-                ProcessMessage(data, dataSize, sender, timestamp);
+                ProcessMessage(data, dataSize, sender, timestamp, receivedTime);
                 NetProfiler.End();
             }
 
             ProfilerShort.End();
         }
 
-        private void ProcessMessage(byte[] data, int dataSize, ulong sender, TimeSpan timestamp)
+        private void ProcessMessage(byte[] data, int dataSize, ulong sender, MyTimeSpan timestamp, MyTimeSpan receivedTime)
         {
             Debug.Assert(data.Length >= dataSize, "Wrong size");
 
             MyMessageId id = (MyMessageId)data[0];
-
 
             if (id == MyMessageId.CLIENT_CONNNECTED)
             {
@@ -443,12 +437,16 @@ namespace Sandbox.Engine.Multiplayer
                 }
             }
 
-            MyPacket p = new MyPacket();
-            p.Data = data;
-            p.PayloadOffset = 1; // First byte is message id
-            p.PayloadLength = dataSize - p.PayloadOffset;
-            p.Sender = new VRage.Network.EndpointId(sender);
-            p.Timestamp = timestamp;
+            MyPacket p = new MyPacket
+            {
+                Data = data,
+                // First byte is message id
+                PayloadOffset = 1,
+                PayloadLength = dataSize - 1,
+                Sender = new VRage.Network.EndpointId(sender),
+                Timestamp = timestamp,
+                ReceivedTime = receivedTime
+            };
 
             Action<MyPacket> handler;
             if (m_handlers.TryGetValue(id, out handler))

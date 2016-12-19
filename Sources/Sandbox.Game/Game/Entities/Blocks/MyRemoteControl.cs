@@ -50,6 +50,9 @@ using VRage.Voxels;
 using TerminalActionParameter = Sandbox.ModAPI.Ingame.TerminalActionParameter;
 using MyWaypointInfo = Sandbox.ModAPI.Ingame.MyWaypointInfo;
 using Sandbox.Game.Weapons;
+using Sandbox.Engine.Physics;
+using Sandbox.Engine.Voxels;
+using VRage.Game.ObjectBuilders.AI;
 
 namespace Sandbox.Game.Entities
 {
@@ -354,6 +357,13 @@ namespace Sandbox.Game.Entities
         private MyToolbar m_actionToolbar;
         private readonly Sync<Base6Directions.Direction> m_currentDirection;
 
+        //new collision avoidance fields
+        private Vector3D m_lastDelta = Vector3D.Zero;
+        private float m_lastAutopilotSpeedLimit = 2;
+        private int m_collisionAvoidanceFrameSkip = 0;
+        private float m_rotateFor = 0f;
+        private List<DetectedObject> m_detectedObstacles = new List<DetectedObject>();
+
         // Automatic behaviour of remote control (used for strafing, etc)
         public double TargettingAimDelta { get; private set; }
         public interface IRemoteControlAutomaticBehaviour
@@ -361,17 +371,38 @@ namespace Sandbox.Game.Entities
             bool NeedUpdate { get; }
             bool IsActive { get; }
 
-            bool RotateToPlayer { get; }
+            bool RotateToTarget { get; set; }
+            bool CollisionAvoidance { get; set; }
+            int PlayerPriority { get; set; }
+            float MaxPlayerDistance { get; }
+            TargetPrioritization PrioritizationStyle { get; set; }
+            MyEntity CurrentTarget { get; }
+            List<DroneTarget> TargetList { get; }
+            List<MyEntity> WaypointList { get; }
+            bool WaypointActive { get; }
+            bool CycleWaypoints { get; set; }
+            Vector3D OriginPoint { get; set; }
+
             float PlayerYAxisOffset { get; }
             float WaypointThresholdDistance { get; }
             bool ResetStuckDetection { get; }
 
             void Update();
             void WaypointAdvanced();
+            void TargetAdd(DroneTarget target);
+            void TargetClear();
+            void TargetRemove(MyEntity target);
+            void TargetLoseCurrent();
+            void WaypointAdd(MyEntity waypoint);
+            void WaypointClear();
 
             void DebugDraw();
+            void Load(MyObjectBuilder_AutomaticBehaviour objectBuilder, MyRemoteControl remoteControl);
+            MyObjectBuilder_AutomaticBehaviour GetObjectBuilder();
         }
+
         private IRemoteControlAutomaticBehaviour m_automaticBehaviour;
+        public IRemoteControlAutomaticBehaviour AutomaticBehaviour { get { return m_automaticBehaviour; } }
         private readonly Sync<float> m_waypointThresholdDistance;
 
         private static MyObjectBuilder_AutopilotClipboard m_clipboard;
@@ -414,6 +445,7 @@ namespace Sandbox.Game.Entities
             CreateTerminalControls();
             TargettingAimDelta = 0;
             m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
+            m_isMainRemoteControl.ValueChanged += (x) => MainRemoteControlChanged();
         }
 
         private void FillCameraComboBoxContent(ICollection<MyTerminalControlComboBoxItem> items)
@@ -448,9 +480,18 @@ namespace Sandbox.Game.Entities
 
         protected override void CreateTerminalControls()
         {
+            
             if (MyTerminalControlFactory.AreControlsCreated<MyRemoteControl>())
                 return;
             base.CreateTerminalControls();
+
+            var mainRemoteControl = new MyTerminalControlCheckbox<MyRemoteControl>("MainRemoteControl", MySpaceTexts.TerminalControlPanel_Cockpit_MainRemoteControl, MySpaceTexts.TerminalControlPanel_Cockpit_MainRemoteControl);
+            mainRemoteControl.Getter = (x) => x.IsMainRemoteControl;
+            mainRemoteControl.Setter = (x, v) => x.IsMainRemoteControl = v;
+            mainRemoteControl.Enabled = (x) => x.IsMainRemoteControlFree();
+            mainRemoteControl.EnableAction();
+            MyTerminalControlFactory.AddControl(mainRemoteControl);
+
             var controlBtn = new MyTerminalControlButton<MyRemoteControl>("Control", MySpaceTexts.ControlRemote, MySpaceTexts.Blank, (b) => b.RequestControl());
             controlBtn.Enabled = r => r.CanControl();
             controlBtn.SupportsMultipleBlocks = false;
@@ -659,6 +700,7 @@ namespace Sandbox.Game.Entities
             m_bindedCamera.Value = remoteOb.BindedCamera;
             m_waypointThresholdDistance.Value = remoteOb.WaypointThresholdDistance;
             m_currentAutopilotSpeedLimit = m_autopilotSpeedLimit;
+            IsMainRemoteControl = remoteOb.IsMainRemoteControl;
 
             m_stuckDetection = new MyStuckDetection(0.03f, 0.01f, this.CubeGrid.PositionComp.WorldAABB);
 
@@ -714,6 +756,15 @@ namespace Sandbox.Game.Entities
             AddDebugRenderComponent(new MyDebugRenderComponentRemoteControl(this));
 
             m_useCollisionAvoidance.Value = remoteOb.CollisionAvoidance;
+            if (remoteOb.AutomaticBehaviour != null)
+            {
+                if (remoteOb.AutomaticBehaviour is MyObjectBuilder_DroneStrafeBehaviour)
+                {
+                    MyDroneStrafeBehaviour behavior = new MyDroneStrafeBehaviour();
+                    behavior.Load(remoteOb.AutomaticBehaviour, this);
+                    SetAutomaticBehaviour(behavior);
+                }
+            }
 
             for (int i = 0; i < TERRAIN_HEIGHT_DETECTION_SAMPLES; i++)
             {
@@ -890,7 +941,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void SetDockingMode(bool enabled)
+        public void SetDockingMode(bool enabled)
         {
             m_dockingModeEnabled.Value = enabled;
         }
@@ -1489,9 +1540,14 @@ namespace Sandbox.Game.Entities
 
                             m_stuckDetection.SetRotating(rotating);
 
-                            if (rotating && !isLabile)
+                            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
+                                MyRenderProxy.DebugDrawLine3D(WorldMatrix.Translation, WorldMatrix.Translation + deltaPos, Color.Green, Color.GreenYellow, false, false);
+                            m_rotateFor -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                            if ((m_automaticBehaviour == null || m_automaticBehaviour.RotateToTarget == false || m_automaticBehaviour.CurrentTarget == null) 
+                                && rotating && !isLabile
+                                && (!MyFakes.ENABLE_NEW_COLLISION_AVOIDANCE || !m_useCollisionAvoidance.Value || Vector3D.DistanceSquared(CurrentWaypoint.Coords, CubeGrid.WorldMatrix.Translation) < 25))
                             {
-								if (thrustComp != null)
+                                if (thrustComp != null)
                                     thrustComp.AutoPilotControlThrust = Vector3.Zero;
                             }
                             else
@@ -1500,7 +1556,7 @@ namespace Sandbox.Game.Entities
                             }
                         }
                     }
-                    else if (Sync.IsServer && m_automaticBehaviour != null && m_automaticBehaviour.IsActive && m_automaticBehaviour.RotateToPlayer)
+                    else if (Sync.IsServer && m_automaticBehaviour != null && m_automaticBehaviour.IsActive && m_automaticBehaviour.RotateToTarget)
                     {
                         bool rotating, isLabile;
                         UpdateGyro(Vector3.Zero, Vector3.Zero, out rotating, out isLabile);
@@ -1747,7 +1803,7 @@ namespace Sandbox.Game.Entities
                 target = QuaternionD.CreateFromForwardUp(targetDirection, -gravity);
 
                 // If directly above or below the target, the target orientation changes very quickly
-                isLabile = Math.Abs(Vector3D.Dot(targetDirection, gravity)) < 0.001;
+                isLabile = Vector3D.Dot(targetDirection, orientation.Forward) > 0.95 || Math.Abs(Vector3D.Dot(Vector3D.Normalize(deltaPos), gravity)) > 0.95;
             }
             else
             {
@@ -1757,36 +1813,34 @@ namespace Sandbox.Game.Entities
             }
 
             // Rotate to enemy player when strafing
-            if (m_automaticBehaviour != null && m_automaticBehaviour.IsActive && m_automaticBehaviour.RotateToPlayer)
+            if (m_automaticBehaviour != null && m_automaticBehaviour.IsActive && m_automaticBehaviour.RotateToTarget && m_automaticBehaviour.CurrentTarget != null)
             {
                 isLabile = false;
                 var forwardOrientation = MatrixD.CreateWorld(Vector3D.Zero, (Vector3D)Base6Directions.GetVector(Base6Directions.Direction.Forward), m_upVectors[Base6Directions.Direction.Forward]);
                 orientation = forwardOrientation * WorldMatrix.GetOrientation();
                 current = QuaternionD.CreateFromRotationMatrix(orientation);
 
-                MatrixD playerWorldTransform;
-                if (GetNearestPlayer(out playerWorldTransform, new Vector3(0f, m_automaticBehaviour.PlayerYAxisOffset, 0f)))
+                targetDirection = m_automaticBehaviour.CurrentTarget.WorldMatrix.Translation - WorldMatrix.Translation;
+                if (m_automaticBehaviour.CurrentTarget is MyCharacter)
+                    targetDirection += m_automaticBehaviour.CurrentTarget.WorldMatrix.Up * m_automaticBehaviour.PlayerYAxisOffset;
+                targetDirection.Normalize();
+
+                Vector3D up = m_automaticBehaviour.CurrentTarget.WorldMatrix.Up;
+                up.Normalize();
+
+                if (Math.Abs(Vector3D.Dot(targetDirection, up)) >= 0.98)
                 {
-                    targetDirection = playerWorldTransform.Translation - WorldMatrix.Translation;
-                    targetDirection.Normalize();
-
-                    Vector3D up = playerWorldTransform.Up;
-                    up.Normalize();
-
-                    if (Math.Abs(Vector3D.Dot(targetDirection, up)) >= 0.98)
-                    {
-                        up = Vector3D.CalculatePerpendicularVector(targetDirection);
-                    }
-                    else
-                    {
-                        Vector3D right = Vector3D.Cross(targetDirection, up);
-                        up = Vector3D.Cross(right, targetDirection);
-                    }
-
-                    target = QuaternionD.CreateFromForwardUp(targetDirection, up);
+                    up = Vector3D.CalculatePerpendicularVector(targetDirection);
+                }
+                else
+                {
+                    Vector3D right = Vector3D.Cross(targetDirection, up);
+                    up = Vector3D.Cross(right, targetDirection);
                 }
 
-                rotating = false;
+                target = QuaternionD.CreateFromForwardUp(targetDirection, up);
+
+                //rotating = false;
             }
 
             Vector3D velocity = GetAngleVelocity(current, target);
@@ -1817,6 +1871,11 @@ namespace Sandbox.Game.Entities
                 gyros.ControlTorque = velocity;
                 gyros.MarkDirty();
             }
+            else if (angle < 0.1 && m_automaticBehaviour != null && m_automaticBehaviour.RotateToTarget && m_automaticBehaviour.CurrentTarget != null)
+            {
+                gyros.ControlTorque = velocity / 3.0;
+                gyros.MarkDirty();
+            }
 
             if (m_dockingModeEnabled)
             {
@@ -1838,7 +1897,15 @@ namespace Sandbox.Game.Entities
 
             if (m_useCollisionAvoidance)
             {
-                deltaPos = AvoidCollisions(targetDelta, ref autopilotSpeedLimit);
+                if (MyFakes.ENABLE_NEW_COLLISION_AVOIDANCE)
+                {
+                    deltaPos = AvoidCollisionsVs2(targetDelta, ref autopilotSpeedLimit);
+                    targetDelta = deltaPos;
+                }
+                else
+                {
+                    deltaPos = AvoidCollisions(targetDelta, ref autopilotSpeedLimit);
+                }
             }
             else
             {
@@ -1846,6 +1913,262 @@ namespace Sandbox.Game.Entities
             }
 
             perpDeltaPos = Vector3D.Reject(targetDelta, m_currentInfo.GravityWorld);
+        }
+
+        public struct DetectedObject
+        {
+            public float Distance;
+            public Vector3D Position;
+            public bool IsVoxel;
+
+            public DetectedObject(float dist, Vector3D pos, bool voxel)
+            {
+                Distance = dist;
+                Position = pos;
+                IsVoxel = voxel;
+            }
+        }
+
+        private void FillListOfDetectedObjects(Vector3D pos, MyEntity parentEntity, ref int listLimit, ref Vector3D shipFront, ref float closestEntityDist, ref MyEntity closestEntity)
+        {
+            float dist = Vector3.DistanceSquared((Vector3)pos, (Vector3)shipFront);
+            if (dist < closestEntityDist)
+            {
+                closestEntityDist = dist;
+                closestEntity = parentEntity;
+            }
+            if (m_detectedObstacles.Count == 0)
+            {
+                m_detectedObstacles.Add(new DetectedObject(dist, pos, parentEntity is MyVoxelBase));
+            }
+            else
+            {
+                for (int i = 0; i < m_detectedObstacles.Count; i++)
+                {
+                    if (dist < m_detectedObstacles[i].Distance)
+                    {
+                        if (m_detectedObstacles.Count == listLimit)
+                            m_detectedObstacles.RemoveAt(listLimit - 1);
+                        m_detectedObstacles.AddOrInsert(new DetectedObject(dist, pos, parentEntity is MyVoxelBase), i);
+                        break;
+                    }
+                }
+            }
+            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
+                MyRenderProxy.DebugDrawSphere(pos, 1.5f, Color.Red, 1f, false);
+        }
+
+        private Vector3D AvoidCollisionsVs2(Vector3D delta, ref float autopilotSpeedLimit)
+        {
+            if (m_collisionAvoidanceFrameSkip > 0)
+            {
+                m_collisionAvoidanceFrameSkip--;
+                autopilotSpeedLimit = m_lastAutopilotSpeedLimit;
+                return m_lastDelta;
+            }
+            m_collisionAvoidanceFrameSkip = 19;
+
+            MyEntityThrustComponent thrustSystem = CubeGrid.Components.Get<MyEntityThrustComponent>();
+            if (thrustSystem == null)
+                return delta;
+
+            bool debugDraw = MyDebugDrawSettings.ENABLE_DEBUG_DRAW;
+            //debugDraw = true;
+            float farRatio = 1;
+            int listLimit = 5;
+            bool avoidCharacters = true;
+            Vector3D originalDelta = delta;
+
+            //detection values
+            float mass = CubeGrid.GetCurrentMass();
+            float velocity = Math.Max(CubeGrid.Physics.LinearVelocity.Length(), 3);
+            float radiusRatio = velocity <= 3 ? 1 : 1.25f;
+            float thrusterForce = thrustSystem.GetMaxThrustInDirection(m_currentDirection.Value);
+            double decceleration = thrusterForce / mass;
+            double deccelerationTime = velocity / decceleration;
+            double stoppingDistance = deccelerationTime * velocity / 2;
+
+            //detection positions
+            Vector3D direction = Vector3D.Normalize(CubeGrid.Physics.LinearVelocity);
+            Vector3D speedDelta = direction * stoppingDistance;
+            Vector3D shipFront = CubeGrid.PositionComp.LocalVolume.Radius * direction + CubeGrid.PositionComp.WorldAABB.Center;
+            Vector3D shipBack = CubeGrid.PositionComp.WorldAABB.Center - CubeGrid.PositionComp.LocalVolume.Radius * direction;
+            Vector3D farPoint = shipFront + direction * stoppingDistance;
+
+            //bounding boxes
+            Quaternion orientation = Quaternion.CreateFromForwardUp(direction, CubeGrid.WorldMatrix.Up);
+            MatrixD orientationMatrix = MatrixD.CreateFromQuaternion(orientation);
+            MyOrientedBoundingBoxD closeBoundingBox = new MyOrientedBoundingBoxD((shipBack + farPoint) / 2, new Vector3D(CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio, CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio, stoppingDistance / 2 + CubeGrid.PositionComp.LocalVolume.Radius * 2), orientation);
+            MyOrientedBoundingBoxD farBoundingBox = new MyOrientedBoundingBoxD(farPoint + farRatio * speedDelta / 2, new Vector3D(CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio, CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio, farRatio * stoppingDistance / 2), orientation);
+            BoundingBoxD closeBoundingBoxLocal = new BoundingBoxD(closeBoundingBox.Center - closeBoundingBox.HalfExtent, closeBoundingBox.Center + closeBoundingBox.HalfExtent);
+            if (debugDraw && m_rotateFor <= 0)
+            {
+                MyRenderProxy.DebugDrawOBB(closeBoundingBox, Color.Red, 0.25f, false, false, false);
+                //MyRenderProxy.DebugDrawLine3D(shipFront, farPoint, Color.Red, Color.Yellow, false, false);
+            }
+
+            //close check - find all possible obstacles in boundaries
+            BoundingSphereD sphere = new BoundingSphereD(shipFront + speedDelta / 2, stoppingDistance / 2);
+            List<MyEntity> resultEntities = new List<MyEntity>();
+            List<MySlimBlock> resultBlocks = new List<MySlimBlock>();
+            MyGamePruningStructure.GetAllTargetsInSphere(ref sphere, resultEntities, MyEntityQueryType.Both);
+            MyEntity closestEntity = null;
+            float closestEntityDist = float.MaxValue;
+            bool voxels = false;
+            foreach (var entity in resultEntities)
+            {
+                if (entity is MyCubeGrid)
+                {
+                    MyCubeGrid grid = (MyCubeGrid)entity;
+                    if (MyCubeGridGroups.Static.Physical.GetGroup(CubeGrid) == MyCubeGridGroups.Static.Physical.GetGroup(grid))
+                        continue;
+
+                    foreach (var block in grid.GetBlocks())
+                    {
+                        Vector3D pos = block.WorldPosition;
+                        if (closeBoundingBox.Contains(ref pos))
+                            FillListOfDetectedObjects(pos, grid, ref listLimit, ref shipFront, ref closestEntityDist, ref closestEntity);
+                    }
+                }
+                if (entity is MyCharacter && avoidCharacters)
+                    FillListOfDetectedObjects(entity.WorldMatrix.Translation, entity, ref listLimit, ref shipFront, ref closestEntityDist, ref closestEntity);
+
+                if (entity is MyVoxelBase)
+                    voxels = true;
+            }
+
+            //voxels are inside bounding box - use raycasting to find obstacles
+            bool centralRaycast = false;
+            if (voxels)
+            {
+                Vector3D[] corners = new Vector3D[8];
+                closeBoundingBox.GetCorners(corners, 0);
+
+                for (int i = -1; i < 4; i++)
+                {
+                    Vector3D targetPosition = i >= 0 ? corners[i + 4] : farPoint;//raycast far corners of bounding box and center of far face of bounding box
+                    MyPhysics.HitInfo? hitInfo = MyPhysics.CastRay(shipFront + direction * 0.1, targetPosition);
+                    if (hitInfo != null)
+                    {
+                        MyEntity target = hitInfo.Value.HkHitInfo.Body.UserObject as MyEntity;
+                        if (target == null && hitInfo.Value.HkHitInfo.Body.UserObject is MyVoxelPhysicsBody)
+                            target = ((MyVoxelPhysicsBody)hitInfo.Value.HkHitInfo.Body.UserObject).Entity as MyEntity;
+                        FillListOfDetectedObjects(hitInfo.Value.Position, target, ref listLimit, ref shipFront, ref closestEntityDist, ref closestEntity);
+
+                        if (i == -1 && targetPosition != null)
+                            centralRaycast = true;
+                    }
+
+                    if (debugDraw)
+                        MyRenderProxy.DebugDrawLine3D(shipFront, targetPosition, Color.Pink, Color.White, false, false);
+                }
+            }
+
+            //at least one obstacle detected
+            if (closestEntityDist < float.MaxValue)
+            {
+                m_rotateFor = 3f;
+                int detectedCount = 0;
+                Vector3D avoidPositionAverage = Vector3D.Zero;
+                bool voxelTunnel = false;
+                if (!centralRaycast)
+                {
+                    for (int i = 0; i < m_detectedObstacles.Count; i++)
+                    {
+                        if (i == 4)
+                        {
+                            voxelTunnel = true;
+                            break;
+                        }
+                        if (!m_detectedObstacles[i].IsVoxel)
+                            break;
+                    }
+                }
+
+                if (voxelTunnel)//special case when inside voxel tunnel
+                {
+                    avoidPositionAverage = farPoint;
+                }
+                else
+                {
+                    //go through 5 closest obstacles that are also close to closest obstacle and create correction course
+                    for (int i = 0; i < m_detectedObstacles.Count; i++)
+                    {
+                        if (i == 0 || m_detectedObstacles[i].Distance - m_detectedObstacles[0].Distance < 15 * 15)
+                        {
+                            detectedCount++;
+                            Vector3D toObstacle = m_detectedObstacles[i].Position - CubeGrid.WorldMatrix.Translation;
+                            Vector3D crossUp = Vector3D.Cross(delta, toObstacle);
+                            Vector3D crossObstacle = Vector3D.Cross(crossUp, delta);
+                            //Vector3D avoidPosition = closestEntityPos - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * 2;
+                            Vector3D avoidPosition = m_detectedObstacles[i].Position - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio * 2;
+                            if (debugDraw)
+                                MyRenderProxy.DebugDrawLine3D(CubeGrid.WorldMatrix.Translation, avoidPosition, Color.White, Color.Tomato, false, false);
+                            avoidPositionAverage += avoidPosition;
+                        }
+                    }
+                    avoidPositionAverage /= detectedCount;
+                }
+                /*
+                //Vector3D toObstacle = closestEntityPos - CubeGrid.WorldMatrix.Translation;
+                Vector3D toObstacle = average - CubeGrid.WorldMatrix.Translation;
+                Vector3D crossUp = Vector3D.Cross(delta, toObstacle);
+                Vector3D crossObstacle = Vector3D.Cross(crossUp, delta);
+                //Vector3D avoidPosition = closestEntityPos - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * 2;
+                Vector3D avoidPosition = closestEntityPos - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio * 2;
+                MyRenderProxy.DebugDrawLine3D(closestEntityPos, avoidPosition, Color.Red, Color.GreenYellow, false, false);*/
+                //delta = (avoidPosition - CubeGrid.WorldMatrix.Translation) * 15;
+                //delta = (avoidPosition - closestEntityPos) * 50;
+
+                autopilotSpeedLimit = 1 + autopilotSpeedLimit * ((float)Math.Sqrt(closestEntityDist)) / ((float)stoppingDistance) * 0.5f;
+                if (detectedCount < 5 || voxelTunnel)//voxel tunnel or less than 5 close obstacles
+                    delta = (avoidPositionAverage - CubeGrid.WorldMatrix.Translation);
+                else if (closestEntity != null)//5+ close obstacles (wall for example)
+                {
+                    Vector3D toObstacle = closestEntity.WorldMatrix.Translation - CubeGrid.WorldMatrix.Translation;
+                    Vector3D crossUp = Vector3D.Cross(delta, toObstacle);
+                    Vector3D crossObstacle = Vector3D.Cross(crossUp, delta);
+                    delta = (closestEntity.WorldMatrix.Translation - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio * 2) - closestEntity.WorldMatrix.Translation;
+                    delta *= 2f;
+                    autopilotSpeedLimit *= 0.75f;
+                }
+
+                //check if resulting course is not to close to first obstacle
+                Vector3D deltaNormalized = Vector3D.Normalize(delta);
+                float dot = (float)Vector3D.Dot(deltaNormalized, Vector3D.Normalize(m_detectedObstacles[0].Position - CubeGrid.WorldMatrix.Translation));
+                if (dot > 0.5f)
+                    delta *= -1;
+                else
+                {//check if resulting course is not heading in completely opposite direction from target
+                    dot = (float)Vector3D.Dot(deltaNormalized, Vector3D.Normalize(originalDelta));
+                    if (dot < -0.5f)
+                        delta = originalDelta;
+                }
+
+                if(debugDraw)
+                    MyRenderProxy.DebugDrawLine3D(CubeGrid.WorldMatrix.Translation, CubeGrid.WorldMatrix.Translation + delta, Color.Red, Color.Aquamarine, false, false);
+                //MatrixD toObstacle = MatrixD.CreateFromDir(shipFront - closestEntityPos);
+                //delta = CubeGrid.PositionComp.GetPosition() - (closestEntityPos + toObstacle.Right * CubeGrid.PositionComp.LocalVolume.Radius / 2);
+            }
+            else
+            {
+                if (debugDraw && m_rotateFor <= 0)
+                {
+                    MyRenderProxy.DebugDrawLine3D(farPoint, farPoint + speedDelta, Color.Yellow, Color.Green, false, false);
+                    //MyRenderProxy.DebugDrawOBB(farBoundingBox, Color.Green, 0.25f, false, false, false);
+                }
+            }
+            m_detectedObstacles.Clear();
+
+            //keep last course for some time after no obstacles are found
+            if (closestEntityDist == float.MaxValue && m_rotateFor > 1.5f)
+            {
+                autopilotSpeedLimit = m_lastAutopilotSpeedLimit;
+                return m_lastDelta;
+            }
+            m_lastAutopilotSpeedLimit = autopilotSpeedLimit;
+            m_lastDelta = delta;
+            return delta;
         }
 
         private Vector3D AvoidCollisions(Vector3D delta, ref float autopilotSpeedLimit)
@@ -2286,7 +2609,7 @@ namespace Sandbox.Game.Entities
         /// <param name="originalDestination">The final destination that the remote wants to get to.</param>
         /// <param name="checkRadius">The maximum radius until which this method should search.</param>
         /// <param name="shipRadius">The radius of our ship. Make sure that this is large enough to avoid collision.</param>
-        Vector3D ModAPI.Ingame.IMyRemoteControl.GetFreeDestination(Vector3D originalDestination, float checkRadius, float shipRadius)
+        Vector3D ModAPI.IMyRemoteControl.GetFreeDestination(Vector3D originalDestination, float checkRadius, float shipRadius)
         {
             MyCestmirDebugInputComponent.ClearDebugSpheres();
             MyCestmirDebugInputComponent.ClearDebugPoints();
@@ -2304,7 +2627,7 @@ namespace Sandbox.Game.Entities
             double closestIntersection = double.MaxValue;
             BoundingSphereD closestSphere = default(BoundingSphereD);
 
-            var entities = MyEntities.GetEntitiesInSphere(ref sphere);
+            var entities = MyEntities.GetTopMostEntitiesInSphere(ref sphere);
             for (int i = 0; i < entities.Count; ++i)
             {
                 var entity = entities[i];
@@ -2436,6 +2759,7 @@ namespace Sandbox.Game.Entities
             objectBuilder.AutopilotSpeedLimit = m_autopilotSpeedLimit;
             objectBuilder.WaypointThresholdDistance = m_waypointThresholdDistance;
             objectBuilder.BindedCamera = m_bindedCamera.Value;
+            objectBuilder.IsMainRemoteControl = m_isMainRemoteControl;
 
             objectBuilder.Waypoints = new List<MyObjectBuilder_AutopilotWaypoint>(m_waypoints.Count);
 
@@ -2454,6 +2778,7 @@ namespace Sandbox.Game.Entities
             }
 
             objectBuilder.CollisionAvoidance = m_useCollisionAvoidance;
+            objectBuilder.AutomaticBehaviour = m_automaticBehaviour != null ? m_automaticBehaviour.GetObjectBuilder() : null;
 
             return objectBuilder;
         }
@@ -2541,7 +2866,7 @@ namespace Sandbox.Game.Entities
             MyGuiScreenTerminal.Show(MyTerminalPageEnum.ControlPanel, MySession.Static.LocalHumanPlayer.Character, this);
         }
 
-        private void RequestControl()
+        public void RequestControl()
         {
             if (!MyFakes.ENABLE_REMOTE_CONTROL)
             {
@@ -2922,7 +3247,7 @@ namespace Sandbox.Game.Entities
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         private void UpdateEmissivity()
@@ -3045,6 +3370,52 @@ namespace Sandbox.Game.Entities
         public void RemoveAutomaticBehaviour()
         {
             m_automaticBehaviour = null;
+        }
+
+        private readonly Sync<bool> m_isMainRemoteControl;
+        public bool IsMainRemoteControl
+        {
+            get
+            {
+                return m_isMainRemoteControl;
+            }
+            set
+            {
+                m_isMainRemoteControl.Value = value;
+            }
+        }
+
+        private void SetMainRemoteControl(bool value)
+        {
+            if (value)
+            {
+                if (CubeGrid.HasMainRemoteControl() && !CubeGrid.IsMainRemoteControl(this))
+                {
+                    IsMainRemoteControl = false;
+                    return;
+                }
+            }
+            IsMainRemoteControl = value;
+        }
+
+        private void MainRemoteControlChanged()
+        {
+            if (m_isMainRemoteControl)
+            {
+                CubeGrid.SetMainRemoteControl(this);
+            }
+            else
+            {
+                if (CubeGrid.IsMainRemoteControl(this))
+                {
+                    CubeGrid.SetMainRemoteControl(null);
+                }
+            }
+        }
+
+        protected bool IsMainRemoteControlFree()
+        {
+            return CubeGrid.HasMainRemoteControl() == false || CubeGrid.IsMainRemoteControl(this);
         }
 
         class MyDebugRenderComponentRemoteControl : MyDebugRenderComponent

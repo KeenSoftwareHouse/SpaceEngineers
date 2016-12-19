@@ -1,6 +1,9 @@
-﻿using System;
+﻿//#define USE_TERMINATORS
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -26,6 +29,8 @@ namespace VRage.Library.Collections
         int m_defaultByteSize;
         
         int m_bitPosition;
+
+        private Crc32 m_hash = new Crc32();
 
         /// <summary>
         /// Read/write bit position in stream.
@@ -148,11 +153,11 @@ namespace VRage.Library.Collections
         /// <summary>
         /// Resets stream for reading and copies data.
         /// </summary>
-        public void ResetRead(byte[] data, int byteOffset, int bitLength)
+        public void ResetRead(byte[] data, int byteOffset, int bitLength, bool copy = true)
         {
             fixed (byte* ptr = &data[byteOffset])
             {
-                ResetRead((IntPtr)(void*)ptr, bitLength, true);
+                ResetRead((IntPtr)(void*)ptr, bitLength, copy);
             }
         }
 
@@ -460,6 +465,22 @@ namespace VRage.Library.Collections
         {
             if (m_writing) WriteBytes(bytes, start, count);
             else ReadBytes(bytes, start, count);
+        }
+
+        const uint TERMINATOR = 0xc8b9;
+        public void Terminate()
+        {
+#if USE_TERMINATORS
+            WriteUInt32(TERMINATOR);
+#endif
+        }
+        public void CheckTerminator()
+        {
+#if USE_TERMINATORS
+            var value = ReadInt32();
+            if (value != TERMINATOR)
+                throw new EndOfStreamException("Invalid BitStream terminator");
+#endif
         }
     }
 }

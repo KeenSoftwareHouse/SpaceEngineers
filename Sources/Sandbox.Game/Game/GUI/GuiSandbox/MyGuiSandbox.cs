@@ -343,7 +343,10 @@ namespace Sandbox.Graphics.GUI
 
         public static string GetKeyName(MyStringId control)
         {
-            return MyInput.Static.GetGameControl(control).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
+            var controls = MyInput.Static.GetGameControl(control);
+            if (controls != null)
+                return controls.GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
+            else return "";
         }
     }
 }

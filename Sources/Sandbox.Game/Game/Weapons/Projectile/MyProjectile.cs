@@ -70,7 +70,7 @@ namespace Sandbox.Game.Weapons
         float m_maxTrajectory;
 
         Vector3D m_position;
-        MyEntity m_ignoreEntity;
+        MyEntity[] m_ignoredEntities;
         MyEntity m_weapon;
 
         MyCharacterHitInfo m_charHitInfo;
@@ -104,13 +104,13 @@ namespace Sandbox.Game.Weapons
         //  This method realy initiates/starts the missile
         //  IMPORTANT: Direction vector must be normalized!
         // Projectile count multiplier - when real rate of fire it 45, but we shoot only 10 projectiles as optimization count multiplier will be 4.5
-        public void Start(MyProjectileAmmoDefinition ammoDefinition, MyEntity ignoreEntity, Vector3D origin, Vector3 initialVelocity, Vector3 directionNormalized, MyEntity weapon)
+        public void Start(MyProjectileAmmoDefinition ammoDefinition, MyEntity[] ignoreEntities, Vector3D origin, Vector3 initialVelocity, Vector3 directionNormalized, MyEntity weapon)
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Projectile.Start");
 
             m_projectileAmmoDefinition = ammoDefinition;
             m_state = MyProjectileStateEnum.ACTIVE;
-            m_ignoreEntity = ignoreEntity;
+            m_ignoredEntities = ignoreEntities;  // store ref to ignored entities
             m_origin = origin + 0.1 * (Vector3D)directionNormalized;
             m_position = m_origin;
             m_weapon = weapon;
@@ -169,8 +169,12 @@ namespace Sandbox.Game.Weapons
         /// </summary>
         private bool IsIgnoredEntity(IMyEntity entity)
         {
-            return m_ignoreEntity == entity || ((m_ignoreEntity is IMyGunBaseUser) && (m_ignoreEntity as IMyGunBaseUser).Owner is MyCharacter
-                && (m_ignoreEntity as IMyGunBaseUser).Owner == entity);
+            if (m_ignoredEntities != null)
+                foreach (var ignored in m_ignoredEntities)
+                    if (entity == ignored)
+                        return true;
+
+            return false;
         }
         
         //  Update position, check collisions, etc.
@@ -213,7 +217,7 @@ namespace Sandbox.Game.Weapons
             MyHitInfo hitInfo;
             object customdata;
             GetHitEntityAndPosition(line, out entity, out hitInfo, out customdata);
-            if (entity == null || entity == m_ignoreEntity || entity.Physics == null)
+            if (entity == null || entity.Physics == null)
                 return true;
 
             if (IsIgnoredEntity(entity))
@@ -242,17 +246,19 @@ namespace Sandbox.Game.Weapons
             {
                 MySurfaceImpactEnum surfaceImpact;
                 MyStringHash materialType;
-                GetSurfaceAndMaterial(entity, ref hitInfo.Position, out surfaceImpact, out materialType);
+                GetSurfaceAndMaterial(entity, ref line, ref hitInfo.Position, out surfaceImpact, out materialType);
 
                 PlayHitSound(materialType, entity, hitInfo.Position, m_projectileAmmoDefinition.PhysicalMaterial);
 
                 hitInfo.Velocity = m_velocity;
 
-                float damage = headShot ? m_projectileAmmoDefinition.ProjectileHeadShotDamage : m_projectileAmmoDefinition.ProjectileMassDamage;
+                float damage = entity is IMyCharacter ? (headShot ? m_projectileAmmoDefinition.ProjectileHeadShotDamage : m_projectileAmmoDefinition.ProjectileHealthDamage) : m_projectileAmmoDefinition.ProjectileMassDamage;
                 DoDamage(damage, hitInfo, customdata, entity);
 
+                MyDecals.HandleAddDecal(entity, hitInfo, materialType, m_projectileAmmoDefinition.PhysicalMaterial, (customdata as MyCharacterHitInfo), damage);
+
                 //particle effect defined in materialProperties.sbc
-                Vector3D particleHitPosition = hitInfo.Position + line.Direction * -0.2;
+                Vector3D particleHitPosition = hitInfo.Position + (Vector3D)line.Direction * -0.2;
                 bool createdEffect = MyMaterialPropertiesHelper.Static.TryCreateCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Hit, particleHitPosition, hitInfo.Normal, m_projectileAmmoDefinition.PhysicalMaterial, materialType);
                 if (!createdEffect && surfaceImpact != MySurfaceImpactEnum.CHARACTER)
                     MyParticleEffects.CreateBasicHitParticles(m_projectileAmmoDefinition.ProjectileOnHitEffectName, ref hitInfo.Position, ref hitInfo.Normal, ref line.Direction, entity, m_weapon, 1, OwnerEntity);
@@ -373,9 +379,6 @@ namespace Sandbox.Game.Weapons
                     MyCubeGrid grid = entity as MyCubeGrid;
                     if (grid != null)
                     {
-                        var tmp = line.To;
-                        line.To = line.From;
-                        line.From = line.To;
                         bool success = grid.GetIntersectionWithLine(ref line, ref m_cubeGridHitInfo);
                         if (success)
                         {
@@ -391,6 +394,19 @@ namespace Sandbox.Game.Weapons
                         info.Position = hitInfoRet.Position;
                         info.Normal = hitInfoRet.Normal;
                     }
+
+                    MyVoxelBase voxel = entity as MyVoxelBase;
+                    if (voxel != null)
+                    { //get accurate hit because of particles and decals
+                        MyIntersectionResultLineTriangleEx? res;
+                        if (voxel.GetIntersectionWithLine(ref line, out res, IntersectionFlags.DIRECT_TRIANGLES))
+                        {
+                            hitInfoRet.Position = res.Value.IntersectionPointInWorldSpace;
+                            hitInfoRet.Normal = res.Value.NormalInWorldSpace;
+                            hitInfoRet.ShapeKey = 0;
+                        }
+                    }
+
                 }
 
             } while (entity == null && ++raycastListIndex < m_entityRaycastResult.Count);
@@ -404,8 +420,6 @@ namespace Sandbox.Game.Weapons
             {
                 MySession.Static.TotalDamageDealt += (uint)damage;
             }
-
-            MyDecals.HandleAddDecal(damagedEntity, hitInfo, m_projectileAmmoDefinition.PhysicalMaterial, customdata, damage);
 
             if (!Sync.IsServer)
                 return;
@@ -477,7 +491,7 @@ namespace Sandbox.Game.Weapons
                 return result;
         }
 
-        private static void GetSurfaceAndMaterial(IMyEntity entity, ref Vector3D hitPosition, out MySurfaceImpactEnum surfaceImpact, out MyStringHash materialType)
+        private static void GetSurfaceAndMaterial(IMyEntity entity, ref LineD line, ref Vector3D hitPosition, out MySurfaceImpactEnum surfaceImpact, out MyStringHash materialType)
         {
             var voxelBase = entity as MyVoxelBase;
             if (voxelBase != null)
@@ -526,15 +540,32 @@ namespace Sandbox.Game.Weapons
                         var block = grid.GetTargetedBlock(hitPosition);
                         if (block != null)
                         {
-                            if (block.BlockDefinition.PhysicalMaterial != null)
+                            if (block.BlockDefinition.PhysicalMaterial != null && !block.BlockDefinition.PhysicalMaterial.Id.TypeId.IsNull)
                             {
                                 materialType = MyStringHash.GetOrCompute(block.BlockDefinition.PhysicalMaterial.Id.SubtypeName);
                             }
+                            else
+                            {
+                                if (block.FatBlock != null)
+                                {
+                                    MyIntersectionResultLineTriangleEx? res = null;
+                                    block.FatBlock.GetIntersectionWithLine(ref line, out res);
+                                    if (res.HasValue)
+                                    {
+                                        var technique = block.FatBlock.ModelCollision.GetDrawTechnique(res.Value.Triangle.TriangleIndex);
+                                        if (technique == VRageRender.Import.MyMeshDrawTechnique.GLASS)
+                                        {
+                                            materialType = MyStringHash.GetOrCompute("Glass");
+                                        }
+                                    }
+                                }
+                            }           
                         }
                     }
                 }
             }
-            if (materialType.GetHashCode() == 0) materialType = MyMaterialType.METAL;
+
+            System.Diagnostics.Debug.Assert(materialType.GetHashCode() != 0, "Unknown material");
         }
 
         private void StopEffect()
@@ -720,7 +751,7 @@ namespace Sandbox.Game.Weapons
         public void Close()
         {
             OwnerEntity = null;
-            m_ignoreEntity = null;
+            m_ignoredEntities = null;
             m_weapon = null;
 
             //  Don't stop sound

@@ -303,6 +303,15 @@ namespace VRageRender
             {
                 string message = "Failed to compile material shader" + info.Name + " for vertex " + info.Layout.Info.Components.GetString();
                 MyRender11.Log.WriteLine(message);
+                
+                if (vsBytecode == null && psBytecode != null)
+                    message = "vsByteCode is null, descriptor: " + vsDescriptor;
+                else if (vsBytecode != null && psBytecode == null)
+                    message = "psByteCode is null, descriptor: " + psDescriptor;
+                else
+                    message = "vsByteCode and psByteCode are null, vsDescriptor: " + vsDescriptor + "; psDescriptor: " + psDescriptor;
+                MyRender11.Log.WriteLine(message);
+
 #if DEBUG
                 if (Debugger.IsAttached)
                 {

@@ -406,7 +406,7 @@ namespace Sandbox.Game.Entities
             {
                 if (!IsFull && m_isRecharging)
                 {
-                    StorePower(100f * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS, ResourceSink.CurrentInput);
+                    StorePower(100f * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS, ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId));
                 }
             }
 
@@ -427,7 +427,7 @@ namespace Sandbox.Game.Entities
             MyValueFormatter.AppendWorkHoursInBestUnit(BlockDefinition.PowerNeededForJump, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_StoredPower));
             MyValueFormatter.AppendWorkHoursInBestUnit(m_storedPower, DetailedInfo);
@@ -542,7 +542,7 @@ namespace Sandbox.Game.Entities
                 {
                     SetEmissive(Color.Yellow, m_storedPower / BlockDefinition.PowerNeededForJump, 1.0f, force);
                 }
-				else if (ResourceSink.CurrentInput > 0f)
+                else if (ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) > 0f)
                 {
                     SetEmissive(Color.Green, m_storedPower / BlockDefinition.PowerNeededForJump, 1.0f, force);
                 }
@@ -580,7 +580,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
 
-                UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive4", color, emissivity);
+                UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", color, emissivity);
 
                 m_prevColor = color;
                 m_prevFillCount = fillCount;

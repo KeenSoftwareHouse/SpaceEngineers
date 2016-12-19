@@ -41,6 +41,9 @@ namespace VRage.Render11.Resources
         public int TexturesTotal;
         public int TexturesLoaded;
         public long TotalTextureMemory;
+        public int TexturesTotalPeak;
+        public int TexturesLoadedPeak;
+        public long TotalTextureMemoryPeak;
     }
 
     internal interface IFileTexture : ITexture
@@ -76,6 +79,10 @@ namespace VRage.Render11.Resources
 
             ShaderResourceView m_srv;
             Resource m_resource;
+
+            public bool Temporary { get; set; }
+
+            public int MipmapCount { get; set; }
 
             public ShaderResourceView Srv
             {
@@ -146,7 +153,7 @@ namespace VRage.Render11.Resources
                 }
             }
 
-            public void Init(string name, string localPath, MyFileTextureEnum type, bool waitTillLoaded, bool skipQualityReduction)
+            public void Init(string name, string localPath, MyFileTextureEnum type, bool waitTillLoaded, bool skipQualityReduction, bool temporary)
             {
                 Debug.Assert(System.IO.Path.IsPathRooted(localPath), "Path must be rooted");
                 m_name = name;
@@ -154,6 +161,7 @@ namespace VRage.Render11.Resources
                 m_type = type;
                 TextureState = waitTillLoaded ? FileTextureState.Unloaded : FileTextureState.Requested;
                 m_skipQualityReduction = skipQualityReduction;
+                Temporary = temporary;
             }
 
             public unsafe void Load()
@@ -196,6 +204,8 @@ namespace VRage.Render11.Resources
 
                     int targetMipmaps = img.Description.MipLevels - skipMipmaps;
                     var mipmapsData = new DataBox[(img.Description.MipLevels - skipMipmaps) * img.Description.ArraySize];
+                    if (img.Description.MipLevels <= 1)
+                        Debug.WriteLine(Name);
 
                     int lastSize = 0;
 
@@ -255,6 +265,8 @@ namespace VRage.Render11.Resources
 
                         img.Dispose();
 
+                        MipmapCount = targetMipmaps;
+
                         loaded = true;
                     }
                     catch (SharpDXException)
@@ -264,7 +276,7 @@ namespace VRage.Render11.Resources
                 }
                 if (!loaded)
                 {
-                    ISrvBindable replacingTexture = MyGeneratedTextureManager.ZeroTex;
+                    ISrvBindable replacingTexture = MyGeneratedTextureManager.PinkTex;
                     switch (m_type)
                     {
                         case MyFileTextureEnum.NORMALMAP_GLOSS:
@@ -322,9 +334,11 @@ namespace VRage.Render11.Resources
         }
     }
 
-    internal class MyFileTextureManager : IManager, IManagerDevice, IManagerCallback
+    internal class MyFileTextureManager : IManager, IManagerDevice, IManagerUnloadData
     {
         const string FILE_SCHEME = "file";
+
+        static MyFileTextureUsageReport m_report;
 
         internal static class MyFileTextureHelper
         {
@@ -354,6 +368,7 @@ namespace VRage.Render11.Resources
 
         Dictionary<string, IGeneratedTexture> m_generatedTextures;
 
+        bool m_temporaryTextureRequested;
         readonly Dictionary<string, MyFileTexture> m_textures = new Dictionary<string, MyFileTexture>();
         readonly HashSet<string> m_loadedTextures = new HashSet<string>();
         readonly HashSet<string> m_requestedTextures = new HashSet<string>();
@@ -367,21 +382,22 @@ namespace VRage.Render11.Resources
             if (m_generatedTextures == null)
                 m_generatedTextures = new Dictionary<string, IGeneratedTexture>();
 
-            m_generatedTextures.Add(MyGeneratedTextureManager.ZeroTex.Name, MyGeneratedTextureManager.ZeroTex);
-            m_generatedTextures.Add(MyGeneratedTextureManager.MissingNormalGlossTex.Name, MyGeneratedTextureManager.MissingNormalGlossTex);
-            m_generatedTextures.Add(MyGeneratedTextureManager.MissingExtensionTex.Name, MyGeneratedTextureManager.MissingExtensionTex);
-            m_generatedTextures.Add(MyGeneratedTextureManager.PinkTex.Name, MyGeneratedTextureManager.PinkTex);
-            m_generatedTextures.Add(MyGeneratedTextureManager.MissingCubeTex.Name, MyGeneratedTextureManager.MissingCubeTex );
-            m_generatedTextures.Add(MyGeneratedTextureManager.IntelFallbackCubeTex.Name, MyGeneratedTextureManager.IntelFallbackCubeTex);
-            m_generatedTextures.Add(MyGeneratedTextureManager.Dithering8x8Tex.Name, MyGeneratedTextureManager.Dithering8x8Tex);
-            m_generatedTextures.Add(MyGeneratedTextureManager.MissingAlphamaskTex.Name, MyGeneratedTextureManager.MissingAlphamaskTex);
-            m_generatedTextures.Add(MyGeneratedTextureManager.RandomTex.Name, MyGeneratedTextureManager.RandomTex);
+            m_generatedTextures[MyGeneratedTextureManager.ZeroTex.Name] = MyGeneratedTextureManager.ZeroTex;
+            m_generatedTextures[MyGeneratedTextureManager.MissingNormalGlossTex.Name] = MyGeneratedTextureManager.MissingNormalGlossTex;
+            m_generatedTextures[MyGeneratedTextureManager.MissingExtensionTex.Name] = MyGeneratedTextureManager.MissingExtensionTex;
+            m_generatedTextures[MyGeneratedTextureManager.PinkTex.Name] = MyGeneratedTextureManager.PinkTex;
+            m_generatedTextures[MyGeneratedTextureManager.MissingCubeTex.Name] = MyGeneratedTextureManager.MissingCubeTex;
+            m_generatedTextures[MyGeneratedTextureManager.IntelFallbackCubeTex.Name] = MyGeneratedTextureManager.IntelFallbackCubeTex;
+            m_generatedTextures[MyGeneratedTextureManager.Dithering8x8Tex.Name] = MyGeneratedTextureManager.Dithering8x8Tex;
+            m_generatedTextures[MyGeneratedTextureManager.MissingAlphamaskTex.Name] = MyGeneratedTextureManager.MissingAlphamaskTex;
+            m_generatedTextures[MyGeneratedTextureManager.RandomTex.Name] = MyGeneratedTextureManager.RandomTex;
         }
 
         #region Loading
 
         /// <remarks>On big loops, or whenever recommendable, cache the returned reference</remarks>
-        public ITexture GetTexture(string name, MyFileTextureEnum type, bool waitTillLoaded = false, bool skipQualityReduction = false)
+        public ITexture GetTexture(string name, MyFileTextureEnum type, bool waitTillLoaded = false, bool skipQualityReduction = false,
+            bool temporary = false)
         {
             if (name == null || name.Length <= 0)
                 return ReturnDefaultTexture(type);
@@ -409,7 +425,7 @@ namespace VRage.Render11.Resources
                 }
 
                 m_texturesPool.AllocateOrCreate(out texOut);
-                texOut.Init(name, uri.LocalPath, type, waitTillLoaded, skipQualityReduction);
+                texOut.Init(name, uri.LocalPath, type, waitTillLoaded, skipQualityReduction, temporary);
                 m_textures.Add(name, texOut);
             }
 
@@ -428,6 +444,9 @@ namespace VRage.Render11.Resources
                 case FileTextureState.Loaded:
                     break;
             }
+
+            texOut.Temporary &= temporary;
+            m_temporaryTextureRequested |= temporary;
 
             return texOut;
         }
@@ -483,7 +502,7 @@ namespace VRage.Render11.Resources
                 }
 
                 if (userTexture.Size.X != width || userTexture.Size.Y != height ||
-                        userTexture.Type != type || userTexture.NumMipLevels != numMipLevels)
+                        userTexture.Type != type || userTexture.MipmapCount != numMipLevels)
                 {
                     MyRenderProxy.Fail("Trying to replace existing texture");
                 }
@@ -547,7 +566,7 @@ namespace VRage.Render11.Resources
                 case MyFileTextureEnum.CUBEMAP:
                     return MyGeneratedTextureManager.MissingCubeTex;
             }
-            return MyRender11.DebugMode ? MyGeneratedTextureManager.PinkTex : MyGeneratedTextureManager.ZeroTex;
+            return MyGeneratedTextureManager.PinkTex;
         }
 
         private void LoadInternal(string name, bool alterRequested = true)
@@ -645,12 +664,15 @@ namespace VRage.Render11.Resources
 
         public MyFileTextureUsageReport GetReport()
         {
-            MyFileTextureUsageReport report;
-            report.TexturesTotal = m_textures.Count;
-            report.TexturesLoaded = m_loadedTextures.Count;
-            report.TotalTextureMemory = GetTotalByteSizeOfResources();
+            m_report.TexturesTotal = m_textures.Count;
+            m_report.TexturesLoaded = m_loadedTextures.Count;
+            m_report.TotalTextureMemory = GetTotalByteSizeOfResources();
 
-            return report;
+            m_report.TexturesTotalPeak = Math.Max(m_report.TexturesTotalPeak, m_report.TexturesTotal);
+            m_report.TexturesLoadedPeak = Math.Max(m_report.TexturesLoadedPeak, m_report.TexturesLoaded);
+            m_report.TotalTextureMemoryPeak = Math.Max(m_report.TotalTextureMemoryPeak, m_report.TotalTextureMemory);
+
+            return m_report;
         }
 
         public StringBuilder GetFileTexturesDesc()
@@ -704,7 +726,7 @@ namespace VRage.Render11.Resources
             RemoveUserGeneratedTextures();
         }
 
-        public void OnUnloadData()
+        void IManagerUnloadData.OnUnloadData()
         {
             DisposeTex(MyFileTextureHelper.IsQualityDependantFilter);
             RemoveUserGeneratedTextures();
@@ -730,6 +752,22 @@ namespace VRage.Render11.Resources
 
         public void OnFrameEnd()
         {
+            if (m_temporaryTextureRequested)
+            {
+                var texturesToRemove = new List<MyFileTexture>();
+                foreach (var texture in m_textures.Values)
+                {
+                    if (texture.Temporary)
+                        texturesToRemove.Add(texture);
+                }
+
+                foreach (var texture in texturesToRemove)
+                {
+                    DisposeTex(texture);
+                    m_textures.Remove(texture.Name);
+                }
+            }
+            m_temporaryTextureRequested = false;
         }
 
         #endregion

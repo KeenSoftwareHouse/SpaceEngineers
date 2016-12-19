@@ -71,8 +71,9 @@ namespace Sandbox.Game.World
 
             MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Scenario);
 
-            FixIncorrectSettings(Settings);
             WorldBoundaries = checkpoint.WorldBoundaries;
+
+            FixIncorrectSettings(Settings);
 
             // Use whatever setting is in scenario if there was nothing in the file (0 min and max).
             // SE scenarios have nothing while ME scenarios have size defined.
@@ -235,26 +236,14 @@ namespace Sandbox.Game.World
             {
                 MyDefinitionId? definition = default(MyDefinitionId?);
 
-                if (MyFakes.ENABLE_LOAD_NEEDED_SESSION_COMPONENTS)
+                var component = (MySessionComponentBase)Activator.CreateInstance(type);
+                Debug.Assert(component != null, "Session component cannot be created by activator");
+
+                if (component.IsRequiredByGame || modAssembly || GetComponentInfo(type, out definition))
                 {
-                    var component = (MySessionComponentBase)Activator.CreateInstance(type);
-                    Debug.Assert(component != null, "Session component is cannot be created by activator");
-
-                    if (component.IsRequiredByGame)
-                    {
-                        RegisterComponent(component, component.UpdateOrder, component.Priority);
-
-                        GetComponentInfo(type, out definition);
-                        component.Definition = definition;
-                    }
-                }
-                else if (modAssembly || GetComponentInfo(type, out definition))
-                {
-                    var component = (MySessionComponentBase)Activator.CreateInstance(type);
-                    Debug.Assert(component != null, "Session component is cannot be created by activator");
-
                     RegisterComponent(component, component.UpdateOrder, component.Priority);
 
+                    GetComponentInfo(type, out definition);
                     component.Definition = definition;
                 }
             }
@@ -455,8 +444,6 @@ namespace Sandbox.Game.World
         {
             Static.TotalDamageDealt = 0;
             Static.TotalBlocksCreated = 0;
-            Static.sessionSimSpeedPlayer = 0f;
-            Static.sessionSimSpeedServer = 0f;
 
             ElapsedPlayTime = new TimeSpan();
             m_timeOfSave = MySandboxGame.Static.UpdateTime;

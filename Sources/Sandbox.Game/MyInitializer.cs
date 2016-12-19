@@ -223,6 +223,8 @@ namespace Sandbox
                             Sandbox.Game.MyPerGameSettings.RequiresDX11,
                             args.ExceptionObject as Exception);
                     }
+
+                    MySandboxGame.Log.Flush();
 #if !XB1
                     Process.GetCurrentProcess().Kill();
 #else // XB1

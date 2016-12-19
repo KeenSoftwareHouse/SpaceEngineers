@@ -27,7 +27,7 @@ namespace VRageRender
         internal static MyTimeSpan PreviousDrawTime;
         internal static MyTimeSpan TimeDelta { get { return CurrentDrawTime - PreviousDrawTime; } }
         internal static MySharedData SharedData = new MySharedData();
-        internal static MyLog Log = new MyLog();
+        internal static MyLog Log = new MyLog(true);
 
         internal static string RootDirectory = MyFileSystem.ContentPath;
         internal static string RootDirectoryEffects = MyFileSystem.ContentPath;

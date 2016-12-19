@@ -107,7 +107,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         }
         protected override bool CheckIsWorking()
         {
-			return (ResourceSink != null ? ResourceSink.IsPowered : true) && base.CheckIsWorking();
+            return (ResourceSink != null ? ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) : true) && base.CheckIsWorking();
         }
 
         public MyGravityGeneratorBase()

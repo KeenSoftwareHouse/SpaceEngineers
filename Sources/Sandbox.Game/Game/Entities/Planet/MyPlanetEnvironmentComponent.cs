@@ -821,7 +821,12 @@ namespace Sandbox.Game.Entities.Planet
 
         public MyPhysicalModelDefinition GetModelForId(short id)
         {
-            return m_physicalModels[id];
+            if (id < m_physicalModels.Count)
+            {
+                return m_physicalModels[id];
+            }
+
+            return null;
         }
 
         public void GetDefinition(ushort index, out MyRuntimeEnvironmentItemInfo def)

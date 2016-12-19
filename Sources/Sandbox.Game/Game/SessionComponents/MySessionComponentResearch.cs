@@ -75,6 +75,7 @@ namespace Sandbox.Game.SessionComponents
             if (builder == null || builder.Researches == null)
                 return;
 
+            WhitelistMode = builder.WhitelistMode;
             foreach (var research in builder.Researches)
             {
                 var definitions = new HashSet<MyDefinitionId>();
@@ -138,6 +139,7 @@ namespace Sandbox.Game.SessionComponents
             var ob = new MyObjectBuilder_SessionComponentResearch();
 
             ob.Researches = new List<MyObjectBuilder_SessionComponentResearch.ResearchData>();
+            ob.WhitelistMode = WhitelistMode;
             foreach (var research in m_unlockedResearch)
             {
                 if (research.Value.Count == 0)

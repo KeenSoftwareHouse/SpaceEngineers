@@ -758,14 +758,19 @@ namespace Sandbox.Game.Entities
             return MyVoxelConstants.PRIORITY_NORMAL;
         }
 
-        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler, MyStringHash material)
         {
             MyDecalRenderInfo renderable = new MyDecalRenderInfo();
             renderable.Flags = MyDecalFlags.World;
             renderable.Position = hitInfo.Position;
             renderable.Normal = hitInfo.Normal;
             renderable.RenderObjectId = Render.GetRenderObjectID();
-            renderable.Material = Physics.GetMaterialAt(hitInfo.Position);
+
+            if (material.GetHashCode() == 0)
+                renderable.Material = Physics.GetMaterialAt(hitInfo.Position);
+            else
+                renderable.Material = material;
+
 
             decalHandler.AddDecal(ref renderable);
         }
@@ -1156,7 +1161,7 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         static void OnVoxelClosedRequest(long entityId)
         {
-            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
             {
                 MyEventContext.ValidationFailed();
                 return;

@@ -18,7 +18,7 @@ namespace Sandbox.Game.Components
             return;
         }
 
-        protected override void OnWorldPositionChanged(object source)
+        protected override void OnWorldPositionChanged(object source, bool updateChildren)
         {
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
             ProfilerShort.Begin("FP.Volume+InvalidateRender");

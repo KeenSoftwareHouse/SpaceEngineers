@@ -274,7 +274,7 @@ namespace VRageRender
             return MaterialRkIndex[rk];
         }
 
-        internal static MyMeshMaterialId GetMaterialId(string name, string contentPath, string colorMetalTexture, string normalGlossTexture, string extensionTexture, string technique)
+        internal static MyMeshMaterialId GetMaterialId(string name, string contentPath, string colorMetalTexture, string normalGlossTexture, string extensionTexture, MyMeshDrawTechnique technique)
         {
             MyMeshMaterialInfo desc;
             desc = new MyMeshMaterialInfo
@@ -284,7 +284,7 @@ namespace VRageRender
                 NormalGloss_Texture = MyResourceUtils.GetTextureFullPath(normalGlossTexture, contentPath),
                 Extensions_Texture = MyResourceUtils.GetTextureFullPath(extensionTexture, contentPath),
                 Alphamask_Texture = String.Empty,
-                Technique = ConvertToDrawTechnique(technique),
+                Technique = technique,
                 TextureTypes = GetMaterialTextureTypes(colorMetalTexture, normalGlossTexture, extensionTexture, null),
                 Facing = MyFacingEnum.None,
             };
@@ -308,7 +308,7 @@ namespace VRageRender
                 Extensions_Texture = MyResourceUtils.GetTextureFullPath(extensionTexture, contentPath),
                 Alphamask_Texture = MyResourceUtils.GetTextureFullPath(alphamaskTexture, contentPath),
                 TextureTypes = GetMaterialTextureTypes(colorMetalTexture, normalGlossTexture, extensionTexture, alphamaskTexture),
-                Technique = ConvertToDrawTechnique(importDesc.Technique),
+                Technique = importDesc.TechniqueEnum,
                 Facing = importDesc.Facing,
                 WindScaleAndFreq = importDesc.WindScaleAndFreq
             };
@@ -489,15 +489,6 @@ namespace VRageRender
                     throw new Exception("Unknown texture bundle type");
             }
         }
-
-        private static MyMeshDrawTechnique ConvertToDrawTechnique(string str)
-        {
-            MyMeshDrawTechnique ret;
-            bool success = Enum.TryParse(str, out ret);
-            Debug.Assert(success, "Cannot convert to draw technique");
-            return ret;
-        }
-
     }
 
 }

@@ -136,11 +136,15 @@ namespace Sandbox.Game.Entities.Cube
 
         public void UpdateBeforeSimulation()
         {
-			ProfilerShort.Begin("Thrusters");
-	        MyEntityThrustComponent thrustComp;
-			if(CubeGrid.Components.TryGet(out thrustComp))
-                thrustComp.UpdateBeforeSimulation(false, Sync.IsServer || CubeGrid.GridSystems.ControlSystem.IsLocallyControlled);
+            ProfilerShort.Begin("Control");
+            ControlSystem.UpdateBeforeSimulation();
             ProfilerShort.End();
+
+            VRage.Profiler.ProfilerShort.Begin("Thrusters");
+            MyEntityThrustComponent thrustComp;
+            if (CubeGrid.Components.TryGet(out thrustComp))
+                thrustComp.UpdateBeforeSimulation(Sync.IsServer || CubeGrid.GridSystems.ControlSystem.IsLocallyControlled);
+            VRage.Profiler.ProfilerShort.End();
 
             // Only update gyros if there are gyros in the system
             if (GyroSystem.GyroCount > 0)
@@ -160,10 +164,6 @@ namespace Sandbox.Game.Entities.Cube
             /*ProfilerShort.Begin("Conveyors");
             ConveyorSystem.UpdateBeforeSimulation();
             ProfilerShort.End();*/
-
-            ProfilerShort.Begin("Control");
-            ControlSystem.UpdateBeforeSimulation();
-            ProfilerShort.End();
 
             ProfilerShort.Begin("Cameras");
             CameraSystem.UpdateBeforeSimulation();
@@ -187,6 +187,8 @@ namespace Sandbox.Game.Entities.Cube
             if (ShipSoundComponent != null)
                 ShipSoundComponent.Update();
             ProfilerShort.End();
+
+            UpdatePower();
         }
 
         public virtual void PrepareForDraw()
@@ -199,7 +201,7 @@ namespace Sandbox.Game.Entities.Cube
         {
 			ProfilerShort.Begin("GridSystems.UpdatePower");
             if (ResourceDistributor != null)
-                ResourceDistributor.UpdateBeforeSimulation10();
+                ResourceDistributor.UpdateBeforeSimulation();
 			ProfilerShort.End();
         }
 
@@ -209,7 +211,6 @@ namespace Sandbox.Game.Entities.Cube
 
         public virtual void UpdateBeforeSimulation10()
         {
-            UpdatePower();
             CameraSystem.UpdateBeforeSimulation10();
             ConveyorSystem.UpdateBeforeSimulation10();
         }
@@ -281,12 +282,15 @@ namespace Sandbox.Game.Entities.Cube
             ResourceDistributor = group.ResourceDistributor;
             WeaponSystem = group.WeaponSystem;
 
+            if (string.IsNullOrEmpty(ResourceDistributor.DebugName))
+                ResourceDistributor.DebugName = m_cubeGrid.ToString();
+
             m_cubeGrid.OnBlockAdded += ResourceDistributor.CubeGrid_OnBlockAddedOrRemoved;
             m_cubeGrid.OnBlockRemoved += ResourceDistributor.CubeGrid_OnBlockAddedOrRemoved;
 
             ResourceDistributor.AddSink(GyroSystem.ResourceSink);
             ResourceDistributor.AddSink(ConveyorSystem.ResourceSink);
-            ResourceDistributor.UpdateBeforeSimulation10();
+            ResourceDistributor.UpdateBeforeSimulation();
 
             ConveyorSystem.ResourceSink.IsPoweredChanged += ResourceDistributor.ConveyorSystem_OnPoweredChanged;
 
@@ -361,7 +365,7 @@ namespace Sandbox.Game.Entities.Cube
             ConveyorSystem.ResourceSink.IsPoweredChanged -= ResourceDistributor.ConveyorSystem_OnPoweredChanged;
             group.ResourceDistributor.RemoveSink(ConveyorSystem.ResourceSink, resetSinkInput: false);
             group.ResourceDistributor.RemoveSink(GyroSystem.ResourceSink, resetSinkInput: false);
-            group.ResourceDistributor.UpdateBeforeSimulation10();
+            group.ResourceDistributor.UpdateBeforeSimulation();
 
             m_cubeGrid.OnBlockAdded -= ResourceDistributor.CubeGrid_OnBlockAddedOrRemoved;
             m_cubeGrid.OnBlockRemoved -= ResourceDistributor.CubeGrid_OnBlockAddedOrRemoved;
@@ -564,7 +568,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 ProfilerShort.BeginNextBlock("Unregister Power consumer");
                 var powerConsumer = block.Components.Get<MyResourceSinkComponent>();
-                if (!(block is MyThrust) && powerConsumer != null)
+                if (powerConsumer != null)
                     ResourceDistributor.RemoveSink(powerConsumer);
 
                 ProfilerShort.End();

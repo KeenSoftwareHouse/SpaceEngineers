@@ -32,9 +32,9 @@ namespace Sandbox.Game.Components
 
         public void ChangeTexture(string path)
         {
-            MyRenderProxy.ChangeMaterialTexture(this.RenderObjectIDs[0], PANEL_MATERIAL_NAME, path);
             if (RenderObjectIDs[0] != MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
+                MyRenderProxy.ChangeMaterialTexture(this.RenderObjectIDs[0], PANEL_MATERIAL_NAME, path);
                 MyRenderProxy.UpdateModelProperties(this.RenderObjectIDs[0], 0, -1, PANEL_MATERIAL_NAME, null, null, 1);
             }
         }

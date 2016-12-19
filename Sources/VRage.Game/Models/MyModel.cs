@@ -68,7 +68,6 @@ namespace VRage.Game.Models
 
         public int DataVersion { get; private set; }
 
-        MyMeshDrawTechnique m_drawTechnique;
         int m_verticesCount;
         int m_trianglesCount;
 
@@ -341,10 +340,10 @@ namespace VRage.Game.Models
         //  Can be called from main and background thread
         public void LoadData()
         {
-            if (m_loadedData) return;
-
             lock (this)
             {
+                if (m_loadedData) return;
+
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyModel::LoadData");
 
 
@@ -542,7 +541,7 @@ namespace VRage.Game.Models
                 m_boundingBoxSize = BoundingBox.Max - BoundingBox.Min;
                 m_boundingBoxSizeHalf = BoundingBoxSize / 2.0f;
                 Dummies = tagData[MyImporterConstants.TAG_DUMMIES] as Dictionary<string, MyModelDummy>;
-                BoneMapping = tagData[MyImporterConstants.TAG_BONE_MAPPING] as VRageMath.Vector3I[];
+                BoneMapping = tagData[MyImporterConstants.TAG_BONE_MAPPING] as Vector3I[];
 
                 if (tagData.ContainsKey(MyImporterConstants.TAG_MODEL_FRACTURES))
                     ModelFractures = (MyModelFractures)tagData[MyImporterConstants.TAG_MODEL_FRACTURES];
@@ -885,15 +884,19 @@ namespace VRage.Game.Models
             return m_bvh != null ? m_bvh.Size : 0;
         }
 
-        public MyMeshDrawTechnique GetDrawTechnique()
+        public MyMeshDrawTechnique GetDrawTechnique(int triangleIndex)
         {
-            return m_drawTechnique;
+            MyMeshDrawTechnique t = MyMeshDrawTechnique.MESH;
+
+            for (int i = 0; i < m_meshContainer.Count; i++)
+            {
+                if (triangleIndex >= m_meshContainer[i].TriStart && triangleIndex < (m_meshContainer[i].TriStart + m_meshContainer[i].TriCount))
+                    t = m_meshContainer[i].Material.DrawTechnique;
+            }
+
+            return t;
         }
 
-        public void SetDrawTechnique(MyMeshDrawTechnique drawTechnique)
-        {
-            m_drawTechnique = drawTechnique;
-        }
 
         /// <summary>
         /// Dispose

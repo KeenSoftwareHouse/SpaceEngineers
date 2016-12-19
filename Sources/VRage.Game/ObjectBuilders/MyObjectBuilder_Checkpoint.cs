@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 using VRage.Game.Definitions;
+using VRage.Game.ModAPI;
 using VRage.Library.Utils;
 
 
@@ -20,6 +21,7 @@ namespace VRage.Game
         ThirdPersonSpectator,
         SpectatorDelta,
         SpectatorFixed,
+        SpectatorOrbit,
         SpectatorFreeMouse
     }
 
@@ -176,7 +178,7 @@ namespace VRage.Game
         public List<ModItem> Mods;
 
         [ProtoMember]
-        public List<ulong> PromotedUsers;
+        public SerializableDictionary<ulong, MyPromoteLevel> PromotedUsers;
 
         [ProtoMember]
         public SerializableDefinitionId Scenario = DEFAULT_SCENARIO;

@@ -14,6 +14,11 @@ namespace Sandbox.ModAPI.Ingame
         string CustomNameWithFaction { get; }
         string DetailedInfo { get; }
         string CustomInfo { get; }
+        /// <summary>
+        /// Gets or sets the Custom Data string.
+        /// NOTE: Only use this for user input. For storing large mod configs, create your own MyModStorageComponent
+        /// </summary>
+        string CustomData { get; set; }
         bool HasLocalPlayerAccess();
         bool HasPlayerAccess(long playerId);
         void SetCustomName(string text);

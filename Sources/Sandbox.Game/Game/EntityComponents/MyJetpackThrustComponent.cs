@@ -27,16 +27,16 @@ namespace Sandbox.Game.EntityComponents
         public MyCharacter Character { get { return Entity; } }
         public MyCharacterJetpackComponent Jetpack { get { return Character.JetpackComp; } }
 
-        protected override void UpdateThrusts(bool networkUpdate, bool enableDampers)
+        protected override void UpdateThrusts(bool enableDampers)
         {
-            base.UpdateThrusts(networkUpdate, enableDampers);
+            base.UpdateThrusts(enableDampers);
 
             ProfilerShort.Begin("MyJetpackThrustComponent.UpdateThrusts");
             if (Character != null &&
                 Character.Physics != null &&
                 Jetpack.TurnedOn)
             {
-                if (FinalThrust.LengthSquared() > 0.001f)
+                if (FinalThrust.LengthSquared() > 0.0001f)
                 {
                     if (Character.Physics.IsInWorld)
                     {
@@ -44,7 +44,7 @@ namespace Sandbox.Game.EntityComponents
 
                         Vector3 velocity = Character.Physics.LinearVelocity;
                         float maxCharacterSpeedRelativeToShip = Math.Max(Character.Definition.MaxSprintSpeed, Math.Max(Character.Definition.MaxRunSpeed, Character.Definition.MaxBackrunSpeed));
-                        float maxSpeed = (MyGridPhysics.ShipMaxLinearVelocity() + maxCharacterSpeedRelativeToShip) * (Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio);
+                        float maxSpeed = (MyGridPhysics.ShipMaxLinearVelocity() + maxCharacterSpeedRelativeToShip);
                         if (velocity.LengthSquared() > maxSpeed * maxSpeed)
                         {
                             velocity.Normalize();
@@ -157,7 +157,7 @@ namespace Sandbox.Game.EntityComponents
         protected override Vector3 ApplyThrustModifiers(ref MyDefinitionId fuelType, ref Vector3 thrust, ref Vector3 thrustOverride, MyResourceSinkComponentBase resourceSink)
         {
             thrust += thrustOverride;
-            if (Character.ControllerInfo.Controller == null || MySession.Static.IsAdminModeEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false ||
+            if (Character.ControllerInfo.Controller == null || MySession.Static.CreativeToolsEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false ||
                 (MySession.Static.LocalCharacter != Character && Sync.IsServer == false))
             {
                 thrust *= resourceSink.SuppliedRatioByType(fuelType);
@@ -165,11 +165,6 @@ namespace Sandbox.Game.EntityComponents
             thrust *= MyFakes.THRUST_FORCE_RATIO;
 
             return thrust;
-        }
-
-        protected override float GetMagicFactor()
-        {
-            return (Sync.IsServer && Entity.ControllerInfo.IsLocallyControlled() == false) ? 1.0f : (1f - 1f / 30f);
         }
     }
 }

@@ -63,7 +63,9 @@ namespace Sandbox.Game.EntityComponents
 		public float DefinedOutput { get { return DefinedOutputByType(m_resourceTypeToIndex.Keys.First()); } }
 	    public bool ProductionEnabled { get { return ProductionEnabledByType(m_resourceTypeToIndex.Keys.First()); } }
 
+        //How much resource is filled actually (usedratio * Capacity)
 		public float RemainingCapacity { get { return RemainingCapacityByType(m_resourceTypeToIndex.Keys.First()); } }
+
 		public bool IsInfiniteCapacity { get { return float.IsInfinity(RemainingCapacity); } }
 	    public float ProductionToCapacityMultiplier { get { return ProductionToCapacityMultiplierByType(m_resourceTypeToIndex.Keys.First()); } }
 	    public bool Enabled { get { return m_enabled; } set { SetEnabled(value); } }
@@ -251,17 +253,22 @@ namespace Sandbox.Game.EntityComponents
 
 	    private void SetEnabled(bool newValue)
 	    {
+            bool oldValue = m_enabled;
+
 	        m_enabled = newValue;
 
-            foreach (var resourceId in m_resourceIds)
-                if (ProductionEnabledChanged != null)
-                    ProductionEnabledChanged(resourceId, this);
+            if (oldValue != m_enabled)
+            {
+                foreach (var resourceId in m_resourceIds)
+                    if (ProductionEnabledChanged != null)
+                        ProductionEnabledChanged(resourceId, this);
 
-	        if (!m_enabled)
-	        {
-                foreach(var resourceId in m_resourceIds)
-	                SetOutputByType(resourceId, 0f);
-	        }
+                if (!m_enabled)
+                {
+                    foreach (var resourceId in m_resourceIds)
+                        SetOutputByType(resourceId, 0f);
+                }
+            }
 	    }
 
 		protected int GetTypeIndex(MyDefinitionId resourceTypeId)

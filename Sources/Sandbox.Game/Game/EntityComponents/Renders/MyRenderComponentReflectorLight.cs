@@ -56,7 +56,7 @@ namespace Sandbox.Game.Components
             var color = m_reflectorLight.Light.ReflectorColor;
             color.A = 255;
 
-            var glarePosition = position + forwardVector * 0.28f;
+            var glarePosition = position + forwardVector * 0.112f * m_reflectorLight.CubeGrid.GridSize;
             var dot = Vector3.Dot(Vector3D.Normalize(MySector.MainCamera.Position - glarePosition), forwardVector);
             float angle = 1 - Math.Abs(dot);
             float alphaGlareAlphaBlended = (float)Math.Pow(1 - angle, 2);
@@ -77,7 +77,7 @@ namespace Sandbox.Game.Components
                 MyTransparentGeometry.AddLineBillboard(
                     "ReflectorCone",
                     color * alphaCone,
-                    position - forwardVector * 0.8f,
+                    position - forwardVector * m_reflectorLight.CubeGrid.GridSize * 0.32f,
                     forwardVector,
                     reflectorLength,
                     reflectorThickness);

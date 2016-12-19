@@ -36,16 +36,12 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenTank))]
     public class MyGasTank : MyFunctionalBlock, IMyGasBlock, IMyOxygenTank, VRage.Game.ModAPI.Ingame.IMyInventoryOwner
     {
-        private static readonly string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
+        private static readonly string[] m_emissiveNames = { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
         
         private Color m_prevColor = Color.White;
         private int m_prevFillCount = -1;
         private bool m_autoRefill;
-	    private int m_lastOutputUpdateTime;
-	    private int m_lastInputUpdateTime;
-	    private float m_nextGasTransfer = 0f;
         private const float m_maxFillPerSecond = 0.05f;
-        private const int m_updateInterval = 100;
 
         private MyMultilineConveyorEndpoint m_conveyorEndpoint;
         public IMyConveyorEndpoint ConveyorEndpoint { get { return m_conveyorEndpoint; } }
@@ -125,11 +121,10 @@ namespace Sandbox.Game.Entities.Blocks
 			base.Init(objectBuilder, cubeGrid);
 
 			var builder = (MyObjectBuilder_OxygenTank)objectBuilder;
-			IsStockpiling = builder.IsStockpiling;
 
-			InitializeConveyorEndpoint();
+            InitializeConveyorEndpoint();
 
-			NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+			NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
             if (MyFakes.ENABLE_INVENTORY_FIX)
             {
@@ -159,6 +154,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             SourceComp.Enabled = Enabled;
 
+            //Set after SourceComp.Init otherwise overwritten
+            IsStockpiling = builder.IsStockpiling;
+
 			var sinkDataList = new List<MyResourceSinkInfo>
 	        {
 				new MyResourceSinkInfo {ResourceTypeId = MyResourceDistributorComponent.ElectricityId, MaxRequiredInput = BlockDefinition.OperationalPowerConsumption, RequiredInputFunc = ComputeRequiredPower},
@@ -170,11 +168,7 @@ namespace Sandbox.Game.Entities.Blocks
 				sinkDataList);
 			ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
 			ResourceSink.CurrentInputChanged += Sink_CurrentInputChanged;
-
-            m_lastOutputUpdateTime = MySession.Static.GameplayFrameCounter;
-            m_lastInputUpdateTime = MySession.Static.GameplayFrameCounter;
-			m_nextGasTransfer = 0f;
-
+         
 			ChangeFilledRatio(builder.FilledRatio);
 			ResourceSink.Update();
 
@@ -254,45 +248,33 @@ namespace Sandbox.Game.Entities.Blocks
             return false;
         }
 
-        public override void UpdateAfterSimulation100()
+        public override void UpdateAfterSimulation()
         {
-            base.UpdateAfterSimulation100();
+            base.UpdateAfterSimulation();
 
-	        if (!Sync.IsServer)
-				return;
-
-            if(!IsWorking)
-            {
-                if(m_nextGasTransfer != 0f)
-                    ExecuteGasTransfer();
+            if (!Sync.IsServer)
                 return;
-            }
 
-	        if (FilledRatio > 0f && UseConveyorSystem && this.GetInventory().VolumeFillFactor < 0.6f)
-		        MyGridConveyorSystem.PullAllRequest(this, this.GetInventory(), OwnerId, this.GetInventory().Constraint);
+            if (FilledRatio > 0f && UseConveyorSystem && this.GetInventory().VolumeFillFactor < 0.6f)
+                MyGridConveyorSystem.PullAllRequest(this, this.GetInventory(), OwnerId, this.GetInventory().Constraint);
 
-	        if (m_autoRefill && CanRefill())
-		        RefillBottles();
+            if (m_autoRefill && CanRefill())
+                RefillBottles();
 
-            // this is performance unfriendly
-            // its supposed to be in Sink_CurrentInputChanged, but it dont catch slider change correctly
-            SourceComp.Enabled = CanStore;
             ExecuteGasTransfer();
         }
 
         private void ExecuteGasTransfer()
         {
-            int sinkUpdateFrames = (MySession.Static.GameplayFrameCounter - m_lastInputUpdateTime);
-            int sourceUpdateFrames = (MySession.Static.GameplayFrameCounter - m_lastOutputUpdateTime);
-            m_lastOutputUpdateTime = MySession.Static.GameplayFrameCounter;
-            m_lastInputUpdateTime = MySession.Static.GameplayFrameCounter;
+            float totalTransfer = GasInputPerUpdate - GasOutputPerUpdate;
 
-            float gasInput = GasInputPerUpdate * sinkUpdateFrames;
-            float gasOutput = GasOutputPerUpdate * sourceUpdateFrames;
-            float totalTransfer = gasInput - gasOutput + m_nextGasTransfer;
-            Transfer(totalTransfer);
-
-            ResourceSink.Update();
+            if (totalTransfer != 0)
+            {
+                Transfer(totalTransfer);
+                ResourceSink.Update();
+            }
+            else
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
         }
 
         protected override bool CheckIsWorking()
@@ -314,7 +296,7 @@ namespace Sandbox.Game.Entities.Blocks
 	        if (!CanStore)
 	            return 0f;
 
-	        float neededRatioToFillInUpdateInterval = (1 - FilledRatio)*MyEngineConstants.UPDATE_STEPS_PER_SECOND / m_updateInterval * SourceComp.ProductionToCapacityMultiplierByType(BlockDefinition.StoredGasId);
+	        float neededRatioToFillInUpdateInterval = (1 - FilledRatio) * MyEngineConstants.UPDATE_STEPS_PER_SECOND * SourceComp.ProductionToCapacityMultiplierByType(BlockDefinition.StoredGasId);
             float currentOutput = SourceComp.CurrentOutputByType(BlockDefinition.StoredGasId);
             return Math.Min(neededRatioToFillInUpdateInterval * Capacity + currentOutput, m_maxFillPerSecond * Capacity);
 	    }
@@ -329,7 +311,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.OnAddedToScene(source);
 
             UpdateEmissivity();
-            UdpateText();
+            UpdateText();
         }
 
         void PowerReceiver_IsPoweredChanged()
@@ -353,12 +335,14 @@ namespace Sandbox.Game.Entities.Blocks
             if (CubeGrid != null && CubeGrid.GridSystems != null && CubeGrid.GridSystems.ResourceDistributor != null)
                 CubeGrid.GridSystems.ResourceDistributor.ConveyorSystem_OnPoweredChanged(); // Hotfix TODO
 
-            UdpateText();
+            UpdateText();
         }
 
         void MyOxygenTank_IsWorkingChanged(MyCubeBlock obj)
         {
             SourceComp.Enabled = CanStore;
+            
+	        SetStockpilingState(m_isStockpiling);	    
 
             UpdateEmissivity();
         }
@@ -373,25 +357,18 @@ namespace Sandbox.Game.Entities.Blocks
 
 		private void Source_OutputChanged(MyDefinitionId changedResourceId, float oldOutput, MyResourceSourceComponent source)
 		{
-			if (changedResourceId != BlockDefinition.StoredGasId)
-				return;
+            if (changedResourceId != BlockDefinition.StoredGasId)
+                return;
 
-            float timeSinceLastUpdateSeconds = (MySession.Static.GameplayFrameCounter - m_lastOutputUpdateTime) / VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-            m_lastOutputUpdateTime = MySession.Static.GameplayFrameCounter;
-			float outputAmount = oldOutput*timeSinceLastUpdateSeconds;
-			m_nextGasTransfer -= outputAmount;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 		}
 
 		private void Sink_CurrentInputChanged(MyDefinitionId resourceTypeId, float oldInput, MyResourceSinkComponent sink)
 	    {
-			if (resourceTypeId != BlockDefinition.StoredGasId)
-				return;
+            if (resourceTypeId != BlockDefinition.StoredGasId)
+                return;
 
-            SourceComp.Enabled = CanStore;
-            float timeSinceLastUpdateSeconds = (MySession.Static.GameplayFrameCounter - m_lastInputUpdateTime) / VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-            m_lastInputUpdateTime = MySession.Static.GameplayFrameCounter;
-			float inputAmount = oldInput*timeSinceLastUpdateSeconds;
-			m_nextGasTransfer += inputAmount;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 	    }
 
         public override void UpdateVisual()
@@ -409,7 +386,7 @@ namespace Sandbox.Game.Entities.Blocks
                 SetEmissive(Color.Red, 1f);
         }
 
-        private void UdpateText()
+        private void UpdateText()
         {
             DetailedInfo.Clear();
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
@@ -512,12 +489,13 @@ namespace Sandbox.Game.Entities.Blocks
 		    m_isStockpiling = newState;
 
             SourceComp.SetProductionEnabledByType(BlockDefinition.StoredGasId, !m_isStockpiling && CanStore);
+            ResourceSink.Update();
 	    }
 
 	    private void Transfer(float transferAmount)
 	    {
 			if (transferAmount > 0)
-				Fill(transferAmount);
+                Fill(transferAmount);
 			else if (transferAmount < 0)
 				Drain(-transferAmount);
 	    }
@@ -540,27 +518,34 @@ namespace Sandbox.Game.Entities.Blocks
 
         internal void ChangeFilledRatio(float newFilledRatio, bool updateSync = false)
         {
-	        m_nextGasTransfer = 0f;
             float oldFilledRatio = FilledRatio;
 
 			if (oldFilledRatio != newFilledRatio || MySession.Static.CreativeMode)
 			{
-                if (!MySession.Static.CreativeMode || newFilledRatio > oldFilledRatio)
+                if (!MySession.Static.CreativeMode)
                 {
                     if (updateSync)
+                    {
                         this.ChangeFillRatioAmount(newFilledRatio);
+                        return;
+                    }
 
                     FilledRatio = newFilledRatio;
                 }
+                else
+                {
+                    //AB: In creative we allways have 50% filled so we can recieve and send gas
+                    FilledRatio = 0.5f;
+                }
 
-                if (MySession.Static.CreativeMode)
+                if (MySession.Static.CreativeMode && newFilledRatio > oldFilledRatio)
                     SourceComp.SetRemainingCapacityByType(BlockDefinition.StoredGasId, Capacity);
                 else
                     SourceComp.SetRemainingCapacityByType(BlockDefinition.StoredGasId, FilledRatio * Capacity);
 
 				ResourceSink.Update();
 				UpdateEmissivity();
-				UdpateText();
+				UpdateText();
 			}
 
         }
@@ -575,6 +560,7 @@ namespace Sandbox.Game.Entities.Blocks
         public void ChangeStockpileMode(bool newStockpileMode)
         {
             MyMultiplayer.RaiseEvent(this, x => x.OnStockipleModeCallback, newStockpileMode);
+            UpdateEmissivity();
         }
 
         [Event, Reliable, Server, Broadcast]

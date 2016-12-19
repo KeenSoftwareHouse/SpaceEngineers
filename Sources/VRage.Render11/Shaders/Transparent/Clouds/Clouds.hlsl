@@ -32,7 +32,7 @@ SamplerState Sampler : register(s0);
 struct VsInputVertex
 {
 	float4 positionLocal : POSITION0;
-	float4 normal : NORMAL0;
+	uint2 normal : NORMAL0;
 	float4 tangent4 : TANGENT0;
 	float2 uv : TEXCOORD0;
 };

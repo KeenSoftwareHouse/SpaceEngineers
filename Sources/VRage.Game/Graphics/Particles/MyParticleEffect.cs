@@ -48,7 +48,6 @@ namespace VRage.Game
         float m_distance;
 
         readonly List<IMyParticleGeneration> m_generations = new List<IMyParticleGeneration>();
-        readonly List<IMyParticleGeneration> m_sortedGenerations = new List<IMyParticleGeneration>();
         List<IMyParticleGeneration> m_drawGenerations;
         List<MyParticleEffect> m_instances;
         readonly List<MyParticleLight> m_particleLights = new List<MyParticleLight>();
@@ -126,6 +125,7 @@ namespace VRage.Game
 
         public void SetShowOnlyThisGeneration(IMyParticleGeneration generation)
         {
+            SetDirty();
             for (int i=0; i < m_generations.Count;i++)
             {
                 if (m_generations[i] == generation)
@@ -153,7 +153,6 @@ namespace VRage.Game
         }
 
         public bool CalculateDeltaMatrix;
-        public bool Near;
         public MatrixD DeltaMatrix;
         //public LastFrameVisibilityEnum WasVisibleLastFrame = LastFrameVisibilityEnum.AlwaysVisible;
         public uint RenderCounter = 0;
@@ -170,7 +169,6 @@ namespace VRage.Game
             }
         }
 
-        private bool m_needSorting;
         private bool m_newLoop = false;
 
         #endregion
@@ -205,8 +203,7 @@ namespace VRage.Game
 
             Enabled = true;
             EnableLods = true;
-            Near = false;
-
+            
             //For assigment check
             Velocity = Vector3.Zero;
             WorldMatrix = MatrixD.Identity;
@@ -532,7 +529,6 @@ namespace VRage.Game
                 m_worldMatrix = MatrixD.CreateWorld(position, Vector3D.Normalize(Velocity), m_worldMatrix.Up);
             }
 
-            m_needSorting = false;
             for (int i = 0; i < m_generations.Count;i++ )
             {
                 if (m_showOnlyThisGeneration >= 0 && i != m_showOnlyThisGeneration)
@@ -544,7 +540,6 @@ namespace VRage.Game
                 m_birthRate += m_generations[i].GetBirthRate();
 
                 m_generations[i].MergeAABB(ref m_AABB);
-                m_needSorting |= m_generations[i].NeedSorting();
             }
 
 
@@ -761,7 +756,9 @@ namespace VRage.Game
             {
                 foreach (MyParticleEffect effect in m_instances)
                 {
-                    effect.AddGeneration(generation.CreateInstance(effect));
+                    var gen = generation.CreateInstance(effect);
+                    if (gen != null)
+                        effect.AddGeneration(gen);
                 }
             }
         }
@@ -986,7 +983,7 @@ namespace VRage.Game
                 if (isEmpty)
                     break;
 
-                if (reader.Name == "ParticleGeneration")
+                if (reader.Name == "ParticleGeneration" && MyParticlesManager.EnableCPUGenerations)
                 {
                     MyParticleGeneration generation;
                     MyParticlesManager.GenerationsPool.AllocateOrCreate(out generation);
@@ -1010,7 +1007,6 @@ namespace VRage.Game
                 }
                 else
                     reader.Read();
-                    
             }
 
             if (!isEmpty)
@@ -1090,12 +1086,15 @@ namespace VRage.Game
                 switch (generation.GenerationType)
                 {
                     case "CPU":
-                        MyParticleGeneration genCPU;
-                        MyParticlesManager.GenerationsPool.AllocateOrCreate(out genCPU);
-                        genCPU.Start(this);
-                        genCPU.Init();
-                        genCPU.DeserializeFromObjectBuilder(generation);
-                        AddGeneration(genCPU);
+                        if (MyParticlesManager.EnableCPUGenerations)
+                        {
+                            MyParticleGeneration genCPU;
+                            MyParticlesManager.GenerationsPool.AllocateOrCreate(out genCPU);
+                            genCPU.Start(this);
+                            genCPU.Init();
+                            genCPU.DeserializeFromObjectBuilder(generation);
+                            AddGeneration(genCPU);
+                        }
                         break;
 
                     case "GPU":
@@ -1136,27 +1135,12 @@ namespace VRage.Game
 
         public void PrepareForDraw()
         {
-            if (m_needSorting)
-            {
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Sort generations");
-                m_sortedGenerations.Clear();
-
-                foreach (IMyParticleGeneration generation in m_generations)
-                {
-                    m_sortedGenerations.Add(generation);
-                }
-
-                m_sortedGenerations.Sort();
-                m_drawGenerations = m_sortedGenerations;
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-            }
-            else m_drawGenerations = m_generations;
+            m_drawGenerations = m_generations;
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("PrepareForDraw generations");
-            VRageRender.MyBillboard effectBillboard = null;
             foreach (IMyParticleGeneration generation in m_drawGenerations)
             {
-                generation.PrepareForDraw(ref effectBillboard);
+                generation.PrepareForDraw();
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }

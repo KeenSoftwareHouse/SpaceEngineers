@@ -1540,20 +1540,20 @@ namespace VRageMath
         {
             if ((double)fieldOfView <= 0.0 || (double)fieldOfView >= 3.14159274101257)
                 throw new ArgumentOutOfRangeException("fieldOfView", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "OutRangeFieldOfView", new object[1]
-        {
-          (object) "fieldOfView"
-        }));
+                {
+                    (object) "fieldOfView"
+                }));
             else if ((double)nearPlaneDistance <= 0.0)
                 throw new ArgumentOutOfRangeException("nearPlaneDistance", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "NegativePlaneDistance", new object[1]
-        {
-          (object) "nearPlaneDistance"
-        }));
+                {
+                    (object) "nearPlaneDistance"
+                }));
             else if ((double)farPlaneDistance <= 0.0)
             {
                 throw new ArgumentOutOfRangeException("farPlaneDistance", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "NegativePlaneDistance", new object[1]
-        {
-          (object) "farPlaneDistance"
-        }));
+                {
+                    (object) "farPlaneDistance"
+                }));
             }
             else
             {
@@ -1571,6 +1571,44 @@ namespace VRageMath
                 matrix.M34 = -1f;
                 matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
                 matrix.M43 = (float)((double)nearPlaneDistance * (double)farPlaneDistance / ((double)nearPlaneDistance - (double)farPlaneDistance));
+                return matrix;
+            }
+        }
+        public static Matrix CreatePerspectiveFovRhComplementary(float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance)
+        {
+            if ((double)fieldOfView <= 0.0 || (double)fieldOfView >= 3.14159274101257)
+                throw new ArgumentOutOfRangeException("fieldOfView", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "OutRangeFieldOfView", new object[1]
+                {
+                    (object) "fieldOfView"
+                }));
+            else if ((double)nearPlaneDistance <= 0.0)
+                throw new ArgumentOutOfRangeException("nearPlaneDistance", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "NegativePlaneDistance", new object[1]
+                {
+                    (object) "nearPlaneDistance"
+                }));
+            else if ((double)farPlaneDistance <= 0.0)
+            {
+                throw new ArgumentOutOfRangeException("farPlaneDistance", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "NegativePlaneDistance", new object[1]
+                {
+                    (object) "farPlaneDistance"
+                }));
+            }
+            else
+            {
+                //if ((double)nearPlaneDistance >= (double)farPlaneDistance)
+                //    throw new ArgumentOutOfRangeException("nearPlaneDistance", "OppositePlanes");
+                float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+                float num2 = num1 / aspectRatio;
+                Matrix matrix;
+                matrix.M11 = num2;
+                matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+                matrix.M22 = num1;
+                matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+                matrix.M31 = matrix.M32 = 0.0f;
+                matrix.M33 = -farPlaneDistance / (nearPlaneDistance - farPlaneDistance) - 1;
+                matrix.M34 = -1f;
+                matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
+                matrix.M43 = -(float)((double)nearPlaneDistance * (double)farPlaneDistance / ((double)nearPlaneDistance - (double)farPlaneDistance));
                 return matrix;
             }
         }
@@ -3447,6 +3485,12 @@ return flag;
             orientation.Up = Up;
             orientation.Right = Right;
             return orientation;
+        }
+
+        [Conditional("DEBUG")]
+        public void AssertIsValid()
+        {
+            Debug.Assert(IsValid());
         }
 
         public bool IsValid()

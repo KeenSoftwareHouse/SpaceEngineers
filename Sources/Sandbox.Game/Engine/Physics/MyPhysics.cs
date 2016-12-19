@@ -38,8 +38,12 @@ namespace Sandbox.Engine.Physics
     using ParallelTasks;
     using VRage.Game.ModAPI;
     using VRage.ModAPI;
+    using VRage.Network;
+    using Sandbox.Engine.Multiplayer;
+    using VRageMath.Spatial;
 
     [MySessionComponentDescriptor(MyUpdateOrder.Simulation, 500)]
+    [StaticEventOwnerAttribute]
     public class MyPhysics : MySessionComponentBase
     {
         public struct HitInfo : IHitInfo
@@ -144,6 +148,7 @@ namespace Sandbox.Engine.Physics
         public static int ThreadId;
 
         public static MyHavokCluster Clusters;
+        private static bool ClustersNeedSync = false;
 
         private static HkJobThreadPool m_threadPool;
         private static HkJobQueue m_jobQueue;
@@ -404,11 +409,13 @@ namespace Sandbox.Engine.Physics
 
             ThreadId = Thread.CurrentThread.ManagedThreadId;
 
-            Clusters = new MyHavokCluster(MySession.Static.WorldBoundaries);
+            Clusters = new MyHavokCluster(MySession.Static.WorldBoundaries, MyFakes.MP_SYNC_CLUSTERTREE && !Sync.IsServer);
 
             Clusters.OnClusterCreated += OnClusterCreated;
             Clusters.OnClusterRemoved += OnClusterRemoved;
             Clusters.OnFinishBatch += OnFinishBatch;
+            Clusters.OnClustersReordered += Tree_OnClustersReordered;
+            Clusters.GetEntityReplicableExistsById += GetEntityReplicableExistsById;
 
             if (MyFakes.ENABLE_HAVOK_MULTITHREADING)
             {
@@ -467,6 +474,7 @@ namespace Sandbox.Engine.Physics
             hkWorld.DeactivationRotationSqrdB /= 3;
             if (!MyFinalBuildConstants.IS_OFFICIAL)
             {
+                hkWorld.VisualDebuggerPort = Sync.IsServer ? 25001 : 25002;
                 hkWorld.VisualDebuggerEnabled = true;
             }
             InitCollisionFilters(hkWorld);
@@ -580,17 +588,6 @@ namespace Sandbox.Engine.Physics
             }
             else
             {
-               // <ib.debug print>
-               //{
-               //     Console.WriteLine("Simulate:");
-
-               //     int worldCount = 0;
-               //     foreach (HkWorld world in Clusters.GetList())
-               //     {
-               //         Console.WriteLine(" Cluster:{0:D} ConstraintsCount:{1:D} ActionsCount:{2:D} RbCount:{3:D} ARbCount:{4:D} ", worldCount++, world.GetConstraintCount(), world.GetActionCount(), world.RigidBodies.Count(), world.ActiveRigidBodies.Count());
-               //     }
-               //}
-                              
                 foreach (HkWorld world in Clusters.GetList())
                 {
                     StepWorld(world);
@@ -617,14 +614,7 @@ namespace Sandbox.Engine.Physics
                 IterateBodies(world);
             }
 
-
-            //ParallelTasks.Parallel.For(0, m_iterationBodies.Count, (rb) =>
-            //{
-            //    MyPhysicsBody body = (MyPhysicsBody)m_iterationBodies[rb].UserObject;
-            //    if (body == null)
-            //        return;
-            //    body.OnMotion(m_iterationBodies[rb], VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
-            //}, Math.Max(1, m_iterationBodies.Count / 16));
+            EnsureClusterSpace();
 
             foreach (var rb in m_iterationBodies)
             {
@@ -637,7 +627,7 @@ namespace Sandbox.Engine.Physics
             foreach (HkCharacterRigidBody rb in m_characterIterationBodies)
             {
                 var body = (MyPhysicsBody)rb.GetHitRigidBody().UserObject;
-                if (body.Entity.WorldMatrix.Translation != body.GetWorldMatrix().Translation)
+                if (Vector3D.DistanceSquared(body.Entity.WorldMatrix.Translation, body.GetWorldMatrix().Translation) > 0.0001f)
                 {
                     body.UpdateCluster();
                 }
@@ -646,20 +636,42 @@ namespace Sandbox.Engine.Physics
             m_iterationBodies.Clear();
             m_characterIterationBodies.Clear();
 
+            if (Sync.IsServer && MyFakes.MP_SYNC_CLUSTERTREE && ClustersNeedSync)
+            {
+                List<BoundingBoxD> list = new List<BoundingBoxD>();
+                SerializeClusters(list);
+
+                VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.MPositions2, "Tree_OnClustersReordered Server (" + list.Count + ")");
+                MyMultiplayer.RaiseStaticEvent(s => OnClustersReorderer, list);
+
+                ClustersNeedSync = false;
+            }
+
             ProfilerShort.End();
 
             ProfilerShort.Begin("HavokWorld.StepVDB");
-            foreach (HkWorld world in Clusters.GetList())
+
+            if (MySession.Static.ControlledEntity != null
+                    && MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody() != null)
             {
-                if (MySession.Static.ControlledEntity != null
-                    && MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody() != null
-                    && MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody().HavokWorld == world)
+                foreach (HkWorld world in Clusters.GetList())
                 {
-                    world.VisualDebuggerEnabled = true;
-                    world.StepVDB(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                    if (MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody().HavokWorld == world)
+                    {
+                        world.VisualDebuggerEnabled = true;
+                        world.StepVDB(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                    } 
+                    else
+                        world.VisualDebuggerEnabled = false;
                 }
-                else
-                    world.VisualDebuggerEnabled = false;
+            }
+            else
+            {
+                foreach (HkWorld world in Clusters.GetList())
+                {
+                    world.StepVDB(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                    break;
+                }
             }
 
             ProfilerShort.End();
@@ -671,8 +683,7 @@ namespace Sandbox.Engine.Physics
             world.ExecutePendingCriticalOperations();
             
             world.UnmarkForWrite();
-            world.StepSimulation(VRage.Game.MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
-            world.StepSimulation(VRage.Game.MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+            world.StepSimulation(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
             world.MarkForWrite();
         }
 
@@ -886,31 +897,26 @@ namespace Sandbox.Engine.Physics
 
                 foreach (var rb in ((HkWorld)res.UserData).RigidBodies)
                 {
-                    //jn: TODO fix debug draw
-                    //MyOrientedBoundingBoxD rbbb = new MyOrientedBoundingBoxD((BoundingBoxD)rb.GetEntity().LocalAABB, rb.GetEntity().WorldMatrix);
-                    //rbbb.Center = (rbbb.Center - center) * scaleAxis;
-                    //rbbb.HalfExtent *= scaleAxis;
-                    //rbbb.Transform(previewMatrix);
-                    //MyRenderProxy.DebugDrawOBB(rbbb, Color.Yellow, 1, false, false);
+                    if (rb.GetEntity(0) == null)
+                        continue;
 
-                    ////BoundingBoxD rbaa = rb.GetEntity().WorldAABB;
-                    ////rbaa.Min = (rbaa.Min - center) * scaleAxis;
-                    ////rbaa.Max = (rbaa.Max - center) * scaleAxis;
-                    ////MyRenderProxy.DebugDrawAABB(rbaa, new Vector3(0.8f, 0.8f, 0.8f), 1, 1, false);
+                    MyOrientedBoundingBoxD rbbb = new MyOrientedBoundingBoxD((BoundingBoxD)rb.GetEntity(0).LocalAABB, rb.GetEntity(0).WorldMatrix);
+                    rbbb.Center = (rbbb.Center - center) * scaleAxis;
+                    rbbb.HalfExtent *= scaleAxis;
+                    rbbb.Transform(previewMatrix);
 
-                    //Vector3D velocity = rb.LinearVelocity;
-                    //velocity = Vector3D.TransformNormal(velocity, previewMatrix) * 10;
-                    //MyRenderProxy.DebugDrawLine3D(rbbb.Center, rbbb.Center + velocity, Color.Red, Color.White, false);
+                    Color color = Color.Yellow;
 
-                    //if (velocity.Length() > 1)
-                    //{
-                    //    BoundingBoxD ideal = new BoundingBoxD(rb.GetEntity().WorldAABB.Center - MyHavokCluster.IdealClusterSize / 2, rb.GetEntity().WorldAABB.Center + MyHavokCluster.IdealClusterSize / 2);
-                    //    MyOrientedBoundingBoxD idealObb = new MyOrientedBoundingBoxD(ideal, MatrixD.Identity);
-                    //    idealObb.Center = (ideal.Center - center) * scaleAxis;
-                    //    idealObb.HalfExtent *= scaleAxis;
-                    //    idealObb.Transform(previewMatrix);
-                    //    MyRenderProxy.DebugDrawOBB(idealObb, new Vector3(0, 0, 1), 1, false, false);
-                    //}
+                    if (rb.GetEntity(0).LocalAABB.Size.Max() > 1000)
+                    {
+                        color = Color.Red;
+                    }
+
+                    MyRenderProxy.DebugDrawOBB(rbbb, color, 1, false, false);
+
+                    Vector3D velocity = rb.LinearVelocity;
+                    velocity = Vector3D.TransformNormal(velocity, previewMatrix) * 10;
+                    MyRenderProxy.DebugDrawLine3D(rbbb.Center, rbbb.Center + velocity, Color.Red, Color.White, false);
                 }
             }
         }
@@ -954,8 +960,8 @@ namespace Sandbox.Engine.Physics
 
             foreach (var world in m_resultWorlds)
             {
-                Vector3 fromF = from - world.AABB.Center;
-                Vector3 toF = to - world.AABB.Center;
+                Vector3D fromF = (Vector3D)(from - world.AABB.Center);
+                Vector3D toF = (Vector3D)(to - world.AABB.Center);
 
                 m_resultHits.Clear();
 
@@ -1008,8 +1014,8 @@ namespace Sandbox.Engine.Physics
 
             foreach (var world in m_resultWorlds)
             {
-                Vector3 fromF = from - world.AABB.Center;
-                Vector3 toF = to - world.AABB.Center;
+                Vector3 fromF = (Vector3)(from - world.AABB.Center);
+                Vector3 toF = (Vector3)(to - world.AABB.Center);
 
                 HkWorld.HitInfo? info = ((HkWorld)world.UserData).CastRay(fromF, toF, raycastFilterLayer);
 
@@ -1522,9 +1528,9 @@ namespace Sandbox.Engine.Physics
         /// <param name="activationHandler"></param>
         /// <param name="customId"></param>
         /// <returns></returns>
-        public static ulong AddObject(BoundingBoxD bbox, Vector3 velocity, MyPhysicsBody activationHandler, ulong? customId)
+        public static ulong AddObject(BoundingBoxD bbox, MyPhysicsBody activationHandler, ulong? customId, string tag, long entityId)
         {
-            ulong tmp = Clusters.AddObject(bbox, velocity, activationHandler, customId);
+            ulong tmp = Clusters.AddObject(bbox, activationHandler, customId, tag, entityId);
 
             if (tmp == MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED)
             {
@@ -1547,17 +1553,66 @@ namespace Sandbox.Engine.Physics
             Clusters.GetAll(results);
         }
 
-        public static void UpdateGravity(float ratio)
+        void EnsureClusterSpace()
         {
-            Clusters.GetAll(m_resultWorlds);
-
-            foreach (var world in m_resultWorlds)
+            foreach (var actRB in m_iterationBodies)
             {
-                ((HkWorld)world.UserData).Gravity = new Vector3(0.0f, -9.81f, 0.0f) * ratio;
+                if (actRB.LinearVelocity.LengthSquared() > 0.1f)
+                {
+                    var aabb = MyClusterTree.AdjustAABBByVelocity(actRB.GetEntity(0).WorldAABB, actRB.LinearVelocity);
+                    Clusters.EnsureClusterSpace(aabb);
+                }
             }
-            m_resultWorlds.Clear();
+
+            foreach (var charRB in m_characterIterationBodies)
+            {
+                if (charRB.LinearVelocity.LengthSquared() > 0.1f)
+                {
+                    var aabb = MyClusterTree.AdjustAABBByVelocity(((MyPhysicsBody)charRB.GetHitRigidBody().UserObject).Entity.PositionComp.WorldAABB,charRB.LinearVelocity);
+                    Clusters.EnsureClusterSpace(aabb);
+                }
+            }
         }
 
+        public static void SerializeClusters(List<BoundingBoxD> list)
+        {
+            Clusters.Serialize(list);
+        }
+
+        public static void DeserializeClusters(List<BoundingBoxD> list)
+        {
+            System.Diagnostics.Debug.Assert(MyFakes.MP_SYNC_CLUSTERTREE, "Cannot deserialize clusters if sync is not enabled");
+
+            Clusters.Deserialize(list);
+        }
+
+        void Tree_OnClustersReordered()
+        {
+            ClustersNeedSync = true;
+        }
+        
+        [Event, Reliable, Broadcast]
+        private static void OnClustersReorderer(List<BoundingBoxD> list)
+        {
+            VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.MPositions2, "Tree_OnClustersReordered Client (" + list.Count + ")");
+            DeserializeClusters(list);
+        }
+
+        internal static void ForceClustersReorder()
+        {
+            Clusters.ReorderClusters(new BoundingBoxD(Vector3D.MinValue, Vector3D.MaxValue));
+        }
+
+        //Entirely debug function that has no place here. Remove once a crash with inconsistent clusters is resolved
+        public bool GetEntityReplicableExistsById(long entityId)
+        {
+            var entity = MyEntities.GetEntityByIdOrDefault(entityId);
+            if (entity != null)
+            {
+                return Sandbox.Game.Replication.MyExternalReplicable.FindByObject(entity) != null;
+            }
+            return false;
+        }
     }
 
 }

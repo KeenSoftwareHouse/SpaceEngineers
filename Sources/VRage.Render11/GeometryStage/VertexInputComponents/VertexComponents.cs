@@ -1,12 +1,8 @@
-﻿using SharpDX.D3DCompiler;
-using SharpDX.Direct3D;
+﻿using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Buffer = SharpDX.Direct3D11.Buffer;
 
 namespace VRageRender
 {
@@ -14,7 +10,7 @@ namespace VRageRender
 
     internal abstract class MyComponent
     {
-        internal static int NextIndex(Dictionary<string, int> dict, string name)
+        private static int NextIndex(Dictionary<string, int> dict, string name)
         {
             int val = 0;
             if (dict.TryGetValue(name, out val))
@@ -29,9 +25,20 @@ namespace VRageRender
             return val;
         }
 
-        public static ShaderMacro[] GetComponentMacros(string declaration, string transferCode)
+        public static ShaderMacro[] GetComponentMacros(string declaration, string transferCode, MyVertexInputComponent[] components)
         {
-            return new ShaderMacro[] { new ShaderMacro("VERTEX_COMPONENTS_DECLARATIONS", declaration), new ShaderMacro("TRANSFER_VERTEX_COMPONENTS", transferCode) };
+            ShaderMacro macroDecl = new ShaderMacro("VERTEX_COMPONENTS_DECLARATIONS", declaration);
+            ShaderMacro macroTransfer = new ShaderMacro("TRANSFER_VERTEX_COMPONENTS", transferCode);
+            bool isTexIndices = false;
+            foreach (var comp in components)
+            {
+                if (comp.Type == MyVertexInputComponentType.TEXINDICES)
+                    isTexIndices = true;
+            }
+            if (isTexIndices)
+                return new ShaderMacro[] {macroDecl, macroTransfer, new ShaderMacro("USE_TEXTURE_INDICES", null), };
+            else
+                return new ShaderMacro[] { macroDecl, macroTransfer };
         }
 
         protected static void AddSingle(string name, string variable, Format format, MyVertexInputComponent component,
@@ -86,6 +93,18 @@ namespace VRageRender
         }
     }
 
+    internal sealed class MyPosition4Component : MyComponent
+    {
+        internal override void AddComponent(MyVertexInputComponent component,
+            List<InputElement> list, Dictionary<string, int> dict,
+            StringBuilder declaration, StringBuilder code)
+        {
+            AddSingle("POSITION", "float4 position", Format.R32G32B32A32_Float, component, list, dict, declaration);
+
+            code.Append("__position_object = input.position;\\\n");
+        }
+    }
+
     internal sealed class MyPosition4HalfComponent : MyComponent
     {
         internal override void AddComponent(MyVertexInputComponent component,
@@ -122,8 +141,8 @@ namespace VRageRender
             List<InputElement> list, Dictionary<string, int> dict,
             StringBuilder declaration, StringBuilder code)
         {
-            AddSingle("NORMAL", "float4 normal", Format.R8G8B8A8_UNorm, component, list, dict, declaration);
-            AddSingle("NORMAL", "float4 normal_morph", Format.R8G8B8A8_UNorm, component, list, dict, declaration);
+            AddSingle("NORMAL", "uint2 normal", Format.R16G16_UInt, component, list, dict, declaration);
+            AddSingle("NORMAL", "uint2 normal_morph", Format.R16G16_UInt, component, list, dict, declaration);
 
             code.Append("__normal = unpack_normal(input.normal);\\\n");
             code.Append("__normal_morph = unpack_normal(input.normal_morph);\\\n");
@@ -172,7 +191,7 @@ namespace VRageRender
             List<InputElement> list, Dictionary<string, int> dict,
             StringBuilder declaration, StringBuilder code)
         {
-            AddSingle("NORMAL", "float4 normal", Format.R8G8B8A8_UNorm, component, list, dict, declaration);
+            AddSingle("NORMAL", "uint2 normal", Format.R16G16_UInt, component, list, dict, declaration);
 
             code.Append("__normal = unpack_normal(input.normal);\\\n");
         }
@@ -223,6 +242,16 @@ namespace VRageRender
             AddSingle("COLOR", "float4 color", Format.R8G8B8A8_UNorm, component, list, dict, declaration);
 
             code.Append("__color = input.color;\\\n");
+        }
+    }
+
+    internal sealed class MyCustom4_0Component : MyComponent
+    {
+        internal override void AddComponent(MyVertexInputComponent component,
+            List<InputElement> list, Dictionary<string, int> dict,
+            StringBuilder declaration, StringBuilder code)
+        {
+            AddSingle("TEXCOORD", "float4 custom4_0", Format.R32G32B32A32_Float, component, list, dict, declaration);
         }
     }
 
@@ -322,36 +351,68 @@ namespace VRageRender
         }
     }
 
+    internal sealed class MySimpleInstanceComponent : MyComponent
+    {
+        internal override void AddComponent(MyVertexInputComponent component,
+            List<InputElement> list, Dictionary<string, int> dict,
+            StringBuilder declaration, StringBuilder code)
+        {
+            AddSingle("TEXCOORD", "float4 matrix_row0", Format.R32G32B32A32_Float, component, list, dict, declaration);
+            AddSingle("TEXCOORD", "float4 matrix_row1", Format.R32G32B32A32_Float, component, list, dict, declaration);
+            AddSingle("TEXCOORD", "float4 matrix_row2", Format.R32G32B32A32_Float, component, list, dict, declaration);
+            
+            code.Append("__instance_matrix = construct_matrix_43(input.matrix_row0, input.matrix_row1, input.matrix_row2);\\\n");
+        }
+    }
+
+    internal sealed class MySimpleInstanceColoringComponent : MyComponent
+    {
+        internal override void AddComponent(MyVertexInputComponent component,
+            List<InputElement> list, Dictionary<string, int> dict,
+            StringBuilder declaration, StringBuilder code)
+        {
+            AddSingle("TEXCOORD", "float4 instance_keyColorDithering", Format.R16G16B16A16_Float, component, list, dict, declaration);
+            AddSingle("TEXCOORD", "float4 instance_colorMultEmissivity", Format.R16G16B16A16_Float, component, list, dict, declaration);
+
+            code.Append("__instance_keyColor = input.instance_keyColorDithering.xyz;\\\n");
+            code.Append("__instance_dithering = input.instance_keyColorDithering.w;\\\n");
+            code.Append("__instance_colorMult = input.instance_colorMultEmissivity.xyz;\\\n");
+            code.Append("__instance_emissivity = input.instance_colorMultEmissivity.w;\\\n");
+        }
+    }
     #endregion
 
     partial class MyVertexInputLayout
     {
-        internal static Dictionary<MyVertexInputComponentType, MyComponent> m_mapComponent = new Dictionary<MyVertexInputComponentType, MyComponent>();
+        internal static readonly Dictionary<MyVertexInputComponentType, MyComponent> MapComponent = new Dictionary<MyVertexInputComponentType, MyComponent>();
 
         static void InitComponentsMap()
         {
-            m_mapComponent[MyVertexInputComponentType.POSITION_PACKED] = new MyPositionPackedComponent();
-            m_mapComponent[MyVertexInputComponentType.POSITION2] = new MyPosition2Component();
-            m_mapComponent[MyVertexInputComponentType.POSITION3] = new MyPosition3Component();
-            m_mapComponent[MyVertexInputComponentType.POSITION4_H] = new MyPosition4HalfComponent();
-            m_mapComponent[MyVertexInputComponentType.VOXEL_POSITION_MAT] = new MyVoxelPositionMaterialComponent();
-            m_mapComponent[MyVertexInputComponentType.CUBE_INSTANCE] = new MyCubeInstanceComponent();
-            m_mapComponent[MyVertexInputComponentType.GENERIC_INSTANCE] = new MyGenericInstanceComponent();
-            m_mapComponent[MyVertexInputComponentType.BLEND_INDICES] = new MyBlendIndicesComponent();
-            m_mapComponent[MyVertexInputComponentType.BLEND_WEIGHTS] = new MyBlendWeightsComponent();
-            m_mapComponent[MyVertexInputComponentType.COLOR4] = new MyColor4Component();
-            m_mapComponent[MyVertexInputComponentType.CUSTOM_HALF4_0] = new MyCustomHalf4_0Component();
-            m_mapComponent[MyVertexInputComponentType.CUSTOM_HALF4_1] = new MyCustomHalf4_1Component();
-            m_mapComponent[MyVertexInputComponentType.CUSTOM_HALF4_2] = new MyCustomHalf4_2Component();
-            m_mapComponent[MyVertexInputComponentType.CUSTOM_UNORM4_0] = new MyCustomUnorm4_0Component();
-            m_mapComponent[MyVertexInputComponentType.CUSTOM_UNORM4_1] = new MyCustomUnorm4_1Component();
-            m_mapComponent[MyVertexInputComponentType.TEXCOORD0_H] = new MyTexcoord0HalfComponent();
-            m_mapComponent[MyVertexInputComponentType.TEXCOORD0] = new MyTexcoord0Component();
-            m_mapComponent[MyVertexInputComponentType.TEXINDICES] = new MyTexIndicesComponent();
-            m_mapComponent[MyVertexInputComponentType.NORMAL] = new MyNormalComponent();
-            m_mapComponent[MyVertexInputComponentType.VOXEL_NORMAL] = new MyVoxelNormalComponent();
-            m_mapComponent[MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT] = new MyTangentBitanSgnComponent();
-            
+            MapComponent[MyVertexInputComponentType.POSITION_PACKED] = new MyPositionPackedComponent();
+            MapComponent[MyVertexInputComponentType.POSITION2] = new MyPosition2Component();
+            MapComponent[MyVertexInputComponentType.POSITION3] = new MyPosition3Component();
+            MapComponent[MyVertexInputComponentType.POSITION4] = new MyPosition4Component();
+            MapComponent[MyVertexInputComponentType.POSITION4_H] = new MyPosition4HalfComponent();
+            MapComponent[MyVertexInputComponentType.VOXEL_POSITION_MAT] = new MyVoxelPositionMaterialComponent();
+            MapComponent[MyVertexInputComponentType.CUBE_INSTANCE] = new MyCubeInstanceComponent();
+            MapComponent[MyVertexInputComponentType.GENERIC_INSTANCE] = new MyGenericInstanceComponent();
+            MapComponent[MyVertexInputComponentType.SIMPLE_INSTANCE] = new MySimpleInstanceComponent();
+            MapComponent[MyVertexInputComponentType.SIMPLE_INSTANCE_COLORING] = new MySimpleInstanceColoringComponent(); 
+            MapComponent[MyVertexInputComponentType.BLEND_INDICES] = new MyBlendIndicesComponent();
+            MapComponent[MyVertexInputComponentType.BLEND_WEIGHTS] = new MyBlendWeightsComponent();
+            MapComponent[MyVertexInputComponentType.COLOR4] = new MyColor4Component();
+            MapComponent[MyVertexInputComponentType.CUSTOM_HALF4_0] = new MyCustomHalf4_0Component();
+            MapComponent[MyVertexInputComponentType.CUSTOM_HALF4_1] = new MyCustomHalf4_1Component();
+            MapComponent[MyVertexInputComponentType.CUSTOM_HALF4_2] = new MyCustomHalf4_2Component();
+            MapComponent[MyVertexInputComponentType.CUSTOM_UNORM4_0] = new MyCustomUnorm4_0Component();
+            MapComponent[MyVertexInputComponentType.CUSTOM_UNORM4_1] = new MyCustomUnorm4_1Component();
+            MapComponent[MyVertexInputComponentType.TEXCOORD0_H] = new MyTexcoord0HalfComponent();
+            MapComponent[MyVertexInputComponentType.TEXCOORD0] = new MyTexcoord0Component();
+            MapComponent[MyVertexInputComponentType.TEXINDICES] = new MyTexIndicesComponent();
+            MapComponent[MyVertexInputComponentType.NORMAL] = new MyNormalComponent();
+            MapComponent[MyVertexInputComponentType.VOXEL_NORMAL] = new MyVoxelNormalComponent();
+            MapComponent[MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT] = new MyTangentBitanSgnComponent();
+            MapComponent[MyVertexInputComponentType.CUSTOM4_0] = new MyCustom4_0Component();
         }
     }
 }

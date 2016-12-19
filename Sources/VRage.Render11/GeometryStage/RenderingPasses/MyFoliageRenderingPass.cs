@@ -3,7 +3,9 @@ using SharpDX.Direct3D;
 using VRage.Render11.Common;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
+using VRage.Stats;
 using VRageMath;
+using VRageRender.Utils;
 
 namespace VRageRender
 {
@@ -133,7 +135,9 @@ namespace VRageRender
                 if (!removeDitheringInProgress && foliageComponent.Owner.CalculateCameraDistance() < MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance())
                 {
                     if (viewFrustum.Contains(foliageComponent.Owner.Aabb) != ContainmentType.Disjoint)
+                    {
                         foliageComponent.Render(this);
+                    }
                 }
             }
 

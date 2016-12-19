@@ -93,7 +93,7 @@ namespace Sandbox.Game.Entities
         public static MyEntity Spawn(ref MyPhysicalInventoryItem item, Vector3 position, Vector3 speed)
         {
             var builder = PrepareBuilder(ref item);
-            var meteorEntity = MyEntities.CreateFromObjectBuilderNoinit(builder);
+            var meteorEntity = MyEntities.CreateFromObjectBuilderNoinit(builder, false);
             MyEntities.CreateFromObjectBuilderParallel(builder, true, delegate() { SetSpawnSettings(meteorEntity, position, speed); }, meteorEntity);
             return meteorEntity;
         }
@@ -140,7 +140,7 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
-        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler, MyStringHash material)
         {
             // TODO
         }
@@ -199,8 +199,6 @@ namespace Sandbox.Game.Entities
             {
                 Entity.SyncFlag = true;
                 base.Init(objectBuilder);
-                Entity.SyncObject.MarkPhysicsDirty();
-
                 var builder = (MyObjectBuilder_Meteor)objectBuilder;
                 Item = new MyPhysicalInventoryItem(builder.Item);
                 m_particleEffectNames[(int)MeteorStatus.InAtmosphere] = "Meteory_Fire_Atmosphere";
@@ -274,8 +272,16 @@ namespace Sandbox.Game.Entities
             public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
             {
                 var builder = (MyObjectBuilder_Meteor)base.GetObjectBuilder(copy);
-                builder.LinearVelocity = Entity.Physics.LinearVelocity;
-                builder.AngularVelocity = Entity.Physics.AngularVelocity;
+                if (Entity == null || Entity.Physics == null)
+                {
+                    builder.LinearVelocity = Vector3.One * 10;
+                    builder.AngularVelocity = Vector3.Zero;
+                }
+                else
+                {
+                    builder.LinearVelocity = Entity.Physics.LinearVelocity;
+                    builder.AngularVelocity = Entity.Physics.AngularVelocity;
+                }
                 if (GameLogic != null)
                 {
                     builder.Item = Item.GetObjectBuilder();

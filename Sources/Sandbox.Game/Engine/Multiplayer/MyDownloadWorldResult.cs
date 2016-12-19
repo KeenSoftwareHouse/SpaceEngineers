@@ -1,15 +1,9 @@
-﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Networking;
+﻿using Sandbox.Engine.Networking;
 using SteamSDK;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using VRage;
 using VRage.Game;
+using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Profiler;
 using VRage.Trace;
@@ -32,7 +26,7 @@ namespace Sandbox.Engine.Multiplayer
     {
         private readonly int m_channel;
         private readonly ulong m_sender;
-        private readonly MyMultipartMessage m_receiveMsg = new MyMultipartMessage();
+        private readonly MyMultipartMessage m_receiveMsg;
 
         public float Progress { get { return m_receiveMsg.Progress; } }
         public int WorldSize { get { return m_receiveMsg.BlockCount * m_receiveMsg.BlockSize; } }
@@ -45,14 +39,15 @@ namespace Sandbox.Engine.Multiplayer
         public MyObjectBuilder_World WorldData { get; private set; }
         public event Action<MyDownloadWorldResult> ProgressChanged;
 
-        MyMultiplayerBase m_mp;
+        readonly MyMultiplayerBase m_mp;
 
         public MyDownloadWorldResult(int channel, ulong sender, MyMultiplayerBase mp)
         {
             m_mp = mp;
             m_sender = sender;
             m_channel = channel;
-            MyNetworkReader.SetHandler(m_channel, MyDownloadWorldResult_Received);
+            m_receiveMsg = new MyMultipartMessage(channel);
+            MyNetworkReader.SetHandler(m_channel, MyDownloadWorldResult_Received, mp.DisconnectClient);
             SteamSDK.Peer2Peer.ConnectionFailed += Peer2Peer_ConnectionFailed;
         }
 
@@ -78,14 +73,22 @@ namespace Sandbox.Engine.Multiplayer
             Peer2Peer.ConnectionFailed -= Peer2Peer_ConnectionFailed;
         }
 
-        void MyDownloadWorldResult_Received(byte[] data, int dataSize, ulong sender, TimeSpan timestamp)
+        void MyDownloadWorldResult_Received(byte[] data, int dataSize, ulong sender, MyTimeSpan timestamp, MyTimeSpan receivedTime)
         {
             ProfilerShort.Begin("DownloadWorldChunk");
+
+            //Server didn't get the memo that we're finished (ack could've been lost)
+            if (State == MyDownloadWorldStateEnum.Success)
+            {
+                m_mp.SendAck(sender, m_channel, m_receiveMsg.BlockCount - 1, m_receiveMsg.BlockCount);
+                ProfilerShort.End();
+                return;
+            }
 
             Debug.Assert(State == MyDownloadWorldStateEnum.Established || State == MyDownloadWorldStateEnum.InProgress, "This should not be called, find why it's called");
             if (m_sender == sender)
             {
-                var status = m_receiveMsg.Compose(data, dataSize);
+                var status = m_receiveMsg.Compose(data, dataSize, sender);
                 switch (status)
                 {
                     case MyMultipartMessage.Status.InProgress:
@@ -124,7 +127,6 @@ namespace Sandbox.Engine.Multiplayer
                         break;
                 }
 
-                m_mp.SendAck(sender);
 
                 MyTrace.Send(TraceWindow.Multiplayer, String.Format("World download progress status: {0}, {1}", State.ToString(), this.Progress));
                 RaiseProgressChanged();

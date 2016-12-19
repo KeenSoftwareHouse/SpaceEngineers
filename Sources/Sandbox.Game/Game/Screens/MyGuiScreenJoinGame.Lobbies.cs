@@ -325,40 +325,8 @@ namespace Sandbox.Game.Gui
                                 m_gameTypeToolTip.AppendStringBuilder(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeCreative));
                                 break;
                             case MyGameModeEnum.Survival:
-                                bool isBattle = MyMultiplayerLobby.GetLobbyBattle(lobby);
-
-                                if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
-                                {
-                                    // Cannot join ended battles
-                                    bool battleCanBeJoined = MyMultiplayerLobby.GetLobbyBattleCanBeJoined(lobby);
-                                    if (!battleCanBeJoined)
-                                        continue;
-
-                                    m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
-                                    m_gameTypeToolTip.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
-
-                                    if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME)
-                                    {
-                                        float remainingTime = MyMultiplayerLobby.GetLobbyBattleRemainingTime(lobby);
-                                        if (remainingTime >= 0f)
-                                        {
-                                            remainingTimeSeconds = remainingTime;
-                                        }
-                                        else if (remainingTime == -1f)
-                                        {
-                                            remainingTimeText = MyTexts.Get(MyCommonTexts.JoinGame_Lobby).ToString();
-                                        }
-                                        else if (remainingTime == -2f)
-                                        {
-                                            remainingTimeText = MyTexts.Get(MyCommonTexts.JoinGame_Waiting).ToString();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    m_gameTypeText.AppendStringBuilder(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeSurvival));
-                                    m_gameTypeToolTip.AppendStringBuilder(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeSurvival));
-                                }
+                                m_gameTypeText.AppendStringBuilder(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeSurvival));
+                                m_gameTypeToolTip.AppendStringBuilder(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeSurvival));                            
                                 break;
 
                             default:

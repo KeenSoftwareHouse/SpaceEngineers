@@ -92,5 +92,45 @@ namespace Sandbox.Engine.Physics
             m_group = group as MyGroups<MyEntity, MyWeldGroupData>.Group;
             Debug.Assert(m_group != null, "Wrong group class");
         }
+
+        /// <summary>
+        /// Call when node body changes quality type (dynamic/static/doubled)
+        /// Checks if there isnt more suitable parent in the group
+        /// i.e. group parent is dynamic and there is node that is static
+        /// </summary>
+        /// <param name="oldParent">WeldInfo.Parent or self if WeldInfo.Parent is null</param>
+        /// <returns>parent changed</returns>
+        public bool UpdateParent(MyEntity oldParent)
+        {
+           // Debug.Assert(m_parents.Contains(oldParent));
+            var parentBody = oldParent.GetPhysicsBody();
+            if(parentBody.WeldedRigidBody.IsFixed)
+                return false;
+
+            MyPhysicsBody newParent = parentBody;
+            foreach (var child in parentBody.WeldInfo.Children)
+            {
+                if (child.WeldedRigidBody.IsFixed)
+                {
+                    newParent = child;
+                    break;
+                }
+
+                if (!newParent.Flags.HasFlag(VRage.Game.Components.RigidBodyFlag.RBF_DOUBLED_KINEMATIC) &&
+                    child.Flags.HasFlag(VRage.Game.Components.RigidBodyFlag.RBF_DOUBLED_KINEMATIC))
+                {
+                    newParent = child;
+                }
+            }
+
+            if (newParent == parentBody)
+                return false;
+
+            ReplaceParent((MyEntity)newParent.Entity);
+            
+            //old parent was excluded, weld it back
+            newParent.Weld(parentBody);
+            return true;
+        }
     }
 }

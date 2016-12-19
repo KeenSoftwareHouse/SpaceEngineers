@@ -131,6 +131,9 @@ namespace VRage.Game
         [DefaultValue(-1)]
         public int playedTime = -1;
 
+        [DefaultValue(1f)]
+        public float GridGeneralDamageModifier = 1f;
+
         [ProtoMember]
         public long LocalCoordSys;
 

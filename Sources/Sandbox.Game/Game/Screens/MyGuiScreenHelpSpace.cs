@@ -226,11 +226,13 @@ namespace Sandbox.Game.Gui
             // Get control for toggling the block size
             StringBuilder resizeBlockControl = null;
             MyControl cubeBuilderCubesizeModeControl = MyInput.Static.GetGameControl(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE);
-            cubeBuilderCubesizeModeControl.AppendBoundButtonNames(ref resizeBlockControl, unassignedText: MyInput.Static.GetUnassignedName());
+            if (cubeBuilderCubesizeModeControl != null)
+                cubeBuilderCubesizeModeControl.AppendBoundButtonNames(ref resizeBlockControl, unassignedText: MyInput.Static.GetUnassignedName());
 
             // Add block editing controls
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyTexts.Get(MyCommonTexts.MouseWheel), MyTexts.Get(MyCommonTexts.ControlName_ChangeBlockVariants)));
-            advancedPage2.LeftColumn.Add(new ControlWithDescription(resizeBlockControl, MyTexts.Get(cubeBuilderCubesizeModeControl.GetControlName())));
+            if (cubeBuilderCubesizeModeControl != null)
+                advancedPage2.LeftColumn.Add(new ControlWithDescription(resizeBlockControl, MyTexts.Get(cubeBuilderCubesizeModeControl.GetControlName())));
 
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_LEFT));
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_RIGHT));

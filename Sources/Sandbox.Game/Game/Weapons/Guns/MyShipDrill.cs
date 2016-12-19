@@ -206,7 +206,7 @@ namespace Sandbox.Game.Weapons
 
         protected override bool CheckIsWorking()
         {
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         protected override void OnEnabledChanged()
@@ -248,7 +248,7 @@ namespace Sandbox.Game.Weapons
         void WantstoDrillChanged()
         {
             ResourceSink.Update();
-            if ((Enabled || WantsToDrill) && IsFunctional && ResourceSink != null && ResourceSink.IsPowered)
+            if ((Enabled || WantsToDrill) && IsFunctional && ResourceSink != null && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 // starts the animation
                 if (!m_drillBase.IsDrilling)
@@ -415,7 +415,7 @@ namespace Sandbox.Game.Weapons
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.AppendFormat("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
             DetailedInfo.AppendFormat("\n");
 
             RaisePropertiesChanged();
@@ -524,7 +524,7 @@ namespace Sandbox.Game.Weapons
 
         private float ComputeRequiredPower()
         {
-            return (IsFunctional && (Enabled || WantsToDrill)) ? ResourceSink.MaxRequiredInput : 0f;
+            return (IsFunctional && (Enabled || WantsToDrill)) ? ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0f;
         }
 
         public bool UseConveyorSystem
@@ -631,7 +631,7 @@ namespace Sandbox.Game.Weapons
 
                 if (ResourceSink != null)
                 {
-                    ResourceSink.MaxRequiredInput = ComputeMaxRequiredPower() * m_powerConsumptionMultiplier;
+                    ResourceSink.SetMaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId, ComputeMaxRequiredPower() * m_powerConsumptionMultiplier);
                     ResourceSink.Update();
 
                     UpdateDetailedInfo();

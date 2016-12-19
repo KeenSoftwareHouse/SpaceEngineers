@@ -33,11 +33,37 @@ namespace Sandbox.Game.EntityComponents
 
         public new MyEntity Entity { get { return base.Entity as MyEntity; } }
 
+
+        //////////////////////////////////////////////////////////////////////
+        // Cant remove because of backward compatibility with already made scripts...
+        // Dont use in the code as proper resource type must be always provided to avoid any confusion
+        [Obsolete]
+        public float MaxRequiredInput
+        {
+            get { return MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId); }
+            set { SetMaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId, value); }
+        }
+        [Obsolete]
+        public float RequiredInput { get { return MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId); } }   
+        [Obsolete]
+        public float SuppliedRatio { get { return SuppliedRatioByType(MyResourceDistributorComponent.ElectricityId); } }
+        [Obsolete]
+        public float CurrentInput { get { return CurrentInputByType(MyResourceDistributorComponent.ElectricityId); } }
+        [Obsolete]
+        public bool IsPowered { get { return IsPoweredByType(MyResourceDistributorComponent.ElectricityId); } }
+        //////////////////////////////////////////////////////////////////////
+
+
 	    struct PerTypeData
 	    {
 	        public float CurrentInput;
 	        public float RequiredInput;
+
+            /// Theoretical maximum of required input. This can be different from RequiredInput, but
+            /// it has to be >= RequiredInput. It is used to check whether current power supply can meet
+            /// demand under stress.
 	        public float MaxRequiredInput;
+
 	        public float SuppliedRatio;
 	        public Func<float> RequiredInputFunc;
 	        public bool IsPowered;
@@ -58,17 +84,6 @@ namespace Sandbox.Game.EntityComponents
         /// are turned off first.
         /// </summary>
         internal MyStringHash Group;
-
-        /// <summary>
-        /// Theoretical maximum of required input. This can be different from RequiredInput, but
-        /// it has to be >= RequiredInput. It is used to check whether current power supply can meet
-        /// demand under stress.
-        /// </summary>
-        public float MaxRequiredInput { get { return m_dataPerType[0].MaxRequiredInput; } set { m_dataPerType[0].MaxRequiredInput = value; } }
-        public float RequiredInput { get { return m_dataPerType[0].RequiredInput; } }   // TODO: Remove these properties
-        public float SuppliedRatio { get { return m_dataPerType[0].SuppliedRatio; } }
-        public float CurrentInput { get { return m_dataPerType[0].CurrentInput; } }
-        public bool IsPowered { get { return m_dataPerType[0].IsPowered; } }
 
         public override ListReader<MyDefinitionId> AcceptedResources { get { return new ListReader<MyDefinitionId>(m_resourceIds); } }
         #endregion
@@ -205,7 +220,7 @@ namespace Sandbox.Game.EntityComponents
             }
 
             bool currentInputChanged = newResourceInput != m_dataPerType[typeIndex].CurrentInput;
-			bool isPoweredChanged = (newIsPowered != IsPowered);
+            bool isPoweredChanged = (newIsPowered != m_dataPerType[typeIndex].IsPowered);
 
             m_dataPerType[typeIndex].IsPowered = newIsPowered;
             m_dataPerType[typeIndex].SuppliedRatio = newSuppliedRatio;
@@ -226,7 +241,7 @@ namespace Sandbox.Game.EntityComponents
 				return false;
 
 	        float available = ResourceAvailable(resourceTypeId, this);
-	        return available >= power - CurrentInput;
+	        return available >= power - CurrentInputByType(resourceTypeId);
         }
 
         public void Update()
@@ -234,7 +249,7 @@ namespace Sandbox.Game.EntityComponents
             // This will fire an event which will update IsPowered and CurrentInp values.
 	        foreach (var typeId in m_resourceTypeToIndex.Keys)
 	        {
-				SetRequiredInputByType(typeId, m_dataPerType[GetTypeIndex(typeId)].RequiredInputFunc());
+                SetRequiredInputByType(typeId, m_dataPerType[GetTypeIndex(typeId)].RequiredInputFunc());
 	        }
         }
 
@@ -265,13 +280,15 @@ namespace Sandbox.Game.EntityComponents
         public override void SetRequiredInputByType(MyDefinitionId resourceTypeId, float newRequiredInput)
 		{
 			int typeIndex = GetTypeIndex(resourceTypeId);
-			if (m_dataPerType[typeIndex].RequiredInput == newRequiredInput)
-				return;
+            if (m_dataPerType[typeIndex].RequiredInput == newRequiredInput)
+                return;
 
 			float oldValue = m_dataPerType[typeIndex].RequiredInput;
-			m_dataPerType[typeIndex].RequiredInput = newRequiredInput;
-			if (RequiredInputChanged != null)
-				RequiredInputChanged(resourceTypeId, this, oldValue, newRequiredInput);
+
+            m_dataPerType[typeIndex].RequiredInput = newRequiredInput;
+
+            if (RequiredInputChanged != null)
+                RequiredInputChanged(resourceTypeId, this, oldValue, newRequiredInput);
 		}
 
         /// <summary>
@@ -296,16 +313,16 @@ namespace Sandbox.Game.EntityComponents
 			return typeIndex;
 		}
 
-		public override string ToString()
-		{
-			const string separator = "; \n";
-			m_textCache.Clear();
-			m_textCache.AppendFormat("IsPowered: {0}", IsPowered).Append(separator);
-			m_textCache.Append("Input: "); MyValueFormatter.AppendWorkInBestUnit(CurrentInput, m_textCache); m_textCache.Append(separator);
-			m_textCache.Append("Required: "); MyValueFormatter.AppendWorkInBestUnit(RequiredInput, m_textCache); m_textCache.Append(separator);
-			m_textCache.AppendFormat("Ratio: {0}%", SuppliedRatio * 100f);
-			return m_textCache.ToString();
-		}
+        //public override string ToString()
+        //{
+        //    const string separator = "; \n";
+        //    m_textCache.Clear();
+        //    m_textCache.AppendFormat("IsPowered: {0}", IsPowered).Append(separator);
+        //    m_textCache.Append("Input: "); MyValueFormatter.AppendWorkInBestUnit(CurrentInput, m_textCache); m_textCache.Append(separator);
+        //    m_textCache.Append("Required: "); MyValueFormatter.AppendWorkInBestUnit(RequiredInput, m_textCache); m_textCache.Append(separator);
+        //    m_textCache.AppendFormat("Ratio: {0}%", SuppliedRatio * 100f);
+        //    return m_textCache.ToString();
+        //}
 
         public void DebugDraw(Matrix worldMatrix)
         {

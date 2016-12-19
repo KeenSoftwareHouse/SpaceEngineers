@@ -17,7 +17,7 @@ namespace Sandbox.Game.Entities
     {
         private float GlareQuerySizeDef
         {
-            get { return CubeGrid.GridScale * (IsLargeLight ? 3 : 1); }
+            get { return CubeGrid.GridScale * (IsLargeLight ? 0.5f : 0.1f); }
         }
         private float ReflectorGlareSizeDef
         {
@@ -39,7 +39,7 @@ namespace Sandbox.Game.Entities
             light.DiffuseFactor = 3.14f;
             light.PointLightOffset = 0.15f;
 
-            light.GlareOn = true;
+            light.GlareOn = light.LightOn;
             light.GlareIntensity = 1f;
             light.GlareQuerySize = GlareQuerySizeDef;
             light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
@@ -50,11 +50,10 @@ namespace Sandbox.Game.Entities
         protected override void UpdateIntensity()
         {
             ProfilerShort.Begin("UpdateIntensity");
-            var intensity = Render.CurrentLightPower * Intensity * 0.3f;
-            var reflIntensity = Render.CurrentLightPower * Intensity;
-            m_light.ReflectorIntensity = reflIntensity;
-            m_light.Intensity = intensity;
-            m_light.GlareIntensity = intensity;
+            var intensity = Render.CurrentLightPower * Intensity;
+            m_light.ReflectorIntensity = intensity;
+            m_light.Intensity = intensity * 0.3f;
+            m_light.GlareIntensity = intensity * 0.6f;
             Render.BulbColor = ComputeBulbColor();
             ProfilerShort.End();
         }
@@ -62,6 +61,11 @@ namespace Sandbox.Game.Entities
         public override void UpdateVisual()
         {
             base.UpdateVisual();
+            
+            //Changing color changes parent in render
+            m_light.ParentID = Render.GetRenderObjectID();
+            m_light.UpdateLight();
+
             UpdateEmissivity(true);
         }
 

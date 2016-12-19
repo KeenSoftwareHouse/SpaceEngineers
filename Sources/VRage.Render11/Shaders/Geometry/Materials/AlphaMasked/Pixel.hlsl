@@ -4,30 +4,40 @@
 #include <Math/Color.hlsli>
 #include <Geometry/AlphamaskViews.hlsli>
 
-float4 sampleColor(float2 uv, int index, int subIndex = 0, float2 uvDelta = float2(0,0))
+float2 transformUV(int index, float3 inCDir)
+{
+	float3x3 m = (float3x3)alphamask_constants.impostor_view_matrix[index];
+	float3 trTex = mul(inCDir, m);
+	trTex = (trTex / 2.0 + 0.5);
+	trTex.y = 1 - trTex.y;
+	return trTex.xy;
+}
+
+#define TREE_SCALE 20
+
+float4 sampleColor(float3 cDir, float2 uv, int index, int subIndex = 0)
 {
 	uint NT = 181;
 
+    uv = transformUV(index, cDir / TREE_SCALE);
 	float3 tex = float3(uv, (index * 2 + subIndex));
 	return AlphaMaskArrayTexture.Sample(AlphamaskArraySampler, tex);
 }
 
-float4 sampleTree(float2 uv, int index, float2 uvDelta = float2(0,0))
+float4 sampleTree(float3 cDir, float2 uv, int index)
 {
-	return sampleColor(uv, index, 1, uvDelta);
+	return sampleColor(cDir, uv, index, 1);
 }
-
-#define TREE_SCALE 20
 
 #define THREE_SAMPLES 1
 #define ALTER_DEPTH 1
 
 float4 FetchImpostorExtras(PixelInterface pixel)
 {
-	float4 t1 = sampleTree(pixel.custom.texcoord0, pixel.custom.view_indices.x);
+	float4 t1 = sampleTree(pixel.custom.cDir, pixel.custom.texcoord0, pixel.custom.view_indices.x);
 #ifdef THREE_SAMPLES
-	float4 t2 = sampleTree(pixel.custom.texcoord0, pixel.custom.view_indices.y);
-	float4 t3 = sampleTree(pixel.custom.texcoord0, pixel.custom.view_indices.z);
+	float4 t2 = sampleTree(pixel.custom.cDir, pixel.custom.texcoord0, pixel.custom.view_indices.y);
+	float4 t3 = sampleTree(pixel.custom.cDir, pixel.custom.texcoord0, pixel.custom.view_indices.z);
 
     float4 tIt = (t1 * pixel.custom.view_blends.x + t2 * pixel.custom.view_blends.y + t3 * pixel.custom.view_blends.z);
  #else
@@ -39,10 +49,10 @@ float4 FetchImpostorExtras(PixelInterface pixel)
 float3 FetchImpostorNormal(PixelInterface pixel, float mainDepth)
 {
     const float delta = 1.0f / 255.0f;
-	float tx1 = sampleTree(pixel.custom.texcoord0 + float2(-delta, 0), pixel.custom.view_indices.x).r;
-	float tx2 = sampleTree(pixel.custom.texcoord0 + float2(delta, 0), pixel.custom.view_indices.x).r;
-	float ty1 = sampleTree(pixel.custom.texcoord0 + float2(0, -delta), pixel.custom.view_indices.x).r;
-	float ty2 = sampleTree(pixel.custom.texcoord0 + float2(0, delta), pixel.custom.view_indices.x).r;
+	float tx1 = sampleTree(pixel.custom.cDir, pixel.custom.texcoord0 + float2(-delta, 0), pixel.custom.view_indices.x).r;
+	float tx2 = sampleTree(pixel.custom.cDir, pixel.custom.texcoord0 + float2(delta, 0), pixel.custom.view_indices.x).r;
+	float ty1 = sampleTree(pixel.custom.cDir, pixel.custom.texcoord0 + float2(0, -delta), pixel.custom.view_indices.x).r;
+	float ty2 = sampleTree(pixel.custom.cDir, pixel.custom.texcoord0 + float2(0, delta), pixel.custom.view_indices.x).r;
     float2 xy = float2(((mainDepth - tx1) + (tx2 - mainDepth)) / 2, ((mainDepth - ty1) + (ty2 - mainDepth)) / 2);
     float z = 0.1;
     
@@ -51,10 +61,10 @@ float3 FetchImpostorNormal(PixelInterface pixel, float mainDepth)
 
 float4 FetchImpostorCM(PixelInterface pixel, float4 extras)
 {
-	float4 cm1 = sampleColor(pixel.custom.texcoord0, pixel.custom.view_indices.x);
+	float4 cm1 = sampleColor(pixel.custom.cDir, pixel.custom.texcoord0, pixel.custom.view_indices.x);
 #ifdef THREE_SAMPLES
-	float4 cm2 = sampleColor(pixel.custom.texcoord0, pixel.custom.view_indices.y);
-	float4 cm3 = sampleColor(pixel.custom.texcoord0, pixel.custom.view_indices.z);
+	float4 cm2 = sampleColor(pixel.custom.cDir, pixel.custom.texcoord0, pixel.custom.view_indices.y);
+	float4 cm3 = sampleColor(pixel.custom.cDir, pixel.custom.texcoord0, pixel.custom.view_indices.z);
 	return (cm1 * pixel.custom.view_blends.x + cm2 * pixel.custom.view_blends.y + cm3 * pixel.custom.view_blends.z);
 #else
     return cm1;
@@ -90,14 +100,18 @@ void RenderArray(PixelInterface pixel, inout MaterialOutputInterface output)
 
 void RenderSingle(PixelInterface pixel, inout MaterialOutputInterface output)
 {
+#ifdef USE_TEXTURE_INDICES
 	output.coverage = AlphamaskCoverageAndClip(0.5f, pixel.custom.texcoord0, pixel.custom.texIndices.w);
+#else
+	output.coverage = AlphamaskCoverageAndClip(0.5f, pixel.custom.texcoord0, 0);
+#endif
 
 #ifndef DEPTH_ONLY
 #ifdef USE_TEXTURE_INDICES
 	float4 texIndices = pixel.custom.texIndices;
-	float4 cm = ColorMetalTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.x));
-	float4 ng = NormalGlossTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.y));
-	float4 extras = ExtensionsTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.z));
+	float4 cm = ColorMetalArrayTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.x));
+	float4 ng = NormalGlossArrayTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.y));
+	float4 extras = ExtensionsArrayTexture.Sample(TextureSampler, float3(pixel.custom.texcoord0, texIndices.z));
 #else
 	float4 cm = ColorMetalTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 	float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);

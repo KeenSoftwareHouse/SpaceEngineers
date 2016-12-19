@@ -55,7 +55,12 @@ namespace VRage.Game.Components
             return result;
         }
 
-        public abstract IMyUseObject RaycastDetectors(Vector3D worldFrom, Vector3D worldTo, out float distance);
+        /// <summary>
+        /// Determine whether the given ray intersects any detector. If so, returns
+        /// the parametric value of the point of first intersection.
+        /// PARAMATER IS NOT DISTANCE!
+        /// </summary>
+        public abstract IMyUseObject RaycastDetectors(Vector3D worldFrom, Vector3D worldTo, out float parameter);
 
         public ListReader<Matrix> GetDetectors(string detectorName)
         {

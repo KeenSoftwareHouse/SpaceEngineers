@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -41,8 +42,13 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
             if (m_methodInfo == null)
             {
                 var methodName = ObjectBuilder.Type.Remove(0, ObjectBuilder.Type.LastIndexOf('.') + 1);
-                methodName = methodName.Remove(methodName.IndexOf('('));
-                m_methodInfo = scriptBaseType.GetMethod(methodName);
+                var indexOfParenthesis = methodName.IndexOf('(');
+
+                if (scriptBaseType != null && indexOfParenthesis > 0)
+                {
+                    methodName = methodName.Remove(indexOfParenthesis);
+                    m_methodInfo = scriptBaseType.GetMethod(methodName);
+                }
             }
 
             // Check instance methods
@@ -55,6 +61,13 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                 {
                     m_methodInfo = MyVisualScriptingProxy.GetMethod(declaringType, ObjectBuilder.Type);
                 }
+            }
+
+            // Look for extension
+            if (m_methodInfo == null && !string.IsNullOrEmpty(ObjectBuilder.ExtOfType))
+            {
+                var extensionOfType = MyVisualScriptingProxy.GetType(ObjectBuilder.ExtOfType);
+                m_methodInfo = MyVisualScriptingProxy.GetMethod(extensionOfType, ObjectBuilder.Type);
             }
 
             Debug.Assert(m_methodInfo != null,
@@ -88,24 +101,34 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
             // Create container variables for output parameters.
             // Assign correct identifiers to method call.
             var args = new List<SyntaxNodeOrToken>();
-            foreach (var parameter in m_methodInfo.GetParameters())
+            var parameters = m_methodInfo.GetParameters();
+            var index = 0;
+
+            // Skip the first parameter for extension methods. 
+            if (m_methodInfo.IsDefined(typeof(ExtensionAttribute), false))
+                index++;
+
+            for (; index < parameters.Length; index++)
             {
+                var parameter = parameters[index];
                 // Create container variables for output parameters.
                 if (parameter.IsOut)
                 {
                     // Output parameters
                     var localOutputVariableName = VariableSyntaxName(parameter.Name);
                     // add variable creation expression
-                    expressions.Add(MySyntaxFactory.LocalVariable("var", localOutputVariableName));
+                    expressions.Add(MySyntaxFactory.LocalVariable(parameter.ParameterType.GetElementType().Signature(), localOutputVariableName));
                     // add variable name to parameters
                     args.Add(SyntaxFactory.Argument(
                         SyntaxFactory.IdentifierName(localOutputVariableName)
                         ).WithNameColon(SyntaxFactory.NameColon(parameter.Name))
+                        .WithRefOrOutKeyword(SyntaxFactory.Token(SyntaxKind.OutKeyword)
+                        )
                         );
                 }
                 // Get the names of the variables supplying the values to the method call
 
-                  else
+                else
                 {
                     // Find the value input node
                     MyTuple<MyVisualSyntaxNode, MyVariableIdentifier> inputData;
@@ -116,8 +139,8 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                         var variableName = inputData.Item1.VariableSyntaxName(inputData.Item2.VariableName);
                         Debug.Assert(variableName != null);
                         args.Add(SyntaxFactory.Argument(
-                                SyntaxFactory.IdentifierName(
-                                    variableName
+                            SyntaxFactory.IdentifierName(
+                                variableName
                                 )
                             ).WithNameColon(SyntaxFactory.NameColon(parameter.Name))
                             );
@@ -125,19 +148,19 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                     else
                     {
                         // Not FOUND! will be probably an constant argument
-                        var paramValue = ObjectBuilder.InputParameterValues.Find(value => value.ParameterName == parameter.Name);
+                        var paramValue =
+                            ObjectBuilder.InputParameterValues.Find(value => value.ParameterName == parameter.Name);
                         if (paramValue == null)
                         {
                             // Dont panic, there could be still the default value.
-                            if(!parameter.HasDefaultValue)
+                            if (!parameter.HasDefaultValue)
                             {
                                 // Add null / some default value
                                 args.Add(
                                     MySyntaxFactory.ConstantDefaultArgument(parameter.ParameterType)
                                         .WithNameColon(SyntaxFactory.NameColon(parameter.Name))
                                     );
-                                                    
-                            } 
+                            }
                             else
                             {
                                 // default value will take care of this
@@ -165,7 +188,7 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
 
             // Create the invocation syntax 
             InvocationExpressionSyntax methodInvocation = null;
-            if (m_methodInfo.IsStatic)
+            if (m_methodInfo.IsStatic && !m_methodInfo.IsDefined(typeof(ExtensionAttribute)))
             {
                 // Static call
                 methodInvocation = MySyntaxFactory.MethodInvocationExpressionSyntax(
@@ -184,7 +207,7 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                         SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(args))
                         );
                 }
-                // Non static instance method invocation
+                // Non static instance method invocation or extension method
                 else
                 {
                     if(m_instance == null)
@@ -193,7 +216,7 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                             " Is missing mandatory instance input.");
                     }
 
-                    var instanceVariableName = m_instance.VariableSyntaxName();
+                    var instanceVariableName = m_instance.VariableSyntaxName(ObjectBuilder.InstanceInputID.VariableName);
                     methodInvocation = MySyntaxFactory.MethodInvocationExpressionSyntax(
                         SyntaxFactory.IdentifierName(m_methodInfo.Name),
                         SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(args)),
@@ -215,7 +238,7 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                 // Create variable for return value
                 expressions.Add(
                     MySyntaxFactory.LocalVariable(
-                        m_methodInfo.ReturnType.FullName,
+                        string.Empty,
                         VariableSyntaxName("Return"),
                         methodInvocation
                     )
@@ -284,8 +307,14 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                 }
                 else
                 {
-                    foreach (var parameter in parameters)
+                    var index = 0;
+                    // Skip the first parameter for extension methods.
+                    if (m_methodInfo.IsDefined(typeof(ExtensionAttribute), false))
+                        index++;
+
+                    for (; index < parameters.Length; index++)
                     {
+                        var parameter = parameters[index];
                         // Find the node node identifier in the OB
                         var identifier =
                             ObjectBuilder.InputParameterIDs.Find(ident => ident.OriginName == parameter.Name);
@@ -296,11 +325,11 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                         var inputNode = Navigator.GetNodeByID(identifier.NodeID);
                         if (inputNode == null)
                         {
-                            if (!parameter.HasDefaultValue) 
-                            { 
+                            if (!parameter.HasDefaultValue)
+                            {
                                 Debug.Fail("FunctionNode: " + ObjectBuilder.ID + " Input node missing! NodeID: "
-                                                    + identifier.NodeID + " Function Signature:" + m_methodInfo.Signature() +
-                                                    " parameter: " + parameter.Name);
+                                           + identifier.NodeID + " Function Signature:" + m_methodInfo.Signature() +
+                                           " parameter: " + parameter.Name);
                             }
 
                             continue;

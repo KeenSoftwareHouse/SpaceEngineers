@@ -10,7 +10,7 @@ using VRageMath;
 
 namespace Sandbox.Game.SessionComponents
 {
-    [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate, 555, typeof(MyObjectBuilder_SectorWeatherComponent))]
+    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, 555, typeof(MyObjectBuilder_SectorWeatherComponent))]
     public class MySectorWeatherComponent : MySessionComponentBase
     {
         // ReSharper disable CompareOfFloatsByEqualityOperator
@@ -77,6 +77,8 @@ namespace Sandbox.Game.SessionComponents
 
         public override void UpdateBeforeSimulation()
         {
+            if (!Enabled)
+                return;
             var sunDirection = CalculateSunDirection();
 
             MySector.SunProperties.SunDirectionNormalized = sunDirection;
@@ -96,14 +98,6 @@ namespace Sandbox.Game.SessionComponents
         {
             set
             {
-                if (m_enabled != value)
-                {
-                    if (value)
-                        SetUpdateOrder(MyUpdateOrder.BeforeSimulation);
-                    else
-                        SetUpdateOrder(MyUpdateOrder.NoUpdate);
-                }
-
                 m_enabled = value;
             }
             get

@@ -1,6 +1,8 @@
 ﻿using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using SharpDX.Direct3D;
 using SharpDX.Toolkit.Graphics;
@@ -249,6 +251,22 @@ namespace VRage.Render11.Resources
             #endregion
         }
 
+        public static long GetTextureSize(this ITexture texture)
+        {
+            // CHECK-ME Is this correct?
+            Vector3I size = texture.Size3;
+            int mipmapCount = texture.MipmapCount;
+            long textureSize = 0;
+            for (int it = 0; it < mipmapCount; it++)
+            {
+                textureSize += (long)(size.X * size.Y * size.Z * GetTexelBitSize(texture.Format) / (double)8);
+                size.X = size.X / 2;
+                size.Y = size.Y / 2;
+            }
+
+            return textureSize;
+        }
+
         public static int GetMipmapsCount(int size)
         {
             int extraOffset = 0;
@@ -296,6 +314,8 @@ namespace VRage.Render11.Resources
             return NormalizeFileTextureName(ref name, out uri);
         }
 
+        [ThreadStatic]
+        static Dictionary<string, MyTuple<string, Uri>> m_normalizeFileTextureResults = new Dictionary<string, MyTuple<string, Uri>>();
         /// <summary>Normalizes file names into lower case relative path, if possible</summary>
         /// <returns>True if it's a file texture, false if the texture is ram generated</returns>
         public static bool NormalizeFileTextureName(ref string name, out Uri uri)
@@ -307,15 +327,26 @@ namespace VRage.Render11.Resources
                 return false;
             }
 
-            if (Uri.TryCreate(name, UriKind.Absolute, out uri))
+            if (m_normalizeFileTextureResults.ContainsKey(name))
             {
-                // Path is absolute
-                name = MakeRelativePath(uri);
-                name.ToLower();
+                string tmpName = m_normalizeFileTextureResults[name].Item1;
+                uri = m_normalizeFileTextureResults[name].Item2;
+                name = tmpName;
                 return true;
             }
 
+            if (Uri.TryCreate(name, UriKind.Absolute, out uri))
+            {
+                // Path is absolute
+                string tmpName = MakeRelativePath(uri).ToLower();
+                m_normalizeFileTextureResults.Add(name, new MyTuple<string, Uri>(tmpName, uri));
+                name = tmpName;
+                return true;
+            }
+
+            // This call causes memory leaks, therefore there is "caching" of the results
             uri = new Uri(Path.Combine(MyFileSystem.ContentPath, name));
+            m_normalizeFileTextureResults.Add(name, new MyTuple<string, Uri>(name, uri));
             return true;
         }
 

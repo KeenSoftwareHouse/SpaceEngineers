@@ -124,11 +124,6 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation()
         {
-            if (!MyFakes.ENABLE_CAMERA_BLOCK)
-            {
-                return;
-            }
-
             if (m_currentCamera == null)
             {
                 return;
@@ -151,12 +146,12 @@ namespace Sandbox.Game.GameSystems
                 return;
             }
 
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SWITCH_LEFT))
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SWITCH_LEFT) && MyGuiScreenChat.Static == null) //GK: Make sure we are not in chat screen
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                 SetPrev();
             }
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SWITCH_RIGHT))
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SWITCH_RIGHT) && MyGuiScreenChat.Static == null) //GK: Make sure we are not in chat screen
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                 SetNext();
@@ -170,10 +165,6 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation10()
         {
-            if (!MyFakes.ENABLE_CAMERA_BLOCK)
-            {
-                return;
-            }
             if (m_currentCamera != null)
             {
                 if (!CameraIsInRangeAndPlayerHasAccess(m_currentCamera))
@@ -242,9 +233,11 @@ namespace Sandbox.Game.GameSystems
 
         private void ResetCurrentCamera()
         {
-            m_currentCamera.OnExitView();
-            
-            m_currentCamera = null;
+            if (m_currentCamera != null)
+            {
+                m_currentCamera.OnExitView();
+                m_currentCamera = null;
+            }
         }
 
         private void SetNext()
@@ -381,11 +374,6 @@ namespace Sandbox.Game.GameSystems
 
         public void PrepareForDraw()
         {
-            if (!MyFakes.ENABLE_CAMERA_BLOCK)
-            {
-                return;
-            }
-
             if (m_currentCamera == null)
             {
                 return;

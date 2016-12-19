@@ -19,10 +19,7 @@ namespace Sandbox.Game.GameSystems
 
         public static void SavePreset(string key, MySpaceStrafeData preset)
         {
-            if (presets.ContainsKey(key))
-                presets.Add(key, preset);
-            else
-                presets[key] = preset;
+            presets[key] = preset;
         }
 
         public static MySpaceStrafeData LoadPreset(string key)
@@ -56,8 +53,12 @@ namespace Sandbox.Game.GameSystems
         public bool UseTools = true;
         public float ToolsUsage = 5f;
         public bool UseKamikazeBehavior = true;
+        public bool CanBeDisabled = true;
         public float KamikazeBehaviorDistance = 75f;
         public string AlternativeBehavior = "";
+        public bool UsePlanetHover = false;
+        public float PlanetHoverMin = 2f;
+        public float PlanetHoverMax = 25f;
 
         public MySpaceStrafeData() { }
 
@@ -85,6 +86,9 @@ namespace Sandbox.Game.GameSystems
             AlternativeBehavior = definition.AlternativeBehavior;
             UseTools = definition.UseTools;
             ToolsUsage = definition.ToolsUsage;
+            UsePlanetHover = definition.UsePlanetHover;
+            PlanetHoverMin = definition.PlanetHoverMin;
+            PlanetHoverMax = definition.PlanetHoverMax;
         }
     }
 }

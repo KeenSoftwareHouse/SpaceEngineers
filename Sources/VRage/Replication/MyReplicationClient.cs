@@ -1,43 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using VRage.Library.Collections;
 using VRage.Library.Utils;
 using VRage.Profiler;
 using VRage.Replication;
-using VRage.Serialization;
 using VRage.Utils;
-using VRageMath;
 
 namespace VRage.Network
 {
     public class MyReplicationClient : MyReplicationLayer
-    {     
-        bool m_clientReady;
-        bool m_hasTypeTable;
-        IReplicationClientCallback m_callback;
-        CacheList<IMyStateGroup> m_tmpGroups = new CacheList<IMyStateGroup>(4);
-        List<byte> m_acks = new List<byte>();
-        byte m_lastStateSyncPacketId;
-       
+    {
+        public static SerializableVector3I StressSleep = new SerializableVector3I(0,0,0);
+
+        private MyTimeSpan Timestamp;
+
+        private readonly MyClientStateBase ClientState;
+        private bool m_clientReady;
+        private bool m_hasTypeTable;
+        private readonly IReplicationClientCallback m_callback;
+        private readonly CacheList<IMyStateGroup> m_tmpGroups = new CacheList<IMyStateGroup>(4);
+        private readonly List<byte> m_acks = new List<byte>();
+        private byte m_lastStateSyncPacketId;
+        private byte m_clientPacketId;
+        private MyTimeSpan m_lastServerTimeStamp = MyTimeSpan.Zero;
 
         // TODO: Maybe pool pending replicables?
-        Dictionary<NetworkId, MyPendingReplicable> m_pendingReplicables = new Dictionary<NetworkId, MyPendingReplicable>(16);
+        private readonly Dictionary<NetworkId, MyPendingReplicable> m_pendingReplicables = new Dictionary<NetworkId, MyPendingReplicable>(16);
 
-        MyEventsBuffer m_eventBuffer = new MyEventsBuffer();
-        MyEventsBuffer.Handler m_eventHandler;
-        MyEventsBuffer.IsBlockedHandler m_isBlockedHandler;
+        private readonly MyEventsBuffer m_eventBuffer = new MyEventsBuffer();
+        private readonly MyEventsBuffer.Handler m_eventHandler;
+        private readonly MyEventsBuffer.IsBlockedHandler m_isBlockedHandler;
 
-        public MyClientStateBase ClientState;
+        private MyTimeSpan m_clientStartTimeStamp = MyTimeSpan.Zero;
 
-        uint m_currentTimeStamp = 0;
+        private readonly float m_simulationTimeStep;
 
-        public MyReplicationClient(IReplicationClientCallback callback, MyClientStateBase clientState)
+        public MyReplicationClient(IReplicationClientCallback callback, MyClientStateBase clientState,
+            float simulationTimeStep)
             : base(false)
         {
+            m_simulationTimeStep = simulationTimeStep;
             m_callback = callback;
             ClientState = clientState;
             m_eventHandler = base.ProcessEvent;
@@ -58,103 +62,117 @@ namespace VRage.Network
         /// <summary>
         /// Marks replicable as successfully created, ready to receive events and state groups data.
         /// </summary>
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+        [System.Security.SecurityCriticalAttribute]
         void SetReplicableReady(NetworkId networkId, IMyReplicable replicable, bool loaded)
         {
-            MyPendingReplicable pendingReplicable;
-            if (m_pendingReplicables.TryGetValue(networkId, out pendingReplicable))
+            try
             {
-                m_pendingReplicables.Remove(networkId);
-
-                if (loaded)
+                MyPendingReplicable pendingReplicable;
+                if (m_pendingReplicables.TryGetValue(networkId, out pendingReplicable))
                 {
-                    var ids = pendingReplicable.StateGroupIds;
+                    m_pendingReplicables.Remove(networkId);
 
-                    AddNetworkObjectClient(networkId, replicable);
-
-                    using (m_tmpGroups)
+                    if (loaded)
                     {
-                        
+                        var ids = pendingReplicable.StateGroupIds;
+
+                        AddNetworkObjectClient(networkId, replicable);
+
+                        using (m_tmpGroups)
+                        {
+
+                            IMyStreamableReplicable streamable = replicable as IMyStreamableReplicable;
+                            if (streamable != null && pendingReplicable.IsStreaming)
+                            {
+                                var group = streamable.GetStreamingStateGroup();
+                                m_tmpGroups.Add(group);
+                            }
+
+                            replicable.GetStateGroups(m_tmpGroups);
+                            Debug.Assert(ids.Count == m_tmpGroups.Count,
+                                "Number of state groups on client and server for replicable does not match");
+                            for (int i = 0; i < m_tmpGroups.Count; i++)
+                            {
+                                if (m_tmpGroups[i] != replicable && m_tmpGroups[i].GroupType != StateGroupEnum.Streaming)
+                                {
+                                    AddNetworkObjectClient(ids[i], m_tmpGroups[i]);
+                                }
+                            }
+                        }
+                        m_eventBuffer.ProcessEvents(networkId, m_eventHandler, m_isBlockedHandler, NetworkId.Invalid);
+                    }
+                    else
+                    {
+                        MyLog.Default.WriteLine("Failed to create replicable ! Type : " + replicable.ToString());
+                        m_eventBuffer.RemoveEvents(networkId);
+
                         IMyStreamableReplicable streamable = replicable as IMyStreamableReplicable;
                         if (streamable != null && pendingReplicable.IsStreaming)
                         {
                             var group = streamable.GetStreamingStateGroup();
-                            m_tmpGroups.Add(group);
-                        }
-
-                        replicable.GetStateGroups(m_tmpGroups);
-                        Debug.Assert(ids.Count == m_tmpGroups.Count, "Number of state groups on client and server for replicable does not match");
-                        for (int i = 0; i < m_tmpGroups.Count; i++)
-                        {
-                            if (m_tmpGroups[i] != replicable && m_tmpGroups[i].GroupType != StateGroupEnum.Streamining)
+                            group.Destroy();
+                            NetworkId streaingGroupId;
+                            if (TryGetNetworkIdByObject(group, out streaingGroupId))
                             {
-                                AddNetworkObjectClient(ids[i], m_tmpGroups[i]);
+                                RemoveNetworkedObject(group);
                             }
+                            MyLog.Default.WriteLine("removing streaming group for not loaded replicable !");
                         }
                     }
-                    m_eventBuffer.ProcessEvents(networkId, m_eventHandler, m_isBlockedHandler, NetworkId.Invalid);
+
+                    SendStream.ResetWrite();
+                    SendStream.WriteNetworkId(networkId);
+                    SendStream.WriteBool(loaded);
+                    SendStream.Terminate();
+                    m_callback.SendReplicableReady(SendStream);
                 }
                 else
                 {
-                    MyLog.Default.WriteLine("Failed to create replicable ! Type : " + replicable.ToString());
-                    m_eventBuffer.RemoveEvents(networkId);
-
-                    IMyStreamableReplicable streamable = replicable as IMyStreamableReplicable;
-                    if (streamable != null && pendingReplicable.IsStreaming)
+                    m_pendingReplicables.Remove(networkId);
+                    using (m_tmpGroups)
                     {
-                        var group = streamable.GetStreamingStateGroup();
-                        group.Destroy();
-                        NetworkId streaingGroupId;
-                        if (TryGetNetworkIdByObject(group, out streaingGroupId))
+                        IMyStreamableReplicable streamable = replicable as IMyStreamableReplicable;
+                        if (streamable != null && streamable.NeedsToBeStreamed)
                         {
-                            RemoveNetworkedObject(group);
+                            var group = streamable.GetStreamingStateGroup();
+                            m_tmpGroups.Add(group);
+                            MyLog.Default.WriteLine("removing streaming group for not loaded replicable !");
                         }
-                        MyLog.Default.WriteLine("removing streaming group for not loaded replicable !");
+
+                        replicable.GetStateGroups(m_tmpGroups);
+                        foreach (var g in m_tmpGroups)
+                        {
+                            if (g != null)
+                                // when terminal repblicable fails to attach to block its state group is null becouase its created inside hook method.
+                            {
+                                g.Destroy();
+                            }
+                        }
                     }
+                    replicable.OnDestroy();
                 }
-
-                m_sendStream.ResetWrite();
-                m_sendStream.WriteNetworkId(networkId);
-                m_sendStream.WriteBool(loaded);
-                m_callback.SendReplicableReady(m_sendStream);
             }
-            else
+            catch (Exception ex)
             {
-                m_pendingReplicables.Remove(networkId);
-                using (m_tmpGroups)
-                {
-                    IMyStreamableReplicable streamable = replicable as IMyStreamableReplicable;
-                    if (streamable != null && streamable.NeedsToBeStreamed)
-                    {
-                        var group = streamable.GetStreamingStateGroup();
-                        m_tmpGroups.Add(group);
-                        MyLog.Default.WriteLine("removing streaming group for not loaded replicable !" );
-                    }
-
-                    replicable.GetStateGroups(m_tmpGroups);
-                    foreach (var g in m_tmpGroups)
-                    {
-                        if (g != null) // when terminal repblicable fails to attach to block its state group is null becouase its created inside hook method.
-                        {
-                            g.Destroy();
-                        }
-                    }
-                }      
-                replicable.OnDestroy();
+                MyLog.Default.WriteLine(ex);
+                throw;
+                //m_callback.DisconnectFromHost();
             }
         }
 
         public void ProcessReplicationCreateBegin(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
+            ReceiveStream.ResetRead(packet);
 
-            TypeId typeId = m_receiveStream.ReadTypeId();
-            NetworkId networkID = m_receiveStream.ReadNetworkId();
-            byte groupCount = m_receiveStream.ReadByte();
+            TypeId typeId = ReceiveStream.ReadTypeId();
+            NetworkId networkID = ReceiveStream.ReadNetworkId();
+            byte groupCount = ReceiveStream.ReadByte();
 
             var pendingReplicable = new MyPendingReplicable();
             for (int i = 0; i < groupCount; i++)
             {
-                var id = m_receiveStream.ReadNetworkId();
+                var id = ReceiveStream.ReadNetworkId();
                 pendingReplicable.StateGroupIds.Add(id);
             }
 
@@ -186,21 +204,21 @@ namespace VRage.Network
                 }
             }
 
-            replicable.OnLoadBegin(m_receiveStream, (loaded) => SetReplicableReady(networkID, replicable, loaded));
+            replicable.OnLoadBegin(ReceiveStream, (loaded) => SetReplicableReady(networkID, replicable, loaded));
         }
 
         public void ProcessReplicationCreate(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
+            ReceiveStream.ResetRead(packet);
 
-            TypeId typeId = m_receiveStream.ReadTypeId();
-            NetworkId networkID = m_receiveStream.ReadNetworkId();
-            byte groupCount = m_receiveStream.ReadByte();
+            TypeId typeId = ReceiveStream.ReadTypeId();
+            NetworkId networkID = ReceiveStream.ReadNetworkId();
+            byte groupCount = ReceiveStream.ReadByte();
 
             var pendingReplicable = new MyPendingReplicable();
             for (int i = 0; i < groupCount; i++)
             {
-                var id = m_receiveStream.ReadNetworkId();
+                var id = ReceiveStream.ReadNetworkId();
                 pendingReplicable.StateGroupIds.Add(id);
             }
 
@@ -211,19 +229,19 @@ namespace VRage.Network
 
             m_pendingReplicables.Add(networkID, pendingReplicable);
 
-            replicable.OnLoad(m_receiveStream, (loaded) => SetReplicableReady(networkID, replicable, loaded));
+            replicable.OnLoad(ReceiveStream, (loaded) => SetReplicableReady(networkID, replicable, loaded));
         }
 
         public void ProcessReplicationDestroy(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            NetworkId networkID = m_receiveStream.ReadNetworkId();
+            ReceiveStream.ResetRead(packet);
+            NetworkId networkID = ReceiveStream.ReadNetworkId();
 
             MyPendingReplicable pendingReplicable;
 
             if (!m_pendingReplicables.TryGetValue(networkID, out pendingReplicable)) // When it wasn't in pending replicables, it's already active and in scene, destroy it
             {
-                IMyReplicable replicable = (IMyReplicable)GetObjectByNetworkId(networkID);
+                IMyReplicable replicable = GetObjectByNetworkId(networkID) as IMyReplicable;
                 // Debug.Assert(replicable != null, "Client received ReplicationDestroy, but object no longer exists (removed locally?)");
                 if (replicable != null)
                 {
@@ -273,46 +291,206 @@ namespace VRage.Network
 
         public void ProcessServerData(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            SerializeTypeTable(m_receiveStream);
+            ReceiveStream.ResetRead(packet);
+            SerializeTypeTable(ReceiveStream);
             m_hasTypeTable = true;
         }
 
-        public override void Update()
+        const int MAX_TIMESTAMP_DIFF_LOW = 80;
+        const int MAX_TIMESTAMP_DIFF_HIGH = 5000;
+        private MyTimeSpan m_lastTime;
+
+        private MyTimeSpan m_ping;
+        private MyTimeSpan m_smoothPing;
+        private MyTimeSpan m_lastPingTime;
+        private MyTimeSpan m_correctionSmooth;
+        public MyTimeSpan Ping { get { return UseSmoothPing ? m_smoothPing : m_ping; } }
+        public static bool ApplyCorrectionsDebug = true;
+
+        public override void UpdateBefore()
+        {
+        }
+
+        public override void UpdateAfter()
         {
             if (!m_clientReady || !m_hasTypeTable || ClientState == null)
                 return;
 
-            
+            NetProfiler.Begin("Replication client update", 0);
+
+            var simulationTime = m_callback.GetUpdateTime();
+
+            if (m_clientStartTimeStamp == MyTimeSpan.Zero)
+                m_clientStartTimeStamp = simulationTime; // (uint)DateTime.Now.TimeOfDay.TotalMilliseconds;
+
+           
+            var timeStamp = simulationTime - m_clientStartTimeStamp;
+
+            UpdatePingSmoothing();
+            NetProfiler.CustomTime("Ping", (float)m_ping.Milliseconds, "{0} ms");
+            NetProfiler.CustomTime("SmoothPing", (float)m_smoothPing.Milliseconds, "{0} ms");
+
+            NetProfiler.Begin("Packet stats");
+            NetProfiler.CustomTime("Server Drops", (float)m_serverStats.Drops, "{0}");
+            NetProfiler.CustomTime("Server OutOfOrder", (float)m_serverStats.OutOfOrder, "{0}");
+            NetProfiler.CustomTime("Server Duplicates", (float)m_serverStats.Duplicates, "{0}");
+            NetProfiler.CustomTime("Client Drops", (float)m_clientStatsFromServer.Drops, "{0}");
+            NetProfiler.CustomTime("Client OutOfOrder", (float)m_clientStatsFromServer.OutOfOrder, "{0}");
+            NetProfiler.CustomTime("Client Duplicates", (float)m_clientStatsFromServer.Duplicates, "{0}");
+            m_serverStats.Reset();
+            m_clientStatsFromServer.Reset();
+            NetProfiler.End();
+
+            MyTimeSpan ping = UseSmoothPing ? m_smoothPing : m_ping;
+            var diffCorrection = -ping.Milliseconds * m_callback.GetServerSimulationRatio();
+            var diffMS = timeStamp.Milliseconds - m_lastServerTimeStamp.Milliseconds;
+            var correctionCurrent = diffMS + diffCorrection;
+            int correction = 0, nextFrameDelta = 0;
+            MyTimeSpan currentTime = MyTimeSpan.FromTicks(Stopwatch.GetTimestamp());
+            MyTimeSpan realtimeDelta = currentTime - m_lastTime;
+
+            // try to be always one simulation step ahead
+            correctionCurrent -= m_simulationTimeStep;
+            //if (Math.Abs(correctionCurrent) > 200)
+                //  m_correctionSmooth = MyTimeSpan.FromMilliseconds(correctionCurrent);
+            correctionCurrent = Math.Min(correctionCurrent, (int)(m_simulationTimeStep * 2 / m_callback.GetServerSimulationRatio()));
+
+            if (diffMS < -MAX_TIMESTAMP_DIFF_LOW || diffMS > MAX_TIMESTAMP_DIFF_HIGH)
+            {
+                m_clientStartTimeStamp = MyTimeSpan.FromMilliseconds(m_clientStartTimeStamp.Milliseconds + diffMS);
+
+                timeStamp = simulationTime - m_clientStartTimeStamp;
+                m_correctionSmooth = MyTimeSpan.Zero;
+                TimestampReset();
+                if (VRage.MyCompilationSymbols.EnableNetworkPositionTracking)
+                {
+                    Trace.MyTrace.Send(Trace.TraceWindow.MTiming, "---------------------------------------------------------------- DESYNC");
+                }
+            }
+            else
+            {
+                var factor = Math.Min(realtimeDelta.Seconds / SmoothCorrectionAmplitude, 1.0);
+                m_correctionSmooth = MyTimeSpan.FromMilliseconds(correctionCurrent * factor + m_correctionSmooth.Milliseconds * (1 - factor));
+                // special case: we really dont want the client timestamp to fall behind
+                if (diffMS < 0) 
+                    correction = (int)correctionCurrent;
+                else correction = UseSmoothCorrection ? (int) m_correctionSmooth.Milliseconds : (int) correctionCurrent;
+
+                NetProfiler.CustomTime("Correction", (float)correctionCurrent, "{0} ms");
+                NetProfiler.CustomTime("SmoothCorrection", (float)m_correctionSmooth.Milliseconds, "{0} ms");
+
+                if (ApplyCorrectionsDebug && (LastMessageFromServer - DateTime.UtcNow).Seconds < 1.0f)
+                {
+                    if (diffMS < 0)
+                    {
+                        nextFrameDelta = correction;
+                        m_callback.SetNextFrameDelayDelta(nextFrameDelta);
+                    }
+                    else if (Math.Abs(correction) > TimestampCorrectionMinimum)
+                    {
+                        nextFrameDelta = (Math.Abs(correction) - TimestampCorrectionMinimum) * Math.Sign(correction);
+                        m_callback.SetNextFrameDelayDelta(nextFrameDelta);
+                    }
+                }
+            }
+            NetProfiler.CustomTime("GameTimeDelta", (float)(timeStamp - Timestamp).Milliseconds, "{0} ms");
+            NetProfiler.CustomTime("RealTimeDelta", (float)realtimeDelta.Milliseconds, "{0} ms");
+            Timestamp = timeStamp;
+
+            //if (VRage.MyCompilationSymbols.EnableNetworkPositionTracking)
+            {
+                string trace = "realtime delta: " + realtimeDelta +
+                                ", client: " + Timestamp +
+                                ", server: " + m_lastServerTimeStamp +
+                                ", diff: " + diffMS.ToString("##.#") + " => " + (Timestamp.Milliseconds - m_lastServerTimeStamp.Milliseconds).ToString("##.#") +
+                                ", Ping: " + m_ping.Milliseconds.ToString("##.#") + " / " + m_smoothPing.Milliseconds.ToString("##.#") +
+                                "ms, Correction " + correctionCurrent + " / " + m_correctionSmooth.Milliseconds + " / " + nextFrameDelta +
+                                ", ratio " + m_callback.GetServerSimulationRatio();
+                Trace.MyTrace.Send(Trace.TraceWindow.MTiming, trace);
+                //Trace.MyTrace.Send(Trace.TraceWindow.MPositions2, trace);
+            }
+            m_lastTime = currentTime;
+
+            NetProfiler.End();
+
+            if (StressSleep.X > 0)
+            {
+                int sleep;
+                if (StressSleep.Z == 0)
+                    sleep = MyRandom.Instance.Next(StressSleep.X, StressSleep.Y);
+                else sleep = (int) (Math.Sin(simulationTime.Milliseconds * Math.PI / StressSleep.Z) * StressSleep.Y + StressSleep.X);
+                System.Threading.Thread.Sleep(sleep);
+            }
+        }
+
+        public override void UpdateClientStateGroups()
+        {
+            ProfilerShort.Begin("StateGroup.ClientUpdate");
             // Update state groups on client
             foreach (var obj in NetworkObjects)
             {
                 var stateGroup = obj as IMyStateGroup;
                 if (stateGroup != null)
                 {
-                    stateGroup.ClientUpdate(m_currentTimeStamp);
+                    stateGroup.ClientUpdate(Timestamp);
                 }
             }
-            m_sendStream.ResetWrite();
+            ProfilerShort.End();
+        }
 
+        private void TimestampReset()
+        {
+            foreach (var obj in NetworkObjects)
+            {
+                var stateGroup = obj as IMyStateGroup;
+                if (stateGroup != null)
+                {
+                    stateGroup.TimestampReset(Timestamp);
+                }
+            }
+        }
+
+        public override void SendUpdate()
+        {
+            ProfilerShort.Begin("ClientState.WriteAcks");
+
+            // Client ACK Packet - reliable
+            SendStream.ResetWrite();
+
+            // ACK Header
             // Write last state sync packet id
-            m_sendStream.WriteByte(m_lastStateSyncPacketId);
-
+            SendStream.WriteByte(m_lastStateSyncPacketId);
+            
             // Write ACKs
             byte num = (byte)m_acks.Count;
-            m_sendStream.WriteByte(num);
+            SendStream.WriteByte(num);
             for (int i = 0; i < num; i++)
             {
-                m_sendStream.WriteByte(m_acks[i]);
+                SendStream.WriteByte(m_acks[i]);
             }
+            SendStream.Terminate();
             m_acks.Clear();
+            ProfilerShort.End();
+            m_callback.SendClientAcks(SendStream);
 
-            ClientState.ClientTimeStamp = m_currentTimeStamp;
+            // Client Update Packet
+            SendStream.ResetWrite();
+
+            m_clientPacketId++;
+            SendStream.WriteByte(m_clientPacketId);
+            SendStream.WriteDouble(MyTimeSpan.FromTicks(Stopwatch.GetTimestamp()).Milliseconds);
+            ProfilerShort.Begin("ClientState.Serialize");
+            if (VRage.MyCompilationSymbols.EnableNetworkPacketTracking)
+                Trace.MyTrace.Send(Trace.TraceWindow.MPackets, "Send client update: ");
             // Write Client state
-            ClientState.Serialize(m_sendStream, ClientState.ClientTimeStamp);
-            m_callback.SendClientUpdate(m_sendStream);
+            ClientState.Serialize(SendStream, false);
+            ProfilerShort.End();
+            SendStream.Terminate();
 
-            m_currentTimeStamp++;
+            ProfilerShort.Begin("SendClientUpdate");
+            m_callback.SendClientUpdate(SendStream);
+            ProfilerShort.End();
+
             //Client.SendMessageToServer(m_sendStream, PacketReliabilityEnum.UNRELIABLE, PacketPriorityEnum.IMMEDIATE_PRIORITY, MyChannelEnum.StateDataSync);
         }
 
@@ -387,6 +565,14 @@ namespace VRage.Network
             Invoke(site, stream, obj, source, null, false);
         }
 
+        private MyPacketStatistics m_clientStatsFromServer = new MyPacketStatistics();
+
+        private readonly MyPacketTracker m_serverTracker = new MyPacketTracker();
+        private MyPacketStatistics m_serverStats = new MyPacketStatistics();
+
+        //List<byte> m_alreadyReceivedPackets = new List<byte>();
+
+
         /// <summary>
         /// Processes state sync sent by server.
         /// </summary>
@@ -396,103 +582,140 @@ namespace VRage.Network
             // Simulated packet loss
             // if (MyRandom.Instance.NextFloat() > 0.3f) return;
 
-            m_receiveStream.ResetRead(packet);
-            bool isStreaming = m_receiveStream.ReadBool();
-            m_lastStateSyncPacketId = m_receiveStream.ReadByte();
-            try
+            ReceiveStream.ResetRead(packet);
+            bool isStreaming = ReceiveStream.ReadBool();
+            
+            var packetId = ReceiveStream.ReadByte();
+
+            //if (m_alreadyReceivedPackets.Contains(packetId))
+            //{
+            //}
+            //if (m_alreadyReceivedPackets.Count > 128)
+            //    m_alreadyReceivedPackets.RemoveAt(0);
+            //m_alreadyReceivedPackets.Add(packetId);
+
+            var serverOrder = m_serverTracker.Add(packetId);
+            m_serverStats.Update(serverOrder);
+            if (serverOrder == MyPacketTracker.OrderType.Duplicate)
+                return;
+            m_lastStateSyncPacketId = packetId;
+
+            MyPacketStatistics stats = new MyPacketStatistics();
+            stats.Read(ReceiveStream);
+            m_clientStatsFromServer.Add(stats);
+
+            var serverTimeStamp = MyTimeSpan.FromMilliseconds(ReceiveStream.ReadDouble());
+            if (m_lastServerTimeStamp < serverTimeStamp)
+                m_lastServerTimeStamp = serverTimeStamp;
+            
+            double lastClientRealtime = ReceiveStream.ReadDouble();
+            if (lastClientRealtime > 0)
             {
-                while (m_receiveStream.BytePosition < m_receiveStream.ByteLength)
+                var ping = packet.ReceivedTime - MyTimeSpan.FromMilliseconds(lastClientRealtime);
+                if (ping.Milliseconds < 1000)
+                    SetPing(ping);
+            }
+
+            MyTimeSpan relevantTimeStamp = serverTimeStamp;
+            m_callback.ReadCustomState(ReceiveStream);
+
+            while (ReceiveStream.BytePosition < ReceiveStream.ByteLength)
+            {
+                NetworkId networkID = ReceiveStream.ReadNetworkId();
+                IMyStateGroup obj = GetObjectByNetworkId(networkID) as IMyStateGroup;
+
+                if (obj == null)
                 {
-
-                    NetworkId networkID = m_receiveStream.ReadNetworkId();
-                    IMyStateGroup obj = GetObjectByNetworkId(networkID) as IMyStateGroup;
-
-                    if (obj == null)
+                    if (isStreaming == false)
                     {
-                        if (isStreaming == false)
-                        {
-                            Debug.Fail("IMyStateGroup not found by NetworkId");
-                            break;
-                        }
-                        else
-                        {
-                            return;
-                        }
+                        Debug.Fail("IMyStateGroup not found by NetworkId");
+                        break;
                     }
-
-                    if (isStreaming && obj.GroupType != StateGroupEnum.Streamining)
+                    else
                     {
-                        Debug.Fail("group type mismatch !");
-                        MyLog.Default.WriteLine("received streaming flag but group is not streaming !");
                         return;
-                    }
-
-                    if (!isStreaming && obj.GroupType == StateGroupEnum.Streamining)
-                    {
-                        Debug.Fail("group type mismatch !");
-                        MyLog.Default.WriteLine("received non streaming flag but group wants to stream !");
-                        return;
-                    }
-
-                    var pos = m_receiveStream.BytePosition;
-                    NetProfiler.Begin(obj.GetType().Name);
-                    obj.Serialize(m_receiveStream, ClientState.EndpointId, 0, m_lastStateSyncPacketId, 0);
-                    NetProfiler.End(m_receiveStream.ByteLength - pos);
-
-
-                    if (!m_acks.Contains(m_lastStateSyncPacketId))
-                    {
-                        m_acks.Add(m_lastStateSyncPacketId);
                     }
                 }
-            }
-            catch (BitStreamException)
-            {
 
-            }
+                if (isStreaming && obj.GroupType != StateGroupEnum.Streaming)
+                {
+                    Debug.Fail("group type mismatch !");
+                    MyLog.Default.WriteLine("received streaming flag but group is not streaming !");
+                    return;
+                }
+
+                if (!isStreaming && obj.GroupType == StateGroupEnum.Streaming)
+                {
+                    Debug.Fail("group type mismatch !");
+                    MyLog.Default.WriteLine("received non streaming flag but group wants to stream !");
+                    return;
+                }
+
+                if (VRage.MyCompilationSymbols.EnableNetworkPacketTracking)
+                    Trace.MyTrace.Send(Trace.TraceWindow.MPackets, " ObjSync: " + obj.GetType().Name);
+
+                var pos = ReceiveStream.BytePosition;
+                NetProfiler.Begin(obj.GetType().Name);
+                obj.Serialize(ReceiveStream, ClientState.EndpointId, relevantTimeStamp, m_lastStateSyncPacketId, 0);
+                NetProfiler.End(ReceiveStream.ByteLength - pos);
+
+                if (!m_acks.Contains(m_lastStateSyncPacketId))
+                {
+                    m_acks.Add(m_lastStateSyncPacketId);
+                }
+            }            
+        }
+
+        private void SetPing(MyTimeSpan ping)
+        {
+            m_ping = ping;
+            m_callback.SetPing((long) ping.Milliseconds);
+            UpdatePingSmoothing();
+        }
+        private void UpdatePingSmoothing()
+        {
+            var currentTime = MyTimeSpan.FromTicks(Stopwatch.GetTimestamp());
+            var deltaTime = currentTime - m_lastPingTime;
+            var factor = Math.Min(deltaTime.Seconds / PingSmoothFactor, 1.0);
+            m_smoothPing = MyTimeSpan.FromMilliseconds(m_ping.Milliseconds * factor + m_smoothPing.Milliseconds * (1 - factor));
+            m_lastPingTime = currentTime;
         }
 
         public JoinResultMsg OnJoinResult(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            JoinResultMsg msg = VRage.Serialization.MySerializer.CreateAndRead<JoinResultMsg>(m_receiveStream);
+            ReceiveStream.ResetRead(packet);
+            JoinResultMsg msg = VRage.Serialization.MySerializer.CreateAndRead<JoinResultMsg>(ReceiveStream);
             return msg;
         }
 
         public ServerDataMsg OnWorldData(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            ServerDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ServerDataMsg>(m_receiveStream);
-            return msg;
-        }
-
-        public ServerBattleDataMsg OnWorldBattleData(MyPacket packet)
-        {
-            m_receiveStream.ResetRead(packet);
-            ServerBattleDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ServerBattleDataMsg>(m_receiveStream);
+            ReceiveStream.ResetRead(packet);
+            ServerDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ServerDataMsg>(ReceiveStream);
             return msg;
         }
 
         public ChatMsg OnChatMessage(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            ChatMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ChatMsg>(m_receiveStream);
+            ReceiveStream.ResetRead(packet);
+            ChatMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ChatMsg>(ReceiveStream);
             return msg;
         }
 
         public ConnectedClientDataMsg OnClientConnected(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            ConnectedClientDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ConnectedClientDataMsg>(m_receiveStream);
+            ReceiveStream.ResetRead(packet);
+            ConnectedClientDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ConnectedClientDataMsg>(ReceiveStream);
             return msg;
         }
 
         public void SendClientConnected(ref ConnectedClientDataMsg msg)
         {
-            m_sendStream.ResetWrite();
-            VRage.Serialization.MySerializer.Write<ConnectedClientDataMsg>(m_sendStream, ref msg);
-            m_callback.SendConnectRequest(m_sendStream);
-        }
+            SendStream.ResetWrite();
+            VRage.Serialization.MySerializer.Write<ConnectedClientDataMsg>(SendStream, ref msg);
+            m_callback.SendConnectRequest(SendStream);
+        }        
+        
         #region Debug methods
 
         public override string GetMultiplayerStat()
@@ -513,6 +736,20 @@ namespace VRage.Network
             multiplayerStat.Append(m_eventBuffer.GetEventsBufferStat());
 
             return multiplayerStat.ToString();
+        }
+
+        public void ResetClientTimes()
+        {
+            m_clientStartTimeStamp = Timestamp;
+
+            foreach (var obj in NetworkObjects)
+            {
+                var stateGroup = obj as IMyStateGroup;
+                if (stateGroup != null)
+                {
+                    stateGroup.Destroy();
+                }
+            }        
         }
 
         #endregion

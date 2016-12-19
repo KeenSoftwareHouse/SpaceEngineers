@@ -12,6 +12,5 @@ namespace SpaceEngineers.Game.ModAPI.Ingame
         }
 
         bool IsLocked { get; }
-        IMyEntity GetAttachedEntity();
     }
 }

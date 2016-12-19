@@ -27,6 +27,7 @@ namespace Sandbox.Game.Gui
         PilotingSmallShip,
         PilotingLargeShip,
         ControllingStation,
+        Magnetic
     }
 
     public class MyHudCharacterInfo
@@ -344,6 +345,7 @@ namespace Sandbox.Game.Gui
                 case MyHudCharacterStateEnum.PilotingLargeShip: stateText = MyTexts.Get(MySpaceTexts.HudInfoPilotingLargeShip); break;
                 case MyHudCharacterStateEnum.PilotingSmallShip: stateText = MyTexts.Get(MySpaceTexts.HudInfoPilotingSmallShip); break;
                 case MyHudCharacterStateEnum.ControllingStation: stateText = MyTexts.Get(MySpaceTexts.HudInfoControllingStation); break;
+                case MyHudCharacterStateEnum.Magnetic: stateText = MyTexts.Get(MySpaceTexts.HudInfoMagnetic); break;
                 default:
                     Debug.Fail("Missing character state.");
                     break;

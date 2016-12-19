@@ -74,9 +74,6 @@ namespace VRageRender
         // Spot shadow max distance multiplier 
         public float SpotShadowsMaxDistanceMultiplier;
 
-        // Low resolution particles
-        public bool LowResParticles;
-
         // Distant impostors
         public bool EnableDistantImpostors;
 
@@ -228,9 +225,6 @@ namespace VRageRender
                 // Spot shadow max distance multiplier 
                 SpotShadowsMaxDistanceMultiplier = 1.0f,
 
-                // Low res particles
-                LowResParticles = true,
-
                 // Distant impostors
                 EnableDistantImpostors = false,
 
@@ -295,9 +289,6 @@ namespace VRageRender
 
                 // Spot shadow max distance multiplier 
                 SpotShadowsMaxDistanceMultiplier = 0.0f,
-
-                // Low res particles
-                LowResParticles = false,
 
                 // Distant impostors
                 EnableDistantImpostors = false,
@@ -364,9 +355,6 @@ namespace VRageRender
                 // Spot shadow max distance multiplier 
                 SpotShadowsMaxDistanceMultiplier = 2.5f,
 
-                // Low res particles
-                LowResParticles = false,
-
                 // Distant impostors
                 EnableDistantImpostors = true,
 
@@ -431,9 +419,6 @@ namespace VRageRender
 
                 // Spot shadow max distance multiplier 
                 SpotShadowsMaxDistanceMultiplier = 3.0f,
-
-                // Low res particles
-                LowResParticles = false,
 
                 // Distant impostors
                 EnableDistantImpostors = true,

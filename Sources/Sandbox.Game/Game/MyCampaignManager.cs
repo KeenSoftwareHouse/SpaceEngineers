@@ -11,6 +11,7 @@ using SteamSDK;
 using VRage;
 using VRage.Compression;
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.Game.Components.Session;
 using VRage.Game.ObjectBuilders.Campaign;
 using VRage.Game.ObjectBuilders.VisualScripting;
@@ -42,6 +43,8 @@ namespace Sandbox.Game
         #region Constants
         // Relative content path to Campaign folder
         private const string CAMPAIGN_CONTENT_RELATIVE_PATH = "Campaigns";
+        // Relative content path to Campaign debug folder
+        private const string CAMPAIGN_DEBUG_RELATIVE_PATH = @"Worlds\Campaigns";
         #endregion
 
         #region Public Properties
@@ -130,6 +133,8 @@ namespace Sandbox.Game
             }
         }
 
+        public event Action OnCampaignFinished;
+
         #endregion
 
         #region Constructor and Loading
@@ -154,6 +159,30 @@ namespace Sandbox.Game
                         ob.Campaign.IsVanilla = true;
                         ob.Campaign.IsLocalMod = false;
                         LoadCampaignData(ob.Campaign);
+                    }
+                }
+            }
+
+            // Add the Debug campaings of present
+            if (!MyFinalBuildConstants.IS_OFFICIAL)
+            {
+                var debugCampaignFiles =
+                    MyFileSystem.GetFiles(Path.Combine(MyFileSystem.ContentPath, CAMPAIGN_DEBUG_RELATIVE_PATH), "*.vs",
+                        MySearchOption.TopDirectoryOnly);
+
+                // Load vanilla files
+                foreach (var debugFile in debugCampaignFiles)
+                {
+                    MyObjectBuilder_VSFiles ob;
+                    if (MyObjectBuilderSerializer.DeserializeXML(debugFile, out ob))
+                    {
+                        if (ob.Campaign != null)
+                        {
+                            ob.Campaign.IsVanilla = false;
+                            ob.Campaign.IsLocalMod = false;
+                            ob.Campaign.IsDebug = true;
+                            LoadCampaignData(ob.Campaign);
+                        }
                     }
                 }
             }
@@ -370,7 +399,7 @@ namespace Sandbox.Game
             
             // >> WORLD FILE OPERATIONS
             // Find the existing file in order of modded content to vanilla
-            if (m_activeCampaign.IsVanilla)
+            if (m_activeCampaign.IsVanilla || m_activeCampaign.IsDebug)
             {
                 absolutePath = Path.Combine(MyFileSystem.ContentPath, savePath);
 
@@ -454,6 +483,7 @@ namespace Sandbox.Game
             // ATM only single player campaigns are supported
             if (!m_activeCampaign.IsMultiplayer)
             {
+                afterLoad += () => MySession.Static.Save();
                 MySessionLoader.LoadSingleplayerSession(targetDirectory, afterLoad);
             }
         }
@@ -525,6 +555,13 @@ namespace Sandbox.Game
             }
 
             return null;
+        }
+        // Called from MyCampaignSessionComponent when campaign finished. Do not use anywhere else.
+        public void NotifyCampaignFinished()
+        {
+            var handler = OnCampaignFinished;
+            if (handler != null)
+                handler();
         }
     }
 }

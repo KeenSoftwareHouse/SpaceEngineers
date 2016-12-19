@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
+using VRage.Library.Collections;
 
 #endregion
 
@@ -53,7 +54,6 @@ namespace VRageMath
         /// </summary>
         public const int NullNode = -1;
         private int m_freeList;
-        private int m_insertionCount;
         private int m_nodeCapacity;
         private int m_nodeCount;
         private DynamicTreeNode[] m_nodes;
@@ -484,8 +484,6 @@ namespace VRageMath
 
         private void InsertLeaf(int leaf, bool rebalance)
         {
-            ++m_insertionCount;
-
             if (m_root == NullNode)
             {
                 m_root = leaf;
@@ -1508,7 +1506,6 @@ namespace VRageMath
             m_root = NullNode;
 
             m_nodeCount = 0;
-            m_insertionCount = 0;
 
             // Build a linked list for the free list.
             for (int i = 0; i < m_nodeCapacity - 1; ++i)

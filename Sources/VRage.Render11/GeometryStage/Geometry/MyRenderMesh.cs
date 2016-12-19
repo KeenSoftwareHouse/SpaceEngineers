@@ -96,8 +96,6 @@ namespace VRageRender
     // data abstraction for meshes in game
     class MyMesh
     {
-        internal static string DEFAULT_MESH_TECHNIQUE = "MESH";
-
         protected string m_name;
 
         internal string Name { get { return m_name; } }

@@ -27,6 +27,7 @@ namespace VRage.Render11.RenderContext.Internal
 
         readonly IVertexBuffer[] m_vertexBuffers = new IVertexBuffer[8];
         readonly int[] m_vertexBuffersStrides = new int[8];
+        readonly int[] m_vertexBuffersByteOffset = new int[8];
 
         #endregion
 
@@ -69,6 +70,8 @@ namespace VRage.Render11.RenderContext.Internal
                 m_vertexBuffers[i] = null;
             for (int i = 0; i < m_vertexBuffersStrides.Length; i++)
                 m_vertexBuffersStrides[i] = 0;
+            for (int i = 0; i < m_vertexBuffersByteOffset.Length; i++)
+                m_vertexBuffersByteOffset[i] = 0;
 
             m_blendState = null;
             m_stencilRef = 0;
@@ -124,17 +127,18 @@ namespace VRage.Render11.RenderContext.Internal
             m_statistics.SetIndexBuffers++;
         }
 
-        internal void SetVertexBuffer(int slot, IVertexBuffer vb, int stride)
+        internal void SetVertexBuffer(int slot, IVertexBuffer vb, int stride, int byteOffset)
         {
             MyRenderProxy.Assert(slot < m_vertexBuffers.Length);
 
-            if (vb == m_vertexBuffers[slot] && stride == m_vertexBuffersStrides[slot])
+            if (vb == m_vertexBuffers[slot] && stride == m_vertexBuffersStrides[slot] && byteOffset == m_vertexBuffersByteOffset[slot])
                 return;
 
             m_vertexBuffers[slot] = vb;
             m_vertexBuffersStrides[slot] = stride;
+            m_vertexBuffersByteOffset[slot] = byteOffset;
 
-            m_deviceContext.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(vb != null ? vb.Buffer : null, stride, 0));
+            m_deviceContext.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(vb != null ? vb.Buffer : null, stride, byteOffset));
             m_statistics.SetVertexBuffers++;
         }
 
@@ -144,7 +148,7 @@ namespace VRage.Render11.RenderContext.Internal
             MyRenderProxy.Assert(startSlot + vbs.Length < m_vertexBuffers.Length);
 
             for (int i = startSlot; i < startSlot + vbs.Length; i++)
-                SetVertexBuffer(i, vbs[i], strides[i]);
+                SetVertexBuffer(i, vbs[i], strides[i], 0);
         }
 
         internal void SetBlendState(BlendState bs)

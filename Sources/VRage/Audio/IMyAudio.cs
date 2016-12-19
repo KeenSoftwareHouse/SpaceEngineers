@@ -114,8 +114,15 @@ namespace VRage.Audio
             get;
             set;
         }
+
+        int SampleRate
+        {
+            get;
+        }
+
         void SetSameSoundLimiter();
         void EnableMasterLimiter(bool enable);
+        void ChangeGlobalVolume(float level, float time);
 
         event Action<bool> VoiceChatEnabled;
 

@@ -19,6 +19,8 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
         private MyVisualSyntaxNode m_lastInput;
         private MyVisualSyntaxNode m_incrementInput;
 
+        private readonly List<MyVisualSyntaxNode> m_toCollectNodeCache = new List<MyVisualSyntaxNode>();
+
         public new MyObjectBuilder_ForLoopScriptNode ObjectBuilder
         {
             get { return (MyObjectBuilder_ForLoopScriptNode)m_objectBuilder; }
@@ -36,12 +38,43 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
 
         internal override void CollectSequenceExpressions(List<StatementSyntax> expressions)
         {
-            base.CollectInputExpressions(expressions);
+            // Collect input only from these nodes that are inputs for this node.
+            m_toCollectNodeCache.Clear();
+            foreach (var subTreeNode in SubTreeNodes)
+            {
+                var directConnection = false;
+                foreach (var outputNode in subTreeNode.Outputs)
+                {
+                    // Must be an input
+                    if (outputNode == this && !outputNode.Collected)
+                    {
+                        directConnection = true;
+                        break;
+                    }
+                }
+
+                if (directConnection)
+                {
+                    subTreeNode.CollectInputExpressions(expressions);
+                }
+                else
+                {
+                    // Cache these that are getting the input from this one.
+                    m_toCollectNodeCache.Add(subTreeNode);
+                }
+            }
 
             // We can ignore the nodes with empty bodies
             if (m_bodySequence != null)
             {
                 var bodySyntax = new List<StatementSyntax>();
+
+                // Collect the assigned bodies from 
+                foreach (var node in m_toCollectNodeCache)
+                {
+                    node.CollectInputExpressions(bodySyntax);
+                }
+
                 // Collect body expressions
                 m_bodySequence.CollectSequenceExpressions(bodySyntax);
 

@@ -23,6 +23,8 @@ namespace Sandbox.Game.Screens.Helpers
         protected MyGuiControlGrid m_toolbarItemsGrid;
         protected MyGuiControlLabel m_selectedItemLabel;
         protected MyGuiControlPanel m_colorVariantPanel;
+        protected MyGuiControlLabel m_gridSizeLabel;
+        protected MyGuiControlImage m_gridSize;
         protected MyGuiControlContextMenu m_contextMenu;
         protected List<MyGuiControlLabel> m_pageLabelList = new List<MyGuiControlLabel>();
         protected MyToolbar m_shownToolbar;
@@ -41,6 +43,7 @@ namespace Sandbox.Game.Screens.Helpers
             }
         }
 
+        private bool m_gridSizeLargeBlock = true;
         protected int m_contextMenuItemIndex = -1;
 
         public bool UseContextMenu = true;
@@ -102,6 +105,22 @@ namespace Sandbox.Game.Screens.Helpers
         public override void Update()
         {
             base.Update();
+
+            //grid size image
+            if (m_gridSize.Visible && MyCubeBuilder.Static != null)
+            {
+                bool newSizeLarge = MyCubeBuilder.Static.CubeBuilderState.CubeSizeMode == MyCubeSize.Large;
+                if (newSizeLarge != m_gridSizeLargeBlock)
+                {
+                    m_gridSizeLargeBlock = newSizeLarge;
+                    m_gridSize.SetTexture(newSizeLarge ? MyGuiConstants.TEXTURE_ICON_LARGE_BLOCK : MyGuiConstants.TEXTURE_ICON_SMALL_BLOCK);
+                }
+            }
+
+            //grid size label
+            bool showLabel = m_gridSize.Visible && MySandboxGame.Config.ShowBuildingSizeHint;
+            if (m_gridSizeLabel.Visible != showLabel)
+                m_gridSizeLabel.Visible = showLabel;
         }
 
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
@@ -148,6 +167,16 @@ namespace Sandbox.Game.Screens.Helpers
                 Elements.Remove(m_contextMenu);
                 Elements.Add(m_contextMenu);
             }
+
+            //grid size image position - left from toolbar
+            Vector2 gridSizePosition = m_toolbarItemsGrid.Position;
+            gridSizePosition.X -= (m_toolbarItemsGrid.Size.X + 0.005f);
+            gridSizePosition.Y -= 0.0025f;
+            m_gridSize.Position = gridSizePosition;
+
+            //grid size label position - above grid size image
+            gridSizePosition.Y -= m_gridSize.Size.Y * 1.25f;
+            m_gridSizeLabel.Position = gridSizePosition;
         }
 
         private void RecreateControls(bool contructor)
@@ -165,6 +194,24 @@ namespace Sandbox.Game.Screens.Helpers
             m_selectedItemLabel = new MyGuiControlLabel();
             m_colorVariantPanel = new MyGuiControlPanel(size: new Vector2(0.1f, 0.025f));
             m_colorVariantPanel.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+
+            //grid size image (left from toolbar)
+            m_gridSize = new MyGuiControlImage(size: m_toolbarItemsGrid.ItemSize * 0.6f);
+            m_gridSize.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
+            m_gridSize.SetTexture(MyGuiConstants.TEXTURE_ICON_LARGE_BLOCK);
+            m_gridSize.Visible = false;
+            m_gridSize.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+            Elements.Add(m_gridSize);
+
+            //grid size label (above grid size image)
+            m_gridSizeLabel = new MyGuiControlLabel();
+            m_gridSizeLabel.Text = "";
+            m_gridSizeLabel.Visible = false;
+            m_gridSizeLabel.Size = new Vector2(m_toolbarItemsGrid.ItemSize.X * 3f, m_toolbarItemsGrid.ItemSize.Y / 2f);
+            m_gridSizeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
+            m_gridSizeLabel.BackgroundTexture = null;
+            m_gridSizeLabel.TextScale = 0.75f;
+            Elements.Add(m_gridSizeLabel);
 
             m_contextMenu = new MyGuiControlContextMenu();
             m_contextMenu.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
@@ -280,11 +327,27 @@ namespace Sandbox.Game.Screens.Helpers
                 Debug.Assert(MyCubeBuilder.Static != null, "Cube builder should be loaded here");
 
                 m_colorVariantPanel.Visible = (item is MyToolbarItemCubeBlock) && MyFakes.ENABLE_BLOCK_COLORING;
+
+                //set grid size image visible when some block is selected
+                m_gridSize.Visible = (item is MyToolbarItemCubeBlock);
+                if (m_gridSize.Visible)
+                {
+                    if (MyCubeBuilder.Static.CubeBuilderState.HasComplementBlock())
+                    {
+                        MyStringId keyId = MyStringId.GetOrCompute("SLOT" + (toolbar.SelectedSlot + 1).ToString());
+                        MyControl control = MyInput.Static.GetGameControl(keyId);
+                        StringBuilder sb = new StringBuilder();
+                        m_gridSizeLabel.Text = sb.AppendFormat(MyTexts.GetString(MySpaceTexts.CubeBuilder_CubeSizeModeChange), (control != null ? "\"" + control.ToString() + "\"" : "?"), "\n").ToString();
+                    }
+                    else
+                        m_gridSizeLabel.Text = "";
+                }
             }
             else
             {
                 m_colorVariantPanel.Visible = false;
                 m_selectedItemLabel.Text = String.Empty;
+                m_gridSize.Visible = false;
             }
         }
 

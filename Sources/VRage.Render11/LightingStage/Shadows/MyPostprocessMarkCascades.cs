@@ -33,14 +33,14 @@ namespace VRage.Render11.LightingStage.Shadows
         unsafe IVertexBuffer CreateVertexBuffer()
         {
             Vector3* vertices = stackalloc Vector3[8];
-            vertices[0] = new Vector3D(-1, -1, 0);
-            vertices[1] = new Vector3D(-1, 1, 0);
-            vertices[2] = new Vector3D(1, 1, 0);
-            vertices[3] = new Vector3D(1, -1, 0);
-            vertices[4] = new Vector3D(-1, -1, 1);
-            vertices[5] = new Vector3D(-1, 1, 1);
-            vertices[6] = new Vector3D(1, 1, 1);
-            vertices[7] = new Vector3D(1, -1, 1);
+            vertices[0] = new Vector3(-1, -1, 0);
+            vertices[1] = new Vector3(-1, 1, 0);
+            vertices[2] = new Vector3(1, 1, 0);
+            vertices[3] = new Vector3(1, -1, 0);
+            vertices[4] = new Vector3(-1, -1, 1);
+            vertices[5] = new Vector3(-1, 1, 1);
+            vertices[6] = new Vector3(1, 1, 1);
+            vertices[7] = new Vector3(1, -1, 1);
             return MyManagers.Buffers.CreateVertexBuffer(
                 "MyPostprocessMarkCascades.VertexBuffer", 8, sizeof(Vector3), new IntPtr(vertices),
                 ResourceUsage.Dynamic);

@@ -249,7 +249,7 @@ namespace Sandbox.Game.GameSystems
         
         Task m_backgroundTask;
         bool m_bgTaskRunning = false;
-        bool m_doPostProcess = false;
+        //bool m_doPostProcess = false; //GK: PostProccess creates lags. Add to background
 		#endregion
 
         private int m_lastUpdateTime;
@@ -391,14 +391,14 @@ namespace Sandbox.Game.GameSystems
                 return;//wait
 
             MySimpleProfiler.Begin("Oxygen");
-            if (m_pressurizationPending && !m_doPostProcess)
+            if (m_pressurizationPending)
             {
                 ProfilerShort.Begin("Oxygen Initialize");
                 if (ShouldPressurize())
                 {
                     if (MyFakes.BACKGROUND_OXYGEN)
                     {
-                        m_doPostProcess = false;
+                        //m_doPostProcess = false;
                         PressurizeInitialize();
                     }
                     else
@@ -410,12 +410,15 @@ namespace Sandbox.Game.GameSystems
             if (m_isPressurizing)
             {
                 ProfilerShort.Begin("Oxygen Pressurize");
+                /*
                 if (m_doPostProcess)
                 {
                     PressurizePostProcess();
                     m_doPostProcess = false;
                 }
-                else if (!m_bgTaskRunning)
+                else
+                */
+                if (!m_bgTaskRunning)
                 {
                     m_backgroundTask = Parallel.Start(BackgroundPressurizeStart, BackgroundPressurizeFinished);
                     m_bgTaskRunning = true;
@@ -448,6 +451,9 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation100()
         {
+            if (m_bgTaskRunning)
+                return;
+
             MySimpleProfiler.Begin("Oxygen");
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             float deltaTime = (currentTime - m_lastUpdateTime) / 1000f;
@@ -681,7 +687,8 @@ namespace Sandbox.Game.GameSystems
                 MyLog.Default.WriteLine("pool Active: " + m_OxygenRoomLinkPool.pool.ActiveCount);
             }
             ProfilerShort.End();
-            m_doPostProcess = true;
+            //m_doPostProcess = true;
+            PressurizePostProcess();
 
             return true;
         }

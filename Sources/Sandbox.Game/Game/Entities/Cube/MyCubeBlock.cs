@@ -112,7 +112,7 @@ namespace Sandbox.Game.Entities
 
             if (IDModule == null)
                 return VRage.Game.MyRelationsBetweenPlayerAndBlock.NoOwnership;
-
+            
             return IDModule.GetUserRelationToOwner(identityId);
         }
 
@@ -1154,9 +1154,9 @@ namespace Sandbox.Game.Entities
 
         public class MyBlockPosComponent : MyPositionComponent
         {
-            protected override void OnWorldPositionChanged(object source)
+            protected override void OnWorldPositionChanged(object source, bool updateChildren)
             {
-                base.OnWorldPositionChanged(source);
+                base.OnWorldPositionChanged(source, updateChildren);
                 (Container.Entity as MyCubeBlock).WorldPositionChanged(source);
             }
         }

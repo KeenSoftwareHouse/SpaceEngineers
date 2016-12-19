@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_VSFiles xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <StateMachine>
+    <Name>OC01_M5_SM_Main</Name>
+    <OwnerId>0</OwnerId>
+    <Cursors>
+      <MyObjectBuilder_ScriptSMCursor>
+        <NodeName>Cutscene</NodeName>
+      </MyObjectBuilder_ScriptSMCursor>
+    </Cursors>
+    <Nodes>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="119.914795" y="238.909241" />
+        <Name>Start</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 05\OC01_M5_OLS_Start.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M5_OLS_Start</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode xsi:type="MyObjectBuilder_ScriptSMSpreadNode">
+        <Position x="768" y="270" />
+        <Name>Spread_1</Name>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="887.040955" y="-1.09008026" />
+        <Name>Sockets</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 05\OC01_M5_OLS_SocketsVs2.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M5_OLS_SocketsVs2</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="886.6328" y="478.407837" />
+        <Name>DroneControl</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 05\OC01_M5_OLS_DroneControl.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M5_OLS_DroneControl</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="990.931763" y="241.489014" />
+        <Name>DroneBattle</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 05\OC01_M5_OLS_DroneBattle.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M5_OLS_DroneBattle</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1292.925" y="240.332031" />
+        <Name>BossFight</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 05\OC01_M5_OLS_BossFight.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M5_OLS_BossFight</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1556.73413" y="240.90094" />
+        <Name>Monolith</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 05\OC01_M5_OLS_Monolith.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M5_OLS_Monolith</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="442.1613" y="245.531677" />
+        <Name>ArenaInit</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 05\OC01_M5_OLS_ArenaInit.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M5_OLS_ArenaInit</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="-157.723145" y="225.563675" />
+        <Name>Cutscene</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 05\OC01_M5_OLS_Cutscene.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M5_OLS_Cutscene</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+    </Nodes>
+    <Transitions>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Start</From>
+        <To>ArenaInit</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_1</From>
+        <To>Sockets</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_1</From>
+        <To>DroneControl</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_1</From>
+        <To>DroneBattle</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>DroneBattle</From>
+        <To>BossFight</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>BossFight</From>
+        <To>Monolith</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>ArenaInit</From>
+        <To>Spread_1</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Cutscene</From>
+        <To>Start</To>
+      </MyObjectBuilder_ScriptSMTransition>
+    </Transitions>
+  </StateMachine>
+</MyObjectBuilder_VSFiles>

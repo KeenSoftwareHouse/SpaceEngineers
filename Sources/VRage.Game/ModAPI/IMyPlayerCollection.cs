@@ -19,5 +19,7 @@ namespace VRage.Game.ModAPI
         IMyPlayer GetPlayerControllingEntity(IMyEntity entity);
         void GetAllIdentites(List<IMyIdentity> identities, Func<IMyIdentity, bool> collect = null);
         //void WriteDebugInfo();
+        long TryGetIdentityId(ulong steamId);
+        ulong TryGetSteamId(long identityId);
     }
 }

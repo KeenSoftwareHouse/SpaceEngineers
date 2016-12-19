@@ -5,7 +5,6 @@ using System.IO;
 using VRage;
 using VRage.Game;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -294,7 +293,9 @@ namespace Sandbox.Graphics.GUI
             private set;
         }
 
-        protected readonly MyGuiControls Elements;
+        public readonly MyGuiControls Elements;
+
+        public MyToolTips Tooltips { get { return m_toolTip; } }
 
         /// <summary>
         /// Position of control's center (normalized and relative to parent screen center (not left/top corner!!!))
@@ -497,7 +498,7 @@ namespace Sandbox.Graphics.GUI
         public bool IsMouseOver
         {
             get { return m_isMouseOver; }
-            private set { m_isMouseOver = value; }
+            set { m_isMouseOver = value; }
         }
 
         public bool CanHaveFocus
@@ -1074,6 +1075,8 @@ namespace Sandbox.Graphics.GUI
 
             return Owner.GetNextFocusControl(this, forwardMovement);
         }
+
+        public virtual void Clear() { }
 
         public override string ToString()
         {

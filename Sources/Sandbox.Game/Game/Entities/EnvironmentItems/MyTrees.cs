@@ -365,14 +365,19 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             }
         }
 
-        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler, MyStringHash material)
         {
             MyDecalRenderInfo info = new MyDecalRenderInfo();
             info.Position = hitInfo.Position;
             info.Normal = hitInfo.Normal;
             info.RenderObjectId = -1;
             info.Flags = MyDecalFlags.World;
-            info.Material = Physics.MaterialType;
+
+            if (material.GetHashCode() == 0)            
+                info.Material = Physics.MaterialType;
+            else
+                info.Material = material;
+
             decalHandler.AddDecal(ref info);
         }
     }

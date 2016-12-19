@@ -1,4 +1,5 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -63,7 +64,7 @@ namespace Sandbox.Game.Screens.DebugScreens
         {
             Vector3D pos = (Vector3D)positionInMilions * 1E6;
 
-            MySession.Static.ControlledEntity.Teleport(pos);
+            MyMultiplayer.TeleportControlledEntity(pos);
         }
 
     }

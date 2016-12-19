@@ -73,6 +73,9 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
+        public static event Action<MyGuiScreenBase> ScreenAdded;
+        public static event Action<MyGuiScreenBase> ScreenRemoved;
+
         /// <summary>
         /// Corrently active screens.
         /// </summary>
@@ -492,6 +495,16 @@ namespace Sandbox.Graphics.GUI
         }
 
 
+        public static void HandleInputAfterSimulation()
+        {
+            for (int i = (m_screens.Count - 1); i >= 0; i--)
+            {
+                MyGuiScreenBase screen = m_screens[i];
+
+                screen.HandleInputAfterSimulation();
+            }
+        }
+        
         static bool IsAnyScreenInTransition()
         {
             bool isTransitioning = false;
@@ -616,6 +629,8 @@ namespace Sandbox.Graphics.GUI
                 else
                     m_screens.Insert(GetIndexOfLastNonTopScreen(), screenToAdd);
 
+                NotifyScreenAdded(screenToAdd);
+
             }
             m_screensToAdd.Clear();
         }
@@ -652,6 +667,8 @@ namespace Sandbox.Graphics.GUI
                     }
                     screenIndex--;
                 }
+
+                NotifyScreenRemoved(screenToRemove);
             }
             m_screensToRemove.Clear();
         }
@@ -720,7 +737,9 @@ namespace Sandbox.Graphics.GUI
                 previousCanHideOthers = screen.CanHideOthers;
             }
 
-            //  Draw all screen, from bottom to top
+
+
+            //  Draw all screen, from bottom to top, dragndrop last
             for (int i = 0; i < m_screens.Count; i++)
             {
                 MyGuiScreenBase screen = m_screens[i];
@@ -752,12 +771,37 @@ namespace Sandbox.Graphics.GUI
                 }
             }
 
+            // draw tooltips only when screen has focus
+            if (screenWithFocus != null)
+            {
+                //  Draw tooltips
+                foreach (var control in screenWithFocus.Controls.GetVisibleControls())
+                {
+                    control.ShowToolTip();
+                }
+            }
+
+
             //VRageRender.MyRenderProxy.GetRenderProfiler().ProfileCustomValue("Drawcalls", MyPerformanceCounter.PerCameraDrawWrite.TotalDrawCalls);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
+        private static void NotifyScreenAdded(MyGuiScreenBase screen)
+        {
+            if (ScreenAdded != null)
+            {
+                ScreenAdded(screen);
+            }
+        }
 
+        private static void NotifyScreenRemoved(MyGuiScreenBase screen)
+        {
+            if (ScreenRemoved != null)
+            {
+                ScreenRemoved(screen);
+            }
+        }
 
         //public static MyGuiScreenMainMenu GetMainMenuScreen()
         //{

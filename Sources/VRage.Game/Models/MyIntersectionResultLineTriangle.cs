@@ -25,20 +25,25 @@ namespace VRage.Game.Models
         //  Normals of vertexes of intersected triangle
         public Vector3 InputTriangleNormal;
 
-        public MyIntersectionResultLineTriangle(ref MyTriangle_Vertices triangle, ref Vector3 triangleNormal, double distance)
+        // Index to model triangles
+        public int TriangleIndex;
+
+        public MyIntersectionResultLineTriangle(int triangleIndex, ref MyTriangle_Vertices triangle, ref Vector3 triangleNormal, double distance)
         {
             InputTriangle = triangle;
             InputTriangleNormal = triangleNormal;
             Distance = distance;
             BoneWeights = null;
+            TriangleIndex = triangleIndex;
         }
 
-        public MyIntersectionResultLineTriangle(ref MyTriangle_Vertices triangle, ref MyTriangle_BoneIndicesWeigths? boneWeigths, ref Vector3 triangleNormal, double distance)
+        public MyIntersectionResultLineTriangle(int triangleIndex, ref MyTriangle_Vertices triangle, ref MyTriangle_BoneIndicesWeigths? boneWeigths, ref Vector3 triangleNormal, double distance)
         {
             InputTriangle = triangle;
             InputTriangleNormal = triangleNormal;
             Distance = distance;
             BoneWeights = boneWeigths;
+            TriangleIndex = triangleIndex;
         }
         
         //  Find and return closer intersection of these two. If intersection is null then it's not really an intersection.

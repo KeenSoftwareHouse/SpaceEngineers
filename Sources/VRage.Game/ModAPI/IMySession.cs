@@ -9,6 +9,38 @@ using VRageMath;
 
 namespace VRage.Game.ModAPI
 {
+    /// <summary>
+    /// Describes what permissions a user has
+    /// </summary>
+    public enum MyPromoteLevel
+    {
+        //note: if you add items, always preserve order from lowest to highest permission
+        /// <summary>
+        /// Normal players
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Can edit scripts when the scripter role is enabled
+        /// </summary>
+        Scripter,
+        /// <summary>
+        /// Can kick and ban players, has access to 'Show All Players' option in Admin Tools menu
+        /// </summary>
+        Moderator,
+        /// <summary>
+        /// Has access to Space Master tools
+        /// </summary>
+        SpaceMaster,
+        /// <summary>
+        /// Has access to Admin tools
+        /// </summary>
+        Admin,
+        /// <summary>
+        /// Admins listed in server config, cannot be demoted
+        /// </summary>
+        Owner,
+    }
+
     public interface IMySession
     {
         float AssemblerEfficiencyMultiplier { get; }
@@ -97,25 +129,36 @@ namespace VRage.Game.ModAPI
         event Action OnSessionReady;
         event Action OnSessionLoading;
         BoundingBoxD WorldBoundaries { get; }
-
+        
         /// <summary>
-        /// Checks if the local player is an admin or is promoted to space master.
+        /// Gets the local player's promote level.
         /// </summary>
-        bool HasAdminPrivileges { get; }
+        MyPromoteLevel PromoteLevel { get; }
 
         /// <summary>
-        /// Checks if a given player is an admin.
+        /// Gets a remote player's promote level.
+        /// </summary>
+        /// <param name="steamId"></param>
+        /// <returns></returns>
+        MyPromoteLevel GetUserPromoteLevel(ulong steamId);
+
+        /// <summary>
+        /// Checks if the local player is an admin or is promoted to space master (or higher).
+        /// </summary>
+        bool HasCreativeRights { get; }
+
+        /// <summary>
+        /// Checks if a given player is an admin (or higher).
         /// </summary>
         /// <param name="steamId"></param>
         /// <returns></returns>
         bool IsUserAdmin( ulong steamId );
-
-        /// <summary>
-        /// Checks if a given player is promoted to space master.
-        /// </summary>
-        /// <param name="steamId"></param>
-        /// <returns></returns>
+        
+        [Obsolete("Use GetUserPromoteLevel")]
         bool IsUserPromoted( ulong steamId );
+
+        [Obsolete("Use HasCreativeRights")]
+        bool HasAdminPrivileges { get; }
 
         /// <summary>
         /// Change the update order of a session component.

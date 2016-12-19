@@ -21,6 +21,7 @@ namespace VRage.Profiler
     /// </summary>
     public partial class MyProfiler
     {
+        
         public struct HistoryLock : IDisposable
         {
             private MyProfiler m_profiler;
@@ -248,18 +249,18 @@ namespace VRage.Profiler
                 }
                 profilerBlock.NumCallsArray[writeFrame] = profilerBlock.NumCalls;
                 profilerBlock.CustomValues[writeFrame] = profilerBlock.CustomValue;
-                profilerBlock.Miliseconds[writeFrame] = (float)profilerBlock.Elapsed.Miliseconds;
+                profilerBlock.Miliseconds[writeFrame] = (float)profilerBlock.Elapsed.Milliseconds;
 
                 // Unused
-                profilerBlock.averageMiliseconds = 0.9f * profilerBlock.averageMiliseconds + 0.1f * (float)profilerBlock.Elapsed.Miliseconds;
+                profilerBlock.averageMiliseconds = 0.9f * profilerBlock.averageMiliseconds + 0.1f * (float)profilerBlock.Elapsed.Milliseconds;
                 //profilerBlock.NumChildCalls = profilerBlock.GetNumChildCalls();
 
                 if (ENABLE_PROFILER_LOG)
-                    if (profilerBlock.Elapsed.Miliseconds > LOG_THRESHOLD_MS)
+                    if (profilerBlock.Elapsed.Milliseconds > LOG_THRESHOLD_MS)
                     {
                         m_logWriter.Write(DateTime.Now.ToString());
                         m_logWriter.Write("; ");
-                        m_logWriter.Write(((int)profilerBlock.Elapsed.Miliseconds).ToString());
+                        m_logWriter.Write(((int)profilerBlock.Elapsed.Milliseconds).ToString());
                         m_logWriter.Write("; ");
                         m_logWriter.Write(profilerBlock.Name);
                         MyProfilerBlock tempBlock = profilerBlock;
@@ -441,6 +442,35 @@ namespace VRage.Profiler
             }
 
             return sb;
+        }
+
+        public class MyProfilerObjectBuilderInfo
+        {
+            public Dictionary<MyProfilerBlockKey, MyProfilerBlock> ProfilingBlocks;
+            public List<MyProfilerBlock> RootBlocks;
+            public string CustomName;
+            public string AxisName;
+            public int[] TotalCalls;
+        }
+
+        public MyProfilerObjectBuilderInfo GetObjectBuilderInfo()
+        {
+            MyProfilerObjectBuilderInfo objectBuilder = new MyProfilerObjectBuilderInfo();
+            objectBuilder.ProfilingBlocks = m_profilingBlocks;
+            objectBuilder.RootBlocks = m_rootBlocks;
+            objectBuilder.CustomName = m_customName;
+            objectBuilder.AxisName = m_axisName;
+            objectBuilder.TotalCalls = TotalCalls;
+            return objectBuilder;
+        }
+
+        public void Init(MyProfilerObjectBuilderInfo data)
+        {
+            m_profilingBlocks = data.ProfilingBlocks;
+            m_rootBlocks = data.RootBlocks;
+            m_customName = data.CustomName;
+            m_axisName = data.AxisName;
+            TotalCalls = data.TotalCalls;
         }
     }
 }

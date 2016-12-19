@@ -25,6 +25,29 @@ namespace VRage.Game
 
         public const string BuildInfo = "BuildInfo";
         public const string BuildInfoHighlight = "BuildInfoHighlight";
+
+
+        //This code is for mod compatibility, mods expect MyFontEnum someVal = MyFontEnum.White; to not break the compiler
+        private string m_value;
+        public MyFontEnum(string value)
+        {
+            m_value = value;
+        }
+
+        public override string ToString()
+        {
+            return m_value;
+        }
+
+        public static implicit operator MyFontEnum(string input)
+        {
+            return new MyFontEnum(input);
+        }
+
+        public static implicit operator string(MyFontEnum input)
+        {
+            return input.ToString();
+        }
     }
 
     [ProtoContract]

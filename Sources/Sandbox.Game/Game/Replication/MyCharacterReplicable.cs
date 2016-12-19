@@ -1,15 +1,12 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Multiplayer;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Replication;
 using Sandbox.Game.World;
+using SpaceEngineers.Game.SessionComponents;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
@@ -22,19 +19,20 @@ namespace Sandbox.Game.Replication
 {
     class MyCharacterReplicable : MyEntityReplicableBaseEvent<MyCharacter>
     {
-        private MyPropertySyncStateGroup m_propertySync;
-        MyEntityPositionVerificationStateGroup m_posVerGroup;
+        private StateGroups.MyPropertySyncStateGroup m_propertySync;
+        //MyEntityPositionVerificationStateGroup m_posVerGroup;
+        HashSet<IMyReplicable> m_dependencies = new HashSet<IMyReplicable>();
 
         protected override IMyStateGroup CreatePhysicsGroup()
         {
-            m_posVerGroup = new MyCharacterPositionVerificationStateGroup(Instance);
-            return new MyCharacterPhysicsStateGroup(Instance, this);
+            //m_posVerGroup = new MyCharacterPositionVerificationStateGroup(Instance);
+            return new StateGroups.MyCharacterPhysicsStateGroup(Instance, this);
         }
 
         protected override void OnHook()
         {
             base.OnHook();
-            m_propertySync = new MyPropertySyncStateGroup(this, Instance.SyncType);
+            m_propertySync = new StateGroups.MyPropertySyncStateGroup(this, Instance.SyncType);
         }
 
         public override float GetPriority(MyClientInfo state,bool cached)
@@ -66,22 +64,44 @@ namespace Sandbox.Game.Replication
             }
             else
             {
-                priority = base.GetPriority(state,cached);
+                //Sync all characters now, as they can serve as antenna relay
+                priority = 0.1f;
+                //priority = base.GetPriority(state, cached);
             }
 
             if (Instance.IsUsing is MyShipController)
             {
-                if (priority < 0.01f)
-                {
-                    //force pilot to client wve when its too far away.
-                    var parent = MyExternalReplicable.FindByObject((Instance.IsUsing as MyShipController).CubeGrid);
+                //Pilot cannot have higher priority than the grid they control. Otherwise bugs ensue
+                var parent = MyExternalReplicable.FindByObject((Instance.IsUsing as MyShipController).CubeGrid);
 
-                    if (state.HasReplicable(parent))
-                    {
-                        priority = 1.0f;
-                    }
+                if (state.HasReplicable(parent))
+                {
+                    priority = parent.GetPriority(state, cached);
+                }
+                else
+                {
+                    priority = 0.0f;
                 }
             }
+
+            if (MyFakes.MP_ISLANDS)
+            {
+                BoundingBoxD aabb;
+
+                if (player.Character != null)
+                {
+                    if (MyIslandSyncComponent.Static.GetIslandAABBForEntity(player.Character, out aabb))
+                    {
+                        var ipriority = GetBasePriority(aabb.Center, aabb.Size, state);
+
+                        MyIslandSyncComponent.Static.SetPriorityForIsland(player.Character, state.EndpointId.Value, ipriority);
+
+                        return ipriority;
+                    }
+                }
+
+            }
+
 
             m_cachedPriorityForClient[clientEndpoint] = priority;
             return priority;
@@ -94,11 +114,14 @@ namespace Sandbox.Game.Replication
             {
                 resultList.Add(m_propertySync);
             }
-            resultList.Add(m_posVerGroup);
+            //resultList.Add(m_posVerGroup);
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
+            if (Instance == null)
+                return null;
+
             if (Instance.IsUsing is MyShipController)
             {
                 return MyExternalReplicable.FindByObject((Instance.IsUsing as MyShipController).CubeGrid);
@@ -116,6 +139,10 @@ namespace Sandbox.Game.Replication
 
         public override bool OnSave(BitStream stream)
         {
+            Debug.Assert(Instance != null, "Saving null replicable!");
+            if (Instance == null)
+                return false;
+
             stream.WriteBool(Instance.IsUsing is MyShipController);
             if (Instance.IsUsing is MyShipController)
             {
@@ -129,10 +156,6 @@ namespace Sandbox.Game.Replication
             {
                 MyObjectBuilder_Character builder = (MyObjectBuilder_Character)Instance.GetObjectBuilder();
                
-                Vector3 velocity = builder.LinearVelocity;
-                velocity *= MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
-                builder.LinearVelocity = velocity;
-
                 VRage.Serialization.MySerializer.Write(stream, ref builder, MyObjectBuilderSerializer.Dynamic);
             }
             return true;
@@ -157,10 +180,6 @@ namespace Sandbox.Game.Replication
                 MyObjectBuilder_Character builder = (MyObjectBuilder_Character)VRage.Serialization.MySerializer.CreateAndRead<MyObjectBuilder_EntityBase>(stream, MyObjectBuilderSerializer.Dynamic);
                 TryRemoveExistingEntity(builder.EntityId);
                
-                Vector3 velocity = builder.LinearVelocity;
-                velocity /= MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
-                builder.LinearVelocity = velocity;
-
                 MyEntities.InitAsync(character, builder, true, (e) => loadingDoneHandler(character));
             }
         }
@@ -202,6 +221,32 @@ namespace Sandbox.Game.Replication
                 oldEntity.EntityId = MyEntityIdentifier.AllocateId();
                 oldEntity.Close();
             }
+        }
+
+        public override HashSet<IMyReplicable> GetDependencies()
+        {
+            m_dependencies.Clear();
+
+            MyPlayerCollection playerCollection = MySession.Static.Players;
+            var connectedPlayers = playerCollection.GetOnlinePlayers();
+
+            foreach (var player in connectedPlayers)
+            {
+                if (player.Character == Instance)
+                {
+                    var broadcasters = Instance.RadioReceiver.GetRelayedBroadcastersForPlayer(player.Identity.IdentityId);
+                    foreach (var broadcaster in broadcasters)
+                    {
+                        IMyReplicable dep = MyExternalReplicable.FindByObject(broadcaster.Entity);
+                        if (dep != null)
+                        {
+                            m_dependencies.Add(dep.GetParent() ?? dep);
+                        }
+                    }
+                }
+            }
+
+            return m_dependencies;
         }
     }
 }

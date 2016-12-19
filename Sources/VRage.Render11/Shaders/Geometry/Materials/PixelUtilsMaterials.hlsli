@@ -30,7 +30,7 @@ int AlphamaskCoverageAndClip(float threshold, float2 texcoord0, float alphamaskT
 {
 #if !defined(MS_SAMPLE_COUNT) || defined(DEPTH_ONLY)
 #ifdef USE_TEXTURE_INDICES
-	float alpha = AlphamaskTexture.Sample(TextureSampler, float3(texcoord0, alphamaskTexIndex));
+	float alpha = AlphamaskArrayTexture.Sample(TextureSampler, float3(texcoord0, alphamaskTexIndex));
 #else
 	float alpha = AlphamaskTexture.Sample(TextureSampler, texcoord0).x;
 #endif
@@ -59,6 +59,9 @@ void FeedOutputInternal(PixelInterface pixel, inout MaterialOutputInterface outp
         output.base_color = cm.xyz;
     else*/
     {
+        /*if (pixel.emissive_color.xyz != 1)
+            output.base_color = lerp(ColorizeGray(cm.xyz, pixel.key_color.xyz, extras.w), ColorizeGray(cm.xyz, pixel.emissive_color.xyz, extras.y), extras.y);
+        else */
         output.base_color = ColorizeGray(cm.xyz, pixel.key_color.xyz, extras.w);
     }
 

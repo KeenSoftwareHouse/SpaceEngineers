@@ -373,7 +373,7 @@ namespace Sandbox.Game.AI
                 {
                     WorldPosition = position,
                     Radius = radius,
-                    ReservationTimer = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromMiliseconds(reservationTimeMs),
+                    ReservationTimer = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromMilliseconds(reservationTimeMs),
                     ReserverId = requestId,
                 };
 

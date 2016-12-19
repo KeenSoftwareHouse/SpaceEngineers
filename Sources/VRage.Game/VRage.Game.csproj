@@ -55,7 +55,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -169,6 +170,7 @@
     <Compile Include="Components\Session\MyVisualScriptManagerSessionComponent.cs" />
     <Compile Include="Components\MyIngameScript.cs" />
     <Compile Include="Components\MyRespawnComponent.cs" />
+    <Compile Include="Components\MyModStorageComponentBase.cs" />
     <Compile Include="Components\Session\MyPhysicsComponentSystem.cs" />
     <Compile Include="Components\Session\MySessionComponentDefinition.cs" />
     <Compile Include="Components\Session\MySessionComponentExtDebug.cs" />
@@ -182,6 +184,7 @@
     <Compile Include="Definitions\MyDefinitionSet.cs" />
     <Compile Include="Definitions\MyFogProperties.cs" />
     <Compile Include="Definitions\MyGameDefinition.cs" />
+    <Compile Include="Definitions\MyModStorageComponentDefinition.cs" />
     <Compile Include="Definitions\SessionComponents\MyClipboardDefinition.cs" />
     <Compile Include="Definitions\SessionComponents\MyCoordinateSystemDefinition.cs" />
     <Compile Include="Definitions\SessionComponents\MyCubeBuilderDefinition.cs" />
@@ -268,6 +271,8 @@
     <Compile Include="MyFinalBuildConstants.cs" />
     <Compile Include="MyPlayerInfo.cs" />
     <Compile Include="News\MyNews.cs" />
+    <Compile Include="ObjectBuilders\AI\MyObjectBuilder_AutomaticBehaviour.cs" />
+    <Compile Include="ObjectBuilders\AI\MyObjectBuilder_DroneStrafeBehaviour.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationControllerDefinition.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationFootIkChain.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationLayer.cs" />
@@ -285,6 +290,8 @@
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CraftingComponentInteractive.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CraftingComponentInteractiveDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_EntityReverbDetectorComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ModStorageComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ModStorageComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AreaTrigger.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ShipSoundComponent.cs" />
@@ -310,6 +317,8 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DroneBehaviorDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FontDefinition.cs" />
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlImageButton.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Profiler.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ProfilerBlock.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlockBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DefinitionsToPreload.cs" />
     <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_BarbarianWaveEventDefinition.cs" />
@@ -326,6 +335,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TextShadow.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_UsableItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyPhysicsComponentDefinitionBase.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_Questlog.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CampaignSessionComponent.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GhostCharacter.cs" />
     <Compile Include="ObjectBuilders\Definitions\SessionComponents\MyObjectBuilder_ClipboardDefinition.cs" />
@@ -810,6 +820,7 @@
     <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxVariableNode.cs" />
     <Compile Include="VisualScripting\Utils\MyRoslynExtensions.cs" />
     <Compile Include="VisualScripting\Utils\MySyntaxFactory.cs" />
+    <Compile Include="VisualScripting\Utils\MyVSCollectionExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audio\" />
@@ -845,6 +856,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\Data\Localization\MyCommonTexts.cs-CZ.resx" />
     <EmbeddedResource Include="Content\Data\Localization\MyCommonTexts.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>

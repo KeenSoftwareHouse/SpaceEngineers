@@ -44,31 +44,22 @@ void __compute_shader(uint3 id : SV_DispatchThreadID)
 
             float simFactor = (float)particleIndex / (float)emitter.NumParticlesToEmitThisFrame;
             float simTime = frame_.frameTimeDelta * simFactor;
-
-            // Generate some random numbers from reading the random texture
-            float3 rndPosition = float3(random.GetFloatRange(-1, 1), random.GetFloatRange(-1, 1), random.GetFloatRange(-1, 1));
-            float rndLength = length(rndPosition);
-            float3 rndNormal = rndPosition / rndLength;
-            float3 vec = (saturate(rndLength) * (1 - emitter.EmitterSizeMin) + emitter.EmitterSizeMin) * rndNormal;
-            float3 localPos = vec * emitter.EmitterSize * emitter.Scale;
-            float3 emitterPos = mul(float4(localPos, 1), emitter.RotationMatrix).xyz;
-            pa.Position = emitterPos + frame_.Environment.cameraPositionDelta + emitter.PositionDelta * simFactor;
-
-            pa.Acceleration = mul(emitter.Acceleration, (float3x3)emitter.RotationMatrix) + emitter.Gravity;
-
-            pa.Variation = random.GetFloatRange(-1, 1);
-
+            
             pa.EmitterIndex = emitterIndex;
             pa.CollisionCount = 0;
 
-            float3 worldDirection = mul(normalize(emitter.Direction), (float3x3)emitter.RotationMatrix);
-            float3 particleDirection = worldDirection;
+            pa.Variation = random.GetFloatRange(-1, 1);
+            pa.Acceleration = mul(emitter.Acceleration, (float3x3)emitter.RotationMatrix) + emitter.Gravity;
+
+            float3 localEmitterDirection = normalize(emitter.Direction);
+            float3 particleDirection = localEmitterDirection;
 			float3 upVec = float3(0, 1, 0);
 
             // random direction in specified conus if the emitter were in direction of upVector
-			float coneAngle = emitter.DirectionCone + random.GetFloatRange(-1, 1) * emitter.DirectionConeVariance;
+            float varAngle = random.GetFloatRange(0, 1) * (1 - emitter.DirectionInnerCone) + emitter.DirectionInnerCone;
+			float coneAngle = emitter.DirectionConeVariance * varAngle;
 			float3 coneVec = normalize(float3(sin(coneAngle), cos(coneAngle), 0));
-			float3x3 coneMat = rotationMatrix(upVec, random.GetFloatRange(-1, 1) * M_PI * 1.5f);
+			float3x3 coneMat = rotationMatrix(upVec, random.GetFloatRange(-1, 1) * M_PI);
 			coneVec = mul(coneMat, coneVec);
 
 			// axis/angle rotation from up vector to emitter direction
@@ -85,12 +76,18 @@ void __compute_shader(uint3 id : SV_DispatchThreadID)
 				float3x3 mat = rotationMatrix(normalize(axis), angle);
                 particleDirection = mul(mat, coneVec);
 			}
-            pa.Velocity = particleDirection * (emitter.Velocity + random.GetFloatRange(-1, 1) * emitter.VelocityVariance) * emitter.Scale;
-            pa.Age = emitter.ParticleLifeSpan;
+            float distance = random.GetFloatRange(emitter.EmitterSizeMin, 1) * emitter.Scale;
+            float3 localPos = distance * particleDirection * emitter.EmitterSize;
+            float3 emitterPos = mul(float4(localPos, 1), emitter.RotationMatrix).xyz;
+            pa.Position = emitterPos + frame_.Environment.cameraPositionDelta - emitter.PositionDelta * simFactor;
+
+            float3 velocity = particleDirection * (emitter.Velocity + random.GetFloatRange(-1, 1) * emitter.VelocityVariance) * emitter.Scale;
+            pa.Velocity = mul(velocity, (float3x3)emitter.RotationMatrix);
+            pa.Age = max(emitter.ParticleLifeSpan + random.GetFloatRange(-1, 1) * emitter.ParticleLifeSpanVar, 0);
             
             pa.RotationVelocity = emitter.RotationVelocity + emitter.RotationVelocityVariance * random.GetFloatRange(-1, 1);
 
-            pa.Normal = worldDirection;
+            pa.Normal = mul(localEmitterDirection, (float3x3)emitter.RotationMatrix);
             pa.Origin = float3(emitter.RotationMatrix._41, emitter.RotationMatrix._42, emitter.RotationMatrix._43);
 
             pa.Age += simTime;

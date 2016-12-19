@@ -510,7 +510,8 @@ namespace Sandbox.Game.Entities.Cube
                     gizmoSpace.m_positions.Clear();
                     gizmoSpace.m_positionsSmallOnLarge.Clear();
 
-                    if (MyFakes.ENABLE_STATIC_SMALL_GRID_ON_LARGE && gizmoSpace.m_addPosSmallOnLarge != null) {
+                    if (MyFakes.ENABLE_STATIC_SMALL_GRID_ON_LARGE && gizmoSpace.m_addPosSmallOnLarge != null) 
+                    {
                         float smallToLarge = MyDefinitionManager.Static.GetCubeSize(cubeBlockDefinition.CubeSize) / cubeGrid.GridSize;
 
                         gizmoSpace.m_minSmallOnLarge = Vector3.MaxValue;
@@ -539,30 +540,38 @@ namespace Sandbox.Game.Entities.Cube
                                 }
 
                     }
-                    else {
-                        gizmoSpace.m_min = Vector3I.MaxValue;
-                        gizmoSpace.m_max = Vector3I.MinValue;
-                        gizmoSpace.m_centerPos = gizmoSpace.m_addPos + worldDir;
-                        gizmoSpace.m_buildAllowed = true;
+                    else 
+                    {                       
+                            gizmoSpace.m_min = Vector3I.MaxValue;
+                            gizmoSpace.m_max = Vector3I.MinValue;
+                            gizmoSpace.m_centerPos = gizmoSpace.m_addPos + worldDir;
+                            gizmoSpace.m_buildAllowed = true;
 
-                        Vector3I temp = new Vector3I();
+                            Vector3I temp = new Vector3I();
 
-                        for (temp.X = 0; temp.X < cubeBlockDefinition.Size.X; temp.X++)
-                            for (temp.Y = 0; temp.Y < cubeBlockDefinition.Size.Y; temp.Y++)
-                                for (temp.Z = 0; temp.Z < cubeBlockDefinition.Size.Z; temp.Z++) {
-                                    Vector3I rotatedTemp;
-                                    Vector3I centeredTemp = temp - center;
-                                    Vector3I.TransformNormal(ref centeredTemp, ref gizmoSpace.m_localMatrixAdd, out rotatedTemp);
+                            for (temp.X = 0; temp.X < cubeBlockDefinition.Size.X; temp.X++)
+                                for (temp.Y = 0; temp.Y < cubeBlockDefinition.Size.Y; temp.Y++)
+                                    for (temp.Z = 0; temp.Z < cubeBlockDefinition.Size.Z; temp.Z++)
+                                    {
+                                        Vector3I rotatedTemp;
+                                        Vector3I centeredTemp = temp - center;
+                                        Vector3I.TransformNormal(ref centeredTemp, ref gizmoSpace.m_localMatrixAdd, out rotatedTemp);
 
-                                    Vector3I tempIntPos = gizmoSpace.m_addPos + rotatedTemp + worldDir;
-                                    gizmoSpace.m_min = Vector3I.Min(tempIntPos, gizmoSpace.m_min);
-                                    gizmoSpace.m_max = Vector3I.Max(tempIntPos, gizmoSpace.m_max);
+                                        Vector3I tempIntPos = gizmoSpace.m_addPos + rotatedTemp + worldDir;
+                                        gizmoSpace.m_min = Vector3I.Min(tempIntPos, gizmoSpace.m_min);
+                                        gizmoSpace.m_max = Vector3I.Max(tempIntPos, gizmoSpace.m_max);
 
-                                    if (cubeGrid != null && !cubeGrid.CanAddCube(tempIntPos, blockOrientation, cubeBlockDefinition))
-                                        gizmoSpace.m_buildAllowed = false;
+                                        if (cubeGrid != null)
+                                        {
+                                            if (cubeBlockDefinition.CubeSize == cubeGrid.GridSizeEnum)
+                                            {
+                                                if (!cubeGrid.CanAddCube(tempIntPos, blockOrientation, cubeBlockDefinition))
+                                                    gizmoSpace.m_buildAllowed = false;
+                                            }
+                                        }
 
-                                    gizmoSpace.m_positions.Add(tempIntPos);
-                                }
+                                        gizmoSpace.m_positions.Add(tempIntPos);
+                                    }
                     }
                 }
 
@@ -847,15 +856,11 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (box.Size.X > 1 * cubeGrid.GridSize || box.Size.Y > 1 * cubeGrid.GridSize || box.Size.Z > 1 * cubeGrid.GridSize)
                 {
-                    //align to mirror
-                    BoundingBox worldAABB = box.Transform((Matrix)cubeGrid.WorldMatrix);
-                    //VRageRender.MyRenderProxy.DebugDrawAABB(worldAABB, Vector3.One, 1, 1, false);
-
-                    Vector3 sourceCenterFloatLocal = sourceSpace.m_localMatrixAdd.Translation * cubeGrid.GridSize;
+                    Vector3 sourceCenterFloatLocal = sourceSpace.m_addPos * cubeGrid.GridSize;
                     Vector3 sourceCenterWorld = Vector3.Transform(sourceCenterFloatLocal, cubeGrid.WorldMatrix);
-                    //VRageRender.MyRenderProxy.DebugDrawSphere(sourceCenterWorld, 0.5f, Vector3.One, 1, false, false);
+                    //VRageRender.MyRenderProxy.DebugDrawSphere(sourceCenterWorld, 0.18f, Vector3.One, 1, false, false);
 
-                    Vector3I localToMirror = mirrorPosition - new Vector3I(sourceSpace.m_localMatrixAdd.Translation);
+                    Vector3I localToMirror = mirrorPosition - sourceSpace.m_addPos;
                     Vector3 floatLocalToMirror = localToMirror * cubeGrid.GridSize;
                     if (isOdd)
                     {
@@ -864,12 +869,10 @@ namespace Sandbox.Game.Entities.Cube
                         floatLocalToMirror.Z += cubeGrid.GridSize / 2;
                     }
 
-
                     Vector3 fullFloatLocalToMirror = floatLocalToMirror;
                     Vector3 alignedFloatLocalToMirror = Vector3.Clamp(sourceCenterFloatLocal + floatLocalToMirror, box.Min, box.Max) - sourceCenterFloatLocal;
                     Vector3 alignedFloatLocalToBoxEnd = Vector3.Clamp(sourceCenterFloatLocal + floatLocalToMirror * 100, box.Min, box.Max) - sourceCenterFloatLocal;
                     Vector3 oppositeFromMirror = Vector3.Clamp(sourceCenterFloatLocal - floatLocalToMirror * 100, box.Min, box.Max) - sourceCenterFloatLocal;
-
 
                     if (mirrorPlane == MySymmetrySettingModeEnum.XPlane || mirrorPlane == MySymmetrySettingModeEnum.XPlaneOdd)
                     {
@@ -909,7 +912,6 @@ namespace Sandbox.Game.Entities.Cube
 
                     Vector3 sideLocalToMirror = fullFloatLocalToMirror - alignedFloatLocalToMirror;
 
-
                     Vector3 alignedWorldToMirror = Vector3.TransformNormal(alignedFloatLocalToMirror, cubeGrid.WorldMatrix);
                     Vector3 fullWorldToMirror = Vector3.TransformNormal(fullFloatLocalToMirror, cubeGrid.WorldMatrix);
                     Vector3 oppositeWorldToMirror = Vector3.TransformNormal(oppositeFromMirror, cubeGrid.WorldMatrix);
@@ -922,7 +924,6 @@ namespace Sandbox.Game.Entities.Cube
                     {
                         isInsideMirror = true;
                     }
-
 
                     Vector3 newOffsetFromMirror = sideLocalToMirror;
                     Vector3 newOffsetFromBox = -oppositeFromMirror;
@@ -937,7 +938,7 @@ namespace Sandbox.Game.Entities.Cube
                     //VRageRender.MyRenderProxy.DebugDrawLine3D(mirrorPositionWorld, mirrorPositionWorld + newWorldFromMirror, Color.Green, Color.Green, false);
 
 
-                    Vector3 fromMirrorFloat = sourceSpace.m_localMatrixAdd.Translation + (fullFloatLocalToMirror + newLocalFromMirror) / cubeGrid.GridSize;
+                    Vector3 fromMirrorFloat = sourceSpace.m_addPos + (fullFloatLocalToMirror + newLocalFromMirror) / cubeGrid.GridSize;
 
 
                     if (!isInsideMirror)
@@ -946,8 +947,8 @@ namespace Sandbox.Game.Entities.Cube
 
                         //VRageRender.MyRenderProxy.DebugDrawLine3D(sourceCenterWorld, sourceCenterWorld + worldFromMirror, Color.White, Color.Black, false);
 
-                        Vector3 newPos = fromMirrorFloat;// / CurrentGrid.GridSize;
-                        //VRageRender.MyRenderProxy.DebugDrawSphere(Vector3.Transform(targetSpace.m_gizmoAddPos * CurrentGrid.GridSize, CurrentGrid.WorldMatrix), 0.2f, Vector3.One, 1, false);
+                        Vector3 newPos = fromMirrorFloat;
+                        //VRageRender.MyRenderProxy.DebugDrawSphere(Vector3.Transform(targetSpace.m_addPos * cubeGrid.GridSize, cubeGrid.WorldMatrix), 0.1f, Color.Aqua, 1, false);
                         targetSpace.m_mirroringOffset = new Vector3I(newPos) - targetSpace.m_addPos;
                         targetSpace.m_addPos += targetSpace.m_mirroringOffset;
                         targetSpace.m_removePos += targetSpace.m_mirroringOffset;

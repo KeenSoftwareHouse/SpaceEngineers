@@ -14,6 +14,7 @@ namespace VRage.Audio
         Dictionary<MyCueId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return null; } }
         MySoundData IMyAudio.SoloCue { get; set; }
         bool IMyAudio.ApplyReverb { get { return false; } set { } }
+        int IMyAudio.SampleRate { get { return 0; } }
         void IMyAudio.SetReverbParameters(float diffusion, float roomSize) { }
         float IMyAudio.VolumeMusic { get; set; }
         float IMyAudio.VolumeHud { get { return 0; } set { } }
@@ -28,6 +29,7 @@ namespace VRage.Audio
         bool IMyAudio.UseVolumeLimiter { get { return false; } set { } }
         void IMyAudio.SetSameSoundLimiter() { }
         void IMyAudio.EnableMasterLimiter(bool e) { }
+        void IMyAudio.ChangeGlobalVolume(float level, float time) { }
         event Action<bool> IMyAudio.VoiceChatEnabled { add { } remove { } }
 
         bool IMyAudio.IsValidTransitionCategory(MyStringId transitionCategory, MyStringId musicCategory) { return false; }

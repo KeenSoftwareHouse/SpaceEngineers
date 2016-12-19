@@ -14,7 +14,7 @@ using VRage.FileSystem;
 
 namespace VRage.Render11.Resources
 {
-    internal interface IFileArrayTexture : ISrvBindable
+    internal interface IFileArrayTexture : ITexture
     {
         int SubtexturesCount { get; }
     }
@@ -70,9 +70,11 @@ namespace VRage.Render11.Resources
                 get { return m_size; }
             }
 
+            public int MipmapCount { get; private set; }
+
             public long ByteSize { get; private set; }
 
-            public Format TextureFormat { get; private set; }
+            public Format Format { get; private set; }
 
             internal List<string> SubresourceFilenames { get {return m_listSubresourceFilenames;}}
 
@@ -92,9 +94,9 @@ namespace VRage.Render11.Resources
                     m_listSubresourceFilenames.Add(path);
                 m_type = type;
 
-                ISrvBindable tex = MyManagers.FileTextures.GetTexture(filePaths[0], type);
+                ISrvBindable tex = MyManagers.FileTextures.GetTexture(filePaths[0], type, temporary: true);
                 m_size = tex.Size;
-                TextureFormat = Format.Unknown;
+                Format = Format.Unknown;
                 m_recoverySystem.UseErrorTexture = true;
                 m_recoverySystem.TextureFilepath = errorTextureFilepath;
             }
@@ -110,9 +112,9 @@ namespace VRage.Render11.Resources
                     m_listSubresourceFilenames.Add(path);
                 m_type = type;
 
-                ISrvBindable tex = MyManagers.FileTextures.GetTexture(filePaths[0], type);
+                ISrvBindable tex = MyManagers.FileTextures.GetTexture(filePaths[0], type, temporary: true);
                 m_size = tex.Size;
-                TextureFormat = Format.Unknown;
+                Format = Format.Unknown;
                 m_recoverySystem.UseBytePattern = true;
                 m_recoverySystem.FormatBytePattern = formatBytePattern;
                 m_recoverySystem.BytePattern = bytePattern;
@@ -123,7 +125,7 @@ namespace VRage.Render11.Resources
                 m_listSubresourceFilenames.Clear();
                 m_objectsPoolOfStringLists.Deallocate(m_listSubresourceFilenames);
                 m_listSubresourceFilenames = null;
-                TextureFormat = Format.Unknown;
+                Format = Format.Unknown;
             }
 
             // if no file texture can be loaded, the function will return false and default value in parameters
@@ -158,7 +160,7 @@ namespace VRage.Render11.Resources
                 return false;
             }
 
-            public void OnDeviceInit()
+            public void OnDeviceInit(MyFileArrayTexture source = null)
             {
                 MyFileTextureParams fileTexParams;
                 bool ret = GetCorrectedFileTextureParams(out fileTexParams);
@@ -169,7 +171,7 @@ namespace VRage.Render11.Resources
                 desc.ArraySize = m_listSubresourceFilenames.Count;
                 desc.BindFlags = BindFlags.ShaderResource;
                 desc.CpuAccessFlags = CpuAccessFlags.None;
-                desc.Format = fileTexParams.Format;
+                desc.Format = fileTexParams.Format == Format.Unknown ? Format.BC1_UNorm_SRgb : fileTexParams.Format;
                 desc.Height = (int) Size.Y;
                 desc.Width = (int) Size.X;
                 var mipmaps = desc.MipLevels = fileTexParams.Mipmaps;
@@ -178,18 +180,17 @@ namespace VRage.Render11.Resources
                 desc.Usage = ResourceUsage.Default;
                 m_resource = new Texture2D(MyRender11.Device, desc);
                 m_resource.DebugName = m_resourceName;
-                TextureFormat = fileTexParams.Format;
+                Format = desc.Format;
+                MipmapCount = fileTexParams.Mipmaps;
 
                 // foreach mip
                 int i = 0;
                 foreach (var path in m_listSubresourceFilenames)
                 {
-                    bool isUsedCreatedGeneratedTexture = false;
-                    ISrvBindable tex = MyManagers.FileTextures.GetTexture(path, m_type, true);
-                    var tex2D = tex.Resource as Texture2D;
-                    MyRenderProxy.Assert(tex2D != null,
-                        "MyFileArrayTexture supports only 2D textures. Inconsistent texture: " + tex.Name);
-                    bool consistent = MyResourceUtils.CheckTexturesConsistency(desc, tex2D.Description);
+                    Texture2DDescription description;
+                    int sourceSlice;
+                    IResource resource = GetResource(path, m_type, source, i, new Vector2I(desc.Width, desc.Height), out description, out sourceSlice);
+                    bool consistent = MyResourceUtils.CheckTexturesConsistency(desc, description);
                     if (!consistent)
                     {
                         if (!string.IsNullOrEmpty(path) && MyFileSystem.FileExists(path))
@@ -203,47 +204,55 @@ namespace VRage.Render11.Resources
 
                     if (!consistent && m_recoverySystem.UseErrorTexture) // if the texture cannot be used, error texture will be used
                     {
-                        tex = MyManagers.FileTextures.GetTexture(m_recoverySystem.TextureFilepath, m_type, true);
-                        tex2D = tex.Resource as Texture2D;
+                        var texture = MyManagers.FileTextures.GetTexture(m_recoverySystem.TextureFilepath, m_type, true, temporary: true);
+                        var tex2D = texture.Resource as Texture2D;
                         MyRenderProxy.Assert(tex2D != null,
                             "MyFileArrayTexture supports only 2D textures. Inconsistent texture: " + m_recoverySystem.TextureFilepath);
-                        consistent = MyResourceUtils.CheckTexturesConsistency(desc, tex2D.Description);
-                    } 
+                        description = tex2D.Description;
+                        sourceSlice = 0;
+                        consistent = MyResourceUtils.CheckTexturesConsistency(desc, description);
+                    }
+
+                    IGeneratedTexture generatedTexture = null;
                     if (!consistent && m_recoverySystem.UseBytePattern) // if the texture cannot be used, byte pattern will be used to generate texture
                     {
-                        tex = MyManagers.GeneratedTextures.CreateFromBytePattern("MyFileArrayTexture.Tmp", desc.Width,
+                        generatedTexture = MyManagers.GeneratedTextures.CreateFromBytePattern("MyFileArrayTexture.Tmp", desc.Width,
                             desc.Height, m_recoverySystem.FormatBytePattern, m_recoverySystem.BytePattern);
-                        tex2D = tex.Resource as Texture2D;
-                        MyRenderProxy.Assert(tex2D != null);
-                        consistent = MyResourceUtils.CheckTexturesConsistency(desc, tex2D.Description);
-                        isUsedCreatedGeneratedTexture = true;
+                        resource = generatedTexture;
+                        var tex2D = generatedTexture.Resource as Texture2D;
+                        description = tex2D.Description;
+                        sourceSlice = 0;
+                        MyRenderProxy.Assert(tex2D != null, "MyFileArrayTexture supports only 2D textures");
+                        consistent = MyResourceUtils.CheckTexturesConsistency(desc, description);
                     }
+
                     if (!consistent)
                     {
                         Texture2DDescription desc1 = desc;
-                        Texture2DDescription desc2 = tex2D.Description;
+                        Texture2DDescription desc2 = description;
                         string errorMsg = string.Format("Textures ({0}) is not compatible within array texture! Width: ({1},{2}) Height: ({3},{4}) Mipmaps: ({5},{6}) Format: ({7},{8})",
                             path, desc1.Width, desc2.Width, desc1.Height, desc2.Height, desc1.MipLevels, desc2.MipLevels, desc1.Format, desc2.Format);
                         MyRenderProxy.Error(errorMsg);
                         MyRender11.Log.WriteLine(errorMsg);
                     }
 
-                    for (int m = 0; m < mipmaps; m++)
+                    if (consistent)
                     {
-                        MyRender11.RC.CopySubresourceRegion(tex,
-                            Resource.CalculateSubResourceIndex(m, 0, mipmaps), null, Resource,
-                            Resource.CalculateSubResourceIndex(m, i, mipmaps));
+                        for (int m = 0; m < mipmaps; m++)
+                        {
+                            MyRender11.RC.CopySubresourceRegion(resource,
+                                Resource.CalculateSubResourceIndex(m, sourceSlice, mipmaps), null, Resource,
+                                Resource.CalculateSubResourceIndex(m, i, mipmaps));
 
-                        int sizeX = Resource.CalculateMipSize(m, Size.X);
-                        int sizeY = Resource.CalculateMipSize(m, Size.Y);
-                        ByteSize += FormatHelper.ComputeScanlineCount(TextureFormat, sizeX) * 4 * FormatHelper.ComputeScanlineCount(TextureFormat, sizeY) * 4 * FormatHelper.SizeOfInBytes(TextureFormat);
+                            int sizeX = Resource.CalculateMipSize(m, Size.X);
+                            int sizeY = Resource.CalculateMipSize(m, Size.Y);
+                            ByteSize += FormatHelper.ComputeScanlineCount(Format, sizeX) * 4 * FormatHelper.ComputeScanlineCount(Format, sizeY) * 4 * FormatHelper.SizeOfInBytes(Format);
+                        }
                     }
 
-                    if (isUsedCreatedGeneratedTexture)
-                    {
-                        IGeneratedTexture generatedTex = (IGeneratedTexture) tex;
-                        MyManagers.GeneratedTextures.DisposeTex(generatedTex);
-                    }
+                    if (generatedTexture != null)
+                        MyManagers.GeneratedTextures.DisposeTex(generatedTexture);
+
                     i++;
                 }
 
@@ -266,43 +275,76 @@ namespace VRage.Render11.Resources
                     m_resource = null;
                 }
             }
+
+            private static IResource GetResource(string filepath, MyFileTextureEnum type, MyFileArrayTexture referenceArray, int referenceSlice, Vector2I textureSize, out Texture2DDescription description, out int sourceSlice)
+            {
+                if (referenceArray != null && referenceSlice < referenceArray.Size3.Z && referenceArray.Size == textureSize && filepath == referenceArray.SubresourceFilenames[referenceSlice])
+                {
+                    var tex2d = referenceArray.Resource as Texture2D;
+                    description = tex2d.Description;
+                    sourceSlice = referenceSlice;
+                    return referenceArray;
+                }
+                else
+                {
+                    var texture = MyManagers.FileTextures.GetTexture(filepath, type, true, temporary: true);
+                    var tex2d = texture.Resource as Texture2D;
+                    if (tex2d == null)
+                    {
+                        var tex2D = texture.Resource as Texture2D;
+                        MyRenderProxy.Assert(tex2D != null,
+                            "MyFileArrayTexture supports only 2D textures. Inconsistent texture: " + filepath);
+
+                        description = new Texture2DDescription();
+                        sourceSlice = -1;
+                        return null;
+                    }
+
+                    description = tex2d.Description;
+                    sourceSlice = 0;
+                    return texture;
+                }
+            }
         }
     }
 
-    class MyFileArrayTextureManager : IManager, IManagerDevice, IManagerCallback
+    class MyFileArrayTextureManager : IManager, IManagerDevice, IManagerUnloadData
     {
+        MyTextureStatistics m_statistics = new MyTextureStatistics();
         MyObjectsPool<MyFileArrayTexture> m_fileTextureArrays = new MyObjectsPool<MyFileArrayTexture>(16);
         bool m_isDeviceInit = false;
         HashSet<MyFileArrayTexture> m_texturesOnAutoDisposal = new HashSet<MyFileArrayTexture>();
 
-        public IFileArrayTexture CreateFromFiles(string resourceName, string[] inputFiles, MyFileTextureEnum type, string errorTextureFilepath, bool autoDisposeOnUnload)
+        public IFileArrayTexture CreateFromFiles(string resourceName, string[] inputFiles, MyFileTextureEnum type, string errorTextureFilepath, bool autoDisposeOnUnload, MyFileArrayTexture source = null)
         {
             MyFileArrayTexture array;
             m_fileTextureArrays.AllocateOrCreate(out array);
             array.Load(resourceName, inputFiles, type, errorTextureFilepath);
 
             if (m_isDeviceInit)
-                array.OnDeviceInit();
+                array.OnDeviceInit(source);
 
             if (autoDisposeOnUnload)
                 m_texturesOnAutoDisposal.Add(array);
 
+            m_statistics.Add(array);
             return array;
         }
 
         // if texture cannot be loaded, it will be used byte pattern to generate substition texture
-        public IFileArrayTexture CreateFromFiles(string resourceName, string[] inputFiles, MyFileTextureEnum type, byte[] bytePatternFor4x4, Format formatBytePattern, bool autoDisposeOnUnload)
+        public IFileArrayTexture CreateFromFiles(string resourceName, string[] inputFiles, MyFileTextureEnum type, byte[] bytePatternFor4x4, Format formatBytePattern, bool autoDisposeOnUnload, MyFileArrayTexture source = null)
         {
             MyFileArrayTexture array;
             m_fileTextureArrays.AllocateOrCreate(out array);
             array.Load(resourceName, inputFiles, type, bytePatternFor4x4, formatBytePattern);
 
             if (m_isDeviceInit)
-                array.OnDeviceInit();
+                array.OnDeviceInit(source);
 
             if (autoDisposeOnUnload)
                 m_texturesOnAutoDisposal.Add(array);
 
+            m_statistics.Add(array);
             return array;
         }
         
@@ -310,13 +352,13 @@ namespace VRage.Render11.Resources
         {
             MyRenderProxy.Assert(inputFiles.Length != 0);
             MyFileTextureManager texManager = MyManagers.FileTextures;
-            ISrvBindable firstSrvBindable = texManager.GetTexture(inputFiles[0], MyFileTextureEnum.GPUPARTICLES, true);
+            ISrvBindable firstSrvBindable = texManager.GetTexture(inputFiles[0], MyFileTextureEnum.GPUPARTICLES, true, temporary: true);
             Texture2D firstTex2D = firstSrvBindable.Resource as Texture2D;
             if (firstTex2D == null)
                 return false;
             for (int i = 1; i < inputFiles.Length; i++)
             {
-                ISrvBindable srvBindable = texManager.GetTexture(inputFiles[i], MyFileTextureEnum.GPUPARTICLES, true);
+                ISrvBindable srvBindable = texManager.GetTexture(inputFiles[i], MyFileTextureEnum.GPUPARTICLES, true, temporary: true);
                 Texture2D tex2D = srvBindable.Resource as Texture2D;
                 if (tex2D == null)
                     return false;
@@ -350,7 +392,7 @@ namespace VRage.Render11.Resources
             builder.AppendLine("[Debug name    Width x Height x Slices   Format    Internal texture type    Size]");
             foreach (var tex in m_fileTextureArrays.Active)
             {
-                builder.AppendFormat("{0}    {1} x {2} x {3}    {4}    {5}    {6} bytes", tex.Name.Replace("/", @"\"), tex.Size.X, tex.Size.Y, tex.Size3.Z, tex.TextureFormat, tex.SubtexturesCount, tex.ByteSize);
+                builder.AppendFormat("{0}    {1} x {2} x {3}    {4}    {5}    {6} bytes", tex.Name.Replace("/", @"\"), tex.Size.X, tex.Size.Y, tex.Size3.Z, tex.Format, tex.SubtexturesCount, tex.ByteSize);
                 builder.AppendLine("    ");
                 foreach (var subtex in tex.SubresourceFilenames)
                     builder.AppendFormat("{0}, ", subtex);
@@ -374,6 +416,7 @@ namespace VRage.Render11.Resources
                 m_texturesOnAutoDisposal.Remove(textureInternal);
 
             m_fileTextureArrays.Deallocate(textureInternal);
+            m_statistics.Remove(textureInternal);
             texture = null;
         }
         
@@ -400,11 +443,6 @@ namespace VRage.Render11.Resources
                 tex.OnDeviceEnd();
         }
 
-        public void OnFrameEnd()
-        {
-            
-        }
-
         public void OnUnloadData()
         {
             MyFileArrayTexture[] array = new MyFileArrayTexture[m_texturesOnAutoDisposal.Count];
@@ -415,6 +453,11 @@ namespace VRage.Render11.Resources
                 DisposeTex(ref tex);
             }
             m_texturesOnAutoDisposal.Clear();
+        }
+
+        public MyTextureStatistics Statistics
+        {
+            get { return m_statistics; }
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Game.Components;
+using VRage.Game.ObjectBuilders.Gui;
 using VRage.Game.VisualScripting;
 using VRage.Game.VisualScripting.ScriptBuilder;
 using VRage.Utils;
@@ -31,6 +32,12 @@ namespace VRage.Game.SessionComponents
         public MyVSStateMachineManager SMManager
         {
             get { return m_smManager; }
+        }
+
+        public MyObjectBuilder_Questlog QuestlogData
+        {
+            get { return m_objectBuilder == null ? null : m_objectBuilder.Questlog; }
+            set { if(m_objectBuilder != null) m_objectBuilder.Questlog = value; }
         }
 
         /// <summary>
@@ -157,10 +164,7 @@ namespace VRage.Game.SessionComponents
             {
                 m_smManager.AddMachine(stateMachineFilePath);
             }
-        }
 
-        public override void BeforeStart()
-        {
             // Restore the statemachines that were running before the save happened.
             if (m_objectBuilder != null && m_objectBuilder.ScriptStateMachineManager != null)
                 foreach (var cursorData in m_objectBuilder.ScriptStateMachineManager.ActiveStateMachines)
@@ -234,8 +238,7 @@ namespace VRage.Game.SessionComponents
             if (!Session.IsServer) return null;
 
             m_objectBuilder.ScriptStateMachineManager = m_smManager.GetObjectBuilder();
-            m_objectBuilder.FirstRun = false;
-
+            m_objectBuilder.FirstRun = m_firstUpdate;
             return m_objectBuilder;
         }
 

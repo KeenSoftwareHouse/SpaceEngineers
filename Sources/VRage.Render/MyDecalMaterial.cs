@@ -11,7 +11,7 @@ namespace VRageRender
 
     public class MyDecalMaterial
     {
-        public MyDecalMaterial(MyDecalMaterialDesc materialDef, MyStringHash target, MyStringHash source,
+        public MyDecalMaterial(MyDecalMaterialDesc materialDef, bool transparent, MyStringHash target, MyStringHash source,
             float minSize, float maxSize, float depth, float rotation)
         {
             StringId = MyDecalMaterials.GetStringId(source, target);
@@ -22,6 +22,7 @@ namespace VRageRender
             MaxSize = maxSize;
             Depth = depth;
             Rotation = rotation;
+            Transparent = transparent;
         }
 
         public string StringId
@@ -29,6 +30,8 @@ namespace VRageRender
             get;
             private set;
         }
+
+        public bool Transparent;
 
         public MyDecalMaterialDesc Material
         {

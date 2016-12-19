@@ -25,8 +25,9 @@ void __compute_shader(
 
 #ifndef DISABLE_COLOR_FILTERS
     color = ApplyBasicFilters(color);
-    color = VibranceFilter(color);
-    // FIXME
+    // FIXME - does not work correctly
+    //color = VibranceFilter(color);
+    // FIXME - does not work correctly
     //color = TemperatureFilter(color);
     color = SepiaFilter(color);
 #endif

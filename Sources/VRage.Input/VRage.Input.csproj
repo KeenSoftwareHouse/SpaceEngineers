@@ -115,19 +115,13 @@
     <Reference Include="SharpDX.Desktop">
       <HintPath>..\..\3rd\SharpDX\SharpDX.Desktop.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.DirectInput">
-      <HintPath>..\..\3rd\SharpDX\SharpDX.DirectInput.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX.DirectInput, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\3rd\SharpDX\SharpDX.DirectInput.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.XInput" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
-      <HintPath>..\..\3rd\SharpDX\SharpDX.XInput.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Windows.Forms" />
-	<Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Input\IMyControlNameLookup.cs" />
@@ -187,10 +181,6 @@
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
       <Name>VRage</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\XB1Interface\XB1Interface.csproj" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
-      <Project>{b6068a9d-54a1-425a-9dfb-87fd9ec5e822}</Project>
-      <Name>XB1Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

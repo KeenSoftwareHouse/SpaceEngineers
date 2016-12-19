@@ -22,7 +22,7 @@ namespace VRage.Stats
 
         public void Dispose()
         {
-            m_stat.Write((float)(m_timer.Elapsed - m_startTime).Miliseconds);
+            m_stat.Write((float)(m_timer.Elapsed - m_startTime).Milliseconds);
         }
     }
 }

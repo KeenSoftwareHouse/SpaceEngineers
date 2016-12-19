@@ -123,7 +123,7 @@ namespace VRageRender.ExternalApp
         {
             if (MyRenderProxy.EnableAppEventsCall)
             {
-                if ((m_timer.Elapsed - m_appEventsTime).Miliseconds > 10)
+                if ((m_timer.Elapsed - m_appEventsTime).Milliseconds > 10)
                 {
 #if !XB1
                     Application.DoEvents();
@@ -221,7 +221,15 @@ namespace VRageRender.ExternalApp
             UpdateSize();
             
             //RenderLoop.UseCustomDoEvents = true;
-            RenderLoop.Run(m_form, RenderCallback);
+            //RenderLoop.Run(m_form, RenderCallback);
+
+            m_form.Show();
+            while (m_form.Visible)
+            {
+                Application.DoEvents();
+                if (m_form.Visible)
+                    RenderCallback();
+            }
 
             UnloadContent();
 

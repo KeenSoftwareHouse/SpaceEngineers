@@ -14,7 +14,9 @@ using VRage.Game.Models;
 using VRage.Game.Gui;
 using VRage.Game.Utils;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Library.Collections;
 using VRage.Profiler;
+using VRage.Network;
 
 #endregion
 
@@ -62,6 +64,9 @@ namespace VRage.Game.Entity
         // server velocities
         public Vector3 m_serverLinearVelocity;
         public Vector3 m_serverAngularVelocity;
+
+        public bool m_positionResetFromServer;
+        public bool SentFromServer;
 
         MyRenderComponentBase m_render;
         public MyRenderComponentBase Render
@@ -176,6 +181,10 @@ namespace VRage.Game.Entity
 
         public MySyncComponentBase SyncObject { get { return m_syncObject; } protected set { Components.Add<MySyncComponentBase>(value); } }
 
+        private MyModStorageComponentBase m_storage;
+
+        public MyModStorageComponentBase Storage { get { return m_storage; } set { Components.Add<MyModStorageComponentBase>(value); } }
+
         //Only debug property, use only for asserts, not for game logic.
         //Consider as being called after delete in C++
         public bool Closed { get; protected set; }
@@ -221,8 +230,8 @@ namespace VRage.Game.Entity
             }
         }
 
-        bool m_isreadyForReplication = true;
-        public Action ReadyForReplicationAction;
+        bool m_isreadyForReplication = false;
+        public Dictionary<IMyReplicable, Action> ReadyForReplicationAction = new Dictionary<IMyReplicable, Action>();
 
         // Indicates whether the entity finished initialization and can be replicated for clients
         public bool IsReadyForReplication
@@ -233,10 +242,13 @@ namespace VRage.Game.Entity
                 m_isreadyForReplication = value;
 
                 // Add your replicable to priority updates once done. Kind of hacky implementation. Should be remade when possible
-                if (m_isreadyForReplication && ReadyForReplicationAction != null)
+                if (m_isreadyForReplication && ReadyForReplicationAction.Count > 0)
                 {
-                    ReadyForReplicationAction();
-                    ReadyForReplicationAction = null;
+                    foreach (var action in ReadyForReplicationAction.Values)
+                    {
+                        action();
+                    }
+                    ReadyForReplicationAction.Clear();
                 }
             }
         }
@@ -448,6 +460,17 @@ namespace VRage.Game.Entity
             }
         }
 
+        public string DebugName
+        {
+            get
+            {
+                string name = m_displayName ?? Name;
+                if (name == null)
+                    name = "";
+                return name + " (" + GetType().Name + ", " + EntityId.ToString() + ")";
+            }
+        }
+
         public Dictionary<string, MyEntitySubpart> Subparts
         {
             get;
@@ -522,6 +545,10 @@ namespace VRage.Game.Entity
             {
                 OnInventoryComponentAdded(c as MyInventoryBase);
             }
+            else if ((typeof(MyModStorageComponentBase)).IsAssignableFrom(t))
+            {
+                m_storage = c as MyModStorageComponentBase;
+            }
         }
 
         void Components_ComponentRemoved(Type t, MyEntityComponentBase c)
@@ -544,6 +571,10 @@ namespace VRage.Game.Entity
             else if ((typeof(MyInventoryBase)).IsAssignableFrom(t))
             {
                 OnInventoryComponentRemoved(c as MyInventoryBase);
+            }
+            else if ((typeof(MyModStorageComponentBase)).IsAssignableFrom(t))
+            {
+                m_storage = null;
             }
         }
 
@@ -646,6 +677,11 @@ namespace VRage.Game.Entity
             {
                 Physics.SetSpeeds(m_serverLinearVelocity, m_serverAngularVelocity);
             }
+        }
+
+        public virtual void SetWorldMatrix(MatrixD worldMatrix, bool forceUpdate = false, bool updateChildren = true)
+        {
+            if (PositionComp != null) PositionComp.SetWorldMatrix(worldMatrix, null, forceUpdate, updateChildren );
         }
 
         #endregion
@@ -1563,5 +1599,18 @@ namespace VRage.Game.Entity
 
         // VRAGE TODO: Delegates helping us to move MyEntity to VRage.Game. See above.
         public static Func<MyObjectBuilder_EntityBase, bool, MyEntity> MyEntitiesCreateFromObjectBuilderExtCallback = null; 
+
+        public virtual void SerializeControls(BitStream stream)
+        {
+            stream.WriteBool(false);
+        }
+        public virtual void DeserializeControls(BitStream stream, bool outOfOrder)
+        {
+            var valid = stream.ReadBool();
+            Debug.Assert(!valid);
+        }
+        public virtual void ApplyLastControls()
+        {
+        }
     }
 }

@@ -169,6 +169,9 @@ namespace VRage.Game
         [ProtoMember, DefaultValue(true)]
         public bool DampenersEnabled = true;
 
+        [ProtoMember, DefaultValue(1f)]
+        public float CharacterGeneralDamageModifier = 1f;
+
         [ProtoMember]
         public long? UsingLadder;
 
@@ -229,10 +232,7 @@ namespace VRage.Game
         public ulong PlayerSteamId = 0;
         [ProtoMember]
         public int PlayerSerialId = 0;
-
-        [ProtoMember]
-        public bool IsPromoted;
-
+        
         [ProtoMember]
         public bool NeedsOxygenFromSuit;
     }

@@ -134,6 +134,7 @@ namespace Sandbox.Gui.DirectoryBrowser
                 AddFileRow(fileInfo);
             }
 
+            ScrollToSelection();
         }
 
         // Adds file entry
@@ -305,6 +306,21 @@ namespace Sandbox.Gui.DirectoryBrowser
                 OnBackDoubleclicked();
 
             return base.HandleInput();
+        }
+
+        // Sets the top most and current directory
+        public bool SetTopMostAndCurrentDir(string directory)
+        {
+            var dirInfo = new DirectoryInfo(directory);
+            if (dirInfo.Exists)
+            {
+                m_topMostDir = dirInfo;
+                m_currentDir = dirInfo;
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

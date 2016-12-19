@@ -5,7 +5,7 @@ using VRageRender;
 
 namespace VRage.Render11.Resources
 {
-    class MyGlobalResources : IManager, IManagerCallback
+    class MyGlobalResources : IManager, IManagerUnloadData
     {
         public static IDynamicFileArrayTexture FileArrayTextureVoxelCM;
         public static IDynamicFileArrayTexture FileArrayTextureVoxelNG;
@@ -22,16 +22,11 @@ namespace VRage.Render11.Resources
                 MyFileTextureEnum.EXTENSIONS, MyGeneratedTexturePatterns.Extension_BC7_SRgb, Format.BC7_UNorm_SRgb);
         }
 
-        void IManagerCallback.OnUnloadData()
+        void IManagerUnloadData.OnUnloadData()
         {
             FileArrayTextureVoxelCM.Clear();
             FileArrayTextureVoxelNG.Clear();
             FileArrayTextureVoxelExt.Clear();
-        }
-
-        void IManagerCallback.OnFrameEnd()
-        {
-            
         }
     }
 }

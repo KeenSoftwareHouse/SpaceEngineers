@@ -1,7 +1,4 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Lights;
 using Sandbox.Game.World;
@@ -27,7 +24,7 @@ namespace Sandbox.Game.Components
 {
     class MyRenderComponentCharacter : MyRenderComponentSkinnedEntity
     {
-		private MyStringHash m_characterMaterial = MyStringHash.GetOrCompute("Character");
+		private readonly MyStringHash m_characterMaterial = MyStringHash.GetOrCompute("Character");
 	    private int m_lastWalkParticleCheckTime;
 	    private int m_walkParticleSpawnCounterMs = 1000;
 	    private const int m_walkParticleGravityDelay = 10000;
@@ -82,7 +79,7 @@ namespace Sandbox.Game.Components
 		    }
 
 		    var character = Entity as MyCharacter;
-		    if (character.JetpackComp != null && character.JetpackComp.Running)
+            if (character.JetpackRunning)
 		    {
 			    m_walkParticleSpawnCounterMs = m_walkParticleJetpackOffDelay;
 			    return;
@@ -216,28 +213,26 @@ namespace Sandbox.Game.Components
                     if (m_leftGlare != null)
                     {
                         MyTransparentGeometry.AddLineBillboard("ReflectorConeCharacter", new Vector4(color, 1.0f) * alphaCone * alpha,
-                            m_leftGlare.Position,
-                                                     m_leftGlare.ReflectorDirection, reflectorLength, reflectorThickness);
+                            m_leftGlare.Position, m_leftGlare.ReflectorDirection, reflectorLength, reflectorThickness, MyBillboard.BlenType.AdditiveBottom);
                     }
 
                     if (m_rightGlare != null)
                     {
                         MyTransparentGeometry.AddLineBillboard("ReflectorConeCharacter", new Vector4(color, 1.0f) * alphaCone * alpha,
-                            m_rightGlare.Position,
-                                                     m_rightGlare.ReflectorDirection, reflectorLength, reflectorThickness);
+                            m_rightGlare.Position, m_rightGlare.ReflectorDirection, reflectorLength, reflectorThickness, MyBillboard.BlenType.AdditiveBottom);
                     }
                 }
 
                 if (m_leftGlare != null)
                 {
                     MyTransparentGeometry.AddPointBillboard("ReflectorGlareAlphaBlended", new Vector4(color, 1.0f) * alphaGlareAlphaBlended * alpha,
-                                                  m_leftGlare.Position, reflectorRadiusForAlphaBlended * 0.3f, 0);
+                        m_leftGlare.Position, reflectorRadiusForAlphaBlended * 0.3f, 0, -1, MyBillboard.BlenType.AdditiveTop);
                 }
 
                 if (m_rightGlare != null)
                 {
                     MyTransparentGeometry.AddPointBillboard("ReflectorGlareAlphaBlended", new Vector4(color, 1.0f) * alphaGlareAlphaBlended * alpha,
-                                                  m_rightGlare.Position, reflectorRadiusForAlphaBlended * 0.3f, 0);
+                        m_rightGlare.Position, reflectorRadiusForAlphaBlended * 0.3f, 0, -1, MyBillboard.BlenType.AdditiveTop);
                 }
             }
 
@@ -325,6 +320,15 @@ namespace Sandbox.Game.Components
         }
 
         #region character lights
+        
+        public static float JETPACK_LIGHT_INTENSITY_BASE = 0f;
+        public static float JETPACK_LIGHT_INTENSITY_LENGTH = 200f;
+        public static float JETPACK_LIGHT_RANGE_RADIUS = 1.8f;
+        public static float JETPACK_LIGHT_RANGE_LENGTH = 0.6f;
+        public static float JETPACK_GLARE_INTENSITY_BASE = 0.0f;
+        public static float JETPACK_GLARE_INTENSITY_LENGTH = 15.0f;
+        public static float JETPACK_GLARE_SIZE_RADIUS = 2.4f;
+        public static float JETPACK_GLARE_SIZE_LENGTH = 0.2f;
 
         private void DrawJetpackThrusts(bool updateCalled)
         {
@@ -375,12 +379,13 @@ namespace Sandbox.Game.Components
                         }
 
                         //  We move polyline particle backward, because we are stretching ball texture and it doesn't look good if stretched. This will hide it.
-                        MyTransparentGeometry.AddLineBillboard(thrust.ThrustMaterial, thrust.Light.Color * alphaCone, position /*- forward * thrust.ThrustLength * 0.25f*/,
-                            GetRenderObjectID(), ref worldToLocal, forward, thrust.ThrustLength, thrust.ThrustThickness);
+                        MyTransparentGeometry.AddLineBillboard(thrust.ThrustMaterial, thrust.Light.Color * alphaCone * strength, position,
+                            GetRenderObjectID(), ref worldToLocal, forward, thrust.ThrustLength, thrust.ThrustThickness, MyBillboard.BlenType.AdditiveBottom);
                     }
 
                     if (thrust.ThrustRadius > 0)
-                        MyTransparentGeometry.AddPointBillboard(thrust.ThrustMaterial, thrust.Light.Color, position, GetRenderObjectID(), ref worldToLocal, thrust.ThrustRadius, 0);
+                        MyTransparentGeometry.AddPointBillboard(thrust.ThrustMaterial, thrust.Light.Color, position, GetRenderObjectID(), ref worldToLocal, 
+                            thrust.ThrustRadius, 0, -1, MyBillboard.BlenType.AdditiveBottom);
                 }
                 else
                 {
@@ -393,23 +398,22 @@ namespace Sandbox.Game.Components
                     if (thrust.ThrustRadius > 0)
                     {
                         thrust.Light.LightOn = true;
-                        thrust.Light.Intensity = 1.3f + thrust.ThrustLength * 1.2f;
+                        thrust.Light.Intensity = JETPACK_LIGHT_INTENSITY_BASE + thrust.ThrustLength * JETPACK_LIGHT_INTENSITY_LENGTH;
 
-                        thrust.Light.Range = thrust.ThrustRadius * 7f + thrust.ThrustLength / 10;
-
+                        thrust.Light.Range = thrust.ThrustRadius * JETPACK_LIGHT_RANGE_RADIUS + thrust.ThrustLength * JETPACK_LIGHT_RANGE_LENGTH;
                         thrust.Light.Position = Vector3D.Transform(position, MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix));
                         thrust.Light.ParentID = GetRenderObjectID();
 
                         thrust.Light.GlareOn = true;
 
-                        thrust.Light.GlareIntensity = 0.5f + thrust.ThrustLength * 4;
+                        thrust.Light.GlareIntensity = JETPACK_GLARE_INTENSITY_BASE + thrust.ThrustLength * JETPACK_GLARE_INTENSITY_LENGTH;
 
                         thrust.Light.GlareMaterial = "GlareJetpack";
                         thrust.Light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
 
-                        thrust.Light.GlareSize = (thrust.ThrustRadius * 2.4f + thrust.ThrustLength * 0.2f) * thrust.ThrustGlareSize;
+                        thrust.Light.GlareSize = (thrust.ThrustRadius * JETPACK_GLARE_SIZE_RADIUS + thrust.ThrustLength * JETPACK_GLARE_SIZE_LENGTH) * thrust.ThrustGlareSize;
 
-                        thrust.Light.GlareQuerySize = 0.3f;
+                        thrust.Light.GlareQuerySize = 0.1f;
                         thrust.Light.UpdateLight();
                     }
                     else
@@ -500,7 +504,7 @@ namespace Sandbox.Game.Components
                 m_leftGlare.LightOn = false;
                 m_leftGlare.LightOwner = MyLight.LightOwnerEnum.SmallShip;
                 m_leftGlare.UseInForwardRender = false;
-                m_leftGlare.GlareOn = true;
+                m_leftGlare.GlareOn = false;
                 m_leftGlare.GlareQuerySize = 0.2f;
                 m_leftGlare.GlareType = VRageRender.Lights.MyGlareTypeEnum.Directional;
                 m_leftGlare.GlareMaterial = definition.LeftGlare;
@@ -515,7 +519,7 @@ namespace Sandbox.Game.Components
                 m_rightGlare.LightOn = false;
                 m_rightGlare.LightOwner = MyLight.LightOwnerEnum.SmallShip;
                 m_rightGlare.UseInForwardRender = false;
-                m_rightGlare.GlareOn = true;
+                m_rightGlare.GlareOn = false;
                 m_rightGlare.GlareQuerySize = 0.2f;
                 m_rightGlare.GlareType = VRageRender.Lights.MyGlareTypeEnum.Directional;
                 m_rightGlare.GlareMaterial = definition.RightGlare;

@@ -38,10 +38,9 @@ namespace VRage.Game
         void SetAnimDirty();
         void SetPositionDirty();
         
-        bool NeedSorting();
         bool Show { get; set; }
 
         void Draw(List<VRageRender.MyBillboard> collectedBillboards);
-        void PrepareForDraw(ref VRageRender.MyBillboard effectBillboard);
+        void PrepareForDraw();
     }
 }

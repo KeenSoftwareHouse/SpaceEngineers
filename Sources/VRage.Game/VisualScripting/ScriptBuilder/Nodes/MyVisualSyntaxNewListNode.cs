@@ -54,27 +54,31 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
             }
 
             // Syntax of "new Type[]{arg0, arg1, ...}"
-            var arrayCreationSyntax = SyntaxFactory.ArrayCreationExpression(
+            ArrayCreationExpressionSyntax arrayCreationSyntax = null;
+            if(separatedList.Count > 0)
+            {
+                arrayCreationSyntax = SyntaxFactory.ArrayCreationExpression(
                     SyntaxFactory.ArrayType(
                         SyntaxFactory.IdentifierName(ObjectBuilder.Type),
                         SyntaxFactory.SingletonList(
                             SyntaxFactory.ArrayRankSpecifier(
                                 SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
                                     SyntaxFactory.OmittedArraySizeExpression()
+                                    )
                                 )
                             )
-                        )
-                    ),
+                        ),
                     SyntaxFactory.InitializerExpression(
                         SyntaxKind.ArrayInitializerExpression,
                         SyntaxFactory.SeparatedList<ExpressionSyntax>(
                             separatedList
+                            )
                         )
-                    )
-                );
+                    );
+            }
 
             // Syntax of new List<Type>(arrayCreationSyntax);
-            var listCreationSyntax = MySyntaxFactory.GenericObjectCreation(listType, new[] {arrayCreationSyntax});
+            var listCreationSyntax = MySyntaxFactory.GenericObjectCreation(listType, arrayCreationSyntax == null ? null : new[] {arrayCreationSyntax});
 
             var localVariableSyntax = MySyntaxFactory.LocalVariable(listType, VariableSyntaxName(), listCreationSyntax);
 

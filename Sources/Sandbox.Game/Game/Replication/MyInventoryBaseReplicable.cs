@@ -37,7 +37,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
             Debug.Assert(Inventory.Entity != Inventory, "Inventory owner is inventory!");
             Debug.Assert(!((MyEntity)Inventory.Entity).Closed, "Sending inventory of closed entity");
@@ -105,14 +105,15 @@ namespace Sandbox.Game.Replication
         {
             MyEntity entity;
             MyInventoryBase inventory = null;
+            MyInventoryBase inventory2 = null;
             if (MyEntities.TryGetEntityById(entityId, out entity) && entity.Components.TryGet<MyInventoryBase>(out inventory))
             {
                 if (inventory is MyInventoryAggregate)
-                    inventory = (inventory as MyInventoryAggregate).GetInventory(inventoryId);
+                    inventory2 = (inventory as MyInventoryAggregate).GetInventory(inventoryId);
             }
 
             // TODO: In Medieval, inventory is sometimes null (on client) when one of two clients die
-            loadingDoneHandler(inventory); 
+            loadingDoneHandler(inventory2 ?? inventory); 
         }
 
         public override void OnDestroy()
@@ -136,9 +137,15 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public override bool IsChild
+        public override bool HasToBeChild
         {
-            get { return false; }
+            get { return true; }
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            System.Diagnostics.Debug.Fail("GetAABB can be called only on root replicables");
+            return VRageMath.BoundingBoxD.CreateInvalid();
         }
     }
 }

@@ -357,6 +357,22 @@ namespace VRageRender
                 DivUp(MyRender11.m_resolution.X, 4), DivUp(MyRender11.m_resolution.Y, 4), NUM_SLICES, SharpDX.DXGI.Format.R8_UNorm);
         }
 
+        internal static void ReleaseScreenResources()
+        {
+            if (m_fullResViewDepthTarget != null)
+            {
+                MyRwTextureManager rwManager = MyManagers.RwTextures;
+                rwManager.DisposeTex(ref m_fullResViewDepthTarget);
+                rwManager.DisposeTex(ref m_fullResNormalTexture);
+                rwManager.DisposeTex(ref m_fullResAOZTexture);
+                rwManager.DisposeTex(ref m_fullResAOZTexture2);
+
+                MyArrayTextureManager arrayManager = MyManagers.ArrayTextures;
+                arrayManager.DisposeTex(ref m_quarterResViewDepthTextureArray);
+                arrayManager.DisposeTex(ref m_quarterResAOTextureArray);
+            }
+        }
+
         static float METERS_TO_VIEW_SPACE_UNITS = 1.0f;
         static GlobalConstantBuffer InitConstantBuffer(MyViewport viewport)
         {

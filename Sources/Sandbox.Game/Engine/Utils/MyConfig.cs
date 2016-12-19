@@ -69,7 +69,6 @@ namespace Sandbox.Engine.Utils
         readonly string SCREENSHOT_SIZE_MULTIPLIER = "ScreenshotSizeMultiplier";
         readonly string FIRST_TIME_RUN = "FirstTimeRun";
         readonly string SYNC_RENDERING = "SyncRendering";
-        readonly string NEED_SHOW_TUTORIAL_QUESTION = "NeedShowTutorialQuestion";
         readonly string NEED_SHOW_BATTLE_TUTORIAL_QUESTION = "NeedShowBattleTutorialQuestion";
         readonly string DEBUG_INPUT_COMPONENTS = "DebugInputs";
         readonly string DEBUG_INPUT_COMPONENTS_INFO = "DebugComponentsInfo";
@@ -108,6 +107,7 @@ namespace Sandbox.Engine.Utils
         readonly string MUTED_PLAYERS = "MutedPlayers";
         readonly string DONT_SEND_VOICE_PLAYERS = "DontSendVoicePlayers";
         readonly string LOW_MEM_SWITCH_TO_LOW = "LowMemSwitchToLow";
+        readonly string NEWSLETTER_CURRENT_STATUS = "NewsletterCurrentStatus";
 
         public enum LowMemSwitch
         {
@@ -116,24 +116,20 @@ namespace Sandbox.Engine.Utils
             USER_SAID_NO
         }
 
+        public enum NewsletterStatus
+        {
+            Unknown = 0,
+            NoFeedback,
+            NotInterested,
+            EmailNotConfirmed,
+            EmailConfirmed
+        }
+
         public MyConfig(string fileName)
             : base(fileName)
         {
         }
         
-        public bool NeedShowTutorialQuestion
-        {
-            get
-            {
-                return MyUtils.GetBoolFromString(GetParameterValue(NEED_SHOW_TUTORIAL_QUESTION), true);
-            }
-
-            set
-            {
-                SetParameterValue(NEED_SHOW_TUTORIAL_QUESTION, value);
-            }
-        }
-
         public bool FirstTimeRun
         {
             get
@@ -1012,6 +1008,19 @@ namespace Sandbox.Engine.Utils
                 SetParameterValue(LOW_MEM_SWITCH_TO_LOW, (int)value);
             }
         }
+
+        public NewsletterStatus NewsletterCurrentStatus
+        {
+            get
+            {
+                return (NewsletterStatus)MyUtils.GetIntFromString(GetParameterValue(NEWSLETTER_CURRENT_STATUS), (int)NewsletterStatus.Unknown);
+            }
+            set
+            {
+                SetParameterValue(NEWSLETTER_CURRENT_STATUS, (int)value);
+            }
+        }
+
         public bool IsSetToLowQuality()
         {
             if (AnisotropicFiltering == MyTextureAnisoFiltering.NONE &&
@@ -1135,11 +1144,6 @@ namespace Sandbox.Engine.Utils
         float IMyConfig.MusicVolume
         {
             get { return MusicVolume; }
-        }
-
-        bool IMyConfig.NeedShowTutorialQuestion
-        {
-            get { return NeedShowTutorialQuestion; }
         }
 
         int IMyConfig.RefreshRate

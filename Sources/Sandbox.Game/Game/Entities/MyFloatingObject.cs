@@ -143,7 +143,7 @@ namespace Sandbox.Game.Entities
         {
             base.UpdateAfterSimulation();
             // DA: Consider using havok fields (buoyancy demo) for gravity of planets.
-            Physics.RigidBody.Gravity = Sync.RelativeSimulationRatio * Sync.RelativeSimulationRatio * MyGravityProviderSystem.CalculateNaturalGravityInPoint(PositionComp.GetPosition());
+            Physics.RigidBody.Gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(PositionComp.GetPosition());
 
             if (m_massChangeForCollisions < 1f)
             {
@@ -668,7 +668,7 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         void OnClosedRequest()
         {
-            if (!MySession.Static.CreativeMode && !MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            if (!MySession.Static.CreativeMode && !MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
             {
                 MyEventContext.ValidationFailed();
                 return;

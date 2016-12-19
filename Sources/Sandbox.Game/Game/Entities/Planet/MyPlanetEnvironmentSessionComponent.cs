@@ -173,7 +173,8 @@ namespace Sandbox.Game.Entities.Planet
 
         private void CheckCubeGridCreated(MyEntity myEntity)
         {
-            if (!MySession.Static.Ready) return;
+            if (!MySession.Static.Ready) 
+                return;
 
             // Handle new cube grids as well.
             var grid = myEntity as MyCubeGrid;
@@ -185,11 +186,17 @@ namespace Sandbox.Game.Entities.Planet
 
         private void MyCubeGridsOnBlockBuilt(MyCubeGrid myCubeGrid, MySlimBlock mySlimBlock)
         {
-            if (mySlimBlock == null || !myCubeGrid.IsStatic) return;
+            if (mySlimBlock == null || !myCubeGrid.IsStatic) 
+                return;
 
             // Avoid multiple queues for compound block additions.
-            var compound = myCubeGrid.GetCubeBlock(mySlimBlock.Min).FatBlock as MyCompoundCubeBlock;
-            if (compound != null && mySlimBlock.FatBlock != compound) return;
+            var slimBlock = myCubeGrid.GetCubeBlock(mySlimBlock.Min);
+            if (slimBlock != null)
+            {
+                var compound = slimBlock.FatBlock as MyCompoundCubeBlock;
+                if (compound != null && mySlimBlock.FatBlock != compound)
+                    return;
+            }
 
             BoundingBoxD blockAabb;
             mySlimBlock.GetWorldBoundingBox(out blockAabb, true);
@@ -228,7 +235,8 @@ namespace Sandbox.Game.Entities.Planet
                         {
                             var sector = m_tmpEntityList[j] as MyEnvironmentSector;
 
-                            if (sector == null) return;
+                            if (sector == null) 
+                                return;
 
                             var bb = blockAabb;
                             sector.GetItemsInAabb(ref bb, m_itemsToDisable.GetOrAddList(sector));

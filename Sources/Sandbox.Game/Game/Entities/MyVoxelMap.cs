@@ -11,6 +11,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Profiler;
 using VRage.Voxels;
+using System;
 
 
 namespace Sandbox.Game.Entities
@@ -78,10 +79,9 @@ namespace Sandbox.Game.Entities
 
             m_storage = MyStorageBase.Load(ob.StorageName);
             
-            //By Gregory: Added for compatibility with old saves
             if(m_storage == null)
             {
-                return;
+                throw new Exception("Voxel storage not found: " + ob.StorageName);
             }
 
             Init(builder, m_storage);

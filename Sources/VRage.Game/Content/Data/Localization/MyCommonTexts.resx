@@ -557,7 +557,7 @@ Remove the original control?</value>
     <value>Edit Settings</value>
   </data>
   <data name="ScreenCaptionCustomWorld" xml:space="preserve">
-    <value>Custom World</value>
+    <value>Custom Game</value>
   </data>
   <data name="ErrorNameTooLong" xml:space="preserve">
     <value>Name is too long (max 128 characters allowed)</value>
@@ -653,7 +653,7 @@ Remove the original control?</value>
     <value>Next page</value>
   </data>
   <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
-    <value>Press {0} for help and tutorials</value>
+    <value>Press {0} for help</value>
   </data>
   <data name="PreviousPage" xml:space="preserve">
     <value>Previous page</value>
@@ -848,7 +848,7 @@ Restart now?</value>
     <value>Press {0}, {1}, {2}, {3}, {4}, {5} to rotate</value>
   </data>
   <data name="NotificationScreenFormat" xml:space="preserve">
-    <value>Press {0} to configure toolbar or create new objects</value>
+    <value>Press {0} to configure toolbar</value>
   </data>
   <data name="NotificationSlotEquipFormat" xml:space="preserve">
     <value>Press {0}, {1}, {2}, ... to equip from slot</value>
@@ -914,7 +914,7 @@ Restart now?</value>
     <value>Creating world ... please wait.</value>
   </data>
   <data name="ScreenCaptionWorkshop" xml:space="preserve">
-    <value>Workshop</value>
+    <value>Workshop Content</value>
   </data>
   <data name="ScreenMenuButtonRecommend" xml:space="preserve">
     <value>Recommend</value>
@@ -932,7 +932,7 @@ Restart now?</value>
     <value>MOD PUBLISH FAILED</value>
   </data>
   <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
-    <value>Copy &amp; Load</value>
+    <value>Quickstart</value>
   </data>
   <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
     <value>Publish selected world on Steam Workshop</value>
@@ -1036,7 +1036,7 @@ Note that by submitting this item, you agree to the workshop terms of service (s
     <value>Open Steam Overlay with Workshop screen</value>
   </data>
   <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
-    <value>Download selected world to your computer and load</value>
+    <value>Launch with default parameters.</value>
   </data>
   <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
     <value>Open selected world in Workshop Steam Overlay</value>
@@ -2306,7 +2306,22 @@ Do you want to continue?</value>
     <value>Local trash count: {0}</value>
   </data>
   <data name="ScreenDebugAdminMenu_TrashRemoval" xml:space="preserve">
-    <value>Include in removal</value>
+    <value>Include in trash</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_ContinuousTrashInterval" xml:space="preserve">
+    <value>Continuous trash interval</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_TrashAction" xml:space="preserve">
+    <value>Trash action</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_PauseTrashButton" xml:space="preserve">
+    <value>Suspend</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_ResumeTrashButton" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_PauseTrashButtonTooltip" xml:space="preserve">
+    <value>Disable trash performing</value>
   </data>
   <data name="ScreenDebugAdminMenu_ShowTrashAdminView" xml:space="preserve">
     <value>Show trash information</value>
@@ -2410,7 +2425,7 @@ Do you want to continue?</value>
     <value>Navigation 2</value>
   </data>
   <data name="ScreenLoadSubscribedWorldCopyWorld" xml:space="preserve">
-    <value>Copy World</value>
+    <value>Customize</value>
   </data>
   <data name="NotificationResearchUnlocked" xml:space="preserve">
     <value>You have unlocked new knowledge about {0}.</value>
@@ -2425,7 +2440,7 @@ Do you want to continue?</value>
     <value>World already exists! Overwrite?</value>
   </data>
   <data name="ToolTipWorkshopCopyWorld" xml:space="preserve">
-    <value>Download selected world to save games without loading it (Use to Edit Settings before playing world)</value>
+    <value>Customize settings before launch.</value>
   </data>
   <data name="SignalMode_Switch_DefaultMode" xml:space="preserve">
     <value>Signals switched to normal display.</value>
@@ -2455,7 +2470,7 @@ Do you want to continue?</value>
     <value>Campaign</value>
   </data>
   <data name="ScreenCaptionNewGame" xml:space="preserve">
-    <value>New Game</value>
+    <value>Campaign</value>
   </data>
   <data name="ScreenMenuButtonContinueGame" xml:space="preserve">
     <value>Continue Game</value>
@@ -2700,7 +2715,7 @@ On - All performance warnings of this session are displayed.</value>
   <data name="AudioSettings_EnableReverb" xml:space="preserve">
     <value>Enable echo</value>
   </data>
-<data name="ScreenGraphicsOptions_AmbientOcclusion" xml:space="preserve">
+  <data name="ScreenGraphicsOptions_AmbientOcclusion" xml:space="preserve">
     <value>Ambient occlusion</value>
   </data>
   <data name="ScreenGraphicsOptions_AmbientOcclusion_HBAO" xml:space="preserve">
@@ -2724,5 +2739,41 @@ Note that by submitting this item, you agree to the workshop terms of service (s
   </data>
   <data name="MessageBoxTextCampaignPublished" xml:space="preserve">
     <value>Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_EntityName" xml:space="preserve">
+    <value>Entity Name: </value>
+  </data>
+  <data name="Multiplayer_HighPing" xml:space="preserve">
+    <value>Multiplayer warning: High latency connection (&gt;250 ms)</value>
+  </data>
+  <data name="Multiplayer_LowSimSpeed" xml:space="preserve">
+    <value>Multiplayer warning: Low sim speed on server</value>
+  </data>
+  <data name="NewGameScreen_Description" xml:space="preserve">
+    <value>Start a new campaign game.</value>
+  </data>
+  <data name="WorkshopScreen_Description" xml:space="preserve">
+    <value>Choose one of your subscribed workshop items or browse for more.</value>
+  </data>
+  <data name="WorldSettingsScreen_Description" xml:space="preserve">
+    <value>Create a new custom world.</value>
+  </data>
+  <data name="ScreenCaptionNewsletter" xml:space="preserve">
+    <value>Newsletter</value>
+  </data>
+  <data name="ScreenNewsletterConfirmationMessage" xml:space="preserve">
+    <value>A confirmation message was sent to the provided email</value>
+  </data>
+  <data name="ScreenNewsletterEmailLabel" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="ScreenNewsletterNoInterestCheckbox" xml:space="preserve">
+    <value>Don't ask me again</value>
+  </data>
+  <data name="ScreenNewsletterSubtitle" xml:space="preserve">
+    <value>If you wish to receive Keen Software House newsletter, please provide your email.</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ModelQuality" xml:space="preserve">
+    <value>Model quality</value>
   </data>
 </root>

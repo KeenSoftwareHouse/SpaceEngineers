@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace VRageMath
@@ -231,6 +232,14 @@ namespace VRageMath
             CultureInfo currentCulture = CultureInfo.CurrentCulture;
             return string.Format((IFormatProvider)currentCulture, "{{X:{0} Y:{1} Z:{2} W:{3}}}", (object)this.X.ToString((IFormatProvider)currentCulture), (object)this.Y.ToString((IFormatProvider)currentCulture), (object)this.Z.ToString((IFormatProvider)currentCulture), (object)this.W.ToString((IFormatProvider)currentCulture));
         }
+        public string ToStringAxisAngle(string format = "G")
+        {
+            Vector3 axis;
+            float angle;
+            GetAxisAngle(out axis, out angle);
+            CultureInfo currentCulture = CultureInfo.CurrentCulture;
+            return string.Format((IFormatProvider) currentCulture, "{{{0}/{1}}}", axis.ToString(format), angle.ToString(format));
+        }
 
         /// <summary>
         /// Determines whether the specified Object is equal to the Quaternion.
@@ -242,6 +251,11 @@ namespace VRageMath
                 return (double)this.W == (double)other.W;
             else
                 return false;
+        }
+        public bool Equals(Quaternion value, float epsilon)
+        {
+            return Math.Abs(X - value.X) < epsilon && Math.Abs(Y - value.Y) < epsilon && Math.Abs(Z - value.Z) < epsilon && 
+                Math.Abs(W - value.W) < epsilon;
         }
 
         /// <summary>
@@ -1133,6 +1147,55 @@ namespace VRageMath
             result.X = num8 - num6;
             result.Y = 1.0f - num7 - num12;
             result.Z = num11 + num4;
+        }
+
+        public float GetComponent(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return X;
+                case 1:
+                    return Y;
+                case 2:
+                    return Z;
+                case 3:
+                    return W;
+                default:
+                    Debug.Assert(false);
+                    return 0;
+            }
+        }
+        public void SetComponent(int index, float value)
+        {
+            switch (index)
+            {
+                case 0:
+                    X = value; break;
+                case 1:
+                    Y = value; break;
+                case 2:
+                    Z = value; break;
+                case 3:
+                    W = value; break;
+                default:
+                    Debug.Assert(false); break;
+            }
+        }
+        public int FindLargestIndex()
+        {
+            int largestIndex = 0;
+            float largest = X;
+            for (int i = 1; i < 4; i++)
+            {
+                float v = Math.Abs(GetComponent(i));
+                if (v > largest)
+                {
+                    largestIndex = i;
+                    largest = v;
+                }
+            }
+            return largestIndex;
         }
     }
 }

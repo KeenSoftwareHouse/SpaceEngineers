@@ -1,9 +1,9 @@
-﻿using ProtoBuf;
+﻿#define AABB_REPLICABLES
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using VRage.Collections;
 using VRage.Library.Collections;
@@ -11,6 +11,7 @@ using VRage.Library.Utils;
 using VRage.Profiler;
 using VRage.Replication;
 using VRage.Serialization;
+using VRage.Trace;
 using VRage.Utils;
 using VRageMath;
 
@@ -79,25 +80,6 @@ namespace VRage.Network
         public string Value;
     }
 
-    public struct ServerBattleDataMsg
-    {
-        public string WorldName;
-
-        public MyGameModeEnum GameMode;
-
-        public string HostName;
-
-        public ulong WorldSize;
-
-        public int AppVersion;
-
-        public int MembersLimit;
-
-        public string DataHash;
-
-        public List<KeyValueDataMsg> BattleData;
-    }
-
     public struct ChatMsg
     {
         public string Text;
@@ -126,6 +108,21 @@ namespace VRage.Network
             public List<IMyReplicable> Blockers = new List<IMyReplicable>();
         }
 
+        public struct UpdateLayerDesc
+        {
+            public float Radius;
+            public int UpdateInterval;
+            public int SendInterval;
+        }
+
+        public struct UpdateLayer
+        {
+            public UpdateLayerDesc Descriptor;
+            public HashSet<IMyReplicable> Replicables;
+            public MyDistributedUpdater<List<IMyReplicable>, IMyReplicable> Updater;
+            public MyDistributedUpdater<List<IMyReplicable>, IMyReplicable> Sender;
+        }
+
         internal class ClientData
         {
 
@@ -141,6 +138,8 @@ namespace VRage.Network
 
             // Additional per state-group information for client
             public readonly MyConcurrentDictionary<IMyStateGroup, MyStateDataEntry> StateGroups = new MyConcurrentDictionary<IMyStateGroup, MyStateDataEntry>(InstanceComparer<IMyStateGroup>.Default);
+            public readonly MyConcurrentHashSet<IMyStateGroup> DirtyGroups = new MyConcurrentHashSet<IMyStateGroup>();
+            public readonly List<IMyStateGroup> DirtyGroupsToRemove = new List<IMyStateGroup>();
             public readonly MyPacketQueue EventQueue;
 
             public readonly HashSet<IMyReplicable> PausedReplicables = new HashSet<IMyReplicable>();
@@ -149,19 +148,61 @@ namespace VRage.Network
             public byte StateSyncPacketId = 0;
             public byte LastReceivedAckId = 0;
             public byte LastStateSyncPacketId = 0;
+            public byte LastClientPacketId = 0;
+            public byte LastProcessedClientPacketId = 255;
+            public MyTimeSpan StartingServerTimeStamp = MyTimeSpan.Zero;
+            public MyTimeSpan LastClientRealtime;
+
+            public float PriorityMultiplier = 1;
 
             public bool WaitingForReset = false;
 
             public bool IsReady = false;
 
+            public UpdateLayer[] UpdateLayers;
+
+
             // 16 KB per client
             public readonly List<IMyStateGroup>[] PendingStateSyncAcks = Enumerable.Range(0, 256).Select(s => new List<IMyStateGroup>(8)).ToArray();
+            public MyPacketTracker ClientTracker = new MyPacketTracker();
+            public MyPacketStatistics ClientStats = new MyPacketStatistics();
+
+            public struct MyOrderedPacket
+            {
+                public byte Id;
+                public MyPacket Packet;
+
+                public override string ToString()
+                {
+                    return Id.ToString();
+                }
+            }
+            public List<MyOrderedPacket> IncomingBuffer = new List<MyOrderedPacket>();
+            public bool IncomingBuffering = true;
+            public bool ProcessedPacket;
+            public MyTimeSpan LastStateSyncTimeStamp;
 
             public ClientData(MyClientStateBase emptyState, Action<BitStream, EndpointId> sender)
             {
                 State = emptyState;
                 EventQueue = new MyPacketQueue(512, sender);
+
+#if AABB_REPLICABLES
+                UpdateLayers = new UpdateLayer[UpdateLayerDescriptors.Length];
+                for (int i = 0; i < UpdateLayerDescriptors.Length; i++)
+                {
+                    var desc = UpdateLayerDescriptors[i];
+                    UpdateLayers[i] = new UpdateLayer()
+                    {
+                        Descriptor = desc,
+                        Replicables = new HashSet<IMyReplicable>(),
+                        Updater = new MyDistributedUpdater<List<IMyReplicable>, IMyReplicable>(desc.UpdateInterval),
+                        Sender = new MyDistributedUpdater<List<IMyReplicable>, IMyReplicable>(desc.SendInterval)
+                    };
+                }
+#endif
             }
+
 
             public bool IsReplicableReady(IMyReplicable replicable)
             {
@@ -205,21 +246,39 @@ namespace VRage.Network
             }
         }
 
+#if AABB_REPLICABLES
+        // Defines distance layers from client center and how often replicables in this layer should be updated
+        static UpdateLayerDesc[] UpdateLayerDescriptors = 
+        {
+            new UpdateLayerDesc() { Radius = 20, UpdateInterval = 60, SendInterval = 1 },
+            new UpdateLayerDesc() { Radius = 80, UpdateInterval = 100, SendInterval = 5  },
+            new UpdateLayerDesc() { Radius = 300, UpdateInterval = 200, SendInterval = 10  },
+            new UpdateLayerDesc() { Radius = 800, UpdateInterval = 300, SendInterval = 20  },
+            new UpdateLayerDesc() { Radius = 3000, UpdateInterval = 500, SendInterval = 50  },
+            //More distant replicables are discarded
+        };
+#endif
+
 
         const int MAX_NUM_STATE_SYNC_PACKETS_PER_CLIENT = 7;
         private bool m_replicationPaused = false;
         private EndpointId? m_localClientEndpoint;
+        private readonly bool m_usePlayoutDelayBuffer;
         private IReplicationServerCallback m_callback;
         private Action<BitStream, EndpointId> m_eventQueueSender;
         private CacheList<IMyStateGroup> m_tmpGroups = new CacheList<IMyStateGroup>(4);
         private CacheList<MyStateDataEntry> m_tmpSortEntries = new CacheList<MyStateDataEntry>();
         private CacheList<MyStateDataEntry> m_tmpStreamingEntries = new CacheList<MyStateDataEntry>();
         private CacheList<MyStateDataEntry> m_tmpSentEntries = new CacheList<MyStateDataEntry>();
-        List<IMyReplicable> m_tmp = new List<IMyReplicable>();
+        HashSet<IMyReplicable> m_toDeleteHash = new HashSet<IMyReplicable>();
+        CacheList<IMyReplicable> m_tmp = new CacheList<IMyReplicable>();
+        HashSet<IMyReplicable> m_tmpHash = new HashSet<IMyReplicable>();
+        HashSet<IMyReplicable> m_layerUpdateHash = new HashSet<IMyReplicable>();
 
         private MyBandwidthLimits m_limits = new MyBandwidthLimits();
-        private HashSet<IMyReplicable> m_priorityUpdates = new HashSet<IMyReplicable>();
-        private uint m_frameCounter = 1;
+        private ConcurrentCachingHashSet<IMyReplicable> m_priorityUpdates = new ConcurrentCachingHashSet<IMyReplicable>();
+        private MyTimeSpan m_serverTimeStamp = MyTimeSpan.Zero;
+        private long m_serverFrame = 0;
 
         // Packet received out of order with number preceding closely last packet is accepted.
         // When multiplied by 16.66ms, this gives you minimum time after which packet can be resent.
@@ -228,12 +287,20 @@ namespace VRage.Network
         // How much to increase packed ID after reset, this is the number of packets client call still ACK.
         private const byte m_outOfOrderResetProtection = 64;
 
-        public MyTimeSpan MaxSleepTime = MyTimeSpan.FromMinutes(5);
+        public MyTimeSpan MaxSleepTime = MyTimeSpan.FromSeconds(5);
+
+        public static SerializableVector3I StressSleep = new SerializableVector3I(0,0,0);
+        public int Stats_ObjectsRefreshed = 0;
+        public int Stats_ObjectsSent = 0;
 
         /// <summary>
         /// All replicables on server.
         /// </summary>
-        MyReplicables m_replicables = new MyReplicables();
+#if !AABB_REPLICABLES
+        MyReplicablesBase m_replicables = new MyReplicablesLinear();
+#else
+        MyReplicablesBase m_replicables = new MyReplicablesAABB();
+#endif 
 
         /// <summary>
         /// All replicable state groups.
@@ -245,20 +312,16 @@ namespace VRage.Network
         /// </summary>
         Dictionary<EndpointId, ClientData> m_clientStates = new Dictionary<EndpointId, ClientData>();
 
-        /// <summary>
-        /// Function which provides current update time
-        /// </summary>
-        Func<MyTimeSpan> m_timeFunc;
-
         static FastResourceLock tmpGroupsLock = new FastResourceLock();
 
-        public MyReplicationServer(IReplicationServerCallback callback, Func<MyTimeSpan> updateTimeGetter, EndpointId? localClientEndpoint)
+        public MyReplicationServer(IReplicationServerCallback callback, EndpointId? localClientEndpoint,
+            bool usePlayoutDelayBuffer)
             : base(true)
         {
             Debug.Assert(localClientEndpoint == null || localClientEndpoint.Value.IsValid, "localClientEndpoint can be null (for DS), but not be zero!");
             m_localClientEndpoint = localClientEndpoint;
+            m_usePlayoutDelayBuffer = usePlayoutDelayBuffer;
             m_callback = callback;
-            m_timeFunc = updateTimeGetter;
             m_clientStates = new Dictionary<EndpointId, ClientData>();
             m_eventQueueSender = (s, e) => m_callback.SendEvent(s, false, e);
         }
@@ -273,7 +336,7 @@ namespace VRage.Network
                 clientData.EventQueue.Dispose();
             }
 
-            m_sendStream.Dispose();
+            SendStream.Dispose();
         }
 
         public void SetGroupLimit(StateGroupEnum group, int bitSizePerFrame)
@@ -291,6 +354,21 @@ namespace VRage.Network
             if (!IsTypeReplicated(obj.GetType()))
             {
                 Debug.Fail(String.Format("Type '{0}' not replicated, this should be checked before calling Replicate", obj.GetType().Name));
+                return;
+            }
+
+
+            if (obj.IsReadyForReplication)
+            {
+                m_priorityUpdates.Add(obj);
+            }
+            else
+            {
+                obj.ReadyForReplicationAction.Add( obj, delegate() 
+                { 
+                    Replicate(obj); 
+                } 
+                );
                 return;
             }
 
@@ -312,36 +390,10 @@ namespace VRage.Network
                     }
                 }
             }
-            else
-            {
-                if (obj.IsReadyForReplication)
-                    m_priorityUpdates.Add(obj);
-                else
-                    obj.ReadyForReplicationAction = delegate() { m_priorityUpdates.Add(obj); }; // Kind of hacky implementation. Should be remade when possible
-            }
 
             // HACK: uncomment this to test serialization
             //m_sendStream.ResetWrite(MessageIDEnum.REPLICATION_CREATE);
             //stateData.Replicate(m_sendStream);
-        }
-
-        bool PrepareForceReplicable(IMyReplicable obj)
-        {
-            Debug.Assert(obj != null);
-            if (obj == null || !IsTypeReplicated(obj.GetType()))
-            {
-                Debug.Fail(String.Format("Cannot replicate {0}, type is not replicated", obj));
-                return false;
-            }
-
-            NetworkId id;
-            if (!TryGetNetworkIdByObject(obj, out id))
-            {
-                Debug.Fail("Force replicable dependency not replicated yet!");
-                //Replicate(obj); // This would cause crashes
-                return false;
-            }
-            return true;
         }
 
         /// <summary>
@@ -367,25 +419,27 @@ namespace VRage.Network
         /// <summary>
         /// Hack to allow thing like: CreateCharacter, Respawn sent from server
         /// </summary>
-        public void ForceReplicable(IMyReplicable obj, IMyReplicable dependency = null)
+        public void ForceReplicable(IMyReplicable obj, IMyReplicable parent = null)
         {
-            ProfilerShort.Begin("ForceReplicate by dependency");
-            if (PrepareForceReplicable(obj))
-            {
-                foreach (var client in m_clientStates)
-                {
-                    if (dependency != null)
-                    {
-                        if (!client.Value.Replicables.ContainsKey(dependency))
-                        {
-                            continue;
-                        }
-                    }
+            Debug.Assert(obj != null, "Null replicable!");
+            if (obj == null)
+                return;
 
-                    if (!client.Value.Replicables.ContainsKey(obj))
+            ProfilerShort.Begin("ForceReplicate by dependency");
+
+            foreach (var client in m_clientStates)
+            {
+                if (parent != null)
+                {
+                    if (!client.Value.Replicables.ContainsKey(parent))
                     {
-                        AddForClient(obj, client.Key, client.Value, 0, true);
-                    }                  
+                        continue;
+                    }
+                }
+
+                if (!client.Value.Replicables.ContainsKey(obj))
+                {
+                    AddForClient(obj, client.Key, client.Value, 0, true);
                 }
             }
             ProfilerShort.End();
@@ -396,6 +450,9 @@ namespace VRage.Network
             IMyReplicable replicable = GetProxyTarget(proxy) as IMyReplicable;
             IMyReplicable dep = dependency != null ? GetProxyTarget(dependency) as IMyReplicable : null;
             Debug.Assert(replicable != null, "Proxy does not point to replicable!");
+            if (replicable == null)
+                return;
+
             ForceReplicable(replicable, dep);
         }
 
@@ -407,14 +464,19 @@ namespace VRage.Network
             if (m_localClientEndpoint == clientEndpoint || clientEndpoint.IsNull) // Local client has always everything
                 return;
 
+            Debug.Assert(obj != null, "Null replicable!");
+            if (obj == null)
+                return;
+
+            Debug.Assert(m_clientStates.ContainsKey(clientEndpoint), "Replication for non existing client");
+            if (!m_clientStates.ContainsKey(clientEndpoint))
+                return;
+
             ProfilerShort.Begin("ForceReplicate");
-            if (PrepareForceReplicable(obj))
+            var client = m_clientStates[clientEndpoint];
+            if (!client.Replicables.ContainsKey(obj))
             {
-                var client = m_clientStates[clientEndpoint];
-                if (!client.Replicables.ContainsKey(obj))
-                {
-                    AddForClient(obj, clientEndpoint, client, 0,true);
-                }
+                AddForClient(obj, clientEndpoint, client, 0,true);
             }
             ProfilerShort.End();
         }
@@ -423,6 +485,8 @@ namespace VRage.Network
         {
             IMyReplicable replicable = GetProxyTarget(proxy) as IMyReplicable;
             Debug.Assert(replicable != null, "Proxy does not point to replicable!");
+            if (replicable == null)
+                return;
             ForceReplicable(replicable, clientEndpoint);
         }
 
@@ -437,6 +501,8 @@ namespace VRage.Network
             foreach (var client in m_clientStates)
             {
                 IMyReplicable replicableA = GetProxyTarget(objA) as IMyReplicable;
+                if (replicableA == null)
+                    continue;
 
                 if (client.Value.Replicables.ContainsKey(replicableA))
                 {
@@ -501,10 +567,7 @@ namespace VRage.Network
         /// </summary>
         public void ForceEverything(EndpointId clientEndpoint)
         {
-            foreach (var replicable in m_replicables.Roots)
-            {
-                ForceReplicable(replicable, clientEndpoint);
-            }
+            m_replicables.IterateRoots(replicable => ForceReplicable(replicable, clientEndpoint));
         }
 
         public void Destroy(IMyReplicable obj)
@@ -515,10 +578,17 @@ namespace VRage.Network
                 return;
             }
 
-            var id = GetNetworkIdByObject(obj);
-            if (id.IsInvalid)
+            m_priorityUpdates.ApplyChanges();
+                                              //may be ready but not processed 
+            if (!obj.IsReadyForReplication || obj.ReadyForReplicationAction.Count > 0) 
             {
-                Debug.Fail("Destroying object which is not present");
+                return;
+            }
+
+            var id = GetNetworkIdByObject(obj);
+            if (id.IsInvalid) //TODO: Can be invalid in ME!
+            {
+               // Debug.Fail("Destroying object which is not present");
                 return;
             }
 
@@ -533,7 +603,7 @@ namespace VRage.Network
                 {
                     // Mark for remove after replication ready.
                     client.Value.BlockedReplicables[obj].Remove = true;
-                    if(!obj.IsChild && !m_priorityUpdates.Contains(obj))
+                    if(!obj.HasToBeChild && !m_priorityUpdates.Contains(obj))
                     {
                         m_priorityUpdates.Add(obj);
                     }
@@ -541,11 +611,7 @@ namespace VRage.Network
                     continue;
                 }
 
-                // TODO: Postpone removing for client (we don't want to peak network when a lot of objects get removed)
-                if (client.Value.Replicables.ContainsKey(obj))
-                {
-                    RemoveForClient(obj, client.Key, client.Value, true);
-                }
+                RemoveForClient(obj, client.Key, client.Value, true);
             }
 
             // if noone pending than remove replicable.
@@ -597,9 +663,9 @@ namespace VRage.Network
 
         private void SendServerData(EndpointId endpointId)
         {
-            m_sendStream.ResetWrite();
-            SerializeTypeTable(m_sendStream);
-            m_callback.SendServerData(m_sendStream, endpointId);
+            SendStream.ResetWrite();
+            SerializeTypeTable(SendStream);
+            m_callback.SendServerData(SendStream, endpointId);
         }
 
         public void OnClientLeft(EndpointId endpointId)
@@ -617,28 +683,50 @@ namespace VRage.Network
             }
         }
 
+        public override void SetPriorityMultiplier(EndpointId id, float priority)
+        {
+            ClientData clientData;
+            if (m_clientStates.TryGetValue(id, out clientData))
+            {
+                clientData.PriorityMultiplier = priority;
+            }
+        }
+
+
         public void OnClientJoined(EndpointId endpointId,MyClientStateBase clientState)
         {
             OnClientConnected(endpointId,clientState);
         }
 
-        public void OnClientUpdate(MyPacket packet)
+        private const int MINIMUM_INCOMING_BUFFER = 4;
+        private const int MAXIMUM_INCOMING_BUFFER = 10;
+
+        private void AddIncomingPacketSorted(ClientData clientData, ClientData.MyOrderedPacket packet)
+        {
+            int idx = clientData.IncomingBuffer.Count - 1;
+            while (idx >= 0 && packet.Id < clientData.IncomingBuffer[idx].Id && !(packet.Id < 64 && clientData.IncomingBuffer[idx].Id > 192))
+                idx--;
+            idx++;
+
+            clientData.IncomingBuffer.Insert(idx, packet);
+        }
+
+        public void OnClientAcks(MyPacket packet)
         {
             ClientData clientData;
             if (!m_clientStates.TryGetValue(packet.Sender, out clientData))
                 return; // Unknown client, probably kicked
 
-            m_receiveStream.ResetRead(packet);
-
-            // Read last state sync packet id
-            clientData.LastStateSyncPacketId = m_receiveStream.ReadByte();
+            ReceiveStream.ResetRead(packet, false);
 
             // Read ACKs
-            byte count = m_receiveStream.ReadByte();
+            clientData.LastStateSyncPacketId = ReceiveStream.ReadByte();
+            byte count = ReceiveStream.ReadByte();
             for (int i = 0; i < count; i++)
             {
-                OnAck(m_receiveStream.ReadByte(), clientData);
+                OnAck(ReceiveStream.ReadByte(), clientData);
             }
+            ReceiveStream.CheckTerminator();
 
             byte firstDropId, lastDropId;
             if (clientData.WaitingForReset)
@@ -664,12 +752,132 @@ namespace VRage.Network
             {
                 RaiseAck(clientData, i, false);
             }
-
-            // Read client state
-            clientData.State.Serialize(m_receiveStream, m_frameCounter);
         }
 
+        public void OnClientUpdate(MyPacket packet)
+        {
+            ClientData clientData;
+            if (!m_clientStates.TryGetValue(packet.Sender, out clientData))
+                return; // Unknown client, probably kicked
 
+            if (m_usePlayoutDelayBuffer)
+            {
+                ReceiveStream.ResetRead(packet, false);
+                var packetId = ReceiveStream.ReadByte();
+                var orderedPacket = new ClientData.MyOrderedPacket {Id = packetId, Packet = packet};
+                orderedPacket.Packet.Data = (byte[])packet.Data.Clone();
+                AddIncomingPacketSorted(clientData, orderedPacket);
+            }
+            else
+            {
+                ProcessIncomingPacket(clientData, packet, false);
+                clientData.ProcessedPacket = true;
+            }
+        }
+
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+        [System.Security.SecurityCriticalAttribute]
+        public override void UpdateBefore()
+        {
+            if (m_usePlayoutDelayBuffer)
+            {
+                ulong clientIdToDisconnect = ulong.MaxValue;
+                foreach (var client in m_clientStates)
+                {
+                    try
+                    {
+                        UpdateIncoming(client.Value);
+                    }
+                    catch (Exception ex)
+                    {
+                        MyLog.Default.WriteLine(ex);
+                        clientIdToDisconnect = client.Key.Value;
+                    }
+                }
+                if (clientIdToDisconnect != ulong.MaxValue)
+                {
+                    m_callback.DisconnectClient(clientIdToDisconnect);
+                }
+            }
+            else
+            {
+                foreach (var client in m_clientStates)
+                {
+                    if (!client.Value.ProcessedPacket)
+                        client.Value.State.Update();
+                    client.Value.ProcessedPacket = false;
+                }
+            }
+        }
+
+        private readonly MyTimeSpan MAXIMUM_PACKET_GAP = MyTimeSpan.FromSeconds(0.4f);
+
+        private void UpdateIncoming(ClientData clientData)
+        {
+            if (clientData.IncomingBuffer.Count == 0 ||
+                clientData.IncomingBuffering && clientData.IncomingBuffer.Count < MINIMUM_INCOMING_BUFFER)
+            {
+                if (MyCompilationSymbols.EnableNetworkServerIncomingPacketTracking)
+                {
+                    if (clientData.IncomingBuffer.Count == 0)
+                        MyTrace.Send(TraceWindow.Multiplayer, "Incoming buffer empty");
+                    else MyTrace.Send(TraceWindow.Multiplayer, "Buffering incoming packets: " + clientData.IncomingBuffer.Count + 
+                                                                                       " of " + MINIMUM_INCOMING_BUFFER);
+                }
+                clientData.IncomingBuffering = true;
+                clientData.LastProcessedClientPacketId = 255;
+                clientData.State.Update();
+                return;
+            }
+
+            if (clientData.IncomingBuffering)
+                clientData.LastProcessedClientPacketId = (byte)(clientData.IncomingBuffer[0].Id - 1);
+
+            clientData.IncomingBuffering = false;
+
+            // process out of order, but do not apply controls
+            bool skipped;
+            string buf = "";
+            do
+            {
+                bool skipControls = clientData.IncomingBuffer.Count > MINIMUM_INCOMING_BUFFER;
+                skipped = ProcessIncomingPacket(clientData, clientData.IncomingBuffer[0].Packet, skipControls);
+                
+                if (MyCompilationSymbols.EnableNetworkServerIncomingPacketTracking)
+                {
+                    buf = clientData.IncomingBuffer[0].Id + ", " + buf;
+                    if (skipped)
+                        buf = "-" + buf;
+                }
+
+                clientData.IncomingBuffer.RemoveAt(0);
+            } while (clientData.IncomingBuffer.Count > MINIMUM_INCOMING_BUFFER || skipped && clientData.IncomingBuffer.Count > 0);
+
+            if (MyCompilationSymbols.EnableNetworkServerIncomingPacketTracking)
+                VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Multiplayer, buf + "; left: " + clientData.IncomingBuffer.Count);
+        }
+
+        private bool ProcessIncomingPacket(ClientData clientData, MyPacket packet, bool skipControls)
+        {
+            ReceiveStream.ResetRead(packet);
+
+            // Read last state sync packet id
+            clientData.LastClientPacketId = ReceiveStream.ReadByte();
+            clientData.LastClientRealtime = MyTimeSpan.FromMilliseconds(ReceiveStream.ReadDouble());
+            clientData.ClientStats.Update(clientData.ClientTracker.Add(clientData.LastClientPacketId));
+
+            var newId = clientData.LastClientPacketId;
+            // protection for out of ordere packets arriving later (again, potential overflow check)
+            bool outOfOrder = !(newId > clientData.LastProcessedClientPacketId || (clientData.LastProcessedClientPacketId > 192 && newId < 64));
+            if (!outOfOrder)
+                clientData.LastProcessedClientPacketId = newId;
+
+            // Read client state
+            skipControls |= outOfOrder;
+            clientData.State.Serialize(ReceiveStream, skipControls);
+            ReceiveStream.CheckTerminator();
+            return skipControls;
+        }
 
         void OnAck(byte ackId, ClientData clientData)
         {
@@ -707,128 +915,321 @@ namespace VRage.Network
             return (lastPacketId - currentPacketId) <= threshold;
         }
 
-        public override void Update()
+        public override void UpdateAfter()
         {
-            m_frameCounter++;
+        }
+
+        public override void UpdateClientStateGroups()
+        {
+        }
+
+        // Child replicable is replicable with dependency which does not have separate priority (will need another flag on replicable)
+        // When replicable is added for client, all children are added, same for removal, child priority is never checked
+        // Dependency can change during child lifetime (e.g. moving blocks between grids), replication server will check dependency once per 300 updates (5s) and update internal structures appropriatelly.
+        public override void SendUpdate()
+        {
+            m_serverTimeStamp = m_callback.GetUpdateTime();
+            m_serverFrame++;
+
             if (m_clientStates.Count == 0)
                 return;
 
-            // TODO: Send only limited number of objects!
-            // TODO: Optimize, no need to go through all objects of all client every frame
-            // Optimization 1: Spread refresh over multiple frames // DONE
-            // Optimization 2: Add hierarchy (root replicable, child replicables) // WIP
-            // Child replicable is replicable with dependency which does not have separate priority (will need another flag on replicable)
-            // When replicable is added for client, all children are added, same for removal, child priority is never checked
-            // Dependency can change during child lifetime (e.g. moving blocks between grids), replication server will check dependency once per 300 updates (5s) and update internal structures appropriatelly.
-            ProfilerShort.Begin("RefreshReplicables");
+            Stats_ObjectsRefreshed = 0;
+            Stats_ObjectsSent = 0;
 
-            while (m_priorityUpdates.Count > 0)
+            m_priorityUpdates.ApplyChanges();
+
+            if (m_priorityUpdates.Count > 0)
             {
-                var replicable = m_priorityUpdates.FirstElement();
-                m_priorityUpdates.Remove(replicable);
-                RefreshReplicable(replicable);
+                m_tmpHash.Clear();
+
+                ProfilerShort.Begin("RefreshReplicables - m_priorityUpdates");
+                foreach (var replicable in m_priorityUpdates)
+                {
+                    if (!replicable.HasToBeChild)
+                        RefreshReplicable(replicable);
+                    m_priorityUpdates.Remove(replicable);
+
+                    m_tmpHash.Add(replicable);
+                }
+                ProfilerShort.End();
+
+                ProfilerShort.Begin("SendStateSync - m_priorityUpdates");
+                foreach (var client in m_clientStates)
+                {
+                    if (client.Value.IsReady)
+                    {
+                        SendStateSync(client.Value, m_tmpHash);
+                    }
+                }
+                ProfilerShort.End();
+
+                m_priorityUpdates.ApplyRemovals();
+                return;
             }
+            
+            
 
-            const int spreadFrameCount = 60;
-            int refreshCount = m_replicables.Roots.Count / spreadFrameCount + 1;
-            for (int i = 0; i < refreshCount; i++)
+#if AABB_REPLICABLES
+            ProfilerShort.Begin("RefreshReplicables");
+            foreach (var client in m_clientStates)
             {
-                var replicable = m_replicables.GetNextForUpdate();
-                if (replicable == null)
-                    break;
+                if (client.Value.IsReady)
+                {
+                    m_layerUpdateHash.Clear();
+                    m_toDeleteHash.Clear();
+                    
+                    int layerIndex = client.Value.UpdateLayers.Length;
+                    
+                    foreach (var layer in client.Value.UpdateLayers)
+                    {
+                        --layerIndex;
 
-                RefreshChildren(replicable);
-                RefreshReplicable(replicable);
+                        BoundingBoxD aabb = new BoundingBoxD(client.Value.State.Position - new Vector3D(layer.Descriptor.Radius), client.Value.State.Position + new Vector3D(layer.Descriptor.Radius));
+                        m_replicables.GetReplicablesInBox(aabb, layer.Updater.List);
+
+                        if (layerIndex == 0)
+                        {
+                            foreach (var rep in layer.Replicables)
+                            {
+                                if (!m_layerUpdateHash.Contains(rep))
+                                    m_toDeleteHash.Add(rep);
+                            }
+                        }
+
+                        //Put only replicables into layer which are not in any previous layer
+                        layer.Replicables.Clear();
+                        foreach (var rep in layer.Updater.List)
+                        {
+                            AddReplicableToLayer(rep, layer);
+                        }
+
+                        layer.Updater.List.Clear();
+                        layer.Updater.List.AddRange(layer.Replicables);
+
+                        layer.Sender.List.Clear();
+                        layer.Sender.List.AddRange(layer.Replicables);
+
+                        //Move internal cursor
+                        layer.Updater.Update();
+
+                        //Iterate replicables which fits into current update interval
+                        layer.Updater.Iterate(replicable =>
+                        {
+                            m_replicables.RefreshChildrenHierarchy(replicable);
+                            RefreshReplicable(replicable, client.Key, client.Value);
+                        });
+                    }
+
+                    foreach (var replicableToDelete in m_toDeleteHash)
+                    {
+                        if (client.Value.HasReplicable(replicableToDelete))
+                            RemoveForClient(replicableToDelete, client.Key, client.Value, true);
+                    }
+
+                    m_toDeleteHash.Clear();
+                }               
             }
             ProfilerShort.End();
+
 
             ProfilerShort.Begin("SendStateSync");
             foreach (var client in m_clientStates)
             {
                 if (client.Value.IsReady)
                 {
-                    SendStateSync(client.Value);
+                    foreach (var layer in client.Value.UpdateLayers)
+                    {
+                        layer.Sender.Update();
+
+                        m_tmpHash.Clear();
+                        layer.Sender.Iterate(x => 
+                            {
+                                using (m_tmp)
+                                {
+                                    m_tmpHash.Add(x);
+                                }
+                            });
+                        
+                        if (m_tmpHash.Count > 0)
+                            SendStateSync(client.Value, m_tmpHash);                        
+                    }
                 }
             }
             ProfilerShort.End();
+#else
+            ProfilerShort.Begin("RefreshReplicables");
+
+            m_replicables.IterateRange(replicable =>
+            {
+                m_replicables.RefreshChildrenHierarchy(replicable);
+                RefreshReplicable(replicable);
+            });
+
+            ProfilerShort.End();
+
+
+            ProfilerShort.Begin("SendStateSync");
+            foreach (var client in m_clientStates)
+            {
+                if (client.Value.IsReady)
+                {
+                    SendStateSync(client.Value, x => true);
+                }
+            }
+            ProfilerShort.End();
+#endif
+
+            foreach (var client in m_clientStates)
+            {
+                if (m_serverTimeStamp > client.Value.LastStateSyncTimeStamp + MAXIMUM_PACKET_GAP)
+                    SendEmptyStateSync(client.Value);
+            }
+
+            if (StressSleep.X > 0)
+            {
+                int sleep;
+                if (StressSleep.Z == 0)
+                    sleep = MyRandom.Instance.Next(StressSleep.X, StressSleep.Y);
+                else
+                    sleep = (int) (Math.Sin(m_serverTimeStamp.Milliseconds * Math.PI / StressSleep.Z) * StressSleep.Y + StressSleep.X);
+                System.Threading.Thread.Sleep(sleep);
+            }
+        }
+
+        private void AddReplicableToLayer(IMyReplicable rep, UpdateLayer layer)
+        {
+            if (!m_layerUpdateHash.Contains(rep))
+            {
+                AddReplicableToLayerSingle(rep, layer);
+
+                if (rep.GetDependencies() != null)
+                {
+                    foreach (var replicableDependency in rep.GetDependencies())
+                    {
+                        AddReplicableToLayerSingle(replicableDependency, layer);
+                    }
+                }
+            }
+        }
+
+        private void AddReplicableToLayerSingle(IMyReplicable rep, UpdateLayer layer)
+        {
+            layer.Replicables.Add(rep);
+            m_layerUpdateHash.Add(rep);
+            m_toDeleteHash.Remove(rep);
         }
 
         private void RefreshReplicable(IMyReplicable replicable)
         {
-            ProfilerShort.Begin("m_timeFunc");
-            MyTimeSpan now = m_timeFunc();
-            ProfilerShort.End();
-
             foreach (var client in m_clientStates)
             {
-                if(client.Value.IsReady == false)
-                {
-                    continue;
-                }
-                ProfilerShort.Begin("RefreshReplicablePerClient");
-
-                ProfilerShort.Begin("TryGetValue Replicables");
-                MyReplicableClientData replicableInfo;
-                bool hasObj = client.Value.Replicables.TryGetValue(replicable, out replicableInfo);
-                ProfilerShort.End();
-
-                ProfilerShort.Begin("GetPriority");
-                ProfilerShort.Begin(replicable.GetType().Name);
-                float priority = replicable.GetPriority(new MyClientInfo(client.Value),false);
-
-                if (hasObj)
-                {
-                    replicableInfo.Priority = priority;
-                }
-
-                bool isRelevant = priority > 0;
-                ProfilerShort.End();
-                ProfilerShort.End();
-
-                if (isRelevant && !hasObj)
-                {
-                    ProfilerShort.Begin("CheckReady");
-                    var dependency = replicable.GetDependency();
-                    isRelevant = dependency == null || client.Value.IsReplicableReady(dependency);
-                    ProfilerShort.End();
-
-                    if (isRelevant)
-                    {
-                        ProfilerShort.Begin("AddForClient");
-                        AddForClient(replicable, client.Key, client.Value, priority, false);
-                        ProfilerShort.End();
-                    }
-                }
-                else if (hasObj)
-                {          
-                    ProfilerShort.Begin("UpdateSleepAndRemove");
-                    // Hysteresis
-                    replicableInfo.UpdateSleep(isRelevant, now);
-                    if (replicableInfo.ShouldRemove(now, MaxSleepTime))
-                        RemoveForClient(replicable, client.Key, client.Value, true);
-                    ProfilerShort.End();
-                }
-
-                if(isRelevant && hasObj)
-                {
-                    foreach (var child in m_replicables.GetChildren(replicable))
-                    {
-                        if (!client.Value.HasReplicable(child))
-                        {
-                           AddForClient(child, client.Key, client.Value, priority, false);
-                        }
-                    }
-                }
-
-                ProfilerShort.End();
+                RefreshReplicable(replicable, client.Key, client.Value);
             }
         }
 
-        private void SendStateSync(ClientData clientData)
+        /// <summary>
+        /// Refreshes replicable priorities per client
+        /// </summary>
+        /// <param name="replicable"></param>
+        private void RefreshReplicable(IMyReplicable replicable, EndpointId endPoint, ClientData clientData)
         {
-            var now = m_timeFunc();
+            ProfilerShort.Begin("m_timeFunc");
+            MyTimeSpan now = m_callback.GetUpdateTime();
+            ProfilerShort.End();
 
+            if (clientData.IsReady == false)
+            {
+                return;
+            }
+
+            ProfilerShort.Begin("RefreshReplicablePerClient");
+
+            ProfilerShort.Begin("TryGetValue Replicables");
+            MyReplicableClientData replicableInfo;
+            bool hasObj = clientData.Replicables.TryGetValue(replicable, out replicableInfo);
+            ProfilerShort.End();
+
+            ProfilerShort.Begin("GetPriority");
+            ProfilerShort.Begin(replicable.GetType().Name);
+            float priority = replicable.GetPriority(new MyClientInfo(clientData), false);
+
+            if (hasObj)
+            {
+                replicableInfo.Priority = priority;
+            }
+
+            bool hasPriority = priority > 0;
+            ProfilerShort.End();
+            ProfilerShort.End();
+
+            if (hasPriority && !hasObj)
+            {
+                ProfilerShort.Begin("CheckReady");
+                var parent = replicable.GetParent();
+                hasPriority = parent == null || clientData.IsReplicableReady(parent);
+                ProfilerShort.End();
+
+                if (hasPriority)
+                {
+                    ProfilerShort.Begin("AddForClient");
+                    AddForClient(replicable, endPoint, clientData, priority, false);
+                    ProfilerShort.End();
+                }
+            }
+            else if (hasObj)
+            {
+                ProfilerShort.Begin("UpdateSleepAndRemove");
+                // Hysteresis
+                replicableInfo.UpdateSleep(hasPriority, now);
+                if (replicableInfo.ShouldRemove(now, MaxSleepTime))
+                    RemoveForClient(replicable, endPoint, clientData, true);
+                ProfilerShort.End();
+            }
+
+            if (hasPriority && hasObj)
+            {
+                using (m_tmp)
+                {
+                    m_replicables.GetAllChildren(replicable, m_tmp);
+
+                    foreach (var child in m_tmp)
+                    {
+                        if (!clientData.HasReplicable(child))
+                        {
+                            AddForClient(child, endPoint, clientData, priority, false);
+                        }
+                    }
+                }
+            }
+
+            Stats_ObjectsRefreshed++;
+
+            ProfilerShort.End();
+        }
+
+        private void SendEmptyStateSync(ClientData clientData)
+        {
+            WritePacketHeader(clientData, false);
+            m_callback.SendStateSync(SendStream, clientData.State.EndpointId, false);
+        }
+
+        public void AddToDirtyGroups(IMyStateGroup group)
+        {
+            foreach (var client in m_clientStates)
+            {
+                if (client.Value.StateGroups.ContainsKey(group))
+                    client.Value.DirtyGroups.Add(group);
+            }
+        }
+
+
+        private void SendStateSync(ClientData clientData, HashSet<IMyReplicable> replicables)
+        {
             if (clientData.StateGroups.Count == 0)
+                return;
+
+            if (clientData.DirtyGroups.Count == 0)
                 return;
 
             EndpointId endpointId = clientData.State.EndpointId;
@@ -841,34 +1242,39 @@ namespace VRage.Network
                 using (m_tmpSortEntries)
                 {
                     ProfilerShort.Begin("UpdateGroupPriority");
-                    foreach (var entryPair in clientData.StateGroups)
+
+                    foreach (var group in clientData.DirtyGroups)
                     {
-                        var entry = entryPair.Value;
-                        // No state sync for pending or sleeping replicables
-                        if (entry.Owner != null && !clientData.Replicables[entry.Owner].HasActiveStateSync)
+                        if (!replicables.Contains(group.Owner.GetParent() ?? group.Owner) || !clientData.Replicables.ContainsKey(group.Owner))
                             continue;
 
-                        entry.FramesWithoutSync++;
-                        entry.Priority = entry.Group.GetGroupPriority(entry.FramesWithoutSync, new MyClientInfo(clientData));
+                        if (!clientData.Replicables[group.Owner].HasActiveStateSync && group.GroupType != StateGroupEnum.Streaming)
+                            continue;
+
+                        var entry = clientData.StateGroups[group];
+                                  
+                        ProfilerShort.Begin("GetGroupPriority");
+
+                        entry.Priority = entry.Group.GetGroupPriority((int)(m_serverFrame - entry.LastSyncedFrame), new MyClientInfo(clientData));
 
                         if (entry.Priority > 0)
                         {
-                            if (entry.Owner != null)
+                            if (entry.Group.GroupType == StateGroupEnum.Streaming)
                             {
-                                m_tmpSortEntries.Add(entry);
+                                m_tmpStreamingEntries.Add(entry);
+                                Stats_ObjectsSent++;
                             }
                             else
                             {
-                                if (entry.Group.GroupType != StateGroupEnum.Streamining)
-                                {
-                                    Debug.Fail("Non streaming group !");
-                                }
-                                else
-                                {
-                                    m_tmpStreamingEntries.Add(entry);
-                                }
+                                m_tmpSortEntries.Add(entry);
+                                Stats_ObjectsSent++;
                             }
                         }
+
+                        if (!group.IsStillDirty(endpointId))
+                            clientData.DirtyGroupsToRemove.Add(group);
+
+                        ProfilerShort.End(Stats_ObjectsSent);
                     }
 
                     ProfilerShort.End();
@@ -902,46 +1308,48 @@ namespace VRage.Network
                         int  messageBitSize = m_callback.GetMTRSize(endpointId) * 8;
                         ProfilerShort.Begin("Sort streaming entities");
                         m_tmpStreamingEntries.Sort(MyStateDataEntryComparer.Instance);
-                        clientData.StateSyncPacketId++;
                         ProfilerShort.End();
 
-                        
-                        var entry = m_tmpStreamingEntries.FirstOrDefault();
-                   
-                        m_sendStream.ResetWrite();
-                        m_sendStream.WriteBool(true);
-                        m_sendStream.WriteByte(clientData.StateSyncPacketId);
-                        var oldWriteOffset = m_sendStream.BitPosition;
+                        var serverTimeStamp = WritePacketHeader(clientData, true);
 
-                        m_sendStream.WriteNetworkId(entry.GroupId);
+                        var entry = m_tmpStreamingEntries.FirstOrDefault();
+
+                        var oldWriteOffset = SendStream.BitPosition;
+
+                        SendStream.WriteNetworkId(entry.GroupId);
 
                         ProfilerShort.Begin("serialize streaming entities");
-                        entry.Group.Serialize(m_sendStream, clientData.State.EndpointId, clientData.State.ClientTimeStamp, clientData.StateSyncPacketId, messageBitSize);
+                        entry.Group.Serialize(SendStream, clientData.State.EndpointId, serverTimeStamp, clientData.StateSyncPacketId, messageBitSize);
                         ProfilerShort.End();
 
-                        int bitsWritten = m_sendStream.BitPosition - oldWriteOffset;
+                        int bitsWritten = SendStream.BitPosition - oldWriteOffset;
 
                         if (m_limits.Add(entry.Group.GroupType, bitsWritten))
                         {
                             clientData.PendingStateSyncAcks[clientData.StateSyncPacketId].Add(entry.Group);
 
-                            entry.FramesWithoutSync = 0;
+                            entry.LastSyncedFrame = m_serverFrame;
                         }
                         else
                         {
                             // When serialize returns false, restore previous bit position and tell group it was not delivered
                             entry.Group.OnAck(clientData.State, clientData.StateSyncPacketId, false);
                         }
-                        m_callback.SendStateSync(m_sendStream, endpointId,true);
+                        m_callback.SendStateSync(SendStream, endpointId, true);
 
-                        IMyReplicable groupReplicable = entry.Parent;
-                        if (groupReplicable != null)
+                        IMyReplicable parentReplicable = entry.Group.Owner;
+                        if (parentReplicable != null)
                         {
-                            foreach (var child in m_replicables.GetChildren(groupReplicable))
+                            using (m_tmp)
                             {
-                                if (!clientData.HasReplicable(child))
+                                m_replicables.GetAllChildren(parentReplicable, m_tmp);
+
+                                foreach (var child in m_tmp)
                                 {
-                                    AddForClient(child, endpointId, clientData, groupReplicable.GetPriority(new MyClientInfo(clientData),true), false);
+                                    if (!clientData.HasReplicable(child))
+                                    {
+                                        AddForClient(child, endpointId, clientData, parentReplicable.GetPriority(new MyClientInfo(clientData), true), false);
+                                    }
                                 }
                             }
                         }
@@ -949,15 +1357,40 @@ namespace VRage.Network
                     //Server.SendMessage(m_sendStream, guid, PacketReliabilityEnum.UNRELIABLE, PacketPriorityEnum.MEDIUM_PRIORITY, MyChannelEnum.StateDataSync);
                 }
             }
+
+            foreach (var group in clientData.DirtyGroupsToRemove)
+            {
+                clientData.DirtyGroups.Remove(group);
+            }
+            clientData.DirtyGroupsToRemove.Clear();
+        }
+
+        private MyTimeSpan WritePacketHeader(ClientData clientData, bool streaming)
+        {
+            clientData.LastStateSyncTimeStamp = m_serverTimeStamp;
+            clientData.StateSyncPacketId++;
+
+            if (clientData.StartingServerTimeStamp == MyTimeSpan.Zero)
+                clientData.StartingServerTimeStamp = m_serverTimeStamp;
+
+            MyTimeSpan serverTimeStamp = m_serverTimeStamp - clientData.StartingServerTimeStamp;
+            SendStream.ResetWrite();
+            SendStream.WriteBool(streaming);
+            SendStream.WriteByte(clientData.StateSyncPacketId);
+            clientData.ClientStats.Write(SendStream);
+            clientData.ClientStats.Reset();
+            SendStream.WriteDouble(serverTimeStamp.Milliseconds);
+            SendStream.WriteDouble(clientData.LastClientRealtime.Milliseconds);
+            clientData.LastClientRealtime = MyTimeSpan.FromMilliseconds(-1);
+
+            m_callback.SendCustomState(SendStream, clientData.State.EndpointId);
+
+            return serverTimeStamp;
         }
 
         private bool SendStateSync(ClientData clientData, ref EndpointId endpointId)
         {
-            clientData.StateSyncPacketId++;
-
-            m_sendStream.ResetWrite();
-            m_sendStream.WriteBool(false);
-            m_sendStream.WriteByte(clientData.StateSyncPacketId);
+            var serverTimeStamp = WritePacketHeader(clientData, false);
 
             int MTUBytes = (int)m_callback.GetMTUSize(endpointId);
             int messageBitSize = 8 * (MTUBytes - 8 - 1); // MTU - headers
@@ -972,36 +1405,31 @@ namespace VRage.Network
             // TODO:SK limit to N in panic entries per packet
             foreach (var entry in m_tmpSortEntries)
             {
+                //if (clientData.State.GetControlledEntity() != entry.Group.Entity)
+                //    continue;
                 ProfilerShort.Begin("serializing entry counter");
-                var oldWriteOffset = m_sendStream.BitPosition;
-                m_sendStream.WriteNetworkId(entry.GroupId);
+                var oldWriteOffset = SendStream.BitPosition;
+                SendStream.WriteNetworkId(entry.GroupId);
 
-                bool fullyWritten = entry.Group.Serialize(m_sendStream, clientData.State.EndpointId, clientData.State.ClientTimeStamp, clientData.StateSyncPacketId, messageBitSize);
+                entry.Group.Serialize(SendStream, clientData.State.EndpointId, serverTimeStamp, clientData.StateSyncPacketId, messageBitSize);
 
-                int bitsWritten = m_sendStream.BitPosition - oldWriteOffset;
-                if (bitsWritten > 0 && m_sendStream.BitPosition <= messageBitSize && m_limits.Add(entry.Group.GroupType, bitsWritten))
+                int bitsWritten = SendStream.BitPosition - oldWriteOffset;
+                if (bitsWritten > 0 && SendStream.BitPosition <= messageBitSize && m_limits.Add(entry.Group.GroupType, bitsWritten))
                 {
                     clientData.PendingStateSyncAcks[clientData.StateSyncPacketId].Add(entry.Group);
                     sent++;
-                    entry.FramesWithoutSync = 0;
-                    if (fullyWritten)
-                    {
-                        m_tmpSentEntries.Add(entry);
-                    }
-                    else
-                    {
-                        numOverLoad++;
-                    }
+                    entry.LastSyncedFrame = m_serverFrame;
+                    m_tmpSentEntries.Add(entry);
                 }
                 else
                 {
                     numOverLoad++;
                     // When serialize returns false, restore previous bit position and tell group it was not delivered
                     entry.Group.OnAck(clientData.State, clientData.StateSyncPacketId, false);
-                    m_sendStream.SetBitPositionWrite(oldWriteOffset);
+                    SendStream.SetBitPositionWrite(oldWriteOffset);
                 }
                 ProfilerShort.End();
-                if (sent >= maxToSend || m_sendStream.BitPosition >= messageBitSize || numOverLoad > 10)
+                if (sent >= maxToSend || SendStream.BitPosition >= messageBitSize || numOverLoad > 10)
                 {
                    
                     break;
@@ -1009,7 +1437,7 @@ namespace VRage.Network
             }
 
             ProfilerShort.End();
-            m_callback.SendStateSync(m_sendStream, endpointId, false);
+            m_callback.SendStateSync(SendStream, endpointId, false);
             return numOverLoad >0;
         }
 
@@ -1021,7 +1449,7 @@ namespace VRage.Network
                 return; // already added
 
             ProfilerShort.Begin("AddClientReplicable");
-            AddClientReplicable(replicable, clientData, priority,force);
+            AddClientReplicable(replicable, clientData, priority, force);
             ProfilerShort.End();
 
             ProfilerShort.Begin("SendReplicationCreate");
@@ -1031,26 +1459,37 @@ namespace VRage.Network
 
         private void RemoveForClient(IMyReplicable replicable, EndpointId clientEndpoint, ClientData clientData, bool sendDestroyToClient)
         {
-            // It should not be in this list in normal situation, but there are many overrides that
-            // can remove replicable before it finished streaming. Just remove it now than.
-            clientData.BlockedReplicables.Remove(replicable);
-
-            m_replicables.RefreshChildrenHierarchy(replicable);
-
-            foreach (var child in m_replicables.GetChildren(replicable))
+            using (m_tmp)
             {
-                RemoveForClient(child, clientEndpoint, clientData, sendDestroyToClient);
-            }
+                m_replicables.RefreshChildrenHierarchy(replicable);
 
-            if (sendDestroyToClient)
-            {
-                ProfilerShort.Begin("SendReplicationDestroy");
-                SendReplicationDestroy(replicable, clientData, clientEndpoint);
-                ProfilerShort.End();
+                m_replicables.GetAllChildren(replicable, m_tmp);
+
+                m_tmp.Add(replicable);
+
+                foreach (var replicableItem in m_tmp)
+                {
+                    // It should not be in this list in normal situation, but there are many overrides that
+                    // can remove replicable before it finished streaming. Just remove it now than.
+                    clientData.BlockedReplicables.Remove(replicableItem);
+
+                    if (sendDestroyToClient)
+                    {
+                        ProfilerShort.Begin("SendReplicationDestroy");
+                        SendReplicationDestroy(replicableItem, clientData, clientEndpoint);
+                        ProfilerShort.End();
+                    }
+
+                    ProfilerShort.Begin("RemoveClientReplicable");
+                    RemoveClientReplicable(replicableItem, clientData);
+                    ProfilerShort.End();
+                }
+
+                foreach (var layer in clientData.UpdateLayers)
+                {
+                    layer.Replicables.Remove(replicable);
+                }
             }
-            ProfilerShort.Begin("RemoveClientReplicable");
-            RemoveClientReplicable(replicable, clientData);
-            ProfilerShort.End();
         }
 
         void SendReplicationCreate(IMyReplicable obj, ClientData clientData, EndpointId clientEndpoint)
@@ -1068,9 +1507,9 @@ namespace VRage.Network
             var groups = m_replicableGroups[obj];
             Debug.Assert(groups.Count <= 255, "Unexpectedly high number of groups");
 
-            m_sendStream.ResetWrite();
-            m_sendStream.WriteTypeId(typeId);
-            m_sendStream.WriteNetworkId(networkId);
+            SendStream.ResetWrite();
+            SendStream.WriteTypeId(typeId);
+            SendStream.WriteNetworkId(networkId);
 
 
             var streamable = obj as IMyStreamableReplicable;
@@ -1078,21 +1517,21 @@ namespace VRage.Network
             bool sendStreamed = streamable != null && streamable.NeedsToBeStreamed;
             if (streamable != null && streamable.NeedsToBeStreamed == false)
             {
-                m_sendStream.WriteByte((byte)(groups.Count - 1));
+                SendStream.WriteByte((byte)(groups.Count - 1));
             }
             else
             {
-                m_sendStream.WriteByte((byte)groups.Count);
+                SendStream.WriteByte((byte)groups.Count);
             }
 
 
             for (int i = 0; i < groups.Count; i++)
             {
-                if (sendStreamed == false && groups[i].GroupType == StateGroupEnum.Streamining)
+                if (sendStreamed == false && groups[i].GroupType == StateGroupEnum.Streaming)
                 {
                     continue;
                 }
-                m_sendStream.WriteNetworkId(GetNetworkIdByObject(groups[i]));
+                SendStream.WriteNetworkId(GetNetworkIdByObject(groups[i]));
             }
 
             ProfilerShort.End();
@@ -1102,13 +1541,13 @@ namespace VRage.Network
             if (sendStreamed)
             {
                 clientData.Replicables[obj].IsStreaming = true;
-                m_callback.SendReplicationCreateStreamed(m_sendStream, clientEndpoint);
+                m_callback.SendReplicationCreateStreamed(SendStream, clientEndpoint);
             }
             else
             {
-                obj.OnSave(m_sendStream);
+                obj.OnSave(SendStream);
                 ProfilerShort.Begin("Send");
-                m_callback.SendReplicationCreate(m_sendStream, clientEndpoint);
+                m_callback.SendReplicationCreate(SendStream, clientEndpoint);
                 ProfilerShort.End();
             }
             ProfilerShort.End();
@@ -1123,17 +1562,18 @@ namespace VRage.Network
                 return;
             }
 
-            m_sendStream.ResetWrite();
-            m_sendStream.WriteNetworkId(GetNetworkIdByObject(obj));
-            m_callback.SendReplicationDestroy(m_sendStream, clientEndpoint);
+            SendStream.ResetWrite();
+            SendStream.WriteNetworkId(GetNetworkIdByObject(obj));
+            m_callback.SendReplicationDestroy(SendStream, clientEndpoint);
             //Server.SendMessage(m_sendStream, clientId, PacketReliabilityEnum.RELIABLE, PacketPriorityEnum.LOW_PRIORITY, MyChannelEnum.Replication);
         }
 
         public void ReplicableReady(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            var networkId = m_receiveStream.ReadNetworkId();
-            bool loaded = m_receiveStream.ReadBool();
+            ReceiveStream.ResetRead(packet);
+            var networkId = ReceiveStream.ReadNetworkId();
+            bool loaded = ReceiveStream.ReadBool();
+            ReceiveStream.CheckTerminator();
 
             Debug.Assert(m_clientStates.ContainsKey(packet.Sender), "Client data not found");
 
@@ -1153,24 +1593,27 @@ namespace VRage.Network
                     // Replicable can be destroyed for client or destroyed completely at this point
                     Debug.Assert(replicableClientData.IsPending == true, "Replicable ready from client, but it's not pending for client");
                     replicableClientData.IsPending = false;
-                    replicableClientData.IsStreaming = false;               
-                    m_tmp.Clear();
-                    foreach (var forcedReplicable in clientData.ForcedReplicables)
+                    replicableClientData.IsStreaming = false;
+                    if (!replicable.HasToBeChild)
+                        m_priorityUpdates.Add(replicable);  //character after respawn, to switch controller
+                    using (m_tmp)
                     {
-                        if (forcedReplicable.Value == replicable)
+                        foreach (var forcedReplicable in clientData.ForcedReplicables)
                         {
-                            m_tmp.Add(forcedReplicable.Key);
-                            if (!clientData.Replicables.ContainsKey(forcedReplicable.Key) && m_replicableGroups.ContainsKey(forcedReplicable.Key))
+                            if (forcedReplicable.Value == replicable)
                             {
-                                AddForClient(forcedReplicable.Key,packet.Sender, clientData, 0,true);
+                                m_tmp.Add(forcedReplicable.Key);
+                                if (!clientData.Replicables.ContainsKey(forcedReplicable.Key) && m_replicableGroups.ContainsKey(forcedReplicable.Key))
+                                {
+                                    AddForClient(forcedReplicable.Key, packet.Sender, clientData, 0, true);
+                                }
                             }
                         }
+                        foreach (var replicableToRemove in m_tmp)
+                        {
+                            clientData.ForcedReplicables.Remove(replicableToRemove);
+                        }
                     }
-                    foreach (var replicableToRemove in m_tmp)
-                    {
-                        clientData.ForcedReplicables.Remove(replicableToRemove);
-                    }
-                    m_tmp.Clear();
                 }
 
                 // Check if this replicable was blocked, if yes than remove from blocking list.
@@ -1225,7 +1668,8 @@ namespace VRage.Network
             return true;
 
         }
-        public void AddStateGroups(IMyReplicable replicable)
+        
+        void AddStateGroups(IMyReplicable replicable)
         {
             using (tmpGroupsLock.AcquireExclusiveUsing())
             {
@@ -1268,7 +1712,7 @@ namespace VRage.Network
             m_replicableGroups.Remove(replicable);
         }
 
-        private void AddClientReplicable(IMyReplicable replicable, ClientData clientData, float priority,bool force)
+        private void AddClientReplicable(IMyReplicable replicable, ClientData clientData, float priority, bool force)
         {
             // Add replicable
             clientData.Replicables.Add(replicable, new MyReplicableClientData() { Priority = priority });
@@ -1277,18 +1721,18 @@ namespace VRage.Network
             foreach (var group in m_replicableGroups[replicable])
             {
                 var netId = GetNetworkIdByObject(group);
-                IMyReplicable parent = replicable;
 
-                if (group.GroupType == StateGroupEnum.Streamining)
+                if (group.GroupType == StateGroupEnum.Streaming)
                 {
                     if((replicable as IMyStreamableReplicable).NeedsToBeStreamed == false)
                     {
                         continue;
                     }
-                    parent = null;
                 }
 
-                clientData.StateGroups.Add(group, new MyStateDataEntry(parent, netId, group, replicable));
+                clientData.StateGroups.Add(group, new MyStateDataEntry(netId, group));
+                clientData.DirtyGroups.Add(group);
+
                 group.CreateClientData(clientData.State);
 
                 if (force)
@@ -1300,10 +1744,14 @@ namespace VRage.Network
 
         private void RemoveClientReplicable(IMyReplicable replicable, ClientData clientData)
         {
+            if (!m_replicableGroups.ContainsKey(replicable))
+                return;
+
             foreach (var g in m_replicableGroups[replicable])
             {
                 g.DestroyClientData(clientData.State);
                 clientData.StateGroups.Remove(g);
+                clientData.DirtyGroups.Remove(g);
             }
             clientData.Replicables.Remove(replicable);
         }
@@ -1335,11 +1783,11 @@ namespace VRage.Network
             {
                 // For state group, priority cannot be inherited, because it's changing with time
                 // Maybe add another method IMyStateGroup.GetEventPriority()
-                replicableInfo = client.Replicables[entry.Owner];
+                replicableInfo = client.Replicables[((IMyStateGroup)eventInstance).Owner];
                 priority = 1;
                 return isReliable || replicableInfo.HasActiveStateSync || replicableInfo.IsStreaming;
             }
-            else if (eventInstance is IMyReplicable && (client.Replicables.TryGetValue((IMyReplicable)eventInstance, out replicableInfo) || m_fixedObjects.Contains(eventInstance)))
+            else if (eventInstance is IMyReplicable && (client.Replicables.TryGetValue((IMyReplicable)eventInstance, out replicableInfo) || FixedObjects.Contains(eventInstance)))
             {
                 // Event inherits replicated object priority
                 priority = replicableInfo.Priority;
@@ -1477,6 +1925,7 @@ namespace VRage.Network
             // Return when validation fails
             if (!Invoke(site, stream, obj, source, GetClientData(source), true))
                 return;
+            stream.CheckTerminator();
 
             // Send event in case it has [Broadcast], [BroadcastExcept] or [Client] attribute
             if (site.HasClientFlag || site.HasBroadcastFlag || site.HasBroadcastExceptFlag)
@@ -1487,60 +1936,38 @@ namespace VRage.Network
 
         public void SendJoinResult(ref JoinResultMsg msg, ulong sendTo)
         {
-            m_sendStream.ResetWrite();
-            m_sendStream.WriteUInt16((ushort)msg.JoinResult);
-            m_sendStream.WriteUInt64(msg.Admin);
+            SendStream.ResetWrite();
+            SendStream.WriteUInt16((ushort)msg.JoinResult);
+            SendStream.WriteUInt64(msg.Admin);
 
-            m_callback.SendJoinResult(m_sendStream,new EndpointId(sendTo));
+            m_callback.SendJoinResult(SendStream,new EndpointId(sendTo));
         }
 
         public void SendWorldData(ref ServerDataMsg msg)
         {
             foreach (var client in m_clientStates)
             {
-                m_sendStream.ResetWrite();
+                SendStream.ResetWrite();
 
-                VRage.Serialization.MySerializer.Write(m_sendStream, ref msg);
-                m_callback.SendWorldData(m_sendStream, client.Key);
+                VRage.Serialization.MySerializer.Write(SendStream, ref msg);
+                m_callback.SendWorldData(SendStream, client.Key);
             }
         }
 
         public ConnectedClientDataMsg OnClientConnected(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            ConnectedClientDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ConnectedClientDataMsg>(m_receiveStream);
+            ReceiveStream.ResetRead(packet);
+            ConnectedClientDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ConnectedClientDataMsg>(ReceiveStream);
             return msg;
         }
 
         public void SendClientConnected(ref ConnectedClientDataMsg msg,ulong sendTo)
         {
-            m_sendStream.ResetWrite();
-            VRage.Serialization.MySerializer.Write<ConnectedClientDataMsg>(m_sendStream, ref msg);
-            m_callback.SentClientJoined(m_sendStream,new EndpointId(sendTo));
+            SendStream.ResetWrite();
+            VRage.Serialization.MySerializer.Write<ConnectedClientDataMsg>(SendStream, ref msg);
+            m_callback.SentClientJoined(SendStream,new EndpointId(sendTo));
         }
 
-        public void SendWorldBattleData(ref ServerBattleDataMsg msg)
-        {
-            foreach (var client in m_clientStates)
-            {
-                m_sendStream.ResetWrite();
-
-                VRage.Serialization.MySerializer.Write(m_sendStream, ref msg);
-                m_callback.SendWorldBattleData(m_sendStream, client.Key);
-            }
-        }
-
-        public void RefreshChildren(IMyEventProxy proxy)
-        {
-            IMyReplicable replicable = GetProxyTarget(proxy) as IMyReplicable;
-            Debug.Assert(replicable != null, "Proxy does not point to replicable!");
-            RefreshChildren(replicable);
-        }
-
-        public void RefreshChildren(IMyReplicable replicable)
-        {
-            m_replicables.RefreshChildrenHierarchy(replicable);
-        }
 
         #region Debug methods
 

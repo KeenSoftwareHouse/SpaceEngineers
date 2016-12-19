@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Xml.Serialization;
+using VRage.Game.ObjectBuilders.Gui;
 using VRage.Game.ObjectBuilders.VisualScripting;
 using VRage.ObjectBuilders;
 
@@ -20,5 +21,8 @@ namespace VRage.Game
 
         [DefaultValue(null)]
         public MyObjectBuilder_ScriptStateMachineManager ScriptStateMachineManager;
+
+        [DefaultValue(null)]
+        public MyObjectBuilder_Questlog Questlog;
     }
 }

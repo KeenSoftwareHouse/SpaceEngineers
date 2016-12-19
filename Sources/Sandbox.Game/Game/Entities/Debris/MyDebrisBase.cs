@@ -187,8 +187,7 @@ namespace Sandbox.Game.Entities.Debris
                                                       MyUtils.GetRandomRadian());
                 MyEntities.Add(m_entity);
                 Container.Entity.Physics.Enabled = true;
-                float simulationRatio = Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio * Sync.RelativeSimulationRatio;
-                Vector3D gravity = simulationRatio * MyGravityProviderSystem.CalculateNaturalGravityInPoint(position.Translation);
+                Vector3D gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(position.Translation);
                 ((MyPhysicsBody)Container.Entity.Physics).RigidBody.Gravity = gravity;
                 (Container.Entity.Physics as MyPhysicsBody).HavokWorld.ActiveRigidBodies.Add((Container.Entity.Physics as MyPhysicsBody).RigidBody);
                 m_isStarted = true;
@@ -207,7 +206,11 @@ namespace Sandbox.Game.Entities.Debris
                 {
                     int age = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_createdTime;
                     if (age > LifespanInMiliseconds)
+                    {
                         MarkForClose();
+                        return; //dont dither 
+                    }
+
                     float dithering = age / (float)LifespanInMiliseconds;
                     float ditherStart = 3.0f / 4.0f;
                     if (dithering > ditherStart)

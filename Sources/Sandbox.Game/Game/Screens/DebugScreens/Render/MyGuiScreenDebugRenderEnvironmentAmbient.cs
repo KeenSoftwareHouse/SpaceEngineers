@@ -43,7 +43,7 @@ namespace Sandbox.Game.Gui
 
             AddLabel("Skybox", Color.Yellow.ToVector4(), 1.2f);
             AddSlider("Intensity", MySector.SunProperties.EnvironmentLight.SkyboxBrightness, 0, 5.0f, (v) => MySector.SunProperties.EnvironmentLight.SkyboxBrightness = v.Value);
-            AddSlider("Env Intensity", MySector.SunProperties.EnvironmentLight.EnvSkyboxBrightness, 0, 5.0f, (v) => MySector.SunProperties.EnvironmentLight.EnvSkyboxBrightness = v.Value);
+            AddSlider("Env Intensity", MySector.SunProperties.EnvironmentLight.EnvSkyboxBrightness, 0, 50.0f, (v) => MySector.SunProperties.EnvironmentLight.EnvSkyboxBrightness = v.Value);
             AddSlider("Env Atmosphere Intensity", MySector.SunProperties.EnvironmentLight.EnvAtmosphereBrightness, 0, 5.0f, (v) => MySector.SunProperties.EnvironmentLight.EnvAtmosphereBrightness = v.Value);
 
             AddLabel("Fog", Color.Yellow.ToVector4(), 1.2f);

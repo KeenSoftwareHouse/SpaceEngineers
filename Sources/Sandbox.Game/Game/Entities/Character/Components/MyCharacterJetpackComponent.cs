@@ -1,8 +1,5 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
-using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems;
@@ -12,12 +9,8 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System;
-using VRage;
 using VRage.Audio;
 using VRage.Game;
-using VRage.Game.Components;
-using VRage.Network;
-using VRage.Utils;
 using VRageMath;
 using Vector3 = VRageMath.Vector3;
 
@@ -26,6 +19,7 @@ namespace Sandbox.Game.Entities.Character.Components
     public class MyCharacterJetpackComponent : MyCharacterComponent
     {
         private MyJetpackThrustComponent ThrustComp { get { return Character.Components.Get<MyEntityThrustComponent>() as MyJetpackThrustComponent; } }
+        public const float ROTATION_FACTOR = 0.02f;
 
         public float CurrentAutoEnableDelay { get; set; }
         public float ForceMagnitude { get; private set; }
@@ -42,7 +36,7 @@ namespace Sandbox.Game.Entities.Character.Components
         {
             get
             {
-                return ((MySession.Static.LocalCharacter == Character || Sync.IsServer) && Character.ControllerInfo.Controller != null && MySession.Static.IsAdminModeEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId)) || (ThrustComp != null && ThrustComp.IsThrustPoweredByType(Character, ref FuelDefinition.Id));
+                return ((MySession.Static.LocalCharacter == Character || Sync.IsServer) && Character.ControllerInfo.Controller != null && MySession.Static.CreativeToolsEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId)) || (ThrustComp != null && ThrustComp.IsThrustPoweredByType(Character, ref FuelDefinition.Id));
             }
         }
 
@@ -149,14 +143,7 @@ namespace Sandbox.Game.Entities.Character.Components
 
         public override void UpdateBeforeSimulation()
         {
-            ThrustComp.UpdateBeforeSimulation(false, Sync.IsServer || Character == MySession.Static.LocalCharacter);
-        }
-
-        public void UpdateThrustFromNetwork()
-        {
-            ThrustComp.ControlTrustNetwork += ThrustComp.ControlThrust;
-            ThrustComp.UpdateBeforeSimulation(true, true);
-            ClearMovement();
+            ThrustComp.UpdateBeforeSimulation(Sync.IsServer || Character == MySession.Static.LocalCharacter);
         }
 
         public override void OnCharacterDead()
@@ -172,14 +159,14 @@ namespace Sandbox.Game.Entities.Character.Components
 
             newState = newState && MySession.Static.Settings.EnableJetpack;
             newState = newState && Character.Definition.Jetpack != null;
-            newState = newState && (!MySession.Static.SurvivalMode || MyFakes.ENABLE_JETPACK_IN_SURVIVAL || controller == null || MySession.Static.IsAdminModeEnabled(controller.Player.Id.SteamId));
+            newState = newState && (!MySession.Static.SurvivalMode || MyFakes.ENABLE_JETPACK_IN_SURVIVAL || controller == null || MySession.Static.CreativeToolsEnabled(controller.Player.Id.SteamId));
 
             bool valueChanged = TurnedOn != newState;
             TurnedOn = newState;
             ThrustComp.Enabled = newState;
             ThrustComp.ControlThrust = Vector3.Zero;
             ThrustComp.MarkDirty();
-            ThrustComp.UpdateBeforeSimulation(false, true);
+            ThrustComp.UpdateBeforeSimulation(true);
             if (!ThrustComp.Enabled)
                 ThrustComp.SetRequiredFuelInput(ref FuelDefinition.Id, 0f, null);
 
@@ -192,12 +179,13 @@ namespace Sandbox.Game.Entities.Character.Components
             if (currentMovementState == MyCharacterMovementEnum.Sitting)
                 return;
 
-            Character.StopFalling();
+            if (TurnedOn)
+                Character.StopFalling();
 
             bool noHydrogen = false;
             bool canUseJetpack = newState;
 
-            if (!IsPowered && canUseJetpack && ((Character.ControllerInfo.Controller != null && MySession.Static.IsAdminModeEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false) || (MySession.Static.LocalCharacter != Character && Sync.IsServer == false)))
+            if (!IsPowered && canUseJetpack && ((Character.ControllerInfo.Controller != null && MySession.Static.CreativeToolsEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false) || (MySession.Static.LocalCharacter != Character && Sync.IsServer == false)))
             {
                 canUseJetpack = false;
                 noHydrogen = true;
@@ -230,7 +218,7 @@ namespace Sandbox.Game.Entities.Character.Components
                     ThrustComp.Enabled = false;
                     ThrustComp.ControlThrust = Vector3.Zero;
                     ThrustComp.MarkDirty();
-                    ThrustComp.UpdateBeforeSimulation(false, true);
+                    ThrustComp.UpdateBeforeSimulation(true);
                     ThrustComp.SetRequiredFuelInput(ref FuelDefinition.Id, 0f, null);
                     ThrustComp.ResourceSink(Character).Update();
                 }
@@ -311,9 +299,7 @@ namespace Sandbox.Game.Entities.Character.Components
                 Character.CanJump = true;
             }
 
-            MatrixD worldMatrix = Character.WorldMatrix;
-            float RotationSpeed = Character.RotationSpeed;
-            float RotationFactor = 0.02f;
+            MatrixD WorldMatrix = Character.WorldMatrix;
 
             if (canRotate)
             {
@@ -329,20 +315,20 @@ namespace Sandbox.Game.Entities.Character.Components
                     }
                     else
                     {
-                        rotationXMatrix = MatrixD.CreateFromAxisAngle(worldMatrix.Right, -rotationIndicator.X * RotationSpeed * RotationFactor);
+                        rotationXMatrix = MatrixD.CreateFromAxisAngle(WorldMatrix.Right, -rotationIndicator.X * Character.RotationSpeed * ROTATION_FACTOR);
                     }
                 }
 
                 if (Math.Abs(rotationIndicator.Y) > float.Epsilon)
                 {
-                    rotationYMatrix = MatrixD.CreateFromAxisAngle(worldMatrix.Up, -rotationIndicator.Y * RotationSpeed * RotationFactor);
+                    rotationYMatrix = MatrixD.CreateFromAxisAngle(WorldMatrix.Up, -rotationIndicator.Y * Character.RotationSpeed * ROTATION_FACTOR);
                 }
 
                 if (!Character.Definition.VerticalPositionFlyingOnly)
                 {
                     if (Math.Abs(roll) > float.Epsilon)
                     {
-                        rotationZMatrix = MatrixD.CreateFromAxisAngle(worldMatrix.Forward, roll * RotationFactor);
+                        rotationZMatrix = MatrixD.CreateFromAxisAngle(WorldMatrix.Forward, roll * ROTATION_FACTOR);
                     }
                 }
 
@@ -350,11 +336,11 @@ namespace Sandbox.Game.Entities.Character.Components
                 float rotationHeight = Character.ModelCollision.BoundingBoxSizeHalf.Y;
 
                 MatrixD physicsMatrix = Character.Physics.GetWorldMatrix();
-                Vector3D translation = physicsMatrix.Translation + (Vector3D)(worldMatrix.Up * rotationHeight);
+                Vector3D translation = physicsMatrix.Translation + (Vector3D)(WorldMatrix.Up * rotationHeight);
 
                 // Compute rotation
                 MatrixD fullRotation = rotationXMatrix * rotationYMatrix * rotationZMatrix;
-                MatrixD rotatedMatrix = worldMatrix.GetOrientation();
+                MatrixD rotatedMatrix = WorldMatrix.GetOrientation();
                 rotatedMatrix = rotatedMatrix * fullRotation;
                 rotatedMatrix.Translation = translation - (Vector3D)(rotatedMatrix.Up * rotationHeight);
 
@@ -362,8 +348,8 @@ namespace Sandbox.Game.Entities.Character.Components
                 Character.WorldMatrix = rotatedMatrix;
 
                 // Update physics character
-                rotatedMatrix.Translation = physicsMatrix.Translation;
-                Character.PositionComp.SetWorldMatrix(rotatedMatrix, Character.Physics);
+                /*rotatedMatrix.Translation = physicsMatrix.Translation;
+                Character.PositionComp.SetWorldMatrix(rotatedMatrix, Character.Physics);*/
                 Character.ClearShapeContactPoints();
             }
 
@@ -454,7 +440,7 @@ namespace Sandbox.Game.Entities.Character.Components
         {
             if (Character.GetCurrentMovementState() != MyCharacterMovementEnum.Died
                 && ((MyPerGameSettings.Game != GameEnum.ME_GAME
-                || !MySession.Static.SurvivalMode) || MySession.Static.IsAdminModeEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId)))
+                || !MySession.Static.SurvivalMode) || MySession.Static.CreativeToolsEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId)))
             {
                 TurnOnJetpack(!TurnedOn);
             }

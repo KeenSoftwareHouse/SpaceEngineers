@@ -65,17 +65,17 @@ namespace SpaceEngineers.Game.GUI
                 // Help
                 // Credits
                 // Exit to windows
-                int buttonIndex = MyPerGameSettings.MultiplayerEnabled ? 9 : 8;
+                int buttonIndex = MyPerGameSettings.MultiplayerEnabled ? 7 : 6;
                 Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA - MyGuiConstants.MENU_BUTTONS_POSITION_DELTA / 2, MyCommonTexts.ScreenMenuButtonContinueGame, OnContinueGameClicked));
                 Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonCampaign, OnClickNewGame));
                 Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonLoadGame, OnClickLoad));
                 if (MyPerGameSettings.MultiplayerEnabled)
                     Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonJoinGame, OnJoinWorld));
-                Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonCustomGame, OnCustomGameClicked));
+                //Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonCustomGame, OnCustomGameClicked));
                 --buttonIndex;
                 //Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonSubscribedWorlds, OnClickSubscribedWorlds, MyCommonTexts.ToolTipMenuSubscribedWorlds));
                 Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonOptions, OnClickOptions));
-                Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonHelp, OnClickHelp));
+                //Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonHelp, OnClickHelp));
                 Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonCredits, OnClickCredits));
                 Controls.Add(MakeButton(leftButtonPositionOrigin - (buttonIndex--) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonExitToWindows, OnClickExitToWindows));
 
@@ -98,7 +98,7 @@ namespace SpaceEngineers.Game.GUI
                 var saveButton = MakeButton(leftButtonPositionOrigin - ((float)(--buttonRowIndex)) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonSave, OnClickSaveWorld);
                 var saveAsButton = MakeButton(leftButtonPositionOrigin - ((float)(--buttonRowIndex)) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.LoadScreenButtonSaveAs, OnClickSaveAs);
 
-                if (!Sync.IsServer || (MySession.Static.Battle))
+                if (!Sync.IsServer || MyCampaignManager.Static.IsCampaignRunning)
                 {
                     saveButton.Enabled = false;
                     saveButton.ShowTooltipWhenDisabled = true;
@@ -128,9 +128,7 @@ namespace SpaceEngineers.Game.GUI
             logoPanel.BackgroundTexture = MyGuiConstants.TEXTURE_KEEN_LOGO;
             Controls.Add(logoPanel);
 
-            // Recommend button
-            Vector2 pos = rightButtonPositionOrigin - 8f * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA;
-            Controls.Add(MakeButton(pos, MyCommonTexts.ScreenMenuButtonRecommend, OnClickRecommend));
+            //  News
             m_newsControl = new MyGuiControlNews()
             {
                 Position = MyGuiManager.ComputeFullscreenGuiCoordinate(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM) - 7f * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
@@ -139,6 +137,7 @@ namespace SpaceEngineers.Game.GUI
             };
             Controls.Add(m_newsControl);
 
+            // Bottom URL
             var webButton = MakeButton(
                 MyGuiManager.ComputeFullscreenGuiCoordinate(MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM, 70),
                 MySpaceTexts.Blank, OnClickGameWeb);
@@ -146,13 +145,56 @@ namespace SpaceEngineers.Game.GUI
             webButton.VisualStyle = MyGuiControlButtonStyleEnum.UrlText;
             Controls.Add(webButton);
 
+            var iconButtonOrigin = m_newsControl.Position;
+            var iconButtonSize = new Vector2(50f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
+            iconButtonOrigin.Y += m_newsControl.Size.Y + MyGuiConstants.GENERIC_BUTTON_SPACING.Y;
+
+            // Help button
+            var helpButton = MakeButton(
+                iconButtonOrigin, 
+                MyStringId.NullOrEmpty, OnClickHelp);
+
+            helpButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
+            helpButton.VisualStyle = MyGuiControlButtonStyleEnum.Help;
+            helpButton.Size = iconButtonSize;
+            Controls.Add(helpButton);
+
+            iconButtonOrigin.X -= helpButton.Size.X + MyGuiConstants.GENERIC_BUTTON_SPACING.X * 2;
+            // Report button
             var reportButton = MakeButton(
-                new Vector2(m_newsControl.Position.X, m_newsControl.Position.Y + m_newsControl.Size.Y),
-                //MyGuiManager.ComputeFullscreenGuiCoordinate(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM, 140,80),
-                MyCommonTexts.ReportBug, OnClickReportBug);
+                iconButtonOrigin,
+                MyStringId.NullOrEmpty,
+                OnClickReportBug);
+
             reportButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
-            reportButton.VisualStyle = MyGuiControlButtonStyleEnum.UrlText;
+            reportButton.VisualStyle = MyGuiControlButtonStyleEnum.Bug;
+            reportButton.Size = iconButtonSize;
             Controls.Add(reportButton);
+
+
+            iconButtonOrigin.X -= reportButton.Size.X + MyGuiConstants.GENERIC_BUTTON_SPACING.X * 2;
+            // Newsletter button
+            var newsletterButton = MakeButton(
+                iconButtonOrigin,
+                MyStringId.NullOrEmpty,
+                OnClickNewsletter);
+
+            newsletterButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
+            newsletterButton.VisualStyle = MyGuiControlButtonStyleEnum.Envelope;
+            newsletterButton.Size = iconButtonSize;
+            Controls.Add(newsletterButton);
+
+            iconButtonOrigin.X -= newsletterButton.Size.X + MyGuiConstants.GENERIC_BUTTON_SPACING.X * 2;
+            // Recommend button
+            var button = MakeButton(
+                iconButtonOrigin,
+                MyStringId.NullOrEmpty,
+                OnClickRecommend);
+
+            button.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
+            button.VisualStyle = MyGuiControlButtonStyleEnum.Like;
+            button.Size = iconButtonSize;
+            Controls.Add(button);
 
             CheckLowMemSwitchToLow();
         }
@@ -217,6 +259,11 @@ namespace SpaceEngineers.Game.GUI
             MyGuiSandbox.OpenUrl(MySteamConstants.URL_RECOMMEND_GAME, UrlOpenMode.SteamOrExternal);
         }
 
+        private void OnClickNewsletter(MyGuiControlButton sender)
+        {
+            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen<MyGuiScreenNewsletter>());
+        }
+
         private void OnClickNewGame(MyGuiControlButton sender)
         {
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen<MyGuiScreenNewGame>());
@@ -235,7 +282,7 @@ namespace SpaceEngineers.Game.GUI
 
         private void OnExitToMainMenuClick(MyGuiControlButton sender)
         {
-            if (!Sync.IsServer || MySession.Static.Battle)
+            if (!Sync.IsServer)
             {
                 MySessionLoader.UnloadAndExitToMenu();
                 return;

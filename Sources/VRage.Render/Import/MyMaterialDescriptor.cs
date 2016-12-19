@@ -16,7 +16,19 @@ namespace VRageRender.Import
         public Dictionary<string, string> Textures = new Dictionary<string, string>();
         public Dictionary<string, string> UserData = new Dictionary<string, string>();
 
-        public string Technique { get; set; }
+        public string Technique { set; get; }
+
+        public MyMeshDrawTechnique TechniqueEnum
+        {
+            get
+            {
+                MyMeshDrawTechnique ret;
+                bool success = Enum.TryParse(Technique, out ret);
+                MyRenderProxy.Assert(success, "Cannot convert to draw technique");
+                return ret;
+            }
+            set { Technique = value.ToString(); }
+        }
 
         public string GlassCW { get; set; }
         public string GlassCCW { get; set; }
@@ -141,6 +153,14 @@ namespace VRageRender.Import
                     GlassCW = reader.ReadString();
                     GlassCCW = reader.ReadString();
                     GlassSmoothNormals = reader.ReadBoolean();
+
+                    // Partial backwards compatibility for old mods
+                    if (!string.IsNullOrEmpty(GlassCCW) 
+                        && !MyTransparentMaterials.ContainsMaterial(MaterialName) // Can be removed when all our materials are fixed
+                        && MyTransparentMaterials.ContainsMaterial(GlassCCW)) // Can be removed when all our materials are fixed
+                    {
+                        MaterialName = GlassCCW;
+                    }
                 }
                 else
                 {

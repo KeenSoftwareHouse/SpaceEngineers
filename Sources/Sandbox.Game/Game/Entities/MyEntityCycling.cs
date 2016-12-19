@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.World;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRageMath;
@@ -28,6 +29,8 @@ namespace Sandbox.Game.Entities
         StaticObjects,
         FloatingObjects,   
         Gps,
+        Planets,
+        OwnerLoginTime,
     }
 
     public struct CyclingOptions
@@ -102,8 +105,25 @@ namespace Sandbox.Game.Entities
                 case MyEntityCyclingOrder.MostWheels: return GetActiveBlockCount<MyMotorSuspension>(grid, true);
                 case MyEntityCyclingOrder.FloatingObjects: return entity is MyFloatingObject ? 1 : 0;
                 case MyEntityCyclingOrder.StaticObjects: return  entity.Physics != null && entity.Physics.AngularVelocity.AbsMax() < 0.05f && entity.Physics.LinearVelocity.AbsMax() < 0.05f ? 1:0;
+                case MyEntityCyclingOrder.Planets: return entity is MyPlanet ? 1 : 0;
+                case MyEntityCyclingOrder.OwnerLoginTime: return GetOwnerLoginTime(grid);
                 default: return 0;
             }
+        }
+
+        static float GetOwnerLoginTime(MyCubeGrid grid)
+        {
+            if (grid == null)
+                return 0;
+
+            if (grid.BigOwners.Count == 0)
+                return 0;
+
+            var identity = MySession.Static.Players.TryGetIdentity(grid.BigOwners[0]);
+            if (identity == null)
+                return 0;
+
+            return (float)Math.Round((DateTime.Now - identity.LastLoginTime).TotalDays, 2);
         }
 
         static float GetActiveBlockCount<T>(MyCubeGrid grid, bool includePassive = false)

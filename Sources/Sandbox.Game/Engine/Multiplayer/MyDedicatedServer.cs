@@ -1,28 +1,14 @@
 ﻿#if !XB1
 #region Using
 
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
-using Sandbox.Game;
-using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
-using Sandbox.Graphics.GUI;
 using SteamSDK;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using VRage.Game;
-using VRage.Utils;
-using VRage.Trace;
 using VRage.Library.Utils;
 using VRage.Network;
 
@@ -88,102 +74,6 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public override DateTime ScenarioStartTime
-        {
-            get;
-            set;
-        }
-
-        public override bool Battle
-        {
-            get;
-            set;
-        }
-
-        public override float BattleRemainingTime
-        {
-            get;
-            set;
-        }
-
-        public override bool BattleCanBeJoined
-        {
-            get;
-            set;
-        }
-
-        public override ulong BattleWorldWorkshopId
-        {
-            get;
-            set;
-        }
-
-        public override int BattleFaction1MaxBlueprintPoints
-        {
-            get;
-            set;
-        }
-
-        public override int BattleFaction2MaxBlueprintPoints
-        {
-            get;
-            set;
-        }
-
-        public override int BattleFaction1BlueprintPoints
-        {
-            get;
-            set;
-        }
-
-        public override int BattleFaction2BlueprintPoints
-        {
-            get;
-            set;
-        }
-
-        public override int BattleMapAttackerSlotsCount
-        {
-            get;
-            set;
-        }
-
-        public override long BattleFaction1Id
-        {
-            get;
-            set;
-        }
-
-        public override long BattleFaction2Id
-        {
-            get;
-            set;
-        }
-
-        public override int BattleFaction1Slot
-        {
-            get;
-            set;
-        }
-
-        public override int BattleFaction2Slot
-        {
-            get;
-            set;
-        }
-
-        public override bool BattleFaction1Ready
-        {
-            get;
-            set;
-        }
-
-        public override bool BattleFaction2Ready
-        {
-            get;
-            set;
-        }
-
-        public override int BattleTimeLimit
         {
             get;
             set;
@@ -260,33 +150,10 @@ namespace Sandbox.Engine.Multiplayer
             {
                 if (m_memberData[msg.Author].IsAdmin || debugCommands)
                 {
-                    if (msg.Text.Equals("+save", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        MySession.Static.Save();
-                    }
-                    else if (msg.Text.Contains("+unban", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        string[] parts = msg.Text.Split(' ');
-                        if (parts.Length > 1)
-                        {
-                            ulong user = 0;
-                            if (ulong.TryParse(parts[1], out user))
-                            {
-                                BanClient(user, false);
-                            }
-                        }
-                    }
-                }
-                if(debugCommands)
-                {
                     MyServerDebugCommands.Process(msg.Text, msg.Author);
                 }
             }
-            if(msg.Text.Contains("+43Dump"))
-            {
-                MySession.InitiateDump();
-                return;
-            }
+            
 
             RaiseChatMessageReceived(msg.Author, msg.Text, ChatEntryTypeEnum.ChatMsg);
         }

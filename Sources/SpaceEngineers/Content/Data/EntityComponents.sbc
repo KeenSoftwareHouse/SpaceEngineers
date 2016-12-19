@@ -22,7 +22,22 @@
   Init(MyComponentDefinitionBase definition) on component. If definition is found, it will pass the definition and call that method.
   
   See EntityContainers.sbc for defining default components in containers.
-  
+
+  To enable the MyModStorageComponent and allow mods to save custom data to entities, add a entry like the following
+  and list all the custom GUIDs the mod uses for the dictionary keys.
+
+  <EntityComponents>
+    <EntityComponent xsi:type="MyObjectBuilder_ModStorageComponentDefinition">
+      <Id>
+        <TypeId>ModStorageComponent</TypeId>
+        <SubtypeId>ModName</SubtypeId>
+      </Id>
+      <RegisteredStorageGuids>
+        <guid>00000000-0000-0000-0000-000000000000</guid>
+      </RegisteredStorageGuids>
+    </EntityComponent>
+  </EntityComponents>
+
   -->
   <EntityComponents>
 
@@ -170,7 +185,16 @@
       </Id>
       <Size x="7.5" y="7.5" z="7.5" />
     </EntityComponent>
-
+    
+    <EntityComponent xsi:type="MyObjectBuilder_ModStorageComponentDefinition">
+      <Id>
+        <TypeId>ModStorageComponent</TypeId>
+        <SubtypeId>CustomData</SubtypeId>
+      </Id>
+      <RegisteredStorageGuids>
+        <guid>74DE02B3-27F9-4960-B1C4-27351F2B06D1</guid>
+      </RegisteredStorageGuids>
+    </EntityComponent>
 
   </EntityComponents>
 

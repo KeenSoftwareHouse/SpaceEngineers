@@ -13,14 +13,14 @@ using VRage.Library.Utils;
 
 namespace VRage.Profiler
 {
-    public struct MyProfilerBlockKey
+    public struct MyProfilerBlockKey : IEquatable<MyProfilerBlockKey>
     {
-        public readonly string File;
-        public readonly string Member;
-        public readonly string Name;
-        public readonly int Line;
-        public readonly int ParentId;
-        public readonly int HashCode;
+        public string File;
+        public string Member;
+        public string Name;
+        public int Line;
+        public int ParentId;
+        public int HashCode;
 
         public MyProfilerBlockKey(string file, string member, string name, int line, int parentId)
         {
@@ -38,14 +38,14 @@ namespace VRage.Profiler
             }
         }
 
-        public override bool Equals(object obj)
+        public bool Equals(MyProfilerBlockKey obj)
         {
-            throw new InvalidBranchException("Equals is not supposed to be called, use comparer!");
+            return ParentId == obj.ParentId && Name == obj.Name && Member == obj.Member && File == obj.File && Line == obj.Line;
         }
 
         public override int GetHashCode()
         {
-            throw new InvalidBranchException("Get hash code is not supposed to be called, use comparer!");
+            return HashCode;
         }
     }
 
@@ -209,6 +209,62 @@ namespace VRage.Profiler
             foreach (var child in Children)
                 child.Dump(sb, frame);
             sb.Append("</Block>\n");
+        }
+
+        public class MyProfilerBlockObjectBuilderInfo
+        {
+            public int Id;
+            public MyProfilerBlockKey Key;
+
+            public bool Invalid = false;
+
+            public string TimeFormat;
+            public string ValueFormat;
+            public string CallFormat;
+
+            public float[] ProcessMemory;
+            public long[] ManagedMemoryBytes;
+            public float[] Miliseconds;
+            public float[] CustomValues;
+            public int[] NumCallsArray;
+            public List<MyProfilerBlock> Children;
+            public MyProfilerBlock Parent;
+        }
+
+        public MyProfilerBlockObjectBuilderInfo GetObjectBuilderInfo()
+        {
+            MyProfilerBlockObjectBuilderInfo objectBuilder = new MyProfilerBlockObjectBuilderInfo();
+            objectBuilder.Id = Id;
+            objectBuilder.Key = Key;
+            objectBuilder.Invalid = Invalid;
+            objectBuilder.TimeFormat = TimeFormat;
+            objectBuilder.ValueFormat = ValueFormat;
+            objectBuilder.CallFormat = CallFormat;
+            objectBuilder.ProcessMemory = ProcessMemory;
+            objectBuilder.ManagedMemoryBytes = ManagedMemoryBytes;
+            objectBuilder.Miliseconds = Miliseconds;
+            objectBuilder.CustomValues = CustomValues;
+            objectBuilder.NumCallsArray = NumCallsArray;
+            objectBuilder.Children = Children;
+            objectBuilder.Parent = Parent;
+            return objectBuilder;
+        }
+
+        public void Init(MyProfilerBlockObjectBuilderInfo data)
+        {
+            Id = data.Id;
+            Key = data.Key;
+            Invalid = data.Invalid;
+            TimeFormat = data.TimeFormat;
+            ValueFormat = data.ValueFormat;
+            CallFormat = data.CallFormat;
+            ProcessMemory = data.ProcessMemory;
+            ManagedMemoryBytes = data.ManagedMemoryBytes;
+            Miliseconds = data.Miliseconds;
+            CustomValues = data.CustomValues;
+            NumCallsArray = data.NumCallsArray;
+            Children = data.Children;
+            Parent = data.Parent;
         }
     }
 }

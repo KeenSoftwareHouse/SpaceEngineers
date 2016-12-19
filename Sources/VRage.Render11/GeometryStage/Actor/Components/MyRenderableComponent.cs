@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using VRage.Import;
 using VRage.Render11.Common;
-using VRage.Render11.GeometryStage2;
+using VRage.Render11.GeometryStage;
 using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
@@ -286,7 +286,9 @@ namespace VRageRender
         private bool IsLodTransitionInProgress { get { return m_lodTransitionState != 0; } }
         private int LodTransitionProxyIndex { get { return m_lodTransitionState > 0 ? m_lod : m_lod - 1; } }
 
-        internal bool IsRenderedStandAlone { get { return m_isRenderedStandalone; } set { SetStandaloneRendering(value); } }        
+        internal bool IsRenderedStandAlone { get { return m_isRenderedStandalone; } set { SetStandaloneRendering(value); } }
+
+        float m_globalEmissivity;
         #endregion
 
         #region Memory
@@ -333,6 +335,8 @@ namespace VRageRender
             m_depthBias = 0;
             m_additionalFlags = 0;
 
+            m_globalEmissivity = 0;
+
             ModelProperties = new Dictionary<MyEntityMaterialKey, MyModelProperties>(MyEntityMaterialKey.Comparer);
 
             MyRender11.PendingComponentsToUpdate.Add(this);
@@ -370,6 +374,13 @@ namespace VRageRender
             SetLocalAabbToModelLod(0);
 
             Owner.MarkRenderDirty();
+        }
+
+        public void SetGlobalEmissivity(float emissivity)
+        {
+            m_globalEmissivity = emissivity;
+            m_colorEmissivityDirty = true;
+            MyRender11.PendingComponentsToUpdate.Add(this);
         }
 
         // for now
@@ -709,11 +720,10 @@ namespace VRageRender
             lod.RenderableProxies[partIndex].DrawSubmesh = submesh;
 
             var sectionSubmeshes = new MyDrawSubmesh[partId.Info.SectionSubmeshCount];
-            int sectionCount = lodMesh.Info.SectionsNum;
             int subsectionIndex = 0;
-            for (int idx1 = 0; idx1 < sectionCount; idx1++)
+            foreach (var sectionName in lodMesh.Info.SectionNames)
             {
-                var section = MyMeshes.GetMeshSection(Mesh, lodIndex, idx1);
+                var section = MyMeshes.GetMeshSection(Mesh, lodIndex, sectionName);
                 MyMeshSectionPartInfo1[] meshes = section.Info.Meshes;
                 for (int idx2 = 0; idx2 < meshes.Length; idx2++)
                 {
@@ -814,41 +824,9 @@ namespace VRageRender
 
         internal bool RebuildRenderProxies()
         {
-            bool notReady = Mesh == MeshId.NULL;
-            bool notNeeded = !Owner.RenderDirty;
-            if(notReady)
+            bool ready = Mesh != MeshId.NULL;
+            if(!ready)
                 return false;
-
-            if(notNeeded)
-            {
-                // If it is needed, the other branch will do this
-                if (m_colorEmissivityDirty && IsRendered)
-                {
-                    m_colorEmissivityDirty = false;
-                    foreach (var property in ModelProperties)
-                    {
-                        foreach(var lod in m_lods)
-                        {
-                            foreach(var renderableProxy in lod.RenderableProxies)
-                            {
-                                if (renderableProxy.UnusedMaterials != null && renderableProxy.UnusedMaterials.Contains(property.Key.Material.String))
-                                {
-                                    string errorMessage =
-                                        string.Format(
-                                        "Material '{0}' needs to be added to environment.sbc into changeable materials", property.Key.Material.String);
-                                    MyRenderProxy.Assert(false, errorMessage);
-                                }
-                                if (renderableProxy.Material.Info.Name == property.Key.Material)
-                                {
-                                    renderableProxy.CommonObjectData.Emissive = property.Value.Emissivity;
-                                    renderableProxy.CommonObjectData.ColorMul = property.Value.ColorMul;
-                                }
-                            }
-                        }
-                    }
-                }
-                return true;
-            }
 
             if (!Owner.LocalAabb.HasValue)
             {
@@ -1023,6 +1001,43 @@ namespace VRageRender
                     }
                 }
             }
+
+
+            // If it is needed, the other branch will do this
+            if (m_colorEmissivityDirty && IsRendered && m_lods != null)
+            {
+                m_colorEmissivityDirty = false;
+
+        		foreach(var lod in m_lods)
+                        foreach (var renderableProxy in lod.RenderableProxies)
+                        {
+                            renderableProxy.CommonObjectData.Emissive = m_globalEmissivity;
+                            renderableProxy.CommonObjectData.ColorMul = MyModelProperties.DefaultColorMul;
+                        }
+
+                foreach (var property in ModelProperties)
+                {
+                    foreach (var lod in m_lods)
+                    {
+                        foreach (var renderableProxy in lod.RenderableProxies)
+                        {
+                            if (renderableProxy.UnusedMaterials != null && renderableProxy.UnusedMaterials.Contains(property.Key.Material.String))
+                            {
+                                string errorMessage =
+                                    string.Format(
+                                    "Material '{0}' needs to be added to environment.sbc into changeable materials", property.Key.Material.String);
+                                MyRenderProxy.Assert(false, errorMessage);
+                            }
+                            if (renderableProxy.Material.Info.Name == property.Key.Material)
+                            {
+                                renderableProxy.CommonObjectData.Emissive = property.Value.Emissivity;
+                                renderableProxy.CommonObjectData.ColorMul = property.Value.ColorMul;
+                            }
+                        }
+                    }
+                }
+            }
+
             m_colorEmissivityDirty = false;
             Owner.MarkRenderClean();
             return true;
@@ -1122,7 +1137,7 @@ namespace VRageRender
             {
                 float delta = MyLodUtils.GetTransitionDelta(Math.Abs(distanceFromCamera - m_lodTransitionStartDistance), m_lodTransitionState, m_lod);
                 m_lodTransitionState = Math.Sign(m_lodTransitionState) * (Math.Abs(m_lodTransitionState) + delta);
-
+                
                 if (Math.Abs(m_lodTransitionState) >= 1)
                 {
                     m_lod = m_lodTransitionState > 0 ? m_lod + 1 : m_lod - 1;
@@ -1151,14 +1166,22 @@ namespace VRageRender
 
                     if (lod != m_lod && (!MyRender11.Settings.PerInstanceLods || !m_isGenericInstance || lod == m_lods.Length - 1))
                     {
-                        m_lodTransitionState = lod < m_lod ? -0.001f : 0.001f;
-                        m_lodTransitionStartDistance = distanceFromCamera;
-                        m_lodBorder = true;
+                        if (m_objectDithering != 0.0f) // if dithering is enabled, there is no transition
+                        {
+                            m_lod = lod;
+                            SetProxiesForCurrentLod();
+                        }
+                        else
+                        {
+                            m_lodTransitionState = lod < m_lod ? -0.001f : 0.001f;
+                            m_lodTransitionStartDistance = distanceFromCamera;
+                            m_lodBorder = true;
 
-                        SetProxiesForCurrentLod();
-                        UpdateProxiesCustomAlpha();
-                        SetLodShaders(m_lod, MyShaderUnifiedFlags.DITHERED_LOD);
-                        SetLodShaders(lod, MyShaderUnifiedFlags.DITHERED_LOD);
+                            SetProxiesForCurrentLod();
+                            UpdateProxiesCustomAlpha();
+                            SetLodShaders(m_lod, MyShaderUnifiedFlags.DITHERED_LOD);
+                            SetLodShaders(lod, MyShaderUnifiedFlags.DITHERED_LOD);
+                        }
                     }
                 }
             }

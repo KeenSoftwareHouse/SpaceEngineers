@@ -1223,7 +1223,7 @@ namespace Sandbox.Game.Entities
                 {
                     if (m_fixedConstraintData != null && !MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
-                        float t = (float)(currentTimeDelta.Miliseconds / constraintPrepareTime.Miliseconds);
+                        float t = (float)(currentTimeDelta.Milliseconds / constraintPrepareTime.Milliseconds);
                         t *= t;
                         t *= t; //pow4
                         float value = t * fixedConstraintMaxValue;

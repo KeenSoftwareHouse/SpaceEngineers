@@ -121,10 +121,14 @@ namespace VRage.Render11.Resources
                     return;
 
                 m_dirtyFlag = false;
-                if (m_arrayTexture != null)
-                    MyManagers.FileArrayTextures.DisposeTex(ref m_arrayTexture);
-                if (m_filepaths.Count != 0)
-                    m_arrayTexture = MyManagers.FileArrayTextures.CreateFromFiles(m_name, m_filepaths.ToArray(), m_type, m_errorBytePattern, m_formatBytePattern, false);
+
+                var previousArrayTexture = m_arrayTexture;
+                if (m_filepaths.Count == 0)
+                    m_arrayTexture = null;
+                else
+                    m_arrayTexture = MyManagers.FileArrayTextures.CreateFromFiles(m_name, m_filepaths.ToArray(), m_type, m_errorBytePattern, m_formatBytePattern, false, previousArrayTexture as MyFileArrayTexture);
+
+                MyManagers.FileArrayTextures.DisposeTex(ref previousArrayTexture);
             }
 
             public int AddRef()
@@ -161,7 +165,7 @@ namespace VRage.Render11.Resources
 
     }
 
-    class MyDynamicFileArrayTextureManager : IManager, IManagerUpdate, IManagerCallback
+    class MyDynamicFileArrayTextureManager : IManager, IManagerUpdate, IManagerUnloadData
     {
         MyObjectsPool<MyDynamicFileArrayTexture> m_objectsPool = new MyObjectsPool<MyDynamicFileArrayTexture>(1);
         //HashSet<MyDynamicFileArrayTexture> m_texarraysAutodestroyed = new HashSet<MyDynamicFileArrayTexture>();
@@ -202,7 +206,7 @@ namespace VRage.Render11.Resources
                 tex.Update();
         }
 
-        void IManagerCallback.OnUnloadData()
+        void IManagerUnloadData.OnUnloadData()
         {
             //while (m_texarraysAutodestroyed.Count != 0)
             //{
@@ -210,12 +214,6 @@ namespace VRage.Render11.Resources
             //    DisposeTex(ref tex);
             //}
             ReloadAll();
-        }
-
-
-        void IManagerCallback.OnFrameEnd()
-        {
-            
         }
     }
 }

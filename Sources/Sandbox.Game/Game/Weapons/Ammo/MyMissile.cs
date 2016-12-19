@@ -175,7 +175,7 @@ namespace Sandbox.Game.Weapons
 
                         if (m_collidedEntity != null && !(m_collidedEntity is MyAmmoBase))
                         {
-                            if (!m_collidedEntity.Physics.IsStatic)
+                            if (m_collidedEntity.Physics != null && !m_collidedEntity.Physics.IsStatic)
                             {
                                 m_collidedEntity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
                                     100 * Physics.LinearVelocity, m_collisionPoint, null);

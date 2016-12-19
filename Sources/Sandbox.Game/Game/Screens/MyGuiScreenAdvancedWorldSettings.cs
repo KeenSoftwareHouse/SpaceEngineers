@@ -48,8 +48,8 @@ namespace Sandbox.Game.Gui
         MyGuiControlTextbox m_passwordTextbox;
         MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo;
         MyGuiControlCheckbox m_autoHealing, m_clientCanSave, m_enableCopyPaste, m_weaponsEnabled, m_showPlayerNamesOnHud, m_thrusterDamage, m_cargoShipsEnabled, m_enableSpectator,
-                             m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,m_enableOxygenPressurization,
-                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_enableConvertToStation,m_enableStationVoxelSupport, m_enableSunRotation, m_enableJetpack, 
+                             m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,m_enableOxygenPressurization,
+                             m_enable3rdPersonCamera, m_enableEncounters, m_enableRespawnShips, m_scenarioEditMode, m_enableConvertToStation,m_enableStationVoxelSupport, m_enableSunRotation, m_enableJetpack, 
                              m_spawnWithTools, m_startInRespawnScreen, m_enableVoxelDestruction, m_enableDrones,m_enableWolfs,m_enableSpiders, m_enableRemoteBlockRemoval;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
@@ -164,10 +164,9 @@ namespace Sandbox.Game.Gui
             var inventorySizeLabel = MakeLabel(MySpaceTexts.WorldSettings_InventorySize);
             var refineryEfficiencyLabel = MakeLabel(MySpaceTexts.WorldSettings_RefinerySpeed);
             var assemblerEfficiencyLabel = MakeLabel(MySpaceTexts.WorldSettings_AssemblerEfficiency);
-            var trashRemovalLabel = MakeLabel(MySpaceTexts.WorldSettings_RemoveTrash);
             var oxygenLabel = MakeLabel(MySpaceTexts.World_Settings_EnableOxygen);
             var oxygenPressurizationLabel = MakeLabel(MySpaceTexts.World_Settings_EnableOxygenPressurization);
-            var disableRespawnShipsLabel = MakeLabel(MySpaceTexts.WorldSettings_DisableRespawnShips);
+            var enableRespawnShipsLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableRespawnShips);
             var respawnShipDeleteLabel = MakeLabel(MySpaceTexts.WorldSettings_RespawnShipDelete);
             var worldSizeLabel = MakeLabel(MySpaceTexts.WorldSettings_LimitWorldSize);
             var weldingSpeedLabel = MakeLabel(MySpaceTexts.WorldSettings_WelderSpeed);
@@ -205,7 +204,7 @@ namespace Sandbox.Game.Gui
             m_enableIngameScripts = new MyGuiControlCheckbox();
             m_enable3rdPersonCamera = new MyGuiControlCheckbox();
             m_enableEncounters = new MyGuiControlCheckbox();
-            m_disableRespawnShips = new MyGuiControlCheckbox();
+            m_enableRespawnShips = new MyGuiControlCheckbox();
             m_enableToolShake = new MyGuiControlCheckbox();
             m_enableOxygen = new MyGuiControlCheckbox();
             m_enableOxygen.IsCheckedChanged = (x) =>
@@ -331,8 +330,7 @@ namespace Sandbox.Game.Gui
             m_enableWolfs = new MyGuiControlCheckbox();
             m_enableSpiders = new MyGuiControlCheckbox();
             m_enableRemoteBlockRemoval = new MyGuiControlCheckbox();
-
-            m_trashRemoval = new MyGuiControlCheckbox();
+            
             m_respawnShipDelete = new MyGuiControlCheckbox();
             m_worldSizeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
             m_spawnShipTimeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
@@ -466,7 +464,6 @@ namespace Sandbox.Game.Gui
             m_maxBlocksPerPlayerSlider.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsMaxBlocksPerPlayer));
             m_maxPlayersSlider.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsMaxPlayer));
             m_weaponsEnabled.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsWeapons));
-            m_trashRemoval.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsRemoveTrash));
             m_worldSizeCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsLimitWorldSize));
             m_viewDistanceCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsViewDistance));
             m_respawnShipDelete.SetToolTip(MyTexts.GetString(MySpaceTexts.TooltipWorldSettingsRespawnShipDelete));
@@ -489,7 +486,7 @@ namespace Sandbox.Game.Gui
 			
 			m_enableConvertToStation.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableConvertToStation));
             m_enableStationVoxelSupport.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_StationVoxelSupport));
-            m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));
+            m_enableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableRespawnShips));
             m_enableVoxelDestruction.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableVoxelDestruction));
 
             // Add controls in pairs; label first, control second. They will be laid out automatically this way.
@@ -713,13 +710,7 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(destructibleBlocksLabel);
             parent.Controls.Add(m_destructibleBlocks);
-
-            if (MyFakes.ENABLE_TRASH_REMOVAL)
-            {
-                parent.Controls.Add(trashRemovalLabel);
-                parent.Controls.Add(m_trashRemoval);
-            }
-
+            
             if (MyFakes.ENABLE_PROGRAMMABLE_BLOCK)
             {
                 parent.Controls.Add(enableIngameScriptsLabel);
@@ -774,14 +765,14 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(m_enableSpidersLabel);
             parent.Controls.Add(m_enableSpiders);
 
-            parent.Controls.Add(enableRemoteBlockRemovalLabel);
+			parent.Controls.Add(enableRemoteBlockRemovalLabel);
             parent.Controls.Add(m_enableRemoteBlockRemoval);
           
             m_survivalModeButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
             m_survivalModeButton.Position = m_creativeModeButton.Position + new Vector2(m_onlineMode.Size.X, 0);
 
-            parent.Controls.Add(disableRespawnShipsLabel);
-            parent.Controls.Add(m_disableRespawnShips);
+            parent.Controls.Add(enableRespawnShipsLabel);
+            parent.Controls.Add(m_enableRespawnShips);
 
             //////////////////////////////////////////////////
             //////////////////////////////////////////////////
@@ -1039,7 +1030,6 @@ namespace Sandbox.Game.Gui
             output.ShowPlayerNamesOnHud = m_showPlayerNamesOnHud.IsChecked;
             output.ThrusterDamage = m_thrusterDamage.IsChecked;
             output.WeaponsEnabled = m_weaponsEnabled.IsChecked;
-            output.RemoveTrash = m_trashRemoval.IsChecked;
             output.EnableOxygen = m_enableOxygen.IsChecked;
             if (output.EnableOxygen && output.VoxelGeneratorVersion < MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION)
             {
@@ -1049,8 +1039,8 @@ namespace Sandbox.Game.Gui
             output.RespawnShipDelete = m_respawnShipDelete.IsChecked;
 
 			output.EnableConvertToStation = m_enableConvertToStation.IsChecked;
-            output.StationVoxelSupport = m_enableStationVoxelSupport.IsChecked;
-            output.DisableRespawnShips = m_disableRespawnShips.IsChecked;
+			output.StationVoxelSupport = m_enableStationVoxelSupport.IsChecked;
+            output.EnableRespawnShips = m_enableRespawnShips.IsChecked;
             output.EnableWolfs = m_enableWolfs.IsChecked;
             output.EnableSunRotation = m_enableSunRotation.IsChecked;
             output.EnableJetpack = m_enableJetpack.IsChecked;
@@ -1113,14 +1103,13 @@ namespace Sandbox.Game.Gui
             m_showPlayerNamesOnHud.IsChecked = settings.ShowPlayerNamesOnHud;
             m_thrusterDamage.IsChecked = settings.ThrusterDamage;
             m_weaponsEnabled.IsChecked = settings.WeaponsEnabled;
-            m_trashRemoval.IsChecked = settings.RemoveTrash;
             m_enableOxygen.IsChecked = settings.EnableOxygen;
             if (settings.VoxelGeneratorVersion < MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION)
             {
                 m_showWarningForOxygen = true;
             }
             m_enableOxygenPressurization.IsChecked = settings.EnableOxygenPressurization;
-            m_disableRespawnShips.IsChecked = settings.DisableRespawnShips;
+            m_enableRespawnShips.IsChecked = settings.EnableRespawnShips;
             m_respawnShipDelete.IsChecked = settings.RespawnShipDelete;
 			m_enableConvertToStation.IsChecked = settings.EnableConvertToStation;
             m_enableStationVoxelSupport.IsChecked = settings.StationVoxelSupport;

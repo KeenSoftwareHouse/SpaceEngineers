@@ -69,7 +69,8 @@ namespace Sandbox.Game.Entities
                     MyIDModule module;
                     if ((block as IMyComponentOwner<MyIDModule>).GetComponent(out module))
                     {
-                        if ((block as MyTerminalBlock).HasPlayerAccess(playerId) && module.Owner != 0)
+                        //AB in broadcast window I need to access to all antenas in range
+                        //if ((block as MyTerminalBlock).HasPlayerAccess(playerId) && module.Owner != 0)
                             output.Add(receiver);
                     }
                 }
@@ -173,7 +174,7 @@ namespace Sandbox.Game.Entities
 
         public void UpdateHud(bool showMyself = false)
         {
-            if (MySandboxGame.IsDedicated || MyHud.MinimalHud)
+            if (MySandboxGame.IsDedicated || MyHud.MinimalHud || MyHud.CutsceneHud)
                 return;
 
             Clear();
@@ -218,6 +219,29 @@ namespace Sandbox.Game.Entities
                                 if (!MyHud.HackingMarkers.MarkerEntities.ContainsKey(hudParamsEntity))
                                     MyHud.LocationMarkers.RegisterMarker(hudParamsEntity, hudParams);
                         }
+                    }
+                }
+            }
+
+            //manually draw markers for players that are out of range or have broadcasting turned off
+            if (MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.ShowPlayers))
+            {
+                foreach (var player in MySession.Static.Players.GetOnlinePlayers())
+                {
+                    MyCharacter character = player.Character;
+                    if (character == null)
+                        continue;
+                    
+                    var hudParams = character.GetHudParams(false);
+                    foreach (var param in hudParams)
+                    {
+                        MyEntity hudEntity = (MyEntity)param.Entity;
+                        if (m_entitiesOnHud.Contains(hudEntity))
+                            continue;
+
+                        m_entitiesOnHud.Add(hudEntity);
+
+                        MyHud.LocationMarkers.RegisterMarker(hudEntity, param);
                     }
                 }
             }

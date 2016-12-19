@@ -56,6 +56,11 @@ namespace Sandbox.Graphics.GUI
             get { return m_controls; }
         }
 
+        public override void Clear()
+        {
+            Controls.Clear();
+        }
+
         #region Overriden methods
 
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
@@ -69,7 +74,8 @@ namespace Sandbox.Graphics.GUI
                     continue;
                 }
 
-                control.Draw(transitionAlpha * control.Alpha, backgroundTransitionAlpha * control.Alpha);
+                if (!(control is MyGuiControlGridDragAndDrop))
+                    control.Draw(transitionAlpha * control.Alpha, backgroundTransitionAlpha * control.Alpha);
             }
         }
 

@@ -256,7 +256,7 @@ namespace Sandbox.Game.Entities.Cube
             MyValueFormatter.AppendWorkInBestUnit(GetOperationalPowerConsumption(), DetailedInfo);
             DetailedInfo.AppendFormat("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
 
 
             DetailedInfo.AppendFormat("\n\n");
@@ -480,7 +480,7 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             }
 
-            if (!ResourceSink.IsPowered || ResourceSink.CurrentInput < GetOperationalPowerConsumption())
+            if (!ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) || ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) < GetOperationalPowerConsumption())
             {
                 if (!ResourceSink.IsPowerAvailable(MyResourceDistributorComponent.ElectricityId, GetOperationalPowerConsumption()))
                 {
@@ -656,7 +656,7 @@ namespace Sandbox.Game.Entities.Cube
             if (CurrentState == StateEnum.MissingItems && IsQueueEmpty)
             {
                 CurrentState = (!Enabled) ? StateEnum.Disabled :
-                               (!ResourceSink.IsPowered) ? StateEnum.NotEnoughPower :
+                               (!ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId)) ? StateEnum.NotEnoughPower :
                                (!IsFunctional) ? StateEnum.NotWorking :
                                StateEnum.Ok;
             }

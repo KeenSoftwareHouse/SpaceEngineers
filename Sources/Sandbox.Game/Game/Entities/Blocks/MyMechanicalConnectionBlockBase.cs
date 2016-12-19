@@ -77,14 +77,14 @@ namespace Sandbox.Game.Entities.Blocks
 
 
         //this cannot be TopBlock.CbueGrid because its used to break links on grid split
-        protected MyCubeGrid m_topGrid; 
+        private MyCubeGrid m_topGrid; 
 
         protected MyCubeGrid TopGrid
         {
             get { return m_topGrid; }
         }
 
-        protected MyAttachableTopBlockBase m_topBlock;
+        private MyAttachableTopBlockBase m_topBlock;
 
         protected MyAttachableTopBlockBase TopBlock
         {
@@ -143,11 +143,6 @@ namespace Sandbox.Game.Entities.Blocks
             weldForce.Setter = (x, v) => x.m_forceWeld.Value = v;
             weldForce.EnableAction();
             MyTerminalControlFactory.AddControl(weldForce);
-
-            var addPistonHead = new MyTerminalControlButton<MyMechanicalConnectionBlockBase>("Add Top Part", MySpaceTexts.BlockActionTitle_AddPistonHead, MySpaceTexts.BlockActionTooltip_AddPistonHead, (b) => b.RecreateTop());
-            addPistonHead.Enabled = (b) => (b.TopBlock == null);
-            addPistonHead.EnableAction(MyTerminalActionIcons.STATION_ON);
-            MyTerminalControlFactory.AddControl(addPistonHead);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -349,6 +344,20 @@ namespace Sandbox.Game.Entities.Blocks
             Debug.Assert(m_isAttached, "Event must not be registered for detached block!");
             cubeGrid_OnPhysicsChanged();
 
+            if (TopGrid == null)
+                return;
+
+            if (CubeGrid == null)
+                return;
+
+            if (TopGrid.Physics == null)
+                return;
+
+            if (CubeGrid.Physics == null)
+                return;
+
+
+
 
             if (MyCubeGridGroups.Static.Logical.GetGroup(TopBlock.CubeGrid) !=
                 MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid))
@@ -365,6 +374,10 @@ namespace Sandbox.Game.Entities.Blocks
                                         m_constraint.RigidBodyB == CubeGrid.Physics.RigidBody));
                 if(!matchingBodies)
                     m_needReattach = true;
+            }
+            else if (!m_welded)
+            {
+                m_needReattach = TopGrid.Physics.RigidBody != CubeGrid.Physics.RigidBody;
             }
         }
 
@@ -426,7 +439,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (updateGroups)
             {
-                BreakLinks(TopGrid);
+                m_needReattach = false; //i.e. block could be destroyed after the flag was rised
+                
+                BreakLinks(TopGrid, TopBlock);
 
                 if (Sync.IsServer)
                 {
@@ -438,7 +453,7 @@ namespace Sandbox.Game.Entities.Blocks
      
             if (TopBlock != null)
             {
-                TopBlock.Detach(false);         
+                TopBlock.Detach(false);
             }
 
 
@@ -566,6 +581,13 @@ namespace Sandbox.Game.Entities.Blocks
                     else
                         m_updateAttach = true;
                 }
+            }
+            else if (m_welded != m_connectionState.Value.Welded)
+            {
+                if (m_connectionState.Value.Welded)
+                    WeldGroup(true);
+                else
+                    UnweldGroup();
             }
             RefreshConstraint();
         }
@@ -713,7 +735,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private void RecreateTop(long? builderId = null)
+        protected void RecreateTop(long? builderId = null, bool smallToLarge = false) //If smallToLarge is set will add small Top Part Grid to Large CubeGrid. Used in MotorStator
         {
             if (m_isAttached)
             {
@@ -727,24 +749,30 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (builderId.HasValue)
             {
-                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateTop, builderId.Value);
+                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateTop, builderId.Value, smallToLarge);
             }
             else
             {
-                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateTop, MySession.Static.LocalPlayerId);
+                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateTop, MySession.Static.LocalPlayerId, smallToLarge);
             }
         }
 
         [Event, Reliable, Server]
-        private void DoRecreateTop(long builderId)
+        private void DoRecreateTop(long builderId, bool smallToLarge)
         {
             if (TopBlock != null) return;
-            CreateTopPartAndAttach(builderId);
+            CreateTopPartAndAttach(builderId, smallToLarge);
         }
 
         private void Reattach()
         {
             m_needReattach = false;
+            if (TopBlock == null)
+            {
+                MyLog.Default.WriteLine("ToBlock null in MechanicalConnection.Reatach");
+                m_updateAttach = true;
+                return;
+            }
             Debug.Assert(m_isAttached);
 
             //Either bottom or top grid got split/merged into different grid, need to break links and create new ones
@@ -764,7 +792,7 @@ namespace Sandbox.Game.Entities.Blocks
              {
                  if (!updateGroup) //attach failed, need to break links
                  {
-                     BreakLinks(topGrid);
+                     BreakLinks(topGrid, top);
                      RaiseAttachedEntityChanged();
                  }
 
@@ -779,24 +807,32 @@ namespace Sandbox.Game.Entities.Blocks
         /// <summary>
         /// Breaks links and unregisters all events
         /// </summary>
-        private void BreakLinks(MyCubeGrid topGrid)
+        private void BreakLinks(MyCubeGrid topGrid, MyAttachableTopBlockBase topBlock)
         {
             OnConstraintRemoved(GridLinkTypeEnum.Physical, topGrid);
             OnConstraintRemoved(GridLinkTypeEnum.Logical, topGrid);
 
-            CubeGrid.OnPhysicsChanged -= cubeGrid_OnPhysicsChanged;
+            if (CubeGrid != null)
+                CubeGrid.OnPhysicsChanged -= cubeGrid_OnPhysicsChanged;
 
-            topGrid.OnGridSplit -= CubeGrid_OnGridSplit;
-            topGrid.OnPhysicsChanged -= cubeGrid_OnPhysicsChanged;
-            TopBlock.OnClosing -= TopBlock_OnClosing;
+            if (topGrid != null)
+            {
+                topGrid.OnGridSplit -= CubeGrid_OnGridSplit;
+                topGrid.OnPhysicsChanged -= cubeGrid_OnPhysicsChanged;
+            }
+
+            if (topBlock != null)
+            {
+                topBlock.OnClosing -= TopBlock_OnClosing;
+            }
         }
 
-        private void CreateTopPartAndAttach(long builtBy)
+        private void CreateTopPartAndAttach(long builtBy, bool smallToLarge = false)
         {
             Debug.Assert(Sync.IsServer, "Server only method.");
             Sandbox.Engine.Multiplayer.MyMultiplayer.ReplicateImmediatelly(this, this.CubeGrid);
             MyAttachableTopBlockBase topBlock;
-            CreateTopPart(out topBlock, builtBy, MyDefinitionManager.Static.TryGetDefinitionGroup(((MyMechanicalConnectionBlockBaseDefinition)BlockDefinition).TopPart));
+            CreateTopPart(out topBlock, builtBy, MyDefinitionManager.Static.TryGetDefinitionGroup(((MyMechanicalConnectionBlockBaseDefinition)BlockDefinition).TopPart), smallToLarge);
             if (topBlock != null) // No place for top part
             {
                 Attach(topBlock);
@@ -813,11 +849,15 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_constraint != null && !m_constraint.InWorld)
             {
                 DisposeConstraint();
-                CreateConstraint(TopBlock);
+
+                if (TopBlock != null)
+                {
+                    CreateConstraint(TopBlock);
+                }
             }
         }
 
-        private void CreateTopPart(out MyAttachableTopBlockBase topBlock, long builtBy, MyCubeBlockDefinitionGroup topGroup)
+        private void CreateTopPart(out MyAttachableTopBlockBase topBlock, long builtBy, MyCubeBlockDefinitionGroup topGroup, bool smallToLarge)
         {
             Debug.Assert(Sync.IsServer, "Server only method.");
             if (topGroup == null)
@@ -827,6 +867,10 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             var gridSize = CubeGrid.GridSizeEnum;
+            if (smallToLarge && gridSize == MyCubeSize.Large)   //If we have pressed the Attach Small Rotor Head button on large grid take the small grid definition from pair
+            {
+                gridSize = MyCubeSize.Small;
+            }
             var matrix = GetTopGridMatrix();
 
             var definition = topGroup[gridSize];

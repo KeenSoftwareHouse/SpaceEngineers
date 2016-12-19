@@ -378,7 +378,7 @@ namespace VRageRender
         {
             bool wasCached;
             string compileLog;
-            var result = Compile(filepath, macros, profile, sourceDescriptor, !MyRender11.DebugMode, invalidateCache, out wasCached, out compileLog);
+            var result = Compile(filepath, macros, profile, sourceDescriptor, MyCompilationSymbols.EnableShaderDebuggingInNSight, invalidateCache, out wasCached, out compileLog);
 
             if (!wasCached)
             {

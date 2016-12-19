@@ -14,7 +14,7 @@ using VRage.FileSystem;
 using SharpDX.Direct3D11;
 using VRage.Profiler;
 using VRage.Render11.Common;
-using VRage.Render11.GeometryStage2;
+using VRage.Render11.GeometryStage;
 using VRage.Render11.Resources;
 using VRage.Voxels;
 using VRageRender.Import;
@@ -452,7 +452,7 @@ namespace VRageRender
         internal string Name;
         internal string FileName;
         internal int PartsNum;
-        internal int SectionsNum;
+        internal string[] SectionNames;
         internal bool HasBones { get { return Data.VertexLayout.Info.HasBonesInfo; } }
 
         internal int VerticesNum;
@@ -624,7 +624,7 @@ namespace VRageRender
     {
         internal MeshId Mesh;
         internal int Lod;
-        internal int Section;
+        internal string Section;
 
         #region Equals
         public class MyMeshSectionComparerType : IEqualityComparer<MyMeshSection>
@@ -638,7 +638,7 @@ namespace VRageRender
 
             public int GetHashCode(MyMeshSection section)
             {
-                return section.Mesh.GetHashCode() << 20 | section.Lod << 10 | section.Section;
+                return section.Mesh.GetHashCode() << 20 | section.Lod << 10 | section.Section.GetHashCode();
             }
         }
         public static readonly MyMeshSectionComparerType Comparer = new MyMeshSectionComparerType();
@@ -823,12 +823,12 @@ namespace VRageRender
             return PartIndex.TryGetValue(new MyMeshPart { Mesh = mesh, Lod = lod, Part = part }, out partId);
         }
 
-        internal static MeshSectionId GetMeshSection(MeshId mesh, int lod, int section)
+        internal static MeshSectionId GetMeshSection(MeshId mesh, int lod, string section)
         {
             return SectionIndex[new MyMeshSection { Mesh = mesh, Lod = lod, Section = section }];
         }
 
-        internal static bool TryGetMeshSection(MeshId mesh, int lod, int section, out MeshSectionId sectionId)
+        internal static bool TryGetMeshSection(MeshId mesh, int lod, string section, out MeshSectionId sectionId)
         {
             return SectionIndex.TryGetValue(new MyMeshSection { Mesh = mesh, Lod = lod, Section = section }, out sectionId);
         }
@@ -1002,7 +1002,7 @@ namespace VRageRender
             return id;
         }
 
-        static MeshSectionId NewMeshSection(MeshId mesh, int lod, int section)
+        static MeshSectionId NewMeshSection(MeshId mesh, int lod, string section)
         {
             var id = new MeshSectionId { Index = Sections.Allocate() };
             Sections.Data[id.Index] = new MyMeshSectionInfo1 { };
@@ -1152,6 +1152,29 @@ namespace VRageRender
                 // Allocate material IDs for later reference
                 if (materialDesc == null)
                     MyRender11.Log.WriteLine(String.Format("Mesh asset {0} has no material in part {1}", assetName, partIndex));
+                else if (materialDesc.Facing == MyFacingEnum.Impostor)
+                {
+                    // Load a custom normalgloss texture
+                    const string ngName = "NormalGlossTexture";
+                    const string customNgName = "_normal_depth";
+
+                    if (materialDesc.Textures.ContainsKey(ngName))
+                        MyRender11.Log.WriteLine(string.Format("The impostor model {0} defines the normalGloss texture. Overwriting it with custom extension: {1}. Path to model: {2}", assetName, customNgName, contentPath));
+                    else
+                    {
+                        const string cmName = "ColorMetalTexture";
+                        Debug.Assert(materialDesc.Textures.ContainsKey(cmName));
+                        string cmTexName = materialDesc.Textures[cmName];
+                        string extension = Path.GetExtension(cmTexName);
+
+                        Debug.Assert(!string.IsNullOrEmpty(extension), "Invalid texture extension");
+
+                        materialDesc.Textures[ngName] =
+                            cmTexName.Substring(0, cmTexName.Length - extension.Length)
+                            + customNgName
+                            + extension;
+                    }
+                }
 
                 // Get material token
                 MyMeshMaterialId matId = MyMeshMaterials1.NullMaterialId;
@@ -1195,8 +1218,8 @@ namespace VRageRender
                 NonMergableParts[tempPart.Key] = tempPart.Value;
             }
 
-            foreach (var nonMergablePart in NonMergableParts)
-                Debug.Assert(nonMergablePart.Value.Count == 1, "There are non-unique names for part materials.");
+            //foreach (var nonMergablePart in NonMergableParts)
+            //    Debug.Assert(nonMergablePart.Value.Count == 1, "There are non-unique names for part materials.");
 
             // 2. Alter part data and create part infos
             // and create a mapping from material names to the indices of the original parts (matsIndices)
@@ -1207,7 +1230,7 @@ namespace VRageRender
             sections = null;
 
             if (meshData.SectionInfos != null && meshData.SectionInfos.Count > 0)
-                CreateSections(meshData, parts, out sections);
+                CreateSections(meshData, parts, assetName, out sections);
 
             // 4. Fill mesh info
             Debug.Assert(meshData.NewIndices != null);
@@ -1215,7 +1238,13 @@ namespace VRageRender
             lodMeshInfo.PartsNum = parts.Length;
 
             if (meshData.SectionInfos != null && meshData.SectionInfos.Count > 0)
-                lodMeshInfo.SectionsNum = meshData.SectionInfos.Count;
+            {
+                lodMeshInfo.SectionNames = new string[meshData.SectionInfos.Count];
+                for (int i = 0; i < meshData.SectionInfos.Count; i++)
+                    lodMeshInfo.SectionNames[i] = meshData.SectionInfos[i].Name;
+            }
+            else
+                lodMeshInfo.SectionNames = new string[0];
 
             lodMeshInfo.IndicesNum = meshData.NewIndices.Count;
             lodMeshInfo.TrianglesNum = meshData.NewIndices.Count / 3;
@@ -1581,6 +1610,7 @@ namespace VRageRender
         static void CreateSections(
             MyMeshData meshData,
             MyMeshPartInfo1[] parts,
+            string assetName, // debug
             out MyMeshSectionInfo1[] sections)
         {
             var sectionInfos = meshData.SectionInfos;
@@ -1596,8 +1626,20 @@ namespace VRageRender
                 int meshesIndex = 0;
                 foreach (MyMeshSectionMeshInfo meshInfo in section.Meshes)
                 {
-                    var materialPartInfo = meshData.MatsIndices[meshInfo.MaterialName]; // Contains PartIndex, StartIndex and BaseVertex
+                    Tuple<int, int, int> materialPartInfo; // Contains PartIndex, StartIndex and BaseVertex
+                    if(!meshData.MatsIndices.TryGetValue(meshInfo.MaterialName, out materialPartInfo))
+                    {
+                        // Material does not exist within this mesh.
+                        // Invalidate the section loading process with log msg.
+                        // Remove section infos to prevent their usage.
+                        MyRender11.Log.WriteLine(String.Format("Section references material that is not present and sections wont be loaded. Section: {0}, Material_Name:{1}", section.Name, meshInfo.MaterialName));
+                        sections = null;
+                        meshData.SectionInfos = null;
+                        return;
+                    }
+
                     var matId = MyMeshMaterials1.GetMaterialId(meshInfo.MaterialName);
+
                     sectionMeshInfos[meshesIndex] = new MyMeshSectionPartInfo1()
                     {
                         IndexCount = meshInfo.IndexCount,
@@ -1654,7 +1696,12 @@ namespace VRageRender
 
             int numComponents = 0;
             if (!meshData.IsAnimated) numComponents += 1; else numComponents += 3;
-            if (meshData.ValidStreams) numComponents += 4;
+            if (meshData.ValidStreams)
+            {
+                numComponents += 3;
+                if (MyRender11.Settings.UseGeometryArrayTextures)
+                    numComponents++;
+            }
             var vertexComponents = new List<MyVertexInputComponent>(numComponents); // Capacity is used in an assert below...
 
             // stream 0
@@ -1705,7 +1752,8 @@ namespace VRageRender
                 vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.NORMAL, 1));
                 vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT, 1));
                 vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.TEXCOORD0_H, 1));
-                vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.TEXINDICES, 1));
+                if (MyRender11.Settings.UseGeometryArrayTextures)
+                    vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.TEXINDICES, 1));
             }
 
             Debug.Assert(vertexComponents.Count == vertexComponents.Capacity);
@@ -1744,7 +1792,8 @@ namespace VRageRender
             {
                 for (int i = 0; i < sections.Length; i++)
                 {
-                    var sectionId = NewMeshSection(mesh, lodIndex, i);
+                    string sectionName = sections[i].Name;
+                    var sectionId = NewMeshSection(mesh, lodIndex, sectionName);
                     Sections.Data[sectionId.Index] = sections[i];
                 }
             }
@@ -2548,12 +2597,7 @@ namespace VRageRender
             if (lodDescriptors != null)
                 for (int i = 0; i < lodDescriptors.Length; i++)
                 {
-                    var meshFile = lodDescriptors[i].Model;
-                    if (meshFile != null && !meshFile.EndsWith(".mwm"))
-                    {
-                        meshFile += ".mwm";
-                    }
-
+                    var meshFile = lodDescriptors[i].GetModelAbsoluteFilePath(assetName);
                     MyLodMeshInfo lodMesh = new MyLodMeshInfo
                     {
                         FileName = meshFile,

@@ -164,7 +164,7 @@ namespace Sandbox.Game.World
             m_joinRequests.Remove(playerId);
         }
 
-        public void AcceptJoin(long playerId)
+        public void AcceptJoin(long playerId, bool autoaccept = false)
         {
             MySession.Static.Factions.AddPlayerToFactionInternal(playerId, FactionId);
 
@@ -173,7 +173,7 @@ namespace Sandbox.Game.World
                 m_members[playerId] = m_joinRequests[playerId];
                 m_joinRequests.Remove(playerId);
             }
-            else if (AutoAcceptMember || MySession.Static.Settings.ScenarioEditMode)
+            else if (AutoAcceptMember || autoaccept)
                 m_members[playerId] = new MyFactionMember(playerId, false);
         }
 

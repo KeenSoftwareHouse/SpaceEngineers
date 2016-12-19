@@ -112,6 +112,12 @@ namespace Sandbox.Game.Entities.Blocks
             if (MyTerminalControlFactory.AreControlsCreated<MyPistonBase>())
                 return;
             base.CreateTerminalControls();
+
+            var addPistonHead = new MyTerminalControlButton<MyPistonBase>("Add Top Part", MySpaceTexts.BlockActionTitle_AddPistonHead, MySpaceTexts.BlockActionTooltip_AddPistonHead, (b) => b.RecreateTop());
+            addPistonHead.Enabled = (b) => (b.TopBlock == null);
+            addPistonHead.EnableAction(MyTerminalActionIcons.STATION_ON);
+            MyTerminalControlFactory.AddControl(addPistonHead);
+
             var reverse = new MyTerminalControlButton<MyPistonBase>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (x) => x.Velocity.Value = -x.Velocity);
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);
@@ -172,7 +178,7 @@ namespace Sandbox.Game.Entities.Blocks
             sinkComp.Init(
                 BlockDefinition.ResourceSinkGroup,
                 BlockDefinition.RequiredPowerInput,
-                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0.0f);
+                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0.0f);
             ResourceSink = sinkComp;
 
             base.Init(objectBuilder, cubeGrid);
@@ -212,7 +218,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         public override void OnAddedToScene(object source)
@@ -485,10 +491,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return;
             }
 
-            if (TopGrid == null || SafeConstraint == null)
-                return;
-
-            if (SafeConstraint.RigidBodyA == SafeConstraint.RigidBodyB) //welded
+            if (SafeConstraint != null && SafeConstraint.RigidBodyA == SafeConstraint.RigidBodyB) //welded
             {
                 SafeConstraint.Enabled = false;
                 return;
@@ -497,6 +500,18 @@ namespace Sandbox.Game.Entities.Blocks
             ProfilerShort.Begin("UpdatePos");
             UpdatePosition();
             ProfilerShort.End();
+
+            if (m_subpartPhysics != null && m_subpartPhysics.RigidBody2 != null)
+            {
+                if (m_subpartPhysics.RigidBody.IsActive)
+                {
+                    m_subpartPhysics.RigidBody2.LinearVelocity = m_subpartPhysics.LinearVelocity;
+                    m_subpartPhysics.RigidBody2.AngularVelocity = m_subpartPhysics.AngularVelocity;
+                }
+                else
+                    m_subpartPhysics.RigidBody2.Deactivate();
+            }
+
             if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_lastPosition.Equals(float.MaxValue))
             {
                 m_soundEmitter.StopSound(true);
@@ -506,7 +521,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void UpdatePosition(bool forceUpdate = false)
         {
-            if (SafeConstraint == null)
+            if (m_subpart1 == null) //GK: forceUpdate happens on Init before loading subparts when setting m_currentPos (value changed). So make sure one subpart exists
                 return;
             if (!IsWorking && !forceUpdate)
                 return;
@@ -515,7 +530,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             bool changed = false;
 
-            float compensatedDelta = Velocity / 60 * Sync.RelativeSimulationRatio;
+            float compensatedDelta = Velocity / 60;
 
             ProfilerShort.Begin("PosAndHandlers");
             if (!forceUpdate)
@@ -559,7 +574,6 @@ namespace Sandbox.Game.Entities.Blocks
                 ProfilerShort.Begin("Calculations");
                 m_posChanged = true;
                 if (CubeGrid == null) MySandboxGame.Log.WriteLine("CubeGrid is null");
-                if (TopGrid == null) MySandboxGame.Log.WriteLine("TopGrid is null");
                 if (Subpart3 == null) MySandboxGame.Log.WriteLine("Subpart is null");
                 if (CubeGrid.Physics != null)
                     CubeGrid.Physics.RigidBody.Activate();
@@ -567,11 +581,14 @@ namespace Sandbox.Game.Entities.Blocks
                     TopGrid.Physics.RigidBody.Activate();
                 Matrix matA;
                 GetTopMatrix(out matA);
-                var matB = Matrix.CreateWorld(TopBlock.Position * TopBlock.CubeGrid.GridSize /*- TopBlock.LocalMatrix.Up * m_currentPos*/, TopBlock.PositionComp.LocalMatrix.Forward, TopBlock.PositionComp.LocalMatrix.Up);
+                Matrix matB = Matrix.Identity;
+                if(TopGrid != null)
+                    matB = Matrix.CreateWorld(TopBlock.Position * TopBlock.CubeGrid.GridSize /*- TopBlock.LocalMatrix.Up * m_currentPos*/, Subpart3.PositionComp.LocalMatrix.Forward, TopBlock.PositionComp.LocalMatrix.Up);
                 ProfilerShort.End();
 
                 ProfilerShort.Begin("SetInBodySpace");
-                m_fixedData.SetInBodySpace(matA, matB, CubeGrid.Physics, TopGrid.Physics);
+                if (m_fixedData != null)
+                    m_fixedData.SetInBodySpace(matA, matB, CubeGrid.Physics, TopGrid.Physics);
                 ProfilerShort.End();
 
                 ProfilerShort.Begin("UpdateSubpartFixedData");

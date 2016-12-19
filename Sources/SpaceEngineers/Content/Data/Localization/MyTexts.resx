@@ -305,6 +305,24 @@
   <data name="DisplayName_Block_InteriorLight" xml:space="preserve">
     <value>Interior Light</value>
   </data>
+  <data name="DisplayName_Block_CornerLCD" xml:space="preserve">
+    <value>Corner LCD</value>
+  </data>
+  <data name="DisplayName_Block_CornerLCD2" xml:space="preserve">
+    <value>Corner LCD 2</value>
+  </data>
+  <data name="DisplayName_Block_CornerLCDFlatTop" xml:space="preserve">
+    <value>Corner LCD Flat Top</value>
+  </data>
+  <data name="DisplayName_Block_CornerLCDFlatBottom" xml:space="preserve">
+    <value>Corner LCD Flat Bottom</value>
+  </data>
+  <data name="DisplayName_Block_CornerLight" xml:space="preserve">
+    <value>Corner Light</value>
+  </data>
+  <data name="DisplayName_Block_CornerLightDouble" xml:space="preserve">
+    <value>Corner Light - Double</value>
+  </data>
   <data name="DisplayName_Block_InteriorPillar" xml:space="preserve">
     <value>Interior Pillar</value>
   </data>
@@ -1162,7 +1180,7 @@ Recommendations help to grow the community. Thank you!</value>
     <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
   </data>
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
-    <value>{0} {1} cannot be connected to a {2}</value>
+    <value>{0} {1} is not available for a {2}</value>
     <comment>{0} + {2} are type of grid, {1} is DisplayName</comment>
   </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
@@ -3757,10 +3775,10 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Public</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelPublicTitle" xml:space="preserve">
-    <value>Public title</value>
+    <value>Title</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelShowPublicTextPanel" xml:space="preserve">
-    <value>Edit public text</value>
+    <value>Edit text</value>
   </data>
   <data name="DisplayName_Block_LaserAntenna" xml:space="preserve">
     <value>Laser Antenna</value>
@@ -4525,11 +4543,11 @@ Enables flora for planets</value>
   <data name="WorldSettings_FloraDensity_Medium" xml:space="preserve">
     <value>Medium</value>
   </data>
-  <data name="WorldSettings_DisableRespawnShips" xml:space="preserve">
-    <value>Disable respawn ships</value>
+  <data name="WorldSettings_EnableRespawnShips" xml:space="preserve">
+    <value>Enable respawn ships</value>
   </data>
-  <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
-    <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
+  <data name="ToolTipWorldSettings_EnableRespawnShips" xml:space="preserve">
+    <value>Enable respawn in ships and suit. When disabled and no valid medical rooms exist, respawn won't be possible at all!</value>
   </data>
   <data name="BlockPropertyTitle_SensorPlaySound" xml:space="preserve">
     <value>Audible Proximity Alert</value>
@@ -5269,11 +5287,11 @@ and can also be used by some mods to create advanced logic and effects.</value>
   <data name="SwitchBuilderMode" xml:space="preserve">
     <value>Switch cockpit builder mode</value>
   </data>
-  <data name="NotificationPlayerDemoted" xml:space="preserve">
-    <value>You are no longer a Space master</value>
+  <data name="NotificationPlayerDemoted_SpaceMaster" xml:space="preserve">
+    <value>You have been demoted to Space Master</value>
   </data>
-  <data name="NotificationPlayerPromoted" xml:space="preserve">
-    <value>You have been promoted to Space master</value>
+  <data name="NotificationPlayerPromoted_SpaceMaster" xml:space="preserve">
+    <value>You have been promoted to Space Master</value>
   </data>
   <data name="ScreenDebugAdminMenu_ReplicateEverythingServer_Tooltip" xml:space="preserve">
     <value>You are on server and allready have all objects</value>
@@ -5453,17 +5471,29 @@ and can also be used by some mods to create advanced logic and effects.</value>
   <data name="DisplayName_MarsLander" xml:space="preserve">
     <value>Mars Planet Landing</value>
   </data>
-  <data name="BlockActionTitle_AddWheel" xml:space="preserve">
-    <value>Add Wheel</value>
-  </data>
-  <data name="BlockActionTooltip_AddWheel" xml:space="preserve">
-    <value>Tries to add a wheel if no wheel is present.</value>
-  </data>
   <data name="BlockActionTitle_AddPistonHead" xml:space="preserve">
     <value>Add Piston Head</value>
   </data>
   <data name="BlockActionTooltip_AddPistonHead" xml:space="preserve">
     <value>Tries to add a piston head if no head is present.</value>
+  </data>
+  <data name="BlockActionTitle_AddRotorHead" xml:space="preserve">
+    <value>Add Rotor Head</value>
+  </data>
+  <data name="BlockActionTooltip_AddRotorHead" xml:space="preserve">
+    <value>Tries to add a Rotor head if no head is present.</value>
+  </data>
+  <data name="BlockActionTitle_AddSmallRotorHead" xml:space="preserve">
+    <value>Add Small Head</value>
+  </data>
+  <data name="BlockActionTooltip_AddSmallRotorHead" xml:space="preserve">
+    <value>Tries to add a Small Rotor head on Large Rotor if no head is present.</value>
+  </data>
+  <data name="BlockActionTitle_AddWheel" xml:space="preserve">
+    <value>Add Wheel</value>
+  </data>
+  <data name="BlockActionTooltip_AddWheel" xml:space="preserve">
+    <value>Tries to add a Wheel if no wheel is present.</value>
   </data>
   <data name="Notification_PistonHeadNotPlaced" xml:space="preserve">
     <value>Piston head could not be placed.</value>
@@ -5537,7 +5567,7 @@ needed.</value>
     <value>Warning list</value>
   </data>
   <data name="CubeBuilder_CubeSizeModeChange" xml:space="preserve">
-    <value>Press {0} to change block size mode</value>
+    <value>Press {0} again{1}to change block size.</value>
   </data>
   <data name="BlockSize_NotAvailable" xml:space="preserve">
     <value>This block is for {0} only</value>
@@ -5583,7 +5613,7 @@ split and not in voxel. </value>
     <value>Reset orientation</value>
   </data>
   <data name="NotificationHint_CubeDefaultMountpoint" xml:space="preserve">
-    <value>Press {0} to reset orientation</value>
+    <value>Press {0} to toggle auto orientation</value>
   </data>
   <data name="MaxBackupSaves" xml:space="preserve">
     <value>Max backup saves</value>
@@ -5594,6 +5624,69 @@ When this is 0 then the backup feature is disabled and all backups are deleted u
   </data>
   <data name="TerminalTab_Chat_ChatHistory" xml:space="preserve">
     <value>-Global Chat History-</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_AdminTools" xml:space="preserve">
+    <value>Admin Tools</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_Cleanup" xml:space="preserve">
+    <value>Cleanup</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_Invulnerable" xml:space="preserve">
+    <value>Invulnerable</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_InvulnerableToolTip" xml:space="preserve">
+    <value>Makes you invulnerable to all damage, and invisible to turrets.</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_ModeSelect" xml:space="preserve">
+    <value>Mode Select</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_ShowPlayers" xml:space="preserve">
+    <value>Show All Players</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_ShowPlayersToolTip" xml:space="preserve">
+    <value>Shows all player names on HUD, even when broadcast is off.</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_TeleportHere" xml:space="preserve">
+    <value>Teleport Here</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_TeleportHereToolTip" xml:space="preserve">
+    <value>Teleports your character to the spectator camera.</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_UseTerminals" xml:space="preserve">
+    <value>Can Use All Terminals</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_UseTerminalsToolTip" xml:space="preserve">
+    <value>Allows you to use any terminal, regardless of ownership.</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_EntityList" xml:space="preserve">
+    <value>Entity List</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_SortOptions" xml:space="preserve">
+    <value>Sort Options</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_StopAll" xml:space="preserve">
+    <value>Stop All Entities</value>
+  </data>
+  <data name="DetectedEntity_Asteroid" xml:space="preserve">
+    <value>Asteroid</value>
+  </data>
+  <data name="DetectedEntity_CharacterHuman" xml:space="preserve">
+    <value>Human</value>
+  </data>
+  <data name="DetectedEntity_LargeGrid" xml:space="preserve">
+    <value>Large Grid</value>
+  </data>
+  <data name="DetectedEntity_Meteor" xml:space="preserve">
+    <value>Meteor</value>
+  </data>
+  <data name="DetectedEntity_Planet" xml:space="preserve">
+    <value>Planet</value>
+  </data>
+  <data name="DetectedEntity_SmallGrid" xml:space="preserve">
+    <value>Small Grid</value>
+  </data>
+  <data name="DetectedEntity_Unknown" xml:space="preserve">
+    <value>Unknown</value>
   </data>
   <data name="NotificationShipOverLimits" xml:space="preserve">
     <value>Cannot place. Ship would exceed regulations.</value>
@@ -5643,7 +5736,103 @@ When this is 0 then the backup feature is disabled and all backups are deleted u
   <data name="Terminal_ShowInInventoryToolTip" xml:space="preserve">
     <value>Show block in inventory screen. If you access the block directly it will be visible regardless of this setting.</value>
   </data>
+  <data name="NotificationPlayerDemoted_None" xml:space="preserve">
+    <value>You have been demoted to Player</value>
+  </data>
+  <data name="NotificationPlayerDemoted_Scripter" xml:space="preserve">
+    <value>You have been demoted to Scripter</value>
+  </data>
+  <data name="NotificationPlayerPromoted_Admin" xml:space="preserve">
+    <value>You have been promoted to Administrator</value>
+  </data>
+  <data name="NotificationPlayerPromoted_Scripter" xml:space="preserve">
+    <value>You have been promoted to Scripter</value>
+  </data>
+  <data name="TerminalControlPanel_Recompile" xml:space="preserve">
+    <value>Recompile</value>
+  </data>
+  <data name="TerminalControlPanel_Recompile_Tooltip" xml:space="preserve">
+    <value>Recompiles the current script.</value>
+  </data>
+  <data name="NotificationPlayerDemoted_Moderator" xml:space="preserve">
+    <value>You have heen demoted to Moderator</value>
+  </data>
+  <data name="NotificationPlayerPromoted_Moderator" xml:space="preserve">
+    <value>You have been promoted to Moderator</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CurrentTarget" xml:space="preserve">
+    <value>Current target: </value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnTargeted" xml:space="preserve">
+    <value>Spawn into targeted container</value>
+  </data>
+  <data name="HudInfoMagnetic" xml:space="preserve">
+    <value>Magnetic</value>
+  </data>
   <data name="BlockPropertyTitle_Font" xml:space="preserve">
     <value>Font</value>
+  </data>
+  <data name="Terminal_RemoteControl_Button" xml:space="preserve">
+    <value>Remote Access</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectSubgrids" xml:space="preserve">
+    <value>Detect subgrids</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton" xml:space="preserve">
+    <value>Take Control</value>
+  </data>
+  <data name="BroadcastScreen_UnavailableControlButton" xml:space="preserve">
+    <value>Unavailable</value>
+  </data>
+  <data name="BroadcastScreen_NoOwnership" xml:space="preserve">
+    <value>Wrong ownership setting.</value>
+  </data>
+  <data name="BroadcastScreen_Ownership" xml:space="preserve">
+    <value>Ownership correct</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton_NoMainRemoteControl" xml:space="preserve">
+    <value>Multiple Remote Controllers on grid. Set one as main!</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton_NoRemoteToolTip" xml:space="preserve">
+    <value>No Remote Controller on grid.</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton_RemoteToolTip" xml:space="preserve">
+    <value>Remote Control ready</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton_ToolTip" xml:space="preserve">
+    <value>Take control of target grid.</value>
+  </data>
+  <data name="BroadcastScreen_TerminalButton_NoStableConnectionToolTip" xml:space="preserve">
+    <value>Cannot establish connection to grid.</value>
+  </data>
+  <data name="BroadcastScreen_TerminalButton_StableConnectionToolTip" xml:space="preserve">
+    <value>Connection stable</value>
+  </data>
+  <data name="BroadcastScreen_TerminalButton_ToolTip" xml:space="preserve">
+    <value>Open terminal of target grid.</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainRemoteControl" xml:space="preserve">
+    <value>Main Remote Control</value>
+  </data>
+  <data name="BroadcastScreen_TerminalButton_PlayerBroadcastOffToolTip" xml:space="preserve">
+    <value>Players antenna off</value>
+  </data>
+  <data name="DetectedEntity_CharacterOther" xml:space="preserve">
+    <value>Animal</value>
+  </data>
+  <data name="ToolTipAudioOptionsEnableReverb" xml:space="preserve">
+    <value>Enables Echo. Note that if your audio rate is larger than 48 kHz, Echo will not work.You can change the rate from your system's Speaker properties and restart game</value>
+  </data>
+  <data name="DisplayName_Dead_Astronaut" xml:space="preserve">
+    <value>Dead Astronaut</value>
+  </data>
+  <data name="Terminal_CustomData" xml:space="preserve">
+    <value>Custom Data</value>
+  </data>
+  <data name="Terminal_CustomDataTooltip" xml:space="preserve">
+    <value>Shows and editor for custom data to be used by scripts and mods</value>
+  </data>
+  <data name="Notification_BlueprintScriptRemoved" xml:space="preserve">
+    <value>Some scripts were removed from this blueprint because you do not have Scripter permissions</value>
   </data>
 </root>

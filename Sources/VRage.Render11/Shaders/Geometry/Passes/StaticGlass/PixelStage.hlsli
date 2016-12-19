@@ -21,6 +21,10 @@ cbuffer GlassConstants : register (b2)
 
 void __pixel_shader(VertexStageOutput vertex, out float4 accumTarget : SV_TARGET0, out float4 coverageTarget : SV_TARGET1)
 {
+#if defined(DITHERED_LOD)
+    if (vertex.custom_alpha >= 0)
+        Dither(vertex.position.xyz, vertex.custom_alpha);
+#endif
     float4 textureSample = Texture.Sample(LinearSampler, vertex.texcoord.xy);
     float4 color = Constants.Color;
     float reflective = Constants.Reflective;
@@ -32,6 +36,13 @@ void __pixel_shader(VertexStageOutput vertex, out float4 accumTarget : SV_TARGET
     float3 reflectionColor = lerp(color.xyz*color.w, reflectionSample, Constants.Reflective);
     float3 colorAndDirt = lerp(reflectionColor, textureSample.xyz, textureSample.w);
     float4 resultColor = float4(colorAndDirt, max(max(color.w, reflective), textureSample.w));
+
+    // hotfix for holograms:
+    if (vertex.custom_alpha < 0)
+    {
+        resultColor.xyz *= Hologram(vertex.position.xyz, vertex.custom_alpha);
+        //output.emissive = 1;
+    }
 
     float linearDepth = linearize_depth(vertex.position.z, frame_.Environment.projection_matrix);
     TransparentColorOutput(resultColor, linearDepth, vertex.position.z, 1.0f, accumTarget, coverageTarget);

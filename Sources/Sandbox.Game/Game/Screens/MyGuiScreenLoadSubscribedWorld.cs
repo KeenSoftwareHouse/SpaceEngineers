@@ -18,6 +18,7 @@ using VRage.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
 using System.IO;
+using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 
 namespace Sandbox.Game.Gui
@@ -38,7 +39,7 @@ namespace Sandbox.Game.Gui
         private List<MySteamWorkshop.SubscribedItem> m_subscribedWorlds;
 
         public MyGuiScreenLoadSubscribedWorld()
-            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.95f, 0.8f))
+            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.9f, 0.97f))
         {
             EnabledBackgroundFade = true;
 
@@ -51,17 +52,29 @@ namespace Sandbox.Game.Gui
         {
             base.RecreateControls(constructor);
 
-            AddCaption(MyCommonTexts.ScreenCaptionWorkshop);
+            new MyGuiControlScreenSwitchPanel(this, MyTexts.Get(MyCommonTexts.WorkshopScreen_Description));
 
-            var origin = new Vector2(-0.4375f, -0.3f);
+            //AddCaption(MyCommonTexts.ScreenCaptionWorkshop);
+
+            float MARGIN_TOP = 0.18f;
+            float MARGIN_BOTTOM = 0.05f;
+            float MARGIN_LEFT = 0.23f;
+            float MARGIN_RIGHT = 0.035f;
+            float MARGIN_LEFT_BUTTONS = 0.015f;
+
+            var originR = -m_size.Value / 2 + new Vector2(MARGIN_LEFT, MARGIN_TOP);
+            var sizeR = m_size.Value / 2 - originR;
+            sizeR.X -= MARGIN_RIGHT;
+            sizeR.Y -= MARGIN_BOTTOM;
+            var origin = -m_size.Value / 2 + new Vector2(MARGIN_LEFT_BUTTONS, MARGIN_TOP);
             Vector2 buttonSize = MyGuiControlButton.GetVisualStyle(MyGuiControlButtonStyleEnum.Default).NormalTexture.MinSizeGui;
 
             m_worldsTable = new MyGuiControlTable();
-            m_worldsTable.Position = origin + new Vector2(buttonSize.X * 1.1f, 0f);
-            m_worldsTable.Size = new Vector2(1075f / MyGuiConstants.GUI_OPTIMAL_SIZE.X, 1f);
+            m_worldsTable.Position = originR + new Vector2(0f, 0.004f);
+            m_worldsTable.Size = sizeR;
             m_worldsTable.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             m_worldsTable.ColumnsCount = 1;
-            m_worldsTable.VisibleRowsCount = 17;
+            m_worldsTable.VisibleRowsCount = 20;
             m_worldsTable.ItemSelected += OnTableItemSelected;
             m_worldsTable.ItemDoubleClicked += OnTableItemConfirmedOrDoubleClick;
             m_worldsTable.ItemConfirmed += OnTableItemConfirmedOrDoubleClick;
@@ -239,15 +252,6 @@ namespace Sandbox.Game.Gui
             }
 
             return base.Update(hasFocus);
-        }
-
-        public override bool Draw()
-        {
-            // Dont draw screen when the list is about to be reloaded,
-            // otherwise it will flick just before opening the loading screen
-            if (m_listNeedsReload)
-                return false;
-            return base.Draw();
         }
 
         protected override void OnClosed()

@@ -1,17 +1,19 @@
 ﻿using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Replication;
 using Sandbox.Game.World;
+using Sandbox.ModAPI;
+using SpaceEngineers.Game.SessionComponents;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Xml.Serialization;
+using VRage;
 using VRage.Game.Entity;
 using VRage.Library.Collections;
-using VRage.Library.Utils;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -23,27 +25,63 @@ namespace Sandbox.Game.Replication
     {
         const int ANTENNA_UPDATE_TIME = 50;
         Action<MyCubeGrid> m_loadingDoneHandler;
-        MyStreamingEntityStateGroup<MyCubeGridReplicable> m_streamingGroup;
+        StateGroups.MyStreamingEntityStateGroup<MyCubeGridReplicable> m_streamingGroup;
         static List<MyCubeGrid> m_groups = new List<MyCubeGrid>();
         List<MyObjectBuilder_EntityBase> m_builders;
-        List<MyEntity> m_foundEntities = null;
+        //List<MyEntity> m_foundEntities = null;
         Dictionary<ulong, int> m_clientState = null;
+        HashSet<Sandbox.ModAPI.Ingame.IMyBeacon> m_visibilityAffectors = new HashSet<ModAPI.Ingame.IMyBeacon>();
 
-        MyEntityPositionVerificationStateGroup m_posVerGroup;
+        //MyEntityPositionVerificationStateGroup m_posVerGroup;
 
-        private MyPropertySyncStateGroup m_propertySync;
+        private StateGroups.MyPropertySyncStateGroup m_propertySync;
         public MyCubeGrid Grid { get { return Instance; } }
 
         protected override IMyStateGroup CreatePhysicsGroup()
         {
-            m_posVerGroup = new MyGridPositionVerificationStateGroup(Instance);
-            return new MyGridPhysicsStateGroup(Instance, this);
+            //m_posVerGroup = new MyGridPositionVerificationStateGroup(Instance);
+            return new StateGroups.MyEntityPhysicsStateGroup(Instance, this);
+        }
+
+        protected override float BaseVisibility
+        {
+            get
+            {
+                float radius = 0;
+
+                foreach (var affector in m_visibilityAffectors)
+                {
+                    if (affector.IsWorking && affector.Radius > radius)
+                    {
+                        radius = affector.Radius;
+                    }
+                }
+
+                return Math.Max(base.BaseVisibility, radius);
+            }
         }
 
         public override float GetPriority(MyClientInfo state, bool cached)
         {
             if (Grid == null || Grid.Projector != null || Grid.IsPreview)
                 return 0.0f;
+
+            if (MyFakes.MP_ISLANDS)
+            {
+                var parent = Instance.GetTopMostParent();
+
+                BoundingBoxD aabb;
+
+                if (MyIslandSyncComponent.Static.GetIslandAABBForEntity(parent, out aabb))
+                {
+                    var ipriority = GetBasePriority(aabb.Center, aabb.Size, state);
+
+                    MyIslandSyncComponent.Static.SetPriorityForIsland(Instance, state.EndpointId.Value, ipriority);
+
+                    return ipriority;
+                }
+        
+            }
 
 
             ulong clientEndpoint = state.EndpointId.Value;
@@ -109,30 +147,11 @@ namespace Sandbox.Game.Replication
                 }
             }
 
-            if (MyFakes.ENABLE_SENT_GROUP_AT_ONCE)
-            {
-                MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
-                if (master != Grid)
-                {
-                    return MyExternalReplicable.FindByObject(master).GetPriority(state,cached);
-                }
-            }
             return priority;
         }
 
         public override bool OnSave(BitStream stream)
         {
-            if (MyFakes.ENABLE_SENT_GROUP_AT_ONCE)
-            {
-                MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
-                if (master != Grid)
-                {
-                    stream.WriteBool(true);
-                    stream.WriteInt64(Grid.EntityId);
-                    return true;
-                }
-            }
-
             if (Grid.IsSplit)
             {
                 stream.WriteBool(true);
@@ -198,18 +217,50 @@ namespace Sandbox.Game.Replication
         {
             base.GetStateGroups(resultList);
             resultList.Add(m_propertySync);
-            resultList.Add(m_posVerGroup);
+            //resultList.Add(m_posVerGroup);
         }
 
         protected override void OnHook()
         {
             Debug.Assert(MyMultiplayer.Static != null, "Should not get here without multiplayer");
             base.OnHook();
-            m_propertySync = new MyPropertySyncStateGroup(this, Grid.SyncType);
+            m_propertySync = new StateGroups.MyPropertySyncStateGroup(this, Grid.SyncType);
             if (Sync.IsServer == false)
             {
                 MyPlayerCollection.UpdateControl(Grid.EntityId);
+
+                foreach (var block in Instance.CubeBlocks)  // CubeBlocks is getter of readonly field m_cubeBlocks, should never be null (but check it!)
+                {
+                    if (block.FatBlock is MyCockpit)
+                    {
+                        // block.FatBlock is not null
+                        MyPlayerCollection.UpdateControl(block.FatBlock.EntityId);
+
+                        if (MySession.Static.LocalHumanPlayer != null 
+                            && MySession.Static.LocalHumanPlayer.Controller != null 
+                            && MySession.Static.LocalHumanPlayer.Controller.ControlledEntity == block.FatBlock)
+                        {
+                            MySession.Static.SetCameraController(VRage.Game.MyCameraControllerEnum.Entity, block.FatBlock);
+                            break;
+                        }
+                    }
+                }
             }
+
+            Grid.OnBlockAdded += Grid_OnBlockAdded;
+            Grid.OnBlockRemoved += Grid_OnBlockRemoved;
+        }
+
+        void Grid_OnBlockRemoved(MySlimBlock obj)
+        {
+            if (obj.FatBlock is IMyBeacon)
+                m_visibilityAffectors.Remove(obj.FatBlock as IMyBeacon);
+        }
+
+        void Grid_OnBlockAdded(MySlimBlock obj)
+        {
+            if (obj.FatBlock is IMyBeacon)
+                m_visibilityAffectors.Add(obj.FatBlock as IMyBeacon);
         }
 
         override protected void OnLoadBegin(BitStream stream, Action<MyCubeGrid> loadingDoneHandler)
@@ -221,7 +272,7 @@ namespace Sandbox.Game.Replication
         {
             if (m_streamingGroup == null)
             {
-                m_streamingGroup = new MyStreamingEntityStateGroup<MyCubeGridReplicable>(this);
+                m_streamingGroup = new StateGroups.MyStreamingEntityStateGroup<MyCubeGridReplicable>(this, this);
             }
             return m_streamingGroup;
         }
@@ -230,34 +281,65 @@ namespace Sandbox.Game.Replication
         {
             stream.WriteBool(false);
 
-            MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
-            if (master == Grid || MyFakes.ENABLE_SENT_GROUP_AT_ONCE == false)
+            var builder = Grid.GetObjectBuilder();
+            try
             {
-                var builder = Grid.GetObjectBuilder();
                 VRage.Serialization.MySerializer.Write(stream, ref builder, MyObjectBuilderSerializer.Dynamic);
-
-                var g = MyCubeGridGroups.Static.PhysicalDynamic.GetGroup(Grid);
-                if (g == null || MyFakes.ENABLE_SENT_GROUP_AT_ONCE == false)
+            }
+            catch (Exception e)
+            {
+                XmlSerializer serializer = MyXmlSerializerManager.GetSerializer(builder.GetType());
+                MyLog.Default.WriteLine("Grid data - START");
+                try
                 {
-                    stream.WriteByte(0);
+                    serializer.Serialize(MyLog.Default.GetTextWriter(), builder);
                 }
-                else
+                catch
                 {
-                    m_groups.Clear();
-                    foreach (var node in g.Nodes)
+                    MyLog.Default.WriteLine("Failed");
+                }
+                MyLog.Default.WriteLine("Grid data - END");
+                throw;
+            }
+            var g = MyCubeGridGroups.Static.PhysicalDynamic.GetGroup(Grid);
+            if (g == null || MyFakes.ENABLE_SENT_GROUP_AT_ONCE == false)
+            {
+                stream.WriteByte(0);
+            }
+            else
+            {
+                m_groups.Clear();
+                foreach (var node in g.Nodes)
+                {
+                    var target = MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy) node.NodeData);
+                    if (node.NodeData != Grid && !node.NodeData.IsStatic && target != null)
                     {
-                        var target = MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy)node.NodeData);
-                        if (node.NodeData != Grid && !node.NodeData.IsStatic && target != null)
-                        {
-                            m_groups.Add(node.NodeData);
-                        }
+                        m_groups.Add(node.NodeData);
                     }
+                }
 
-                    stream.WriteByte((byte)m_groups.Count); // Ignoring self
-                    foreach (var node in m_groups)
+                stream.WriteByte((byte) m_groups.Count); // Ignoring self
+                foreach (var node in m_groups)
+                {
+                    builder = node.GetObjectBuilder();
+                    try
                     {
-                        builder = node.GetObjectBuilder();
                         VRage.Serialization.MySerializer.Write(stream, ref builder, MyObjectBuilderSerializer.Dynamic);
+                    }
+                    catch (Exception e)
+                    {
+                        XmlSerializer serializer = MyXmlSerializerManager.GetSerializer(builder.GetType());
+                        MyLog.Default.WriteLine("Grid data - START");
+                        try
+                        {
+                            serializer.Serialize(MyLog.Default.GetTextWriter(), builder);
+                        }
+                        catch
+                        {
+                            MyLog.Default.WriteLine("Failed");
+                        }
+                        MyLog.Default.WriteLine("Grid data - END");
+                        throw;
                     }
                 }
             }
@@ -279,25 +361,20 @@ namespace Sandbox.Game.Replication
             {
                 if (Sync.IsServer)
                 {
-                    MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
-                    if (master != Grid && MyFakes.ENABLE_SENT_GROUP_AT_ONCE)
-                    {
-                        return false;
-                    }
                     return Grid.IsSplit == false;
                 }
                 return m_streamingGroup != null;
             }
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
-            if (m_physicsSync == null || Grid.IsStatic)
+            if (m_physicsSync == null || Grid == null || Grid.IsStatic)
             {
                 return null;
             }
 
-            MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
+            /*MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
             if (master != Grid)
             {
                 if (master != null)
@@ -305,7 +382,10 @@ namespace Sandbox.Game.Replication
                     return MyExternalReplicable.FindByObject(master);
                 }
                 return null;
-            }
+            }*/
+
+            float maxRadius = 0;
+            MyCubeGrid biggestGrid = null;
 
             BoundingBoxD box = Grid.PositionComp.WorldAABB;
             var group = MyCubeGridGroups.Static.PhysicalDynamic.GetGroup(Grid);
@@ -313,46 +393,44 @@ namespace Sandbox.Game.Replication
             {
                 foreach (var node in group.Nodes)
                 {
-                   box.Include(node.NodeData.PositionComp.WorldAABB);
-                }
-            }
+                  // box.Include(node.NodeData.PositionComp.WorldAABB);
 
-            if(m_foundEntities == null)
-            {
-                m_foundEntities = new List<MyEntity>();
-            }
+                    MyCubeGrid grid = node.NodeData as MyCubeGrid;
 
-            m_foundEntities.Clear();
-
-            MyGamePruningStructure.GetTopMostEntitiesInBox(ref box, m_foundEntities);
-
-            float maxRadius = 0;
-            MyCubeGrid biggestGrid = null;
-            foreach (var entity in m_foundEntities)
-            {
-                MyCubeGrid grid = entity as MyCubeGrid;
-
-                if (grid != null)
-                {
-                    // Dont check for projections
-                    if (grid.Projector != null)
-                        continue;
-
-                    var rad = grid.PositionComp.LocalVolume.Radius;
-                    if (rad > maxRadius || (rad == maxRadius && (biggestGrid == null || grid.EntityId > biggestGrid.EntityId)))
+                    if (grid != null)
                     {
-                        maxRadius = rad;
-                        biggestGrid = grid;
+                        // Dont check for projections
+                        if (grid.Projector != null)
+                            continue;
+
+                        var rad = grid.PositionComp.LocalVolume.Radius;
+                        if (rad > maxRadius || (rad == maxRadius && (biggestGrid == null || grid.EntityId > biggestGrid.EntityId)))
+                        {
+                            maxRadius = rad;
+                            biggestGrid = grid;
+                        }
                     }
                 }
             }
 
-            if (biggestGrid != null && biggestGrid != Grid && biggestGrid != null)
+
+            if (biggestGrid != null && biggestGrid != Grid)
             {
                 return MyExternalReplicable.FindByObject(biggestGrid);
             }
 
             return null;
+
+            //if(m_foundEntities == null)
+            //{
+            //    m_foundEntities = new List<MyEntity>();
+            //}
+
+            //m_foundEntities.Clear();
+
+            //MyGamePruningStructure.GetTopMostEntitiesInBox(ref box, m_foundEntities);
+
+          
         }
 
         public void LoadCancel()

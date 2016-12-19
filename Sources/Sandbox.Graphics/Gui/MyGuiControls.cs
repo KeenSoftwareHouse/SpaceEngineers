@@ -118,6 +118,22 @@ namespace Sandbox.Graphics.GUI
             control.NameChanged    += control_NameChanged;
         }
 
+        public void AddWeak(MyGuiControlBase control)
+        {
+            Debug.Assert(!m_controls.Contains(control), "You must not add the same control multiple times.");
+            Debug.Assert(control != this.m_owner, "Can not insert itself!");
+
+//            m_controlsByName.Add(control.Name, control);
+
+            if (control.Visible)
+                m_visibleControls.Add(control);
+
+            m_controls.Add(control);
+
+            control.VisibleChanged += control_VisibleChanged;
+            control.NameChanged += control_NameChanged;
+        }
+
         private void control_NameChanged(MyGuiControlBase control, MyGuiControlBase.NameChangedArgs args)
         {
             Debug.Assert(m_controls.Contains(control));
@@ -126,6 +142,13 @@ namespace Sandbox.Graphics.GUI
             control.Name         = ChangeToNonCollidingName(control.Name);
             control.NameChanged += control_NameChanged;
             m_controlsByName.Add(control.Name, control);
+        }
+
+        public void ClearWeaks()
+        {
+            m_controls.Clear();
+            m_controlsByName.Clear();
+            m_visibleControls.Clear();
         }
 
         public void Clear()

@@ -136,14 +136,18 @@ namespace Sandbox.Game.Entities.Character
                     {
                         // Process the valid hit entity
                         var closestDetectorDistance = float.MaxValue;
+                        double physicalHitDistance = Vector3D.Distance(from, m_hits[index].Position);
                         MyUseObjectsComponentBase hitUseComp = null;
                         // Evaluate the set of found detectors and try to find the closest one
                         foreach (var hitUseComponent in m_hitUseComponents)
                         {
                             float detectorDistance;
                             var interactive = hitUseComponent.RaycastDetectors(from, to, out detectorDistance);
-                            if (Math.Abs(detectorDistance) < Math.Abs(closestDetectorDistance))
-                            {
+                            detectorDistance *= MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
+                            if (Math.Abs(detectorDistance) < Math.Abs(closestDetectorDistance) 
+                                && (detectorDistance < physicalHitDistance 
+                                || hitUseComponent.Entity == hitEntity)) // Remove to fix the problem with picking through physic bodies,
+                            {                                           // but will introduce new problem with detectors inside physic bodies.
                                 closestDetectorDistance = detectorDistance;
                                 hitUseComp = hitUseComponent;
                                 hitEntity = hitUseComponent.Entity;
@@ -176,12 +180,12 @@ namespace Sandbox.Game.Entities.Character
                         HitPosition = m_hits[index].Position;
                         DetectedEntity = hitEntity;
 
-                        if (UseObject != null && UseObject != hitEntity)
+                        if (UseObject != null && UseObject != hitEntity && UseObject != hitUseObject)
                         {
                             UseObject.OnSelectionLost();
                         }
 
-                        if (hitUseObject.SupportedActions != UseActionEnum.None && Character == MySession.Static.ControlledEntity)
+                        if (Character == MySession.Static.ControlledEntity && hitUseObject.SupportedActions != UseActionEnum.None)
                         {
                             HandleInteractiveObject(hitUseObject);
 

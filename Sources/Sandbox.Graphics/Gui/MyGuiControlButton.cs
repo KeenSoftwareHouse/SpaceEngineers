@@ -185,6 +185,30 @@ namespace Sandbox.Graphics.GUI
                 HighlightFont    = MyFontEnum.White,
                 Padding          = defaultPadding,
             };
+
+            m_styles[(int)MyGuiControlButtonStyleEnum.Bug] = new StyleDefinition
+            {
+                NormalTexture    = MyGuiConstants.TEXTURE_BUTTON_BUG_NORMAL,
+                HighlightTexture = MyGuiConstants.TEXTURE_BUTTON_BUG_HIGHLIGHT
+            };
+
+            m_styles[(int)MyGuiControlButtonStyleEnum.Like] = new StyleDefinition
+            {
+                NormalTexture    = MyGuiConstants.TEXTURE_BUTTON_LIKE_NORMAL,
+                HighlightTexture = MyGuiConstants.TEXTURE_BUTTON_LIKE_HIGHLIGHT
+            };
+
+            m_styles[(int)MyGuiControlButtonStyleEnum.Envelope] = new StyleDefinition
+            {
+                NormalTexture    = MyGuiConstants.TEXTURE_BUTTON_ENVELOPE_NORMAL,
+                HighlightTexture = MyGuiConstants.TEXTURE_BUTTON_ENVELOPE_HIGHLIGHT
+            };
+
+            m_styles[(int)MyGuiControlButtonStyleEnum.Help] = new StyleDefinition
+            {
+                NormalTexture    = MyGuiConstants.TEXTURE_BUTTON_HELP_NORMAL,
+                HighlightTexture = MyGuiConstants.TEXTURE_BUTTON_HELP_HIGHLIGHT
+            };
         }
 
         public static StyleDefinition GetVisualStyle(MyGuiControlButtonStyleEnum style)

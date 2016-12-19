@@ -403,7 +403,7 @@ namespace Sandbox.Game.Entities.Character.Components
             CharacterGasSink.Update();
 
             // Cannot early exit before calculations because of UI
-            if (!Sync.IsServer || MySession.Static.CreativeMode || !MySession.Static.Settings.EnableOxygen)
+            if (!Sync.IsServer || MySession.Static.CreativeMode)
                 return;
 
             foreach (var gasInfo in m_storedGases)
@@ -458,7 +458,7 @@ namespace Sandbox.Game.Entities.Character.Components
                     var jetpack = Character.JetpackComp;
                     if (jetpack != null && jetpack.TurnedOn && jetpack.FuelDefinition != null && jetpack.FuelDefinition.Id == gasInfo.Id
                         && gasInfo.FillLevel <= 0 
-                        && (Character.ControllerInfo.Controller != null && MySession.Static.IsAdminModeEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false || (MySession.Static.LocalCharacter != Character && Sync.IsServer == false)))
+                        && (Character.ControllerInfo.Controller != null && MySession.Static.CreativeToolsEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false || (MySession.Static.LocalCharacter != Character && Sync.IsServer == false)))
                     {
                         if (Sync.IsServer && MySession.Static.LocalCharacter != Character)
                         {
@@ -508,7 +508,8 @@ namespace Sandbox.Game.Entities.Character.Components
                 }
             }
 
-            Character.UpdateOxygen(SuitOxygenAmount);
+            if (MySession.Static.Settings.EnableOxygen)
+                Character.UpdateOxygen(SuitOxygenAmount);
 
             foreach (var gasInfo in m_storedGases)
             {

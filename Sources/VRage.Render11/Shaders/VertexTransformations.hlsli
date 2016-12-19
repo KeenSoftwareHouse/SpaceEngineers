@@ -44,14 +44,29 @@ float unpack_voxel_ao(float ambient_occlusion)
 }
 
 // Reference VF_Packer.cs, PackNormal
+/*
+// there were numerical flaws in this method
 float3 unpack_normal(float4 p)
 {
-	float zsign = p.y > 0.5f ? 1 : -1;
-	if(zsign > 0) p.y -= 0.5f;
-	float2 xy = 256 * (p.xz + 256 * p.yw);
-	xy /= 32767;
-	xy = 2 * xy - 1;
-	return float3(xy.xy, zsign * sqrt(saturate(1-dot(xy, xy))));
+    float zsign = p.y > 0.5f ? 1 : -1;
+    if (zsign > 0) p.y -= 0.5f;
+    float2 xy = 256 * (p.xz + 256 * p.yw);
+        xy /= 32767;
+    xy = 2 * xy - 1;
+    return float3(xy.xy, zsign * sqrt(saturate(1 - dot(xy, xy))));
+}*/
+float3 unpack_normal(uint2 p)
+{
+    float zsign = -1;
+    if (p.x > 32767)
+    {
+        zsign = 1; 
+        p.x &= (1 << 15) - 1;
+    }
+    float3 normal = float3(((float)p.x) / 32767, ((float)p.y) / 32767, 0);
+    normal.xy = 2 * normal.xy - 1;
+    normal.z = zsign * sqrt(saturate(1 - dot(normal.xy, normal.xy)));
+    return normal;
 }
 
 // Reference VF_Packer.cs, PackTangentSign

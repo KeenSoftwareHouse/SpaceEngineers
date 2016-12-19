@@ -6,8 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using VRage.Network;
 using Sandbox.Game.Screens;
+using Sandbox.Game.World;
+using Sandbox.Game.WorldEnvironment.ObjectBuilders;
 using VRageMath;
 using Sandbox.Graphics.GUI;
+using VRage.Game;
+using VRage.Game.ObjectBuilders.Gui;
+using VRage.Game.SessionComponents;
 
 namespace Sandbox.Game.Gui
 {
@@ -21,12 +26,6 @@ namespace Sandbox.Game.Gui
             public String title;
             public Dictionary<int, MultilineData> content;
 
-        }
-
-        private struct MultilineData
-        {
-            public int lines;
-            public string data;
         }
 
         private QuestInfo m_questInfo;
@@ -57,13 +56,13 @@ namespace Sandbox.Game.Gui
                 ValueChanged();
         }
 
-        public string[] GetQuestGetails()
+        public MultilineData[] GetQuestGetails()
         {
             if (m_questInfo.content == null)
             {
                 m_questInfo.content = new Dictionary<int, MultilineData>(MAX_ROWS);
             }
-            string[] ret = new string[MAX_ROWS];
+            MultilineData[] ret = new MultilineData[MAX_ROWS];
             int pageCount = 1;
             int idx = 0;
             int i = 0;
@@ -77,14 +76,14 @@ namespace Sandbox.Game.Gui
                 }
                 if (pageCount - 1 == m_page)
                 {
-                    ret[i] = m_questInfo.content[key].data;
+                    ret[i] = m_questInfo.content[key];
                     i++;
                 }
             }
             return ret;
         }
 
-        public string[] GetQuestGetails(int page)
+        public MultilineData[] GetQuestGetails(int page)
         {
             m_page = page;
             return GetQuestGetails();
@@ -188,7 +187,7 @@ namespace Sandbox.Game.Gui
         /// Rotate over available rows.
         /// </summary>
         /// <param name="value"></param>
-        public int AddDetail(String value)
+        public int AddDetail(String value, bool useTyping = true)
         {
             if (m_questInfo.content == null)
             {
@@ -196,8 +195,33 @@ namespace Sandbox.Game.Gui
             }
             m_latestGood += 1;
             m_questInfo.content.Add(m_latestGood, ComputeLineDataFromString(value));
+            if (!useTyping)
+                m_questInfo.content[m_latestGood].charactersDisplayed = m_questInfo.content[m_latestGood].data.Length;
             RaiseValueChanged();
             return m_latestGood;
+        }
+
+        public bool SetCompleted(int id, bool completed = true)
+        {
+            if (m_questInfo.content == null)
+                return false;
+            if (!m_questInfo.content.ContainsKey(id))
+                return false;
+            if (m_questInfo.content[id].completed == completed)
+                return false;
+            m_questInfo.content[id].completed = completed;
+            RaiseValueChanged();
+            return true;
+        }
+
+        public bool SetAllCompleted(bool completed = true)
+        {
+            if (m_questInfo.content == null)
+                return false;
+            foreach (var line in m_questInfo.content.Values)
+                line.completed = completed;
+            RaiseValueChanged();
+            return true;
         }
 
         public void RemoveDetail(int id)
@@ -206,20 +230,23 @@ namespace Sandbox.Game.Gui
             RaiseValueChanged();
         }
 
-        public void ModifyDetail(int id, string value)
+        public void ModifyDetail(int id, string value, bool useTyping = true)
         {
             if (m_questInfo.content == null)
             {
                 m_questInfo.content = new Dictionary<int, MultilineData>(MAX_ROWS);
             }
             m_questInfo.content[id] = ComputeLineDataFromString(value);
+            if (!useTyping)
+                m_questInfo.content[id].charactersDisplayed = m_questInfo.content[id].data.Length;
             RaiseValueChanged();
         }
 
         private MultilineData ComputeLineDataFromString(string value)
         {
-            MultilineData ret;
+            MultilineData ret = new MultilineData();
             ret.data = value;
+            ret.completed = false;
             
             MyGuiControlMultilineText textBox = new MyGuiControlMultilineText(size: new Vector2(QuestlogSize.X * 0.92f, 1), drawScrollbar: false);
             textBox.Visible = false;
@@ -228,6 +255,67 @@ namespace Sandbox.Game.Gui
             
             ret.lines = textBox.NumberOfRows;
             return ret;
+        }
+
+        public void Save()
+        {
+            var comp = MySession.Static.GetComponent<MyVisualScriptManagerSessionComponent>();
+            if (comp != null)
+            {
+                comp.QuestlogData = GetObjectBuilder();
+            }
+        }
+
+        public MyObjectBuilder_Questlog GetObjectBuilder()
+        {
+            if(m_questInfo.content == null)
+                return null;
+
+            var ob = new MyObjectBuilder_Questlog
+            {
+                Title = QuestTitle,
+                LineData = {Capacity = m_questInfo.content.Count}
+            };
+
+            foreach (var data in m_questInfo.content)
+            {
+                ob.LineData.Add(data.Value);
+            }
+
+            return ob;
+        }
+
+        public void Init()
+        {
+            var comp = MySession.Static.GetComponent<MyVisualScriptManagerSessionComponent>();
+            if (comp != null)
+            {
+                var ob = comp.QuestlogData;
+                if (ob != null)
+                {
+                    if (m_questInfo.content == null)
+                    {
+                        m_questInfo.content = new Dictionary<int, MultilineData>(MAX_ROWS);
+                    }
+                    else
+                    {
+                        m_questInfo.content.Clear();   
+                    }
+
+                    QuestTitle = ob.Title;
+                    m_latestGood = 0;
+                    for (int index = 0; index < ob.LineData.Count; index++)
+                    {
+                        m_questInfo.content.Add(index, ob.LineData[index]);
+                        m_latestGood++;
+                    }
+
+                    if (ob.LineData.Count > 0)
+                    {
+                        Visible = true;
+                    }
+                }
+            }
         }
 
         //public void SendQuestToClient(ulong playerSteamID)

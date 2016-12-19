@@ -266,17 +266,21 @@ namespace Sandbox.Game.Gui
 
         void OnDedicatedServerListResponded(int server)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnDedicatedServerListResponded");
             GameServerItem serverItem = SteamAPI.Instance.GetDedicatedServerDetails(server);
 
             AddServerItem(serverItem, delegate()
             {
                 m_serversPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_Servers).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
             });
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void OnDedicatedServersCompleteResponse(MatchMakingServerResponseEnum response)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnDedicatedServersCompleteResponse");
             CloseRequest();
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void CloseRequest()
@@ -406,17 +410,12 @@ namespace Sandbox.Game.Gui
                         return;
 
                     bool canBeJoined = true;
-                    string strCanBeJoined;
-                    if (rules.TryGetValue(MyMultiplayer.BattleCanBeJoinedTag, out strCanBeJoined))
-                    {
-                        canBeJoined = strCanBeJoined != 0.ToString();
-                    }
-
+                    
                     if (canBeJoined)
                     {
                         string remainingTimeText = null;
                         float? remainingTimeSeconds = null;
-                        if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME && rules.TryGetValue(MyMultiplayer.BattleRemainingTimeTag, out remainingTimeText))
+                        if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME)
                         {
                             float remainingTime;
                             if (float.TryParse(remainingTimeText, NumberStyles.Float, CultureInfo.InvariantCulture, out remainingTime))

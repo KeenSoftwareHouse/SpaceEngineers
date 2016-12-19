@@ -13,10 +13,13 @@ using VRage.Game.Utils;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Engine.Physics;
+using VRage.ModAPI;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
 using Sandbox.Game.SessionComponents;
 using VRage.Game.Entity;
+using Sandbox.Game.Entities;
 
 namespace Sandbox.Engine.Utils
 {
@@ -52,9 +55,13 @@ namespace Sandbox.Engine.Utils
         Vector3 m_lightLocalPosition;
         Matrix m_reflectorAngleMatrix;
 
+        private Vector3D m_velocity;
+
         // ------------------------------------------------------------------------------------------------
         public bool IsLightOn { get { return m_light != null && m_light.LightOn; } }
         public bool AlignSpectatorToGravity { get; set; }
+
+        public long TrackedEntity { get; set; }
 
         // ------------------------------------------------------------------------------------------------
         public MySpectatorCameraController()
@@ -62,35 +69,40 @@ namespace Sandbox.Engine.Utils
             Static = this;
         }
 
+        public Vector3D Velocity
+        {
+            get { return m_velocity; }
+            set { m_velocity = value; }
+        }
         // ------------------------------------------------------------------------------------------------
         //  Moves and rotates player by specified vector and angles
         public override void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
-            if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition == null && !MySessionComponentVoxelHand.Static.Enabled)
+            UpdateVelocity();
+
+            if (MyInput.Static.IsAnyCtrlKeyPressed())
             {
-                if (MyInput.Static.IsAnyCtrlKeyPressed())
+                if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
                 {
-                    if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
-                    {
-                        SpeedModeAngular = Math.Min(SpeedModeAngular * 1.5f, MAX_SPECTATOR_ANGULAR_SPEED);
-                    }
-                    else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
-                    {
-                        SpeedModeAngular = Math.Max(SpeedModeAngular / 1.5f, MIN_SPECTATOR_ANGULAR_SPEED);
-                    }
+                    SpeedModeAngular = Math.Min(SpeedModeAngular * 1.5f, MAX_SPECTATOR_ANGULAR_SPEED);
                 }
-                else
+                else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
                 {
-                    if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
-                    {
-                        SpeedModeLinear = Math.Min(SpeedModeLinear * 1.5f, MAX_SPECTATOR_LINEAR_SPEED);
-                    }
-                    else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
-                    {
-                        SpeedModeLinear = Math.Max(SpeedModeLinear / 1.5f, MIN_SPECTATOR_LINEAR_SPEED);
-                    }
+                    SpeedModeAngular = Math.Max(SpeedModeAngular / 1.5f, MIN_SPECTATOR_ANGULAR_SPEED);
                 }
             }
+            else 
+            {
+                if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
+                {
+                    SpeedModeLinear = Math.Min(SpeedModeLinear * 1.5f, MAX_SPECTATOR_LINEAR_SPEED);
+                }
+                else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
+                {
+                    SpeedModeLinear = Math.Max(SpeedModeLinear / 1.5f, MIN_SPECTATOR_LINEAR_SPEED);
+                }
+            }
+
             switch (SpectatorCameraMovement)
             {
                 case MySpectatorCameraMovementEnum.None:
@@ -108,12 +120,60 @@ namespace Sandbox.Engine.Utils
                     if (IsLightOn)
                         UpdateLightPosition();
                     break;
+                case MySpectatorCameraMovementEnum.Orbit:
+                    base.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
+                    break;
+            }
+        }
+
+        public override void Update()
+        {
+            base.Update();
+
+            Position += m_velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+        }
+
+        void UpdateVelocity()
+        {
+            if (MyInput.Static.IsAnyShiftKeyPressed())
+            {
+                if (MyInput.Static.IsMousePressed(MyMouseButtonsEnum.Middle))
+                {
+                    var cam = MySector.MainCamera;
+                    var hitList = new System.Collections.Generic.List<Sandbox.Engine.Physics.MyPhysics.HitInfo>();
+
+                    Sandbox.Engine.Physics.MyPhysics.CastRay(Position, Position + Orientation.Forward * 1000.0f, hitList);
+                    IMyEntity entity;
+                    if (hitList.Count > 0)
+                        entity = hitList[0].HkHitInfo.Body.GetEntity(hitList[0].HkHitInfo.GetShapeKey(0));
+                    else
+                        entity = null;
+
+                    if (entity != null)
+                        m_velocity = entity.Physics.LinearVelocity;
+                    else
+                        m_velocity = Vector3D.Zero;
+                }
+                if (MyInput.Static.IsMousePressed(MyMouseButtonsEnum.Right))
+                {
+                    m_velocity = Vector3D.Zero;
+                }
+
+                if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
+                {
+                    m_velocity = m_velocity * 1.1f;
+                }
+                else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
+                {
+                    m_velocity = m_velocity / 1.1f;
+                }
             }
         }
 
         // ------------------------------------------------------------------------------------------------
         private void MoveAndRotate_UserControlled(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
+
 
             //  Physical movement and rotation is based on constant time, therefore is indepedent of time delta
             //  This formulas works even if FPS is low or high, or if step size is 1/10 or 1/10000
@@ -281,27 +341,39 @@ namespace Sandbox.Engine.Utils
             if(findNew)
                 MyEntities.TryGetEntityById(m_entityID, out m_character);
 
-            if (m_character != null || MySession.Static.ControlledEntity != null)
+            //var target = (Vector3D)MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition();
+
+            MyEntity trackedEntity;
+            MyEntities.TryGetEntityById(TrackedEntity, out trackedEntity);
+
+            if (trackedEntity != null)
             {
-                if (MyInput.Static.IsAnyAltKeyPressed())
+                var target = trackedEntity.PositionComp.GetPosition();
+
+                if (AlignSpectatorToGravity)
                 {
-                    m_orbitY += rotationIndicator.Y * 0.0025f * SpeedModeAngular;
-                    m_orbitX -= rotationIndicator.X * 0.0025f * SpeedModeAngular;
-                    m_orbitX = (float)MathHelper.Clamp(m_orbitX, -((Math.PI / 2) - 0.0001f), ((Math.PI / 2) - 0.0001f));
+                    MatrixD gravityOrientationMatrix;
+                    m_roll = 0;
+                    m_yaw = 0;
+                    m_pitch = 0;
+                    ComputeGravityAlignedOrientation(out gravityOrientationMatrix);
+                    Position = target + Vector3D.Transform(ThirdPersonCameraDelta, gravityOrientationMatrix);
+                    Target = target;
+                    m_orientation.Up = gravityOrientationMatrix.Up;
+
                 }
+                else
+                {
+                    var delta = Vector3D.Normalize(Position - Target) * ThirdPersonCameraDelta.Length();
+                    Position = target + delta;
+                    Target = target;                    
+                }
+            }
 
-                MatrixD gravityOrientationMatrix;
-                MatrixD rotationMatrix = MatrixD.CreateRotationX(m_orbitX) * MatrixD.CreateRotationY(m_orbitY);
-
-                m_roll = 0;
-                m_yaw = 0;
-                m_pitch = 0;
-                m_lastOrientationWeight = 0;
-                ComputeGravityAlignedOrientation(out gravityOrientationMatrix);
-                Vector3D target = m_character == null ? MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition() : m_character.PositionComp.GetPosition();
-                Position = target + Vector3D.Transform(ThirdPersonCameraOrbit, rotationMatrix * gravityOrientationMatrix);
-                Target = target;
-                m_orientation.Up = gravityOrientationMatrix.Up;
+            if (MyInput.Static.IsAnyAltKeyPressed() && !MyInput.Static.IsAnyCtrlKeyPressed() &&
+                !MyInput.Static.IsAnyShiftKeyPressed())
+            {
+                base.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
             }
         }
 
@@ -376,7 +448,7 @@ namespace Sandbox.Engine.Utils
         }
 
 
-        public void UpdateLightPosition()
+        void UpdateLightPosition()
         {
             if (m_light != null)
             {

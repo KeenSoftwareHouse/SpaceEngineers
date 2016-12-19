@@ -17,7 +17,7 @@ namespace VRage.Network
 
         Physics,
        
-        Streamining,
+        Streaming,
         FracturedPiece,
 
         FloatingObjectPhysics,

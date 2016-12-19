@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Network;
 using VRageMath;
@@ -23,17 +24,28 @@ using VRage.ModAPI;
 using VRage.Game;
 using VRage.Game.Gui;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.Sync;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TerminalBlock))]
     public partial class MyTerminalBlock : MySyncedBlock
     {
+        //do NOT change this Guid without changing the corresponding value in EntityComponents.sbc
+        private static readonly Guid m_storageGuid = new Guid("74DE02B3-27F9-4960-B1C4-27351F2B06D1");
+        private const int DATA_CHARACTER_LIMIT = 64000;
+
         private Sync<bool> m_showOnHUD;
         private Sync<bool> m_showInTerminal;
         private Sync<bool> m_showInToolbarConfig;
         private Sync<bool> m_showInInventory;
+
+        //TODO: Create a new text editor class for this?
+        private MyGuiScreenTextPanel m_textBox;
+        private bool m_textboxOpen;
+        private ulong m_currentUser;
 
         /// <summary>
         /// Name in terminal
@@ -41,6 +53,45 @@ namespace Sandbox.Game.Entities.Cube
         public StringBuilder CustomName { get; private set; }
 
         public StringBuilder CustomNameWithFaction { get; private set; }
+        
+        public string CustomData
+        {
+            get
+            {
+                if (Storage == null)
+                {
+                    Storage = new MyModStorageComponent();
+                    Components.Add(Storage);
+                    return string.Empty;
+                }
+
+                if (Storage.ContainsKey(m_storageGuid))
+                    return (string)Storage[m_storageGuid];
+                else
+                    return string.Empty;
+            }
+            set
+            {
+                SetCustomData_Internal(value, true);
+            }
+        }
+
+        private void SetCustomData_Internal(string value, bool sync)
+        {
+            if (Storage == null)
+            {
+                Storage = new MyModStorageComponent();
+                Components.Add(Storage);
+            }
+
+            if (value.Length <= DATA_CHARACTER_LIMIT)
+                Storage[m_storageGuid] = value;
+            else
+                Storage[m_storageGuid] = value.Substring(0, DATA_CHARACTER_LIMIT);
+
+            if (sync)
+                RaiseCustomDataChanged();
+        }
 
         public bool ShowOnHUD
         {
@@ -156,11 +207,26 @@ namespace Sandbox.Game.Entities.Cube
                 GetTerminalName(CustomName);
             }
 
+            if (Sync.IsServer && Sync.Clients != null)
+            {
+                Sync.Clients.ClientRemoved += ClientRemoved;
+            }
+
             ShowOnHUD = ob.ShowOnHUD;
             ShowInTerminal = ob.ShowInTerminal;
             ShowInInventory = ob.ShowInInventory;
             ShowInToolbarConfig = ob.ShowInToolbarConfig;
             AddDebugRenderComponent(new MyDebugRenderComponentTerminal(this));
+        }
+
+        protected override void Closing()
+        {
+            base.Closing();
+
+            if (Sync.IsServer && Sync.Clients != null)
+            {
+                Sync.Clients.ClientRemoved -= ClientRemoved;
+            }
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -287,11 +353,11 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (!MyFakes.SHOW_FACTIONS_GUI)
                 return true;
+   
+            if (playerId == MySession.Static.LocalPlayerId && MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
+                return true;
 
-            VRage.Game.MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(playerId);
-
-            bool accessAllowed = relation.IsFriendly();
-            return accessAllowed;
+            return GetUserRelationToOwner(playerId).IsFriendly();
         }
 
         public override List<MyHudEntityParams> GetHudParams(bool allowBlink)
@@ -417,7 +483,127 @@ namespace Sandbox.Game.Entities.Cube
             onOffSwitch.Getter = (x) => x.ShowOnHUD;
             onOffSwitch.Setter = (x, v) => x.ShowOnHUD = v;
             MyTerminalControlFactory.AddControl(onOffSwitch);
+
+            var customDataButton = new MyTerminalControlButton<MyTerminalBlock>("CustomData", MySpaceTexts.Terminal_CustomData, MySpaceTexts.Terminal_CustomDataTooltip, CustomDataClicked);
+            customDataButton.Enabled = x => !x.m_textboxOpen;
+            customDataButton.SupportsMultipleBlocks = false;
+            MyTerminalControlFactory.AddControl(customDataButton);
         }
+
+        private void CustomDataClicked(MyTerminalBlock myTerminalBlock)
+        {
+           myTerminalBlock.OpenWindow(true, true);
+        }
+
+        private void RaiseCustomDataChanged()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnCustomDataChanged, CustomData);
+        }
+
+        [Event, Reliable, Server, BroadcastExcept]
+        private void OnCustomDataChanged(string data)
+        {
+            SetCustomData_Internal(data, false);
+        }
+
+        private void SendChangeOpenMessage(bool isOpen, bool editable = false, ulong user = 0)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnChangeOpenRequest, isOpen, editable, user);
+        }
+
+        [Event, Reliable, Server]
+        void OnChangeOpenRequest(bool isOpen, bool editable, ulong user)
+        {
+            if (Sync.IsServer && m_textboxOpen && isOpen)
+                return;
+
+            OnChangeOpen(isOpen, editable, user);
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnChangeOpenSuccess, isOpen, editable, user);
+        }
+
+        [Event, Reliable, Broadcast]
+        void OnChangeOpenSuccess(bool isOpen, bool editable, ulong user)
+        {
+            OnChangeOpen(isOpen, editable, user);
+        }
+
+        void OnChangeOpen(bool isOpen, bool editable, ulong user)
+        {
+           m_textboxOpen = isOpen;
+            m_currentUser = user;
+
+            if (!Engine.Platform.Game.IsDedicated && user == Sync.MyId && isOpen)
+            {
+                OpenWindow(editable, false);
+            }
+        }
+        private void CreateTextBox(bool isEditable, string description)
+        {
+            m_textBox = new MyGuiScreenTextPanel( CustomName.ToString(),
+                           currentObjectivePrefix: "",
+                           currentObjective: MyTexts.GetString(MySpaceTexts.Terminal_CustomData),
+                           description: description,
+                           editable: isEditable,
+                           resultCallback: OnClosedTextBox);
+        }
+
+        public void OpenWindow(bool isEditable, bool sync)
+        {
+            if (sync)
+            {
+                SendChangeOpenMessage(true, isEditable, Sync.MyId);
+                return;
+            }
+            CreateTextBox(isEditable, CustomData);
+            MyGuiScreenGamePlay.TmpGameplayScreenHolder = MyGuiScreenGamePlay.ActiveGameplayScreen;
+            MyScreenManager.AddScreen(MyGuiScreenGamePlay.ActiveGameplayScreen = m_textBox);
+        }
+
+        public void OnClosedTextBox(ResultEnum result)
+        {
+            if (m_textBox == null)
+                return;
+             CloseWindow();
+        }
+
+        public void OnClosedMessageBox(ResultEnum result)
+        {
+            if (result == ResultEnum.OK)
+            {
+                CloseWindow();
+            }
+            else
+            {
+                CreateTextBox(true, m_textBox.Description.Text.ToString());
+                MyScreenManager.AddScreen(m_textBox);
+            }
+        }
+
+        private void CloseWindow()
+        {
+            MyGuiScreenGamePlay.ActiveGameplayScreen = MyGuiScreenGamePlay.TmpGameplayScreenHolder;
+            MyGuiScreenGamePlay.TmpGameplayScreenHolder = null;
+
+            foreach (var block in CubeGrid.CubeBlocks)
+            {
+                if (block.FatBlock != null && block.FatBlock.EntityId == EntityId)
+                {
+                    CustomData = m_textBox.Description.Text.ToString();
+                    SendChangeOpenMessage(false);
+                    return;
+                }
+            }
+        }
+
+        private void ClientRemoved(ulong steamId)
+        {
+            if (steamId == m_currentUser)
+            {
+                SendChangeOpenMessage(false);
+            }
+        }
+
         public override string ToString()
         {
             return base.ToString() + " " + this.CustomName;

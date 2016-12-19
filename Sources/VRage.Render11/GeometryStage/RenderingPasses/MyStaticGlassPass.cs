@@ -48,6 +48,7 @@ namespace VRageRender
                 RC.SetDepthStencilState(MyDepthStencilStateManager.StereoDepthTestReadOnly);
             else
                 RC.SetDepthStencilState(MyDepthStencilStateManager.DepthTestReadOnly);
+            RC.SetRasterizerState(null);
 
             base.Begin();
         }
@@ -98,8 +99,18 @@ namespace VRageRender
 
             var submesh = proxy.DrawSubmesh;
 
-            RC.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
-            ++Stats.Instances;
+            if (proxy.InstanceCount == 0)
+            {
+                RC.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
+                ++Stats.Instances;
+                Stats.Triangles += submesh.IndexCount / 3;
+            }
+            else
+            {
+                RC.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
+                Stats.Instances += proxy.InstanceCount;
+                Stats.Triangles += proxy.InstanceCount*submesh.IndexCount/3;
+            }
         }
 
         public void RecordCommandsDepthOnly(MyRenderableProxy proxy)
@@ -114,8 +125,10 @@ namespace VRageRender
 
             var submesh = proxy.DrawSubmesh;
 
-            RC.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
-            ++Stats.Instances;
+            if (proxy.InstanceCount == 0)
+                RC.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
+            else
+                RC.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
         }
 
         protected override void RecordCommandsInternal(ref MyRenderableProxy_2 proxy, int instanceIndex, int sectionIndex)

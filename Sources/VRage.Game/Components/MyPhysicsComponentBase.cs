@@ -293,6 +293,8 @@ namespace VRage.Game.Components
 
         public MyPhysicsComponentDefinitionBase Definition { get; private set; }
 
+        public MatrixD? ServerWorldMatrix { get; set; }
+
         #endregion
 
         #region Methods

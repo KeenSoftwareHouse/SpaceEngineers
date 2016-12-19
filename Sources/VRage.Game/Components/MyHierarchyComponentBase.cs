@@ -230,13 +230,14 @@ namespace VRage.Game.Components
 
             foreach (var child in Children)
             {
+                //IMPORTANT - entities that are supposed to be saved in hierarchy should be saved ONLY in hierarchy
                 if (child.Entity.Save)
                 {
                     ob.Children.Add(child.Entity.GetObjectBuilder(copy));
                 }
             }
-
-            return ob;
+            // Dont serialize when empty
+            return ob.Children.Count > 0 ? ob : null;
         }
 
         public override void Deserialize(MyObjectBuilder_ComponentBase builder)
@@ -249,8 +250,12 @@ namespace VRage.Game.Components
                 m_deserializedEntities.Clear();
                 foreach (var child in ob.Children)
                 {
-                    var childEntity = MyEntity.MyEntitiesCreateFromObjectBuilderExtCallback(child, true);
-                    m_deserializedEntities.Add(childEntity);
+                    //IMPORTANT - entities that are supposed to be saved in hierarchy should be saved ONLY in hierarchy
+                    if (!MyEntityIdentifier.ExistsById(child.EntityId))
+                    {
+                        var childEntity = MyEntity.MyEntitiesCreateFromObjectBuilderExtCallback(child, true);
+                        m_deserializedEntities.Add(childEntity);
+                    }
                 }
 
                 foreach (var deserializedEntity in m_deserializedEntities)

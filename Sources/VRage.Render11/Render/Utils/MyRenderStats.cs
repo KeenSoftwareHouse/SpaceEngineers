@@ -50,21 +50,6 @@ namespace VRageRender
                         pos = new Vector2(MyRender11.ViewportResolution.X - m_rightColumnWidth, 0);
                     }
 
-                    /* Add info about render buffers */
-                    m_tmpDrawText.Append("Hardware Buffers (count/bytes):\n");
-
-                    foreach (var bufferStatistic in MyManagers.Buffers.GetReport())
-                    {
-                        m_tmpDrawText.AppendFormat("   {0}: {1:N0}/{2:N0}\n", bufferStatistic.Name, bufferStatistic.TotalBuffers, bufferStatistic.TotalBytes);
-                    }
-
-                    m_tmpDrawText.Append("Textures:\n");
-                    MyFileTextureUsageReport report = MyManagers.FileTextures.GetReport();
-
-                    m_tmpDrawText.AppendFormat("   Total: {0}\n", report.TexturesTotal);
-                    m_tmpDrawText.AppendFormat("   Loaded: {0}\n", report.TexturesLoaded);
-                    m_tmpDrawText.AppendFormat("   Memory: {0:N0}\n", report.TotalTextureMemory);
-
                     MyDebugTextHelpers.DrawText(pos, m_tmpDrawText, color, scale);
                 }
                 finally

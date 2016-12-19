@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Localization xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Id>9757229156219399680</Id>
+  <Language>English</Language>
+  <Context>Common</Context>
+  <ResourceName>OfficialCampaign01Common</ResourceName>
+  <Default>true</Default>
+  <Entries>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:string">Boundary_Warning</Key>
+        <Value xsi:type="xsd:string">** Boundary Warning **</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Messages_CampDone_Caption</Key>
+        <Value xsi:type="xsd:string">Campaign Completed!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Messages_CampDone_Message</Key>
+        <Value xsi:type="xsd:string">Do you want to return to the main menu?</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Messages_LevelDone_Caption</Key>
+        <Value xsi:type="xsd:string">Level Completed!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Messages_LevelDone_Message</Key>
+        <Value xsi:type="xsd:string">Do you want to continue to the next level?</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Messages_YouDied_Caption</Key>
+        <Value xsi:type="xsd:string">You Died</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Messages_YouDied_Message</Key>
+        <Value xsi:type="xsd:string">You have to reload the game now from last checkpoint.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Persons_Enemy</Key>
+        <Value xsi:type="xsd:string">Marcus</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Persons_Rebel</Key>
+        <Value xsi:type="xsd:string">Rebel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Persons_VirtualAssistant</Key>
+        <Value xsi:type="xsd:string">GoodAI</Value>
+      </item>
+    </dictionary>
+  </Entries>
+</MyObjectBuilder_Localization>

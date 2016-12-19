@@ -418,7 +418,7 @@ namespace VRage.Game.VisualScripting
 
         private void AddMissingInterfaceMethods()
         {
-            if (!m_baseType.IsInterface)
+            if (m_baseType == null || !m_baseType.IsInterface)
                 return;
 
             foreach (var methodInfo in m_baseType.GetMethods())
@@ -484,8 +484,11 @@ namespace VRage.Game.VisualScripting
             var usings = new List<UsingDirectiveSyntax>();
             var usingsUniqueSet = new HashSet<string>();
             var defaultUsing = MySyntaxFactory.UsingStatementSyntax("VRage.Game.VisualScripting");
+            var collectionsUsing = MySyntaxFactory.UsingStatementSyntax("System.Collections.Generic");
             usings.Add(defaultUsing);
+            usings.Add(collectionsUsing);
             usingsUniqueSet.Add(defaultUsing.ToFullString());
+            usingsUniqueSet.Add(collectionsUsing.ToFullString());
 
             foreach (var node in m_navigator.OfType<MyVisualSyntaxFunctionNode>())
             {

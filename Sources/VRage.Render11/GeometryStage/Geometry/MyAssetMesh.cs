@@ -522,7 +522,7 @@ namespace VRageRender
                     var lod = new MyRenderLodInfo();
                     lod.Distance = lodDesc.Distance;
                     lod.LodNum = num;
-                    lod.m_meshInfo = LoadMesh(lodDesc.Model);
+                    lod.m_meshInfo = LoadMesh(lodDesc.GetModelAbsoluteFilePath(m_name));
                     LODs[num] = lod;
                     num++;
                 }

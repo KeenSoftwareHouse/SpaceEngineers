@@ -435,8 +435,8 @@ namespace Sandbox.Game.Multiplayer
             {
                 case MyFactionStateChange.RemoveFaction: return true;
 
-                case MyFactionStateChange.SendPeaceRequest:   return (m_factionRequests.TryGetValue(fromFactionId, out tmpSet)) ? !tmpSet.Contains(toFactionId) : true;
-                case MyFactionStateChange.CancelPeaceRequest: return (m_factionRequests.TryGetValue(fromFactionId, out tmpSet)) ?  tmpSet.Contains(toFactionId) : false;
+                case MyFactionStateChange.SendPeaceRequest:   return (!m_factionRequests.TryGetValue(fromFactionId, out tmpSet)) || !tmpSet.Contains(toFactionId);
+                case MyFactionStateChange.CancelPeaceRequest: return (m_factionRequests.TryGetValue(fromFactionId, out tmpSet)) && tmpSet.Contains(toFactionId);
 
                 case MyFactionStateChange.AcceptPeace: return GetRelationBetweenFactions(fromFactionId, toFactionId) != MyRelationsBetweenFactions.Neutral;
                 case MyFactionStateChange.DeclareWar:  return GetRelationBetweenFactions(fromFactionId, toFactionId) != MyRelationsBetweenFactions.Enemies;
@@ -506,13 +506,18 @@ namespace Sandbox.Game.Multiplayer
                 case MyFactionStateChange.FactionMemberSendJoin:   m_factions[fromFactionId].AddJoinRequest(playerId); break;
                 case MyFactionStateChange.FactionMemberCancelJoin: m_factions[fromFactionId].CancelJoinRequest(playerId); break;
                 case MyFactionStateChange.FactionMemberAcceptJoin:
-                    if (MySession.Static.Settings.ScenarioEditMode && m_factions[fromFactionId].IsEveryoneNpc())
+                    bool canAccept = false;
+                    MyIdentity identity = MySession.Static.Players.TryGetIdentity(senderId);
+                    MyPlayer player = identity != null ? MyPlayer.GetPlayerFromCharacter(identity.Character) : null;
+                    if (player != null)
+                        canAccept = MySession.Static.IsUserSpaceMaster(player.Client.SteamUserId);
+                    if (canAccept && m_factions[fromFactionId].IsEveryoneNpc())
                     {
-                        m_factions[fromFactionId].AcceptJoin(playerId);
+                        m_factions[fromFactionId].AcceptJoin(playerId, canAccept);
                         m_factions[fromFactionId].PromoteMember(playerId);
                     }
                     else
-                        m_factions[fromFactionId].AcceptJoin(playerId);
+                        m_factions[fromFactionId].AcceptJoin(playerId, canAccept);
                     break;
                 case MyFactionStateChange.FactionMemberLeave:
                 case MyFactionStateChange.FactionMemberKick:    
@@ -568,21 +573,22 @@ namespace Sandbox.Game.Multiplayer
                 }
                 else if (action == MyFactionStateChange.FactionMemberSendJoin)
                 {
-                    bool canAccept = MySession.Static.Settings.ScenarioEditMode;
+                    bool canAccept = false;
+                    var identity = MySession.Static.Players.TryGetIdentity(senderId);
+                    MyPlayer humanPlayer = null;
+                    if (identity != null)
+                    {
+                        humanPlayer = MyPlayer.GetPlayerFromCharacter(identity.Character);
+                        if (humanPlayer != null)
+                            canAccept = MySession.Static.IsUserSpaceMaster(humanPlayer.Client.SteamUserId);
+                    }
                     if (toFaction.AutoAcceptMember)
                     {
                         canAccept = true;
                         if (!toFaction.AcceptHumans)
                         {
-                            ulong steamId;
-                            if (MyEventContext.Current.IsLocallyInvoked)
-                                steamId = Sync.MyId;
-                            else
-                                steamId = MyEventContext.Current.Sender.Value;
-
-                            // Check, whether the requesting player is human or bot, get first player
-                            var controllerId = new MyPlayer.PlayerId() { SteamId = steamId, SerialId = 0 };
-                            var humanPlayer = Sync.Players.GetPlayerById(controllerId);
+                            // Check, whether the requesting player is human or bot
+                            //I think this way the faction can accept dead character
                             if (humanPlayer != null && humanPlayer.Identity.IdentityId == playerId)
                             {
                                 // You are a human. We dont like human!
@@ -594,7 +600,7 @@ namespace Sandbox.Game.Multiplayer
                     if (canAccept)
                     {
                         action = MyFactionStateChange.FactionMemberAcceptJoin;
-                        senderId = 0; // no need to check who accepted this
+                        //senderId = 0; // no need to check who accepted this // no longer true because of SM ability to add NPC (replacement for ScenarioEditMode)
                     }
                 }
                 else if (action == MyFactionStateChange.SendPeaceRequest && toFaction.AutoAcceptPeace)
@@ -1019,11 +1025,8 @@ namespace Sandbox.Game.Multiplayer
 
         public void Init(MyObjectBuilder_FactionCollection builder)
         {
-            if (!MySession.Static.Battle)
-            {
-                foreach (var factionBuilder in builder.Factions)
-                    MySession.Static.Factions.Add(new MyFaction(factionBuilder));
-            }
+            foreach (var factionBuilder in builder.Factions)
+                MySession.Static.Factions.Add(new MyFaction(factionBuilder));
 
             foreach (var player in builder.Players.Dictionary)
                 m_playerFaction.Add(player.Key, player.Value);

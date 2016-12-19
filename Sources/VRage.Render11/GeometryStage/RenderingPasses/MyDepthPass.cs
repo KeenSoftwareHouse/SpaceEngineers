@@ -84,6 +84,7 @@ namespace VRageRender
             {
                 RC.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
                 ++Stats.Instances;
+                Stats.Triangles += submesh.IndexCount / 3;
                 ++MyStatsUpdater.Passes.DrawShadows;
             }
             else
@@ -91,6 +92,7 @@ namespace VRageRender
                 //MyRender11.AddDebugQueueMessage("DepthPass DrawIndexedInstanced " + proxy.Material.ToString());
                 RC.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
                 Stats.Instances += proxy.InstanceCount;
+                Stats.Triangles += proxy.InstanceCount * submesh.IndexCount / 3;
                 MyStatsUpdater.Passes.DrawShadows++;
             }
         }

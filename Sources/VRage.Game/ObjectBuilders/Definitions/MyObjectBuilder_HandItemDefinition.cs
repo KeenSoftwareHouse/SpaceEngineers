@@ -143,6 +143,9 @@ namespace VRage.Game
         [ProtoMember]
         public List<ToolSound> ToolSounds;
 
+        [ProtoMember]
+        public string ToolMaterial = "Grinder";
+
         // item positioning - take position from this SBC data file or from animation?
         [ProtoMember]
         public MyItemPositioningEnum ItemPositioning = MyItemPositioningEnum.TransformFromData;

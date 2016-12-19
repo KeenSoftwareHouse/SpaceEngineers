@@ -403,11 +403,6 @@ namespace Sandbox.Game.Entities
 
         }
 
-        void IMyControllableEntity.Teleport(Vector3D pos)
-        {
-
-        }
-
         public float HeadLocalXAngle { get; set; }
         public float HeadLocalYAngle { get; set; }
 

@@ -39,5 +39,7 @@ namespace VRage.Audio
                 Static = null;
             }
         }
+
+        public static readonly int MAX_SAMPLE_RATE = 48000;
     }
 }

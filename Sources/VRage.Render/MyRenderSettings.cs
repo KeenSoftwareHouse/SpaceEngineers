@@ -28,11 +28,14 @@ namespace VRageRender
         public MyRenderDeviceSettings(int adapter)
         {
             this.AdapterOrdinal = adapter;
+            this.NewAdapterOrdinal = adapter;
             this.WindowMode = MyWindowModeEnum.Window;
+            this.SettingsMandatory = false;
             this.BackBufferWidth = 0;
             this.BackBufferHeight = 0;
             this.RefreshRate = 0;
             this.VSync = true;
+            this.UseStereoRendering = false;
 
             DebugDrawOnly = false;
         }
@@ -68,6 +71,23 @@ namespace VRageRender
                 && VSync == other.VSync
                 && UseStereoRendering == other.UseStereoRendering
                 && SettingsMandatory == other.SettingsMandatory;
+        }
+
+        public override string ToString()
+        {
+            string settings = "MyRenderDeviceSettings: {\n";
+            settings += "AdapterOrdinal: " + AdapterOrdinal + "\n";
+            settings += "NewAdapterOrdinal: " + NewAdapterOrdinal + "\n";
+            settings += "WindowMode: " + WindowMode + "\n";
+            settings += "BackBufferWidth: " + BackBufferWidth + "\n";
+            settings += "BackBufferHeight: " + BackBufferHeight + "\n";
+            settings += "RefreshRate: " + RefreshRate + "\n";
+            settings += "VSync: " + VSync + "\n";
+            settings += "DebugDrawOnly: " + DebugDrawOnly + "\n";
+            settings += "UseStereoRendering: " + UseStereoRendering + "\n";
+            settings += "SettingsMandatory: " + SettingsMandatory + "\n";
+            settings += "}";
+            return settings;
         }
     }
 
@@ -148,6 +168,7 @@ namespace VRageRender
         public bool DebugClipmapLodColor;
         public bool SkipLodUpdates;
 
+        public MyRenderQualityEnum ModelQuality;
         public MyRenderQualityEnum VoxelQuality;
 
         public bool EnableVoxelMerging;
@@ -189,6 +210,7 @@ namespace VRageRender
         public bool DisplayEdgeMask;
         public bool DisplayNDotL;
         public bool DisplayDepth;
+        public bool DisplayReprojectedDepth;
         public bool DisplayStencil;
         public bool DisplayEnvProbe;
 
@@ -219,8 +241,17 @@ namespace VRageRender
 
         public bool DisplayIDs;
         public bool DisplayAabbs;
+
+        public bool DrawMeshes;
+        public bool DrawInstancedMeshes;
+        public bool DrawGlass;
+        public bool DrawAlphamasked;
+        public bool DrawBillboards;
+        public bool DrawImpostors;
+        public bool DrawVoxels;
         public bool DrawMergeInstanced;
         public bool DrawNonMergeInstanced;
+        public bool DrawOcclusionQueriesDebug;
 
         public float TerrainDetailD0;
         public float TerrainDetailD1;
@@ -343,6 +374,7 @@ namespace VRageRender
                 DisplayEdgeMask = false,
                 DisplayNDotL = false,
                 DisplayDepth = false,
+                DisplayReprojectedDepth = false,
                 DisplayStencil = false,
                 DisplayEnvProbe = false,
                 DisplayBloomFilter = false,
@@ -364,6 +396,13 @@ namespace VRageRender
                 DisplayAmbientSpecular = false,
                 DisplayIDs = false,
                 DisplayAabbs = false,
+                DrawMeshes = true,
+                DrawInstancedMeshes = true,
+                DrawGlass = true,
+                DrawAlphamasked = true,
+                DrawImpostors = true,
+                DrawBillboards = true,
+                DrawVoxels = true,
                 DrawMergeInstanced = true,
                 DrawNonMergeInstanced = true,
                 TerrainDetailD0 = 5,
@@ -483,6 +522,7 @@ namespace VRageRender
         public MyTextureQuality TextureQuality;
         public MyTextureAnisoFiltering AnisotropicFiltering;
         public MyFoliageDetails FoliageDetails;
+        public MyRenderQualityEnum ModelQuality;
         public MyRenderQualityEnum VoxelQuality;
 
         bool IEquatable<MyRenderSettings1>.Equals(MyRenderSettings1 other)

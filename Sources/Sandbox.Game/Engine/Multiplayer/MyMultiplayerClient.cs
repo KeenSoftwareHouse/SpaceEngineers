@@ -1,43 +1,31 @@
 ﻿#region Using
 
-using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
-using Sandbox.Game;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
 using VRage;
 using VRage.Utils;
 using VRage.Trace;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Network;
-using VRage.Replication;
-using VRage.Library.Collections;
 using Sandbox.Game.Entities;
 using VRage.Game;
+using Sandbox.Game.World;
 
 #endregion
 
 namespace Sandbox.Engine.Multiplayer
 {
-    class MyMultiplayerClient : MyMultiplayerBase, IReplicationClientCallback
+    sealed class MyMultiplayerClient : MyMultiplayerClientBase
     {
         #region Fields
 
@@ -54,12 +42,10 @@ namespace Sandbox.Engine.Multiplayer
         int m_membersLimit;
         string m_dataHash;
 
-        MyMultiplayerBattleData m_battleData;
+        readonly List<ulong> m_members = new List<ulong>();
+        readonly MemberCollection m_membersCollection;
 
-        List<ulong> m_members = new List<ulong>();
-        MemberCollection m_membersCollection;
-
-        Dictionary<ulong, MyConnectedClientData> m_memberData = new Dictionary<ulong, MyConnectedClientData>();
+        readonly Dictionary<ulong, MyConnectedClientData> m_memberData = new Dictionary<ulong, MyConnectedClientData>();
 
         public Action OnJoin;
         private bool m_clientJoined = false;
@@ -158,12 +144,7 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-        private int m_viewDistance;
-        public override int ViewDistance
-        {
-            get { return m_viewDistance; }
-            set { m_viewDistance = value; }
-        }
+        public override int ViewDistance { get; set; }
 
         public override bool Scenario
         {
@@ -183,104 +164,8 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
-        public override bool Battle
-        {
-            get;
-            set;
-        }
-
-        public override float BattleRemainingTime
-        {
-            get { return m_battleData.BattleRemainingTime; }
-            set { m_battleData.BattleRemainingTime = value; }
-        }
-
-        public override bool BattleCanBeJoined
-        {
-            get { return m_battleData.BattleCanBeJoined; }
-            set { m_battleData.BattleCanBeJoined = value; }
-        }
-
-        public override ulong BattleWorldWorkshopId
-        {
-            get { return m_battleData.BattleWorldWorkshopId; }
-            set { m_battleData.BattleWorldWorkshopId = value; }
-        }
-
-        public override int BattleFaction1MaxBlueprintPoints
-        {
-            get { return m_battleData.BattleFaction1MaxBlueprintPoints; }
-            set { m_battleData.BattleFaction1MaxBlueprintPoints = value; }
-        }
-
-        public override int BattleFaction2MaxBlueprintPoints
-        {
-            get { return m_battleData.BattleFaction2MaxBlueprintPoints; }
-            set { m_battleData.BattleFaction2MaxBlueprintPoints = value; }
-        }
-
-        public override int BattleFaction1BlueprintPoints
-        {
-            get { return m_battleData.BattleFaction1BlueprintPoints; }
-            set { m_battleData.BattleFaction1BlueprintPoints = value; }
-        }
-
-        public override int BattleFaction2BlueprintPoints
-        {
-            get { return m_battleData.BattleFaction2BlueprintPoints; }
-            set { m_battleData.BattleFaction2BlueprintPoints = value; }
-        }
-
-        public override int BattleMapAttackerSlotsCount
-        {
-            get { return m_battleData.BattleMapAttackerSlotsCount; }
-            set { m_battleData.BattleMapAttackerSlotsCount = value; }
-        }
-
-        public override long BattleFaction1Id
-        {
-            get { return m_battleData.BattleFaction1Id; }
-            set { m_battleData.BattleFaction1Id = value; }
-        }
-
-        public override long BattleFaction2Id
-        {
-            get { return m_battleData.BattleFaction2Id; }
-            set { m_battleData.BattleFaction2Id = value; }
-        }
-
-        public override int BattleFaction1Slot
-        {
-            get { return m_battleData.BattleFaction1Slot; }
-            set { m_battleData.BattleFaction1Slot = value; }
-        }
-
-        public override int BattleFaction2Slot
-        {
-            get { return m_battleData.BattleFaction2Slot; }
-            set { m_battleData.BattleFaction2Slot = value; }
-        }
-
-        public override bool BattleFaction1Ready
-        {
-            get { return m_battleData.BattleFaction1Ready; }
-            set { m_battleData.BattleFaction1Ready = value; }
-        }
-
-        public override bool BattleFaction2Ready
-        {
-            get { return m_battleData.BattleFaction2Ready; }
-            set { m_battleData.BattleFaction2Ready = value; }
-        }
-
-        public override int BattleTimeLimit
-        {
-            get { return m_battleData.BattleTimeLimit; }
-            set { m_battleData.BattleTimeLimit = value; }
-        }
-
-
         public GameServerItem Server { get; private set; }
+
         #endregion
 
         public new MyReplicationClient ReplicationLayer { get { return (MyReplicationClient)base.ReplicationLayer; } }
@@ -297,7 +182,9 @@ namespace Sandbox.Engine.Multiplayer
             SyncLayer.TransportLayer.IsBuffering = true;
             SyncLayer.RegisterClientEvents(this);
 
-            SetReplicationLayer(new MyReplicationClient(this, CreateClientState()));
+            SetReplicationLayer(new MyReplicationClient(this, CreateClientState(), MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS));
+            ReplicationLayer.UseSmoothPing = MyFakes.MULTIPLAYER_SMOOTH_PING;
+            ReplicationLayer.UseSmoothCorrection = MyFakes.MULTIPLAYER_SMOOTH_TIMESTAMP_CORRECTION;
             syncLayer.TransportLayer.Register(MyMessageId.SERVER_DATA, ReplicationLayer.ProcessServerData);
             syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_CREATE, OnReplicationCreate);
             syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_DESTROY, OnReplicationDestroy);
@@ -306,7 +193,6 @@ namespace Sandbox.Engine.Multiplayer
             syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_STREAM_BEGIN, OnReplicationBeginCreate);
             syncLayer.TransportLayer.Register(MyMessageId.JOIN_RESULT, OnJoinResult);
             syncLayer.TransportLayer.Register(MyMessageId.WORLD_DATA, OnWorldData);
-            syncLayer.TransportLayer.Register(MyMessageId.WORLD_BATTLE_DATA, OnWorldBattleData);
             syncLayer.TransportLayer.Register(MyMessageId.CLIENT_CONNNECTED,OnClientConnected);
  
             ClientJoined += MyMultiplayerClient_ClientJoined;
@@ -314,9 +200,7 @@ namespace Sandbox.Engine.Multiplayer
             HostLeft += MyMultiplayerClient_HostLeft;
 
             Peer2Peer.ConnectionFailed += Peer2Peer_ConnectionFailed;
-            Peer2Peer.SessionRequest += Peer2Peer_SessionRequest;
-
-            m_battleData = new MyMultiplayerBattleData(this);
+            Peer2Peer.SessionRequest += Peer2Peer_SessionRequest;            
         }
 
         void OnReplicationBeginCreate(MyPacket packet)
@@ -348,12 +232,6 @@ namespace Sandbox.Engine.Multiplayer
             OnServerData(ref msg);
         }
 
-        void OnWorldBattleData(MyPacket packet)
-        {
-            ServerBattleDataMsg msg = ReplicationLayer.OnWorldBattleData(packet);
-            OnServerBattleData(ref msg);
-        }
-
         void OnJoinResult(MyPacket packet)
         {
            JoinResultMsg msg = ReplicationLayer.OnJoinResult(packet);
@@ -376,33 +254,10 @@ namespace Sandbox.Engine.Multiplayer
             base.Dispose();
         }
 
-        #region ReplicationClient
-        void IReplicationClientCallback.SendClientUpdate(BitStream stream)
-        {
-            SyncLayer.TransportLayer.SendMessage(MyMessageId.CLIENT_UPDATE, stream, true, new EndpointId(Sync.ServerId));
-        }
-
-        void IReplicationClientCallback.SendEvent(BitStream stream, bool reliable)
-        {
-            SyncLayer.TransportLayer.SendMessage(MyMessageId.RPC, stream, reliable, new EndpointId(Sync.ServerId));
-        }
-
-        void IReplicationClientCallback.SendReplicableReady(BitStream stream)
-        {
-            SyncLayer.TransportLayer.SendMessage(MyMessageId.REPLICATION_READY, stream, true, new EndpointId(Sync.ServerId));
-        }
-
-        void IReplicationClientCallback.SendConnectRequest(BitStream stream)
-        {
-            SyncLayer.TransportLayer.SendMessage(MyMessageId.CLIENT_CONNNECTED, stream, true, new EndpointId(Sync.ServerId));
-        }
-
-        #endregion
-
         void MyMultiplayerClient_HostLeft()
         {
             m_clientJoined = false;
-            CloseClient();
+            CloseSession();
 
             MySessionLoader.UnloadAndExitToMenu();
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
@@ -482,6 +337,19 @@ namespace Sandbox.Engine.Multiplayer
             return ret;
         }
 
+        public override void DownloadProfiler(int index)
+        {
+            MyDownloadProfilerResult ret = new MyDownloadProfilerResult(MyMultiplayer.ProfilerDownloadChannel, ServerId, this);
+
+            MyControlProfilerMsg msg = new MyControlProfilerMsg() { index = index };
+            SendControlMessage(ServerId, ref msg);
+        }
+
+        public override void DisconnectClient(ulong userId)
+        {
+            CloseClient();
+        }
+
         public override void KickClient(ulong client)
         {
             MyControlKickClientMsg msg = new MyControlKickClientMsg();
@@ -510,6 +378,13 @@ namespace Sandbox.Engine.Multiplayer
             //TODO: Any better way? P2P needs to be closed from both sides. If closed right after Send, message 
             //can stay not sent.
             Thread.Sleep(200);
+
+            CloseSession();
+        }
+
+        private void CloseSession()
+        {
+            OnJoin = null;
 
             //WARN: If closed here, previous control message probably not come
             Peer2Peer.CloseSession(ServerId);
@@ -577,6 +452,16 @@ namespace Sandbox.Engine.Multiplayer
 
         protected override void OnChatMessage(ref ChatMsg msg)
         {
+            bool debugCommands = !MyFinalBuildConstants.IS_OFFICIAL && MyFinalBuildConstants.IS_DEBUG;
+
+            if (m_memberData.ContainsKey(msg.Author))
+            {
+                if (m_memberData[msg.Author].IsAdmin || debugCommands)
+                {
+                    MyClientDebugCommands.Process(msg.Text, msg.Author);
+                }
+            }
+
             RaiseChatMessageReceived(msg.Author, msg.Text, ChatEntryTypeEnum.ChatMsg);
         }
 
@@ -605,21 +490,6 @@ namespace Sandbox.Engine.Multiplayer
             m_appVersion = msg.AppVersion;
             m_membersLimit = msg.MembersLimit;
             m_dataHash = msg.DataHash;
-        }
-
-        void OnServerBattleData(ref ServerBattleDataMsg msg)
-        {
-            Battle = true;
-
-            m_worldName = msg.WorldName;
-            m_gameMode = msg.GameMode;
-            m_hostName = msg.HostName;
-            m_worldSize = msg.WorldSize;
-            m_appVersion = msg.AppVersion;
-            m_membersLimit = msg.MembersLimit;
-            m_dataHash = msg.DataHash;
-
-            m_battleData.LoadData(msg.BattleData);
         }
 
         void OnUserJoined(ref JoinResultMsg msg)
@@ -763,7 +633,7 @@ namespace Sandbox.Engine.Multiplayer
             return clientData.Name;
         }
 
-        protected void OnConnectedClient(ref ConnectedClientDataMsg msg)
+        private void OnConnectedClient(ref ConnectedClientDataMsg msg)
         {
             MySandboxGame.Log.WriteLineAndConsole("Client connected: " + msg.Name + " (" + msg.SteamID.ToString() + ")");
             MyTrace.Send(TraceWindow.Multiplayer, "Client connected");
@@ -852,11 +722,6 @@ namespace Sandbox.Engine.Multiplayer
                     RaiseClientLeft(data.BannedClient, ChatMemberStateChangeEnum.Banned);
                 }
             }
-        }
-
-        protected override void OnPing(ref MyControlPingMsg data, ulong sender)
-        {
-            MyNetworkStats.Static.OnPingSuccess();
         }
 
         public override void StartProcessingClientMessagesWithEmptyWorld()

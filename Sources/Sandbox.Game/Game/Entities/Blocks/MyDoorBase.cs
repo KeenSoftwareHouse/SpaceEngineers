@@ -59,7 +59,7 @@ namespace Sandbox.Game.Entities
             }
             set
             {
-                if (m_open != value && Enabled && ResourceSink.IsPowered)
+                if (m_open != value && Enabled && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
                 {
                     m_open.Value = value;
                 }
@@ -89,7 +89,10 @@ namespace Sandbox.Game.Entities
         {
             VRage.Game.MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(identityId);
 
-            if (relation.IsFriendly())
+            MyIdentity identity = MySession.Static.Players.TryGetIdentity(identityId);
+            MyPlayer player = identity != null && identity.Character != null ? MyPlayer.GetPlayerFromCharacter(identity.Character) : null;
+            if (relation.IsFriendly() ||
+                (identity != null && identity.Character != null && player != null && MySession.Static.IsUserSpaceMaster(player.Client.SteamUserId)))
             {
                 Open = open;
             }

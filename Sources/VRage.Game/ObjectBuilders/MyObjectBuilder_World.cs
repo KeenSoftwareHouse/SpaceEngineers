@@ -1,6 +1,8 @@
 ﻿using ProtoBuf;
+using System.Collections.Generic;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
+using VRageMath;
 
 namespace VRage.Game
 {
@@ -16,5 +18,7 @@ namespace VRage.Game
 
         [ProtoMember]
         public SerializableDictionary<string, byte[]> VoxelMaps;
+
+        public List<BoundingBoxD> Clusters;
     }
 }

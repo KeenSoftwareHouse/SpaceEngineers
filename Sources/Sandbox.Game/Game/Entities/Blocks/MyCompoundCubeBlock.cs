@@ -984,36 +984,39 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler, MyStringHash material)
         {
             Debug.Assert(m_mapIdToBlock.Count > 0);
             MyCubeGridHitInfo gridHitInfo = customdata as MyCubeGridHitInfo;
+            if (gridHitInfo == null)
+            {
+                Debug.Fail("MyCubeGridHitInfo must not be null");
+                return;
+            }
+
             MySlimBlock block = m_mapIdToBlock.First().Value;
             MyPhysicalMaterialDefinition physicalMaterial = block.BlockDefinition.PhysicalMaterial;
             MyDecalRenderInfo renderable = new MyDecalRenderInfo();
-            renderable.Flags = physicalMaterial.Transparent ? MyDecalFlags.Transparent : MyDecalFlags.None;
             renderable.Position = Vector3D.Transform(hitInfo.Position, CubeGrid.PositionComp.WorldMatrixInvScaled);
             renderable.Normal = Vector3D.TransformNormal(hitInfo.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled);
             renderable.RenderObjectId = CubeGrid.Render.GetRenderObjectID();
-            renderable.Material = MyStringHash.GetOrCompute(physicalMaterial.Id.SubtypeName);
 
-            if (gridHitInfo != null)
+            VertexBoneIndicesWeights? boneIndicesWeights = gridHitInfo.Triangle.GetAffectingBoneIndicesWeights(ref m_boneIndexWeightTmp);
+            if (boneIndicesWeights.HasValue)
             {
-                VertexBoneIndicesWeights? boneIndicesWeights = gridHitInfo.Triangle.GetAffectingBoneIndicesWeights(ref m_boneIndexWeightTmp);
-                if (boneIndicesWeights.HasValue)
-                {
-                    renderable.BoneIndices = boneIndicesWeights.Value.Indices;
-                    renderable.BoneWeights = boneIndicesWeights.Value.Weights;
-
-                    var decalId = decalHandler.AddDecal(ref renderable);
-                    if (decalId != null)
-                        CubeGrid.RenderData.AddDecal(Position, gridHitInfo, decalId.Value);
-
-                    return;
-                }
+                renderable.BoneIndices = boneIndicesWeights.Value.Indices;
+                renderable.BoneWeights = boneIndicesWeights.Value.Weights;
             }
 
-            decalHandler.AddDecal(ref renderable);
+            if (material.GetHashCode() == 0)
+                renderable.Material = MyStringHash.GetOrCompute(physicalMaterial.Id.SubtypeName);
+            else
+                renderable.Material = material;
+
+
+            var decalId = decalHandler.AddDecal(ref renderable);
+            if (decalId != null)
+                CubeGrid.RenderData.AddDecal(Position, gridHitInfo, decalId.Value);
         }
 
         public bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, bool checkZFight = false, bool ignoreGenerated = false)

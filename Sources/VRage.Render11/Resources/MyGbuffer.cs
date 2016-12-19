@@ -1,59 +1,13 @@
 ﻿using SharpDX;
 using SharpDX.Direct3D11;
 using VRage.Render11.Common;
+using VRage.Render11.LightingStage;
 using VRage.Render11.Profiler;
 using VRageRender;
 using Format = SharpDX.DXGI.Format;
 
 namespace VRage.Render11.Resources
 {
-    internal class MyScreenDependants
-    {
-        #region Fields
-
-        internal static ISrvUavBuffer TileIndices;
-
-        internal static int TilesNum;
-        internal static int TilesX;
-        internal static int TilesY;
-
-        public static int Width { get; private set; }
-        public static int Height { get; private set; }
-
-        #endregion
-
-
-        internal static IBorrowedDepthStencilTexture GetResolvedDepthRtv()
-        {
-            return MyManagers.RwTexturesPool.BorrowDepthStencil("MyScreenDependants.ResolvedDepth", Width, Height);
-        }
-
-        internal static IBorrowedRtvTexture GetAmbientOcclusionRtv()
-        {
-            return MyManagers.RwTexturesPool.BorrowRtv("MyScreenDependants.AmbientOcclusion", Width, Height, Format.R8_UNorm, 1);
-        }
-
-        internal static IBorrowedRtvTexture GetAmbientOcclusionHelper()
-        {
-            return MyManagers.RwTexturesPool.BorrowRtv("MyScreenDependants.AmbientOcclusionHelper", Width, Height, Format.R8_UNorm, 1);
-        }
-
-        internal static void Resize(int width, int height, int samplesNum, int samplesQuality)
-        {
-            Width = width;
-            Height = height;
-
-            TilesX = (width + MyLightRendering.TILE_SIZE - 1) / MyLightRendering.TILE_SIZE;
-            TilesY = ((height + MyLightRendering.TILE_SIZE - 1) / MyLightRendering.TILE_SIZE);
-            TilesNum = TilesX * TilesY;
-
-            if (TileIndices != null)
-                MyManagers.Buffers.Dispose(TileIndices);
-
-            TileIndices = MyManagers.Buffers.CreateSrvUav("MyScreenDependants::tileIndices", TilesNum + TilesNum * MyRender11Constants.MAX_POINT_LIGHTS, sizeof(uint));
-        }
-    }
-
     internal class MyGBuffer : MyImmediateRC
     {
         internal const Format LBufferFormat = Format.R11G11B10_Float;

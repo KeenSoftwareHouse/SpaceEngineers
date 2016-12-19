@@ -17,6 +17,8 @@ using Ray = VRageMath.Ray;
 using VRageRender.Vertex;
 using VRage.Render11.Resources;
 using VRageRender.Voxels;
+using SharpDX.DXGI;
+using VRage.Render11.LightingStage;
 
 namespace VRageRender
 {
@@ -40,6 +42,7 @@ namespace VRageRender
         static PixelShaderId m_NDotLShader;
         static PixelShaderId m_LODShader;
         private static PixelShaderId m_depthShader;
+        private static ComputeShaderId m_depthReprojectionShader;
         private static PixelShaderId m_stencilShader;
         private static PixelShaderId m_rtShader;
 
@@ -72,6 +75,7 @@ namespace VRageRender
             m_NDotLShader = MyShaders.CreatePs("Debug/DebugNDotL.hlsl");
             m_LODShader = MyShaders.CreatePs("Debug/DebugLOD.hlsl");
             m_depthShader = MyShaders.CreatePs("Debug/DebugDepth.hlsl");
+            m_depthReprojectionShader = MyShaders.CreateCs("Debug/DebugDepthReprojection.hlsl");
             m_stencilShader = MyShaders.CreatePs("Debug/DebugStencil.hlsl");
             m_rtShader = MyShaders.CreatePs("Debug/DebugRt.hlsl");
 
@@ -279,6 +283,27 @@ namespace VRageRender
                 RC.PixelShader.Set(m_depthShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
+            else if (MyRender11.Settings.DisplayReprojectedDepth)
+            {
+                var dst = MyManagers.RwTexturesPool.BorrowUav("DebugRender.DepthReprojection", Format.R32_Float);
+                MyRender11.RC.ClearUav(dst, SharpDX.Int4.Zero);
+
+                RC.ComputeShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+                RC.ComputeShader.SetSrv(0, MyGBuffer.Main.DepthStencil.SrvDepth);
+                RC.ComputeShader.SetUav(0, dst);
+                RC.ComputeShader.Set(m_depthReprojectionShader);
+                int numThreadGroupsX = align(MyRender11.ResolutionI.X, 32) / 32;
+                int numThreadGroupsY = align(MyRender11.ResolutionI.Y, 32) / 32;
+                RC.Dispatch(numThreadGroupsX, numThreadGroupsY, 1);
+                RC.ComputeShader.SetSrv(0, null);
+                RC.ComputeShader.SetUav(0, null);
+
+                RC.PixelShader.SetSrv(0, dst);
+                RC.PixelShader.Set(m_depthShader);
+                MyScreenPass.DrawFullscreenQuad();
+
+                RC.PixelShader.SetSrv(0, MyGBuffer.Main.DepthStencil.SrvDepth);
+            }
             else if (MyRender11.Settings.DisplayStencil)
             {
                 RC.PixelShader.Set(m_stencilShader);
@@ -320,7 +345,7 @@ namespace VRageRender
             {
                 var batch = MyLinesRenderer.CreateBatch();
 
-                foreach (var light in MyLightRendering.VisiblePointlights)
+                foreach (var light in MyLightsRendering.VisiblePointlights)
                 {
                     batch.AddSphereRing(new BoundingSphere(light.PointPosition, 0.5f), Color.White, Matrix.Identity);
                 }
@@ -407,29 +432,30 @@ namespace VRageRender
             }
         }
 
+        private static int align(int value, int alignment) { return (value + (alignment - 1)) & ~(alignment - 1); }
         private static readonly Vector4[] LOD_COLORS = 
-    {
-	new Vector4( 1, 0, 0, 1 ),
-	new Vector4(  0, 1, 0, 1 ),
-	new Vector4(  0, 0, 1, 1 ),
+        {
+	        new Vector4( 1, 0, 0, 1 ),
+	        new Vector4(  0, 1, 0, 1 ),
+	        new Vector4(  0, 0, 1, 1 ),
 
-	new Vector4(  1, 1, 0, 1 ),
-	new Vector4(  0, 1, 1, 1 ),
-	new Vector4(  1, 0, 1, 1 ),
+	        new Vector4(  1, 1, 0, 1 ),
+	        new Vector4(  0, 1, 1, 1 ),
+	        new Vector4(  1, 0, 1, 1 ),
 
-	new Vector4(  0.5f, 0, 1, 1 ),
-	new Vector4(  0.5f, 1, 0, 1 ),
-	new Vector4(  1, 0, 0.5f, 1 ),
-	new Vector4(  0, 1, 0.5f, 1 ),
+	        new Vector4(  0.5f, 0, 1, 1 ),
+	        new Vector4(  0.5f, 1, 0, 1 ),
+	        new Vector4(  1, 0, 0.5f, 1 ),
+	        new Vector4(  0, 1, 0.5f, 1 ),
 
-	new Vector4(  1, 0.5f, 0, 1 ),
-	new Vector4(  0, 0.5f, 1, 1 ),
+	        new Vector4(  1, 0.5f, 0, 1 ),
+	        new Vector4(  0, 0.5f, 1, 1 ),
 
-	new Vector4(  0.5f, 1, 1, 1 ),
-	new Vector4(  1, 0.5f, 1, 1 ),
-	new Vector4(  1, 1, 0.5f, 1 ),
-	new Vector4(  0.5f, 0.5f, 1, 1 ),	
-};
+	        new Vector4(  0.5f, 1, 1, 1 ),
+	        new Vector4(  1, 0.5f, 1, 1 ),
+	        new Vector4(  1, 1, 0.5f, 1 ),
+	        new Vector4(  0.5f, 0.5f, 1, 1 ),	
+        };
 
         internal static void DrawHierarchyDebug()
         {

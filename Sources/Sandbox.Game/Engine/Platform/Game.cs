@@ -44,8 +44,9 @@ namespace Sandbox.Engine.Platform
 
         private MyTimeSpan m_drawTime;
         private MyTimeSpan m_updateTime;
+        private ulong m_updateCounter = 0;
 
-        const float TARGET_MS_PER_FRAME = 1000 / 60.0f;
+        const double TARGET_MS_PER_FRAME = 1000 / 60.0;
 
         const int NUM_FRAMES_FOR_DROP = 5;
 
@@ -63,15 +64,6 @@ namespace Sandbox.Engine.Platform
 
         MyQueue<long> m_lastFrameTiming = new MyQueue<long>(NUM_FRAMES_FOR_DROP);
 
-        /// <summary>
-        /// This should be never called, it's here only for temporal compatibility
-        /// </summary>
-        public MyTimeSpan GetNewTimestamp()
-        {
-            // TODO: OP! Remove, this is hack for temporal compatibility
-            return m_gameTimer.Elapsed;
-        }
-
         public MyTimeSpan DrawTime
         {
             get
@@ -85,8 +77,15 @@ namespace Sandbox.Engine.Platform
         {
             get
             {
-               // Debug.Assert(Thread.CurrentThread == UpdateThread);
                 return m_updateTime;
+            }
+        }
+
+        public MyTimeSpan SimulationTime
+        {
+            get
+            {
+                return MyTimeSpan.FromMilliseconds(m_updateCounter * TARGET_MS_PER_FRAME);
             }
         }
 
@@ -109,7 +108,7 @@ namespace Sandbox.Engine.Platform
         MyTimer.TimerEventHandler m_handler;
 
 
-        public static float SimulationRatio { get { return TARGET_MS_PER_FRAME / m_targetMs; } }
+        public static float SimulationRatio { get { return (float)TARGET_MS_PER_FRAME / m_targetMs; } }
 
         static long m_lastFrameTime = 0;
 
@@ -164,7 +163,12 @@ namespace Sandbox.Engine.Platform
 
         #region Public Methods and Operators
 
-        FixedLoop m_renderLoop = new FixedLoop(Stats.Generic, "WaitForUpdate");
+        readonly FixedLoop m_renderLoop = new FixedLoop(Stats.Generic, "WaitForUpdate");
+
+        public void SetNextFrameDelayDelta(int delta)
+        {
+            m_renderLoop.SetNextFrameDelayDelta(delta);
+        }
 
         /// <summary>
         /// Exits the game.
@@ -254,7 +258,7 @@ namespace Sandbox.Engine.Platform
             long remainingTicksTowait = MyPerformanceCounter.ElapsedTicks - beforeUpdate;
             var remainingTimeToWait = MyTimeSpan.FromTicks(m_targetTicks - remainingTicksTowait);
 
-            int waitMs = (int)(remainingTimeToWait.Miliseconds - 0.1);
+            int waitMs = (int)(remainingTimeToWait.Milliseconds - 0.1);
             if (waitMs > 0 && !EnableMaxSpeed)
             {
 
@@ -330,6 +334,11 @@ namespace Sandbox.Engine.Platform
             //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Default, "Update Start");
 
             m_updateTime = m_gameTimer.Elapsed;
+            m_updateCounter++;
+
+            if (VRage.MyCompilationSymbols.EnableNetworkPacketTracking)
+                System.Diagnostics.Debug.WriteLine("----- Tick # " + m_updateTime.Milliseconds);
+
             Update();
             ProfilerShort.End();
 

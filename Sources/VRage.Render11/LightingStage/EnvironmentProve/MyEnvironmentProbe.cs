@@ -19,7 +19,7 @@ using Vector3 = VRageMath.Vector3;
 
 namespace VRageRender
 {
-    class MyEnvironmentProbe : IManager, IManagerCallback
+    class MyEnvironmentProbe : IManager, IManagerUnloadData
     {
         int m_state;
 
@@ -46,15 +46,16 @@ namespace VRageRender
 
         void AddProbe(int nProbe, MyCullQuery cullQuery)
         {
-            MyImmediateRC.RC.ClearDsv(CubemapDepth.SubresourceDsv(nProbe), DepthStencilClearFlags.Depth, 1, 0);
+            MyImmediateRC.RC.ClearDsv(CubemapDepth.SubresourceDsv(nProbe), DepthStencilClearFlags.Depth, 0, 0);
             MyImmediateRC.RC.ClearRtv(m_workCubemap.SubresourceRtv(nProbe), Color4.Black);
 
-            var localViewProj =
-                PrepareLocalEnvironmentMatrix(MyRender11.Environment.Matrices.CameraPosition - m_position,
-                    new Vector2I(CubeMapResolution, CubeMapResolution), nProbe, MyRender11.Settings.EnvMapDepth);
-            var viewProj = MatrixD.CreateTranslation(-m_position)*localViewProj;
+            var localRenderViewProj =
+                PrepareLocalRenderMatrix(MyRender11.Environment.Matrices.CameraPosition - m_position, nProbe);
+            var localCullViewProj =
+                PrepareLocalCullingMatrix(MyRender11.Environment.Matrices.CameraPosition - m_position, nProbe, MyRender11.Settings.EnvMapDepth);
+            var cullViewProj = MatrixD.CreateTranslation(-m_position) * localCullViewProj;
 
-            cullQuery.AddForwardPass(nProbe, ref localViewProj, ref viewProj,
+            cullQuery.AddForwardPass(nProbe, ref localRenderViewProj, ref cullViewProj,
                 new MyViewport(0, 0, CubeMapResolution, CubeMapResolution), CubemapDepth.SubresourceDsv(nProbe),
                 m_workCubemap.SubresourceRtv(nProbe));
             cullQuery.FrustumCullQueries[cullQuery.Size - 1].Type = MyFrustumEnum.EnvironmentProbe;
@@ -63,9 +64,11 @@ namespace VRageRender
 
         void PostprocessProbe(int nProbe)
         {
-            var matrix = CubeFaceViewMatrix(Vector3.Zero, nProbe);
+            var viewMatrix = CubeFaceViewMatrix(Vector3.Zero, nProbe);
+            var projMatrix = GetProjectionMatrixInfinite();
             MyEnvProbeProcessing.RunForwardPostprocess(m_workCubemap.SubresourceRtv(nProbe),
-                CubemapDepth.SubresourceSrv(nProbe), ref matrix, MyAtmosphereRenderer.GetCurrentAtmosphereId());
+                CubemapDepth.SubresourceDsv(nProbe), CubemapDepth.SubresourceSrv(nProbe), 
+                ref viewMatrix, ref projMatrix);
         }
 
         void BlendAllProbes()
@@ -227,21 +230,32 @@ namespace VRageRender
             return viewMatrix;
         }
 
-        static Matrix PrepareLocalEnvironmentMatrix(Vector3 pos, Vector2I resolution, int faceId, float farPlane)
+        static Matrix GetProjectionMatrix(float farPlane)
         {
-            var projection = Matrix.CreatePerspectiveFieldOfView((float) Math.PI*0.5f, 1, 0.1f, farPlane);
+            return Matrix.CreatePerspectiveFovRhComplementary((float)Math.PI * 0.5f, 1, 0.01f, farPlane);
+        }
+        static Matrix GetProjectionMatrixInfinite()
+        {
+            //return Matrix.CreatePerspectiveFieldOfView((float)Math.PI * 0.5f, 1, 0.01f, farPlane);
+            return Matrix.CreatePerspectiveFovRhInfiniteComplementary((float)Math.PI * 0.5f, 1, 0.01f);
+        }
+        static Matrix PrepareLocalRenderMatrix(Vector3 pos, int faceId)
+        {
+            var projection = GetProjectionMatrixInfinite();
             Matrix viewMatrix = CubeFaceViewMatrix(pos, faceId);
-            return viewMatrix*projection;
+            return viewMatrix * projection;
         }
 
-        void IManagerCallback.OnUnloadData()
+        static Matrix PrepareLocalCullingMatrix(Vector3 pos, int faceId, float farPlane)
+        {
+            var projection = GetProjectionMatrix(farPlane);
+            Matrix viewMatrix = CubeFaceViewMatrix(pos, faceId);
+            return viewMatrix * projection;
+        }
+
+        void IManagerUnloadData.OnUnloadData()
         {
             m_lastUpdateTime = MyTimeSpan.Zero;
-        }
-
-        void IManagerCallback.OnFrameEnd()
-        {
-            
         }
     }
 }

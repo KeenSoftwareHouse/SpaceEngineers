@@ -8,6 +8,7 @@ using System.Text;
 using Sandbox.Game.Entities;
 using Sandbox.Game.WorldEnvironment;
 using Sandbox.Game.WorldEnvironment.Definitions;
+using Sandbox.Graphics.GUI;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Library.Utils;
@@ -525,6 +526,27 @@ namespace Sandbox.Definitions
             {
                 SectorDensity = ob.SectorDensity.Value;
             }
+        }
+
+        public override string ToString()
+        {
+            string rtnString = base.ToString();
+#if !XB1
+            foreach (var prop in typeof(MyPlanetGeneratorDefinition).GetFields())
+            {
+                if (prop.IsPublic)
+                {
+                    var value = prop.GetValue(this);
+                    rtnString = rtnString + "\n   " + prop.Name + " = " + (value ?? "<null>");
+                }
+            }
+            foreach (var prop in typeof(MyPlanetGeneratorDefinition).GetProperties())
+            {
+                var value = prop.GetValue(this, null);
+                rtnString = rtnString + "\n   " + prop.Name + " = " + (value ?? "<null>");
+            }
+#endif
+            return rtnString;
         }
 
         internal class Postprocessor : MyDefinitionPostprocessor

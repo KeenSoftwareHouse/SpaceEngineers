@@ -34,6 +34,11 @@ namespace VRageMath.PackedVector
             this.PackedValue = HalfVector4.PackHelper(vector.X, vector.Y, vector.Z, vector.W);
         }
 
+        public HalfVector4(HalfVector3 vector3, ushort w)
+        {
+            this.PackedValue = vector3.ToHalfVector4().PackedValue | (ulong) w << 48;
+        }
+
         /// <summary>
         /// Compares the current instance of a class to another instance to determine whether they are the same.
         /// </summary>

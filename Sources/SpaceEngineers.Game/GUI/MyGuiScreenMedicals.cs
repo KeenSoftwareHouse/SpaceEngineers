@@ -43,13 +43,15 @@ namespace SpaceEngineers.Game.GUI
             public float OxygenLevel;
             public long OwnerId;
             public Vector3D PrefferedCameraPosition;
-            public Vector3D MedicalRoomPos;
+            public Vector3D MedicalRoomPosition;
+            public Vector3D MedicalRoomUp;
+            public Vector3 MedicalRoomVelocity;
         }
 
         #region Fields
 
         MyGuiControlLabel m_labelNoRespawn;
-        StringBuilder m_noRespawnHeader=new StringBuilder();
+        StringBuilder m_noRespawnHeader = new StringBuilder();
         MyGuiControlTable m_respawnsTable;
         MyGuiControlButton m_respawnButton;
         MyGuiControlButton m_refreshButton;
@@ -58,18 +60,22 @@ namespace SpaceEngineers.Game.GUI
         MyGuiControlMultilineText m_multilineRespawnWhenShipReady;
         MyRespawnShipDefinition m_selectedRespawnShip;
 
-        public static StringBuilder NoRespawnText { //get { return Static.m_noRespawnText.Text; } 
-            set { if (Static!=null) 
-                Static.m_noRespawnText.Text = value; 
-            } 
-        }
-        public static int ItemsInTable { 
-            get 
+        public static StringBuilder NoRespawnText
+        { //get { return Static.m_noRespawnText.Text; } 
+            set
             {
-                if (Static == null || Static.m_respawnsTable==null)
+                if (Static != null)
+                    Static.m_noRespawnText.Text = value;
+            }
+        }
+        public static int ItemsInTable
+        {
+            get
+            {
+                if (Static == null || Static.m_respawnsTable == null)
                     return 0;
                 return Static.m_respawnsTable.RowsCount;
-            } 
+            }
         }
 
         public static MyGuiScreenMedicals Static { get; private set; }
@@ -115,8 +121,33 @@ namespace SpaceEngineers.Game.GUI
 
             if (MyInput.Static.IsNewKeyPressed(MyKeys.Escape))
             {
-                MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
-                MyGuiSandbox.AddScreen(new MyGuiScreenMainMenu());
+                if (!MyInput.Static.IsAnyShiftKeyPressed())
+                {
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
+                    MyGuiSandbox.AddScreen(new MyGuiScreenMainMenu());
+                }
+                else
+                {
+
+                    if (m_respawnsTable.SelectedRow.UserData == null || m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo == null)
+                    {
+                        MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator, null, new Vector3D(1000000)); //just somewhere out of the game area to see our beautiful skybox
+                        return;
+                    }
+
+                    var medicalRoom = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
+
+                    MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator, null, medicalRoom.PrefferedCameraPosition);
+                    MySpectatorCameraController.Static.SetTarget(medicalRoom.MedicalRoomPosition, medicalRoom.MedicalRoomUp);
+                    MySpectatorCameraController.Static.Velocity = medicalRoom.MedicalRoomVelocity;
+
+                    Close();
+                }
+            }
+
+            if (MyInput.Static.IsNewKeyPressed(MyKeys.Enter))
+            {
+                onRespawnClick(m_respawnButton);
             }
         }
 
@@ -202,18 +233,18 @@ namespace SpaceEngineers.Game.GUI
         {
             m_respawnsTable.Clear();
 
-            RefreshMedicalRooms();       
+            RefreshMedicalRooms();
         }
 
         private void RefreshMedicalRooms()
         {
             ulong playerSteamId = MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.Id.SteamId : Sync.MyId;
-            MyMultiplayer.RaiseStaticEvent(s => RefreshMedicalRooms_Implementation, MySession.Static.LocalPlayerId, playerSteamId); 
+            MyMultiplayer.RaiseStaticEvent(s => RefreshMedicalRooms_Implementation, MySession.Static.LocalPlayerId, playerSteamId);
         }
 
         private void RefreshSpawnShips()
         {
-            if(MySession.Static.CreativeMode)
+            if (MySession.Static.CreativeMode)
             {
                 return;
             }
@@ -239,7 +270,7 @@ namespace SpaceEngineers.Game.GUI
             var row = new MyGuiControlTable.Row();
             row.AddCell(new MyGuiControlTable.Cell(text: MyTexts.GetString(MySpaceTexts.SpawnInSpaceSuit)));
             row.AddCell(new MyGuiControlTable.Cell(text: MyTexts.GetString(MySpaceTexts.ScreenMedicals_RespawnShipReady)));
-            
+
             m_respawnsTable.Add(row);
         }
 
@@ -299,7 +330,7 @@ namespace SpaceEngineers.Game.GUI
             GetAvailableMedicalRooms(playerId, m_medicalRooms);
 
             MyMultiplayer.RaiseStaticEvent(s => RefreshMedicalRoomsResponse_Implementation, m_medicalRooms, new EndpointId(steamId));
-           
+
         }
 
         static void GetAvailableMedicalRooms(long playerId, List<MyMedicalRoomInfo> medicalRooms)
@@ -315,7 +346,7 @@ namespace SpaceEngineers.Game.GUI
                     if (medicalRoom != null)
                     {
                         medicalRoom.UpdateIsWorking();
-                        
+
                         if (medicalRoom.IsWorking)
                         {
                             if (medicalRoom.HasPlayerAccess(playerId) || medicalRoom.SetFactionToSpawnee)
@@ -326,21 +357,23 @@ namespace SpaceEngineers.Game.GUI
                                 info.OxygenLevel = medicalRoom.GetOxygenLevel();
                                 info.OwnerId = medicalRoom.IDModule.Owner;
 
-                                Vector3D medRoomPosition = (Vector3D)medicalRoom.PositionComp.GetPosition();
+                                Vector3D medRoomPosition = medicalRoom.PositionComp.GetPosition();
                                 Vector3D preferredCameraPosition = medRoomPosition + medicalRoom.WorldMatrix.Up * 20 + medicalRoom.WorldMatrix.Right * 20 + medicalRoom.WorldMatrix.Forward * 20;
                                 Vector3D? cameraPosition = MyEntities.FindFreePlace(preferredCameraPosition, 1);
-                              
+
                                 if (!cameraPosition.HasValue)
                                     cameraPosition = preferredCameraPosition;
 
                                 info.PrefferedCameraPosition = cameraPosition.Value;
-                                info.MedicalRoomPos = medRoomPosition;
+                                info.MedicalRoomPosition = medRoomPosition;
+                                info.MedicalRoomUp = medicalRoom.PositionComp.WorldMatrix.Up;
+                                info.MedicalRoomVelocity = medicalRoom.CubeGrid.Physics.LinearVelocity;
 
                                 medicalRooms.Add(info);
                             }
                         }
                     }
-                    
+
                 }
             }
         }
@@ -354,7 +387,7 @@ namespace SpaceEngineers.Game.GUI
         void RefreshMedicalRooms(List<MyMedicalRoomInfo> medicalRooms)
         {
             m_respawnsTable.Clear();
-           
+
             foreach (var medRoom in medicalRooms)
             {
                 var row = new MyGuiControlTable.Row(medRoom);
@@ -374,11 +407,16 @@ namespace SpaceEngineers.Game.GUI
                 m_respawnsTable.Add(row);
             }
 
-            if (!MySession.Static.Settings.DisableRespawnShips && !MySession.Static.Settings.Scenario)
+            if ((MySession.Static.Settings.EnableRespawnShips && !MySession.Static.Settings.Scenario))
             {
                 RefreshSpawnShips();
                 AddRespawnInSuit();
             }
+            else
+                if (MySession.Static.CreativeMode)
+                {
+                    AddRespawnInSuit();
+                }
 
             if (m_respawnsTable.RowsCount > 0)
             {
@@ -415,6 +453,24 @@ namespace SpaceEngineers.Game.GUI
                 RefreshRespawnPoints();//because medical rooms are not powered when the map starts
             }
 
+
+            if (m_labelNoRespawn.Text == null)
+                m_labelNoRespawn.Visible = false;
+            else
+                m_labelNoRespawn.Visible = true;
+
+            return retval;
+        }
+
+        public static void Close()
+        {
+            if (Static != null)
+                Static.CloseScreen();
+        }
+
+
+        public override bool HandleInputAfterSimulation()
+        {
             if (m_respawnsTable.SelectedRow != null && MySession.Static.GetCameraControllerEnum() != MyCameraControllerEnum.Entity)
             {
                 MyMedicalRoomInfo userData = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
@@ -433,47 +489,34 @@ namespace SpaceEngineers.Game.GUI
                         if (!cameraPosition.HasValue)
                             cameraPosition = preferredCameraPosition;
 
-                        MySpectatorCameraController.Static.Target = medRoomPosition;
                         MySpectatorCameraController.Static.Position = cameraPosition.Value;
+                        MySpectatorCameraController.Static.SetTarget(medRoomPosition, medicalRoom.WorldMatrix.Up);                        
                     }
                 }
-
             }
-                
 
-            if (m_labelNoRespawn.Text==null)
-                m_labelNoRespawn.Visible = false;
-            else
-                m_labelNoRespawn.Visible = true;
-
-            return retval;
+            return true;
         }
 
-        public static void Close()
-        {
-            if (Static != null)
-                Static.CloseScreen();
-        }
-
-        private int m_lastTimeSec=-1;
+        private int m_lastTimeSec = -1;
         public static void SetNoRespawnText(StringBuilder text, int timeSec)
         {
-            if (Static!=null)
+            if (Static != null)
                 Static.SetNoRespawnTexts(text, timeSec);
         }
         public void SetNoRespawnTexts(StringBuilder text, int timeSec)
         {
             NoRespawnText = text;
-            if (timeSec!=m_lastTimeSec)
+            if (timeSec != m_lastTimeSec)
             {
                 m_lastTimeSec = timeSec;
-                int minutes=timeSec/60;
-                m_noRespawnHeader.Clear().AppendFormat(MyTexts.GetString(MySpaceTexts.ScreenMedicals_NoRespawnPlaceHeader), minutes, timeSec-minutes*60);
+                int minutes = timeSec / 60;
+                m_noRespawnHeader.Clear().AppendFormat(MyTexts.GetString(MySpaceTexts.ScreenMedicals_NoRespawnPlaceHeader), minutes, timeSec - minutes * 60);
                 m_labelNoRespawn.Text = m_noRespawnHeader.ToString();
             }
         }
         #endregion
-     
+
         #region Event handling
 
         private void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
@@ -491,7 +534,7 @@ namespace SpaceEngineers.Game.GUI
                 var medicalRoom = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
 
                 MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator, null, medicalRoom.PrefferedCameraPosition);
-                MySpectatorCameraController.Static.Target = medicalRoom.MedicalRoomPos;
+                MySpectatorCameraController.Static.SetTarget(medicalRoom.MedicalRoomPosition, medicalRoom.MedicalRoomUp);
             }
             else
             {
@@ -512,10 +555,10 @@ namespace SpaceEngineers.Game.GUI
                 else
                 {
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                       canHideOthers : false,
+                                       canHideOthers: false,
                                        buttonType: MyMessageBoxButtonsType.OK,
                                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionNotReady),
-                                       messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextNotReady)));                                    
+                                       messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextNotReady)));
                 }
             }
         }
@@ -530,11 +573,11 @@ namespace SpaceEngineers.Game.GUI
             if (userData == null)
             {
                 CheckPermaDeathAndRespawn(null);
-            } 
+            }
             else if (userData is MyRespawnShipDefinition)
             {
                 var respawnShip = userData as MyRespawnShipDefinition;
-                if (MySpaceRespawnComponent.Static.GetRespawnCooldownSeconds(MySession.Static.LocalHumanPlayer.Id, respawnShip.Id.SubtypeName) != 0) 
+                if (MySpaceRespawnComponent.Static.GetRespawnCooldownSeconds(MySession.Static.LocalHumanPlayer.Id, respawnShip.Id.SubtypeName) != 0)
                     return;
 
                 CheckPermaDeathAndRespawn(respawnShip.Id.SubtypeName);
@@ -610,7 +653,7 @@ namespace SpaceEngineers.Game.GUI
             RefreshRespawnPoints();
         }
 
-        #endregion        
-  
+        #endregion
+
     }
 }

@@ -139,11 +139,11 @@ namespace Sandbox.Game.Gui
             m_texts.Add(StringBuilderCache.GetFormatedTimeSpan("Total Big Ship Time: ", MySession.Static == null ? new TimeSpan(0) : MySession.Static.TimeOnBigShip));
             m_texts.Add(StringBuilderCache.GetFormatedTimeSpan("Total Time: ", TimeSpan.FromMilliseconds(MySandboxGame.TotalTimeInMilliseconds)));
 
-            if (MySession.Static != null && MySession.Static.LocalCharacter != null)
+            /*if (MySession.Static != null && MySession.Static.LocalCharacter != null)
             {
                 var physGroup = MyExternalReplicable.FindByObject(MySession.Static.LocalCharacter).FindStateGroup<MyCharacterPhysicsStateGroup>();
                 m_texts.Add(StringBuilderCache.GetFormatedBool("Character has support: ", physGroup != null && physGroup.DebugSupport != null));
-            }
+            }*/
             
             m_texts.Add(StringBuilderCache.GetFormatedLong("GC.GetTotalMemory: ", GC.GetTotalMemory(false), " bytes"));
 

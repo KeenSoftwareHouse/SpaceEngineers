@@ -33,6 +33,16 @@ namespace Sandbox.Game.Screens.Terminal
             IsPreviewGrid = 5,
         }
 
+        private enum MyRefuseReason
+        {
+            NoRemoteControl,
+            NoMainRemoteControl,
+            NoStableConnection,
+            NoOwner,
+            NoProblem,
+            PlayerBroadcastOff
+        }
+
         struct UserData
         {
             public long GridEntityId;
@@ -112,7 +122,6 @@ namespace Sandbox.Game.Screens.Terminal
             m_columnToSort = 2;
 
             m_button.ButtonClicked += Menu_ButtonClicked;
-            m_shipsData.ItemDoubleClicked += shipsData_ItemDoubleClicked;
             m_shipsData.ColumnClicked += shipsData_ColumnClicked;
             m_shipsInRange.ItemSelected += shipsInRange_ItemSelected;
 
@@ -159,7 +168,7 @@ namespace Sandbox.Game.Screens.Terminal
             {
                 UserData data;
                 MyGuiControlTable.Row row;
-                MyGuiControlTable.Cell nameCell, distanceCell, statusCell;
+                MyGuiControlTable.Cell nameCell, controlCell, distanceCell, statusCell, accessCell;
 
                 data.GridEntityId = gridInfo.EntityId;
                 if (gridInfo.Status == MyCubeGridConnectionStatus.Connected || gridInfo.Status == MyCubeGridConnectionStatus.PhysicallyConnected || gridInfo.Status == MyCubeGridConnectionStatus.Me)
@@ -170,45 +179,197 @@ namespace Sandbox.Game.Screens.Terminal
 
                     data.IsSelectable = true;
                     nameCell = new MyGuiControlTable.Cell(new StringBuilder(gridInfo.Name), textColor: Color.White);
+                    controlCell = CreateControlCell(gridInfo,true);
                     distanceCell = new MyGuiControlTable.Cell(minDistance, userData: gridInfo.Distance, textColor: Color.White);
-                    switch (gridInfo.Status)
-                    {
-                        case MyCubeGridConnectionStatus.PhysicallyConnected:
-                            statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_PhysicallyConnected), userData: gridInfo.Status, textColor: Color.White);
-                            break;
-                        case MyCubeGridConnectionStatus.Me:
-                            statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_Me), userData: gridInfo.Status, textColor: Color.White);
-                            break;
-
-                        case MyCubeGridConnectionStatus.Connected:
-                        default:
-                            statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_Connected), userData: gridInfo.Status, textColor: Color.White);
-                            break;
-                    }
+                    statusCell = CreateStatusIcons(gridInfo, true);
+                    accessCell = CreateTerminalCell(gridInfo, true);
                 }
 
                 else
                 {
                     data.IsSelectable = false;
                     nameCell = new MyGuiControlTable.Cell(new StringBuilder(gridInfo.Name), textColor: Color.Gray);
-                    distanceCell = new MyGuiControlTable.Cell(new StringBuilder(""), userData: float.MaxValue, textColor: Color.Gray);
-                    if (gridInfo.Status == MyCubeGridConnectionStatus.OutOfReceivingRange)
-                        statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_OutOfReceivingRange), userData: gridInfo.Status, textColor: Color.Gray);
-                    else if (gridInfo.Status == MyCubeGridConnectionStatus.OutOfBroadcastingRange)
-                        statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_OutOfBroadcastingRange), userData: gridInfo.Status, textColor: Color.Gray);
-                    else
-                        statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_IsPreviewGrid), userData: gridInfo.Status, textColor: Color.Gray);
+                    controlCell = CreateControlCell(gridInfo, false);
+                    distanceCell = new MyGuiControlTable.Cell(new StringBuilder("Not Available"), userData: float.MaxValue, textColor: Color.Gray);
+                    statusCell = CreateStatusIcons(gridInfo, true);
+                    accessCell = CreateTerminalCell(gridInfo, false);
                 }
 
                 row = new MyGuiControlTable.Row(data);
                 row.AddCell(nameCell);
+                row.AddCell(controlCell);
                 row.AddCell(distanceCell);
                 row.AddCell(statusCell);
+                row.AddCell(accessCell);
                 m_shipsData.Add(row);
                 m_shipsData.SortByColumn(m_columnToSort, MyGuiControlTable.SortStateEnum.Ascending, false);
             }
             m_shipsData.ScrollBar.ChangeValue(scrollBarValue);
         }
+
+        private MyGuiControlTable.Cell CreateControlCell(CubeGridInfo gridInfo, bool isActive)
+        {
+            MyGuiControlTable.Cell cell = new MyGuiControlTable.Cell();
+            Vector2 size = new Vector2(0.11f, m_shipsData.RowHeight * 0.9f);
+
+            MyStringId tooltip = MySpaceTexts.BroadcastScreen_TakeControlButton_ToolTip;
+            MyRefuseReason reason = CanTakeRemoteControl(gridInfo);
+            switch (reason)
+            {
+                case MyRefuseReason.NoRemoteControl:
+                case MyRefuseReason.NoMainRemoteControl:
+                case MyRefuseReason.NoOwner:
+                    isActive = false;
+                    break;
+            }
+
+            cell.Control = new MyGuiControlButton(
+                text: MyTexts.Get(MySpaceTexts.BroadcastScreen_TakeControlButton),
+                visualStyle: VRage.Game.MyGuiControlButtonStyleEnum.Rectangular,
+                size: size,
+                textScale: 0.9f,
+                onButtonClick: OnButtonClicked_TakeControl
+                );
+            cell.Control.SetToolTip(tooltip);
+            cell.Control.Enabled = isActive;
+            m_shipsData.Controls.Add(cell.Control);
+            return cell;
+        }
+
+        private MyGuiControlTable.Cell CreateTerminalCell(CubeGridInfo gridInfo, bool isActive)
+        {
+            MyGuiControlTable.Cell cell = new MyGuiControlTable.Cell();
+            
+            Vector2 size = new Vector2(0.1f, m_shipsData.RowHeight * 0.9f);
+
+            MyStringId tooltip = MySpaceTexts.BroadcastScreen_TerminalButton_ToolTip;
+            MyRefuseReason reason = CanTakeTerminal(gridInfo);
+            switch (reason)
+            {
+                case MyRefuseReason.NoStableConnection:
+                case MyRefuseReason.PlayerBroadcastOff:
+                case MyRefuseReason.NoOwner:
+                    isActive = false;
+                    break;
+            }
+
+            cell.Control = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Terminal),
+                visualStyle: VRage.Game.MyGuiControlButtonStyleEnum.Rectangular,
+                size: size,
+                textScale: 0.9f,
+                onButtonClick: OnButtonClicked_OpenTerminal
+                );
+            cell.Control.SetToolTip(tooltip);
+            cell.Control.Enabled = isActive;
+            m_shipsData.Controls.Add(cell.Control);
+            return cell;
+        }
+
+        private MyGuiControlTable.Cell CreateStatusIcons(CubeGridInfo gridInfo, bool isActive)
+        {
+            MyGuiControlTable.Cell cell = new MyGuiControlTable.Cell();
+            float iconSize = m_shipsData.RowHeight * 0.7f;
+
+            bool antIsActive, keyIsActive, remIsActive;
+            antIsActive = keyIsActive = remIsActive = isActive;
+            MyStringId antTooltip,remTooltip;
+            antTooltip = remTooltip = MyStringId.NullOrEmpty;
+            StringBuilder keyTooltip = new StringBuilder();
+
+            MyGuiControlParent gr = new MyGuiControlParent();
+
+            MyRefuseReason reasonT = CanTakeTerminal(gridInfo);
+            MyRefuseReason reasonRC = CanTakeRemoteControl(gridInfo);
+
+            //Antenna icon
+            switch (reasonT)
+            {
+                case MyRefuseReason.PlayerBroadcastOff:
+                    antIsActive = false;
+                    antTooltip = MySpaceTexts.BroadcastScreen_TerminalButton_PlayerBroadcastOffToolTip;
+                    break;
+                case MyRefuseReason.NoStableConnection:
+                    antIsActive = false;
+                    antTooltip = MySpaceTexts.BroadcastScreen_TerminalButton_NoStableConnectionToolTip;
+                    break;
+                case MyRefuseReason.NoOwner:
+                case MyRefuseReason.NoProblem:
+                    antTooltip = MySpaceTexts.BroadcastScreen_TerminalButton_StableConnectionToolTip;
+                    break;
+            }
+            MyGuiControlImage antenna = new MyGuiControlImage(
+                position: new Vector2(-2*iconSize,0),
+                size: new Vector2(iconSize, iconSize),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
+                backgroundTexture: (antIsActive ? MyGuiConstants.BS_ANTENNA_ON : MyGuiConstants.BS_ANTENNA_OFF)
+                );
+            antenna.SetToolTip(antTooltip);
+            gr.Controls.Add(antenna);
+            
+            //Remote Control icon
+            switch (reasonRC)
+            {
+                case MyRefuseReason.NoRemoteControl:
+                    remTooltip = MySpaceTexts.BroadcastScreen_TakeControlButton_NoRemoteToolTip;
+                    remIsActive = false;
+                    break;
+                case MyRefuseReason.NoMainRemoteControl:
+                    remTooltip = MySpaceTexts.BroadcastScreen_TakeControlButton_NoMainRemoteControl;
+                    remIsActive = false;
+                    break;
+                case MyRefuseReason.NoOwner:
+                case MyRefuseReason.NoProblem:
+                    remTooltip = MySpaceTexts.BroadcastScreen_TakeControlButton_RemoteToolTip;
+                    break;
+            }
+            MyGuiControlImage remote = new MyGuiControlImage(
+                position: new Vector2(-1 * iconSize, 0),
+                size: new Vector2( iconSize, iconSize),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
+                backgroundTexture: (remIsActive ? MyGuiConstants.BS_REMOTE_ON : MyGuiConstants.BS_REMOTE_OFF)
+                );
+            remote.SetToolTip(remTooltip);
+            gr.Controls.Add(remote);
+
+            //Key icon
+            if ((reasonT == MyRefuseReason.NoStableConnection||reasonT == MyRefuseReason.PlayerBroadcastOff ) && reasonRC == MyRefuseReason.NoRemoteControl)
+            {
+                keyTooltip.Append(MyTexts.Get(MySpaceTexts.BroadcastScreen_UnavailableControlButton));
+                keyIsActive = false;
+            }
+            if (keyIsActive && (reasonT == MyRefuseReason.NoOwner || reasonRC == MyRefuseReason.NoOwner || reasonT == MyRefuseReason.NoStableConnection || reasonT == MyRefuseReason.PlayerBroadcastOff))
+            {
+                keyIsActive = false;
+                keyTooltip.Append(MyTexts.Get(MySpaceTexts.BroadcastScreen_NoOwnership));
+            }
+            if (reasonT == MyRefuseReason.NoOwner)
+            {
+                keyTooltip.AppendLine();
+                keyTooltip.Append(MyTexts.Get(MySpaceTexts.DisplayName_Block_Antenna));
+            }
+            if (reasonRC == MyRefuseReason.NoOwner)
+            {
+                keyTooltip.AppendLine();
+                keyTooltip.Append(MyTexts.Get(MySpaceTexts.DisplayName_Block_RemoteControl));
+            }
+            if (keyIsActive)
+            {
+                keyTooltip.Append(MyTexts.Get(MySpaceTexts.BroadcastScreen_Ownership));
+            }
+            MyGuiControlImage key = new MyGuiControlImage(
+                size: new Vector2(iconSize, iconSize),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
+                backgroundTexture: (keyIsActive ? MyGuiConstants.BS_KEY_ON : MyGuiConstants.BS_KEY_OFF)
+                );
+            key.SetToolTip(keyTooltip.ToString());
+            gr.Controls.Add(key);
+
+
+            cell.Control = gr;
+            m_shipsData.Controls.Add(gr);
+            return cell;
+        }
+
         #endregion
 
         #region radio getters
@@ -227,18 +388,7 @@ namespace Sandbox.Game.Screens.Terminal
             HashSet<CubeGridInfo> output = new HashSet<CubeGridInfo>();
             HashSet<long> AddedItems = new HashSet<long>();
 
-            //First, you always add yourself
-            AddedItems.Add(m_openInventoryInteractedEntityRepresentative.EntityId);
-            output.Add(new CubeGridInfo()
-            {
-                EntityId = m_openInventoryInteractedEntityRepresentative.EntityId,
-                Distance = 0,
-                AppendedDistance = new StringBuilder("0"),
-                Name = m_openInventoryInteractedEntityRepresentative.DisplayName,
-                Status = m_openInventoryInteractedEntityRepresentative == MySession.Static.LocalCharacter ? MyCubeGridConnectionStatus.Me : MyCubeGridConnectionStatus.PhysicallyConnected
-            });
-
-            //then you add your owned grids
+            //add your owned grids
             foreach (var gridId in MySession.Static.LocalHumanPlayer.Grids)
             {
                 MyCubeGrid grid;
@@ -364,13 +514,125 @@ namespace Sandbox.Game.Screens.Terminal
             return float.MaxValue;
         }
 
+        private MyRefuseReason CanTakeRemoteControl(CubeGridInfo gridInfo)
+        {
+            MyEntity openTerminalEntity;
+            MyEntities.TryGetEntityById(gridInfo.EntityId, out openTerminalEntity);
+            if (openTerminalEntity != null && openTerminalEntity is MyCubeGrid)
+            {
+                var grid = openTerminalEntity as MyCubeGrid;
+
+                int remoteControlCount = grid.GetFatBlockCount<MyRemoteControl>();
+                if(remoteControlCount==0)
+                    return MyRefuseReason.NoRemoteControl;
+                if(remoteControlCount > 1 && !grid.HasMainRemoteControl())
+                    return MyRefuseReason.NoMainRemoteControl;
+
+                if (grid.HasMainRemoteControl()){
+                    if (grid.MainRemoteControl.OwnerId != MySession.Static.LocalHumanPlayer.Identity.IdentityId ||
+                        (MySession.Static.Factions.GetPlayerFaction(grid.MainRemoteControl.OwnerId) != null &&
+                        !MySession.Static.Factions.GetPlayerFaction(grid.MainRemoteControl.OwnerId).IsMember(MySession.Static.LocalHumanPlayer.Identity.IdentityId)))
+                        return MyRefuseReason.NoOwner;
+                }
+                if (remoteControlCount == 1)
+                {
+                    var fbs = grid.GetFatBlocks<MyRemoteControl>();
+                    fbs.MoveNext();
+                    if (fbs.Current.OwnerId != MySession.Static.LocalHumanPlayer.Identity.IdentityId || 
+                        (MySession.Static.Factions.GetPlayerFaction(fbs.Current.OwnerId)!=null &&
+                        !MySession.Static.Factions.GetPlayerFaction(fbs.Current.OwnerId).IsMember(MySession.Static.LocalHumanPlayer.Identity.IdentityId)))
+                        return MyRefuseReason.NoOwner;
+                }
+                
+            }
+            return MyRefuseReason.NoProblem;
+        }
+
+        private MyRefuseReason CanTakeTerminal(CubeGridInfo gridInfo)
+        {
+             MyEntity openTerminalEntity;
+            MyEntities.TryGetEntityById(gridInfo.EntityId, out openTerminalEntity);
+            if (openTerminalEntity != null && openTerminalEntity is MyCubeGrid)
+            {
+                var grid = openTerminalEntity as MyCubeGrid;
+
+                m_tempSendingToGrid.Clear();
+                m_tempReceivingFromGrid.Clear();
+                GridBroadcastersFromPlayer(grid, m_tempSendingToGrid);
+                PlayerBroadcastersFromGrid(grid, m_tempReceivingFromGrid);
+
+                if (m_tempReceivingFromGrid.Count > 0 && m_tempSendingToGrid.Count > 0)
+                {
+                    bool ownership = false;
+                    foreach (var item in m_tempReceivingFromGrid)
+                    {
+                        var cubeBlock = item.Entity as MyCubeBlock;
+                        if (cubeBlock == null)
+                            continue;
+
+                        if (cubeBlock.OwnerId == MySession.Static.LocalHumanPlayer.Identity.IdentityId)
+                            ownership = true;
+                        var blockFaction = MySession.Static.Factions.GetPlayerFaction(cubeBlock.OwnerId);
+                        if (blockFaction != null && blockFaction.IsMember(MySession.Static.LocalHumanPlayer.Identity.IdentityId))
+                            ownership = true;
+                    }
+                    foreach (var item in m_tempSendingToGrid)
+                    {
+                        var cubeBlock = item.Entity as MyCubeBlock;
+                        if (cubeBlock == null)
+                            continue;
+
+                        if (cubeBlock.OwnerId == MySession.Static.LocalHumanPlayer.Identity.IdentityId)
+                            ownership = true;
+                        var blockFaction = MySession.Static.Factions.GetPlayerFaction(cubeBlock.OwnerId);
+                        if (blockFaction != null && blockFaction.IsMember(MySession.Static.LocalHumanPlayer.Identity.IdentityId))
+                            ownership = true;
+                    }
+                    if (!ownership)
+                        return MyRefuseReason.NoOwner;
+                }
+
+                if (gridInfo.Status == MyCubeGridConnectionStatus.OutOfReceivingRange && !MySession.Static.LocalCharacter.RadioBroadcaster.Enabled && (MySession.Static.ControlledEntity.Entity is MyCharacter))
+                {
+                    return MyRefuseReason.PlayerBroadcastOff;
+                }
+
+                if (gridInfo.Status == MyCubeGridConnectionStatus.OutOfBroadcastingRange || gridInfo.Status == MyCubeGridConnectionStatus.OutOfReceivingRange)
+                {
+                    return MyRefuseReason.NoStableConnection;
+                }
+            }
+
+            return MyRefuseReason.NoProblem;
+        }
+
         #endregion
 
         #region eventhandlers
+
+        private void OnButtonClicked_TakeControl(MyGuiControlButton obj)
+        {
+            //if for some reason player has taken mouse off the table before the event
+            if (m_shipsData.SelectedRow == null)
+                return;
+
+            var userData = (UserData)m_shipsData.SelectedRow.UserData;
+            if (userData.IsSelectable)
+                FindRemoteControlAndTakeControl(userData.GridEntityId);
+        }
+
         private void Menu_ButtonClicked(MyGuiControlButton button)
         {
             if (ButtonClicked != null)
                 ButtonClicked();
+        }
+
+        private void OnButtonClicked_OpenTerminal(MyGuiControlButton obj)
+        {
+            MyGuiControlTable.EventArgs args;
+            args.MouseButton = 0;
+            args.RowIndex = -1;
+            shipsData_ItemDoubleClicked(null, args);
         }
 
         private void shipsData_ItemDoubleClicked(MyGuiControlTable sender, MyGuiControlTable.EventArgs args)
@@ -439,6 +701,38 @@ namespace Sandbox.Game.Screens.Terminal
             return false;
         }
 
+        private void FindRemoteControlAndTakeControl(long entityId)
+        {
+            MyEntity openTerminalEntity;
+            MyEntities.TryGetEntityById(entityId, out openTerminalEntity);
+
+            if (openTerminalEntity != null && openTerminalEntity is MyCubeGrid)
+            {
+                var grid = openTerminalEntity as MyCubeGrid;
+
+                m_tempSendingToGrid.Clear();
+                m_tempReceivingFromGrid.Clear();
+                GridBroadcastersFromPlayer(grid, m_tempSendingToGrid);
+                PlayerBroadcastersFromGrid(grid, m_tempReceivingFromGrid);
+
+                if ((m_tempSendingToGrid.Count > 0 && m_tempReceivingFromGrid.Count > 0) || m_openInventoryInteractedEntityRepresentative == grid)
+                {
+                    //TODO: Find main remote control and take control, dont forget to close terminal and if possible switch to attached camera
+                    if (grid.HasMainRemoteControl())
+                    {
+                        ((MyRemoteControl)grid.MainRemoteControl).RequestControl();
+                    }
+                    else if (grid.GetFatBlockCount<MyRemoteControl>() == 1)
+                    {
+                        var fbs = grid.GetFatBlocks<MyRemoteControl>();
+                        fbs.MoveNext();
+                        fbs.Current.RequestControl();
+                    }
+
+                }
+            }
+        }
+
         #endregion
 
         #region public
@@ -468,7 +762,7 @@ namespace Sandbox.Game.Screens.Terminal
 
             if (m_shipsData != null)
             {
-                m_shipsData.ItemDoubleClicked -= shipsData_ItemDoubleClicked;
+                //m_shipsData.ItemDoubleClicked -= shipsData_ItemDoubleClicked;
                 m_shipsData.ColumnClicked -= shipsData_ColumnClicked;
                 m_shipsData.Clear();
                 m_shipsData = null;

@@ -20,7 +20,7 @@ namespace Sandbox.Game.Entities
         static MyShapeCapsule m_capsuleShape = new MyShapeCapsule();
         static MyShapeSphere m_sphereShape = new MyShapeSphere();
         static MyShapeRamp m_rampShape = new MyShapeRamp();
-
+        static readonly List<MyVoxelBase> m_voxelsTmpStorage = new List<MyVoxelBase>(); 
 
         void IMyVoxelMaps.Clear()
         {
@@ -34,7 +34,11 @@ namespace Sandbox.Game.Entities
 
         IMyVoxelBase IMyVoxelMaps.GetOverlappingWithSphere(ref BoundingSphereD sphere)
         {
-            return GetAllOverlappingWithSphere(ref sphere).FirstOrDefault();
+            m_voxelsTmpStorage.Clear();
+            GetAllOverlappingWithSphere(ref sphere, m_voxelsTmpStorage);
+            if(m_voxelsTmpStorage.Count == 0) return null;
+
+            return m_voxelsTmpStorage[0];
         }
 
         IMyVoxelBase IMyVoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref VRageMath.BoundingBoxD boundingBox, IMyVoxelBase ignoreVoxelMap)

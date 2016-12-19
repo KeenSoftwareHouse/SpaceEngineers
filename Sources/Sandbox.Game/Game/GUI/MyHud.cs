@@ -1,11 +1,11 @@
 ﻿#region Using
 
-using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
 using System.Diagnostics;
+using VRage.Game;
 using VRage.Game.Components;
-
+using VRage.Game.SessionComponents;
 
 #endregion
 
@@ -39,6 +39,7 @@ namespace Sandbox.Game.Gui
         public static MyHudChangedInventoryItems ChangedInventoryItems = new MyHudChangedInventoryItems();
         public static MyHudQuestlog Questlog = new MyHudQuestlog();
         public static MyHudText BlocksLeft = new MyHudText();
+        public static MyHudScreenEffects ScreenEffects = new MyHudScreenEffects();
 
         private static int m_rotatingWheelVisibleCounter;
         public static bool RotatingWheelVisible
@@ -65,6 +66,8 @@ namespace Sandbox.Game.Gui
                 }
             }
         }
+
+        public static bool CutsceneHud = false;
 
         static bool m_netgraph = false;
         public static bool IsNetgraphVisible
@@ -107,6 +110,16 @@ namespace Sandbox.Game.Gui
             m_minimalHud = MySandboxGame.Config.MinimalHud;
         }
 
+        public override void BeforeStart()
+        {
+            Questlog.Init();
+        }
+
+        public override void SaveData()
+        {
+            Questlog.Save();
+        }
+
         protected override void UnloadData()
         {
             base.UnloadData();
@@ -117,6 +130,7 @@ namespace Sandbox.Game.Gui
             HackingMarkers.Clear();
             ObjectiveLine.Clear();
             ChangedInventoryItems.Clear();
+            Chat.MessagesQueue.Clear();
             if (MyFakes.ENABLE_NETGRAPH)
             {
                 Netgraph.ClearNetgraph();
@@ -128,6 +142,7 @@ namespace Sandbox.Game.Gui
             Notifications.UpdateBeforeSimulation();
             Chat.Update();
             WorldBorderChecker.Update();
+            ScreenEffects.Update();
             base.UpdateBeforeSimulation();
         }
 

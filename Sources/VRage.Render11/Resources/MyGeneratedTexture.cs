@@ -24,7 +24,6 @@ namespace VRage.Render11.Resources
     {
         void Reset(byte[] data = null);
         MyGeneratedTextureType Type { get; }
-        int NumMipLevels { get; }
     }
 
     namespace Internal
@@ -79,7 +78,7 @@ namespace VRage.Render11.Resources
                 get { return m_desc.Format.ToGeneratedTextureType(); }
             }
 
-            public int NumMipLevels
+            public int MipmapCount
             {
                 get { return m_desc.MipLevels; }
             }
@@ -247,6 +246,11 @@ namespace VRage.Render11.Resources
             {
                 get { return new Vector3I(m_size.X, m_size.Y, 1); }
             }
+
+            public int MipmapCount
+            {
+                get { return m_desc.MipLevels; }
+            }
         }
 
         internal class MyUserGeneratedTexture : MyGeneratedTexture, IUserGeneratedTexture
@@ -294,6 +298,11 @@ namespace VRage.Render11.Resources
             public Vector3I Size3
             {
                 get { return GetTexture().Size3; }
+            }
+
+            public int MipmapCount
+            {
+                get { return GetTexture().MipmapCount; }
             }
 
             public Format Format { get { return GetTexture().Format; } }
@@ -353,6 +362,7 @@ namespace VRage.Render11.Resources
             }
         };
 
+        MyTextureStatistics m_statistics = new MyTextureStatistics();
         MyObjectsPool<MyUserGeneratedTexture> m_objectsPoolGenerated = new MyObjectsPool<MyUserGeneratedTexture>(16);
         MyObjectsPool<MyGeneratedTextureFromPattern> m_objectsPoolGeneratedFromPattern = new MyObjectsPool<MyGeneratedTextureFromPattern>(16);
 
@@ -374,6 +384,7 @@ namespace VRage.Render11.Resources
                 default:
                     throw new Exception();
             }
+            m_statistics.Add(texture);
             return texture;
         }
 
@@ -382,6 +393,7 @@ namespace VRage.Render11.Resources
             MyGeneratedTextureFromPattern generated;
             m_objectsPoolGeneratedFromPattern.AllocateOrCreate(out generated);
             generated.Init(name, new Vector2I(width, height), format, pattern);
+            m_statistics.Add(generated);
             return generated;
         }
 
@@ -487,7 +499,7 @@ namespace VRage.Render11.Resources
             {
                 fixed (byte* dptr = data)
                 {
-                    int numMiplevels = tex.NumMipLevels;
+                    int numMiplevels = tex.MipmapCount;
                     DataBox[] dataBox = new DataBox[numMiplevels];
 
                     int width = tex.Size.X;
@@ -691,6 +703,7 @@ namespace VRage.Render11.Resources
                 MyUserGeneratedTexture texture = (MyUserGeneratedTexture) tex;
                 texture.Dispose();
                 m_objectsPoolGenerated.Deallocate(texture);
+                m_statistics.Remove(texture);
                 tex = null;
             }
             else if (tex is MyGeneratedTextureFromPattern)
@@ -698,6 +711,7 @@ namespace VRage.Render11.Resources
                 MyGeneratedTextureFromPattern texture = (MyGeneratedTextureFromPattern)tex;
                 texture.Dispose();
                 m_objectsPoolGeneratedFromPattern.Deallocate(texture);
+                m_statistics.Remove(texture);
                 tex = null;
             }
             else
@@ -726,6 +740,11 @@ namespace VRage.Render11.Resources
         {
             foreach (var tex in m_objectsPoolGenerated.Active)
                 tex.Dispose();
+        }
+
+        public MyTextureStatistics Statistics
+        {
+            get { return m_statistics; }
         }
     }
 }

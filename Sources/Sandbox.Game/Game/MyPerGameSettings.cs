@@ -1,21 +1,13 @@
-﻿using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.Engine.Networking;
+﻿using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Entities.Interfaces;
 using System;
 using System.Diagnostics;
 using VRage.Game.Components;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Weapons;
-using VRage.Data;
 using VRage.Data.Audio;
 using VRage.Utils;
 using VRageMath;
-using Sandbox.Common;
 using VRage.Game;
 
 namespace Sandbox.Game
@@ -58,14 +50,10 @@ namespace Sandbox.Game
         public Type OptionsScreen;
         public Type CustomWorldScreen;
         public Type ScenarioScreen;
-        public Type TutorialScreen;
         public Type EditWorldSettingsScreen;
         public Type HelpScreen;
         public Type VoxelMapEditingScreen;
         public Type GameplayOptionsScreen;
-        public Type BattleScreen;
-        public Type BattleBlueprintScreen;
-        public Type BattleLobbyClientScreen;
         public Type ScenarioLobbyClientScreen;
         public Type InventoryScreen;
         public Type AdminMenuScreen;
@@ -129,8 +117,9 @@ namespace Sandbox.Game
         public static string GameNameSafe { get { return BasicGameInfo.GameNameSafe; } }
         public static string GameWebUrl = "www.SpaceEngineersGame.com";
         public static string LocalizationWebUrl = "http://www.spaceengineersgame.com/localization.html";
-        public static string ChangeLogUrl = "http://mirror.keenswh.com/SpaceEngineersChangelog.xml";
-        public static string ChangeLogUrlDevelop = "http://mirror.keenswh.com/SpaceEngineersChangelogDevelop.xml";
+        public static string ChangeLogUrl = "http://mirror.keenswh.com/news/SpaceEngineersChangelog.xml";
+        public static string ChangeLogUrlDevelop = "http://mirror.keenswh.com/news/SpaceEngineersChangelogDevelop.xml";
+        public static string EShopUrl = "https://shop.keenswh.com/";
         public static string MinimumRequirementsPage { get { return BasicGameInfo.MinimumRequirementsWeb; } }
         public static bool RequiresDX11 = false;
         public static string GameIcon;
@@ -235,9 +224,6 @@ namespace Sandbox.Game
 
         private static bool m_useAnimationInsteadOfIK = false;
 
-        public static bool MultiplayerEnabled = true;
-        public static Type ClientStateType = typeof(MyClientState);
-
         public static bool WorkshopUseUGCEnumerate = true;
         public static string SteamGameServerGameDir = "Space Engineers";
         public static string SteamGameServerProductName = "Space Engineers";
@@ -260,7 +246,6 @@ namespace Sandbox.Game
             ToolbarControl = typeof(Sandbox.Game.Screens.Helpers.MyGuiControlToolbar),
             CustomWorldScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             ScenarioScreen = typeof(Sandbox.Game.Gui.MyGuiScreenScenario),
-            TutorialScreen = typeof(Sandbox.Game.Gui.MyGuiScreenTutorial),
             EditWorldSettingsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             HelpScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHelpSpace),
             VoxelMapEditingScreen = typeof(Sandbox.Game.Gui.MyGuiScreenDebugSpawnMenu),
@@ -286,11 +271,6 @@ namespace Sandbox.Game
 
         public static bool EnableObjectExport = true;
 
-        public static RigidBodyFlag LargeGridRBFlag =  MyFakes.ENABLE_DOUBLED_KINEMATIC ? RigidBodyFlag.RBF_DOUBLED_KINEMATIC : RigidBodyFlag.RBF_DEFAULT;
-        public static RigidBodyFlag GridRBFlagOnClients = RigidBodyFlag.RBF_DEFAULT;
-        public static RigidBodyFlag NetworkCharacterType = RigidBodyFlag.RBF_KINEMATIC;
-        public static float NetworkCharacterScale = 1.0f;
-        public static int NetworkCharacterCollisionLayer = MyPhysics.CollisionLayers.CharacterNetworkCollisionLayer;
         public static bool TryConvertGridToDynamicAfterSplit = false;
         public static bool AnimateOnlyVisibleCharacters = false;
 
@@ -325,14 +305,10 @@ namespace Sandbox.Game
         public static string BugReportUrl = "http://forum.keenswh.com/forums/bug-reports.326950";
 
         public static bool EnableScenarios = false;
-        public static bool EnableTutorials = false;
 
         public static bool EnableRagdollModels = true;
 
         public static bool ShowObfuscationStatus = true;
-
-        public static bool EnableKinematicMPCharacter = false;
-        public static bool EnablePerFrameCharacterSync = false;
 
         public static bool EnableRagdollInJetpack = false;
 
@@ -370,5 +346,25 @@ namespace Sandbox.Game
 
         // Factions
         public static MyRelationsBetweenFactions DefaultFactionRelationship = MyRelationsBetweenFactions.Enemies;
+
+        /// <summary>
+        /// MULTIPLAYER RELATED SETTINGS
+        /// </summary>
+        public static bool MultiplayerEnabled = true;
+        public static Type ClientStateType = typeof(MyClientState);
+
+        public static RigidBodyFlag NetworkCharacterType = RigidBodyFlag.RBF_KINEMATIC;
+        public static bool EnableKinematicMPCharacter = !MyFakes.MULTIPLAYER_CLIENT_PHYSICS;
+        public static RigidBodyFlag GridRBFlagOnClients = MyFakes.MULTIPLAYER_CLIENT_PHYSICS ? RigidBodyFlag.RBF_DEFAULT : RigidBodyFlag.RBF_KINEMATIC;
+
+        // MP: CLEANUP!!
+        public static bool EnablePerFrameCharacterSync = false;
+        public static float NetworkCharacterScale = 1.0f;
+        public static int NetworkCharacterCollisionLayer = MyPhysics.CollisionLayers.CharacterNetworkCollisionLayer;
+
+        /// <summary>
+        /// CLIENT ANIMATING / SIMULATING
+        /// </summary>
+        public static RigidBodyFlag LargeGridRBFlag = MyFakes.ENABLE_DOUBLED_KINEMATIC ? RigidBodyFlag.RBF_DOUBLED_KINEMATIC : RigidBodyFlag.RBF_DEFAULT;
     }
 }

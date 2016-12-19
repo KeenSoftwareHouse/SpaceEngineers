@@ -1,22 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using SharpDX;
 using SharpDX.DXGI;
 using VRage;
 using VRage.Profiler;
 using VRage.Render11.Common;
+using VRage.Render11.GeometryStage2.Common;
+using VRage.Render11.GeometryStage2.Instancing;
+using VRage.Render11.GeometryStage2.Model;
+using VRage.Render11.GeometryStage2.Rendering;
 using VRage.Render11.Profiler;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
 using VRage.Render11.Tools;
 using VRage.Utils;
 using VRageMath;
+using Color = VRageMath.Color;
+using Matrix = VRageMath.Matrix;
+using Vector3 = VRageMath.Vector3;
+using Vector4 = VRageMath.Vector4;
+using PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology;
 
 namespace VRageRender
 {
     struct MyHighlightDesc
     {
-        internal int SectionIndex;
+        internal string SectionName;
         internal Color Color;
         internal float Thickness;
         internal ulong PulseTimeInFrames;
@@ -35,54 +45,49 @@ namespace VRageRender
 
         /// <param name="sectionIndex">-1 for all the mesh</param>
         /// <param name="thickness">Zero or negative remove the outline</param>
-        internal static void HandleHighlight(uint ID, int sectionIndex, Color? outlineColor, float thickness, ulong pulseTimeInFrames)
+        internal static void HandleHighlight(uint ID, string sectionName, Color? outlineColor, float thickness, ulong pulseTimeInFrames)
         {
             if (thickness > 0)
-                Add(ID, sectionIndex, outlineColor.Value, thickness, pulseTimeInFrames);
+                Add(ID, sectionName, outlineColor.Value, thickness, pulseTimeInFrames);
             else
-                Remove(ID);
+                m_highlights.Remove(ID);
         }
 
         /// <param name="sectionIndices">null for all the mesh</param>
         /// <param name="thickness">Zero or negative remove the outline</param>
-        internal static void HandleHighlight(uint ID, int[] sectionIndices, Color? outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId)
+        internal static void HandleHighlight(uint ID, string[] sectionNames, Color? outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId)
         {
             if (thickness > 0)
             {
-                if (sectionIndices == null)
+                if (sectionNames == null)
                 {
-                    Add(ID, -1, outlineColor.Value, thickness, pulseTimeInFrames, instanceId);
+                    Add(ID, null, outlineColor.Value, thickness, pulseTimeInFrames, instanceId);
                 }
                 else
                 {
-                    foreach (int index in sectionIndices)
-                        Add(ID, index, outlineColor.Value, thickness, pulseTimeInFrames, instanceId);
+                    foreach (string sectionName in sectionNames)
+                        Add(ID, sectionName, outlineColor.Value, thickness, pulseTimeInFrames, instanceId);
                 }
             }
             else
             {
-                Remove(ID);
+                m_highlights.Remove(ID);
             }
         }
 
-        private static void Add(uint ID, int sectionIndex, Color outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId = -1)
+        static void Add(uint ID, string sectionName, Color outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId = -1)
         {
             if (!m_highlights.ContainsKey(ID))
                 m_highlights[ID] = new List<MyHighlightDesc>();
 
             m_highlights[ID].Add(new MyHighlightDesc
             {
-                SectionIndex = sectionIndex,
+                SectionName = sectionName,
                 Color = outlineColor,
                 Thickness = thickness,
                 PulseTimeInFrames = pulseTimeInFrames,
                 InstanceId = instanceId
             });
-        }
-
-        private static void Remove(uint ID)
-        {
-            m_highlights.Remove(ID);
         }
 
         internal static void Run(IRtvBindable target, ICustomTexture fxaaTarget, IDepthStencil depthStencilCopy)
@@ -117,47 +122,26 @@ namespace VRageRender
 
             foreach (var pair in m_highlights)
             {
+                foreach (MyHighlightDesc descriptor in pair.Value)
+                    maxThickness = Math.Max(maxThickness, descriptor.Thickness);
+
                 MyActor actor = MyIDTracker<MyActor>.FindByID(pair.Key);
-                MyRenderableComponent renderableComponent;
-                if (actor == null || (renderableComponent = actor.GetRenderable()) == null)
+                if (actor == null)
+                {
+                    MyRenderProxy.Fail("The actor cannot be found for highlight. This bug is outside of the renderer.");
+                    continue;
+                }
+                MyRenderableComponent renderableComponent = actor.GetRenderable();
+                MyInstanceComponent instanceComponent = actor.GetInstance();
+                if (renderableComponent != null)
+                    DrawRenderableComponent(actor, renderableComponent, pair.Value);
+                else if (instanceComponent != null)
+                    DrawInstanceComponent(instanceComponent, pair.Value);
+                else
                 {
                     // If an actor has been removed without removing outlines, just remove the outlines too
                     m_keysToRemove.Add(pair.Key);
-                    continue;
-                }
-
-                var renderLod = renderableComponent.Lods[renderableComponent.CurrentLod];
-                var model = renderableComponent.GetModel();
-
-                LodMeshId currentModelId;
-                if (!MyMeshes.TryGetLodMesh(model, renderableComponent.CurrentLod, out currentModelId))
-                {
-                    Debug.Fail("Mesh for outlining not found!");
-                    continue;
-                }
-
-                foreach (MyHighlightDesc descriptor in pair.Value)
-                {
-
-                    if (!renderableComponent.IsRenderedStandAlone)
-                    {
-                        MyGroupLeafComponent leafComponent = actor.GetGroupLeaf();
-                        MyGroupRootComponent groupComponent = leafComponent.RootGroup;
-                        if (groupComponent != null)
-                            RecordMeshPartCommands(model, actor, groupComponent, groupComponent.m_proxy, descriptor, ref maxThickness);
-
-                        continue;
-
-                    }
-
-                    if (descriptor.SectionIndex == -1)
-                    {
-                        RecordMeshPartCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref maxThickness);
-                    }
-                    else
-                    {
-                        RecordMeshSectionCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref maxThickness);
-                    }
+                    MyRenderProxy.Fail("The actor has been removed, but the highligh is still active. This bug is caused by the issue out of the renderer.");
                 }
             }
 
@@ -187,12 +171,146 @@ namespace VRageRender
             BlendHighlight(target, rgba8_1, fxaaTarget, depthStencilCopy);
         }
 
+        static void DrawRenderableComponent(MyActor actor, MyRenderableComponent renderableComponent, List<MyHighlightDesc> highlightDescs)
+        {
+            var renderLod = renderableComponent.Lods[renderableComponent.CurrentLod];
+            var model = renderableComponent.GetModel();
+
+            LodMeshId currentModelId;
+            if (!MyMeshes.TryGetLodMesh(model, renderableComponent.CurrentLod, out currentModelId))
+            {
+                Debug.Fail("Mesh for outlining not found!");
+                return;
+            }
+
+            foreach (MyHighlightDesc descriptor in highlightDescs)
+            {
+                if (!renderableComponent.IsRenderedStandAlone)
+                {
+                    MyGroupLeafComponent leafComponent = actor.GetGroupLeaf();
+                    MyGroupRootComponent groupComponent = leafComponent.RootGroup;
+                    if (groupComponent != null)
+                        RecordMeshPartCommands(model, actor, groupComponent, groupComponent.m_proxy, descriptor);
+
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(descriptor.SectionName))
+                    RecordMeshSectionCommands(model, renderableComponent, renderLod, descriptor);
+                else
+                    RecordMeshPartCommands(model, currentModelId, renderableComponent, renderLod, descriptor);
+            }
+        }
+
+
+        protected static unsafe IConstantBuffer GetObjectCB(MyRenderContext RC, MyInstanceComponent instance, float stateData)
+        {
+            Vector4 col0, col1, col2;
+            instance.GetMatrixCols(0, out col0, out col1, out col2);
+            Matrix matrix = Matrix.Identity;
+            matrix.SetRow(0, col0);
+            matrix.SetRow(1, col1);
+            matrix.SetRow(2, col2);
+            matrix = Matrix.Transpose(matrix);
+
+            int cbSize = sizeof(MyObjectDataCommon);
+            cbSize += sizeof(MyObjectDataNonVoxel);
+
+            IConstantBuffer cb = MyCommon.GetObjectCB(cbSize);
+            var mapping = MyMapping.MapDiscard(RC, cb);
+            MyObjectDataNonVoxel nonVoxelData = new MyObjectDataNonVoxel();
+            mapping.WriteAndPosition(ref nonVoxelData);
+            MyObjectDataCommon commonData = new MyObjectDataCommon();
+            commonData.LocalMatrix = matrix;
+            commonData.ColorMul = Vector3.One;
+            commonData.KeyColor = new Vector3(0, -1f, 0f);
+            commonData.CustomAlpha = stateData;
+
+            mapping.WriteAndPosition(ref commonData);
+            mapping.Unmap();
+            return cb;
+        }
+
+        static void DrawHighlightedPart(MyRenderContext RC, MyPart part, MyInstanceLodState state)
+        {
+            // settings per part (using MyPart.cs):
+
+            MyShaderBundle shaderBundle = part.GetShaderBundle(state);
+            RC.SetInputLayout(shaderBundle.InputLayout);
+            RC.VertexShader.Set(shaderBundle.VertexShader);
+            RC.PixelShader.Set(shaderBundle.PixelShader);
+
+            // (using MyHighlightPass.cs):
+            RC.SetRasterizerState(null);
+
+            RC.DrawIndexed(part.IndicesCount, part.StartIndex, part.StartVertex);
+        }
+
+        static void DrawInstanceComponent(MyInstanceComponent instanceComponent, List<MyHighlightDesc> highlightDescs)
+        {
+            MyRenderContext RC = MyRender11.RC;
+
+            // common settings (combination of MyHighlightPass.cs and MyRenderingPass.cs):
+            MyMapping mapping = MyMapping.MapDiscard(MyCommon.ProjectionConstants);
+            Matrix matrix = MyRender11.Environment.Matrices.ViewProjectionAt0;
+            matrix = Matrix.Transpose(matrix);
+            mapping.WriteAndPosition(ref matrix);
+            mapping.Unmap();
+
+            RC.VertexShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+            RC.VertexShader.SetConstantBuffer(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
+            RC.PixelShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
+            RC.PixelShader.SetSrv(MyCommon.DITHER_8X8_SLOT, MyGeneratedTextureManager.Dithering8x8Tex);
+            //RC.AllShaderStages.SetConstantBuffer(MyCommon.ALPHAMASK_VIEWS_SLOT, MyCommon.AlphamaskViewsConstants); // not used! Maybe impostors?
+            RC.SetDepthStencilState(MyDepthStencilStateManager.WriteHighlightStencil, MyHighlight.HIGHLIGHT_STENCIL_MASK);
+            RC.SetBlendState(null);
+            RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList); 
+            RC.SetRasterizerState(MyRasterizerStateManager.NocullRasterizerState);
+            RC.SetScreenViewport();
+
+            RC.PixelShader.SetConstantBuffer(4, MyCommon.HighlightConstants);
+
+            for (int i = 0; i < instanceComponent.GetHighlightLodsCount(); i++)
+            {
+                MyLod lod;
+                MyInstanceLodState stateId;
+                float stateData;
+                instanceComponent.GetHighlightLod(i, out lod, out stateId, out stateData);
+
+                RC.SetIndexBuffer(lod.IB);
+                RC.SetVertexBuffer(0, lod.VB0);
+
+                IConstantBuffer objectCB = GetObjectCB(RC, instanceComponent, stateData);
+
+                RC.VertexShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, objectCB);
+                RC.PixelShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, objectCB);
+
+                foreach (MyHighlightDesc desc in highlightDescs)
+                {
+                    MyHighlightDesc descRef = desc;
+                    WriteHighlightConstants(ref descRef);
+
+                    if (string.IsNullOrEmpty(desc.SectionName))
+                    {
+                        foreach (var part in lod.Parts)
+                            DrawHighlightedPart(RC, part, stateId);
+                    }
+                    else
+                    {
+                        if (lod.Sections != null && lod.Sections.ContainsKey(desc.SectionName))
+                            foreach (var part in lod.Sections[desc.SectionName].Parts)
+                                DrawHighlightedPart(RC, part, stateId);
+                    }
+                }
+            }
+        }
+
         public static bool HasHighlights
         {
             get { return m_highlights.Count > 0; }
         }
 
-        private static void BlendHighlight(IRtvBindable target, ISrvBindable outlined, ICustomTexture fxaaTarget, IDepthStencil depthStencilCopy)
+        static void BlendHighlight(IRtvBindable target, ISrvBindable outlined, ICustomTexture fxaaTarget, IDepthStencil depthStencilCopy)
         {
             MyGpuProfiler.IC_BeginBlock("Highlight Blending");
             ProfilerShort.Begin("Highlight Blending");
@@ -234,15 +352,15 @@ namespace VRageRender
             MyGpuProfiler.IC_EndBlock();
         }
 
-        private static void RecordMeshPartCommands(MeshId model, MyActor actor, MyGroupRootComponent group,
-            MyCullProxy_2 proxy, MyHighlightDesc desc, ref float maxThickness)
+        static void RecordMeshPartCommands(MeshId model, MyActor actor, MyGroupRootComponent group,
+            MyCullProxy_2 proxy, MyHighlightDesc desc)
         {
             MeshSectionId sectionId;
-            bool found = MyMeshes.TryGetMeshSection(model, 0, desc.SectionIndex, out sectionId);
+            bool found = MyMeshes.TryGetMeshSection(model, 0, desc.SectionName, out sectionId);
             if (!found)
                 return;
 
-            WriteHighlightConstants(ref desc, ref maxThickness);
+            WriteHighlightConstants(ref desc);
 
             MyMeshSectionInfo1 section = sectionId.Info;
             MyMeshSectionPartInfo1[] meshes = section.Meshes;
@@ -252,7 +370,7 @@ namespace VRageRender
                 found = group.TryGetMaterialGroup(meshes[idx].Material, out materialGroup);
                 if (!found)
                 {
-                    DebugRecordMeshPartCommands(model, desc.SectionIndex, meshes[idx].Material);
+                    DebugRecordMeshPartCommands(model, desc.SectionName, meshes[idx].Material);
                     return;
                 }
 
@@ -265,11 +383,11 @@ namespace VRageRender
             }
         }
 
-        private static void RecordMeshPartCommands(MeshId model, LodMeshId lodModelId,
+        static void RecordMeshPartCommands(MeshId model, LodMeshId lodModelId,
             MyRenderableComponent rendercomp, MyRenderLod renderLod,
-            MyHighlightDesc desc, ref float maxThickness)
+            MyHighlightDesc desc)
         {
-            WriteHighlightConstants(ref desc, ref maxThickness);
+            WriteHighlightConstants(ref desc);
 
             var submeshCount = lodModelId.Info.PartsNum;
             for (int submeshIndex = 0; submeshIndex < submeshCount; ++submeshIndex)
@@ -282,16 +400,16 @@ namespace VRageRender
         }
 
         /// <returns>True if the section was found</returns>
-        private static void RecordMeshSectionCommands(MeshId model, LodMeshId lodModelId,
+        static void RecordMeshSectionCommands(MeshId model,
             MyRenderableComponent rendercomp, MyRenderLod renderLod,
-            MyHighlightDesc desc, ref float maxThickness)
+            MyHighlightDesc desc)
         {
             MeshSectionId sectionId;
-            bool found = MyMeshes.TryGetMeshSection(model, rendercomp.CurrentLod, desc.SectionIndex, out sectionId);
+            bool found = MyMeshes.TryGetMeshSection(model, rendercomp.CurrentLod, desc.SectionName, out sectionId);
             if (!found)
                 return;
 
-            WriteHighlightConstants(ref desc, ref maxThickness);
+            WriteHighlightConstants(ref desc);
 
             MyMeshSectionInfo1 section = sectionId.Info;
             MyMeshSectionPartInfo1[] meshes = section.Meshes;
@@ -300,20 +418,17 @@ namespace VRageRender
                 MyMeshSectionPartInfo1 sectionInfo = meshes[idx];
                 if (renderLod.RenderableProxies.Length <= sectionInfo.PartIndex)
                 {
-                    DebugRecordMeshPartCommands(model, desc.SectionIndex, rendercomp, renderLod, meshes, idx);
+                    DebugRecordMeshPartCommands(model, desc.SectionName, rendercomp, renderLod, meshes, idx);
                     return;
                 }
 
                 MyRenderableProxy proxy = renderLod.RenderableProxies[sectionInfo.PartIndex];
                 MyHighlightPass.Instance.RecordCommands(proxy, sectionInfo.PartSubmeshIndex, desc.InstanceId);
             }
-
-            return;
         }
 
-        private static void WriteHighlightConstants(ref MyHighlightDesc desc, ref float maxThickness)
+        static void WriteHighlightConstants(ref MyHighlightDesc desc)
         {
-            maxThickness = Math.Max(desc.Thickness, maxThickness);
             HighlightConstantsLayout constants = new HighlightConstantsLayout();
             constants.Color = desc.Color.ToVector4();
             if (desc.PulseTimeInFrames > 0)
@@ -324,12 +439,12 @@ namespace VRageRender
             mapping.Unmap();
         }
 
-        static void DebugRecordMeshPartCommands(MeshId model, int sectionIndex, MyRenderableComponent render,
+        static void DebugRecordMeshPartCommands(MeshId model, string sectionName, MyRenderableComponent render,
             MyRenderLod renderLod, MyMeshSectionPartInfo1[] meshes, int index)
         {
-            Debug.Assert(false, "DebugRecordMeshPartCommands1: Call Francesco");
+            MyRenderProxy.Error("DebugRecordMeshPartCommands1: Call Francesco");
             MyLog.Default.WriteLine("DebugRecordMeshPartCommands1");
-            MyLog.Default.WriteLine("sectionIndex: " + sectionIndex);
+            MyLog.Default.WriteLine("sectionName: " + sectionName);
             MyLog.Default.WriteLine("model.Info.Name: " + model.Info.Name);
             MyLog.Default.WriteLine("render.CurrentLod: " + render.CurrentLod);
             MyLog.Default.WriteLine("renderLod.RenderableProxies.Length: " + renderLod.RenderableProxies.Length);
@@ -338,11 +453,11 @@ namespace VRageRender
             MyLog.Default.WriteLine("Mesh part index: " + meshes[index].PartIndex);
         }
 
-        static void DebugRecordMeshPartCommands(MeshId model, int sectionIndex, MyMeshMaterialId material)
+        static void DebugRecordMeshPartCommands(MeshId model, string sectionName, MyMeshMaterialId material)
         {
-            Debug.Assert(false, "DebugRecordMeshPartCommands2: Call Francesco");
+            MyRenderProxy.Error("DebugRecordMeshPartCommands2: Call Francesco");
             MyLog.Default.WriteLine("DebugRecordMeshPartCommands2");
-            MyLog.Default.WriteLine("sectionIndex: " + sectionIndex);
+            MyLog.Default.WriteLine("sectionName: " + sectionName);
             MyLog.Default.WriteLine("model.Info.Name: " + model.Info.Name);
             MyLog.Default.WriteLine("material.Info.Name: " + material.Info.Name);
         }

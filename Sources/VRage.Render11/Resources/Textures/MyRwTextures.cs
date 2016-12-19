@@ -51,6 +51,11 @@ namespace VRage.Render11.Resources.Textures
 
         public Format Format { get { return m_resourceFormat; } }
 
+        public int MipmapCount
+        {
+            get { return m_mipmapLevels; }
+        }
+
         public void Init(
             string name,
             int width,

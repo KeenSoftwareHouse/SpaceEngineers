@@ -156,7 +156,6 @@ namespace SpaceEngineers
             }
 
             VRageRender.MyRenderProxy.Initialize(m_renderer);
-            VRageRender.MyRenderProxy.IS_OFFICIAL = MyFinalBuildConstants.IS_OFFICIAL;
             VRageRender.MyRenderProxy.GetRenderProfiler().SetAutocommit(false);
             VRageRender.MyRenderProxy.GetRenderProfiler().InitMemoryHack("MainEntryPoint");
         }

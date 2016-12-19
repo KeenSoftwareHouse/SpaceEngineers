@@ -197,7 +197,7 @@ namespace Sandbox.Game.AI.Actions
                         {
                             WorldPosition = Bot.HumanoidEntity.WorldMatrix.Translation,
                             Radius = radius,
-                            ReservationTimer = MyTimeSpan.FromMiliseconds(timeMs),
+                            ReservationTimer = MyTimeSpan.FromMilliseconds(timeMs),
                             ReserverId = new World.MyPlayer.PlayerId(Bot.Player.Id.SteamId, Bot.Player.Id.SerialId) 
                         };
 					    MyAiTargetManager.OnAreaReservationResult += AreaReservationHandler;

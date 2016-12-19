@@ -32,9 +32,9 @@
         <W>1</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.036136236</X>
+        <X>0.0887568</X>
         <Y>-0.137324154</Y>
-        <Z>-0.22</Z>
+        <Z>-0.220000029</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
         <X>0.03635861</X>
@@ -47,26 +47,28 @@
         <Y>-0.25</Y>
         <Z>-0.15</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.25</BlendTime>
-      <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
-      <YAmplitudeOffset>0.06504716</YAmplitudeOffset>
-      <ZAmplitudeOffset>-1.61173737</ZAmplitudeOffset>
-      <XAmplitudeScale>0.104075037</XAmplitudeScale>
-      <YAmplitudeScale>0.219715342</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>3.22636747</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0.20348683</X>
-        <Y>0.419610828</Y>
-        <Z>0.0971112847</Z>
-        <W>0.879254937</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.082455866</X>
-        <Y>-0.167324156</Y>
-        <Z>-0.153434753</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <ItemShootOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.0887568</X>
+        <Y>-0.137324154</Y>
+        <Z>-0.220000029</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -78,18 +80,17 @@
         <Y>-0.137324154</Y>
         <Z>-0.15</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingWeapon</FingersAnimation>
-      <ItemShootOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.036136236</X>
-        <Y>-0.137324154</Y>
-        <Z>-0.22</Z>
-      </ItemShootPosition>
+      <ItemWalkingOrientation3rd>
+        <X>0.20348683</X>
+        <Y>0.419610828</Y>
+        <Z>0.0971112847</Z>
+        <W>0.879254937</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.082455866</X>
+        <Y>-0.167324156</Y>
+        <Z>-0.153434753</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -97,14 +98,24 @@
         <W>1</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.177927881</X>
+        <X>0.177927852</X>
         <Y>-0.137324154</Y>
-        <Z>-0.2</Z>
+        <Z>-0.199999988</Z>
       </ItemShootPosition3rd>
-      <ShootBlend>0.1</ShootBlend>
+      <BlendTime>0.25</BlendTime>
+      <ShootBlend>0.100000009</ShootBlend>
+      <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
+      <YAmplitudeOffset>0.06504716</YAmplitudeOffset>
+      <ZAmplitudeOffset>-1.61173737</ZAmplitudeOffset>
+      <XAmplitudeScale>0.104075037</XAmplitudeScale>
+      <YAmplitudeScale>0.219715342</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>3.22636747</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingWeapon</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
-        <Y>0.08</Y>
+        <Y>0.08000004</Y>
         <Z>-0.44</Z>
       </MuzzlePosition>
       <ShootScatter>
@@ -127,8 +138,14 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
-	  <ItemPositioningWalk3rd>TransformFromAnim</ItemPositioningWalk3rd>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromAnim</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id Type="MyObjectBuilder_AutomaticRifle" Subtype="RapidFireRifleGun" />
@@ -161,9 +178,9 @@
         <W>1</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.036136236</X>
+        <X>0.0887568</X>
         <Y>-0.137324154</Y>
-        <Z>-0.22</Z>
+        <Z>-0.220000029</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
         <X>0.03635861</X>
@@ -176,26 +193,28 @@
         <Y>-0.25</Y>
         <Z>-0.2</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.25</BlendTime>
-      <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
-      <YAmplitudeOffset>0.06504716</YAmplitudeOffset>
-      <ZAmplitudeOffset>-1.61173737</ZAmplitudeOffset>
-      <XAmplitudeScale>0.104075037</XAmplitudeScale>
-      <YAmplitudeScale>0.219715342</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>3.22636747</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0.20348683</X>
-        <Y>0.419610828</Y>
-        <Z>0.0971112847</Z>
-        <W>0.879254937</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.082455866</X>
-        <Y>-0.167324156</Y>
-        <Z>-0.153434753</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <ItemShootOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.0887568</X>
+        <Y>-0.137324154</Y>
+        <Z>-0.220000029</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -207,18 +226,17 @@
         <Y>-0.137324154</Y>
         <Z>-0.15</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingWeapon</FingersAnimation>
-      <ItemShootOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.036136236</X>
-        <Y>-0.137324154</Y>
-        <Z>-0.22</Z>
-      </ItemShootPosition>
+      <ItemWalkingOrientation3rd>
+        <X>0.20348683</X>
+        <Y>0.419610828</Y>
+        <Z>0.0971112847</Z>
+        <W>0.879254937</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.082455866</X>
+        <Y>-0.167324156</Y>
+        <Z>-0.153434753</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -226,14 +244,24 @@
         <W>1</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.177927881</X>
+        <X>0.177927852</X>
         <Y>-0.137324154</Y>
-        <Z>-0.2</Z>
+        <Z>-0.199999988</Z>
       </ItemShootPosition3rd>
-      <ShootBlend>0.1</ShootBlend>
+      <BlendTime>0.25</BlendTime>
+      <ShootBlend>0.100000009</ShootBlend>
+      <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
+      <YAmplitudeOffset>0.06504716</YAmplitudeOffset>
+      <ZAmplitudeOffset>-1.61173737</ZAmplitudeOffset>
+      <XAmplitudeScale>0.104075037</XAmplitudeScale>
+      <YAmplitudeScale>0.219715342</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>3.22636747</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingWeapon</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
-        <Y>0.08</Y>
+        <Y>0.08000004</Y>
         <Z>-0.44</Z>
       </MuzzlePosition>
       <ShootScatter>
@@ -256,8 +284,14 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
-	  <ItemPositioningWalk3rd>TransformFromAnim</ItemPositioningWalk3rd>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromAnim</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id Type="MyObjectBuilder_AutomaticRifle" Subtype="PreciseRifleGun" />
@@ -290,9 +324,9 @@
         <W>1</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.036136236</X>
+        <X>0.0887568</X>
         <Y>-0.137324154</Y>
-        <Z>-0.22</Z>
+        <Z>-0.220000029</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
         <X>0.03635861</X>
@@ -305,26 +339,28 @@
         <Y>-0.25</Y>
         <Z>-0.2</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.25</BlendTime>
-      <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
-      <YAmplitudeOffset>0.06504716</YAmplitudeOffset>
-      <ZAmplitudeOffset>-1.61173737</ZAmplitudeOffset>
-      <XAmplitudeScale>0.104075037</XAmplitudeScale>
-      <YAmplitudeScale>0.219715342</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>3.22636747</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0.20348683</X>
-        <Y>0.419610828</Y>
-        <Z>0.0971112847</Z>
-        <W>0.879254937</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.082455866</X>
-        <Y>-0.167324156</Y>
-        <Z>-0.153434753</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <ItemShootOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.0887568</X>
+        <Y>-0.137324154</Y>
+        <Z>-0.220000029</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -336,18 +372,17 @@
         <Y>-0.137324154</Y>
         <Z>-0.15</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingWeapon</FingersAnimation>
-      <ItemShootOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.036136236</X>
-        <Y>-0.137324154</Y>
-        <Z>-0.22</Z>
-      </ItemShootPosition>
+      <ItemWalkingOrientation3rd>
+        <X>0.20348683</X>
+        <Y>0.419610828</Y>
+        <Z>0.0971112847</Z>
+        <W>0.879254937</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.082455866</X>
+        <Y>-0.167324156</Y>
+        <Z>-0.153434753</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -355,14 +390,24 @@
         <W>1</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.177927881</X>
+        <X>0.177927852</X>
         <Y>-0.137324154</Y>
-        <Z>-0.2</Z>
+        <Z>-0.199999988</Z>
       </ItemShootPosition3rd>
-      <ShootBlend>0.1</ShootBlend>
+      <BlendTime>0.25</BlendTime>
+      <ShootBlend>0.100000009</ShootBlend>
+      <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
+      <YAmplitudeOffset>0.06504716</YAmplitudeOffset>
+      <ZAmplitudeOffset>-1.61173737</ZAmplitudeOffset>
+      <XAmplitudeScale>0.104075037</XAmplitudeScale>
+      <YAmplitudeScale>0.219715342</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>3.22636747</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingWeapon</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
-        <Y>0.08</Y>
+        <Y>0.08000004</Y>
         <Z>-0.44</Z>
       </MuzzlePosition>
       <ShootScatter>
@@ -385,8 +430,14 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
-	  <ItemPositioningWalk3rd>TransformFromAnim</ItemPositioningWalk3rd>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromAnim</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id Type="MyObjectBuilder_AutomaticRifle" Subtype="UltimateRifleGun" />
@@ -419,9 +470,9 @@
         <W>1</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.036136236</X>
+        <X>0.0887568</X>
         <Y>-0.137324154</Y>
-        <Z>-0.22</Z>
+        <Z>-0.220000029</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
         <X>0.03635861</X>
@@ -434,26 +485,28 @@
         <Y>-0.25</Y>
         <Z>-0.2</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.25</BlendTime>
-      <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
-      <YAmplitudeOffset>0.06504716</YAmplitudeOffset>
-      <ZAmplitudeOffset>-1.61173737</ZAmplitudeOffset>
-      <XAmplitudeScale>0.104075037</XAmplitudeScale>
-      <YAmplitudeScale>0.219715342</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>3.22636747</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0.20348683</X>
-        <Y>0.419610828</Y>
-        <Z>0.0971112847</Z>
-        <W>0.879254937</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.082455866</X>
-        <Y>-0.167324156</Y>
-        <Z>-0.153434753</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <ItemShootOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.0887568</X>
+        <Y>-0.137324154</Y>
+        <Z>-0.220000029</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -465,18 +518,17 @@
         <Y>-0.137324154</Y>
         <Z>-0.15</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingWeapon</FingersAnimation>
-      <ItemShootOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.036136236</X>
-        <Y>-0.137324154</Y>
-        <Z>-0.22</Z>
-      </ItemShootPosition>
+      <ItemWalkingOrientation3rd>
+        <X>0.20348683</X>
+        <Y>0.419610828</Y>
+        <Z>0.0971112847</Z>
+        <W>0.879254937</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.082455866</X>
+        <Y>-0.167324156</Y>
+        <Z>-0.153434753</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -484,14 +536,24 @@
         <W>1</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.177927881</X>
+        <X>0.177927852</X>
         <Y>-0.137324154</Y>
-        <Z>-0.2</Z>
+        <Z>-0.199999988</Z>
       </ItemShootPosition3rd>
-      <ShootBlend>0.1</ShootBlend>
+      <BlendTime>0.25</BlendTime>
+      <ShootBlend>0.100000009</ShootBlend>
+      <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
+      <YAmplitudeOffset>0.06504716</YAmplitudeOffset>
+      <ZAmplitudeOffset>-1.61173737</ZAmplitudeOffset>
+      <XAmplitudeScale>0.104075037</XAmplitudeScale>
+      <YAmplitudeScale>0.219715342</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>3.22636747</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingWeapon</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
-        <Y>0.08</Y>
+        <Y>0.08000004</Y>
         <Z>-0.44</Z>
       </MuzzlePosition>
       <ShootScatter>
@@ -514,15 +576,21 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
-	  <ItemPositioningWalk3rd>TransformFromAnim</ItemPositioningWalk3rd>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromAnim</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id Type="MyObjectBuilder_Welder" Subtype="Welder" />
       <LeftHandOrientation>
         <X>-0.7071079</X>
-        <Y>-3.90561326E-07</Y>
-        <Z>-1.685876E-07</Z>
+        <Y>-3.90561524E-07</Y>
+        <Z>-1.68587647E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -563,39 +631,6 @@
         <Y>-0.218271181</Y>
         <Z>-0.210783452</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.7</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.300995946</XAmplitudeScale>
-      <YAmplitudeScale>0.5022766</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>2.47470331</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>0.186470717</X>
-        <Y>-0.322347462</Y>
-        <Z>-0.102630876</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
-      <SimulateLeftHand>false</SimulateLeftHand>
-      <ItemOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemOrientation3rd>
-      <ItemPosition3rd>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.22</Z>
-      </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
       <ItemShootOrientation>
         <X>-0.119511753</X>
         <Y>0</Y>
@@ -607,6 +642,39 @@
         <Y>-0.233399391</Y>
         <Z>-0.338593751</Z>
       </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
+      <ItemOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemOrientation3rd>
+      <ItemPosition3rd>
+        <X>0.1</X>
+        <Y>-0.18</Y>
+        <Z>-0.22</Z>
+      </ItemPosition3rd>
+      <ItemWalkingOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>0.186470717</X>
+        <Y>-0.322347462</Y>
+        <Z>-0.102630876</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>-0.180763185</X>
         <Y>0</Y>
@@ -618,7 +686,18 @@
         <Y>-0.18</Y>
         <Z>-0.318868965</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.7</BlendTime>
       <ShootBlend>1.28796792</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.300995946</XAmplitudeScale>
+      <YAmplitudeScale>0.5022766</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>2.47470331</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <SimulateLeftHand>false</SimulateLeftHand>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0.19</Y>
@@ -648,13 +727,20 @@
         <ToolSound type="Main" subtype="Idle" sound="ToolPlayWeldIdle" />
         <ToolSound type="Main" subtype="Weld" sound="ToolPlayWeldMetal" />
       </ToolSounds>
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id Type="MyObjectBuilder_Welder" Subtype="Welder2" />
       <LeftHandOrientation>
         <X>-0.7071079</X>
-        <Y>-3.90561326E-07</Y>
-        <Z>-1.685876E-07</Z>
+        <Y>-3.90561524E-07</Y>
+        <Z>-1.68587647E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -695,39 +781,6 @@
         <Y>-0.218271181</Y>
         <Z>-0.210783452</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.7</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.300995946</XAmplitudeScale>
-      <YAmplitudeScale>0.5022766</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>2.47470331</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>0.186470717</X>
-        <Y>-0.322347462</Y>
-        <Z>-0.102630876</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
-      <SimulateLeftHand>false</SimulateLeftHand>
-      <ItemOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemOrientation3rd>
-      <ItemPosition3rd>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.22</Z>
-      </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
       <ItemShootOrientation>
         <X>-0.119511753</X>
         <Y>0</Y>
@@ -739,6 +792,39 @@
         <Y>-0.233399391</Y>
         <Z>-0.338593751</Z>
       </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
+      <ItemOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemOrientation3rd>
+      <ItemPosition3rd>
+        <X>0.1</X>
+        <Y>-0.18</Y>
+        <Z>-0.22</Z>
+      </ItemPosition3rd>
+      <ItemWalkingOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>0.186470717</X>
+        <Y>-0.322347462</Y>
+        <Z>-0.102630876</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>-0.180763185</X>
         <Y>0</Y>
@@ -750,7 +836,18 @@
         <Y>-0.18</Y>
         <Z>-0.318868965</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.7</BlendTime>
       <ShootBlend>1.28796792</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.300995946</XAmplitudeScale>
+      <YAmplitudeScale>0.5022766</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>2.47470331</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <SimulateLeftHand>false</SimulateLeftHand>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0.19</Y>
@@ -779,13 +876,20 @@
       <SpeedMultiplier>1.5</SpeedMultiplier>
       <DistanceMultiplier>1.2</DistanceMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id Type="MyObjectBuilder_Welder" Subtype="Welder3" />
       <LeftHandOrientation>
         <X>-0.7071079</X>
-        <Y>-3.90561326E-07</Y>
-        <Z>-1.685876E-07</Z>
+        <Y>-3.90561524E-07</Y>
+        <Z>-1.68587647E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -826,39 +930,6 @@
         <Y>-0.218271181</Y>
         <Z>-0.210783452</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.7</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.300995946</XAmplitudeScale>
-      <YAmplitudeScale>0.5022766</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>2.47470331</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>0.186470717</X>
-        <Y>-0.322347462</Y>
-        <Z>-0.102630876</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
-      <SimulateLeftHand>false</SimulateLeftHand>
-      <ItemOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemOrientation3rd>
-      <ItemPosition3rd>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.22</Z>
-      </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
       <ItemShootOrientation>
         <X>-0.119511753</X>
         <Y>0</Y>
@@ -870,6 +941,39 @@
         <Y>-0.233399391</Y>
         <Z>-0.338593751</Z>
       </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
+      <ItemOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemOrientation3rd>
+      <ItemPosition3rd>
+        <X>0.1</X>
+        <Y>-0.18</Y>
+        <Z>-0.22</Z>
+      </ItemPosition3rd>
+      <ItemWalkingOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>0.186470717</X>
+        <Y>-0.322347462</Y>
+        <Z>-0.102630876</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>-0.180763185</X>
         <Y>0</Y>
@@ -881,7 +985,18 @@
         <Y>-0.18</Y>
         <Z>-0.318868965</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.7</BlendTime>
       <ShootBlend>1.28796792</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.300995946</XAmplitudeScale>
+      <YAmplitudeScale>0.5022766</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>2.47470331</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <SimulateLeftHand>false</SimulateLeftHand>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0.19</Y>
@@ -910,13 +1025,20 @@
       <SpeedMultiplier>2</SpeedMultiplier>
       <DistanceMultiplier>1.4</DistanceMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id Type="MyObjectBuilder_Welder" Subtype="Welder4" />
       <LeftHandOrientation>
         <X>-0.7071079</X>
-        <Y>-3.90561326E-07</Y>
-        <Z>-1.685876E-07</Z>
+        <Y>-3.90561524E-07</Y>
+        <Z>-1.68587647E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -957,39 +1079,6 @@
         <Y>-0.218271181</Y>
         <Z>-0.210783452</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.7</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.300995946</XAmplitudeScale>
-      <YAmplitudeScale>0.5022766</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>2.47470331</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>0.186470717</X>
-        <Y>-0.322347462</Y>
-        <Z>-0.102630876</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
-      <SimulateLeftHand>false</SimulateLeftHand>
-      <ItemOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemOrientation3rd>
-      <ItemPosition3rd>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.22</Z>
-      </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
       <ItemShootOrientation>
         <X>-0.119511753</X>
         <Y>0</Y>
@@ -1001,6 +1090,39 @@
         <Y>-0.233399391</Y>
         <Z>-0.338593751</Z>
       </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
+      <ItemOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemOrientation3rd>
+      <ItemPosition3rd>
+        <X>0.1</X>
+        <Y>-0.18</Y>
+        <Z>-0.22</Z>
+      </ItemPosition3rd>
+      <ItemWalkingOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>0.186470717</X>
+        <Y>-0.322347462</Y>
+        <Z>-0.102630876</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>-0.180763185</X>
         <Y>0</Y>
@@ -1012,7 +1134,18 @@
         <Y>-0.18</Y>
         <Z>-0.318868965</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.7</BlendTime>
       <ShootBlend>1.28796792</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.300995946</XAmplitudeScale>
+      <YAmplitudeScale>0.5022766</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>2.47470331</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <SimulateLeftHand>false</SimulateLeftHand>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0.19</Y>
@@ -1041,41 +1174,48 @@
       <SpeedMultiplier>5</SpeedMultiplier>
       <DistanceMultiplier>1.6</DistanceMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id Type="MyObjectBuilder_AngleGrinder" Subtype="AngleGrinder" />
       <LeftHandOrientation>
-        <X>-0.3098157</X>
-        <Y>-0.591285348</Y>
-        <Z>0.4922896</Z>
-        <W>0.5586115</W>
+        <X>-0.06474802</X>
+        <Y>-0.7553783</Y>
+        <Z>0.06761217</Z>
+        <W>0.648567736</W>
       </LeftHandOrientation>
       <LeftHandPosition>
-        <X>-0.06780118</X>
-        <Y>0.178747177</Y>
-        <Z>-0.06163758</Z>
+        <X>-0.0953323841</X>
+        <Y>0.115055323</Y>
+        <Z>-0.0295862556</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>0.929755</X>
-        <Y>-0.07520178</Y>
-        <Z>0.3601171</Z>
-        <W>0.0147031611</W>
+        <X>0.879832864</X>
+        <Y>0.30982852</Y>
+        <Z>0.3349087</Z>
+        <W>-0.133179128</W>
       </RightHandOrientation>
       <RightHandPosition>
-        <X>0.12327373</X>
-        <Y>0.0493093729</Y>
-        <Z>0.252711535</Z>
+        <X>0.128204465</X>
+        <Y>0.121630311</Y>
+        <Z>0.2531227</Z>
       </RightHandPosition>
       <ItemOrientation>
-        <X>0.405512482</X>
-        <Y>0.04562331</Y>
-        <Z>0.54020524</Z>
-        <W>0.7359731</W>
+        <X>0.4731418</X>
+        <Y>-0.0166494437</Y>
+        <Z>0.426065177</Z>
+        <W>0.770926833</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.0801279545</X>
-        <Y>-0.285996348</Y>
-        <Z>-0.3143495</Z>
+        <X>0.0821826458</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.2859962</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
         <X>0.5842388</X>
@@ -1088,26 +1228,28 @@
         <Y>-0.310783446</Y>
         <Z>-0.229835212</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.65</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.335355639</XAmplitudeScale>
-      <YAmplitudeScale>0.5088161</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>1.80977166</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0.6110044</X>
-        <Y>0.384372354</Y>
-        <Z>0.287985653</Z>
-        <W>0.629281938</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.0862925053</X>
-        <Y>-0.289694577</Y>
-        <Z>-0.110947408</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <ItemShootOrientation>
+        <X>0.297879577</X>
+        <Y>-0.06971587</Y>
+        <Z>0.34713757</Z>
+        <W>0.8865117</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.0463680029</X>
+        <Y>-0.272847</Y>
+        <Z>-0.332018971</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0.593253553</X>
         <Y>0.347188234</Y>
@@ -1119,18 +1261,17 @@
         <Y>-0.3143495</Y>
         <Z>-0.221893877</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
-      <ItemShootOrientation>
-        <X>0.360412419</X>
-        <Y>-0.067781046</Y>
-        <Z>0.434819728</Z>
-        <W>0.82246</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.046368055</X>
-        <Y>-0.2533994</Y>
-        <Z>-0.269662559</Z>
-      </ItemShootPosition>
+      <ItemWalkingOrientation3rd>
+        <X>0.6110044</X>
+        <Y>0.384372383</Y>
+        <Z>0.287985653</Z>
+        <W>0.629281938</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.0862925053</X>
+        <Y>-0.289694577</Y>
+        <Z>-0.110947408</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0.405512482</X>
         <Y>0.04562331</Y>
@@ -1138,15 +1279,25 @@
         <W>0.7359731</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.0477015227</X>
+        <X>0.047701478</X>
         <Y>-0.3188699</Y>
-        <Z>-0.215730071</Z>
+        <Z>-0.391190529</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.65</BlendTime>
       <ShootBlend>0.5</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.335355639</XAmplitudeScale>
+      <YAmplitudeScale>0.5088161</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>1.80977166</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
-        <X>0.04</X>
+        <X>0.03999996</X>
         <Y>0</Y>
-        <Z>-0.28</Z>
+        <Z>-0.279999971</Z>
       </MuzzlePosition>
       <ShootScatter>
         <X>0</X>
@@ -1172,41 +1323,48 @@
         <ToolSound type="Main" subtype="Idle" sound="ToolPlayGrindIdle" />
         <ToolSound type="Main" subtype="Soundset" sound="Grinder" />
       </ToolSounds>
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
       <Id Type="MyObjectBuilder_AngleGrinder" Subtype="AngleGrinder2" />
       <LeftHandOrientation>
-        <X>-0.3098157</X>
-        <Y>-0.591285348</Y>
-        <Z>0.4922896</Z>
-        <W>0.5586115</W>
+        <X>-0.06474802</X>
+        <Y>-0.7553783</Y>
+        <Z>0.06761217</Z>
+        <W>0.648567736</W>
       </LeftHandOrientation>
       <LeftHandPosition>
-        <X>-0.06780118</X>
-        <Y>0.178747177</Y>
-        <Z>-0.06163758</Z>
+        <X>-0.0953323841</X>
+        <Y>0.115055323</Y>
+        <Z>-0.0295862556</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>0.929755</X>
-        <Y>-0.07520178</Y>
-        <Z>0.3601171</Z>
-        <W>0.0147031611</W>
+        <X>0.879832864</X>
+        <Y>0.30982852</Y>
+        <Z>0.3349087</Z>
+        <W>-0.133179128</W>
       </RightHandOrientation>
       <RightHandPosition>
-        <X>0.12327373</X>
-        <Y>0.0493093729</Y>
-        <Z>0.252711535</Z>
+        <X>0.128204465</X>
+        <Y>0.121630311</Y>
+        <Z>0.2531227</Z>
       </RightHandPosition>
       <ItemOrientation>
-        <X>0.405512482</X>
-        <Y>0.04562331</Y>
-        <Z>0.54020524</Z>
-        <W>0.7359731</W>
+        <X>0.4731418</X>
+        <Y>-0.0166494437</Y>
+        <Z>0.426065177</Z>
+        <W>0.770926833</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.0801279545</X>
-        <Y>-0.285996348</Y>
-        <Z>-0.3143495</Z>
+        <X>0.0821826458</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.2859962</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
         <X>0.5842388</X>
@@ -1219,26 +1377,28 @@
         <Y>-0.310783446</Y>
         <Z>-0.229835212</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.65</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.335355639</XAmplitudeScale>
-      <YAmplitudeScale>0.5088161</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>1.80977166</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0.6110044</X>
-        <Y>0.384372354</Y>
-        <Z>0.287985653</Z>
-        <W>0.629281938</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.0862925053</X>
-        <Y>-0.289694577</Y>
-        <Z>-0.110947408</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <ItemShootOrientation>
+        <X>0.297879577</X>
+        <Y>-0.06971587</Y>
+        <Z>0.34713757</Z>
+        <W>0.8865117</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.0463680029</X>
+        <Y>-0.272847</Y>
+        <Z>-0.332018971</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0.593253553</X>
         <Y>0.347188234</Y>
@@ -1250,18 +1410,17 @@
         <Y>-0.3143495</Y>
         <Z>-0.221893877</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
-      <ItemShootOrientation>
-        <X>0.360412419</X>
-        <Y>-0.067781046</Y>
-        <Z>0.434819728</Z>
-        <W>0.82246</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.046368055</X>
-        <Y>-0.2533994</Y>
-        <Z>-0.302847</Z>
-      </ItemShootPosition>
+      <ItemWalkingOrientation3rd>
+        <X>0.6110044</X>
+        <Y>0.384372383</Y>
+        <Z>0.287985653</Z>
+        <W>0.629281938</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.0862925053</X>
+        <Y>-0.289694577</Y>
+        <Z>-0.110947408</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0.405512482</X>
         <Y>0.04562331</Y>
@@ -1269,15 +1428,25 @@
         <W>0.7359731</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.0477015227</X>
+        <X>0.047701478</X>
         <Y>-0.3188699</Y>
-        <Z>-0.215730071</Z>
+        <Z>-0.391190529</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.65</BlendTime>
       <ShootBlend>0.5</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.335355639</XAmplitudeScale>
+      <YAmplitudeScale>0.5088161</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>1.80977166</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
-        <X>0.04</X>
+        <X>0.03999996</X>
         <Y>0</Y>
-        <Z>-0.28</Z>
+        <Z>-0.279999971</Z>
       </MuzzlePosition>
       <ShootScatter>
         <X>0</X>
@@ -1302,41 +1471,48 @@
       <SpeedMultiplier>1.5</SpeedMultiplier>
       <DistanceMultiplier>1.2</DistanceMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
       <Id Type="MyObjectBuilder_AngleGrinder" Subtype="AngleGrinder3" />
       <LeftHandOrientation>
-        <X>-0.3098157</X>
-        <Y>-0.591285348</Y>
-        <Z>0.4922896</Z>
-        <W>0.5586115</W>
+        <X>-0.06474802</X>
+        <Y>-0.7553783</Y>
+        <Z>0.06761217</Z>
+        <W>0.648567736</W>
       </LeftHandOrientation>
       <LeftHandPosition>
-        <X>-0.06780118</X>
-        <Y>0.178747177</Y>
-        <Z>-0.06163758</Z>
+        <X>-0.0953323841</X>
+        <Y>0.115055323</Y>
+        <Z>-0.0295862556</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>0.929755</X>
-        <Y>-0.07520178</Y>
-        <Z>0.3601171</Z>
-        <W>0.0147031611</W>
+        <X>0.879832864</X>
+        <Y>0.30982852</Y>
+        <Z>0.3349087</Z>
+        <W>-0.133179128</W>
       </RightHandOrientation>
       <RightHandPosition>
-        <X>0.12327373</X>
-        <Y>0.0493093729</Y>
-        <Z>0.252711535</Z>
+        <X>0.128204465</X>
+        <Y>0.121630311</Y>
+        <Z>0.2531227</Z>
       </RightHandPosition>
       <ItemOrientation>
-        <X>0.405512482</X>
-        <Y>0.04562331</Y>
-        <Z>0.54020524</Z>
-        <W>0.7359731</W>
+        <X>0.4731418</X>
+        <Y>-0.0166494437</Y>
+        <Z>0.426065177</Z>
+        <W>0.770926833</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.0801279545</X>
-        <Y>-0.285996348</Y>
-        <Z>-0.3143495</Z>
+        <X>0.0821826458</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.2859962</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
         <X>0.5842388</X>
@@ -1349,26 +1525,28 @@
         <Y>-0.310783446</Y>
         <Z>-0.229835212</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.65</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.335355639</XAmplitudeScale>
-      <YAmplitudeScale>0.5088161</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>1.80977166</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0.6110044</X>
-        <Y>0.384372354</Y>
-        <Z>0.287985653</Z>
-        <W>0.629281938</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.0862925053</X>
-        <Y>-0.289694577</Y>
-        <Z>-0.110947408</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <ItemShootOrientation>
+        <X>0.297879577</X>
+        <Y>-0.06971587</Y>
+        <Z>0.34713757</Z>
+        <W>0.8865117</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.0463680029</X>
+        <Y>-0.272847</Y>
+        <Z>-0.332018971</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0.593253553</X>
         <Y>0.347188234</Y>
@@ -1380,18 +1558,17 @@
         <Y>-0.3143495</Y>
         <Z>-0.221893877</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
-      <ItemShootOrientation>
-        <X>0.360412419</X>
-        <Y>-0.067781046</Y>
-        <Z>0.434819728</Z>
-        <W>0.82246</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.046368055</X>
-        <Y>-0.2533994</Y>
-        <Z>-0.302847</Z>
-      </ItemShootPosition>
+      <ItemWalkingOrientation3rd>
+        <X>0.6110044</X>
+        <Y>0.384372383</Y>
+        <Z>0.287985653</Z>
+        <W>0.629281938</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.0862925053</X>
+        <Y>-0.289694577</Y>
+        <Z>-0.110947408</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0.405512482</X>
         <Y>0.04562331</Y>
@@ -1399,15 +1576,25 @@
         <W>0.7359731</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.0477015227</X>
+        <X>0.047701478</X>
         <Y>-0.3188699</Y>
-        <Z>-0.215730071</Z>
+        <Z>-0.391190529</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.65</BlendTime>
       <ShootBlend>0.5</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.335355639</XAmplitudeScale>
+      <YAmplitudeScale>0.5088161</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>1.80977166</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
-        <X>0.04</X>
+        <X>0.03999996</X>
         <Y>0</Y>
-        <Z>-0.28</Z>
+        <Z>-0.279999971</Z>
       </MuzzlePosition>
       <ShootScatter>
         <X>0</X>
@@ -1432,41 +1619,48 @@
       <SpeedMultiplier>2</SpeedMultiplier>
       <DistanceMultiplier>1.4</DistanceMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
       <Id Type="MyObjectBuilder_AngleGrinder" Subtype="AngleGrinder4" />
       <LeftHandOrientation>
-        <X>-0.3098157</X>
-        <Y>-0.591285348</Y>
-        <Z>0.4922896</Z>
-        <W>0.5586115</W>
+        <X>-0.06474802</X>
+        <Y>-0.7553783</Y>
+        <Z>0.06761217</Z>
+        <W>0.648567736</W>
       </LeftHandOrientation>
       <LeftHandPosition>
-        <X>-0.06780118</X>
-        <Y>0.178747177</Y>
-        <Z>-0.06163758</Z>
+        <X>-0.0953323841</X>
+        <Y>0.115055323</Y>
+        <Z>-0.0295862556</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>0.929755</X>
-        <Y>-0.07520178</Y>
-        <Z>0.3601171</Z>
-        <W>0.0147031611</W>
+        <X>0.879832864</X>
+        <Y>0.30982852</Y>
+        <Z>0.3349087</Z>
+        <W>-0.133179128</W>
       </RightHandOrientation>
       <RightHandPosition>
-        <X>0.12327373</X>
-        <Y>0.0493093729</Y>
-        <Z>0.252711535</Z>
+        <X>0.128204465</X>
+        <Y>0.121630311</Y>
+        <Z>0.2531227</Z>
       </RightHandPosition>
       <ItemOrientation>
-        <X>0.405512482</X>
-        <Y>0.04562331</Y>
-        <Z>0.54020524</Z>
-        <W>0.7359731</W>
+        <X>0.4731418</X>
+        <Y>-0.0166494437</Y>
+        <Z>0.426065177</Z>
+        <W>0.770926833</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.0801279545</X>
-        <Y>-0.285996348</Y>
-        <Z>-0.3143495</Z>
+        <X>0.0821826458</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.2859962</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
         <X>0.5842388</X>
@@ -1479,26 +1673,28 @@
         <Y>-0.310783446</Y>
         <Z>-0.229835212</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.65</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.335355639</XAmplitudeScale>
-      <YAmplitudeScale>0.5088161</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>1.80977166</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0.6110044</X>
-        <Y>0.384372354</Y>
-        <Z>0.287985653</Z>
-        <W>0.629281938</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.0862925053</X>
-        <Y>-0.289694577</Y>
-        <Z>-0.110947408</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <ItemShootOrientation>
+        <X>0.297879577</X>
+        <Y>-0.06971587</Y>
+        <Z>0.34713757</Z>
+        <W>0.8865117</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.0463680029</X>
+        <Y>-0.272847</Y>
+        <Z>-0.332018971</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0.593253553</X>
         <Y>0.347188234</Y>
@@ -1510,18 +1706,17 @@
         <Y>-0.3143495</Y>
         <Z>-0.221893877</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
-      <ItemShootOrientation>
-        <X>0.360412419</X>
-        <Y>-0.067781046</Y>
-        <Z>0.434819728</Z>
-        <W>0.82246</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.046368055</X>
-        <Y>-0.2533994</Y>
-        <Z>-0.302847</Z>
-      </ItemShootPosition>
+      <ItemWalkingOrientation3rd>
+        <X>0.6110044</X>
+        <Y>0.384372383</Y>
+        <Z>0.287985653</Z>
+        <W>0.629281938</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.0862925053</X>
+        <Y>-0.289694577</Y>
+        <Z>-0.110947408</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0.405512482</X>
         <Y>0.04562331</Y>
@@ -1529,15 +1724,25 @@
         <W>0.7359731</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.0477015227</X>
+        <X>0.047701478</X>
         <Y>-0.3188699</Y>
-        <Z>-0.215730071</Z>
+        <Z>-0.391190529</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.65</BlendTime>
       <ShootBlend>0.5</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.335355639</XAmplitudeScale>
+      <YAmplitudeScale>0.5088161</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>1.80977166</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
-        <X>0.04</X>
+        <X>0.03999996</X>
         <Y>0</Y>
-        <Z>-0.28</Z>
+        <Z>-0.279999971</Z>
       </MuzzlePosition>
       <ShootScatter>
         <X>0</X>
@@ -1562,73 +1767,82 @@
       <SpeedMultiplier>5</SpeedMultiplier>
       <DistanceMultiplier>1.6</DistanceMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
       <Id Type="MyObjectBuilder_HandDrill" Subtype="" />
       <LeftHandOrientation>
-        <X>-0.0496497154</X>
-        <Y>-0.639476538</Y>
-        <Z>0.00540545024</Z>
-        <W>0.7671867</W>
+        <X>0.394108623</X>
+        <Y>-0.6598324</Y>
+        <Z>0.343161523</Z>
+        <W>0.5399442</W>
       </LeftHandOrientation>
       <LeftHandPosition>
-        <X>-0.128205717</X>
-        <Y>0.0690332651</Y>
-        <Z>0.207100153</Z>
+        <X>-0.187376976</X>
+        <Y>-0.00328779221</Y>
+        <Z>0.0164365768</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021937</X>
-        <Y>-0.4712831</Y>
-        <Z>-0.5155097</Z>
+        <X>-0.472021818</X>
+        <Y>-0.471283</Y>
+        <Z>-0.5155096</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
-        <X>0.0493091345</X>
-        <Y>-0.009861946</Y>
+        <X>0.02958572</X>
+        <Y>-0.0295862556</Y>
         <Z>0.345167279</Z>
       </RightHandPosition>
       <ItemOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.190910041</Z>
-        <W>0.981607556</W>
+        <X>0.1278963</X>
+        <Y>0.032656163</Y>
+        <Z>0.177130654</Z>
+        <W>0.975295246</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.1</X>
-        <Y>-0.153274863</Y>
-        <Z>-0.009861456</Z>
+        <X>0.121630311</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.292570829</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.201036885</Z>
-        <W>0.9795837</W>
+        <X>0.2385866</X>
+        <Y>0.07001443</Y>
+        <Z>0.168751538</Z>
+        <W>0.953780532</W>
       </ItemWalkingOrientation>
       <ItemWalkingPosition>
-        <X>0.1</X>
+        <X>0.100000024</X>
         <Y>-0.18</Y>
-        <Z>-0.08218272</Z>
+        <Z>-0.259697735</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.942201138</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.12491703</XAmplitudeScale>
-      <YAmplitudeScale>0.289282471</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>1.27547634</RunMultiplier>
-      <ItemWalkingOrientation3rd>
+      <ItemShootOrientation>
+        <X>0.0879484639</X>
+        <Y>-0.011509289</Y>
+        <Z>0.129246324</Z>
+        <W>0.9876376</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.062458396</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.332018971</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
         <X>0</X>
-        <Y>0.106684014</Y>
+        <Y>0</Y>
         <Z>0</Z>
-        <W>0.994293</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.00986284</X>
-        <Y>-0.221894562</Y>
-        <Z>-0.3698231</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -1640,18 +1854,17 @@
         <Y>-0.221894562</Y>
         <Z>-0.3698231</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
-      <ItemShootOrientation>
+      <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0</Y>
-        <Z>0.1297577</Z>
-        <W>0.991545737</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.08218272</Z>
-      </ItemShootPosition>
+        <Y>0.106684066</Y>
+        <Z>0</Z>
+        <W>0.994293</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.00986284</X>
+        <Y>-0.221894562</Y>
+        <Z>-0.3698231</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -1659,11 +1872,21 @@
         <W>1</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.1</X>
+        <X>0.100000024</X>
         <Y>-0.18</Y>
         <Z>-0.305719733</Z>
       </ItemShootPosition3rd>
-      <ShootBlend>0.992109358</ShootBlend>
+      <BlendTime>0.5743905</BlendTime>
+      <ShootBlend>0.9921093</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.12491703</XAmplitudeScale>
+      <YAmplitudeScale>0.289282322</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>1.27547646</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0</Y>
@@ -1693,73 +1916,82 @@
         <ToolSound type="Main" subtype="Idle" sound="ToolPlayDrillIdle" />
         <ToolSound type="Main" subtype="Soundset" sound="HandDrill" />
       </ToolSounds>
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
       <Id Type="MyObjectBuilder_HandDrill" Subtype="HandDrill2" />
       <LeftHandOrientation>
-        <X>-0.0496497154</X>
-        <Y>-0.639476538</Y>
-        <Z>0.00540545024</Z>
-        <W>0.7671867</W>
+        <X>0.394108623</X>
+        <Y>-0.6598324</Y>
+        <Z>0.343161523</Z>
+        <W>0.5399442</W>
       </LeftHandOrientation>
       <LeftHandPosition>
-        <X>-0.128205717</X>
-        <Y>0.0690332651</Y>
-        <Z>0.207100153</Z>
+        <X>-0.187376976</X>
+        <Y>-0.00328779221</Y>
+        <Z>0.0164365768</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021937</X>
-        <Y>-0.4712831</Y>
-        <Z>-0.5155097</Z>
+        <X>-0.472021818</X>
+        <Y>-0.471283</Y>
+        <Z>-0.5155096</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
-        <X>0.0493091345</X>
-        <Y>-0.009861946</Y>
+        <X>0.02958572</X>
+        <Y>-0.0295862556</Y>
         <Z>0.345167279</Z>
       </RightHandPosition>
       <ItemOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.190910041</Z>
-        <W>0.981607556</W>
+        <X>0.1278963</X>
+        <Y>0.032656163</Y>
+        <Z>0.177130654</Z>
+        <W>0.975295246</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.1</X>
-        <Y>-0.153274863</Y>
-        <Z>-0.009861456</Z>
+        <X>0.121630311</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.292570829</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.201036885</Z>
-        <W>0.9795837</W>
+        <X>0.2385866</X>
+        <Y>0.07001443</Y>
+        <Z>0.168751538</Z>
+        <W>0.953780532</W>
       </ItemWalkingOrientation>
       <ItemWalkingPosition>
-        <X>0.1</X>
+        <X>0.100000024</X>
         <Y>-0.18</Y>
-        <Z>-0.08218272</Z>
+        <Z>-0.259697735</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.942201138</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.12491703</XAmplitudeScale>
-      <YAmplitudeScale>0.289282471</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>1.27547634</RunMultiplier>
-      <ItemWalkingOrientation3rd>
+      <ItemShootOrientation>
+        <X>0.0879484639</X>
+        <Y>-0.011509289</Y>
+        <Z>0.129246324</Z>
+        <W>0.9876376</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.062458396</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.332018971</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
         <X>0</X>
-        <Y>0.106684014</Y>
+        <Y>0</Y>
         <Z>0</Z>
-        <W>0.994293</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.00986284</X>
-        <Y>-0.221894562</Y>
-        <Z>-0.3698231</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -1771,18 +2003,17 @@
         <Y>-0.221894562</Y>
         <Z>-0.3698231</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
-      <ItemShootOrientation>
+      <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0</Y>
-        <Z>0.1297577</Z>
-        <W>0.991545737</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.08218272</Z>
-      </ItemShootPosition>
+        <Y>0.106684066</Y>
+        <Z>0</Z>
+        <W>0.994293</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.00986284</X>
+        <Y>-0.221894562</Y>
+        <Z>-0.3698231</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -1790,11 +2021,21 @@
         <W>1</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.1</X>
+        <X>0.100000024</X>
         <Y>-0.18</Y>
         <Z>-0.305719733</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.942201138</BlendTime>
       <ShootBlend>0.992109358</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.12491703</XAmplitudeScale>
+      <YAmplitudeScale>0.289282471</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>1.27547634</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0</Y>
@@ -1824,73 +2065,82 @@
       <DistanceMultiplier>1</DistanceMultiplier>
       <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
       <Id Type="MyObjectBuilder_HandDrill" Subtype="HandDrill3" />
       <LeftHandOrientation>
-        <X>-0.0496497154</X>
-        <Y>-0.639476538</Y>
-        <Z>0.00540545024</Z>
-        <W>0.7671867</W>
+        <X>0.394108623</X>
+        <Y>-0.6598324</Y>
+        <Z>0.343161523</Z>
+        <W>0.5399442</W>
       </LeftHandOrientation>
       <LeftHandPosition>
-        <X>-0.128205717</X>
-        <Y>0.0690332651</Y>
-        <Z>0.207100153</Z>
+        <X>-0.187376976</X>
+        <Y>-0.00328779221</Y>
+        <Z>0.0164365768</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021937</X>
-        <Y>-0.4712831</Y>
-        <Z>-0.5155097</Z>
+        <X>-0.472021818</X>
+        <Y>-0.471283</Y>
+        <Z>-0.5155096</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
-        <X>0.0493091345</X>
-        <Y>-0.009861946</Y>
+        <X>0.02958572</X>
+        <Y>-0.0295862556</Y>
         <Z>0.345167279</Z>
       </RightHandPosition>
       <ItemOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.190910041</Z>
-        <W>0.981607556</W>
+        <X>0.1278963</X>
+        <Y>0.032656163</Y>
+        <Z>0.177130654</Z>
+        <W>0.975295246</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.1</X>
-        <Y>-0.153274863</Y>
-        <Z>-0.009861456</Z>
+        <X>0.121630311</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.292570829</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.201036885</Z>
-        <W>0.9795837</W>
+        <X>0.2385866</X>
+        <Y>0.07001443</Y>
+        <Z>0.168751538</Z>
+        <W>0.953780532</W>
       </ItemWalkingOrientation>
       <ItemWalkingPosition>
-        <X>0.1</X>
+        <X>0.100000024</X>
         <Y>-0.18</Y>
-        <Z>-0.08218272</Z>
+        <Z>-0.259697735</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.942201138</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.12491703</XAmplitudeScale>
-      <YAmplitudeScale>0.289282471</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>1.27547634</RunMultiplier>
-      <ItemWalkingOrientation3rd>
+      <ItemShootOrientation>
+        <X>0.0879484639</X>
+        <Y>-0.011509289</Y>
+        <Z>0.129246324</Z>
+        <W>0.9876376</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.062458396</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.332018971</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
         <X>0</X>
-        <Y>0.106684014</Y>
+        <Y>0</Y>
         <Z>0</Z>
-        <W>0.994293</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.00986284</X>
-        <Y>-0.221894562</Y>
-        <Z>-0.3698231</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -1902,18 +2152,17 @@
         <Y>-0.221894562</Y>
         <Z>-0.3698231</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
-      <ItemShootOrientation>
+      <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0</Y>
-        <Z>0.1297577</Z>
-        <W>0.991545737</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.08218272</Z>
-      </ItemShootPosition>
+        <Y>0.106684066</Y>
+        <Z>0</Z>
+        <W>0.994293</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.00986284</X>
+        <Y>-0.221894562</Y>
+        <Z>-0.3698231</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -1921,11 +2170,21 @@
         <W>1</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.1</X>
+        <X>0.100000024</X>
         <Y>-0.18</Y>
         <Z>-0.305719733</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.942201138</BlendTime>
       <ShootBlend>0.992109358</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.12491703</XAmplitudeScale>
+      <YAmplitudeScale>0.289282471</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>1.27547634</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0</Y>
@@ -1955,73 +2214,82 @@
       <DistanceMultiplier>1.5</DistanceMultiplier>
       <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
       <Id Type="MyObjectBuilder_HandDrill" Subtype="HandDrill4" />
       <LeftHandOrientation>
-        <X>-0.0496497154</X>
-        <Y>-0.639476538</Y>
-        <Z>0.00540545024</Z>
-        <W>0.7671867</W>
+        <X>0.394108623</X>
+        <Y>-0.6598324</Y>
+        <Z>0.343161523</Z>
+        <W>0.5399442</W>
       </LeftHandOrientation>
       <LeftHandPosition>
-        <X>-0.128205717</X>
-        <Y>0.0690332651</Y>
-        <Z>0.207100153</Z>
+        <X>-0.187376976</X>
+        <Y>-0.00328779221</Y>
+        <Z>0.0164365768</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021937</X>
-        <Y>-0.4712831</Y>
-        <Z>-0.5155097</Z>
+        <X>-0.472021818</X>
+        <Y>-0.471283</Y>
+        <Z>-0.5155096</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
-        <X>0.0493091345</X>
-        <Y>-0.009861946</Y>
+        <X>0.02958572</X>
+        <Y>-0.0295862556</Y>
         <Z>0.345167279</Z>
       </RightHandPosition>
       <ItemOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.190910041</Z>
-        <W>0.981607556</W>
+        <X>0.1278963</X>
+        <Y>0.032656163</Y>
+        <Z>0.177130654</Z>
+        <W>0.975295246</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.1</X>
-        <Y>-0.153274863</Y>
-        <Z>-0.009861456</Z>
+        <X>0.121630311</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.292570829</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.201036885</Z>
-        <W>0.9795837</W>
+        <X>0.2385866</X>
+        <Y>0.07001443</Y>
+        <Z>0.168751538</Z>
+        <W>0.953780532</W>
       </ItemWalkingOrientation>
       <ItemWalkingPosition>
-        <X>0.1</X>
+        <X>0.100000024</X>
         <Y>-0.18</Y>
-        <Z>-0.08218272</Z>
+        <Z>-0.259697735</Z>
       </ItemWalkingPosition>
-      <BlendTime>0.942201138</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.12491703</XAmplitudeScale>
-      <YAmplitudeScale>0.289282471</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>1.27547634</RunMultiplier>
-      <ItemWalkingOrientation3rd>
+      <ItemShootOrientation>
+        <X>0.0879484639</X>
+        <Y>-0.011509289</Y>
+        <Z>0.129246324</Z>
+        <W>0.9876376</W>
+      </ItemShootOrientation>
+      <ItemShootPosition>
+        <X>0.062458396</X>
+        <Y>-0.233399272</Y>
+        <Z>-0.332018971</Z>
+      </ItemShootPosition>
+      <ItemIronsightOrientation>
         <X>0</X>
-        <Y>0.106684014</Y>
+        <Y>0</Y>
         <Z>0</Z>
-        <W>0.994293</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>-0.00986284</X>
-        <Y>-0.221894562</Y>
-        <Z>-0.3698231</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -2033,18 +2301,17 @@
         <Y>-0.221894562</Y>
         <Z>-0.3698231</Z>
       </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
-      <ItemShootOrientation>
+      <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0</Y>
-        <Z>0.1297577</Z>
-        <W>0.991545737</W>
-      </ItemShootOrientation>
-      <ItemShootPosition>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.08218272</Z>
-      </ItemShootPosition>
+        <Y>0.106684066</Y>
+        <Z>0</Z>
+        <W>0.994293</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>-0.00986284</X>
+        <Y>-0.221894562</Y>
+        <Z>-0.3698231</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -2052,11 +2319,21 @@
         <W>1</W>
       </ItemShootOrientation3rd>
       <ItemShootPosition3rd>
-        <X>0.1</X>
+        <X>0.100000024</X>
         <Y>-0.18</Y>
         <Z>-0.305719733</Z>
       </ItemShootPosition3rd>
+      <BlendTime>0.942201138</BlendTime>
       <ShootBlend>0.992109358</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.12491703</XAmplitudeScale>
+      <YAmplitudeScale>0.289282471</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>1.27547634</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0</Y>
@@ -2086,14 +2363,21 @@
       <DistanceMultiplier>2</DistanceMultiplier>
       <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id Type="MyObjectBuilder_CubePlacer" Subtype="" />
       <LeftHandOrientation>
-        <X>0.3179695</X>
-        <Y>0.45080924</Y>
-        <Z>0.312970668</Z>
-        <W>0.7731208</W>
+        <X>0.317969561</X>
+        <Y>0.4508094</Y>
+        <Z>0.3129707</Z>
+        <W>0.7731207</W>
       </LeftHandOrientation>
       <LeftHandPosition>
         <X>-0.2992194</X>
@@ -2133,39 +2417,6 @@
         <Y>-0.200525835</Y>
         <Z>-0.364891738</Z>
       </ItemWalkingPosition>
-      <BlendTime>1</BlendTime>
-      <XAmplitudeOffset>0.007227002</XAmplitudeOffset>
-      <YAmplitudeOffset>1.0479939</YAmplitudeOffset>
-      <ZAmplitudeOffset>1.39491487</ZAmplitudeOffset>
-      <XAmplitudeScale>0.07516496</XAmplitudeScale>
-      <YAmplitudeScale>0.04273431</YAmplitudeScale>
-      <ZAmplitudeScale>0.161895186</ZAmplitudeScale>
-      <RunMultiplier>1.72304142</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0.114382215</Z>
-        <W>0.9934368</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>0.138066173</X>
-        <Y>-0.290927768</Y>
-        <Z>-0.394478023</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
-      <SimulateLeftHand>false</SimulateLeftHand>
-      <ItemOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemOrientation3rd>
-      <ItemPosition3rd>
-        <X>0.11708571</X>
-        <Y>-0.1282059</Y>
-        <Z>-0.394478023</Z>
-      </ItemPosition3rd>
-      <FingersAnimation>UseCubePlacerFingers</FingersAnimation>
       <ItemShootOrientation>
         <X>0</X>
         <Y>0.0722291842</Y>
@@ -2177,6 +2428,39 @@
         <Y>-0.174227774</Y>
         <Z>-0.516108155</Z>
       </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
+      <ItemOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemOrientation3rd>
+      <ItemPosition3rd>
+        <X>0.11708571</X>
+        <Y>-0.1282059</Y>
+        <Z>-0.394478023</Z>
+      </ItemPosition3rd>
+      <ItemWalkingOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0.114382215</Z>
+        <W>0.9934368</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>0.138066173</X>
+        <Y>-0.290927768</Y>
+        <Z>-0.394478023</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -2188,7 +2472,18 @@
         <Y>-0.180801988</Y>
         <Z>-0.3846156</Z>
       </ItemShootPosition3rd>
+      <BlendTime>1</BlendTime>
       <ShootBlend>1.3767252</ShootBlend>
+      <XAmplitudeOffset>0.007227002</XAmplitudeOffset>
+      <YAmplitudeOffset>1.0479939</YAmplitudeOffset>
+      <ZAmplitudeOffset>1.39491487</ZAmplitudeOffset>
+      <XAmplitudeScale>0.07516496</XAmplitudeScale>
+      <YAmplitudeScale>0.04273431</YAmplitudeScale>
+      <ZAmplitudeScale>0.161895186</ZAmplitudeScale>
+      <RunMultiplier>1.72304142</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <SimulateLeftHand>false</SimulateLeftHand>
+      <FingersAnimation>UseCubePlacerFingers</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0</Y>
@@ -2215,13 +2510,20 @@
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id Type="MyObjectBuilder_GoodAIControlHandTool" Subtype="GoodAIRewardPunishmentTool" />
       <LeftHandOrientation>
         <X>-0.7071079</X>
-        <Y>-3.90561326E-07</Y>
-        <Z>-1.685876E-07</Z>
+        <Y>-3.90561524E-07</Y>
+        <Z>-1.68587647E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -2262,39 +2564,6 @@
         <Y>-0.218271181</Y>
         <Z>-0.310783446</Z>
       </ItemWalkingPosition>
-      <BlendTime>1</BlendTime>
-      <XAmplitudeOffset>0</XAmplitudeOffset>
-      <YAmplitudeOffset>0</YAmplitudeOffset>
-      <ZAmplitudeOffset>0</ZAmplitudeOffset>
-      <XAmplitudeScale>0.450995952</XAmplitudeScale>
-      <YAmplitudeScale>0.6822766</YAmplitudeScale>
-      <ZAmplitudeScale>0</ZAmplitudeScale>
-      <RunMultiplier>2.47470331</RunMultiplier>
-      <ItemWalkingOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemWalkingOrientation3rd>
-      <ItemWalkingPosition3rd>
-        <X>0.186470717</X>
-        <Y>-0.322347462</Y>
-        <Z>-0.102630876</Z>
-      </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
-      <SimulateLeftHand>false</SimulateLeftHand>
-      <ItemOrientation3rd>
-        <X>0</X>
-        <Y>0</Y>
-        <Z>0</Z>
-        <W>1</W>
-      </ItemOrientation3rd>
-      <ItemPosition3rd>
-        <X>0.1</X>
-        <Y>-0.18</Y>
-        <Z>-0.22</Z>
-      </ItemPosition3rd>
-      <FingersAnimation>HoldingTool</FingersAnimation>
       <ItemShootOrientation>
         <X>-0.119511753</X>
         <Y>0</Y>
@@ -2306,6 +2575,39 @@
         <Y>-0.233399391</Y>
         <Z>-0.338593751</Z>
       </ItemShootPosition>
+      <ItemIronsightOrientation>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemIronsightOrientation>
+      <ItemIronsightPosition>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </ItemIronsightPosition>
+      <ItemOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemOrientation3rd>
+      <ItemPosition3rd>
+        <X>0.1</X>
+        <Y>-0.18</Y>
+        <Z>-0.22</Z>
+      </ItemPosition3rd>
+      <ItemWalkingOrientation3rd>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <W>1</W>
+      </ItemWalkingOrientation3rd>
+      <ItemWalkingPosition3rd>
+        <X>0.186470717</X>
+        <Y>-0.322347462</Y>
+        <Z>-0.102630876</Z>
+      </ItemWalkingPosition3rd>
       <ItemShootOrientation3rd>
         <X>-0.180763185</X>
         <Y>0</Y>
@@ -2317,7 +2619,18 @@
         <Y>-0.18</Y>
         <Z>-0.318868965</Z>
       </ItemShootPosition3rd>
+      <BlendTime>1</BlendTime>
       <ShootBlend>1.28796792</ShootBlend>
+      <XAmplitudeOffset>0</XAmplitudeOffset>
+      <YAmplitudeOffset>0</YAmplitudeOffset>
+      <ZAmplitudeOffset>0</ZAmplitudeOffset>
+      <XAmplitudeScale>0.450995952</XAmplitudeScale>
+      <YAmplitudeScale>0.6822766</YAmplitudeScale>
+      <ZAmplitudeScale>0</ZAmplitudeScale>
+      <RunMultiplier>2.47470331</RunMultiplier>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
+      <SimulateLeftHand>false</SimulateLeftHand>
+      <FingersAnimation>HoldingTool</FingersAnimation>
       <MuzzlePosition>
         <X>0</X>
         <Y>0.19</Y>
@@ -2344,6 +2657,13 @@
       <ShakeAmountTarget>0.2</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
       <ToolSounds />
+      <ToolMaterial>Grinder</ToolMaterial>
+      <ItemPositioning>TransformFromData</ItemPositioning>
+      <ItemPositioning3rd>TransformFromData</ItemPositioning3rd>
+      <ItemPositioningWalk>TransformFromData</ItemPositioningWalk>
+      <ItemPositioningWalk3rd>TransformFromData</ItemPositioningWalk3rd>
+      <ItemPositioningShoot>TransformFromData</ItemPositioningShoot>
+      <ItemPositioningShoot3rd>TransformFromData</ItemPositioningShoot3rd>
     </HandItem>
   </HandItems>
 </Definitions>

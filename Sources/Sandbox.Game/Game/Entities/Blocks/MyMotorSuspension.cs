@@ -314,6 +314,12 @@ namespace Sandbox.Game.Entities.Cube
             if (MyTerminalControlFactory.AreControlsCreated<MyMotorSuspension>())
                 return;
             base.CreateTerminalControls();
+
+            var addWheelHead = new MyTerminalControlButton<MyMotorSuspension>("Add Top Part", MySpaceTexts.BlockActionTitle_AddWheel, MySpaceTexts.BlockActionTooltip_AddWheel, (b) => b.RecreateTop());
+            addWheelHead.Enabled = (b) => (b.TopBlock == null);
+            addWheelHead.EnableAction(MyTerminalActionIcons.STATION_ON);
+            MyTerminalControlFactory.AddControl(addWheelHead);
+
             var steering = new MyTerminalControlCheckbox<MyMotorSuspension>("Steering", MySpaceTexts.BlockPropertyTitle_Motor_Steering, MySpaceTexts.BlockPropertyDescription_Motor_Steering);
             steering.Getter = (x) => x.Steering;
             steering.Setter = (x, v) => x.Steering = v;
@@ -488,6 +494,8 @@ namespace Sandbox.Game.Entities.Cube
                     (BlockDefinition.MinHeight - m_height) * SuspensionTravel);
                 (m_constraint.ConstraintData as HkWheelConstraintData).SetSuspensionMaxLimit(
                     (BlockDefinition.MaxHeight - m_height) * SuspensionTravel);
+                if (CubeGrid.Physics != null)
+                    CubeGrid.Physics.ForceActivate();
             }
         }
 
@@ -780,11 +788,18 @@ namespace Sandbox.Game.Entities.Cube
             if (CubeGrid.Physics.LinearVelocity.LengthSquared() > SpeedLimit * (1 / 3.6f) * SpeedLimit * (1 / 3.6f))
                 return;
 
+            //below optimized surfaceVelocity > speed limit
+            var wheelRadius = TopBlock.BlockDefinition.Size.X * TopGrid.GridSizeHalf;
+            var surfaceVelSq = TopGrid.Physics.AngularVelocity.LengthSquared();
+            var speedLimitSq = (SpeedLimit * (1 / 3.6f)) / wheelRadius;
+            speedLimitSq *= speedLimitSq;
+            if (surfaceVelSq > speedLimitSq)
+                return;
+
             var powerRatio = 1f;// m_rotorGrid.Physics.AngularVelocity.Length();
 
             if (MyFakes.SUSPENSION_POWER_RATIO)
             {
-                var wheelDiameter = TopBlock.BlockDefinition.Size.X * TopGrid.GridSize * 0.5f;
                 var lin = 1f;
                 if (MyDebugDrawSettings.DEBUG_DRAW_SUSPENSION_POWER)
                 {
@@ -804,7 +819,7 @@ namespace Sandbox.Game.Entities.Cube
 
                     }
                 }
-                lin = TopGrid.Physics.AngularVelocity.Length() * wheelDiameter; // linear velocity at tire surface
+                lin = TopGrid.Physics.AngularVelocity.Length() * wheelRadius; // linear velocity at tire surface
                 powerRatio = 1 - ((lin - 10) / (CubeGrid.Physics.RigidBody.MaxLinearVelocity - 20));
                 powerRatio = MathHelper.Clamp(powerRatio, 0, 1);
                 if (MyDebugDrawSettings.DEBUG_DRAW_SUSPENSION_POWER)
@@ -815,15 +830,13 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             force *= powerRatio;
-            {
-                var body = TopGrid.Physics.RigidBody;
-                //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(10, 60), "" + body.LinearVelocity.Length(), Color.Red, 1);
-                if (m_revolveInvert == forward)
-                    body.ApplyAngularImpulse(body.GetRigidBodyMatrix().Up * /*((3.5f + (float)Math.Pow(body.LinearVelocity.Length(),1.124f)) */ force);
-                else
-                    body.ApplyAngularImpulse(TopGrid.WorldMatrix.Down * /*((3.5f + (float)Math.Pow(body.LinearVelocity.Length(), 1.124f)) */ force);
-                m_wasAccelerating = true;
-            }
+            var body = TopGrid.Physics.RigidBody;
+            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(10, 60), "" + body.LinearVelocity.Length(), Color.Red, 1);
+            if (m_revolveInvert == forward)
+                body.ApplyAngularImpulse(body.GetRigidBodyMatrix().Up * /*((3.5f + (float)Math.Pow(body.LinearVelocity.Length(),1.124f)) */ force);
+            else
+                body.ApplyAngularImpulse(TopGrid.WorldMatrix.Down * /*((3.5f + (float)Math.Pow(body.LinearVelocity.Length(), 1.124f)) */ force);
+            m_wasAccelerating = true;
         }
 
         internal void Right()

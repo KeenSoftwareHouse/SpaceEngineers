@@ -31,7 +31,7 @@ namespace VRage.Render11.Resources
 
     // Manager for textures used for intermediate results. Every borrowed texture needs to be returned at the end of the current frame
     // Parental interface IResourceManager is used only formarly (to follow approach in MyManagers)
-    internal class MyBorrowedRwTextureManager : IManager, IManagerCallback
+    internal class MyBorrowedRwTextureManager : IManager, IManagerFrameEnd
     {
         #region Fields
 
@@ -295,7 +295,38 @@ namespace VRage.Render11.Resources
 
         public bool IsAnyTextureBorrowed()
         {
-            return GetBorrowedTextures().Any();
+            // GetBorrowedTextures causes memory allocations, therefore this method is "redundant"
+            // return GetBorrowedTextures().Any();
+
+            foreach (var itListUav in m_dictionaryUavTextures)
+            {
+                foreach (var uav in itListUav.Value)
+                    if (uav.IsBorrowed)
+                        return true;
+            }
+
+            foreach (var itListRtv in m_dictionaryRtvTextures)
+            {
+                foreach (var rtv in itListRtv.Value)
+                    if (rtv.IsBorrowed)
+                        return true;
+            }
+
+            foreach (var itListCustom in m_dictionaryCustomTextures)
+            {
+                foreach (var custom in itListCustom.Value)
+                    if (custom.IsBorrowed)
+                        return true;
+            }
+
+            foreach (var itListDepthStencil in m_dictionaryDepthStencilTextures)
+            {
+                foreach (var depthStencil in itListDepthStencil.Value)
+                    if (depthStencil.IsBorrowed)
+                        return true;
+            }
+
+            return false;
         }
 
         // IMPORTANT: this method allocates a list for every call, if the method will be used regularly, needs to be modified!
@@ -333,12 +364,7 @@ namespace VRage.Render11.Resources
 
         #region IManagerCallback overrides
 
-        public void OnUnloadData()
-        {
-
-        }
-
-        public void OnFrameEnd()
+        void IManagerFrameEnd.OnFrameEnd()
         {
             if (IsAnyTextureBorrowed())// this is bugcheck, if there is an error, generate error message with more details
             {

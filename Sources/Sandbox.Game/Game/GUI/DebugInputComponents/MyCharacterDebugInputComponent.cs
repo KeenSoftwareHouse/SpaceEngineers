@@ -53,7 +53,7 @@ namespace Sandbox.Game.Gui
                    return true;
                });
 
-            AddShortcut(MyKeys.NumPad7, true, true, false, false,
+            AddShortcut(MyKeys.NumPad7, true, false, false, false,
                () => "Use next ship",
                delegate
                {
@@ -82,7 +82,7 @@ namespace Sandbox.Game.Gui
 
         private void KillEveryoneAround()
         {
-            if (MySession.Static.LocalCharacter == null || !Sync.IsServer || !MySession.Static.IsAdmin ||
+            if (MySession.Static.LocalCharacter == null || !Sync.IsServer || !MySession.Static.HasCreativeRights ||
                 !MySession.Static.IsAdminMenuEnabled)
                 return;
 

@@ -169,8 +169,8 @@
             <Z>0.6505882</Z>
             <W>0.75</W>
           </FlameFullColor>
-          <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
-          <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+          <FlamePointMaterial>JetpackThrustMiddle</FlamePointMaterial>
+          <FlameLengthMaterial>JetpackThrustMiddle</FlameLengthMaterial>
           <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>
           <FlameVisibilityDistance>700</FlameVisibilityDistance>
           <FlameGlareSize>0.779</FlameGlareSize>

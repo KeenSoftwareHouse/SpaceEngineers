@@ -41,7 +41,6 @@ namespace Sandbox.Game.Gui
     public class MyGuiScreenMainMenu : MyGuiScreenBase
     {
         private bool m_musicPlayed = false;
-        private int m_timeFromMenuLoadedMS = 0;
         private const int PLAY_MUSIC_AFTER_MENU_LOADED_MS = 1000;
         private const float TEXT_LINE_HEIGHT = 0.024f;
 #if !XB1
@@ -189,7 +188,7 @@ namespace Sandbox.Game.Gui
                 var saveButton = MakeButton(leftButtonPositionOrigin - ((float)(--buttonRowIndex)) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.ScreenMenuButtonSave, OnClickSaveWorld);
                 var saveAsButton = MakeButton(leftButtonPositionOrigin - ((float)(--buttonRowIndex)) * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MyCommonTexts.LoadScreenButtonSaveAs, OnClickSaveAs);
 
-                if (!Sync.IsServer || (MySession.Static.Battle))
+                if (!Sync.IsServer)
                 {
                     saveButton.Enabled = false;
                     saveButton.ShowTooltipWhenDisabled = true;
@@ -529,7 +528,7 @@ namespace Sandbox.Game.Gui
 
         private void OnExitToMainMenuClick(MyGuiControlButton sender)
         {
-            if (!Sync.IsServer || MySession.Static.Battle)
+            if (!Sync.IsServer)
             {
                 UnloadAndExitToMenu();
                 return;
@@ -660,7 +659,6 @@ namespace Sandbox.Game.Gui
 
         public override void LoadContent()
         {
-            m_timeFromMenuLoadedMS = (int)MySandboxGame.Static.GetNewTimestamp().Miliseconds;
             base.LoadContent();
 
             RecreateControls(true);
@@ -739,7 +737,7 @@ namespace Sandbox.Game.Gui
                 m_downloadedNewsFinished = false;
             }
 
-            if (!m_musicPlayed)// && MySandboxGame.TotalTimeInMilliseconds - m_timeFromMenuLoadedMS >= PLAY_MUSIC_AFTER_MENU_LOADED_MS)
+            if (!m_musicPlayed)
             {
                 if (MyGuiScreenGamePlay.Static == null)
                 {

@@ -1,4 +1,5 @@
-﻿using VRage.Collections;
+﻿using System.Collections.Generic;
+using VRage.Collections;
 using VRage.Game.ObjectBuilders.VisualScripting;
 using VRage.Game.VisualScripting.ScriptBuilder;
 using VRage.Generics;
@@ -10,6 +11,8 @@ namespace VRage.Game.VisualScripting.Missions
     {
         private MyObjectBuilder_ScriptSM m_objectBuilder;
         private readonly MyConcurrentHashSet<MyStringId> m_cachedActions = new MyConcurrentHashSet<MyStringId>(); 
+        private readonly List<MyStateMachineCursor> m_cursorsToInit = new List<MyStateMachineCursor>();
+        private readonly List<MyStateMachineCursor> m_cursorsToDeserialize = new List<MyStateMachineCursor>(); 
 
         public int ActiveCursorCount { get { return m_activeCursors.Count; } }
 
@@ -47,7 +50,7 @@ namespace VRage.Game.VisualScripting.Missions
 
                 var missionNode = newCursor.Node as MyVSStateMachineNode;
                 if (missionNode != null)
-                    missionNode.ActivateScript(true);
+                    m_cursorsToDeserialize.Add(newCursor);
             }
 
             return newCursor;
@@ -67,7 +70,7 @@ namespace VRage.Game.VisualScripting.Missions
 
                 var missionNode = newCursor.Node as MyVSStateMachineNode;
                 if (missionNode != null)
-                    missionNode.ActivateScript();
+                    m_cursorsToInit.Add(newCursor);
             }
 
             return newCursor;
@@ -87,6 +90,30 @@ namespace VRage.Game.VisualScripting.Missions
 
         public override void Update()
         {
+            m_activeCursors.ApplyChanges();
+            // Lazy Deserialize of the scripts.
+            // Mandatory because at this point we know that the SM structure is valid.
+            foreach (var cursor in m_cursorsToDeserialize)
+            {
+                var vsNode = cursor.Node as MyVSStateMachineNode;
+                if (vsNode != null)
+                {
+                    vsNode.ActivateScript(true);
+                }
+            }
+            m_cursorsToDeserialize.Clear();
+
+            // Lazy init of the scripts
+            foreach (var cursor in m_cursorsToInit)
+            {
+                var vsNode = cursor.Node as MyVSStateMachineNode;
+                if (vsNode != null)
+                {
+                    vsNode.ActivateScript();
+                }
+            }
+            m_cursorsToInit.Clear();
+
             foreach (var action in m_cachedActions)
                 m_enqueuedActions.Add(action);
 

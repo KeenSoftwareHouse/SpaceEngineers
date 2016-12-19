@@ -15,6 +15,7 @@ using Sandbox.Game.Entities.Planet;
 using Sandbox.Game.WorldEnvironment;
 using VRage.Profiler;
 using VRage.Voxels;
+using VRage.Utils;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -352,9 +353,19 @@ namespace Sandbox.Engine.Voxels
 
         public static void MakeCrater(MyVoxelBase voxelMap, BoundingSphereD sphere, Vector3 direction, MyVoxelMaterialDefinition material)
         {
+            if (voxelMap == null)
+            {
+                return;
+            }
+
+            if (voxelMap.Storage == null)
+            {
+                MyLog.Default.WriteLine("Storage shouldn't be null for Voxel:" + voxelMap);
+            }
+
             ProfilerShort.Begin("MakeCrater");
 
-            Vector3 normal = Vector3.Normalize(sphere.Center - voxelMap.RootVoxel.WorldMatrix.Translation);
+            Vector3 normal = voxelMap.RootVoxel != null ? Vector3.Normalize(sphere.Center - voxelMap.RootVoxel.WorldMatrix.Translation) : Vector3.Normalize(sphere.Center - voxelMap.WorldMatrix.Translation);
 
             Vector3I minCorner, maxCorner;
             {
@@ -514,8 +525,10 @@ namespace Sandbox.Engine.Voxels
                             {
                                 continue;
                             }
-
-                            m_cache.Material(ref cachePos, newMaterial.Index);
+                            if (newMaterial != null)
+                            {
+                                m_cache.Material(ref cachePos, newMaterial.Index);
+                            }
                             changed = true;
                         }
 

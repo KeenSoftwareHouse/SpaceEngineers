@@ -67,6 +67,7 @@ namespace Sandbox.Game.Entities
                         {
                             item.Result = MyEntities.CreateFromObjectBuilderNoinit(item.ObjectBuilder);
                         }
+                        item.Result.SentFromServer = true;
                         item.InScene = (item.ObjectBuilder.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene;
                         item.ObjectBuilder.PersistentFlags &= ~MyPersistentEntityFlags2.InScene;
                         item.Result.DebugAsyncLoading = true;

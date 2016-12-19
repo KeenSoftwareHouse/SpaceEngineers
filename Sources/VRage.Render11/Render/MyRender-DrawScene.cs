@@ -1,15 +1,9 @@
 ﻿using SharpDX;
-using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using SharpDX.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-#if !XB1 // XB1_NOOPENVRWRAPPER
-using Valve.VR;
-#endif // !XB1
 using System.IO;
-using SharpDX.DXGI;
 using VRage;
 using VRage.Utils;
 using VRageMath;
@@ -18,42 +12,41 @@ using Vector2 = VRageMath.Vector2;
 using VRage.OpenVRWrapper;
 using VRage.Profiler;
 using VRage.Render11.Common;
-using VRage.Render11.LightingStage.Shadows;
+using VRage.Render11.GeometryStage2;
+using VRage.Render11.LightingStage;
 using VRage.Render11.Profiler;
-using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
 using VRage.Render11.Tools;
 using VRageRender.Messages;
-using Resource = SharpDX.Direct3D11.Resource;
 using ImageFileFormat = SharpDX.Direct3D9.ImageFileFormat;
 
 namespace VRageRender
 {
     partial class MyRender11
     {
-        static Dictionary<string, Dictionary<int, MyPassStats>> m_passStats = new Dictionary<string, Dictionary<int, MyPassStats>>();
+        static readonly Dictionary<string, Dictionary<int, MyPassStats>> m_passStats = new Dictionary<string, Dictionary<int, MyPassStats>>();
         static MyPassStats m_passStatsTotals = new MyPassStats();
         private static MyRenderDebugOverrides m_debugOverrides = new MyRenderDebugOverrides();
         internal static MyRenderDebugOverrides DebugOverrides { get { return m_debugOverrides; } }
 
         internal static MyPostprocessSettings Postprocess = MyPostprocessSettings.Default;
-        internal static MyGeometryRenderer DynamicGeometryRenderer;
-        internal static MyGeometryRenderer StaticGeometryRenderer;
+        private static MyGeometryRenderer m_dynamicGeometryRenderer;
+        private static MyGeometryRenderer m_staticGeometryRenderer;
         internal static MyShadows DynamicShadows;
         internal static MyShadows StaticShadows;
         private static MyFoliageGeneratingPass m_foliageGenerator;
         private static MyFoliageRenderingPass m_foliageRenderer;
 
-        private static Queue<CommandList> m_commandLists = new Queue<CommandList>();
+        private static readonly Queue<CommandList> m_commandLists = new Queue<CommandList>();
 
         internal static MyFoliageGeneratingPass FoliageGenerator { get { return m_foliageGenerator; } }
         internal static Dictionary<string, Dictionary<int, MyPassStats>> PassStats { get { return m_passStats; } }
 
-        internal static void Init()
+        private static void Init()
         {
-            DynamicGeometryRenderer = new MyGeometryRenderer(MyScene.DynamicRenderablesDBVH, DynamicShadows);
+            m_dynamicGeometryRenderer = new MyGeometryRenderer(MyScene.DynamicRenderablesDBVH, DynamicShadows);
             if (MyScene.SeparateGeometry)
-                StaticGeometryRenderer = new MyGeometryRenderer(MyScene.StaticRenderablesDBVH, StaticShadows);
+                m_staticGeometryRenderer = new MyGeometryRenderer(MyScene.StaticRenderablesDBVH, StaticShadows);
 
             m_foliageGenerator = new MyFoliageGeneratingPass();
             m_foliageRenderer = new MyFoliageRenderingPass();
@@ -75,11 +68,6 @@ namespace VRageRender
                 }
             }
         }
-        private static void InitShadows(int cascadeCount, int cascadeResolution)
-        {
-            DynamicShadows = new MyShadows(cascadeCount, cascadeResolution);
-            StaticShadows = new MyShadows(cascadeCount, cascadeResolution);
-        }
         private static void ResetShadows(int cascadeCount, int cascadeResolution)
         {
             if (DynamicShadows != null)
@@ -95,7 +83,7 @@ namespace VRageRender
             InitShadowCascadeUpdateIntervals(cascadeCount);
         }
 
-        internal static void ResetStats()
+        private static void ResetStats()
         {
             foreach (var stats in m_passStats)
                 stats.Value.Clear();
@@ -114,7 +102,16 @@ namespace VRageRender
                     m_passStats[passName] = statList;
                 }
 
-                statList[passHash] = stats;
+                MyPassStats passStats;
+                if (statList.TryGetValue(passHash, out passStats))
+                {
+                    passStats.Gather(stats);
+                    statList[passHash] = passStats;
+                }
+                else
+                {
+                     statList[passHash] = stats;
+                }
             }
 
             m_passStatsTotals.Gather(stats);
@@ -245,7 +242,7 @@ namespace VRageRender
             int height = MyRender11.ViewportResolution.Y;
             float fovH = message.FOV;
             envMatrices.FovH = fovH;
-            envMatrices.FovV = (float)(2 * Math.Atan(Math.Tan(fovH / 2.0) * (width / (double)height)));
+            envMatrices.FovV = (float)(2 * Math.Atan(Math.Tan(fovH / 2.0) * (height/ (double) width)));
 
             MyUtils.Init(ref envMatrices.ViewFrustumD);
             envMatrices.ViewFrustumD.Matrix = envMatrices.ViewProjectionD;
@@ -270,19 +267,12 @@ namespace VRageRender
                     m_pendingComponentsToRemove.Add(renderableComponent);
             }
 
-            if (PendingComponentsToUpdate.Count != m_pendingComponentsToRemove.Count)
+            foreach (var renderableComponent in m_pendingComponentsToRemove)
             {
-                foreach (var renderableComponent in m_pendingComponentsToRemove)
-                {
-                    PendingComponentsToUpdate.Remove(renderableComponent);
-                }
-                m_pendingComponentsToRemove.Clear();
+                PendingComponentsToUpdate.Remove(renderableComponent);
             }
-            else
-            {
-                PendingComponentsToUpdate.Clear();
-                m_pendingComponentsToRemove.Clear();
-            }
+            m_pendingComponentsToRemove.Clear();
+  
 
             ProfilerShort.BeginNextBlock("MyInstanceLodComponent OnFrameUpdate");
             foreach (var instanceLodComponent in MyComponentFactory<MyInstanceLodComponent>.GetAll())
@@ -368,7 +358,6 @@ namespace VRageRender
 
             PrepareGameScene();
 
-
             // todo: shouldn't be necessary
             if (true)
             {
@@ -386,15 +375,30 @@ namespace VRageRender
                 ProfilerShort.End();
             }
 
+            ProfilerShort.Begin("MyLights.Update");
+            MyLights.Update();
+            ProfilerShort.End();
+
+            ProfilerShort.Begin("DynamicGeometryRenderer");
+            MyCullQuery cullQuery = m_dynamicGeometryRenderer.PrepareCullQuery(true); // it is used to share rendering settings between the old and the new pipeline
+            ProfilerShort.End();
+
+            MyGpuProfiler.IC_BeginBlock("NewGeometryRenderer");
+            ProfilerShort.Begin("NewGeometryRenderer");
+            if (MyDebugGeometryStage2.EnableNewGeometryPipeline)
+                MyManagers.GeometryRenderer.Render(cullQuery);
+            ProfilerShort.End();
+            MyGpuProfiler.IC_EndBlock();
+            
             MyGpuProfiler.IC_BeginBlock("MyGeometryRenderer.Render");
             Debug.Assert(m_commandLists.Count == 0, "Not all command lists executed last frame!");
             ProfilerShort.Begin("DynamicGeometryRenderer");
-            DynamicGeometryRenderer.Render(m_commandLists, true);
+            m_dynamicGeometryRenderer.Render(m_commandLists);
             ProfilerShort.End();    // End function block
             if (MyScene.SeparateGeometry)
             {
                 ProfilerShort.Begin("StaticGeometryRenderer");
-                StaticGeometryRenderer.Render(m_commandLists, false);
+                m_staticGeometryRenderer.Render(m_commandLists); // , false);
                 ProfilerShort.End();    // End function block
             }
 
@@ -438,7 +442,8 @@ namespace VRageRender
 
             MyRender11.RC.ResetTargets();
 
-            IBorrowedRtvTexture ambientOcclusionRtv = MyScreenDependants.GetAmbientOcclusionRtv();
+            IBorrowedRtvTexture ambientOcclusionRtv = MyManagers.RwTexturesPool.BorrowRtv("MyScreenDependants.AmbientOcclusion", 
+                ResolutionI.X, ResolutionI.Y, SharpDX.DXGI.Format.R8_UNorm);
             debugAmbientOcclusion = ambientOcclusionRtv; // Pass the texture to the outside
 
             int nPasses = MyStereoRender.Enable ? 2 : 1;
@@ -471,13 +476,15 @@ namespace VRageRender
                 if (MySSAO.Params.Enabled && RenderSettings.AmbientOcclusionEnabled
                     && m_debugOverrides.Postprocessing && m_debugOverrides.SSAO)
                 {
-                ProfilerShort.BeginNextBlock("SSAO");
-                MyGpuProfiler.IC_BeginBlockAlways("SSAO");
+                    ProfilerShort.BeginNextBlock("SSAO");
+                    MyGpuProfiler.IC_BeginBlockAlways("SSAO");
                     MySSAO.Run(ambientOcclusionRtv, MyGBuffer.Main);
 
                     if (MySSAO.Params.UseBlur)
                     {
-                        IBorrowedRtvTexture ambientOcclusionHelper = MyScreenDependants.GetAmbientOcclusionHelper();
+                        IBorrowedRtvTexture ambientOcclusionHelper = MyManagers.RwTexturesPool.BorrowRtv("MyScreenDependants.AmbientOcclusionHelper", 
+                            ResolutionI.X, ResolutionI.Y, SharpDX.DXGI.Format.R8_UNorm);
+
                         MyBlur.Run(ambientOcclusionRtv, ambientOcclusionHelper, ambientOcclusionRtv, clearColor: Color4.White);
                         ambientOcclusionHelper.Release();
                     }
@@ -499,14 +506,19 @@ namespace VRageRender
                 ProfilerShort.BeginNextBlock("Lights");
                 MyGpuProfiler.IC_BeginBlockAlways("Lights");
                 if (m_debugOverrides.Lighting)
-                    MyLightRendering.Render(postProcessedShadows, ambientOcclusionRtv);
+                    MyLightsRendering.Render(postProcessedShadows, ambientOcclusionRtv);
                 MyGpuProfiler.IC_EndBlockAlways();
                 postProcessedShadows.Release();
 
                 if (MyRender11.DebugOverrides.Flares)
-                    MyLightRendering.DrawFlares();
+                    MyLightsRendering.DrawFlares();
             }
             MyStereoRender.RenderRegion = MyStereoRegion.FULLSCREEN;
+            MyGpuProfiler.IC_EndBlock();
+
+            ProfilerShort.BeginNextBlock("Occlusion Queries");
+            MyGpuProfiler.IC_BeginBlock("Occlusion Queries");
+            MyOcclusionQueryRenderer.Render(RC, MyGBuffer.Main.ResolvedDepthStencil, MyGBuffer.Main.LBuffer);
             MyGpuProfiler.IC_EndBlock();
 
             // Rendering for VR is solved inside of Transparent rendering
@@ -525,11 +537,11 @@ namespace VRageRender
 
             if (MyRender11.Postprocess.EnableEyeAdaptation)
             {
-            if (m_resetEyeAdaptation)
-            {
+                if (m_resetEyeAdaptation)
+                {
                     MyLuminanceAverage.Reset();
-                m_resetEyeAdaptation = false;
-            }
+                    m_resetEyeAdaptation = false;
+                }
 
                 avgLum = MyLuminanceAverage.Run(MyGBuffer.Main.LBuffer);
             }

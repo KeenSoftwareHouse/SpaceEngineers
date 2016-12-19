@@ -41,11 +41,10 @@ uint combine_hashes(uint h0, uint h1)
     return (17 * 31 + h0) * 31 + h1;
 }
 
-uint position_seed(float3 position, uint id) 
+uint position_seed(float3 position) 
 {
     uint3 q = floor(position * 100) / 100;
     q = q % 53629;
-	q += id;
     return combine_hashes(q.x, combine_hashes(q.y, q.z));
 }
 
@@ -54,7 +53,7 @@ void __geometry_shader(triangle FoliageStreamVertex input[3], uint primitiveID :
     inout PointStream<FoliageStreamGeometryOutputVertex> point_stream)
 {
 	RandomGenerator random;
-	uint seed = position_seed(input[0].position_world + input[1].position_world * 7 + input[2].position_world * 53, primitiveID);
+	uint seed = position_seed(input[0].position_world + input[1].position_world * 7 + input[2].position_world * 53);
 	random.SetSeed(seed);
 	
     float triangleArea = triangle_area(input[0].position, input[1].position, input[2].position);

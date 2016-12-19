@@ -100,12 +100,12 @@ namespace Sandbox.Engine.Physics
                 int i = 0;
                 for (; i < 4; i++)
                 {
-                    if (eventInfo.GetShapeKey(0, i) == uint.MaxValue)
+                    if (eventInfo.GetShapeKey(index, i) == uint.MaxValue)
                     {
                         break;
                     }
                 }
-                shapeKey = eventInfo.GetShapeKey(0, i - 1);
+                shapeKey = eventInfo.GetShapeKey(index, i - 1);
                 body = HkRigidBody.FromShape(rb.GetShape().GetContainer().GetShape(shapeKey)).GetBody();
             }
             return body;
@@ -118,13 +118,34 @@ namespace Sandbox.Engine.Physics
 
         public static float GetConvexRadius(this HkWorld.HitInfo hitInfo)
         {
-            foreach (var shape in hitInfo.Body.GetShape().GetAllShapes())
-            {
-                if (shape.IsConvex)
-                    return shape.ConvexRadius;
-            }
+            if (hitInfo.Body == null)
+                return 0;
 
-            return 0;
+            HkShape shape = hitInfo.Body.GetShape();
+            for (int i = 0; i < HkWorld.HitInfo.ShapeKeyCount; i++)
+			{
+                var shapeKey = hitInfo.GetShapeKey(i);
+                if (HkShape.InvalidShapeKey != shapeKey) 
+                {
+                    if (!shape.IsContainer())
+                    {
+                        break;
+                    }
+                    //shape = shape.GetContainer().GetShape(shapeKey);
+                }
+                else
+                {
+                    break;
+                }
+			}
+            if (shape.ShapeType == HkShapeType.ConvexTransform || shape.ShapeType == HkShapeType.ConvexTranslate || shape.ShapeType == HkShapeType.Transform)
+                shape = shape.GetContainer().GetShape(0);
+            if (shape.ShapeType == HkShapeType.Sphere|| shape.ShapeType==HkShapeType.Capsule)
+                return 0;
+            if (!shape.IsConvex)
+                return HkConvexShape.DefaultConvexRadius;
+
+            return shape.ConvexRadius;
         }
 
         public static Vector3 GetFixedPosition(this MyPhysics.HitInfo hitInfo)

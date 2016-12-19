@@ -41,6 +41,9 @@ namespace VRage.Game.ObjectBuilders.Campaign
         [XmlIgnore]
         public ulong PublishedFileId = 0;
 
+        [XmlIgnore]
+        public bool IsDebug = false;
+
         #endregion
 
     }

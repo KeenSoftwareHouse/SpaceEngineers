@@ -124,5 +124,25 @@ namespace Sandbox.Game.Entities.Inventory
                 }
             }
         }
+
+        public override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+
+            foreach (var componentBase in ChildList.Reader)
+            {
+                componentBase.OnAddedToScene();
+            }
+        }
+
+        public override void OnRemovedFromScene()
+        {
+            base.OnRemovedFromScene();
+
+            foreach (var componentBase in ChildList.Reader)
+            {
+                componentBase.OnRemovedFromScene();
+            }
+        }
     }
 }

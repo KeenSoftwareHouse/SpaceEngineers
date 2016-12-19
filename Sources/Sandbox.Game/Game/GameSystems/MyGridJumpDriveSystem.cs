@@ -727,7 +727,7 @@ namespace Sandbox.Game.GameSystems
                 MatrixD matrix = MatrixD.CreateFromDir(-dir);
                 matrix.Translation = m_grid.PositionComp.WorldAABB.Center + dir * m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() * 2f;
                 m_effect.WorldMatrix = matrix;
-                m_effect.UserScale = (float)m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() / 15f;
+               // m_effect.UserScale = (float)m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() / 15f;
             }
         }
 

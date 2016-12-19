@@ -100,6 +100,7 @@ namespace VRage.Utils
         }
 
 
+        private bool m_alwaysFlush = false;
         public static MyLogSeverity AssertLevel = (MyLogSeverity)(byte.MaxValue);
         private bool LogForMemoryProfiler = false;
         private bool m_enabled = false;             //  Must be false, beuuase MW web site must not write into log file
@@ -134,6 +135,11 @@ namespace VRage.Utils
             {
                 return m_enabled;
             }
+        }
+
+        public MyLog(bool alwaysFlush = false)
+        {
+            m_alwaysFlush = alwaysFlush;
         }
 
         public void Init(string logFileName, StringBuilder appVersionString)
@@ -361,6 +367,8 @@ namespace VRage.Utils
             if (m_enabled == false) return;
 
             WriteLine(m_normalWriter, ex);
+
+            m_streamWriter.Flush();
         }
 
         StringBuilder m_consoleStringBuilder = new StringBuilder();
@@ -386,7 +394,9 @@ namespace VRage.Utils
                     WriteDateTimeAndThreadId();
                     WriteString(msg);
                     m_streamWriter.WriteLine();
-                    m_streamWriter.Flush();
+
+                    if (m_alwaysFlush)
+                        m_streamWriter.Flush();
                 }
             }
 
@@ -396,6 +406,13 @@ namespace VRage.Utils
             }
 
             //Debug.WriteLine(msg);
+        }
+
+		//Crash object builder logging
+		//TODO: remove or make sure it uses lock,enabled, etc...
+        public TextWriter GetTextWriter()
+        {
+            return m_streamWriter;
         }
 
         private string GetGCMemoryString(string prependText = "")
@@ -563,6 +580,11 @@ namespace VRage.Utils
                         SystemTrace.Fail(sb.ToString());
                 }
             }
+        }
+
+        public void Flush()
+        {
+            m_streamWriter.Flush();
         }
     }
 

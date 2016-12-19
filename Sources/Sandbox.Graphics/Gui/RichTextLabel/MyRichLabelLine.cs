@@ -41,8 +41,9 @@ namespace Sandbox.Graphics.GUI
         private void RecalculateSize()
         {
             Vector2 newSize = new Vector2(0f, m_minLineHeight);
-            foreach (MyRichLabelPart part in m_parts)
+            for (int i = 0; i < m_parts.Count; i++)
             {
+                MyRichLabelPart part = m_parts[i];
                 Vector2 partSize = part.Size;
                 newSize.Y = Math.Max(partSize.Y, newSize.Y);
                 newSize.X += partSize.X;
@@ -59,8 +60,9 @@ namespace Sandbox.Graphics.GUI
         {
             Vector2 actualPosition = position;
             float centerY = position.Y + m_size.Y / 2f;
-            foreach (MyRichLabelPart part in m_parts)
+            for (int i = 0; i < m_parts.Count; i++)
             {
+                MyRichLabelPart part = m_parts[i];
                 Vector2 partSize = part.Size;
                 actualPosition.Y = centerY - partSize.Y / 2f;
 
@@ -95,8 +97,8 @@ namespace Sandbox.Graphics.GUI
             get
             {
                 StringBuilder builder = new StringBuilder();
-                foreach (MyRichLabelPart part in m_parts)
-                    part.AppendTextTo(builder);
+                for (int i = 0; i < m_parts.Count; i++)
+                    m_parts[i].AppendTextTo(builder);
 
                 return builder.ToString();
             }
@@ -104,8 +106,9 @@ namespace Sandbox.Graphics.GUI
 
         public bool HandleInput(Vector2 position)
         {
-            foreach (var part in m_parts)
+            for (int i = 0; i < m_parts.Count; i++)
             {
+                var part = m_parts[i];
                 if (part.HandleInput(position))
                     return true;
                 position.X += part.Size.X;

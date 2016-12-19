@@ -1027,7 +1027,7 @@
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
-      <SoftParticleDistanceScale>1</SoftParticleDistanceScale>
+      <SoftParticleDistanceScale>10</SoftParticleDistanceScale>
       <Texture>Textures\Particles\ReflectorCone.dds</Texture>
       <UseAtlas>false</UseAtlas>
       <UVOffset>
@@ -1049,7 +1049,7 @@
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
-      <SoftParticleDistanceScale>1</SoftParticleDistanceScale>
+      <SoftParticleDistanceScale>10</SoftParticleDistanceScale>
       <Texture>Textures\Particles\ReflectorConeCharacter.dds</Texture>
       <UseAtlas>false</UseAtlas>
       <UVOffset>
@@ -3109,6 +3109,119 @@
         <W>0.01</W>
       </Color>
       <Reflectivity>0.196</Reflectivity>
+    </TransparentMaterial>
+	<TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>NoGlareLight</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <Emissivity>0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <SoftParticleDistanceScale>0.5</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\corner_light_glare.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+	  <Color>
+        <X>0</X>
+        <Y>0</Y>
+		<Z>0</Z>
+		<W>0</W>
+      </Color>
+    </TransparentMaterial>	
+	
+    <TransparentMaterial>
+	  <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>EngineThrustMiddle</SubtypeId>
+      </Id>			
+      <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <IgnoreDepth>false</IgnoreDepth>
+      <SoftParticleDistanceScale>1.0</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\EngineThrustMiddle.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+	  <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>JetpackThrustMiddle</SubtypeId>
+      </Id>			
+      <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <IgnoreDepth>false</IgnoreDepth>
+      <SoftParticleDistanceScale>0.05</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\EngineThrustMiddle.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>GlareSsThrustSmall</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>0.55</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <IgnoreDepth>true</IgnoreDepth>
+      <SoftParticleDistanceScale>0</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\GlareSsThrustSmall.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>SunGlareMain</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1.0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <IgnoreDepth>true</IgnoreDepth>
+      <SoftParticleDistanceScale>0</SoftParticleDistanceScale>
+      <Texture>Textures\SunGlare\sun_glow_main.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
     </TransparentMaterial>
   </TransparentMaterials>
 </Definitions>

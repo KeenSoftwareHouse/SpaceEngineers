@@ -27,7 +27,23 @@
     same SubtypeId as has the container definition, then it search for definition without SubtypeId.
     
     See EntityComponents.sbc for component definitions.
-    
+
+
+    Mods can optionally create a MyStorageComponent on entities automatically. This avoids having to create them in code.
+    EXAMPLE:
+
+    <EntityContainers>
+      <Container>
+        <Id>
+          <TypeId>MyObjectBuilder_Reactor</TypeId>
+          <SubtypeId>Custom_Block_Name</SubtypeId>
+        </Id>
+        <DefaultComponents>
+          <Component BuilderType="MyObjectBuilder_ModStorageComponent" ForceCreate="true"/>
+        </DefaultComponents>
+      </Container>
+    </EntityContainers>
+
     NOTE: 
     When entity types are changed to be GameLogic components in container, these definitions may remain same and the TypeId can be used to create component of that type.
     
@@ -169,6 +185,13 @@
       </DefaultComponents>
     </Container>
 
-
+    <Container>
+      <Id>
+        <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+      </Id>
+      <DefaultComponents>
+        <Component BuilderType="MyObjectBuilder_ModStorageComponent" ForceCreate="true"/>
+      </DefaultComponents>
+    </Container>
   </EntityContainers>
 </Definitions>

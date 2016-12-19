@@ -61,7 +61,9 @@ namespace Sandbox.Game.SessionComponents.Clipboard
         private static MyClipboardDefinition m_definition;
         public static MyClipboardDefinition ClipboardDefinition { get { return m_definition; } }
 
-        private MyGridClipboard m_clipboard;
+        //Static on purpose, because we want to copy between sessions
+        static private MyGridClipboard m_clipboard;
+
         public MyGridClipboard Clipboard
         {
             get { return m_clipboard; }
@@ -132,7 +134,7 @@ namespace Sandbox.Game.SessionComponents.Clipboard
             get
             {
                 return MyFakes.ENABLE_ADMIN_SPECTATOR_BUILDING && MySession.Static != null && MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator
-                    && MyMultiplayer.Static != null && MySession.Static.LocalHumanPlayer != null && MyMultiplayer.Static.IsAdmin(MySession.Static.LocalHumanPlayer.Id.SteamId) && !MySession.Static.Battle;
+                    && MyMultiplayer.Static != null && MySession.Static.LocalHumanPlayer != null && MySession.Static.LocalHumanPlayer.IsAdmin;
             }
         }
 
@@ -153,8 +155,11 @@ namespace Sandbox.Game.SessionComponents.Clipboard
             if (clipboardDefinition == null)
                 Debug.Fail("Wrong definition! Please check.");
 
-            m_definition = clipboardDefinition;
-            m_clipboard = new MyGridClipboard(m_definition.PastingSettings, calculateVelocity: true);
+            if (m_clipboard == null)
+            {
+                m_definition = clipboardDefinition;
+                m_clipboard = new MyGridClipboard(m_definition.PastingSettings, calculateVelocity: true);
+            }
         }
 
         public override void LoadData()
@@ -239,21 +244,7 @@ namespace Sandbox.Game.SessionComponents.Clipboard
 
                 if (this.HandleLeftMouseButton(context))
                     return true;
-            }
-            else if (MySession.Static.Battle)
-            {
-                if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION))
-                {
-                    if (m_clipboard.IsActive)
-                    {
-                        if (m_clipboard.PasteGrid())
-                        {
-                            UpdatePasteNotification(MyCommonTexts.CubeBuilderPasteNotification);
-                            return true;
-                        }
-                    }
-                }
-            }
+            }          
 
             if (this.HandleBlueprintInput())
                 return true;
@@ -603,7 +594,7 @@ namespace Sandbox.Game.SessionComponents.Clipboard
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
 
-                if (!m_clipboard.IsActive && !MySession.Static.Battle)
+                if (!m_clipboard.IsActive)
                 {
                     MySessionComponentVoxelHand.Static.Enabled = false;
                     var copiedGrid = MyCubeGrid.GetTargetGrid();
@@ -615,7 +606,7 @@ namespace Sandbox.Game.SessionComponents.Clipboard
 
                     UpdatePasteNotification(MyCommonTexts.CubeBuilderPasteNotification);
 
-                    var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard, MySession.Static.CreativeMode || MySession.Static.IsAdminModeEnabled(Sync.MyId));
+                    var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard, MySession.Static.CreativeMode || MySession.Static.CreativeToolsEnabled(Sync.MyId));
                     if (copiedGrid != null)
                     {
                         blueprintScreen.CreateFromClipboard(true);

@@ -76,6 +76,14 @@ namespace VRageRender.Import
         public List<int> m_indices = new List<int>();
         public MyMeshDrawTechnique Technique = MyMeshDrawTechnique.MESH;
 
+        public string GetMaterialName()
+        {
+            string materialName = "";
+            if (m_MaterialDesc != null)
+                materialName = m_MaterialDesc.MaterialName;
+            return materialName;
+        }
+
         public bool Export(BinaryWriter writer)
         {
             writer.Write(m_MaterialHash);

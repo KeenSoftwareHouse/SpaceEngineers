@@ -6,8 +6,8 @@ namespace VRageRender
 {
     public class MyShadowsSettings
     {
-        private float[] m_shadowCascadeSmallSkipThresholds;
-        private bool[] m_shadowCascadeFrozen;
+        float[] m_shadowCascadeSmallSkipThresholds;
+        bool[] m_shadowCascadeFrozen;
 
         [XmlElement(Type = typeof(MyStructXmlSerializer<Struct>))]
         public Struct Data = Struct.Default;
@@ -58,12 +58,7 @@ namespace VRageRender
             }
         }
 
-        //public int ShadowCascadeCount
-        //{
-        //    get { return m_shadowCascadeSmallSkipThresholds.Length; }
-        //}
-
-        [XmlType("MyShadowsSettings.Struct")]
+        [XmlType("MyShadowSettings.Struct")]
         public struct Struct
         {
             [StructDefault]
@@ -108,7 +103,7 @@ namespace VRageRender
 
         //[XmlElement(Type = typeof(MyStructXmlSerializer<Cascade>))]
 
-        [XmlType("MyShadowsSettings.Cascade")]
+        [XmlType("MyShadowSettings.Cascade")]
         public struct Cascade
         {
             public float FullCoverageDepth;
@@ -135,7 +130,7 @@ namespace VRageRender
         [XmlElement(Type = typeof(MyStructXmlSerializer<NewStruct>))]
         public NewStruct NewData = NewStruct.Default;
 
-        [XmlType("MyShadowsSettings.NewStruct")]
+        [XmlType("MyShadowSettings.NewStruct")]
         public struct NewStruct
         {
             [StructDefault]

@@ -17,12 +17,12 @@ namespace Sandbox.Game
 {
     public static class MyParticleEffects
     {
-        public static void GenerateMuzzleFlash(Vector3D position, Vector3 dir, float radius, float length, bool near = false)
+        public static void GenerateMuzzleFlash(Vector3D position, Vector3 dir, float radius, float length)
         {
-            GenerateMuzzleFlash(position, dir, -1, ref MatrixD.Zero, radius, length, near);
+            GenerateMuzzleFlash(position, dir, -1, ref MatrixD.Zero, radius, length);
         }
 
-        public static void GenerateMuzzleFlash(Vector3D position, Vector3 dir, int renderObjectID, ref MatrixD worldToLocal, float radius, float length, bool near = false)
+        public static void GenerateMuzzleFlash(Vector3D position, Vector3 dir, int renderObjectID, ref MatrixD worldToLocal, float radius, float length)
         {
             float angle = MyParticlesManager.Paused ? 0 : MyUtils.GetRandomFloat(0, MathHelper.PiOver2);
 
@@ -30,8 +30,8 @@ namespace Sandbox.Game
             Vector4 color = new Vector4(colorComponent, colorComponent, colorComponent, 1);
 
             MyTransparentGeometry.AddLineBillboard("MuzzleFlashMachineGunSide", color, position, renderObjectID, ref worldToLocal,
-                dir, length, 0.15f, 0, near);
-            MyTransparentGeometry.AddPointBillboard("MuzzleFlashMachineGunFront", color, position, renderObjectID, ref worldToLocal, radius, angle, 0, false, near);
+                dir, length, 0.15f, VRageRender.MyBillboard.BlenType.Standard);
+            MyTransparentGeometry.AddPointBillboard("MuzzleFlashMachineGunFront", color, position, renderObjectID, ref worldToLocal, radius, angle);
         }
 
         private class EffectSoundEmitter

@@ -189,6 +189,28 @@ namespace Sandbox.Game.Entities.Cube.CubeBuilder
         }
 
         /// <summary>
+        /// Checks if there is complementary block available
+        /// </summary>
+        public bool HasComplementBlock()
+        {
+            if (m_definitionWithVariants != null)
+            {
+                var group = MyDefinitionManager.Static.GetDefinitionGroup(m_definitionWithVariants.Base.BlockPairName);
+                if (m_definitionWithVariants.Base.CubeSize == MyCubeSize.Small)
+                {
+                    if (group.Large != null && (group.Large.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS))
+                        return true;
+                }
+                else if (m_definitionWithVariants.Base.CubeSize == MyCubeSize.Large)
+                {
+                    if (group.Small != null && (group.Small.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Sets cube size mode.
         /// </summary>
         /// <param name="newCubeSize">New cube size mode.</param>
@@ -203,7 +225,8 @@ namespace Sandbox.Game.Entities.Cube.CubeBuilder
         /// </summary>
         internal void UpdateComplementBlock()
         {
-            if (StartBlockDefinition == null)
+            //GK: UpdateComplementBlock is called twice upon CubeBuilder Activation resulting in invalid StartBlockDefintion / CurrentBlockDefinition pairs. Do this hotfix for now to ignore first call
+            if (CurrentBlockDefinition == null || StartBlockDefinition == null)
                 return;
 
             var blockDefGroup = MyDefinitionManager.Static.GetDefinitionGroup(StartBlockDefinition.BlockPairName);

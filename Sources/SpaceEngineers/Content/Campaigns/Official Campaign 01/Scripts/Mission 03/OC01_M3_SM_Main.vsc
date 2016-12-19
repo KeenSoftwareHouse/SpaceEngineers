@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_VSFiles xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <StateMachine>
+    <Name>OC01_M3_SM_Main</Name>
+    <OwnerId>0</OwnerId>
+    <Cursors>
+      <MyObjectBuilder_ScriptSMCursor>
+        <NodeName>Intro</NodeName>
+      </MyObjectBuilder_ScriptSMCursor>
+    </Cursors>
+    <Nodes>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="-341.144775" y="241.074554" />
+        <Name>Intro</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_Intro.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_Intro</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode xsi:type="MyObjectBuilder_ScriptSMSpreadNode">
+        <Position x="476.8634" y="270.107941" />
+        <Name>Spread_0</Name>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="432.727539" y="51.0539" />
+        <Name>ShipStatus</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_ShipStatus.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_ShipStatus</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="647.8284" y="246.645721" />
+        <Name>ShipFuel</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_ShipFuel.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_ShipFuel</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="888.331543" y="246.148209" />
+        <Name>ShipRepair</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_ShipRepair.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_ShipRepair</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1398.7146" y="243.55928" />
+        <Name>HangarRoof</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_HangarRoof.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_HangarRoof</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="198.772461" y="248.863708" />
+        <Name>BasePower</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_BasePower.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_BasePower</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1644.65881" y="243.616852" />
+        <Name>ShipReady</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_ShipReady.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_ShipReady</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1910.1012" y="245.4826" />
+        <Name>Battle</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_Battle.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_Battle</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1154.07764" y="245.059662" />
+        <Name>Tanking</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_Tanking.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_Tanking</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="-104.610016" y="445.313263" />
+        <Name>FlyingToBase</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 03\OC01_M3_OLS_FlyingToBase.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M3_OLS_FlyingToBase</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+    </Nodes>
+    <Transitions>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Intro</From>
+        <To>FlyingToBase</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_0</From>
+        <To>ShipStatus</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_0</From>
+        <To>ShipFuel</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>ShipRepair</From>
+        <To>Tanking</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>BasePower</From>
+        <To>Spread_0</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>ShipFuel</From>
+        <To>ShipRepair</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>HangarRoof</From>
+        <To>ShipReady</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>ShipReady</From>
+        <To>Battle</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Tanking</From>
+        <To>HangarRoof</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Debug</Name>
+        <From>FlyingToBase</From>
+        <To>Battle</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>FlyingToBase</From>
+        <To>BasePower</To>
+      </MyObjectBuilder_ScriptSMTransition>
+    </Transitions>
+  </StateMachine>
+</MyObjectBuilder_VSFiles>

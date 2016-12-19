@@ -160,6 +160,7 @@ namespace Sandbox.Game.World
             bool m_ignoreMemoryLimits;
             long m_factionId;
             Stack<Action> m_callbacks;
+            List<VRage.ModAPI.IMyEntity> m_resultIDs;
 
             public CreateGridsData(List<MyCubeGrid> results, string prefabName, MatrixD worldMatrix, bool spawnAtOrigin = false, bool ignoreMemoryLimits = true, long factionId = 0, Stack<Action> callbacks = null)
             {
@@ -179,10 +180,14 @@ namespace Sandbox.Game.World
             {
                 try
                 {
+                    MyEntityIdentifier.LazyInitPerThreadStorage(2048);
                     MyPrefabManager.Static.CreateGridsFromPrefab(m_results, m_prefabName, m_worldMatrix, m_spawnAtOrigin, m_ignoreMemoryLimits, m_factionId, m_callbacks);
                 }
                 finally
                 {
+                    m_resultIDs = new List<VRage.ModAPI.IMyEntity>();
+                    MyEntityIdentifier.GetPerThreadEntities(m_resultIDs);
+                    MyEntityIdentifier.ClearPerThreadEntities();
                     Interlocked.Decrement(ref PendingGrids);
                     if (PendingGrids <= 0)
                         FinishedProcessingGrids.Set();
@@ -191,6 +196,15 @@ namespace Sandbox.Game.World
 
             public void OnGridsCreated(ParallelTasks.WorkData workData)
             {
+                foreach (var entity in m_resultIDs)
+                {
+                    VRage.ModAPI.IMyEntity foundEntity;
+                    MyEntityIdentifier.TryGetEntity(entity.EntityId, out foundEntity);
+                    if (foundEntity == null)
+                        MyEntityIdentifier.AddEntityWithId(entity);
+                    else
+                        Debug.Fail("Two threads added the same entity");
+                }
                 foreach (var grid in m_results)
                 {
                     MyEntities.Add(grid);
@@ -285,31 +299,14 @@ namespace Sandbox.Game.World
 
             if (cubeGrid != null)
             {
-
-                if (cubeGrid.IsStatic)
+                cubeGrid.PositionComp.SetWorldMatrix(newWorldMatrix, forceUpdate: true);
+                if (MyPerGameSettings.Destruction && cubeGrid.IsStatic)
                 {
-                    Vector3 rounded = default(Vector3I);
-                    if (MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.StaticGridAlignToCenter)
-                        rounded = Vector3I.Round(newWorldMatrix.Translation / cubeGrid.GridSize) * cubeGrid.GridSize;
-                    else
-                        rounded = Vector3I.Round(newWorldMatrix.Translation / cubeGrid.GridSize + 0.5f) * cubeGrid.GridSize - 0.5f * cubeGrid.GridSize;
-                    //moveVector = new Vector3D(rounded - newWorldMatrix.Translation);
-                    newWorldMatrix.Translation = rounded;
-                    cubeGrid.PositionComp.SetWorldMatrix(newWorldMatrix, forceUpdate: true);
-
-                    if (MyPerGameSettings.Destruction)
+                    Debug.Assert(cubeGrid.Physics != null && cubeGrid.Physics.Shape != null);
+                    if (cubeGrid.Physics != null && cubeGrid.Physics.Shape != null)
                     {
-                        Debug.Assert(cubeGrid.Physics != null && cubeGrid.Physics.Shape != null);
-                        if (cubeGrid.Physics != null && cubeGrid.Physics.Shape != null)
-                        {
-                            cubeGrid.Physics.Shape.RecalculateConnectionsToWorld(cubeGrid.GetBlocks());
-                        }
+                        cubeGrid.Physics.Shape.RecalculateConnectionsToWorld(cubeGrid.GetBlocks());
                     }
-                }
-                else
-                {
-                    //newWorldMatrix.Translation += moveVector;
-                    cubeGrid.PositionComp.SetWorldMatrix(newWorldMatrix, forceUpdate: true);
                 }
             }
         }

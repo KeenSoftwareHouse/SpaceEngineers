@@ -1,26 +1,10 @@
-﻿
-#region Using
+﻿#region Using
 
-using System.Diagnostics;
-using Sandbox.Engine.Physics;
 using VRageMath;
-
-using Sandbox.Game.Entities;
 using Sandbox.Engine.Utils;
-using VRage.Utils;
-using System.Linq;
-using System.Collections.Generic;
-
-using VRageRender;
-using Sandbox.AppCode.Game;
-using Sandbox.Game.Utils;
-using Sandbox.Engine.Models;
 using Havok;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Common;
-using Sandbox.Game;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Entities.Character;
 
 #endregion
 
@@ -54,7 +38,7 @@ namespace Sandbox.Engine.Physics
         HkSimpleShapePhantom CharacterPhantom;
 
         //dynamic
-        public HkCharacterRigidBody CharacterRigidBody { get; private set; }
+        HkCharacterRigidBody CharacterRigidBody;
 
         #endregion
 
@@ -164,8 +148,7 @@ namespace Sandbox.Engine.Physics
                 characterRBCInfo.AllowedPenetrationDepth = MyFakes.ENABLE_LIMITED_CHARACTER_BODY ? 0.3f : 0.1f;
                 characterRBCInfo.JumpHeight = 0.8f;
 
-                bool shouldLimitSpeed = Sync.IsServer;
-                float maxCharacterSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
+                float maxCharacterSpeed = MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip;
                 CharacterRigidBody = new HkCharacterRigidBody(characterRBCInfo, maxCharacterSpeed, body, isOnlyVertical);
 
                 CharacterRigidBody.GetRigidBody().ContactPointCallbackEnabled = true;
@@ -221,6 +204,13 @@ namespace Sandbox.Engine.Physics
         }
 
         #endregion
+
+        public void SetCollisionFilterInfo(uint info)
+        {
+            if (m_isDynamic)
+                CharacterRigidBody.SetCollisionFilterInfo(info);
+        }
+        
 
         #region Activation
 
@@ -495,12 +485,15 @@ namespace Sandbox.Engine.Physics
             set
             {
                 m_angularVelocity = value;
-                CharacterRigidBody.AngularVelocity = m_angularVelocity; 
-                CharacterRigidBody.SetAngularVelocity(m_angularVelocity);
+                if (CharacterRigidBody != null)
+                {
+                    CharacterRigidBody.AngularVelocity = m_angularVelocity;
+                    CharacterRigidBody.SetAngularVelocity(m_angularVelocity);
+                }
             }
             get
             {
-                return CharacterRigidBody.GetAngularVelocity();
+                return CharacterRigidBody != null ? CharacterRigidBody.GetAngularVelocity() : m_angularVelocity;
             }
         }
 
@@ -548,6 +541,29 @@ namespace Sandbox.Engine.Physics
             }           
         }
 
+        public void UpdateSupport(float stepSizeInSeconds)
+        {
+            if (CharacterRigidBody != null)
+            {
+                CharacterRigidBody.UpdateSupport(stepSizeInSeconds);
+                Supported = CharacterRigidBody.Supported;
+                SupportNormal = CharacterRigidBody.SupportNormal;
+                GroundVelocity = CharacterRigidBody.GroundVelocity;
+            }
+        }
+
+        public void SkipSimulation(MatrixD mat)
+        {
+            if (CharacterRigidBody != null)
+            {
+                CharacterRigidBody.Position = mat.Translation;
+                CharacterRigidBody.Forward = mat.Forward;
+                CharacterRigidBody.Up = mat.Up;
+                Supported = CharacterRigidBody.Supported;
+                SupportNormal = CharacterRigidBody.SupportNormal;
+                GroundVelocity = CharacterRigidBody.GroundVelocity;
+            }
+        }
 
         bool m_flyingStateEnabled = false;
         private HkRigidBody m_oldRigidBody;
@@ -555,9 +571,8 @@ namespace Sandbox.Engine.Physics
         public void EnableFlyingState(bool enable)
         {
             //multiply by constant because walking on max moving ship
-            bool shouldLimitSpeed =  Sync.IsServer;
-            float maxCharacterWalkingSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
-            float maxCharacterFlyingSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
+            float maxCharacterWalkingSpeed = MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip;
+            float maxCharacterFlyingSpeed = MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip;
             float maxAcceleration = 9; // why
             EnableFlyingState(enable, maxCharacterWalkingSpeed, maxCharacterFlyingSpeed, maxAcceleration);           
         }

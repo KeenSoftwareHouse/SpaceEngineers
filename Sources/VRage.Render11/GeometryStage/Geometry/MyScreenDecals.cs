@@ -265,7 +265,7 @@ namespace VRageRender
             {
                 m_decals.Remove(node);
                 m_nodeMap.Remove(node.Value.ID);
-                MyRenderProxy.RemoveMessageId(node.Value.ID, MyRenderProxy.ObjectType.ScreenDecal);
+                //MyRenderProxy.RemoveMessageId(node.Value.ID, MyRenderProxy.ObjectType.ScreenDecal);
             }
 
             m_entityDecals.Remove(id);
@@ -428,6 +428,10 @@ namespace VRageRender
             DrawInternal(gbuffer1Copy, transparent, sinceStartTs);
         }
 
+
+        static List<DecalNode> m_nodesToAdd = new List<DecalNode>();
+        static List<DecalNode> m_nodesToRemove = new List<DecalNode>();
+
         /// <returns>True if visible decals are found</returns>
         private static bool IterateVisibleRenderIDs(HashSet<uint> visibleRenderIDs, MyDecalFlags targetFlag, float squaredDistanceMax, uint sinceStartTs)
         {
@@ -443,7 +447,7 @@ namespace VRageRender
                 {
                     if (node.Value.FadeTimestamp < sinceStartTs)
                     {
-                        RemoveDecalByNode(node);
+                        m_nodesToRemove.Add(node);
                         continue;
                     }
 
@@ -451,11 +455,25 @@ namespace VRageRender
                     MyDecalFlags flag = decal.Flags & MyDecalFlags.Transparent;
                     if (flag == targetFlag && IsDecalWithinRadius(decal, squaredDistanceMax))
                     {
-                        AddDecalNodeForDraw(node);
+                        m_nodesToAdd.Add(node);
                         ret = true;
                     }
                 }
             }
+
+            foreach (var node in m_nodesToRemove)
+            {
+                RemoveDecalByNode(node);
+            }
+            m_nodesToRemove.Clear();
+
+
+            foreach (var node in m_nodesToAdd)
+            {
+                AddDecalNodeForDraw(node);
+
+            }
+            m_nodesToAdd.Clear();
 
             return ret;
         }
@@ -575,12 +593,13 @@ namespace VRageRender
                 if (world)
                 {
                     volumeMatrix = decal.TopoData.MatrixCurrent;
-                    volumeMatrix.Translation = decal.TopoData.WorldPosition - MyRender11.Environment.Matrices.CameraPosition;
+                    volumeMatrix.Translation = (Vector3)(decal.TopoData.WorldPosition - MyRender11.Environment.Matrices.CameraPosition);
                 }
                 else
                 {
-                    volumeMatrix = decal.TopoData.MatrixCurrent * parent.WorldMatrix;
-                    volumeMatrix.Translation = volumeMatrix.Translation - MyRender11.Environment.Matrices.CameraPosition;
+                    MatrixD volumeMatrixD = ((MatrixD)decal.TopoData.MatrixCurrent) * parent.WorldMatrix;
+                    volumeMatrix = volumeMatrixD;
+                    volumeMatrix.Translation = (Vector3)(volumeMatrixD.Translation - MyRender11.Environment.Matrices.CameraPosition);
                 }
 
                 uint fadeDiff = decal.FadeTimestamp - sinceStartTs;
@@ -593,17 +612,17 @@ namespace VRageRender
                     if (parent == null)
                     {
                         worldMatrix = decal.TopoData.MatrixCurrent;
-                        worldMatrix.Translation = decal.TopoData.WorldPosition;
+                        worldMatrix.Translation = decal.TopoData.WorldPosition; //{X:5.27669191360474 Y:12.7891067266464 Z:-54.623966217041}
                     }
                     else
                     {
-                        worldMatrix = decal.TopoData.MatrixCurrent * parent.WorldMatrix;
+                        worldMatrix = ((MatrixD)decal.TopoData.MatrixCurrent) * parent.WorldMatrix;
                     }
 
                     MyRenderProxy.DebugDrawAxis(worldMatrix, 0.2f, false, true);
                     MyRenderProxy.DebugDrawOBB(worldMatrix, Color.Blue, 0.1f, false, false);
 
-                    Vector3 position = worldMatrix.Translation;
+                    Vector3D position = worldMatrix.Translation;
                     MyRenderProxy.DebugDrawText3D(position, decal.SourceTarget, Color.White, 0.5f, false);
                 }
             }
@@ -641,7 +660,21 @@ namespace VRageRender
 
         static bool IsDecalWithinRadius(MyScreenDecal decal, float squaredDistanceMax)
         {
-            float squaredDistance = (float)(decal.TopoData.WorldPosition - MyRender11.Environment.Matrices.CameraPosition).LengthSquared();
+            var parent = MyIDTracker<MyActor>.FindByID(decal.ParentID);
+            bool world = decal.Flags.HasFlag(MyDecalFlags.World);
+
+            Vector3 distance;
+            if (world)
+            {
+                distance = (decal.TopoData.WorldPosition - MyRender11.Environment.Matrices.CameraPosition);
+            }
+            else
+            {
+                MatrixD volumeMatrixD = ((MatrixD)decal.TopoData.MatrixCurrent) * parent.WorldMatrix;
+                distance = (volumeMatrixD.Translation - MyRender11.Environment.Matrices.CameraPosition);
+            }
+
+            float squaredDistance = (float)distance.LengthSquared();
             return squaredDistance <= squaredDistanceMax;
         }
 

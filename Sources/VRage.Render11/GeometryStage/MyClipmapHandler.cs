@@ -137,7 +137,9 @@ namespace VRageRender
         {
             if (!MyRender11.Settings.FreezeTerrainQueries)
             {
-                MyClipmap.UpdateQueued(MyRender11.Environment.Matrices.CameraPosition, MyRender11.Environment.Matrices.InvView.Forward, 
+                var cameraPosition = MyRenderProxy.PointsForVoxelPrecache.Count > 0 ? MyRenderProxy.PointsForVoxelPrecache[0] : MyRender11.Environment.Matrices.CameraPosition;
+
+                MyClipmap.UpdateQueued(cameraPosition, MyRender11.Environment.Matrices.InvView.Forward, 
                     MyRender11.Environment.Matrices.FarClipping, MyRender11.Environment.Matrices.LargeDistanceFarClipping);
             }
         }

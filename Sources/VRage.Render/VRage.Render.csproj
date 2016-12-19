@@ -227,7 +227,6 @@
     <Compile Include="Messages\MyRenderMessageUpdateAtmosphereSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateClipmapCell.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateCloudLayerFogFlag.cs" />
-    <Compile Include="Messages\MyRenderMessageUpdateCockpitGlass.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateColorEmissivity.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateDebugOverrides.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateEnvironment.cs" />
@@ -240,6 +239,7 @@
     <Compile Include="Messages\MyRenderMessageUpdateMaterialsSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateModelHighlight.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateModelProperties.cs" />
+    <Compile Include="Messages\MyRenderMessageUpdateNewPipelineSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdatePostprocessSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateRenderEntity.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateRenderLight.cs" />
@@ -276,6 +276,7 @@
     <Compile Include="MyImpostorProperties.cs" />
     <Compile Include="MyMaterialsSettings.cs" />
     <Compile Include="MyMessageQueue.cs" />
+    <Compile Include="MyNewPipelineSettings.cs" />
     <Compile Include="Profiler\MyNullRenderProfiler.cs" />
     <Compile Include="MyPerformanceCounter.cs" />
     <Compile Include="MyPostprocessSettings.cs" />

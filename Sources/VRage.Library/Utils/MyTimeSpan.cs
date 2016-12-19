@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace VRage.Library.Utils
 {
@@ -25,7 +22,7 @@ namespace VRage.Library.Utils
             get { return Ticks / (MyGameTimer.Frequency / 1.0e6); }
         }
 
-        public double Miliseconds
+        public double Milliseconds
         {
             get { return Ticks / (MyGameTimer.Frequency / 1.0e3); }
         }
@@ -65,7 +62,7 @@ namespace VRage.Library.Utils
 
         public static MyTimeSpan FromSeconds(double seconds)
         {
-            return FromMiliseconds(seconds * 1000);
+            return FromMilliseconds(seconds * 1000);
         }
 
         public static MyTimeSpan FromMinutes(double minutes)
@@ -73,9 +70,9 @@ namespace VRage.Library.Utils
             return FromSeconds(minutes * 60);
         }
 
-        public static MyTimeSpan FromMiliseconds(double miliseconds)
+        public static MyTimeSpan FromMilliseconds(double milliseconds)
         {
-            return new MyTimeSpan((long)(miliseconds * 0.001f * MyGameTimer.Frequency));
+            return new MyTimeSpan((long)(milliseconds * 0.001 * MyGameTimer.Frequency));
         }
 
         public static MyTimeSpan operator +(MyTimeSpan a, MyTimeSpan b)
@@ -120,7 +117,7 @@ namespace VRage.Library.Utils
 
         public override string ToString()
         {
-            return ((int)Math.Round(Miliseconds)).ToString();
+            return ((int)Math.Round(Milliseconds)).ToString();
         }
     }
 }

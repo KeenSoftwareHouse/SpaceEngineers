@@ -55,7 +55,7 @@ namespace Sandbox.Game.Entities
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         public override float DisassembleRatio
@@ -92,7 +92,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateEmissivity()
         {
-			if (Enabled && ResourceSink != null && ResourceSink.IsPowered)
+            if (Enabled && ResourceSink != null && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Green, Color.White);
                 OnStateChange();
@@ -213,7 +213,7 @@ namespace Sandbox.Game.Entities
             sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
             sinkComp.Update();
 
-			if (!Enabled || !ResourceSink.IsPowered)
+            if (!Enabled || !ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
                 UpdateDoorPosition();
 
             OnStateChange();
@@ -465,7 +465,7 @@ namespace Sandbox.Game.Entities
                     m_currentSpeed[i] = 0f;
                 }
 
-				if (Enabled && ResourceSink != null && ResourceSink.IsPowered && m_currentSpeed[i] != 0)
+                if (Enabled && ResourceSink != null && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && m_currentSpeed[i] != 0)
                 {
                     string soundName = "";
                     if (Open)
@@ -517,7 +517,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateCurrentOpening()
         {
-			if (Enabled && ResourceSink != null && ResourceSink.IsPowered)
+            if (Enabled && ResourceSink != null && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
 

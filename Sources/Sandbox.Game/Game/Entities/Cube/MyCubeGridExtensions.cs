@@ -67,6 +67,7 @@ namespace Sandbox
             if (cubeBlock != null)
             {
                 MyEntities.RaiseEntityCreated(cubeBlock);
+                cubeBlock.IsReadyForReplication = true;
             }
         }
     }

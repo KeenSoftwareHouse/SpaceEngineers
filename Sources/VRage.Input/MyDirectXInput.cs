@@ -425,7 +425,7 @@ namespace VRage.Input
             for (int i = 0; i < devices.Count; i++)
             {
                 var device = devices[i];
-                results.Add(device.InstanceName);
+                results.Add(device.InstanceName.Replace("\0",string.Empty));
             }
             return results;
         }
@@ -450,7 +450,7 @@ namespace VRage.Input
                 var attachedDevices = MyDirectInput.DirectInput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
                 foreach (var device in attachedDevices)
                 {
-                    if (device.InstanceName != m_joystickInstanceName)
+                    if (!device.InstanceName.Contains(m_joystickInstanceName))
                         continue;
 
                     try

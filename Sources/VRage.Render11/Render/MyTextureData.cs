@@ -15,6 +15,7 @@ namespace VRageRender
         {
             try
             {
+                System.IO.Directory.CreateDirectory(Path.GetDirectoryName(path)); // if the directory is not created, the "new FileStream" will fail
                 using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
                 {
                     Save(res, stream, fmt);
@@ -22,7 +23,7 @@ namespace VRageRender
 
                 return true;
             }
-            catch (SharpDX.SharpDXException e)
+            catch (Exception e)
             {
                 MyRender11.Log.WriteLine("SaveResourceToFile()");
                 MyRender11.Log.IncreaseIndent();

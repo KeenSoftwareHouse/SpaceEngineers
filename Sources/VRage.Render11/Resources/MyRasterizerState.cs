@@ -72,17 +72,17 @@ namespace VRage.Render11.Resources
             desc = new RasterizerStateDescription();
             desc.FillMode = FillMode.Solid;
             desc.CullMode = CullMode.Back;
-            desc.DepthBias = 20000;
+            desc.DepthBias = 25000;
             desc.DepthBiasClamp = 2;
-            desc.SlopeScaledDepthBias = 20;
+            desc.SlopeScaledDepthBias = 0;
             MyRasterizerStateManager.DecalRasterizerState = CreateResource("DecalRasterizerState", ref desc);
 
             desc = new RasterizerStateDescription();
             desc.FillMode = FillMode.Solid;
             desc.CullMode = CullMode.None;
-            desc.DepthBias = 20000;
+            desc.DepthBias = 25000;
             desc.DepthBiasClamp = 2;
-            desc.SlopeScaledDepthBias = 20;
+            desc.SlopeScaledDepthBias = 0;
             MyRasterizerStateManager.NocullDecalRasterizerState = CreateResource("NocullDecalRasterizerState", ref desc);
 
             desc = new RasterizerStateDescription();

@@ -40,14 +40,6 @@ namespace Sandbox.Game.Multiplayer
             Entity = entity;
         }
 
-        public override void MarkPhysicsDirty()
-        {
-            if (MyMultiplayer.Static == null)
-                return;
-
-            MyMultiplayer.Static.MarkPhysicsDirty(this);
-        }
-
         public override void SendCloseRequest()
         {
             // TODO: This should be changed, only used for client-side entity close in special cases (e.g. cut operation of clipboard)

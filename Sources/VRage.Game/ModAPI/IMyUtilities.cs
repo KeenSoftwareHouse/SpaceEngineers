@@ -99,6 +99,7 @@ namespace VRage.Game.ModAPI
 
         void SetVariable<T>(string name, T value);
         bool GetVariable<T>(string name, out T value);
+        bool RemoveVariable(string name);
 
     }
 }

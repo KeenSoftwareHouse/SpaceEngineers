@@ -38,13 +38,8 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Decals default material", null, MemberHelper.GetMember(() => MyFakes.ENABLE_USE_DEFAULT_DAMAGE_DECAL));
             AddButton(new StringBuilder("Clear decals"), ClearDecals);
             AddCheckBox("Debug Particles", () => MyDebugDrawSettings.DEBUG_DRAW_PARTICLES, x => MyDebugDrawSettings.DEBUG_DRAW_PARTICLES = x);
-            m_currentPosition.Y += 0.01f;
 
-            AddLabel("Scene objects", Color.Yellow.ToVector4(), 1.2f);
-            AddCheckBox("Draw IDs", MyRenderProxy.Settings.DisplayIDs, (x) => MyRenderProxy.Settings.DisplayIDs = x.IsChecked);
-            AddCheckBox("Draw AABBs", MyRenderProxy.Settings.DisplayAabbs, (x) => MyRenderProxy.Settings.DisplayAabbs = x.IsChecked);
-            AddCheckBox("Draw non-merge-instanced", MyRenderProxy.Settings.DrawNonMergeInstanced, (x) => MyRenderProxy.Settings.DrawNonMergeInstanced = x.IsChecked);
-            AddCheckBox("Draw merge-instanced", MyRenderProxy.Settings.DrawMergeInstanced, (x) => MyRenderProxy.Settings.DrawMergeInstanced = x.IsChecked);
+            AddCheckBox("Entity update statistics", () => MyDebugDrawSettings.DEBUG_DRAW_ENTITY_STATISTICS, x => MyDebugDrawSettings.DEBUG_DRAW_ENTITY_STATISTICS = x);
         }
 
         static void ClearDecals(MyGuiControlButton button)

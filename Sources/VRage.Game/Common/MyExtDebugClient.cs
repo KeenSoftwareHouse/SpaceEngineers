@@ -83,7 +83,7 @@ namespace VRage.Game.Common
             m_finished = true;
             if (m_client != null)
             {
-                m_client.Client.Disconnect(true);
+                m_client.Client.Disconnect(false);
                 m_client.Close();
             }
             Marshal.FreeHGlobal(m_tempBuffer);

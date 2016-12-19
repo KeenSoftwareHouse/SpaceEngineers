@@ -65,7 +65,14 @@ namespace Sandbox.Game.Entities.Cube
         public float DummyDisplacement
         {
             get { return m_dummyDisplacement + ModelDummyDisplacement; }
-            set { m_dummyDisplacement.Value = value - ModelDummyDisplacement; }
+            set
+            {
+                if (m_dummyDisplacement.Value.IsEqual(value - ModelDummyDisplacement))
+                    return;
+                m_dummyDisplacement.Value = value - ModelDummyDisplacement;
+                if(SafeConstraint != null)
+                    CubeGrid.Physics.RigidBody.Activate();
+            }
         }
 
         public MyCubeGrid RotorGrid { get { return TopGrid; } }
@@ -92,7 +99,7 @@ namespace Sandbox.Game.Entities.Cube
    
         protected override bool CheckIsWorking()
         {
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -103,7 +110,7 @@ namespace Sandbox.Game.Entities.Cube
             sinkComp.Init(
                 MotorDefinition.ResourceSinkGroup,
                 MotorDefinition.RequiredPowerInput,
-                () => (Enabled && IsFunctional) ? sinkComp.MaxRequiredInput : 0.0f);
+                () => (Enabled && IsFunctional) ? sinkComp.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0.0f);
             sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
             ResourceSink = sinkComp;
 

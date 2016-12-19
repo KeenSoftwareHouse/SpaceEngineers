@@ -25,6 +25,7 @@ namespace Sandbox.ModAPI.Ingame
         bool DetectSmallShips { get; }
         bool DetectLargeShips { get; }
         bool DetectStations { get; }
+        bool DetectSubgrids { get; }
         bool DetectAsteroids { get; }
         
         bool DetectOwner { get; }
@@ -34,6 +35,7 @@ namespace Sandbox.ModAPI.Ingame
 
         bool IsActive { get; }
 
-        IMyEntity LastDetectedEntity { get; }
+        MyDetectedEntityInfo LastDetectedEntity { get; }
+        void DetectedEntities(List<MyDetectedEntityInfo> entities);
     }
 }

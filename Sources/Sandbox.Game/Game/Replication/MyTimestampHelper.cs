@@ -29,7 +29,7 @@ namespace Sandbox.Game.Replication
         public const double POSITION_TOLERANCE = 1;
         public const uint MAX_POSHISTORY = 255;
 
-        SortedDictionary<uint, MyTimeStampValues> m_timeStampData;
+        readonly SortedDictionary<uint, MyTimeStampValues> m_timeStampData = new SortedDictionary<uint, MyTimeStampValues>();
         MyEntity m_entity;
         uint m_lastTSFromServer = 0;
         uint m_currentTimestamp = 0;
@@ -46,11 +46,6 @@ namespace Sandbox.Game.Replication
 
         public void Update(uint timeStamp)
         {
-            if (m_timeStampData == null)
-            {
-                m_timeStampData = new SortedDictionary<uint, MyTimeStampValues>();
-            }
-
             if(m_entity == null|| m_entity.Physics == null)
             {
                 m_timeStampData.Remove(timeStamp);
@@ -98,7 +93,10 @@ namespace Sandbox.Game.Replication
 
             MyTimeStampValues cachedData = m_timeStampData[timeStamp];
 
+            var mat = m_entity.WorldMatrix;
             MyTransformD delta = UpdateValues(m_entity, ref serverPositionAndOrientation, ref cachedData);
+            mat.Translation = serverPositionAndOrientation.Position;
+            m_entity.PositionComp.SetWorldMatrix(mat, null, true);
 
             UpdateDeltaPosition(timeStamp, ref delta);
 

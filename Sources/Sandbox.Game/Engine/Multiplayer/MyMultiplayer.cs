@@ -18,18 +18,21 @@ using System.IO;
 using VRage.Library.Collections;
 using VRage.Network;
 using VRage.Trace;
+using VRageMath;
 
 
 #endregion
 
 namespace Sandbox.Engine.Multiplayer
 {
+    [StaticEventOwnerAttribute]
     public static class MyMultiplayer
     {
         public const int ControlChannel = 0;
         public const int WorldDownloadChannel = 1;
         public const int GameEventChannel = 2;
         public const int VoiceChatChannel = 3;
+        public const int ProfilerDownloadChannel = 4;
 
         public const string HostNameTag = "host";
         public const string WorldNameTag = "world";
@@ -46,24 +49,7 @@ namespace Sandbox.Engine.Multiplayer
         public const string RefineryMultiplierTag = "refineryMultiplier";
         public const string WelderMultiplierTag = "welderMultiplier";
         public const string GrinderMultiplierTag = "grinderMultiplier";
-
-        public const string BattleTag = "battle";
-        public const string BattleRemainingTimeTag = "battleRemainingTime";
-        public const string BattleCanBeJoinedTag = "battleCanBeJoined";
-        public const string BattleWorldWorkshopIdTag = "battleWorldWorkshopId";
-        public const string BattleFaction1MaxBlueprintPointsTag = "battleFaction1MaxBlueprintPoints";
-        public const string BattleFaction2MaxBlueprintPointsTag = "battleFaction2MaxBlueprintPoints";
-        public const string BattleFaction1BlueprintPointsTag = "battleFaction1BlueprintPoints";
-        public const string BattleFaction2BlueprintPointsTag = "battleFaction2BlueprintPoints";
-        public const string BattleMapAttackerSlotsCountTag = "battleMapAttackerSlotsCount";
-        public const string BattleFaction1IdTag = "battleFaction1Id";
-        public const string BattleFaction2IdTag = "battleFaction2Id";
-        public const string BattleFaction1SlotTag = "battleFaction1Slot";
-        public const string BattleFaction2SlotTag = "battleFaction2Slot";
-        public const string BattleFaction1ReadyTag = "battleFaction1Ready";
-        public const string BattleFaction2ReadyTag = "battleFaction2Ready";
-        public const string BattleTimeLimitTag = "battleTimeLimit";
-
+        
         public const string ScenarioTag = "scenario";
         public const string ScenarioBriefingTag = "scenarioBriefing";
         public const string ScenarioStartTimeTag = "scenarioStartTime";
@@ -452,7 +438,7 @@ namespace Sandbox.Engine.Multiplayer
 #endif // XB1_NOMULTIPLAYER
         }
 
-        private static MyReplicationServer GetReplicationServer()
+        internal static MyReplicationServer GetReplicationServer()
         {
             if (Static != null)
             {
@@ -487,25 +473,6 @@ namespace Sandbox.Engine.Multiplayer
             {
                 Debug.Assert(proxy != null, "Proxy cannot be null");
                 server.ForceReplicable(proxy, dependency);
-            }
-        }
-
-        public static void RefreshChild(IMyEventProxy proxy)
-        {
-            var server = GetReplicationServer();
-            if (server != null)
-            {
-                Debug.Assert(proxy != null, "Proxy cannot be null");
-                server.RefreshChildren(proxy);
-            }
-        }
-
-        public static void RefreshChild(IMyReplicable replicable)
-        {
-            var server = GetReplicationServer();
-            if (server != null)
-            {
-                server.RefreshChildren(replicable);
             }
         }
 
@@ -585,6 +552,22 @@ namespace Sandbox.Engine.Multiplayer
             var server = GetReplicationServer();
             return server != null ? server.PauseReplication() : default(MyReplicationServer.PauseToken);
         }
+
+
+        public static void TeleportControlledEntity(Vector3D location)
+        {
+            MyMultiplayer.RaiseStaticEvent(x => OnTeleport, MySession.Static.LocalHumanPlayer.Id.SteamId, location);
+        }
+
+                
+        [Event, Reliable, Server]
+        private static void OnTeleport(ulong userId, Vector3D location)
+        {
+            var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(userId));
+            if (player.Controller.ControlledEntity != null)
+                player.Controller.ControlledEntity.Entity.PositionComp.SetPosition(location);
+        }
+
 
         #region Debug methods
 

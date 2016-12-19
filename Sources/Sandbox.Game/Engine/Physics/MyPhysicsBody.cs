@@ -50,6 +50,7 @@ namespace Sandbox.Engine.Physics
     using Sandbox.Game.EntityComponents;
     using VRage.Game.ObjectBuilders.ComponentSystem;
     using Sandbox.Game.EntityComponents.Systems;
+    using Sandbox.Game.Replication;
 
     /// <summary>
     /// Abstract engine physics body object.
@@ -78,6 +79,11 @@ namespace Sandbox.Engine.Physics
                     Offset = MyPhysics.GetObjectOffset(value);
                 else
                     Offset = Vector3D.Zero;
+                    
+                foreach (var child in WeldInfo.Children)
+                {
+                    child.Offset = Offset;
+                }
             }
         }
         protected Vector3D Offset = Vector3D.Zero;
@@ -183,7 +189,7 @@ namespace Sandbox.Engine.Physics
         {
             get
             {
-                return RigidBody.GetRigidBodyInfo().LinearVelocity.Length();
+                return LinearVelocity.Length();
             }
         }
 
@@ -512,7 +518,7 @@ namespace Sandbox.Engine.Physics
                             transform = RigidBody.GetRigidBodyMatrix();
                             AddForceTorqueBody(force, torque, RigidBody, ref transform);
                         }
-                        if (CharacterProxy != null)
+                        if (CharacterProxy != null && CharacterProxy.GetHitRigidBody() != null)
                         {
                             transform = Entity.WorldMatrix;
                             AddForceTorqueBody(force, torque, CharacterProxy.GetHitRigidBody(), ref transform);
@@ -967,13 +973,7 @@ false,
                 maxSpeedRelativeToShip,
                 maxForce);
 
-            //Unreliable, using fall sounds only now (when hiting ground with feet)
-            //CharacterProxy.GetRigidBody().ContactSoundCallback += MyPhysicsBody_ContactSoundCallback;
-            //CharacterProxy.GetRigidBody().ContactSoundCallbackEnabled = true;
             CharacterProxy.GetRigidBody().ContactPointCallbackDelay = 0;
-            //CharacterProxy.Gravity = new Vector3(0, -20, 0);
-
-
         }
 
         protected virtual void ActivateCollision() { }
@@ -1209,9 +1209,6 @@ false,
             if (Entity == null)
                 return;
 
-            if (Entity.Parent != null)//Parent should take care of moving children
-                return;
-
             if (this.Flags == RigidBodyFlag.RBF_DISABLE_COLLISION_RESPONSE)
             {
                 return;
@@ -1237,18 +1234,25 @@ false,
                 RigidBody2.Motion.SetWorldMatrix(rbo.GetRigidBodyMatrix());
                 ProfilerShort.End();
             }
+
+            if (Entity.Parent != null) //Parent should take care of moving children
+            {
+                ProfilerShort.End();
+                return;
+            }
+
             const int MaxIgnoredMovements = 5;
             const float MinVelocitySq = 0.00000001f;
             m_motionCounter++;
             if (m_motionCounter > MaxIgnoredMovements ||
-                LinearVelocity.LengthSquared() > MinVelocitySq || AngularVelocity.LengthSquared() > MinVelocitySq || fromParent)
+                LinearVelocity.LengthSquared() > MinVelocitySq || AngularVelocity.LengthSquared() > MinVelocitySq || fromParent || ServerWorldMatrix.HasValue)
             {
                 ProfilerShort.Begin("GetWorldMatrix");
-                var matrix = GetWorldMatrix();
+                var matrix = ServerWorldMatrix.HasValue ? ServerWorldMatrix.Value : GetWorldMatrix();
                 ProfilerShort.End();
-
                 ProfilerShort.Begin("SetWorldMatrix");
-                this.Entity.PositionComp.SetWorldMatrix(matrix, this, true);
+                this.Entity.PositionComp.SetWorldMatrix(matrix, ServerWorldMatrix.HasValue ? null : this, true);
+                ServerWorldMatrix = null;
                 ProfilerShort.End();
                 m_motionCounter = 0;
 
@@ -1316,7 +1320,7 @@ false,
         public override Vector3 GetVelocityAtPoint(Vector3D worldPos)
         {
             //TODO:Avoid M/N transition inside RigidBody.GetVelocityAtPoint
-            Vector3 relPos = WorldToCluster(worldPos);
+            Vector3 relPos = (Vector3)WorldToCluster(worldPos);
             if (RigidBody != null)
                 return RigidBody.GetVelocityAtPoint(relPos);
 
@@ -1541,7 +1545,7 @@ false,
             System.Diagnostics.Debug.Assert(!IsInWorld && ClusterObjectID == MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED && m_world == null);
 
             if(ClusterObjectID == MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED)
-                ClusterObjectID = MyPhysics.AddObject(Entity.WorldAABB, LinearVelocity, this, null);
+                ClusterObjectID = MyPhysics.AddObject(Entity.WorldAABB, this, null, ((MyEntity)this.Entity).DebugName, Entity.EntityId);
             else
             {
                 Debug.Fail("Hotfix. Object was activated twice fix properly!");
@@ -1590,7 +1594,7 @@ false,
                 CharacterSystemGroupCollisionFilterID = m_world.GetCollisionFilter().GetNewSystemGroup();
                 // Calculate filter info for this character
                 CharacterCollisionFilter = HkGroupFilter.CalcFilterInfo(MyPhysics.CollisionLayers.CharacterCollisionLayer, CharacterSystemGroupCollisionFilterID, 0, 0);
-                CharacterProxy.CharacterRigidBody.SetCollisionFilterInfo(CharacterCollisionFilter);
+                CharacterProxy.SetCollisionFilterInfo(CharacterCollisionFilter);
 
 
                 CharacterProxy.SetRigidBodyTransform(m_bodyMatrix);

@@ -205,12 +205,21 @@ namespace VRage
 
         public static IMyEntity GetEntityById(long entityId)
         {
-            return m_entityList[entityId];
+            IMyEntity entity;
+            bool found = m_entityList.TryGetValue(entityId, out entity);
+            // If called from thread other than main, we have to explicitly search the main entity dictionary as well
+            if (!found && m_perThreadData != null)
+                found = m_mainData.EntityList.TryGetValue(entityId, out entity);
+            return entity;
         }
 
         public static bool TryGetEntity(long entityId, out IMyEntity entity)
         {
-            return m_entityList.TryGetValue(entityId, out entity);
+            bool found = m_entityList.TryGetValue(entityId, out entity);
+            // If called from thread other than main, we have to explicitly search the main entity dictionary as well
+            if (!found && m_perThreadData != null)
+                found = m_mainData.EntityList.TryGetValue(entityId, out entity);
+            return found;
         }
 
         public static bool TryGetEntity<T>(long entityId, out T entity) where T : class ,IMyEntity
@@ -223,7 +232,7 @@ namespace VRage
 
         public static bool ExistsById(long entityId)
         {
-            return m_entityList.ContainsKey(entityId);
+            return m_entityList.ContainsKey(entityId) || (m_perThreadData != null && m_mainData.EntityList.ContainsKey(entityId));
         }
 
         /// <summary>

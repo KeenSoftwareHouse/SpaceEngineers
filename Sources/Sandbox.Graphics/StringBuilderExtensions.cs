@@ -41,7 +41,7 @@ namespace System.Text
                         m_tmp.AppendLine();
                         inputPos = MoveSpaces(sb, inputPos);
                         wordCount = 0;
-                        width = measuredWidth;
+                        //width = measuredWidth;
                     }
                     else
                     {
@@ -50,6 +50,7 @@ namespace System.Text
                         m_tmp.AppendLine();
                         inputPos = MoveSpaces(sb, inputPos);
                         wordCount = 0;
+                        width = MyGuiManager.MeasureString(font, m_tmp, textScale).X;
                     }
                 }
             }

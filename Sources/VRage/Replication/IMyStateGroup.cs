@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Library.Collections;
+﻿using VRage.Library.Collections;
 using VRage.Library.Utils;
-using VRage.Replication;
-using VRageMath;
 
 namespace VRage.Network
 {
@@ -26,7 +20,7 @@ namespace VRage.Network
         /// <summary>
         /// Update method called on client.
         /// </summary>
-        void ClientUpdate(uint timestamp);
+        void ClientUpdate(MyTimeSpan clientTimestamp);
 
         /// <summary>
         /// Called when state group is being destroyed.
@@ -52,7 +46,7 @@ namespace VRage.Network
         /// <param name="forClient">When writing the client which will receive the data. When reading, it's null.</param>
         /// <param name="packetId">Id of packet in which the data will be sent or from which the data is received.</param>
         /// <param name="maxBitPosition">Maximum position in bit stream where you can write data, it's inclusive.</param>
-        bool Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition);
+        void Serialize(BitStream stream, EndpointId forClient, MyTimeSpan timestamp, byte packetId, int maxBitPosition);
 
         /// <summary>
         /// Called for each packet id sent to client from this state group.
@@ -65,5 +59,10 @@ namespace VRage.Network
         void OnAck(MyClientStateBase forClient, byte packetId, bool delivered);
 
         void ForceSend(MyClientStateBase clientData);
+        void TimestampReset(MyTimeSpan timestamp);
+
+        bool IsStillDirty(EndpointId forClient);
+
+        IMyReplicable Owner { get; }
     }
 }

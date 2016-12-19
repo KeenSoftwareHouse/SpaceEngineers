@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using VRage.OpenVRWrapper;
 using VRage.Render11.Common;
+using VRage.Render11.LightingStage;
 using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageRender.Voxels;
@@ -10,12 +11,12 @@ namespace VRageRender
 {
     partial class MyRender11
     {
-        internal static unsafe void InitSubsystemsOnce()
+        private static unsafe void InitSubsystemsOnce()
         {
             MyManagers.GlobalResources.CreateOnStartup();
         }
 
-        internal static unsafe void InitSubsystems()
+        private static unsafe void InitSubsystems()
         {
             MyManagers.OnDeviceInit();
             ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
@@ -25,7 +26,7 @@ namespace VRageRender
             MyShaders.Init();
             MyMeshes.Init(); 
             MyMeshTableSrv.Init();
-            MyLightRendering.Init();
+            MyLightsRendering.Init();
             MyLinesRenderer.Init();
             MySpritesRenderer.Init();
             MyPrimitivesRenderer.Init();
@@ -60,6 +61,9 @@ namespace VRageRender
             MyMeshMaterials1.Init();
 
             MyHBAO.Init();
+            MyOcclusionQueryRenderer.Init();
+            
+            OnSessionStart();
 
             try
             {
@@ -77,7 +81,7 @@ namespace VRageRender
             }
         }
 
-        internal static void OnDeviceReset()
+        private static void OnDeviceReset()
         {
             MyManagers.OnDeviceReset();
 
@@ -112,7 +116,7 @@ namespace VRageRender
             MyScreenDecals.OnDeviceReset();
         }
 
-        internal static void OnDeviceEnd()
+        private static void OnDeviceEnd()
         {
             // Reversed order of calling End -- Managers last
             MyScreenDecals.OnDeviceEnd();
@@ -126,7 +130,11 @@ namespace VRageRender
 
         #region Content load
 
-        internal static void UnloadData()
+        private static void OnSessionStart()
+        {
+            MyAtmosphereRenderer.OnSessionStart();
+        }
+        private static void OnSessionEnd()
         {
             MyManagers.OnUnloadData();
 
@@ -168,13 +176,13 @@ namespace VRageRender
             //MyAssetsLoader.ClearMeshes();
         }
 
-        internal static void QueryTexturesFromEntities()
+        private static void QueryTexturesFromEntities()
         {
             MyMeshMaterials1.OnResourcesRequesting();
             MyVoxelMaterials1.OnResourcesRequesting();
         }
 
-        internal static void GatherTextures()
+        private static void GatherTextures()
         {
             MyMeshMaterials1.OnResourcesGathering();
             MyVoxelMaterials1.OnResourcesGather();
@@ -184,43 +192,46 @@ namespace VRageRender
 
         #region Fonts
 
-        static SortedDictionary<int, MyRenderFont> m_fontsById = new SortedDictionary<int, MyRenderFont>();
-        static MyRenderFont m_debugFont;
-        internal static MyRenderFont DebugFont { get { return m_debugFont; } }
+        private static readonly SortedDictionary<int, MyRenderFont> m_fontsById = new SortedDictionary<int, MyRenderFont>();
+        internal static MyRenderFont DebugFont { get; private set; }
 
-        internal static void AddFont(int id, MyRenderFont font, bool isDebugFont)
+        private static void AddFont(int id, MyRenderFont font, bool isDebugFont)
         {
             Debug.Assert(!m_fontsById.ContainsKey(id), "Adding font with ID that already exists.");
             if (isDebugFont)
             {
-                Debug.Assert(m_debugFont == null, "Debug font was already specified and it will be overwritten.");
-                m_debugFont = font;
+                Debug.Assert(DebugFont == null, "Debug font was already specified and it will be overwritten.");
+                DebugFont = font;
             }
             m_fontsById[id] = font;
         }
 
         internal static MyRenderFont GetDebugFont()
         {
-            return m_debugFont;
+            return DebugFont;
         }
 
-        internal static MyRenderFont GetFont(int id)
+        private static MyRenderFont GetFont(int id)
         {
-            return m_fontsById[id];
+            MyRenderFont font;
+            if (m_fontsById.TryGetValue(id, out font))
+                return font;
+            Debug.Assert(false, "Font " + id + " was not loaded into renderer. Call MyRenderProxy.CreateFont first.");
+            return DebugFont;
         }
 
-        internal static void ReloadFonts()
+        private static void ReloadFonts()
         {
             foreach (var fontIt in m_fontsById)
             {
                 fontIt.Value.LoadContent();
             }
-            m_debugFont.LoadContent();
+            DebugFont.LoadContent();
         }
 
         #endregion
-        
-        internal static void RemoveScreenResources()
+
+        private static void RemoveScreenResources()
         {
             if(m_lastScreenDataResource != null && m_lastScreenDataResource != Backbuffer)
             {
@@ -235,7 +246,7 @@ namespace VRageRender
             }
         }
 
-        internal static void CreateScreenResources()
+        private static void CreateScreenResources()
         {
             var width = m_resolution.X;
             var height = m_resolution.Y;
@@ -244,7 +255,7 @@ namespace VRageRender
             MyUtils.Init(ref MyGBuffer.Main);
             MyGBuffer.Main.Resize(width, height, samples, 0);
 
-            MyScreenDependants.Resize(width, height, samples, 0);
+            MyLightsRendering.Resize(width, height);
 
             RemoveScreenResources();
 

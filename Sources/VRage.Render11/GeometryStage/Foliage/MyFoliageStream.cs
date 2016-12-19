@@ -11,6 +11,12 @@ namespace VRageRender
         int m_allocationSize;
         internal bool Append;
 
+        internal void Reset()
+        {
+            m_allocationSize = 0;
+            Append = false;
+        }
+
         internal void Reserve(int x)
         {
             m_allocationSize += x;
@@ -18,7 +24,19 @@ namespace VRageRender
 
         internal void AllocateStreamOutBuffer(int vertexStride)
         {
-            Dispose();
+            if (m_allocationSize == 0)
+            {
+                Dispose();
+                return;
+            }
+
+            if (m_stream != null)
+            {
+                if (m_allocationSize < m_stream.ElementCount)
+                    return;
+                else
+                    Dispose();
+            }
 
             // padding to some power of 2
             m_allocationSize = ((m_allocationSize + 511) / 512) * 512;

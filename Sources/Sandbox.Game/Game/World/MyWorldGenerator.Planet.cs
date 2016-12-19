@@ -131,6 +131,8 @@ namespace Sandbox.Game.World
                 MyEntities.Add(planet);
                 MyEntities.RaiseEntityCreated(planet);
 
+                planet.IsReadyForReplication = true;
+
                 return planet;
             }
             return null;

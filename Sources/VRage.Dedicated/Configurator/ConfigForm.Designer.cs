@@ -38,7 +38,6 @@ namespace VRage.Dedicated
             this.worldListTimer = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.battleButton = new System.Windows.Forms.RadioButton();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.newGameSettingsPanel = new System.Windows.Forms.Panel();
             this.label5 = new System.Windows.Forms.Label();
@@ -59,7 +58,6 @@ namespace VRage.Dedicated
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.serviceUpdateTimer = new System.Windows.Forms.Timer(this.components);
-            this.battleListTimer = new System.Windows.Forms.Timer(this.components);
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageMods = new System.Windows.Forms.TabPage();
             this.label8 = new System.Windows.Forms.Label();
@@ -136,7 +134,6 @@ namespace VRage.Dedicated
             this.loadGameButton.TabStop = true;
             this.loadGameButton.Text = "Saved worlds";
             this.loadGameButton.UseVisualStyleBackColor = true;
-            this.loadGameButton.CheckedChanged += new System.EventHandler(this.startTypeRadio_CheckedChanged);
             // 
             // startButton
             // 
@@ -175,7 +172,6 @@ namespace VRage.Dedicated
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.battleButton);
             this.groupBox1.Controls.Add(this.splitContainer1);
             this.groupBox1.Controls.Add(this.newGameSettingsPanel);
             this.groupBox1.Controls.Add(this.startGameButton);
@@ -187,17 +183,6 @@ namespace VRage.Dedicated
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Game settings";
-            // 
-            // battleButton
-            // 
-            this.battleButton.AutoSize = true;
-            this.battleButton.Location = new System.Drawing.Point(10, 54);
-            this.battleButton.Name = "battleButton";
-            this.battleButton.Size = new System.Drawing.Size(82, 17);
-            this.battleButton.TabIndex = 12;
-            this.battleButton.TabStop = true;
-            this.battleButton.Text = "Castle siege";
-            this.battleButton.UseVisualStyleBackColor = true;
             // 
             // splitContainer1
             // 
@@ -413,11 +398,6 @@ namespace VRage.Dedicated
             this.serviceUpdateTimer.Enabled = true;
             this.serviceUpdateTimer.Interval = 1000;
             this.serviceUpdateTimer.Tick += new System.EventHandler(this.serviceUpdateTimer_Tick);
-            // 
-            // battleListTimer
-            // 
-            this.battleListTimer.Enabled = true;
-            this.battleListTimer.Tick += new System.EventHandler(this.battleListTimer_Tick);
             // 
             // tabControl1
             // 
@@ -779,8 +759,6 @@ namespace VRage.Dedicated
         private System.Windows.Forms.Button reloadButton;
         private System.Windows.Forms.Timer serviceUpdateTimer;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.RadioButton battleButton;
-        private System.Windows.Forms.Timer battleListTimer;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPageServerSettings;
         private System.Windows.Forms.Label label9;

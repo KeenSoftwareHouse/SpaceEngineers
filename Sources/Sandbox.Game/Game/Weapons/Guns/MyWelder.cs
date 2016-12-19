@@ -197,11 +197,11 @@ namespace Sandbox.Game.Weapons
 
         public override bool CanShoot(MyShootActionEnum action, long shooter, out MyGunStatusEnum status)
         {
-            if (action == MyShootActionEnum.SecondaryAction)
-            {
-				status = MyGunStatusEnum.OK;
-                return true;
-            }
+            //if (action == MyShootActionEnum.SecondaryAction)
+            //{
+            //    status = MyGunStatusEnum.OK;
+            //    return true;
+            //}
 
             if (!base.CanShoot(action, shooter, out status))
             {
@@ -329,7 +329,7 @@ namespace Sandbox.Game.Weapons
                     {
                         if (IsWithinWorldLimits(info.cubeProjector.CubeGrid, Owner.ControllerInfo.Controller.Player.Identity.IdentityId, info.hitCube.BlockDefinition.BlockPairName))
                         {
-                            if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition) || MySession.Static.IsAdminModeEnabled(Sync.MyId))
+                            if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition) || MySession.Static.CreativeToolsEnabled(Sync.MyId))
                             {
                                 info.cubeProjector.Build(info.hitCube, Owner.ControllerInfo.Controller.Player.Identity.IdentityId, Owner.EntityId, builtBy: Owner.ControllerInfo.Controller.Player.Identity.IdentityId);
                             }

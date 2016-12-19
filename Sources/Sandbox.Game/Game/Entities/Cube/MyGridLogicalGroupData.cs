@@ -13,8 +13,17 @@ namespace Sandbox.Game.Entities
     public class MyGridLogicalGroupData : IGroupData<MyCubeGrid>
     {
         internal readonly MyGridTerminalSystem TerminalSystem = new MyGridTerminalSystem();
-		internal readonly MyResourceDistributorComponent ResourceDistributor = new MyResourceDistributorComponent();
         internal readonly MyGridWeaponSystem WeaponSystem = new MyGridWeaponSystem();
+        internal readonly MyResourceDistributorComponent ResourceDistributor;
+
+        public MyGridLogicalGroupData() : this(null)
+        {
+        }
+
+        public MyGridLogicalGroupData(string debugName)
+        {
+            ResourceDistributor = new MyResourceDistributorComponent(debugName);
+        }
 
         public void OnRelease()
         {

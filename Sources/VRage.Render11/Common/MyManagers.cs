@@ -1,4 +1,10 @@
-﻿using VRage.Render11.GeometryStage2;
+﻿using VRage.Render11.GeometryStage;
+using VRage.Render11.GeometryStage2;
+using VRage.Render11.GeometryStage2.Common;
+using VRage.Render11.GeometryStage2.Culling;
+using VRage.Render11.GeometryStage2.Instancing;
+using VRage.Render11.GeometryStage2.Model;
+using VRage.Render11.GeometryStage2.Rendering;
 using VRage.Render11.LightingStage.Shadows;
 using VRage.Render11.Resources;
 using VRageRender;
@@ -17,9 +23,13 @@ namespace VRage.Render11.Common
         void OnDeviceEnd();
     }
 
-    interface IManagerCallback
+    interface IManagerUnloadData
     {
         void OnUnloadData();
+    }
+
+    interface IManagerFrameEnd
+    {
         void OnFrameEnd();
     }
 
@@ -57,6 +67,16 @@ namespace VRage.Render11.Common
         public static MyEnvironmentProbe EnvironmentProbe = new MyEnvironmentProbe();
         public static MyGeometryTextureSystem GeometryTextureSystem = new MyGeometryTextureSystem();
 
+        public static MyShaderBundleManager ShaderBundles = new MyShaderBundleManager();
+        public static MyIDGeneratorManager IDGenerator = new MyIDGeneratorManager(); 
+        public static MyMaterialManager Materials = new MyMaterialManager();
+        public static MyModelBufferManager ModelBuffers = new MyModelBufferManager();
+        public static MyModelFactory ModelFactory = new MyModelFactory();
+        public static MyInstanceManager Instances = new MyInstanceManager();
+
+        public static GeometryStage2.Rendering.MyGeometryRenderer GeometryRenderer = new GeometryStage2.Rendering.MyGeometryRenderer();
+        public static MyHierarchicalCulledEntitiesManager HierarchicalCulledEntities = new MyHierarchicalCulledEntitiesManager();
+
         static MyGeneralManager m_generalManager = new MyGeneralManager();
 
         static MyManagers m_instance = new MyManagers(); // the intance is created, just because of calling constructor
@@ -89,6 +109,14 @@ namespace VRage.Render11.Common
             m_generalManager.RegisterManager(MyManagers.Shadow);
             m_generalManager.RegisterManager(MyManagers.EnvironmentProbe);
             m_generalManager.RegisterManager(MyManagers.GeometryTextureSystem);
+
+            m_generalManager.RegisterManager(MyManagers.IDGenerator);
+            m_generalManager.RegisterManager(MyManagers.Materials);
+            m_generalManager.RegisterManager(MyManagers.ModelBuffers);
+            m_generalManager.RegisterManager(MyManagers.ModelFactory);
+            m_generalManager.RegisterManager(MyManagers.Instances);
+            m_generalManager.RegisterManager(MyManagers.GeometryRenderer);
+            m_generalManager.RegisterManager(MyManagers.HierarchicalCulledEntities);
         }
 
         public static void OnDeviceInit()

@@ -181,13 +181,33 @@ namespace Sandbox.Game.World
             }
         }
 
-        public bool IsPromoted
+        public bool IsSpaceMaster
         {
             get
             {
                 if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
                     return true;
-                return MySession.Static.IsUserPromoted( Client.SteamUserId );
+                return MySession.Static.IsUserSpaceMaster( Client.SteamUserId );
+            }
+        }
+
+        public bool IsScripter
+        {
+            get
+            {
+                if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return true;
+                return MySession.Static.IsUserScripter(Client.SteamUserId);
+            }
+        }
+
+        public bool IsModerator
+        {
+            get
+            {
+                if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return true;
+                return MySession.Static.IsUserModerator(Client.SteamUserId);
             }
         }
 

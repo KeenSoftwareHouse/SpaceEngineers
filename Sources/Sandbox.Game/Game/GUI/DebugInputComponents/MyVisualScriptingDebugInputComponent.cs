@@ -101,6 +101,8 @@ namespace Sandbox.Game.GUI.DebugInputComponents
         {
             base.Update10();
 
+            if (MyAPIGateway.Session == null) return;
+
             m_queriedTriggers.Clear();
             var allContainingTriggers = MySessionComponentTriggerSystem.Static.GetIntersectingTriggers(MyAPIGateway.Session.Camera.Position);
             foreach (var trigger in allContainingTriggers)

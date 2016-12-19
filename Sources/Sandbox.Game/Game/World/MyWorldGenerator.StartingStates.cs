@@ -159,6 +159,8 @@ namespace Sandbox.Game.World
                 
                 MyEntities.Add(character);
 
+                character.IsReadyForReplication = true;
+
                 this.CreateAndSetPlayerFaction();
 
                 MySession.Static.LocalHumanPlayer.SpawnIntoCharacter(character);

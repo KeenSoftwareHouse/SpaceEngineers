@@ -739,7 +739,7 @@ using VRage.Utils;
         public static readonly MyStringId LoadScreenButtonEditSettings = MyStringId.GetOrCompute("LoadScreenButtonEditSettings");
 
         ///<summary>
-        ///Custom World
+        ///Custom Game
         ///</summary>
         public static readonly MyStringId ScreenCaptionCustomWorld = MyStringId.GetOrCompute("ScreenCaptionCustomWorld");
 
@@ -899,7 +899,7 @@ using VRage.Utils;
         public static readonly MyStringId NextPage = MyStringId.GetOrCompute("NextPage");
 
         ///<summary>
-        ///Press {0} for help and tutorials
+        ///Press {0} for help
         ///</summary>
         public static readonly MyStringId NotificationNeedShowHelpScreen = MyStringId.GetOrCompute("NotificationNeedShowHelpScreen");
 
@@ -1214,7 +1214,7 @@ using VRage.Utils;
         public static readonly MyStringId NotificationRotationFormat = MyStringId.GetOrCompute("NotificationRotationFormat");
 
         ///<summary>
-        ///Press {0} to configure toolbar or create new objects
+        ///Press {0} to configure toolbar
         ///</summary>
         public static readonly MyStringId NotificationScreenFormat = MyStringId.GetOrCompute("NotificationScreenFormat");
 
@@ -1324,7 +1324,7 @@ using VRage.Utils;
         public static readonly MyStringId ProgressTextCreatingWorld = MyStringId.GetOrCompute("ProgressTextCreatingWorld");
 
         ///<summary>
-        ///Workshop
+        ///Workshop Content
         ///</summary>
         public static readonly MyStringId ScreenCaptionWorkshop = MyStringId.GetOrCompute("ScreenCaptionWorkshop");
 
@@ -1354,7 +1354,7 @@ using VRage.Utils;
         public static readonly MyStringId MessageBoxCaptionModPublishFailed = MyStringId.GetOrCompute("MessageBoxCaptionModPublishFailed");
 
         ///<summary>
-        ///Copy & Load
+        ///Quickstart
         ///</summary>
         public static readonly MyStringId ScreenLoadSubscribedWorldCopyAndLoad = MyStringId.GetOrCompute("ScreenLoadSubscribedWorldCopyAndLoad");
 
@@ -1524,7 +1524,7 @@ using VRage.Utils;
         public static readonly MyStringId ToolTipWorkshopBrowseWorkshop = MyStringId.GetOrCompute("ToolTipWorkshopBrowseWorkshop");
 
         ///<summary>
-        ///Download selected world to your computer and load
+        ///Launch with default parameters.
         ///</summary>
         public static readonly MyStringId ToolTipWorkshopCopyAndLoad = MyStringId.GetOrCompute("ToolTipWorkshopCopyAndLoad");
 
@@ -3629,9 +3629,34 @@ using VRage.Utils;
         public static readonly MyStringId ScreenDebugAdminMenu_NumberOfLocalTrash = MyStringId.GetOrCompute("ScreenDebugAdminMenu_NumberOfLocalTrash");
 
         ///<summary>
-        ///Include in removal
+        ///Include in trash
         ///</summary>
         public static readonly MyStringId ScreenDebugAdminMenu_TrashRemoval = MyStringId.GetOrCompute("ScreenDebugAdminMenu_TrashRemoval");
+
+        ///<summary>
+        ///Continuous trash interval
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_ContinuousTrashInterval = MyStringId.GetOrCompute("ScreenDebugAdminMenu_ContinuousTrashInterval");
+
+        ///<summary>
+        ///Trash action
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_TrashAction = MyStringId.GetOrCompute("ScreenDebugAdminMenu_TrashAction");
+
+        ///<summary>
+        ///Suspend
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_PauseTrashButton = MyStringId.GetOrCompute("ScreenDebugAdminMenu_PauseTrashButton");
+
+        ///<summary>
+        ///Activate
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_ResumeTrashButton = MyStringId.GetOrCompute("ScreenDebugAdminMenu_ResumeTrashButton");
+
+        ///<summary>
+        ///Disable trash performing
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_PauseTrashButtonTooltip = MyStringId.GetOrCompute("ScreenDebugAdminMenu_PauseTrashButtonTooltip");
 
         ///<summary>
         ///Show trash information
@@ -3799,7 +3824,7 @@ using VRage.Utils;
         public static readonly MyStringId ControlTypeNavigation2 = MyStringId.GetOrCompute("ControlTypeNavigation2");
 
         ///<summary>
-        ///Copy World
+        ///Customize
         ///</summary>
         public static readonly MyStringId ScreenLoadSubscribedWorldCopyWorld = MyStringId.GetOrCompute("ScreenLoadSubscribedWorldCopyWorld");
 
@@ -3824,7 +3849,7 @@ using VRage.Utils;
         public static readonly MyStringId MessageBoxTextWorldExistsOverwrite = MyStringId.GetOrCompute("MessageBoxTextWorldExistsOverwrite");
 
         ///<summary>
-        ///Download selected world to save games without loading it (Use to Edit Settings before playing world)
+        ///Customize settings before launch.
         ///</summary>
         public static readonly MyStringId ToolTipWorkshopCopyWorld = MyStringId.GetOrCompute("ToolTipWorkshopCopyWorld");
 
@@ -3874,7 +3899,7 @@ using VRage.Utils;
         public static readonly MyStringId NewGame_SelectionLabel = MyStringId.GetOrCompute("NewGame_SelectionLabel");
 
         ///<summary>
-        ///New Game
+        ///Campaign
         ///</summary>
         public static readonly MyStringId ScreenCaptionNewGame = MyStringId.GetOrCompute("ScreenCaptionNewGame");
 
@@ -4312,4 +4337,64 @@ using VRage.Utils;
         ///Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).
         ///</summary>
         public static readonly MyStringId MessageBoxTextCampaignPublished = MyStringId.GetOrCompute("MessageBoxTextCampaignPublished");
+
+        ///<summary>
+        ///Entity Name: 
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_EntityName = MyStringId.GetOrCompute("ScreenDebugAdminMenu_EntityName");
+
+        ///<summary>
+        ///Multiplayer warning: High latency connection (>250 ms)
+        ///</summary>
+        public static readonly MyStringId Multiplayer_HighPing = MyStringId.GetOrCompute("Multiplayer_HighPing");
+
+        ///<summary>
+        ///Multiplayer warning: Low sim speed on server
+        ///</summary>
+        public static readonly MyStringId Multiplayer_LowSimSpeed = MyStringId.GetOrCompute("Multiplayer_LowSimSpeed");
+
+        ///<summary>
+        ///Start a new campaign game.
+        ///</summary>
+        public static readonly MyStringId NewGameScreen_Description = MyStringId.GetOrCompute("NewGameScreen_Description");
+
+        ///<summary>
+        ///Choose one of your subscribed workshop items or browse for more.
+        ///</summary>
+        public static readonly MyStringId WorkshopScreen_Description = MyStringId.GetOrCompute("WorkshopScreen_Description");
+
+        ///<summary>
+        ///Create a new custom world.
+        ///</summary>
+        public static readonly MyStringId WorldSettingsScreen_Description = MyStringId.GetOrCompute("WorldSettingsScreen_Description");
+
+        ///<summary>
+        ///Newsletter
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionNewsletter = MyStringId.GetOrCompute("ScreenCaptionNewsletter");
+
+        ///<summary>
+        ///A confirmation message was sent to the provided email
+        ///</summary>
+        public static readonly MyStringId ScreenNewsletterConfirmationMessage = MyStringId.GetOrCompute("ScreenNewsletterConfirmationMessage");
+
+        ///<summary>
+        ///Email
+        ///</summary>
+        public static readonly MyStringId ScreenNewsletterEmailLabel = MyStringId.GetOrCompute("ScreenNewsletterEmailLabel");
+
+        ///<summary>
+        ///Don't ask me again
+        ///</summary>
+        public static readonly MyStringId ScreenNewsletterNoInterestCheckbox = MyStringId.GetOrCompute("ScreenNewsletterNoInterestCheckbox");
+
+        ///<summary>
+        ///If you wish to receive Keen Software House newsletter, please provide your email.
+        ///</summary>
+        public static readonly MyStringId ScreenNewsletterSubtitle = MyStringId.GetOrCompute("ScreenNewsletterSubtitle");
+
+        ///<summary>
+        ///Model quality
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_ModelQuality = MyStringId.GetOrCompute("ScreenGraphicsOptions_ModelQuality");
     }

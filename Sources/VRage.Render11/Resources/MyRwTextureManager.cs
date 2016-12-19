@@ -21,6 +21,7 @@ namespace VRage.Render11.Resources
 
     internal class MyRwTextureManager : IManager, IManagerDevice
     {
+        MyTextureStatistics m_statistics = new MyTextureStatistics();
         MyObjectsPool<MySrvTexture> m_srvTextures = new MyObjectsPool<MySrvTexture>(16);
         MyObjectsPool<MyRtvTexture> m_rtvTextures = new MyObjectsPool<MyRtvTexture>(64);
         MyObjectsPool<MyUavTexture> m_uavTextures = new MyObjectsPool<MyUavTexture>(64);
@@ -39,6 +40,7 @@ namespace VRage.Render11.Resources
             if (m_isDeviceInit)
                 tex.OnDeviceInit();
 
+            m_statistics.Add(tex);
             return tex;
         }
 
@@ -54,6 +56,7 @@ namespace VRage.Render11.Resources
             if (m_isDeviceInit)
                 tex.OnDeviceInit();
 
+            m_statistics.Add(tex);
             return tex;
         }
 
@@ -69,6 +72,7 @@ namespace VRage.Render11.Resources
             if (m_isDeviceInit)
                 tex.OnDeviceInit();
 
+            m_statistics.Add(tex);
             return tex;
         }
 
@@ -84,6 +88,7 @@ namespace VRage.Render11.Resources
             if (m_isDeviceInit)
                 tex.OnDeviceInit();
 
+            m_statistics.Add(tex);
             return tex;
         }
 
@@ -108,6 +113,7 @@ namespace VRage.Render11.Resources
                 textureInternal.OnDeviceEnd();
 
             m_srvTextures.Deallocate(textureInternal);
+            m_statistics.Remove(textureInternal);
             texture = null;
         }
 
@@ -122,6 +128,7 @@ namespace VRage.Render11.Resources
                 textureInternal.OnDeviceEnd();
 
             m_rtvTextures.Deallocate(textureInternal);
+            m_statistics.Remove(textureInternal);
             texture = null;
         }
 
@@ -136,6 +143,7 @@ namespace VRage.Render11.Resources
                 textureInternal.OnDeviceEnd();
 
             m_uavTextures.Deallocate(textureInternal);
+            m_statistics.Remove(textureInternal);
             texture = null;
         }
 
@@ -150,6 +158,7 @@ namespace VRage.Render11.Resources
                 textureInternal.OnDeviceEnd();
 
             m_depthTextures.Deallocate(textureInternal);
+            m_statistics.Remove(textureInternal);
             texture = null;
         }
 
@@ -210,6 +219,11 @@ namespace VRage.Render11.Resources
 
         public void OnFrameEnd()
         {
+        }
+
+        public MyTextureStatistics Statistics
+        {
+            get { return m_statistics; }
         }
     }
 }

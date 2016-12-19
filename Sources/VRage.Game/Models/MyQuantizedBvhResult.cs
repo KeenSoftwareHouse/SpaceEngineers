@@ -59,12 +59,18 @@ namespace VRage.Game.Models
             Line lineF = (Line)m_line;
             float? distance = MyUtils.GetLineTriangleIntersection(ref lineF, ref triangle);
 
+            if (distance != null && float.IsNaN(distance.Value))
+            {
+                System.Diagnostics.Debug.Fail("Invalid triangle in " + m_model.AssetName);
+                MyLog.Default.Warning("Invalid triangle in " + m_model.AssetName);
+            }
+
             //  If intersection occured and if distance to intersection is closer to origin than any previous intersection
-            if ((distance != null) && ((m_result == null) || (distance.Value < m_result.Value.Distance)))
+            if ((distance != null && !float.IsNaN(distance.Value)) && ((m_result == null) || (distance.Value < m_result.Value.Distance)))
             {
                 //  We need to remember original triangleVertexes coordinates (not transformed by world matrix)
                 MyTriangle_BoneIndicesWeigths? boneWeights = m_model.GetBoneIndicesWeights(triangleIndex);
-                m_result = new MyIntersectionResultLineTriangle(ref triangle, ref boneWeights, ref calculatedTriangleNormal, distance.Value);
+                m_result = new MyIntersectionResultLineTriangle(triangleIndex, ref triangle, ref boneWeights, ref calculatedTriangleNormal, distance.Value);
                 return distance.Value;
             }
             return null;
@@ -132,7 +138,7 @@ namespace VRage.Game.Models
             if (distance.HasValue)
             {
                 MyTriangle_BoneIndicesWeigths? boneWeights = m_model.GetBoneIndicesWeights(triangleIndex);
-                var result = new MyIntersectionResultLineTriangle(ref triangle, ref boneWeights, ref calculatedTriangleNormal, distance.Value);
+                var result = new MyIntersectionResultLineTriangle(triangleIndex, ref triangle, ref boneWeights, ref calculatedTriangleNormal, distance.Value);
                 m_result.Add(result);
             }
 

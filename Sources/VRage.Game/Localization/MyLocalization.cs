@@ -21,6 +21,8 @@ namespace VRage.Game.Localization
         // Folder within content folder that should contain localization files
         public static readonly string LOCALIZATION_FOLDER = "Data\\Localization";
 
+        private static readonly StringBuilder m_defaultLocalization = new StringBuilder("Failed localization attempt. Missing or not loaded contexts.");
+
         // Static accessor
         private static MyLocalization m_instance;
         public static MyLocalization Static
@@ -341,7 +343,7 @@ namespace VRage.Game.Localization
         public StringBuilder Get(MyStringId contextId, MyStringId id)
         {
             MyLocalizationContext context;
-            StringBuilder sb = null;
+            StringBuilder sb = m_defaultLocalization;
             if (m_disposableContexts.TryGetValue(contextId, out context))
             {
                 sb = context.Localize(id);

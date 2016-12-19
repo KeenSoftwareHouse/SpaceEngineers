@@ -74,7 +74,7 @@ namespace SpaceEngineers.Game.Entities
 
         public override bool HasBuildingMaterials(MyEntity builder, bool testTotal)
         {
-            if (MySession.Static.CreativeMode || (MySession.Static.IsAdminModeEnabled(Sync.MyId) && builder == MySession.Static.LocalCharacter))
+            if (MySession.Static.CreativeMode || (MySession.Static.CreativeToolsEnabled(Sync.MyId) && builder == MySession.Static.LocalCharacter))
                 return true;
 
             if (builder == null) return false;

@@ -24,6 +24,7 @@ namespace Sandbox.Game
     {
         private const string DEFAULT = "Default";
 
+        private static MyCubeGridHitInfo m_gridHitInfo = new MyCubeGridHitInfo();
         private static MyDecals m_handler = new MyDecals();
         private static Func<IMyDecalProxy, bool> FilterProxy = DefaultFilterProxy;
 
@@ -33,12 +34,12 @@ namespace Sandbox.Game
         private MyDecals() { }
 
         /// <param name="damage">Not used for now but could be used as a multiplier instead of random decal size</param>
-        public static void HandleAddDecal(IMyEntity entity, MyHitInfo hitInfo, MyStringHash source = default(MyStringHash), object customdata = null, float damage = -1)
+        public static void HandleAddDecal(IMyEntity entity, MyHitInfo hitInfo, MyStringHash material = default(MyStringHash), MyStringHash source = default(MyStringHash), object customdata = null, float damage = -1)
         {
             IMyDecalProxy proxy = entity as IMyDecalProxy;
             if (proxy != null)
             {
-                AddDecal(proxy, ref hitInfo, damage, source, customdata);
+                AddDecal(proxy, ref hitInfo, damage, source, customdata, material);
                 return;
             }
 
@@ -50,6 +51,12 @@ namespace Sandbox.Game
                 if (info == null)
                 {
                     block = grid.GetTargetedBlock(hitInfo.Position);
+                    if (block == null)
+                        return;
+
+                    // If info is not provided, provide info with just block position
+                    m_gridHitInfo.Position = block.Position;
+                    customdata = m_gridHitInfo;
                 }
                 else
                 {
@@ -72,7 +79,7 @@ namespace Sandbox.Game
             if (proxy == null)
                 return;
 
-            AddDecal(proxy, ref hitInfo, damage, source, customdata);
+            AddDecal(proxy, ref hitInfo, damage, source, customdata, material);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -87,7 +94,7 @@ namespace Sandbox.Game
             MyRenderProxy.RemoveDecal(decalId);
         }
 
-        private static void AddDecal(IMyDecalProxy proxy, ref MyHitInfo hitInfo, float damage, MyStringHash source, object customdata)
+        private static void AddDecal(IMyDecalProxy proxy, ref MyHitInfo hitInfo, float damage, MyStringHash source, object customdata, MyStringHash material)
         {
             bool skip = DefaultFilterProxy(proxy);
             if (skip)
@@ -95,7 +102,7 @@ namespace Sandbox.Game
 
             m_handler.Source = source;
             m_handler.Enabled = true;
-            proxy.AddDecals(hitInfo, source, customdata, m_handler);
+            proxy.AddDecals(hitInfo, source, customdata, m_handler, material);
             m_handler.Enabled = false;
             m_handler.Source = MyStringHash.NullOrEmpty;
         }
@@ -171,8 +178,10 @@ namespace Sandbox.Game
             topoData.BoneIndices = data.BoneIndices;
             topoData.BoneWeights = data.BoneWeights;
 
+            MyDecalFlags flags = material.Transparent ? MyDecalFlags.Transparent : MyDecalFlags.None;
+
             string sourceTarget = MyDecalMaterials.GetStringId(Source, data.Material);
-            return MyRenderProxy.CreateDecal(data.RenderObjectId, ref topoData, data.Flags, sourceTarget, material.StringId, index);
+            return MyRenderProxy.CreateDecal(data.RenderObjectId, ref topoData, data.Flags | flags, sourceTarget, material.StringId, index);
         }
 
         [Conditional("DEBUG")]

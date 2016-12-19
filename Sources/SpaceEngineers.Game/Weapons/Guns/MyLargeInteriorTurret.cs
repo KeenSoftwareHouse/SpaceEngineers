@@ -54,6 +54,7 @@ namespace SpaceEngineers.Game.Weapons.Guns
                 m_barrel = new MyLargeInteriorBarrel();
                 ((MyLargeInteriorBarrel)m_barrel).Init(m_base2, this);
                 GetCameraDummy();
+                RotateModels();
             }
             else
             {

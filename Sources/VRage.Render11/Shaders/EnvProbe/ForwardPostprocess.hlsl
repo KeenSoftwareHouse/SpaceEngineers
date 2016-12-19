@@ -5,7 +5,7 @@
 Texture2D<float>	DepthBuffer	: register( t0 );
 
 
-cbuffer Constants : register( MERGE(b,PROJECTION_SLOT) )
+cbuffer Constants : register( MERGE(b,OBJECT_SLOT) )
 {
 	matrix viewMatrix;
 };
@@ -14,7 +14,7 @@ void __pixel_shader(PostprocessVertex vertex, out float4 output : SV_Target0)
 {
 	float depth = DepthBuffer[vertex.position.xy];
 
-	if(depth < 1)
+	if(depth > 0)
 		discard;
 
 	const float ray_x = 1;

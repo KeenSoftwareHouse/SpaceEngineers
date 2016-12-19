@@ -118,17 +118,6 @@ namespace Sandbox.Game.Gui
             m_textField.AppendLine();
             m_textField.AppendText("Number of blocks: " + GetNumberOfBlocks());//zxc translate
             m_textField.AppendLine();
-
-            if (MyFakes.ENABLE_BATTLE_SYSTEM)
-            {
-                int battlePoints = GetNumberOfBattlePoints();
-                if (battlePoints != 0)
-                {
-                    m_textField.AppendText("Castle siege points: " + battlePoints);//zxc translate
-                    m_textField.AppendLine();
-                }
-            }
-
             m_textField.AppendText("Author: " + m_loadedPrefab.ShipBlueprints[0].DisplayName);//zxc translate
             m_textField.AppendLine();
         }

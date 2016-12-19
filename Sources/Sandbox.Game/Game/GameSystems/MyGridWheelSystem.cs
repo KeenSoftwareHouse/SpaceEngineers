@@ -118,13 +118,11 @@ namespace Sandbox.Game.GameSystems
             if (m_wheelsChanged)
                 RecomputeWheelParameters();
 
-            var player = Sync.Players.GetControllingPlayer(m_grid);
-
-            if (m_grid.Physics != null && player != null)
+            if (m_grid.Physics != null)
             {
                 foreach (var motor in m_wheels)
                 {
-                    if (!motor.IsWorking /*|| !motor.HasPlayerAccess(player.PlayerId)*/)
+                    if (!motor.IsWorking)
                         continue;
                     if (motor.Steering)
                     {
@@ -177,7 +175,7 @@ namespace Sandbox.Game.GameSystems
                 m_maxRequiredPowerInput += motor.RequiredPowerInput;
             }
 
-            SinkComp.MaxRequiredInput = m_maxRequiredPowerInput;
+            SinkComp.SetMaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId, m_maxRequiredPowerInput);
 			SinkComp.Update();
         }
 

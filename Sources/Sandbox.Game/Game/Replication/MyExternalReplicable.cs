@@ -8,6 +8,7 @@ using System.Text;
 using VRage.Collections;
 using VRage.Library.Collections;
 using VRage.Network;
+using VRageMath;
 
 namespace Sandbox.Game.Replication
 {
@@ -36,18 +37,35 @@ namespace Sandbox.Game.Replication
 
         public virtual bool IsReadyForReplication
         {
-            get { return true; }
+            get 
+            {
+                if (HasToBeChild)
+                {
+                    return GetParent() != null && GetParent().IsReadyForReplication;
+                }
+
+                return true; 
+            }
         }
 
-        public virtual Action ReadyForReplicationAction
+        public virtual Dictionary<IMyReplicable, Action> ReadyForReplicationAction
         {
-            set { }
+            get 
+            {
+                var parent = GetParent();
+                if (parent != null)
+                    return parent.ReadyForReplicationAction;
+
+                return null;
+            }
         }
 
         protected virtual void RaiseDestroyed()
         {
             var handler = Destroyed;
             if (handler != null) handler(this);
+
+            ReadyForReplicationAction.Remove(this);
 
             // Probably happens when replicable is not fully initialized, but it's being destroyed (world unload)
             var inst = GetInstance();
@@ -57,14 +75,18 @@ namespace Sandbox.Game.Replication
         protected abstract object GetInstance();
         protected abstract void OnHook();
 
-        public abstract bool IsChild { get; }
-        public abstract IMyReplicable GetDependency();
+        public abstract bool HasToBeChild { get; }
+        public abstract IMyReplicable GetParent();
         public abstract float GetPriority(MyClientInfo client,bool cached);
         public abstract bool OnSave(BitStream stream);
         public abstract void OnLoad(BitStream stream, Action<bool> loadingDoneHandler);
         public abstract void OnLoadBegin(BitStream stream, Action<bool> loadingDoneHandler);
         public abstract void OnDestroy();
         public abstract void GetStateGroups(List<IMyStateGroup> resultList);
+
+        public abstract BoundingBoxD GetAABB();
+        public Action<IMyReplicable> OnAABBChanged { get; set; }
+
 
         /// <summary>
         /// Hack to allow interop with old event system without complete rewrite.
@@ -100,6 +122,11 @@ namespace Sandbox.Game.Replication
         public void RpcToClient_Implementation(BitReaderWriter reader)
         {
             Sync.Layer.ProcessRpc(reader);
+        }
+
+        public virtual HashSet<IMyReplicable> GetDependencies()
+        {
+            return null;
         }
     }
 }

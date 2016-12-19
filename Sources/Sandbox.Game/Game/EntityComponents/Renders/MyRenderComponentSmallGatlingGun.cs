@@ -25,11 +25,9 @@ namespace Sandbox.Game.Components
             int deltaTime = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_gatlingGun.LastTimeShoot;
             if (deltaTime <= m_gatlingGun.GunBase.MuzzleFlashLifeSpan)
             {
-                Vector3 velocityAtNewCOM = Vector3.Cross(m_gatlingGun.CubeGrid.Physics.AngularVelocity, m_gatlingGun.GunBase.GetMuzzleWorldPosition() - m_gatlingGun.CubeGrid.Physics.CenterOfMassWorld);
-                var velocity = m_gatlingGun.CubeGrid.Physics.RigidBody.LinearVelocity + velocityAtNewCOM;
-
                 var worldToLocal = MatrixD.Invert(m_gatlingGun.PositionComp.WorldMatrix);
-                MyParticleEffects.GenerateMuzzleFlash(m_gatlingGun.GunBase.GetMuzzleWorldPosition(), m_gatlingGun.PositionComp.WorldMatrix.Forward, GetRenderObjectID(), ref worldToLocal, m_gatlingGun.MuzzleFlashRadius, m_gatlingGun.MuzzleFlashLength, NearFlag);
+                MyParticleEffects.GenerateMuzzleFlash(m_gatlingGun.GunBase.GetMuzzleWorldPosition(), m_gatlingGun.PositionComp.WorldMatrix.Forward, 
+                    GetRenderObjectID(), ref worldToLocal, m_gatlingGun.MuzzleFlashRadius, m_gatlingGun.MuzzleFlashLength);
             }
         }    
         #endregion

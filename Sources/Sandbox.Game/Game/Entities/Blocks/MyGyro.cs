@@ -22,6 +22,7 @@ using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
 using VRage.Sync;
+using Sandbox.Game.EntityComponents;
 
 #endregion
 
@@ -36,7 +37,7 @@ namespace Sandbox.Game.Entities
 
         public bool IsPowered
         {
-            get { return CubeGrid.GridSystems.GyroSystem.ResourceSink.IsPowered; }
+            get { return CubeGrid.GridSystems.GyroSystem.ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId); }
         }
 
         protected override bool CheckIsWorking()
@@ -64,6 +65,18 @@ namespace Sandbox.Game.Entities
                     m_gyroPower.Value = value;
                 }
             }
+        }
+
+        protected override void OnStopWorking()
+        {
+            UpdateEmissivity();
+            base.OnStopWorking();
+        }
+
+        protected override void OnStartWorking()
+        {
+            UpdateEmissivity();
+            base.OnStartWorking();
         }
 
         readonly Sync<bool> m_gyroOverride;
@@ -102,7 +115,6 @@ namespace Sandbox.Game.Entities
 #endif // XB1
             CreateTerminalControls();
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             m_gyroPower.ValueChanged += x => GyroPowerChanged();
             m_gyroOverride.ValueChanged += x => GyroOverrideChanged();
         }
@@ -165,11 +177,13 @@ namespace Sandbox.Game.Entities
         void GyroOverrideChanged()
         {
             SetGyroOverride(m_gyroOverride.Value);
+            UpdateEmissivity();
         }
 
         void GyroPowerChanged()
         {
             UpdateText();
+            UpdateEmissivity();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -186,6 +200,7 @@ namespace Sandbox.Game.Entities
             }
 
             UpdateText();
+            UpdateEmissivity();
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -197,12 +212,6 @@ namespace Sandbox.Game.Entities
             return ob;
         }
 
-        public override void UpdateBeforeSimulation()
-        {
-            base.UpdateBeforeSimulation();
-            UpdateEmissivity();
-        }
-
         public override void UpdateVisual()
         {
             base.UpdateVisual();
@@ -211,6 +220,7 @@ namespace Sandbox.Game.Entities
         public override void OnModelChange()
         {
             m_oldEmissiveState = -1;
+            UpdateEmissivity();
             base.OnModelChange();
         }
 
@@ -335,6 +345,7 @@ namespace Sandbox.Game.Entities
                 }
 
                 UpdateText();
+                UpdateEmissivity();
             }
         }
     }

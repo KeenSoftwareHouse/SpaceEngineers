@@ -100,7 +100,7 @@ namespace Sandbox.Game.Gui
 #if !XB1
             Stats.Timing.Write("Process memory", WinApi.WorkingSet, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
 #endif // !XB1
-            Stats.Timing.Write("Active parcticle effects", MyParticlesManager.ParticleEffectsForUpdate.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+            Stats.Timing.Write("Active particle effects", MyParticlesManager.ParticleEffectsForUpdate.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
             //Stats.Timing.Write("Billboards total", VRageRender.MyPerformanceCounter.PerCameraDraw11Read.BillboardsDrawn, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
 
             if (MyPhysics.GetClusterList() != null)

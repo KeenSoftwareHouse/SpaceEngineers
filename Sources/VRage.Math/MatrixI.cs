@@ -283,5 +283,12 @@ namespace VRageMath
             result.UpVector       = newUp;
             result.BackwardVector = newBackward;
         }
+
+        public static MyBlockOrientation Transform(ref MyBlockOrientation orientation, ref MatrixI transform)
+        {
+            Base6Directions.Direction forward = transform.GetDirection(orientation.Forward);
+            Base6Directions.Direction up = transform.GetDirection(orientation.Up);
+            return new MyBlockOrientation(forward, up);
+        }
     }
 }

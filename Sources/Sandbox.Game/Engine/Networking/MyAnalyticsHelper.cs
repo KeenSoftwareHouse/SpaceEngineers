@@ -189,7 +189,6 @@ namespace Sandbox.Engine.Networking
                 spaceSpiders = MySession.Static.Settings.EnableSpiders != null ? (bool)MySession.Static.Settings.EnableSpiders : false,
                 encounters = MySession.Static.Settings.EnableEncounters,
                 oxygen = MySession.Static.Settings.EnableOxygen,
-                trashAutoRemoval = MySession.Static.Settings.RemoveTrash,
                 toolShake = MySession.Static.Settings.EnableToolShake,
                 inventorySpace = MySession.Static.Settings.InventorySizeMultiplier,
                 welderSpeed = MySession.Static.Settings.WelderSpeedMultiplier,
@@ -229,8 +228,7 @@ namespace Sandbox.Engine.Networking
             {
                 AverageFramesPerSecond = (uint)(MyFpsManager.GetSessionTotalFrames() / MySession.Static.ElapsedPlayTime.TotalSeconds),
                 AverageUpdatesPerSecond = (uint)(MyGameStats.Static.UpdateCount / MySession.Static.ElapsedPlayTime.TotalSeconds),
-                averageSimSpeedPlayer = (float)(MySession.Static.sessionSimSpeedPlayer / MySession.Static.ElapsedPlayTime.TotalSeconds),
-                averageSimSpeedServer = (float)(MySession.Static.sessionSimSpeedServer / MySession.Static.ElapsedPlayTime.TotalSeconds),
+
                 MinFramesPerSecond = (uint)MyFpsManager.GetMinSessionFPS(),
                 MaxFramesPerSecond = (uint)MyFpsManager.GetMaxSessionFPS(),
                 TotalAmountMined = MySession.Static.AmountMined,
@@ -252,7 +250,6 @@ namespace Sandbox.Engine.Networking
                 spaceSpiders = MySession.Static.Settings.EnableSpiders != null ? (bool)MySession.Static.Settings.EnableSpiders : false,
                 encounters = MySession.Static.Settings.EnableEncounters,
                 oxygen = MySession.Static.Settings.EnableOxygen,
-                trashAutoRemoval = MySession.Static.Settings.RemoveTrash,
                 toolShake = MySession.Static.Settings.EnableToolShake,
                 inventorySpace = MySession.Static.Settings.InventorySizeMultiplier,
                 welderSpeed = MySession.Static.Settings.WelderSpeedMultiplier,

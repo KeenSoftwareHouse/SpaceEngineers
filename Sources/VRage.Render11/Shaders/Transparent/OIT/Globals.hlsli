@@ -1,17 +1,4 @@
 
-void WeightedOITOriginal(float4 color, float linearZ, float z, float weightFactor, out float4 accumTarget, out float4 coverageTarget)
-{
-    // unmultiply alpha:
-    color.rgb /= color.a;
-    float weight = saturate(max(min(1.0, max(max(color.r, color.g), color.b) * color.a), color.a) *
-        clamp(0.001 / (1e-5 + pow(z, 4.0)), 1e-2, 3e3));
-
-    // Blend Func: GL_ONE, GL_ONE
-    accumTarget = float4(color.rgb * color.a, color.a) * weight;
-    // Blend Func: GL_ZERO, GL_ONE_MINUS_SRC_ALPHA
-    coverageTarget = color.a;
-}
-
 void WeightedOITCendos(float4 color, float linearZ, float z, float weightFactor, out float4 accumTarget, out float4 coverageTarget)
 {
     // clip colors below very low transparency
@@ -44,7 +31,7 @@ void DebugUniformAccum(float4 color, float linearZ, float z, float weightFactor,
 
 void DebugUniformAccumOIT(float4 color, float linearZ, float z, float weightFactor, out float4 accumTarget, out float4 coverageTarget)
 {
-	clip(color.a - 0.00025f);
+    clip(color.a - 0.0001f);
 	accumTarget = 1;
 	coverageTarget = 0;
 }

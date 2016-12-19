@@ -22,13 +22,7 @@
 			<HorisontalFragility>1</HorisontalFragility>
 			<SupportMultiplier>1</SupportMultiplier>
 			<CollisionMultiplier>0.5</CollisionMultiplier>
-		</PhysicalMaterial>	
-		<PhysicalMaterial>
-			<Id>
-				<TypeId>PhysicalMaterialDefinition</TypeId>
-				<SubtypeId>Ship</SubtypeId>
-			</Id>
-		</PhysicalMaterial>
+	</PhysicalMaterial>	
     <PhysicalMaterial>
       <Id>
         <TypeId>PhysicalMaterialDefinition</TypeId>
@@ -52,7 +46,6 @@
 				<TypeId>PhysicalMaterialDefinition</TypeId>
 				<SubtypeId>Glass</SubtypeId>
 			</Id>
-      <Transparent>true</Transparent>
 		</PhysicalMaterial>
 		<PhysicalMaterial>
 			<Id>

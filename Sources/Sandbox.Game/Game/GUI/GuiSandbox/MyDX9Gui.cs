@@ -554,7 +554,8 @@ namespace Sandbox.Graphics.GUI
 
                 bool movementAllowedInPause = MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator ||
                                               MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.SpectatorDelta ||
-                                              MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.SpectatorFixed;
+                                              MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.SpectatorFixed ||
+                                              MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.SpectatorOrbit;
                 bool rotationAllowedInPause = movementAllowedInPause;   //GK: consider removing if in the future is not different from movementAllowed
                 bool devScreenFlag = MyScreenManager.GetScreenWithFocus() is MyGuiScreenDebugBase && !MyInput.Static.IsAnyAltKeyPressed();
                 MyCameraControllerEnum cce = MySession.Static.GetCameraControllerEnum();
@@ -607,6 +608,8 @@ namespace Sandbox.Graphics.GUI
                     }
                 }
 
+                MyScreenManager.HandleInputAfterSimulation();
+                
                 if (shouldStopControlledObject)
                 {
                     MySession.Static.ControlledEntity.MoveAndRotateStopped();

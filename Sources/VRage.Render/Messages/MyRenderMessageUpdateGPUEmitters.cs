@@ -1,5 +1,6 @@
 ﻿using System;
 using VRageMath;
+using VRageRender.Animations;
 
 namespace VRageRender.Messages
 {
@@ -24,7 +25,11 @@ namespace VRageRender.Messages
         // do not simulate particles (freeze)
         FreezeSimulate = 0x80,
         // do not emit particles
-        FreezeEmit = 0x100
+        FreezeEmit = 0x100,
+        // random rotate particles at birth
+        RandomRotationEnabled = 0x200,
+        LocalRotation = 0x400,
+        LocalAndCameraRotation = 0x800
     }
     // the structure is directly copied to shader buffers - watch for padding!
     public struct MyGPUEmitterData
@@ -55,7 +60,7 @@ namespace VRageRender.Messages
         // random velocity variance
         public float VelocityVar;
         // emitting conus angle
-        public float DirectionCone;
+        public float DirectionInnerCone;
         // emitting variance around the conus angle
         public float DirectionConeVar;
         // rotation velocity variance
@@ -106,7 +111,21 @@ namespace VRageRender.Messages
         public Matrix RotationMatrix;
 
         public Vector3 PositionDelta;
-        public float _Pad0;
+        public float MotionInheritance;
+
+        public Vector3 ParticleRotationRow0;
+        public float ParticleLifeSpanVar;
+        public Vector3 ParticleRotationRow1;
+        public float Thickness;
+        public Vector3 ParticleRotationRow2;
+        public float _pad1;
+
+        // thickness keys
+        public float ParticleThickness0, ParticleThickness1, ParticleThickness2, ParticleThickness3;
+        // thickness key positions in particle lifetime 0..1
+        public float ParticleThicknessKeys1, ParticleThicknessKeys2;
+        public float _pad2;
+        public float _pad3;
 
         public void InitDefaults()
         {
@@ -122,7 +141,7 @@ namespace VRageRender.Messages
             AnimationFrameTime = 1.0f;
             OITWeightFactor = 1.0f;
             Bounciness = 0.5f;
-            DirectionCone = 0;
+            DirectionInnerCone = 0;
             DirectionConeVar = 0;
             RotationMatrix = Matrix.Identity;
             PositionDelta = Vector3.Zero;

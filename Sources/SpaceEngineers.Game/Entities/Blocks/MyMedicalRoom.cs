@@ -87,7 +87,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-			return SinkComp.IsPowered && base.CheckIsWorking();
+            return SinkComp.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             SinkComp.Init(
                 resourceSinkGroup,
                 MyEnergyConstants.MAX_REQUIRED_POWER_MEDICAL_ROOM,
-                () => (Enabled && IsFunctional) ? SinkComp.MaxRequiredInput : 0f);
+                () => (Enabled && IsFunctional) ? SinkComp.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0f);
             SinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
 
             base.Init(objectBuilder, cubeGrid);
@@ -325,7 +325,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
         public void Use(UseActionEnum actionEnum, MyCharacter user)
         {
             var relation = GetUserRelationToOwner(user.ControllerInfo.Controller.Player.Identity.IdentityId);
-            if (!relation.IsFriendly())
+            var player = MyPlayer.GetPlayerFromCharacter(user);
+            if (!(relation.IsFriendly() || (player != null && MySession.Static.IsUserSpaceMaster(player.Client.SteamUserId))))
             {
                 if (user.ControllerInfo.Controller.Player == MySession.Static.LocalHumanPlayer)
                 {

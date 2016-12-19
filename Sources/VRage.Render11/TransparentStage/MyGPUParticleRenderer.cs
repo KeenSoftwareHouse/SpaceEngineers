@@ -20,15 +20,16 @@ namespace VRageRender
         {
             internal Vector4 Params1, Params2, Params3, Params4, Params5;
         };
-        private unsafe static readonly int PARTICLE_STRIDE = sizeof(Particle);
+        private static readonly unsafe int PARTICLE_STRIDE = sizeof(Particle);
 
         private struct EmitterConstantBuffer
         {
             internal int EmittersCount;
             internal Vector3 Pad;
         };
-        internal unsafe static readonly int EMITTERCONSTANTBUFFER_SIZE = sizeof(EmitterConstantBuffer);
-        internal unsafe static readonly int EMITTERDATA_SIZE = sizeof(MyGPUEmitterData);
+
+        private static readonly unsafe int EMITTERCONSTANTBUFFER_SIZE = sizeof(EmitterConstantBuffer);
+        private static readonly unsafe int EMITTERDATA_SIZE = sizeof(MyGPUEmitterData);
 
         private static VertexShaderId m_vs = VertexShaderId.NULL;
         private static PixelShaderId m_ps = PixelShaderId.NULL;

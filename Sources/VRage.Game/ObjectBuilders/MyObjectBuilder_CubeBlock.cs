@@ -161,6 +161,10 @@ namespace VRage.Game
         [Serialize]
         public int MultiBlockIndex = -1;
 
+        [ProtoMember, DefaultValue(1f)]
+        [Serialize]
+        public float BlockGeneralDamageModifier = 1f;
+
         [ProtoMember, DefaultValue(null)]
         [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_ComponentContainer ComponentContainer = null;
@@ -189,6 +193,10 @@ namespace VRage.Game
 
         public virtual void SetupForProjector()
         {
+            //GK: Only for projector remove ownership of blueprint block at initialization (Or else can cause incosistences to ownership manager)
+            Owner = 0;
+            ShareMode = MyOwnershipShareModeEnum.None;
+            EntityId = 0; //GK: Will cause new allocation of ID for projector blueprints. In some cases the id will be the same as in projected grid when welded and entity will not be added
         }
     }
 }

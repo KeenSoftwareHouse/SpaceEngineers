@@ -148,7 +148,18 @@ namespace VRageRender.Voxels
 
             if (oldNotReadyCount != m_notReady.Count && m_notReady.Count == 0)
             {
-                MyRenderProxy.SendClipmapsReady();
+                if (MyRenderProxy.PointsForVoxelPrecache.Count == 0)
+                    MyRenderProxy.SendClipmapsReady();
+
+                if (MyRenderProxy.PointsForVoxelPrecache.Count > 0)
+                {
+                    MyRenderProxy.PointsForVoxelPrecache.RemoveAt(0);
+
+                    for (int i = 0; i < m_updateQueue.Count; i++)
+                    {
+                        m_notReady.Add(m_updateQueue.GetItem(i).Clipmap);
+                    }
+                }
             }
         }
 

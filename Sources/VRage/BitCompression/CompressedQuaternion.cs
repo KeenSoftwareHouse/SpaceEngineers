@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Library.Collections;
 using VRageMath;
 
@@ -10,178 +6,81 @@ namespace VRage.BitCompression
 {
     public static class CompressedQuaternion
     {
-        const int bits = 9; // 9 bits per component
-        const int bitSize = 2 + bits * 3; // 29 bits
+        const float MIN_QF_LENGTH = -1.0f / 1.414214f;
+        const float MAX_QF_LENGTH = +1.0f / 1.414214f;
+        const int QF_BITS = 9;
+        const int QF_VALUE = (1 << QF_BITS) - 1;
+        const float QF_SCALE = (float)QF_VALUE;
+        const float QF_SCALE_INV = 1 / QF_SCALE; 
 
-        const int max_value = (1 << bits) - 1;
-        const float minimum = -1.0f / 1.414214f; // 1.0f / sqrt(2)
-        const float maximum = +1.0f / 1.414214f;
-        const float scale = (float)((1 << bits) - 1);
-        const float inverse_scale = 1.0f / scale;
-
-        public static void Write(BitStream stream, Quaternion q)
+        public static void Write(BitStream stream, Quaternion value)
         {
-            float x = q.X;
-            float y = q.Y;
-            float z = q.Z;
-            float w = q.W;
-
-            float abs_x = Math.Abs(x);
-            float abs_y = Math.Abs(y);
-            float abs_z = Math.Abs(z);
-            float abs_w = Math.Abs(w);
-
-            uint largest = 0;
-            float largest_value = abs_x;
-
-            if (abs_y > largest_value)
+            value.Normalize();
+            var largest = value.FindLargestIndex();
+            var lc = value.GetComponent(largest);
+            if (lc < 0)
+                value = -value;
+            stream.WriteInt32(largest, 2);
+            for (int i = 0; i < 4; i++)
             {
-                largest = 1;
-                largest_value = abs_y;
+                if (i != largest)
+                {
+                    float c = value.GetComponent(i);
+                    float v = (c - MIN_QF_LENGTH) / (MAX_QF_LENGTH - MIN_QF_LENGTH);
+                    uint vi = (uint)Math.Floor(v * QF_SCALE + 0.5f);
+                    stream.WriteUInt32(vi, QF_BITS);
+                }
             }
-
-            if (abs_z > largest_value)
-            {
-                largest = 2;
-                largest_value = abs_z;
-            }
-
-            if (abs_w > largest_value)
-            {
-                largest = 3;
-                largest_value = abs_w;
-            }
-
-            float a = 0;
-            float b = 0;
-            float c = 0;
-
-            switch (largest)
-            {
-                case 0:
-                    if (x >= 0)
-                    {
-                        a = y;
-                        b = z;
-                        c = w;
-                    }
-                    else
-                    {
-                        a = -y;
-                        b = -z;
-                        c = -w;
-                    }
-                    break;
-
-                case 1:
-                    if (y >= 0)
-                    {
-                        a = x;
-                        b = z;
-                        c = w;
-                    }
-                    else
-                    {
-                        a = -x;
-                        b = -z;
-                        c = -w;
-                    }
-                    break;
-
-                case 2:
-                    if (z >= 0)
-                    {
-                        a = x;
-                        b = y;
-                        c = w;
-                    }
-                    else
-                    {
-                        a = -x;
-                        b = -y;
-                        c = -w;
-                    }
-                    break;
-
-                case 3:
-                    if (w >= 0)
-                    {
-                        a = x;
-                        b = y;
-                        c = z;
-                    }
-                    else
-                    {
-                        a = -x;
-                        b = -y;
-                        c = -z;
-                    }
-                    break;
-
-                default:
-                    Debug.Fail("Error");
-                    break;
-            }
-
-            float normal_a = (a - minimum) / (maximum - minimum);
-            float normal_b = (b - minimum) / (maximum - minimum);
-            float normal_c = (c - minimum) / (maximum - minimum);
-
-            stream.WriteUInt32(largest, 2);
-            stream.WriteUInt32((uint)Math.Floor(normal_a * scale + 0.5f), bits);
-            stream.WriteUInt32((uint)Math.Floor(normal_b * scale + 0.5f), bits);
-            stream.WriteUInt32((uint)Math.Floor(normal_c * scale + 0.5f), bits);
         }
 
         public static Quaternion Read(BitStream stream)
         {
-            float x, y, z, w;
-
-            // note: you're going to want to normalize the quaternion returned from this function
-            uint largest = stream.ReadUInt32(2);
-            float a = stream.ReadUInt32(bits) * inverse_scale * (maximum - minimum) + minimum;
-            float b = stream.ReadUInt32(bits) * inverse_scale * (maximum - minimum) + minimum;
-            float c = stream.ReadUInt32(bits) * inverse_scale * (maximum - minimum) + minimum;
-
-            switch (largest)
+            Quaternion value = Quaternion.Identity;
+            var largest = stream.ReadInt32(2);
+            float qLen = 0;
+            for (int i = 0; i < 4; i++)
             {
-                case 0:
-                    x = (float)Math.Sqrt(1 - a * a - b * b - c * c);
-                    y = a;
-                    z = b;
-                    w = c;
-                    break;
-
-                case 1:
-                    x = a;
-                    y = (float)Math.Sqrt(1 - a * a - b * b - c * c);
-                    z = b;
-                    w = c;
-                    break;
-
-                case 2:
-                    x = a;
-                    y = b;
-                    z = (float)Math.Sqrt(1 - a * a - b * b - c * c);
-                    w = c;
-                    break;
-
-                case 3:
-                    x = a;
-                    y = b;
-                    z = c;
-                    w = (float)Math.Sqrt(1 - a * a - b * b - c * c);
-                    break;
-
-                default:
-                    Debug.Fail("Error");
-                    x = 0;
-                    y = 0;
-                    z = 0;
-                    w = 1;
-                    break;
+                if (i != largest)
+                {
+                    var vi = stream.ReadInt32(QF_BITS);
+                    float v = vi * QF_SCALE_INV;
+                    float c = v * (MAX_QF_LENGTH - MIN_QF_LENGTH) + MIN_QF_LENGTH;
+                    value.SetComponent(i, c);
+                    System.Diagnostics.Debug.Assert(c.IsValid());
+                    qLen += c * c;
+                }
             }
-            return Quaternion.Normalize(new Quaternion(x, y, z, w));
+            value.SetComponent(largest, (float)Math.Sqrt(1 - qLen));
+            value.Normalize();
+            return value;
+        }
+
+        public static bool CompressedQuaternionUnitTest()
+        {
+            var stream = new VRage.Library.Collections.BitStream();
+            stream.ResetWrite();
+            Quaternion q = Quaternion.Identity;
+            stream.WriteQuaternionNormCompressed(q);
+            stream.ResetRead();
+            var q2 = stream.ReadQuaternionNormCompressed();
+            bool fail = !q.Equals(q2, 1 / 511.0f);
+
+            stream.ResetWrite();
+            q = Quaternion.CreateFromAxisAngle(Vector3.Forward, (float)Math.PI / 3.0f);
+            stream.WriteQuaternionNormCompressed(q);
+            stream.ResetRead();
+            q2 = stream.ReadQuaternionNormCompressed();
+            fail |= !q.Equals(q2, 1 / 511.0f);
+
+            stream.ResetWrite();
+            var v = new Vector3(1, -1, 3);
+            v.Normalize();
+            q = Quaternion.CreateFromAxisAngle(v, (float)Math.PI / 3.0f);
+            stream.WriteQuaternionNormCompressed(q);
+            stream.ResetRead();
+            q2 = stream.ReadQuaternionNormCompressed();
+            fail |= !q.Equals(q2, 1 / 511.0f);
+            return fail;
         }
     }
 }

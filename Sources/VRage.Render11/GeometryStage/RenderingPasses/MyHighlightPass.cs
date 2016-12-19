@@ -57,8 +57,6 @@ namespace VRageRender
             else
                 RC.SetRasterizerState(null);
 
-            Stats.Submeshes++;
-
             MyDrawSubmesh submesh;
             if (sectionmesh == -1)
                 submesh = proxy.DrawSubmesh;
@@ -159,8 +157,6 @@ namespace VRageRender
                         break;
                 }
             }
-
-            Stats.Submeshes++;
         }
 
         internal override void End()

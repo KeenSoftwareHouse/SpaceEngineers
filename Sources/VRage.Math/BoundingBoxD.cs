@@ -1186,7 +1186,7 @@ namespace VRageMath
         {
             get
             {
-                return Min == new Vector3D(double.MaxValue) && Max == new Vector3D(double.MinValue);
+                return Min != new Vector3D(double.MaxValue) && Max != new Vector3D(double.MinValue);
             }
         }
 

@@ -45,13 +45,16 @@ namespace VRageRender.Messages
         public bool Enabled;
         public Vector3 Direction;
         public float Range;
-        public Color Color;
+        public Vector4 Color;
         public float Intensity;
         public MyStringId Material;
         public float MaxDistance;
         public float Size;
         public float QuerySize;
+        public float QueryFreqMinMs;
+        public float QueryFreqRndMs;
         public MyGlareTypeEnum Type;
+        public int ParentGID;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

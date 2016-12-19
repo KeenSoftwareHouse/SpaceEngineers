@@ -88,6 +88,7 @@ namespace Sandbox.Game.Entities.Cube
         public Vector3I Max;
         public MyBlockOrientation Orientation = MyBlockOrientation.Identity;
         public Vector3I Position;
+        public float BlockGeneralDamageModifier = 1f;
 		
 		public Vector3D WorldPosition
         {
@@ -435,6 +436,7 @@ namespace Sandbox.Game.Entities.Cube
             UpdateMaxDeformation();
 
             m_builtByID = objectBuilder.BuiltBy;
+            BlockGeneralDamageModifier = objectBuilder.BlockGeneralDamageModifier;
 
             ProfilerShort.End();
         }
@@ -536,6 +538,7 @@ namespace Sandbox.Game.Entities.Cube
                 builder.MultiBlockId = MultiBlockId;
                 builder.MultiBlockIndex = MultiBlockIndex;
             }
+            builder.BlockGeneralDamageModifier = BlockGeneralDamageModifier;
 
             return builder;
         }
@@ -1100,6 +1103,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
+            damage = damage * BlockGeneralDamageModifier * CubeGrid.GridGeneralDamageModifier;
+            if (damage < 0)
+                return false;
             if (sync)
             {
                 Debug.Assert(Sync.IsServer);
@@ -1207,11 +1213,16 @@ namespace Sandbox.Game.Entities.Cube
             m_lastDamageType = damageType;
         }
 
-        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler, MyStringHash material)
         {
             MyDecalRenderInfo renderable = new MyDecalRenderInfo();
             MyCubeGridHitInfo gridHitInfo = customdata as MyCubeGridHitInfo;
-            renderable.Flags = BlockDefinition.PhysicalMaterial.Transparent ? MyDecalFlags.Transparent : MyDecalFlags.None;
+            if (gridHitInfo == null)
+            {
+                Debug.Fail("MyCubeGridHitInfo must not be null");
+                return;
+            }
+
             if (FatBlock == null)
             {
                 renderable.Position = Vector3D.Transform(hitInfo.Position, CubeGrid.PositionComp.WorldMatrixInvScaled);
@@ -1224,25 +1235,22 @@ namespace Sandbox.Game.Entities.Cube
                 renderable.Normal = Vector3D.TransformNormal(hitInfo.Normal, FatBlock.PositionComp.WorldMatrixInvScaled);
                 renderable.RenderObjectId = FatBlock.Render.GetRenderObjectID();
             }
-            renderable.Material = MyStringHash.GetOrCompute(BlockDefinition.PhysicalMaterial.Id.SubtypeName);
 
-            if (gridHitInfo != null)
+            if (material.GetHashCode() == 0)
+                renderable.Material = MyStringHash.GetOrCompute(BlockDefinition.PhysicalMaterial.Id.SubtypeName);
+            else
+                renderable.Material = material;
+
+            VertexBoneIndicesWeights? boneIndicesWeights = gridHitInfo.Triangle.GetAffectingBoneIndicesWeights(ref m_boneIndexWeightTmp);
+            if (boneIndicesWeights.HasValue)
             {
-                VertexBoneIndicesWeights? boneIndicesWeights = gridHitInfo.Triangle.GetAffectingBoneIndicesWeights(ref m_boneIndexWeightTmp);
-                if (boneIndicesWeights.HasValue)
-                {
-                    renderable.BoneIndices = boneIndicesWeights.Value.Indices;
-                    renderable.BoneWeights = boneIndicesWeights.Value.Weights;
+                renderable.BoneIndices = boneIndicesWeights.Value.Indices;
+                renderable.BoneWeights = boneIndicesWeights.Value.Weights;
+            }
 
             var decalId = decalHandler.AddDecal(ref renderable);
             if (decalId != null)
-                        CubeGrid.RenderData.AddDecal(Position, gridHitInfo, decalId.Value);
-
-                    return;
-        }
-            }
-
-            decalHandler.AddDecal(ref renderable);
+                CubeGrid.RenderData.AddDecal(Position, gridHitInfo, decalId.Value);
         }
 
         /// <summary>

@@ -45,7 +45,7 @@ namespace VRageRender
         static MyScreenshot? m_screenshot;
 
         static List<renderColoredTextureProperties> m_texturesToRender = new List<renderColoredTextureProperties>();
-
+        static readonly StringBuilder m_exceptionBuilder = new StringBuilder();
         internal static void Draw(bool draw = true)
         {
             try
@@ -93,8 +93,14 @@ namespace VRageRender
                 {
                     MyRender11.Log.WriteLine("Reason: " + Device.DeviceRemovedReason);
                 }
-                MyRender11.Log.DecreaseIndent();
 
+                // Include the stats
+                m_exceptionBuilder.Clear();
+                MyStatsUpdater.UpdateStats();
+                MyStatsDisplay.WriteTo(m_exceptionBuilder);
+                MyRender11.Log.WriteLine(m_exceptionBuilder.ToString());
+                MyRender11.Log.Flush();
+                MyRender11.Log.DecreaseIndent();
                 throw;
             }
         }

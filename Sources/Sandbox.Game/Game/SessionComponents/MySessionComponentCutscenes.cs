@@ -2,11 +2,13 @@
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
+using Sandbox.Game.GUI;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using VRage.Audio;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Game.Components;
@@ -16,6 +18,7 @@ using VRage.Game.VisualScripting;
 using VRage.Game.VisualScripting.ScriptBuilder;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
 namespace Sandbox.Game.SessionComponents
 {
@@ -35,10 +38,11 @@ namespace Sandbox.Game.SessionComponents
         private float m_currentFOV = 70;
         private int m_currentNodeIndex = 0;
         private bool m_nodeActivated = false;
-        private bool m_origHud = true;
         private float MINIMUM_FOV = 10;
         private float MAXIMUM_FOV = 300;
         private float m_eventDelay = float.MaxValue;
+        private bool m_releaseCamera = false;
+        private bool m_overlayEnabled = false;
 
         private MatrixD m_nodeStartMatrix;
         private float m_nodeStartFOV = 70;
@@ -61,8 +65,8 @@ namespace Sandbox.Game.SessionComponents
         {
             base.Init(sessionComponent);
 
-            m_objectBuilder = (MyObjectBuilder_CutsceneSessionComponent)sessionComponent;
-        
+            m_objectBuilder = sessionComponent as MyObjectBuilder_CutsceneSessionComponent; // Safe cast
+
             if (m_objectBuilder != null && m_objectBuilder.Cutscenes != null && m_objectBuilder.Cutscenes.Length > 0)
             {
                 foreach (var cutscene in m_objectBuilder.Cutscenes)
@@ -73,8 +77,32 @@ namespace Sandbox.Game.SessionComponents
             }
         }
 
+        public override void BeforeStart()
+        {
+            // Needs to be done after entities are loaded.
+            if (m_objectBuilder != null)
+            {
+                // Add the voxel precaching points
+                foreach (var waypointName in m_objectBuilder.VoxelPrecachingWaypointNames)
+                {
+                    MyEntity entity;
+                    if (MyEntities.TryGetEntityByName(waypointName, out entity))
+                    {
+                        MyRenderProxy.PointsForVoxelPrecache.Add(entity.PositionComp.GetPosition());
+                    }
+                }
+            }
+        }
+
         public override void UpdateBeforeSimulation()
         {
+            if (m_releaseCamera && MySession.Static.ControlledEntity != null)
+            {
+                m_releaseCamera = false;
+                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.ControlledEntity.Entity);
+                MyHud.CutsceneHud = false;
+                MyGuiScreenGamePlay.DisableInput = false;
+            }
             if (IsCutsceneRunning)
             {
                 if (MySession.Static.CameraController != m_cameraEntity)
@@ -140,6 +168,8 @@ namespace Sandbox.Game.SessionComponents
                 m_nodeStartMatrix = m_currentCameraMatrix;
                 m_nodeEndMatrix = m_currentCameraMatrix;
                 m_nodeStartFOV = m_currentFOV;
+                m_moveTarget = null;
+                m_rotateTarget = null;
                 m_waypoints.Clear();
 
                 m_eventDelay = float.MaxValue;
@@ -204,9 +234,9 @@ namespace Sandbox.Game.SessionComponents
                     if (m_currentNode.AttachTo != null)
                     {
                         m_attachedPositionTo = m_currentNode.AttachTo.Length > 0 ? MyVisualScriptLogicProvider.GetEntityByName(m_currentNode.AttachTo) : null;
-                        m_attachedPositionOffset = m_attachedPositionTo != null ? m_currentCameraMatrix.Translation - m_attachedPositionTo.PositionComp.GetPosition() : Vector3D.Zero;
+                        m_attachedPositionOffset = m_attachedPositionTo != null ? Vector3D.Transform(m_currentCameraMatrix.Translation, m_attachedPositionTo.PositionComp.WorldMatrixInvScaled) : Vector3D.Zero;
                         m_attachedRotationTo = m_attachedPositionTo;
-                        m_attachedRotationOffset = m_currentCameraMatrix;
+                        m_attachedRotationOffset = m_currentCameraMatrix * m_attachedRotationTo.PositionComp.WorldMatrixInvScaled;
                         m_attachedRotationOffset.Translation = Vector3D.Zero;
                     }
                 }
@@ -215,13 +245,13 @@ namespace Sandbox.Game.SessionComponents
                     if (m_currentNode.AttachPositionTo != null)
                     {
                         m_attachedPositionTo = m_currentNode.AttachPositionTo.Length > 0 ? MyVisualScriptLogicProvider.GetEntityByName(m_currentNode.AttachPositionTo) : null;
-                        m_attachedPositionOffset = m_attachedPositionTo != null ? m_currentCameraMatrix.Translation - m_attachedPositionTo.PositionComp.GetPosition() : Vector3D.Zero;
+                        m_attachedPositionOffset = m_attachedPositionTo != null ? Vector3D.Transform(m_currentCameraMatrix.Translation, m_attachedPositionTo.PositionComp.WorldMatrixInvScaled) : Vector3D.Zero;
                     }
 
                     if (m_currentNode.AttachRotationTo != null)
                     {
                         m_attachedRotationTo = m_currentNode.AttachRotationTo.Length > 0 ? MyVisualScriptLogicProvider.GetEntityByName(m_currentNode.AttachRotationTo) : null;
-                        m_attachedRotationOffset = m_currentCameraMatrix;
+                        m_attachedRotationOffset = m_currentCameraMatrix * m_attachedRotationTo.PositionComp.WorldMatrixInvScaled;
                         m_attachedRotationOffset.Translation = Vector3D.Zero;
                     }
                 }
@@ -288,19 +318,16 @@ namespace Sandbox.Game.SessionComponents
             {
                 if (!m_attachedPositionTo.Closed)
                 {
-                    MatrixD rotation = m_attachedPositionTo.WorldMatrix;
-                    rotation.Translation = Vector3D.Zero;
-                    Vector3D diff = (MatrixD.CreateWorld(m_attachedPositionOffset, m_attachedPositionTo.WorldMatrix.Forward, m_attachedPositionTo.WorldMatrix.Up) * rotation).Translation;
-                    newPos = m_attachedPositionTo.PositionComp.GetPosition() + diff;
+                    newPos = Vector3D.Transform(m_attachedPositionOffset, m_attachedPositionTo.PositionComp.WorldMatrix);
                 }
             }
             else if (m_waypoints.Count > 2)
             {
-                float segmentTime = 1f / (m_waypoints.Count - 1);
+                double segmentTime = 1f / (m_waypoints.Count - 1);
                 int segment = (int)Math.Floor(timeRatio / segmentTime);
                 if (segment > m_waypoints.Count - 2)
                     segment = m_waypoints.Count - 2;
-                float segmentRatio = (timeRatio - segment * segmentTime) / segmentTime;
+                double segmentRatio = (timeRatio - segment * segmentTime) / segmentTime;
                 if (segment == 0)
                 {
                     //first path segment
@@ -331,10 +358,10 @@ namespace Sandbox.Game.SessionComponents
             }
             else if (m_nodeStartMatrix.Translation != m_nodeEndMatrix.Translation)
             {
-                newPos = (Vector3D)new Vector3(
-                    MathHelper.SmoothStep((float)m_nodeStartMatrix.Translation.X, (float)m_nodeEndMatrix.Translation.X, timeRatio),
-                    MathHelper.SmoothStep((float)m_nodeStartMatrix.Translation.Y, (float)m_nodeEndMatrix.Translation.Y, timeRatio),
-                    MathHelper.SmoothStep((float)m_nodeStartMatrix.Translation.Z, (float)m_nodeEndMatrix.Translation.Z, timeRatio));
+                newPos = new Vector3D(
+                    MathHelper.SmoothStep(m_nodeStartMatrix.Translation.X, m_nodeEndMatrix.Translation.X, timeRatio),
+                    MathHelper.SmoothStep(m_nodeStartMatrix.Translation.Y, m_nodeEndMatrix.Translation.Y, timeRatio),
+                    MathHelper.SmoothStep(m_nodeStartMatrix.Translation.Z, m_nodeEndMatrix.Translation.Z, timeRatio));
             }
 
             //end rotation
@@ -349,9 +376,7 @@ namespace Sandbox.Game.SessionComponents
             }
             else if (m_attachedRotationTo != null)
             {
-                MatrixD rotation = m_attachedPositionTo.WorldMatrix;
-                rotation.Translation = Vector3D.Zero;
-                m_currentCameraMatrix = m_attachedRotationOffset * rotation;
+                m_currentCameraMatrix = m_attachedRotationOffset * m_attachedRotationTo.WorldMatrix;
             }
             else if (m_waypoints.Count > 2)
             {
@@ -363,14 +388,14 @@ namespace Sandbox.Game.SessionComponents
 
                 QuaternionD quat1 = QuaternionD.CreateFromRotationMatrix(m_waypoints[segment]);
                 QuaternionD quat2 = QuaternionD.CreateFromRotationMatrix(m_waypoints[segment + 1]);
-                QuaternionD res = QuaternionD.Slerp(quat1, quat2, (double)MathHelper.SmoothStepStable(segmentRatio));
+                QuaternionD res = QuaternionD.Slerp(quat1, quat2, MathHelper.SmoothStepStable((double)segmentRatio));
                 m_currentCameraMatrix = MatrixD.CreateFromQuaternion(res);
             }
             else if (!m_nodeStartMatrix.EqualsFast(ref m_nodeEndMatrix))
             {
                 QuaternionD quat1 = QuaternionD.CreateFromRotationMatrix(m_nodeStartMatrix);
                 QuaternionD quat2 = QuaternionD.CreateFromRotationMatrix(m_nodeEndMatrix);
-                QuaternionD res = QuaternionD.Slerp(quat1, quat2, (double)MathHelper.SmoothStepStable(timeRatio));
+                QuaternionD res = QuaternionD.Slerp(quat1, quat2, MathHelper.SmoothStepStable((double)timeRatio));
                 m_currentCameraMatrix = MatrixD.CreateFromQuaternion(res);
             }
             m_currentCameraMatrix.Translation = newPos;
@@ -394,10 +419,10 @@ namespace Sandbox.Game.SessionComponents
                 m_currentCutscene = null;
                 if (releaseCamera)
                 {
-                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.ControlledEntity.Entity);
-                    MyHud.MinimalHud = m_origHud;
-                    MyGuiScreenGamePlay.DisableInput = false;
+                    m_cameraEntity.FOV = MathHelper.ToDegrees(MySandboxGame.Config.FieldOfView);
+                    m_releaseCamera = true;
                 }
+                MyHudCameraOverlay.Enabled = m_overlayEnabled;
             }
         }
 
@@ -410,6 +435,32 @@ namespace Sandbox.Game.SessionComponents
             m_currentTime -= setToZero ? m_currentTime : m_currentNode.Time;
         }
 
+        public void CutsceneSkip()
+        {
+            if (m_currentCutscene != null)
+            {
+                if (m_currentCutscene.CanBeSkipped)
+                {
+                    if (m_currentCutscene.FireEventsDuringSkip && MyVisualScriptLogicProvider.CutsceneNodeEvent != null)
+                    {
+                        if (m_currentNode != null && m_currentNode.EventDelay > 0 && m_eventDelay != float.MaxValue)
+                            MyVisualScriptLogicProvider.CutsceneNodeEvent(m_currentNode.Event);
+                        for (int i = m_currentNodeIndex + 1; i < m_currentCutscene.SequenceNodes.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(m_currentCutscene.SequenceNodes[i].Event))
+                                MyVisualScriptLogicProvider.CutsceneNodeEvent(m_currentCutscene.SequenceNodes[i].Event);
+                        }
+                    }
+                    m_currentNodeIndex = m_currentCutscene.SequenceNodes.Length;
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
+                }
+                else
+                {
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+                }
+            }
+        }
+
         protected override void UnloadData()
         {
             base.UnloadData();
@@ -420,7 +471,7 @@ namespace Sandbox.Game.SessionComponents
         {
             m_objectBuilder.Cutscenes = new Cutscene[m_cutsceneLibrary.Count];
             int i = 0;
-            foreach(Cutscene cutscene in m_cutsceneLibrary.Values)
+            foreach (Cutscene cutscene in m_cutsceneLibrary.Values)
             {
                 m_objectBuilder.Cutscenes[i] = cutscene;
                 i++;
@@ -435,8 +486,6 @@ namespace Sandbox.Game.SessionComponents
             {
                 if (IsCutsceneRunning)
                     CutsceneEnd(false);
-                else
-                    m_origHud = MyHud.MinimalHud;
 
                 m_currentCutscene = m_cutsceneLibrary[cutsceneName];
                 m_currentNode = null;
@@ -452,7 +501,9 @@ namespace Sandbox.Game.SessionComponents
                 MyGuiScreenGamePlay.DisableInput = true;
                 if (MyCubeBuilder.Static.IsActivated)
                     MyCubeBuilder.Static.Deactivate();
-                MyHud.MinimalHud = true;
+                MyHud.CutsceneHud = true;
+                m_overlayEnabled = MyHudCameraOverlay.Enabled;
+                MyHudCameraOverlay.Enabled = false;
 
                 MatrixD startMatrix = MatrixD.Identity;
                 MyEntity entity = m_currentCutscene.StartEntity.Length > 0 ? MyVisualScriptLogicProvider.GetEntityByName(m_currentCutscene.StartEntity) : null;

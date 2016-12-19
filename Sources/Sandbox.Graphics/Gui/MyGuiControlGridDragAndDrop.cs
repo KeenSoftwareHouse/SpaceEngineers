@@ -149,6 +149,12 @@ namespace Sandbox.Graphics.GUI
             }
             return null;
         }
+
+        public override MyGuiControlGridDragAndDrop GetDragAndDropHandlingNow()
+        {
+            return this;
+        }
+
         #endregion
 
         #region public methods
@@ -204,7 +210,7 @@ namespace Sandbox.Graphics.GUI
                 var grid = control as MyGuiControlGrid;
                 if (grid != null)
                 {
-                    if (grid.Enabled && grid.MouseOverIndex != MyGuiControlGrid.INVALID_INDEX)
+                    if (grid.Enabled && grid.MouseOverIndex >= 0 && grid.MouseOverIndex < grid.MaxItemCount)
                     {
                         dropTo = new MyDragAndDropInfo();
                         dropTo.Grid = grid;

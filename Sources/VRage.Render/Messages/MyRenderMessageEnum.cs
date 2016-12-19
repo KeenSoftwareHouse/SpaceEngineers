@@ -71,6 +71,7 @@
         SetLightShadowIgnore,
         ClearLightShadowIgnore,
         UpdateShadowSettings,
+        UpdateNewPipelineSettings,
         UpdateMaterialsSettings,
 
         ReloadEffects,
@@ -100,8 +101,6 @@
         SetDecalGlobals,
         RegisterDecalsMaterials,
         ClearDecals,
-
-        UpdateCockpitGlass,
 
         TakeScreenshot,
         ScreenshotTaken, //Output

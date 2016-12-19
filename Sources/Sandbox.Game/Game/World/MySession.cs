@@ -67,6 +67,15 @@ namespace Sandbox.Game.World
         public bool ScenarioEditMode = false;
     }
 
+    [Flags]
+    public enum AdminSettingsEnum
+    {
+        None = 0,
+        Invulnerable = 1 << 0,
+        ShowPlayers = 1 << 1,
+        UseTerminals = 1 << 2,
+    }
+    
     /// <summary>
     /// Base class for all session types (single, coop, mmo, sandbox)
     /// </summary>
@@ -132,10 +141,8 @@ namespace Sandbox.Game.World
                 return 0;
             }
         }
-        public bool IsAdminMenuEnabled { get { return HasAdminRights && !IsTutorial; } }
-        public bool IsTutorial { get { return IsScenario && MyTutorialHelper.IsTutorial(Name); } }
-
-        public bool HasAdminRights { get { return SteamAPI.Instance != null && HasPlayerAdminRights(SteamAPI.Instance.GetSteamUserId()); } }
+        public bool IsAdminMenuEnabled { get { return HasCreativeRights || IsModerator; } }
+        
         public bool CreativeMode { get { return Settings.GameMode == MyGameModeEnum.Creative; } }
         public bool SurvivalMode { get { return Settings.GameMode == MyGameModeEnum.Survival; } }
         public bool AutoHealing { get { return Settings.AutoHealing; } }
@@ -170,7 +177,7 @@ namespace Sandbox.Game.World
         public bool StartInRespawnScreen { get { return Settings.StartInRespawnScreen; } }
         public bool EnableVoxelDestruction { get { return Settings.EnableVoxelDestruction; } }
 
-        public bool Battle { get { return MyFakes.ENABLE_BATTLE_SYSTEM && Settings.Battle; } }
+        
         public string CustomLoadingScreenImage { get; set; }
         public string CustomLoadingScreenText { get; set; }
         public string CustomSkybox { get; set; }
@@ -201,6 +208,8 @@ namespace Sandbox.Game.World
 
         public MyScriptManager ScriptManager;
 
+        public bool EnableScripterRole { get { return Settings.EnableScripterRole; } }
+
         public bool IsScenario { get { return Settings.Scenario; } }
         public bool LoadedAsMission { get; private set; }
         public bool PersistentEditMode { get; private set; }
@@ -208,7 +217,7 @@ namespace Sandbox.Game.World
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
         public List<MyObjectBuilder_Checkpoint.ModItem> Mods { get; set; }
-        public HashSet<ulong> PromotedUsers = new HashSet<ulong>();
+        public Dictionary<ulong, MyPromoteLevel> PromotedUsers = new Dictionary<ulong, MyPromoteLevel>();
         public MyScenarioDefinition Scenario;
         public BoundingBoxD? WorldBoundaries;
         BoundingBoxD IMySession.WorldBoundaries { get { return WorldBoundaries.HasValue ? WorldBoundaries.Value : BoundingBoxD.CreateInvalid(); } }
@@ -237,6 +246,9 @@ namespace Sandbox.Game.World
 
         public bool ServerSaving = false;
 
+        private AdminSettingsEnum _adminSettings;
+        private Dictionary<ulong, AdminSettingsEnum> _remoteAdminSettings = new Dictionary<ulong, AdminSettingsEnum>();
+
         #endregion
 
         #region Statistics
@@ -248,9 +260,6 @@ namespace Sandbox.Game.World
         public TimeSpan TimeOnJetpack { get; private set; }
         public TimeSpan TimeOnSmallShip { get; private set; }
         public TimeSpan TimeOnBigShip { get; private set; }
-
-        public float sessionSimSpeedPlayer = 0f;
-        public float sessionSimSpeedServer = 0f;
 
         public Dictionary<string, MyFixedPoint> AmountMined = new Dictionary<string, MyFixedPoint>();
 
@@ -279,6 +288,14 @@ namespace Sandbox.Game.World
             get { return LocalHumanPlayer; }
         }
 
+        public MyEntity TopMostControlledEntity
+        {
+            get
+            {
+                var entity = ControlledEntity;
+                return entity != null ? entity.Entity.GetTopMostParent() : null;
+            }
+        }
         public Entities.IMyControllableEntity ControlledEntity
         {
             get
@@ -388,73 +405,144 @@ namespace Sandbox.Game.World
 
         public MyEnvironmentHostilityEnum? PreviousEnvironmentHostility { get; set; }
 
-        /// <summary>
-        /// Checks if the local player is an admin or is promoted.
-        /// </summary>
-        public bool IsAdmin
+        public MyPromoteLevel PromoteLevel
         {
-            get { return HasPlayerAdminRights( Sync.MyId ); }
+            get
+            {
+                if (Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return MyPromoteLevel.Owner;
+
+                return GetUserPromoteLevel(Sync.MyId);
+            }
         }
-        
+
+        public bool IsScripter
+        {
+            get
+            {
+                if (!EnableScripterRole)
+                    return true;
+                return PromoteLevel >= MyPromoteLevel.Scripter;
+            }
+        }
+
+        public bool IsModerator
+        {
+            get { return PromoteLevel >= MyPromoteLevel.Moderator; }
+        }
+
+        public bool IsSpaceMaster
+        {
+            get { return PromoteLevel >= MyPromoteLevel.SpaceMaster; }
+        }
+
+        public bool IsAdministrator
+        {
+            get { return PromoteLevel >= MyPromoteLevel.Admin; }
+        }
+
+        public bool IsOwner
+        {
+            get { return PromoteLevel >= MyPromoteLevel.Owner; }
+        }
+
+        public MyPromoteLevel GetUserPromoteLevel(ulong steamId)
+        {
+            if (Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                return MyPromoteLevel.Owner;
+            if (Static.OnlineMode != MyOnlineModeEnum.OFFLINE && steamId == Sync.ServerId)
+                return MyPromoteLevel.Owner;
+
+            MyPromoteLevel level;
+            Static.PromotedUsers.TryGetValue(steamId, out level);
+            return level;
+        }
+
+        public bool IsUserScripter(ulong steamId )
+        {
+            if (!EnableScripterRole)
+                return true;
+
+            return GetUserPromoteLevel(steamId) >= MyPromoteLevel.Scripter;
+        }
+
+        public bool IsUserModerator(ulong steamId)
+        {
+            return GetUserPromoteLevel(steamId) >= MyPromoteLevel.Moderator;
+        }
+
+        public bool IsUserSpaceMaster(ulong steamId)
+        {
+            return GetUserPromoteLevel(steamId) >= MyPromoteLevel.SpaceMaster;
+        }
+
         /// <summary>
         /// Checks if a given player is an admin.
         /// </summary>
         /// <param name="steamId"></param>
         /// <returns></returns>
-        public bool IsUserAdmin( ulong steamId )
+        public bool IsUserAdmin(ulong steamId)
         {
-            return MyMultiplayer.Static.IsAdmin( steamId );
+            return GetUserPromoteLevel(steamId) >= MyPromoteLevel.Admin;
+        }
+
+        public bool IsUserOwner(ulong steamId)
+        {
+            return GetUserPromoteLevel(steamId) >= MyPromoteLevel.Owner;
         }
 
         /// <summary>
-        /// Checks if a given player is promoted to space master.
+        /// Checks if the local player has access to creative tools.
         /// </summary>
-        /// <param name="steamId"></param>
-        /// <returns></returns>
-        public bool IsUserPromoted( ulong steamId )
+        public bool HasCreativeRights
         {
-            return Static.PromotedUsers.Contains( steamId );
+            get { return HasPlayerCreativeRights( Sync.MyId ); }
+        }
+        
+        HashSet<ulong> m_creativeTools = new HashSet<ulong>();
+        public bool CreativeToolsEnabled(ulong user)
+        {
+            return m_creativeTools.Contains(user) && HasPlayerCreativeRights(user);
         }
 
-        HashSet<ulong> m_adminMode = new HashSet<ulong>();
-        public bool IsAdminModeEnabled(ulong user)
+        public void EnableCreativeTools(ulong user,bool value)
         {
-            return m_adminMode.Contains(user) && HasPlayerAdminRights(user);
-        }
-
-        public void EnableAdminMode(ulong user,bool value)
-        {
-            if (value && IsAdmin)
+            if (value && HasCreativeRights)
             {
-                m_adminMode.Add(user);
+                m_creativeTools.Add(user);
             }
             else
             {
-                m_adminMode.Remove(user);
+                m_creativeTools.Remove(user);
             }
 
-            MyMultiplayer.RaiseStaticEvent(s => OnAdminModeEnabled, user, value);
+            MyMultiplayer.RaiseStaticEvent(s => OnCreativeToolsEnabled, user, value);
         }
 
-        [Event,Reliable,Server]
-        static void OnAdminModeEnabled(ulong user, bool value)
+        [Event, Reliable, Server]
+        static void OnCreativeToolsEnabled(ulong user, bool value)
         {
-            if (value && Static.IsAdmin)
+            if (value && Static.HasCreativeRights)
             {
-                Static.m_adminMode.Add(user);
+                Static.m_creativeTools.Add(user);
             }
             else
             {
-                Static.m_adminMode.Remove(user);
+                Static.m_creativeTools.Remove(user);
             }
         }
-
+        
         public bool IsCopyPastingEnabled
         {
             get
             {
-                return (IsAdminModeEnabled(Sync.MyId) && IsAdmin) || (CreativeMode && Settings.EnableCopyPaste);
+                return (CreativeToolsEnabled(Sync.MyId) && HasCreativeRights) || (CreativeMode && Settings.EnableCopyPaste);
             }
+        }
+
+        public bool IsCopyPastingEnabledForUser(ulong user)
+        {
+            return (CreativeToolsEnabled(user) && HasPlayerCreativeRights(user)) || (CreativeMode && Settings.EnableCopyPaste);
         }
 
         public MyGameFocusManager GameFocusManager
@@ -462,8 +550,65 @@ namespace Sandbox.Game.World
             get;
             private set;
         }
+        
+        public AdminSettingsEnum AdminSettings
+        {
+            get { return _adminSettings; }
+            set { _adminSettings = value; }
+        }
+
+        public Dictionary<ulong, AdminSettingsEnum> RemoteAdminSettings
+        {
+            get { return _remoteAdminSettings; }
+            set { _remoteAdminSettings = value; }
+        }
 
         #endregion
+        
+        public bool SetUserPromoteLevel(ulong steamId, MyPromoteLevel level)
+        {
+            if(level < MyPromoteLevel.None || level > MyPromoteLevel.Admin)
+                throw new ArgumentOutOfRangeException("level", level, null);
+
+            MyPromoteLevel requestingUserLevel = PromoteLevel;
+            if (requestingUserLevel <= level && requestingUserLevel < MyPromoteLevel.Owner)
+                return false;
+
+            MyMultiplayer.RaiseStaticEvent(x => OnPromoteLevelSet, steamId, level);
+            return true;
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private static void OnPromoteLevelSet(ulong steamId, MyPromoteLevel level)
+        {
+            MyPromoteLevel requestingUserLevel = Static.GetUserPromoteLevel(MyEventContext.Current.Sender.Value);
+            if (requestingUserLevel <= level && requestingUserLevel < MyPromoteLevel.Owner)
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
+            
+            if (level == MyPromoteLevel.None)
+                Static.PromotedUsers.Remove(steamId);
+            else
+                Static.PromotedUsers[steamId] = level;
+        }
+
+        public bool CanPromoteUser(ulong steamId)
+        {
+            MyPromoteLevel requestingUserLevel = PromoteLevel;
+            MyPromoteLevel targetUserLevel = GetUserPromoteLevel(steamId);
+
+            return targetUserLevel < MyPromoteLevel.Admin && (requestingUserLevel > targetUserLevel || requestingUserLevel >= MyPromoteLevel.Admin);
+        }
+
+        public bool CanDemoteUser(ulong steamId)
+        {
+            MyPromoteLevel requestingUserLevel = PromoteLevel;
+            MyPromoteLevel targetUserLevel = GetUserPromoteLevel(steamId);
+
+            return targetUserLevel > MyPromoteLevel.None && targetUserLevel < MyPromoteLevel.Owner && (requestingUserLevel > targetUserLevel || requestingUserLevel == MyPromoteLevel.Owner);
+        }
 
         public void SetAsNotReady()
         {
@@ -471,9 +616,9 @@ namespace Sandbox.Game.World
             Ready = false;
         }
 
-        public bool HasPlayerAdminRights(ulong steamId)
+        public bool HasPlayerCreativeRights(ulong steamId)
         {
-            return MyMultiplayer.Static == null || MyMultiplayer.Static.IsAdmin(steamId) || PromotedUsers.Contains(steamId);
+            return MyMultiplayer.Static == null || IsUserSpaceMaster(steamId) || MySession.Static.CreativeMode;
         }
 
         private void RaiseOnLoading()
@@ -529,6 +674,9 @@ namespace Sandbox.Game.World
 
             // To reset spectator positions
             Spectator.Reset();
+
+            // Reset terminal info checkboxes
+            MyCubeGrid.ResetInfoGizmos();
 
             m_timeOfSave = MyTimeSpan.Zero;
             ElapsedGameTime = new TimeSpan();
@@ -591,7 +739,6 @@ namespace Sandbox.Game.World
             multiplayer.MemberLimit = Settings.MaxPlayers;
             multiplayer.Mods = Mods;
             multiplayer.ViewDistance = Settings.ViewDistance;
-            multiplayer.Battle = Battle;
             multiplayer.Scenario = IsScenario;
 
             if (Engine.Platform.Game.IsDedicated)
@@ -693,6 +840,13 @@ namespace Sandbox.Game.World
         /// </summary>
         public void Update(MyTimeSpan updateTime)
         {
+            if ((m_updateAllowed || Engine.Platform.Game.IsDedicated) && MyMultiplayer.Static != null)
+            {
+                ProfilerShort.Begin("ReplicationLayer.UpdateAfter");
+                MyMultiplayer.Static.ReplicationLayer.UpdateClientStateGroups();
+                ProfilerShort.End();
+            }
+
             CheckUpdate();
 
             CheckProfilerDump();
@@ -710,16 +864,27 @@ namespace Sandbox.Game.World
                 {
                     return;
                 }
+                
+                if (MyMultiplayer.Static != null)
+                {
+                    ProfilerShort.Begin("ReplicationLayer.UpdateBefore");
+                    MyMultiplayer.Static.ReplicationLayer.UpdateBefore();
+                    ProfilerShort.End();
+                }
 
                 UpdateComponents();
                 MyParticleEffects.UpdateEffects();
 
-                ProfilerShort.Begin("Multiplayer.Tick");
                 if (MyMultiplayer.Static != null)
                 {
+                    ProfilerShort.Begin("ReplicationLayer.UpdateAfter");
+                    MyMultiplayer.Static.ReplicationLayer.UpdateAfter();
+                    ProfilerShort.End();
+
+                    ProfilerShort.Begin("Multiplayer.Tick");
                     MyMultiplayer.Static.Tick();
+                    ProfilerShort.End();
                 }
-                ProfilerShort.End();
 
                 // update global game time                
                 ElapsedGameTime += elapsedTimespan;
@@ -780,22 +945,6 @@ namespace Sandbox.Game.World
 
                 m_gameplayFrameCounter++;
             }
-            // In pause, the only thing that needs update in the session is the character and third person spectator.
-            // This is a terrible hack and should be done more systematically
-            else
-            {
-                if (CameraController is MyThirdPersonSpectator)
-                {
-                    (CameraController as MyThirdPersonSpectator).UpdateAfterSimulation();
-                }
-                MyCharacter character = LocalCharacter;
-                if (character != null)
-                {
-                    // We can't call UpdateAfterSimulation, because it would update the acceleration and speed of the character
-                    //character.UpdateAfterSimulation();
-                    character.UpdateBeforeSimulation();
-                }
-            }
 
             UpdateStatistics(ref elapsedTimespan);
             DebugDraw();
@@ -829,8 +978,13 @@ namespace Sandbox.Game.World
             MultiplayerDirect = MyMultiplayer.Static.IsConnectionDirect;
             if (Sync.IsServer)
                 MultiplayerLastMsg = 0;
-            else
+            else 
+            {
                 MultiplayerLastMsg = (DateTime.UtcNow - MyMultiplayer.Static.LastMessageReceived).TotalSeconds;
+                var replicationClient = MyMultiplayer.ReplicationLayer as MyReplicationClient;
+                if (replicationClient != null)
+                    MultiplayerPing = replicationClient.Ping;
+            }
         }
 
         public bool IsPausable()
@@ -843,8 +997,7 @@ namespace Sandbox.Game.World
         private void UpdateStatistics(ref TimeSpan elapsedTimespan)
         {
             ElapsedPlayTime += elapsedTimespan;
-            sessionSimSpeedPlayer += (float)elapsedTimespan.TotalSeconds * Engine.Physics.MyPhysics.SimulationRatio;
-            sessionSimSpeedServer += (float)elapsedTimespan.TotalSeconds * Sync.ServerSimulationRatio;
+
             if (LocalHumanPlayer != null && LocalHumanPlayer.Character != null)
             {
                 if (ControlledEntity is MyCharacter)
@@ -921,6 +1074,8 @@ namespace Sandbox.Game.World
                 Static.WorldBoundaries = new BoundingBoxD(new Vector3D(-radius, -radius, -radius), new Vector3D(radius, radius, radius));
             }
 
+            MyVisualScriptLogicProvider.Init();
+
             Static.InGameTime = generationArgs.Scenario.GameDate;//MyObjectBuilder_Checkpoint.DEFAULT_DATE;
             Static.RequiresDX = generationArgs.Scenario.HasPlanets ? 11 : 9;
 
@@ -955,6 +1110,19 @@ namespace Sandbox.Game.World
             {
                 var playerId = new MyPlayer.PlayerId(Sync.MyId, 0);
                 MyToolBarCollection.RequestCreateToolbar(playerId);
+            }
+
+            if (Engine.Platform.Game.IsDedicated)
+            {
+                Static.PromotedUsers = new Dictionary<ulong, MyPromoteLevel>();
+                //add all listed administrators to the promotion dictionary
+                foreach (string id in MySandboxGame.ConfigDedicated.Administrators)
+                {
+                    ulong steamId;
+                    if (!ulong.TryParse(id, out steamId))
+                        continue;
+                    Static.PromotedUsers[steamId] = MyPromoteLevel.Owner;
+                }
             }
 
             Static.SendSessionStartStats();
@@ -1014,6 +1182,10 @@ namespace Sandbox.Game.World
             MySandboxGame.Static.SessionCompatHelper.FixSessionComponentObjectBuilders(world.Checkpoint, world.Sector);
 
             Static.PrepareBaseSession(world.Checkpoint, world.Sector);
+            if (MyFakes.MP_SYNC_CLUSTERTREE)
+            {
+                Sandbox.Engine.Physics.MyPhysics.DeserializeClusters(world.Clusters);
+            }
 
             // No controlled object
             long hostObj = world.Checkpoint.ControlledObject;
@@ -1069,16 +1241,6 @@ namespace Sandbox.Game.World
             };
         }
 
-
-        public static void LoadBattle(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, MyObjectBuilder_SessionSettings settings)
-        {
-            MyLog.Default.WriteLine("Loading battle session: " + sessionPath);
-
-            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
-            Load(sessionPath, checkpoint, checkpointSizeInBytes);
-            Static.Settings = settings;
-            Debug.Assert(Static.Settings.Battle = true);
-        }
 
         public static void Load(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes)
         {
@@ -1156,6 +1318,8 @@ namespace Sandbox.Game.World
             MyNetworkStats.Static.ClearStats();
             Sync.Layer.TransportLayer.ClearStats();
 
+            MyHudChat.ResetChatSettings();
+
             Static.BeforeStartComponents();
             
             RaiseAfterLoading();
@@ -1177,7 +1341,6 @@ namespace Sandbox.Game.World
             Static.CameraController = MySpectatorCameraController.Static;
 
             Static.Settings = new MyObjectBuilder_SessionSettings();
-            Static.Settings.Battle = true;
             Static.Settings.AutoSaveInMinutes = 0;
 
             Static.IsCameraAwaitingEntity = true;
@@ -1363,7 +1526,28 @@ namespace Sandbox.Game.World
             InGameTime = checkpoint.InGameTime;
             Name = checkpoint.SessionName;
             Description = checkpoint.Description;
-            PromotedUsers = new HashSet<ulong>(checkpoint.PromotedUsers ?? Enumerable.Empty<ulong>());
+
+            if (checkpoint.PromotedUsers != null)
+                PromotedUsers = checkpoint.PromotedUsers.Dictionary;
+            else
+                PromotedUsers = new Dictionary<ulong, MyPromoteLevel>();
+
+            if (Engine.Platform.Game.IsDedicated)
+            {
+                //clear out all admins in case some have been removed from the list
+                var toRemove = PromotedUsers.Where(e => e.Value == MyPromoteLevel.Owner).ToList();
+                foreach (var entry in toRemove)
+                    PromotedUsers.Remove(entry.Key);
+
+                //add all listed administrators to the promotion dictionary
+                foreach (string id in MySandboxGame.ConfigDedicated.Administrators)
+                {
+                    ulong steamId;
+                    if (!ulong.TryParse(id, out steamId))
+                        continue;
+                    PromotedUsers[steamId] = MyPromoteLevel.Owner;
+                }
+            }
             Briefing = checkpoint.Briefing;
             BriefingVideo = checkpoint.BriefingVideo;
             WorkshopId = checkpoint.WorkshopId;
@@ -1376,11 +1560,6 @@ namespace Sandbox.Game.World
             FixIncorrectSettings(Settings);
 
             AppVersionFromSave = checkpoint.AppVersion;
-
-            if (MyFakes.ENABLE_BATTLE_SYSTEM)
-            {
-                VoxelHandVolumeChanged = sector.VoxelHandVolumeChanged;
-            }
 
             MyToolbarComponent.InitCharacterToolbar(checkpoint.CharacterToolbar);
 
@@ -1395,7 +1574,7 @@ namespace Sandbox.Game.World
                 savingPlayerNullable = savingPlayer;
 
             // Identities have to be loaded before entities (because of ownership)
-            if (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)
+            if (Sync.IsServer || (MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)
                 || (!IsScenario && MyPerGameSettings.Game == GameEnum.VRS_GAME))
                 Sync.Players.LoadIdentities(checkpoint, savingPlayerNullable);
 
@@ -1417,7 +1596,7 @@ namespace Sandbox.Game.World
 
             MySandboxGame.Static.SessionCompatHelper.AfterEntitiesLoad(sector.AppVersion);
 
-            if (checkpoint.Factions != null && (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)))
+            if (checkpoint.Factions != null && (Sync.IsServer || (MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)))
             {
                 Static.Factions.Init(checkpoint.Factions);
             }
@@ -1431,7 +1610,7 @@ namespace Sandbox.Game.World
             // MySpectator.Static.SpectatorCameraMovement = checkpoint.SpectatorCameraMovement;
             MySpectatorCameraController.Static.SetViewMatrix(MatrixD.Invert(checkpoint.SpectatorPosition.GetMatrix()));
 
-            if (MyPerGameSettings.Game == GameEnum.UNKNOWN_GAME || ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.SE_GAME)
+            if (MyPerGameSettings.Game == GameEnum.UNKNOWN_GAME || ((MyPerGameSettings.Game == GameEnum.ME_GAME) || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.SE_GAME)
                 || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.VRS_GAME)))
             {
                 if (!(Static.IsScenario && Static.Settings.StartInRespawnScreen))
@@ -1699,6 +1878,15 @@ namespace Sandbox.Game.World
             {
                 settings.WorldSizeKm = Static.Scenario.HasPlanets ? 0 : settings.WorldSizeKm;
             }
+
+            if (Static != null && Static.WorldBoundaries == null && settings.WorldSizeKm > 0)
+            {
+                double radius = settings.WorldSizeKm * 500; //half size
+                if (radius > 0)
+                {
+                    Static.WorldBoundaries = new BoundingBoxD(new Vector3D(-radius, -radius, -radius), new Vector3D(radius, radius, radius));
+                }
+            }
         }
 
         private void ShowLoadingError()
@@ -1759,6 +1947,8 @@ namespace Sandbox.Game.World
                         return MyCameraControllerEnum.SpectatorDelta;
                     case MySpectatorCameraMovementEnum.None:
                         return MyCameraControllerEnum.SpectatorFixed;
+                    case MySpectatorCameraMovementEnum.Orbit:
+                        return MyCameraControllerEnum.SpectatorOrbit;
                 }
             }
             else
@@ -1785,6 +1975,12 @@ namespace Sandbox.Game.World
             return MyCameraControllerEnum.Spectator;
         }
 
+        [Event, Client, Reliable]
+        public static void SetSpectatorPositionFromServer(Vector3D position)
+        {
+            Static.SetCameraController(MyCameraControllerEnum.Spectator, null, position);
+        }
+
         public void SetCameraController(MyCameraControllerEnum cameraControllerEnum, IMyEntity cameraEntity = null, Vector3D? position = null)
         {
             //bool wasUserControlled = MySession.Static.CameraController != null ? MySession.Static.CameraController.AllowObjectControl() : false;
@@ -1794,7 +1990,7 @@ namespace Sandbox.Game.World
             {
                 var cam = (IMyCameraController)cameraEntity;
                 Spectator.Position = cameraEntity.GetPosition() + cameraEntity.WorldMatrix.Forward * 4 + cameraEntity.WorldMatrix.Up * 2;
-                Spectator.Target = cameraEntity.GetPosition();
+                Spectator.SetTarget(cameraEntity.GetPosition(), cameraEntity.PositionComp.WorldMatrix.Up);
             }
 
             switch (cameraControllerEnum)
@@ -1807,7 +2003,8 @@ namespace Sandbox.Game.World
                         Static.CameraController = (IMyCameraController)cameraEntity;
                     else
                         Static.CameraController = (IMyCameraController)MySession.Static.LocalCharacter;
-                    Static.CameraController.IsInFirstPersonView = true;
+                    //AB: Do not reset view to first person
+                    //Static.CameraController.IsInFirstPersonView = true;
                     break;
                 case MyCameraControllerEnum.Spectator:
                     if (!MyFinalBuildConstants.IS_OFFICIAL)
@@ -1855,6 +2052,15 @@ namespace Sandbox.Game.World
                     Static.CameraController.IsInFirstPersonView = false;
                     break;
 
+                case MyCameraControllerEnum.SpectatorOrbit:
+                    if (!MyFinalBuildConstants.IS_OFFICIAL)
+                        MySandboxGame.Log.WriteLine("CameraAttachedTo: Orbit");
+                    Static.CameraController = MySpectatorCameraController.Static;
+                    MySpectatorCameraController.Static.SpectatorCameraMovement = MySpectatorCameraMovementEnum.Orbit;
+                    if (position.HasValue)
+                        MySpectatorCameraController.Static.Position = position.Value;
+                    break;
+
                 default:
                     Debug.Assert(false);
                     break;
@@ -1898,9 +2104,10 @@ namespace Sandbox.Game.World
 
         public bool IsCameraUserControlledSpectator()
         {
-            return (MySpectatorCameraController.Static != null)
-                    ? (Static.CameraController == MySpectatorCameraController.Static && MySpectatorCameraController.Static.SpectatorCameraMovement == MySpectatorCameraMovementEnum.UserControlled)
-                    : true;
+            return (MySpectatorCameraController.Static == null) || (Static.CameraController == MySpectatorCameraController.Static && 
+                                                                    (MySpectatorCameraController.Static.SpectatorCameraMovement == MySpectatorCameraMovementEnum.UserControlled ||
+                                                                     MySpectatorCameraController.Static.SpectatorCameraMovement == MySpectatorCameraMovementEnum.Orbit ||
+                                                                     MySpectatorCameraController.Static.SpectatorCameraMovement == MySpectatorCameraMovementEnum.FreeMouse));
         }
 
 
@@ -1961,7 +2168,22 @@ namespace Sandbox.Game.World
                 string saveName = customSaveName ?? Name;
                 // Custom save name is used for "Save As" functionality.
                 if (customSaveName != null)
-                    CurrentPath = MyLocalCache.GetSessionSavesPath(customSaveName, false);
+                {
+                    if(!Path.IsPathRooted(customSaveName))
+                    {
+                        var parentDir = Path.GetDirectoryName(CurrentPath);
+                        if(Directory.Exists(parentDir))
+                            CurrentPath = Path.Combine(parentDir, customSaveName);
+                        else
+                            CurrentPath = MyLocalCache.GetSessionSavesPath(customSaveName, false);
+                    }
+                    else
+                    {
+                        // The custom name is a rooted path. Switch Current path
+                        CurrentPath = customSaveName;
+                        saveName = Path.GetFileName(customSaveName);
+                    }
+                }
 
                 snapshot.TargetDir = CurrentPath;
                 snapshot.SavingDir = GetTempSavingFolder();
@@ -2027,7 +2249,7 @@ namespace Sandbox.Game.World
             {
                 Checkpoint = GetCheckpoint(Name),
                 Sector = GetSector(includeEntities),
-                VoxelMaps = new SerializableDictionary<string, byte[]>(Static.GetVoxelMapsArray(includeEntities))
+                VoxelMaps = new SerializableDictionary<string, byte[]>(Static.GetVoxelMapsArray(true))
             };
 
             ProfilerShort.End();
@@ -2053,11 +2275,6 @@ namespace Sandbox.Game.World
                 sector.Encounters = MyEncounterGenerator.Save();
 
                 sector.Environment = MySector.GetEnvironmentSettings();
-
-                if (MyFakes.ENABLE_BATTLE_SYSTEM)
-                {
-                    sector.VoxelHandVolumeChanged = VoxelHandVolumeChanged;
-                }
             }
 
             sector.AppVersion = MyFinalBuildConstants.APP_VERSION;
@@ -2080,7 +2297,7 @@ namespace Sandbox.Game.World
 
             checkpoint.SessionName = saveName;
             checkpoint.Description = Description;
-            checkpoint.PromotedUsers = new List<ulong>(PromotedUsers);
+            checkpoint.PromotedUsers = new SerializableDictionary<ulong, MyPromoteLevel>(PromotedUsers);
             checkpoint.Briefing = Briefing;
             checkpoint.BriefingVideo = BriefingVideo;
             // AI School scenarios are meant to be read-only, saving makes the game a normal game with a bot.
@@ -2225,7 +2442,7 @@ namespace Sandbox.Game.World
                 var ob = new MyObjectBuilder_Client();
                 ob.SteamId = member;
                 ob.Name = MyMultiplayer.Static.GetMemberName(member);
-                ob.IsAdmin = MyMultiplayer.Static.IsAdmin(member);
+                ob.IsAdmin = Static.IsUserAdmin(member);
                 list.Add(ob);
             }
 
@@ -2286,6 +2503,7 @@ namespace Sandbox.Game.World
             MyAudio.Static.StopUpdatingAll3DCues();
             MyAudio.Static.Mute = true;
             MyAudio.Static.StopMusic();
+            MyAudio.Static.ChangeGlobalVolume(1f, 0f);
             MyParticlesLibrary.Close();
 
             Ready = false;
@@ -2425,6 +2643,7 @@ namespace Sandbox.Game.World
         public bool MultiplayerAlive { get; set; }
         public bool MultiplayerDirect { get; set; }
         public double MultiplayerLastMsg { get; set; }
+        public MyTimeSpan MultiplayerPing { get; set; } 
 
         void OnFactionsStateChanged(MyFactionCollection.MyFactionStateChange change, long fromFactionId, long toFactionId, long playerId, long sender)
         {
@@ -2435,7 +2654,7 @@ namespace Sandbox.Game.World
                     messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextYouHaveBeenKickedFromFaction)));
             }
 
-            if (change == MyFactionCollection.MyFactionStateChange.FactionMemberAcceptJoin && sender != playerId && LocalPlayerId == playerId && !Battle)
+            if (change == MyFactionCollection.MyFactionStateChange.FactionMemberAcceptJoin && sender != playerId && LocalPlayerId == playerId)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionInfo),

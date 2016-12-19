@@ -23,6 +23,7 @@ namespace Sandbox.Definitions
         public MyEnvironmentDefinition()
         {
             ShadowSettings = new MyShadowsSettings();
+            NewPipelineSettings = new MyNewPipelineSettings();
             MaterialsSettings = new MyMaterialsSettings();
         }
 
@@ -32,6 +33,7 @@ namespace Sandbox.Definitions
         public MySSAOSettings SSAOSettings = MySSAOSettings.Default;
         public MyHBAOData HBAOSettings = MyHBAOData.Default;
         public MyShadowsSettings ShadowSettings { get; private set; }
+        public MyNewPipelineSettings NewPipelineSettings { get; private set; }
         public MyMaterialsSettings MaterialsSettings { get; private set; }
 
         public float LargeShipMaxSpeed = Defaults.LargeShipMaxSpeed;
@@ -88,6 +90,7 @@ namespace Sandbox.Definitions
             SSAOSettings = objBuilder.SSAOSettings;
             HBAOSettings = objBuilder.HBAOSettings;
             ShadowSettings.CopyFrom(objBuilder.ShadowSettings);
+            NewPipelineSettings.CopyFrom(objBuilder.NewPipelineSettings);
             MaterialsSettings.CopyFrom(objBuilder.MaterialsSettings);
             SmallShipMaxSpeed = objBuilder.SmallShipMaxSpeed;
             LargeShipMaxSpeed = objBuilder.LargeShipMaxSpeed;
@@ -111,6 +114,7 @@ namespace Sandbox.Definitions
             result.SSAOSettings = SSAOSettings;
             result.HBAOSettings = HBAOSettings;
             result.ShadowSettings.CopyFrom(ShadowSettings);
+            result.NewPipelineSettings.CopyFrom(NewPipelineSettings);
             result.MaterialsSettings.CopyFrom(MaterialsSettings);
             result.SmallShipMaxSpeed = this.SmallShipMaxSpeed;
             result.LargeShipMaxSpeed = this.LargeShipMaxSpeed;

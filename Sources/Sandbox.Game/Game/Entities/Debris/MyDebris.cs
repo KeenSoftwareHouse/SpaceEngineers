@@ -13,6 +13,7 @@ using VRage.Game.Components;
 using VRage.Game.Models;
 using VRage.Game.Entity;
 using VRage.Profiler;
+using VRage.Collections;
 
 namespace Sandbox.Game.Entities.Debris
 {
@@ -39,7 +40,6 @@ namespace Sandbox.Game.Entities.Debris
         private List<Vector3D> m_positionBuffer;
         private List<Vector3> m_voxelDebrisOffsets;
 
-        private List<Vector3> m_tmpVerts = new List<Vector3>();
         private static string[] m_debrisModels;
 
         //public static readonly string VoxelDebrisModel = "Models\\Debris\\RockDebris01.mwm";
@@ -51,7 +51,7 @@ namespace Sandbox.Game.Entities.Debris
         private float m_debrisScaleUpper = 0.0155f; // In size of explosion
         private float m_debrisScaleClamp = 0.5f; // Max size is half size of model
 
-        Dictionary<MyModelShapeInfo, HkShape> m_shapes = new Dictionary<MyModelShapeInfo, HkShape>();
+        MyConcurrentDictionary<MyModelShapeInfo, HkShape> m_shapes = new MyConcurrentDictionary<MyModelShapeInfo, HkShape>();
 
         private const int MaxDebrisCount = 100;
         private int m_debrisCount = 0;
@@ -100,7 +100,7 @@ namespace Sandbox.Game.Entities.Debris
             if (!m_shapes.TryGetValue(info, out shape))
             {
                 shape = CreateShape(model, shapeType);
-                m_shapes.Add(info, shape);
+                m_shapes.TryAdd(info, shape);
             }
             return shape;
         }
@@ -134,13 +134,13 @@ namespace Sandbox.Game.Entities.Debris
                     break;
 
                 case HkShapeType.ConvexVertices:
-                    m_tmpVerts.Clear();
+                    List<Vector3> verts = new List<Vector3>();
                     for (int i = 0; i < model.GetVerticesCount(); i++)
                     {
-                        m_tmpVerts.Add(model.GetVertex(i));
+                        verts.Add(model.GetVertex(i));
                     }
 
-                    return new HkConvexVerticesShape(m_tmpVerts.GetInternalArray(), m_tmpVerts.Count, true, 0.1f);
+                    return new HkConvexVerticesShape(verts.GetInternalArray(), verts.Count, true, 0.1f);
                     break;
             }
             throw new InvalidOperationException("This shape is not supported");

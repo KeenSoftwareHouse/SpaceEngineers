@@ -18,7 +18,7 @@ namespace Sandbox.Game.WorldEnvironment
     {
         private static readonly MySerializeInfo serialInfo = new MySerializeInfo(MyObjectFlags.Dynamic | MyObjectFlags.Nullable, MyPrimitiveFlags.None, 0, MyObjectBuilderSerializer.SerializeDynamic, null, null);
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
             return FindByObject(Instance.Owner.Entity);
         }
@@ -43,9 +43,9 @@ namespace Sandbox.Game.WorldEnvironment
             return 0f;
         }
 
-        public override bool IsChild
+        public override bool HasToBeChild
         {
-            get { return false; } // CH: TODO: I'm not really false should be returned here, but it was the default before my change.
+            get { return false; } 
         }
           
         public override bool OnSave(BitStream stream)
@@ -119,5 +119,20 @@ namespace Sandbox.Game.WorldEnvironment
         {
             //throw new NotImplementedException();
         }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            var aabb = VRageMath.BoundingBoxD.CreateInvalid();
+
+            foreach (var bound in Instance.Bounds)
+            {
+                var bnd = bound;
+                aabb = aabb.Include(Instance.WorldPos + bnd);
+            }
+
+            return aabb;
+        }
+        
+
     }
 }

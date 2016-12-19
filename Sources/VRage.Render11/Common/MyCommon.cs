@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using SharpDX.Direct3D11;
 using VRage.Library.Utils;
 using VRage.Render11.Common;
+using VRage.Render11.LightingStage;
 using VRage.Render11.Resources;
 using VRage.Voxels;
 using VRageMath;
@@ -14,7 +15,7 @@ using VRageRender.Voxels;
 
 namespace VRageRender
 {
-    static class MyCommon
+    internal static class MyCommon
     {
         // constant buffers
         internal const int FRAME_SLOT = 0;
@@ -46,8 +47,8 @@ namespace VRageRender
         // samplers
         internal const int SHADOW_SAMPLER_SLOT = 15;
 
-        const float MAX_FRAMETIME = 66.0f;
-        const int DEFAULT_SEED = 0x4A6F7921;
+        private const float MAX_FRAMETIME = 66.0f;
+        private const int DEFAULT_SEED = 0x4A6F7921;
 
         internal static IConstantBuffer FrameConstantsStereoLeftEye { get; set; }
         internal static IConstantBuffer FrameConstantsStereoRightEye { get; set; }
@@ -120,7 +121,7 @@ namespace VRageRender
         #region Frame constants layout
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyEnvironmentLayout
+        private struct MyEnvironmentLayout
         {
             internal Matrix View;
             internal Matrix Projection;
@@ -141,7 +142,7 @@ namespace VRageRender
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyScreenLayout
+        private struct MyScreenLayout
         {
             internal Vector2I GBufferOffset;
             internal Vector2I ResolutionOfGBuffer;
@@ -152,24 +153,24 @@ namespace VRageRender
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyFoliageLayout
+        private struct MyFoliageLayout
         {
             internal Vector4 ClippingScaling;
             internal Vector3 WindVector;
-            float __pad;
+            private float __pad;
         };
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyFogLayout
+        private struct MyFogLayout
         {
             internal float Density;
             internal float Mult;
             internal uint Color;             // sRGB
-            float __pad;
+            private float __pad;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyVoxelLayout
+        private struct MyVoxelLayout
         {
             internal Vector4 LodRange0;
             internal Vector4 LodRange1;
@@ -186,11 +187,11 @@ namespace VRageRender
             internal Vector4 MassiveLodRange7;
 
             internal float DebugVoxelLod;
-            Vector3 __pad;
+            private Vector3 __pad;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyTextureDebugMultipliers
+        private struct MyTextureDebugMultipliers
         {
             public float AlbedoMultiplier;
             public float MetalnessMultiplier;
@@ -219,7 +220,7 @@ namespace VRageRender
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyFrameConstantsLayout
+        private struct MyFrameConstantsLayout
         {
             internal MyEnvironmentLayout Environment;
 
@@ -241,7 +242,7 @@ namespace VRageRender
             internal float FrameTime;
             internal float FrameTimeDelta;
             internal float RandomSeed;
-            float __pad;
+            private float __pad;
         }
 
         #endregion
@@ -251,13 +252,13 @@ namespace VRageRender
             FrameCounter++;
         }
 
-        static MyRandom m_random = new MyRandom();
-        static uint m_fixedTimeStep;
-        static float m_lastFrameDelta = 0;
-        static float m_frameTime = 0;
-        static float m_lastFrameTimer = 0;
-        static readonly Stopwatch m_timer;
-        static Vector3D m_lastCameraPosition;
+        private static readonly MyRandom m_random = new MyRandom();
+        private static uint m_fixedTimeStep;
+        private static float m_lastFrameDelta = 0;
+        private static float m_frameTime = 0;
+        private static float m_lastFrameTimer = 0;
+        private static readonly Stopwatch m_timer;
+        private static Vector3D m_lastCameraPosition;
 
         internal static float TimerMs { get { return (float)(m_timer.ElapsedTicks / (double)Stopwatch.Frequency * 1000.0); } }
         internal static float LastFrameDelta() { return m_lastFrameDelta; }
@@ -275,7 +276,7 @@ namespace VRageRender
 
         public static void SetRandomSeed(int? value)
         {
-            int seed = value.HasValue ? value.Value : DEFAULT_SEED;
+            int seed = value ?? DEFAULT_SEED;
 
             m_random.SetSeed(seed);
             MyManagers.GeneratedTextures.InitializeRandomTexture(seed);
@@ -322,8 +323,8 @@ namespace VRageRender
             constants.Environment.BackgroundOrientation = Matrix.CreateFromQuaternion(MyRender11.Environment.Data.SkyboxOrientation);
 
             // screen
-            constants.Screen.TilesNum = (uint)MyScreenDependants.TilesNum;
-            constants.Screen.TilesX = (uint)MyScreenDependants.TilesX;
+            constants.Screen.TilesNum = (uint)MyLightsRendering.GetTilesNum();
+            constants.Screen.TilesX = (uint)MyLightsRendering.GetTilesX();
 
             // foliage
             constants.Foliage.ClippingScaling = new Vector4(
@@ -441,7 +442,7 @@ namespace VRageRender
         }
 
 
-        static string[] s_viewVectorData = new string[]
+        private static string[] s_viewVectorData = new string[]
         {
     "-0.707107,-0.707107,0.000000,0.000000,-0.000000,1.000000,0.707107,-0.707107,-0.000000", 
     "-0.613941,-0.789352,0.000000,0.000000,-0.000000,1.000000,0.789352,-0.613941,-0.000000",

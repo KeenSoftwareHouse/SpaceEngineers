@@ -242,11 +242,10 @@ namespace Sandbox.Game.Gui
             {
                 if (!m_loadFinished)
                 {
+                    MyHud.ScreenEffects.FadeScreen(0f, 0f);
                     MyAudio.Static.Mute = true;
                     MyAudio.Static.StopMusic();
-                    MyAudio.Static.VolumeMusic = 0f;
-                    MyAudio.Static.VolumeGame = 0f;
-                    MyAudio.Static.VolumeHud = 0f;
+                    MyAudio.Static.ChangeGlobalVolume(0, 0);
                     VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("LoadInBackgroundThread");
 
                     DrawLoading();
@@ -275,6 +274,7 @@ namespace Sandbox.Game.Gui
 
             if (m_loadFinished && MySandboxGame.IsGameReady)
             {
+                MyHud.ScreenEffects.FadeScreen(1f, 5f);
                 if (!m_exceptionDuringLoad && OnScreenLoadingFinished != null)
                 {
                     OnScreenLoadingFinished();

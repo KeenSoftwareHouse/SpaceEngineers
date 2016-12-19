@@ -86,8 +86,8 @@ namespace VRage.Render11.Common
         {
             foreach (IManager manager in Enumerable.Reverse(m_allManagers))
             {
-                if (manager is IManagerCallback)
-                    ((IManagerCallback)manager).OnUnloadData();
+                if (manager is IManagerUnloadData)
+                    ((IManagerUnloadData)manager).OnUnloadData();
             }
         }
 
@@ -95,8 +95,8 @@ namespace VRage.Render11.Common
         {
             foreach (IManager manager in m_allManagers)
             {
-                if (manager is IManagerCallback)
-                    ((IManagerCallback)manager).OnFrameEnd();
+                if (manager is IManagerFrameEnd)
+                    ((IManagerFrameEnd)manager).OnFrameEnd();
             }
         }
 

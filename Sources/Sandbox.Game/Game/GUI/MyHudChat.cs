@@ -19,8 +19,11 @@ namespace Sandbox.Game.Gui
 
     public class MyHudChat
     {
-        static readonly int MAX_MESSAGES_IN_CHAT = 10;
-        static readonly int MAX_MESSAGE_TIME = 15000; //ms
+        static readonly int MAX_MESSAGES_IN_CHAT_DEFAULT = 10;
+        public static readonly int MAX_MESSAGE_TIME_DEFAULT = 15000; //ms
+
+        public static int MaxMessageTime = MAX_MESSAGE_TIME_DEFAULT;
+        public static int MaxMessageCount = MAX_MESSAGES_IN_CHAT_DEFAULT;
 
         public Queue<Tuple<string, string, string>> MessagesQueue = new Queue<Tuple<string, string, string>>();
 
@@ -52,7 +55,7 @@ namespace Sandbox.Game.Gui
         {
             MessagesQueue.Enqueue(new Tuple<string, string, string>(sender, messageText, font));
 
-            if (MessagesQueue.Count > MAX_MESSAGES_IN_CHAT)
+            if (MessagesQueue.Count > MaxMessageCount)
                 MessagesQueue.Dequeue();
 
             UpdateTimestamp();
@@ -96,7 +99,7 @@ namespace Sandbox.Game.Gui
 
         public void Update()
         {
-            if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime > MAX_MESSAGE_TIME)
+            if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime > MaxMessageTime)
             {
                 if (MessagesQueue.Count > 0)
                 {
@@ -105,6 +108,13 @@ namespace Sandbox.Game.Gui
                 }
             }
         }
+
+        public static void ResetChatSettings()
+        {
+            MaxMessageTime = MAX_MESSAGE_TIME_DEFAULT;
+            MaxMessageCount = MAX_MESSAGES_IN_CHAT_DEFAULT;
+        }
+
     }
     #endregion
 }

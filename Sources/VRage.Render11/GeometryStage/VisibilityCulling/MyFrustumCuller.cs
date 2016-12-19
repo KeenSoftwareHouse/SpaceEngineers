@@ -143,20 +143,7 @@ namespace VRageRender
                 m_tmpIndicesToRemove.SetSize(0);
 
                 ProfilerShort.BeginNextBlock("Culling by query type");
-                if (frustumQuery.Type == MyFrustumEnum.MainFrustum)
-                {
-                    MyStatsUpdater.Passes.GBufferObjects += cullProxies.Count;
-                    int tris = 0;
-                    for (int cullProxyIndex = 0; cullProxyIndex < cullProxies.Count; ++cullProxyIndex)
-                    {
-                        var cullProxy = cullProxies[cullProxyIndex];
-                        if (cullProxy.RenderableProxies != null)
-                            foreach (var renderableProxy in cullProxy.RenderableProxies)
-                                tris += (renderableProxy.InstanceCount > 0 ? renderableProxy.InstanceCount : 1) * renderableProxy.DrawSubmesh.IndexCount / 3;
-                    }
-                    MyStatsUpdater.Passes.GBufferTris += tris;
-                }
-                else if (frustumQuery.Type == MyFrustumEnum.ShadowCascade)
+                if (frustumQuery.Type == MyFrustumEnum.ShadowCascade)
                 {
                     while (m_shadowCascadeProxies2.Count < MyShadowCascades.Settings.NewData.CascadesCount)
                         m_shadowCascadeProxies2.Add(new HashSet<MyCullProxy_2>());
@@ -179,20 +166,12 @@ namespace VRageRender
                         }
                         else
                         {
-                            foreach (var renderableProxy in cullProxy.RenderableProxies)
-                            {
-                                MyStatsUpdater.CSMObjects[frustumQuery.Index]++;
-                                MyStatsUpdater.CSMTris[frustumQuery.Index] += (renderableProxy.InstanceCount > 0 ? renderableProxy.InstanceCount : 1) * renderableProxy.DrawSubmesh.IndexCount / 3;
-                            }
-
                             if (frustumQuery.IsInsideList[cullProxyIndex])
                             {
                                 cullProxy.FirstFullyContainingCascadeIndex = (uint)frustumQuery.Index;
                             }
                         }
                     }
-
-                    MyStatsUpdater.CSMObjects[frustumQuery.Index] += cullProxies.Count;
 
                     // List 2
                     var cullProxies2 = frustumQuery.List2;
@@ -233,14 +212,7 @@ namespace VRageRender
                             --cullProxyIndex;
                             continue;
                         }
-                        foreach (var proxy in cullProxy.RenderableProxies)
-                        {
-                            MyStatsUpdater.Passes.ShadowProjectionObjects++;
-                            MyStatsUpdater.Passes.ShadowProjectionTris += Math.Max(proxy.InstanceCount, 1) * proxy.DrawSubmesh.IndexCount / 3;
-                        }
                     }
-
-                    MyStatsUpdater.Passes.ShadowProjectionObjects += cullProxies.Count;
                 }
                 ProfilerShort.End();
                 if (frustumQuery.Ignored != null)
@@ -258,6 +230,29 @@ namespace VRageRender
 
                 }
             }
+
+            foreach (MyFrustumCullQuery frustumQuery in cullQuery.FrustumCullQueries)
+            {
+                switch(frustumQuery.Type)
+                {
+                    case MyFrustumEnum.MainFrustum:
+                    {
+                        MyStatsUpdater.Passes.GBufferObjects += frustumQuery.List.Count;
+                        break;
+                    }
+                    case MyFrustumEnum.ShadowCascade:
+                    {
+                        MyStatsUpdater.CSMObjects[frustumQuery.Index] += frustumQuery.List.Count;
+                        break;
+                    }
+                    case MyFrustumEnum.ShadowProjection:
+                    {
+                        MyStatsUpdater.Passes.ShadowProjectionObjects += frustumQuery.List.Count;
+                        break;
+                    }
+                }
+            }
+
         }
     }
 }

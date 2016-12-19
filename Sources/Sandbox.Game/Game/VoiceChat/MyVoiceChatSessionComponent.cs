@@ -166,7 +166,7 @@ namespace Sandbox.Game.VoiceChat
         {
             get
             {
-                return base.IsRequiredByGame && MySteam.IsActive && MyPerGameSettings.VoiceChatEnabled;
+                return MySteam.IsActive && MyPerGameSettings.VoiceChatEnabled;
             }
         }
 
@@ -299,7 +299,7 @@ namespace Sandbox.Game.VoiceChat
         {
             uint uncompressedSize;
             var result = m_VoIP.DecompressVoice(compressedBuffer, (uint)bufferSize, m_uncompressedVoiceBuffer, out uncompressedSize);     
-            Debug.Assert(result == VoiceResult.OK, result.ToString());
+            //Debug.Assert(result == VoiceResult.OK, result.ToString());
             if (result == VoiceResult.OK)
             {
                 ReceivedData senderData;
@@ -353,7 +353,7 @@ namespace Sandbox.Game.VoiceChat
                     }
                 }
 
-                if (data.SpeakerTimestamp != MyTimeSpan.Zero && (now - data.SpeakerTimestamp).Miliseconds > speakerFadeout)
+                if (data.SpeakerTimestamp != MyTimeSpan.Zero && (now - data.SpeakerTimestamp).Milliseconds > speakerFadeout)
                 {
                     data.ClearSpeakerTimestamp();
                     update = true;
@@ -500,9 +500,24 @@ namespace Sandbox.Game.VoiceChat
                     var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(pair.Key, 0));
                     if (player.Character != null)
                     {
-                        var position = player.Character.PositionComp.GetPosition() + new Vector3D(0, 2.2, 0);
+                        var position = player.Character.PositionComp.GetPosition() + player.Character.PositionComp.LocalAABB.Height * player.Character.PositionComp.WorldMatrix.Up + player.Character.PositionComp.WorldMatrix.Up * 0.2f;
                         var color = Color.White;
-                        MyTransparentGeometry.AddPointBillboard("VoiceChatSpeaker", color, position, 0.25f, 0, 0, true);
+//                        MyTransparentGeometry.AddPointBillboard(Sandbox.Graphics.GUI.MyGuiConstants.TEXTURE_VOICE_CHAT, color, position, 0.25f, 0, 0, true);
+
+                        VRage.Utils.MyGuiDrawAlignEnum align = VRage.Utils.MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM;
+                        var bg = Sandbox.Graphics.GUI.MyGuiConstants.TEXTURE_VOICE_CHAT;
+                        var worldViewProj = MySector.MainCamera.ViewMatrix * (MatrixD)MySector.MainCamera.ProjectionMatrix;
+                        var v3t = Vector3D.Transform(position, worldViewProj);
+                        var basePos = new Vector2((float)v3t.X, (float)v3t.Y);
+                        basePos = basePos * 0.5f + 0.5f * Vector2.One;
+                        basePos.Y = 1 - basePos.Y;
+                        var bgPos = Sandbox.Game.Gui.MyGuiScreenHudSpace.ConvertHudToNormalizedGuiPosition(ref basePos);
+                        MyGuiManager.DrawSpriteBatch(
+                            bg.Texture,
+                            bgPos,
+                            bg.SizeGui * 0.5f,
+                            color,
+                            align);
                     }
                 }
             }

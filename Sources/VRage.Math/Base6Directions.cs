@@ -282,6 +282,26 @@ namespace VRageMath
             return LeftDirections[(int)forward*6 + (int)up];
         }
 
+        public static Direction GetOppositeDirection(Direction dir)
+        {
+            switch (dir)
+            {
+                default:
+                case Direction.Forward:
+                    return Direction.Backward;
+                case Direction.Backward:
+                    return Direction.Forward;
+                case Direction.Up:
+                    return Direction.Down;
+                case Direction.Down:
+                    return Direction.Up;
+                case Direction.Left:
+                    return Direction.Right;
+                case Direction.Right:
+                    return Direction.Left;
+            }
+        }
+
         public static Quaternion GetOrientation(Direction forward, Direction up)
         {
             var vecForward = Base6Directions.GetVector(forward);

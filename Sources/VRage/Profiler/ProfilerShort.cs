@@ -63,13 +63,13 @@ namespace VRage.Profiler
         [Conditional(PerformanceProfilingSymbol)]
         public static void End(float customValue, float customTimeMs, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
-            Profiler.EndProfilingBlock(customValue, MyTimeSpan.FromMiliseconds(customTimeMs), timeFormat, valueFormat, member, line, file);
+            Profiler.EndProfilingBlock(customValue, MyTimeSpan.FromMilliseconds(customTimeMs), timeFormat, valueFormat, member, line, file);
         }
 
         [Conditional(PerformanceProfilingSymbol)]
         public static void CustomValue(string name, float value, float customTimeMs, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
-            Profiler.ProfileCustomValue(name, value, MyTimeSpan.FromMiliseconds(customTimeMs), timeFormat, valueFormat, member, line, file);
+            Profiler.ProfileCustomValue(name, value, MyTimeSpan.FromMilliseconds(customTimeMs), timeFormat, valueFormat, member, line, file);
         }
 
         public static void Commit()

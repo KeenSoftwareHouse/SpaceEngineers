@@ -12,6 +12,7 @@ namespace VRage.Network
 
         public MyClientStateBase State { get { return m_clientData.State; } }
         public EndpointId EndpointId { get { return m_clientData.State.EndpointId; } }
+        public float PriorityMultiplier { get { return m_clientData.PriorityMultiplier; } }
 
         internal MyClientInfo(MyReplicationServer.ClientData clientData)
         {
@@ -24,9 +25,9 @@ namespace VRage.Network
         /// </summary>
         public float GetPriority(IMyReplicable replicable)
         {
-            while(replicable.IsChild)
+            while(replicable.HasToBeChild)
             {
-                var parent = replicable.GetDependency();
+                var parent = replicable.GetParent();
                 if (parent == null)
                     break;
                 else

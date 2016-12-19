@@ -7,7 +7,7 @@ namespace VRage.Game.ModAPI.Interfaces
     public interface IMyDecalProxy
     {
         /// <param name="hitInfo">Hithinfo on world coordinates</param>
-        void AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler);
+        void AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler, MyStringHash material);
     }
 
     public interface IMyDecalHandler

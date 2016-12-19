@@ -280,21 +280,10 @@ namespace Sandbox.Game.World
             origin = MyEntities.TestPlaceInSpace(origin.Value, spawnGroup.SpawnRadius);
             if (!origin.HasValue)
             {
-                if (++m_eventSpawnTry <= EVENT_SPAWN_TRY_MAX)
-                {
-                    MySandboxGame.Log.WriteLine("Could not spawn neutral ships - no free place found. Try " + m_eventSpawnTry + " of " + EVENT_SPAWN_TRY_MAX);
-
-                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
-                    ProfilerShort.End();
-                    return;
-                }
-                else
-                {
-                    m_eventSpawnTry = 0;
-                    return;
-                }
+                RetryEventWithMaxTry(senderEvent as MyGlobalEventBase);
+                ProfilerShort.End();
+                return;
             }
-            m_eventSpawnTry = 0;
 
             // Radius in arc units of the forbidden sphere in the center, when viewed from origin
             float centerArcRadius = (float)Math.Atan(forbiddenRadius / (origin.Value - spawnBox.Center).Length());
@@ -348,7 +337,7 @@ namespace Sandbox.Game.World
                 {
                     if (!MyFinalBuildConstants.IS_OFFICIAL)
                         MySandboxGame.Log.WriteLine("Could not spawn neutral ships: spawn point is inside gravity well");
-                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                    RetryEventWithMaxTry(senderEvent as MyGlobalEventBase);
                     ProfilerShort.End();
                     return;
                 }
@@ -356,7 +345,7 @@ namespace Sandbox.Game.World
                 {
                     if (!MyFinalBuildConstants.IS_OFFICIAL)
                         MySandboxGame.Log.WriteLine("Could not spawn neutral ships: destination point is inside gravity well");
-                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                    RetryEventWithMaxTry(senderEvent as MyGlobalEventBase);
                     ProfilerShort.End();
                     return;
                 }
@@ -364,7 +353,7 @@ namespace Sandbox.Game.World
                 {
                     if (!MyFinalBuildConstants.IS_OFFICIAL)
                         MySandboxGame.Log.WriteLine("Could not spawn neutral ships: flight path intersects gravity well");
-                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                    RetryEventWithMaxTry(senderEvent as MyGlobalEventBase);
                     ProfilerShort.End();
                     return;
                 }
@@ -374,7 +363,7 @@ namespace Sandbox.Game.World
                 {
                     if (!MyFinalBuildConstants.IS_OFFICIAL)
                         MySandboxGame.Log.WriteLine("Could not spawn neutral ships due to collision");
-                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                    RetryEventWithMaxTry(senderEvent as MyGlobalEventBase);
                     ProfilerShort.End();
                     return;
                 }
@@ -388,7 +377,7 @@ namespace Sandbox.Game.World
                     {
                         if (!MyFinalBuildConstants.IS_OFFICIAL)
                             MySandboxGame.Log.WriteLine("Could not spawn neutral ships due to collision");
-                        MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                        RetryEventWithMaxTry(senderEvent as MyGlobalEventBase);
                         ProfilerShort.End();
                         return;
                     }
@@ -452,7 +441,7 @@ namespace Sandbox.Game.World
                 ProfilerShort.End();
                 ProfilerShort.End();
             }
-
+            m_eventSpawnTry = 0;
             ProfilerShort.End();
         }
 
@@ -469,6 +458,22 @@ namespace Sandbox.Game.World
                     }
                 }
             }
+
+        private static void RetryEventWithMaxTry(MyGlobalEventBase evt)
+        {
+            if (++m_eventSpawnTry <= EVENT_SPAWN_TRY_MAX)
+            {
+                MySandboxGame.Log.WriteLine("Could not spawn event. Try " + m_eventSpawnTry + " of " + EVENT_SPAWN_TRY_MAX);
+
+                MyGlobalEvents.RescheduleEvent(evt, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                return;
+            }
+            else
+            {
+                m_eventSpawnTry = 0;
+                return;
+            }
+        }
 
         }
     }

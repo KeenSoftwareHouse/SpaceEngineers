@@ -94,7 +94,7 @@ namespace Sandbox.Game.SessionComponents
             {
                 m_someoneWon = true;
                 MyAnalyticsHelper.ReportTutorialEnd();
-                MyTutorialHelper.MissionSuccess();
+                //MyTutorialHelper.MissionSuccess();
             }
             return mtrig.Lost;
         }

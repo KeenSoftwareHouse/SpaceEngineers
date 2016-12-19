@@ -157,7 +157,7 @@ namespace Sandbox.Game.Entities.Cube
             if (CopiedGrids.Count < 1) 
                 return false;
 
-            if (MySession.Static.IsAdminModeEnabled(Sync.MyId))
+            if (MySession.Static.CreativeToolsEnabled(Sync.MyId))
                 return true;
 
             MyCubeBuilder.BuildComponent.GetMultiBlockPlacementMaterials(m_multiBlockDefinition);
@@ -363,12 +363,6 @@ namespace Sandbox.Game.Entities.Cube
             m_visible = false;
             m_canBePlaced = false;
 
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
-            {
-                m_visible = false;
-                return;
-            }
-
             if (MyCubeBuilder.Static.DynamicMode)
             {
                 m_visible = true;
@@ -533,7 +527,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 m_touchingGrids.Add(null);
 
-                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding && !MySession.Static.IsAdminModeEnabled(Sync.MyId))
+                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding && !MySession.Static.CreativeToolsEnabled(Sync.MyId))
                 {
                     if (i == 0 && MyCubeBuilder.CameraControllerSpectator)
                     {
@@ -826,7 +820,7 @@ namespace Sandbox.Game.Entities.Cube
 
             base.SetupDragDistance();
 
-            if (MySession.Static.SurvivalMode && !MySession.Static.IsAdminModeEnabled(Sync.MyId))
+            if (MySession.Static.SurvivalMode && !MySession.Static.CreativeToolsEnabled(Sync.MyId))
                 m_dragDistance = MyCubeBuilder.IntersectionDistance;
         }
 

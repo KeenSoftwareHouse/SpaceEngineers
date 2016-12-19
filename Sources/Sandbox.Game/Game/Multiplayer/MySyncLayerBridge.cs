@@ -20,6 +20,7 @@ using VRage.Library.Collections;
 using VRage.Network;
 using VRage;
 using Sandbox.Game.Replication;
+using VRage.Library.Utils;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -161,9 +162,10 @@ namespace Sandbox.Game.Multiplayer
             packet.Sender = MyEventContext.Current.Sender;
             if (packet.Sender.IsNull)
                 packet.Sender = new EndpointId(Sync.MyId);
-            packet.Timestamp = TimeSpan.Zero;
+            packet.Timestamp = MyTimeSpan.Zero;
             packet.PayloadOffset = 0;
             packet.PayloadLength = (int)m_sender.ReceiveStream.Position;
+            packet.ReceivedTime = MyTimeSpan.FromTicks(Stopwatch.GetTimestamp());
             TransportLayer.HandleOldGameEvent(packet);
         }
     }

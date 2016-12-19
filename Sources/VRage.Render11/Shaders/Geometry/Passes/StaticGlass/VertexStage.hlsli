@@ -11,4 +11,5 @@ void __vertex_shader(__VertexInput input, out VertexStageOutput output)
     output.positionw = vertex.position_local.xyz;
     output.normal = custom.normal;
     output.texcoord = custom.texcoord0;
+    output.custom_alpha = vertex.custom_alpha;
 }

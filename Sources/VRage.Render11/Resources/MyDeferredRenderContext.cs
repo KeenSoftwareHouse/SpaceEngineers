@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using VRage.Collections;
 using VRage.Render11.Common;
+using VRage.Render11.GeometryStage2.Rendering;
 using VRage.Render11.RenderContext;
 using VRageRender;
 
@@ -8,16 +9,17 @@ namespace VRage.Render11.Resources
 {
     internal class MyDeferredRenderContextManager: IManager, IManagerDevice
     {
-        static int m_poolSize;
-
         MyConcurrentPool<MyRenderContext> m_pool;
         bool m_isDeviceInit = false;
         static List<MyRenderContext> m_tmpList = new List<MyRenderContext>();
+        public static int MaxDeferredRCsCount 
+        {
+            get { return MyPassIdResolver.AllPassesCount; }
+        }
 
         static MyDeferredRenderContextManager()
         {
             int processorCount = VRage.Library.MyEnvironment.ProcessorCount;
-            m_poolSize = processorCount > 8 ? processorCount : 8;
         }
 
         public MyRenderContext AcquireRC()
@@ -34,14 +36,9 @@ namespace VRage.Render11.Resources
             m_pool.Return(rc);
         }
 
-        public int GetRCsCount()
-        {
-            return m_poolSize;
-        }
-
         public void OnDeviceInit()
         {
-            m_pool = new MyConcurrentPool<MyRenderContext>(m_poolSize, true);
+            m_pool = new MyConcurrentPool<MyRenderContext>(MaxDeferredRCsCount, true);
             
             // Initialize all RCs
             m_tmpList.Clear();

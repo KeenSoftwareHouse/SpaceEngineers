@@ -66,7 +66,6 @@ namespace Sandbox.Game.Weapons
         {
             SecondaryLightIntensityLower = 0.4f;
             SecondaryLightIntensityUpper = 0.4f;
-            EffectId = MyParticleEffectsIDEnum.AngleGrinder;
             EffectScale = 0.6f;
 
             HasCubeHighlight = true;
@@ -102,8 +101,6 @@ namespace Sandbox.Game.Weapons
                 {
                     if (toolSound.subtype.Equals("Idle"))
                         m_idleSound = new MySoundPair(toolSound.sound);
-                    if (toolSound.subtype.Equals("Soundset"))
-                        m_source = MyStringHash.GetOrCompute(toolSound.sound);
                 }
             }
         }
@@ -122,6 +119,8 @@ namespace Sandbox.Game.Weapons
 
             int timeDelta = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            if (!m_activated)
+                EffectId = null;
 
             if (m_activated && m_rotationSpeed < GRINDER_MAX_SPEED_RPM)
             {
@@ -208,6 +207,7 @@ namespace Sandbox.Game.Weapons
         {
             var block = GetTargetBlock();
             MyStringHash target = m_metal;
+            EffectId = null;
             if (block != null && (!(MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode) || block.CubeGrid.BlocksDestructionEnabled))
             {
                 float hackMultiplier = 1.0f;
@@ -278,18 +278,20 @@ namespace Sandbox.Game.Weapons
                     m_lastItemId = itemId;
                     m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                 }
-                if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime > 1500 / m_speedMultiplier)
+                if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime > MyDebrisConstants.CUT_TREE_IN_MILISECONDS / m_speedMultiplier)
                 {
                     var sectorProxy = sector.GetModule<MyBreakableEnvironmentProxy>();
                     sectorProxy.BreakAt(itemId, m_raycastComponent.HitPosition, Vector3D.Zero, 0);
                     m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                     m_lastItemId = 0;
                 }
+                target = MyStringHash.GetOrCompute("Wood");
             }
 
             if (block != null || targetDestroyable != null)
             {
-                m_actualSound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_source, target);
+                m_actualSound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_handItemDef.ToolMaterial, target);
+                EffectId = MyMaterialPropertiesHelper.Static.GetCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Start, m_handItemDef.ToolMaterial, target);
             }
         }
 

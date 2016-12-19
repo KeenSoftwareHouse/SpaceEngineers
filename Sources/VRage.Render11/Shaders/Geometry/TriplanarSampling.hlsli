@@ -51,9 +51,9 @@ float4 sample_normal_gloss_triplanar(Texture2DArray<float4> tex, int sliceIndexX
 	float3 nx = nm_gloss_x.xyz * 2 - 1;
 	float3 ny = nm_gloss_y.xyz * 2 - 1;
 	float3 nz = nm_gloss_z.xyz * 2 - 1;
-    nx.y = -nx.y;
-    ny.y = -ny.y;
-    nz.y = -nz.y;
+    nx.x = -nx.x;
+    ny.x = -ny.x;
+    nz.x = -nz.x;
 
 #ifdef SIMPLE_NORMALMAPPING
     nx = float3(nx.z, nx.y, nx.x);

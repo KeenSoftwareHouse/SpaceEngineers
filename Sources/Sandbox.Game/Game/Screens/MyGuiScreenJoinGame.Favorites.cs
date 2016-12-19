@@ -111,6 +111,7 @@ namespace Sandbox.Game.Gui
 
         void OnFavoritesServerListResponded(int server)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnFavoritesServerListResponded");
             GameServerItem serverItem = SteamAPI.Instance.GetFavoritesServerDetails(server);
             AddServerItem(serverItem, 
                 delegate() 
@@ -118,11 +119,14 @@ namespace Sandbox.Game.Gui
                     m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_Favorites).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
                 },
                 isFiltered: false);
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void OnFavoritesServersCompleteResponse(MatchMakingServerResponseEnum response)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnFavoritesServersCompleteResponse");
             CloseFavoritesRequest();
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void CloseFavoritesRequest()

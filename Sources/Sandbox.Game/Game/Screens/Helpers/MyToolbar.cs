@@ -609,14 +609,16 @@ namespace Sandbox.Game.Screens.Helpers
         {
             var itemToActivate = m_items[index];
             if (StagedSelectedSlot.HasValue && SlotToIndex(StagedSelectedSlot.Value) != index)
-                    StagedSelectedSlot = null;
+                StagedSelectedSlot = null;
             if (itemToActivate != null && itemToActivate.Enabled)
             {
                 if (checkIfWantsToBeActivated && !itemToActivate.WantsToBeActivated)
                     return false;
+
                 if (itemToActivate.WantsToBeActivated || MyCubeBuilder.Static.IsActivated)
                 {
-                    Unselect(false);
+                    if (SelectedItem != itemToActivate)
+                        Unselect(false);
                 }
                 return itemToActivate.Activate();
             }
@@ -632,6 +634,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (SelectedItem != null && unselectSound)
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
 
+            if (unselectSound)
                 MySession.Static.GameFocusManager.Clear();
 
             var controlledObject = MySession.Static.ControlledEntity;

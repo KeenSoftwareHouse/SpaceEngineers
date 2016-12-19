@@ -1,10 +1,10 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using VRage.Library.Collections;
 using VRageMath;
 using Matrix = VRageMath.Matrix;
 using BoundingBox = VRageMath.BoundingBox;
 using VRage.Utils;
+using VRage.Render11.GeometryStage2.Instancing;
 
 
 namespace VRageRender
@@ -21,9 +21,9 @@ namespace VRageRender
         private bool m_renderProxyDirty;
         private bool m_visible;
 
-        #endregion // Fields
-
         private readonly MyIndexedComponentContainer<MyActorComponent> m_components = new MyIndexedComponentContainer<MyActorComponent>();
+
+        #endregion // Fields
 
         public bool IsVisible { get { return m_visible; } }
 
@@ -80,24 +80,6 @@ namespace VRageRender
         internal uint ID { get { return m_ID.ID; } }
 
         internal bool IsDestroyed { get { return m_ID == null; } }
-
-        internal void MarkRenderDirty()
-        {
-            if (IsDestroyed)
-                return;
-
-            var renderableComponent = GetRenderable();
-            if (renderableComponent != null)
-            {
-                m_renderProxyDirty = true;
-                MyRender11.PendingComponentsToUpdate.Add(renderableComponent);
-            }
-        }
-
-        internal void MarkRenderClean()
-        {
-            m_renderProxyDirty = false;
-        }
 
         internal void SetLocalAabb(BoundingBox localAabb)
         {
@@ -160,8 +142,8 @@ namespace VRageRender
         internal void AddComponent<T>(MyActorComponent component) where T : MyActorComponent
         {
             // only flat hierarchy 
-            Debug.Assert(component.Type != MyActorComponentEnum.GroupLeaf || GetGroupRoot() == null);
-            Debug.Assert(component.Type != MyActorComponentEnum.GroupRoot || GetGroupLeaf() == null);
+            Debug.Assert(component.Type != MyActorComponentEnum.GroupLeaf || GetComponent<MyGroupRootComponent>() == null);
+            Debug.Assert(component.Type != MyActorComponentEnum.GroupRoot || GetComponent<MyGroupLeafComponent>() == null);
 
             component.Assign(this);
             m_components.Add(typeof(T), component);
@@ -178,34 +160,61 @@ namespace VRageRender
             return m_components.TryGetComponent<T>();
         }
 
-        internal MyRenderableComponent GetRenderable()
+        // REMOVE-ME: Bevavior on rendering should not be controlled directly on actor, but on its component
+        internal void MarkRenderDirty()
         {
-            return GetComponent<MyRenderableComponent>();
+            if (IsDestroyed)
+                return;
+
+            var renderableComponent = GetComponent<MyRenderableComponent>();
+            if (renderableComponent != null)
+            {
+                m_renderProxyDirty = true;
+                MyRender11.PendingComponentsToUpdate.Add(renderableComponent);
+            }
         }
 
-        internal MyFoliageComponent GetFoliage()
+        internal void MarkRenderClean()
         {
-            return GetComponent<MyFoliageComponent>();
+            m_renderProxyDirty = false;
+        }
+    }
+
+    static class ActorExtensions
+    {
+        public static MyRenderableComponent GetRenderable(this MyActor actor)
+        {
+            return actor.GetComponent<MyRenderableComponent>();
         }
 
-        internal MySkinningComponent GetSkinning()
+        public static MyInstanceComponent GetInstance(this MyActor actor)
         {
-            return GetComponent<MySkinningComponent>();
+            return actor.GetComponent<MyInstanceComponent>();
         }
 
-        internal MyGroupRootComponent GetGroupRoot()
+        public static MyFoliageComponent GetFoliage(this MyActor actor)
         {
-            return GetComponent<MyGroupRootComponent>();
+            return actor.GetComponent<MyFoliageComponent>();
         }
 
-        internal MyGroupLeafComponent GetGroupLeaf()
+        public static MySkinningComponent GetSkinning(this MyActor actor)
         {
-            return GetComponent<MyGroupLeafComponent>();
+            return actor.GetComponent<MySkinningComponent>();
         }
 
-        internal MyInstanceLodComponent GetInstanceLod()
+        public static MyGroupRootComponent GetGroupRoot(this MyActor actor)
         {
-            return GetComponent<MyInstanceLodComponent>();
+            return actor.GetComponent<MyGroupRootComponent>();
+        }
+
+        public static MyGroupLeafComponent GetGroupLeaf(this MyActor actor)
+        {
+            return actor.GetComponent<MyGroupLeafComponent>();
+        }
+
+        public static MyInstanceLodComponent GetInstanceLod(this MyActor actor)
+        {
+            return actor.GetComponent<MyInstanceLodComponent>();
         }
     }
 }

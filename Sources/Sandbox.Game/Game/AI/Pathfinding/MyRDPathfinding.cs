@@ -59,6 +59,13 @@ namespace Sandbox.Game.AI.Pathfinding
             // FOR DEBUG DRAW
             var path = new MyRDPath(this, begin, end);
 
+            Vector3D targetPos;
+            float targetRadius;
+            VRage.ModAPI.IMyEntity relEnt;
+            // If no next target, path is not found
+            if (!path.GetNextTarget(begin, out targetPos, out targetRadius, out relEnt))
+                path = null;
+
             return path;
         }
 

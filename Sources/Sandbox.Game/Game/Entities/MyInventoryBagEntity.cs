@@ -99,7 +99,7 @@ namespace Sandbox.Game.Entities
 
             if (Physics != null)
             {
-                Physics.RigidBody.Gravity = m_gravity*Sync.RelativeSimulationRatio;
+                Physics.RigidBody.Gravity = m_gravity;
             }
         }
 

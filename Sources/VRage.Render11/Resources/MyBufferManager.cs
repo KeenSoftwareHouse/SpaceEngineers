@@ -69,6 +69,8 @@ namespace VRage.Render11.Resources
         public string Name;
         public int TotalBuffers;
         public int TotalBytes;
+        public int TotalBuffersPeak;
+        public int TotalBytesPeak;
     }
 
     class MyBufferManager : IManager, IManagerDevice
@@ -80,15 +82,14 @@ namespace VRage.Render11.Resources
             MyBufferStatistics Statistics { get; }
 
             int ActiveCount { get; }
-            IEnumerable<IBuffer> ActiveBuffers { get; }
+            //IEnumerable<IBuffer> ActiveBuffers { get; }
             void DisposeAll();
         }
 
-        class MyBufferPool<T> : MyObjectsPool<T>, IMyBufferPool
+        class MyBufferPool<T> : MyConcurrentObjectsPool<T>, IMyBufferPool
             where T : class, IBuffer, new()
         {
             private MyBufferStatistics m_statistics;
-
 
             public MyBufferPool(string name, int baseCapacity)
                 : base(baseCapacity)
@@ -106,14 +107,12 @@ namespace VRage.Render11.Resources
             }
 
             int IMyBufferPool.ActiveCount { get { return ActiveCount; } }
-            public IEnumerable<IBuffer> ActiveBuffers { get { return Active.AsEnumerable(); } }
+
+            Action<T> m_actionDisposeInternal = delegate(T buffer) { buffer.DisposeInternal(); };
 
             public void DisposeAll()
             {
-                foreach (var activeBuffer in Active)
-                {
-                    activeBuffer.Dispose();
-                }
+                ApplyActionOnAllActives(m_actionDisposeInternal);
 
                 DeallocateAll();
             }
@@ -122,26 +121,24 @@ namespace VRage.Render11.Resources
 
             #region Logging
 
-            public void LogAllocate(IBuffer buffer)
+            public void LogAllocate(ref BufferDescription description)
             {
                 m_statistics.TotalBuffers++;
-                m_statistics.TotalBytes += buffer.Description.SizeInBytes;
-            }
-
-            public void LogResize(IBuffer originalBuffer, ref BufferDescription newDescription)
-            {
-                // TODO!
-            }
-
-            public void LogResizeSkip(IBuffer originalBuffer, ref BufferDescription newDescription)
-            {
-                // TODO!
+                m_statistics.TotalBytes += description.SizeInBytes;
+                m_statistics.TotalBuffersPeak = Math.Max(m_statistics.TotalBuffersPeak, m_statistics.TotalBuffers);
+                m_statistics.TotalBytesPeak = Math.Max(m_statistics.TotalBytesPeak, m_statistics.TotalBytes);
             }
 
             public void LogDispose(IBuffer buffer)
             {
                 m_statistics.TotalBuffers--;
                 m_statistics.TotalBytes -= buffer.Description.SizeInBytes;
+            }
+
+            public void LogResize(IBuffer originalBuffer, ref BufferDescription newDescription)
+            {
+                LogDispose(originalBuffer);
+                LogAllocate(ref newDescription);
             }
 
             #endregion
@@ -194,7 +191,7 @@ namespace VRage.Render11.Resources
 
         #region Creation
 
-        TBuffer CreateInternal<TBuffer>(string name, ref BufferDescription description, IntPtr? initData, Action<TBuffer> initializer = null, bool log = true)
+        TBuffer CreateInternal<TBuffer>(string name, ref BufferDescription description, IntPtr? initData, Action<TBuffer> initializer = null)
             where TBuffer : MyBufferInternal, new()
         {
             //Debug.Assert(m_isDeviceInit, "Cannot modify buffer resources when the device has not been initialized!");
@@ -209,8 +206,7 @@ namespace VRage.Render11.Resources
 
             buffer.Init(name, ref description, initData);
 
-            if (log)
-                pool.LogAllocate(buffer);
+            pool.LogAllocate(ref description);
 
             return buffer;
         }
@@ -362,14 +358,13 @@ namespace VRage.Render11.Resources
                 && buffer.Description.StructureByteStride == description.StructureByteStride
                 && newData == null)
             {
-                pool.LogResizeSkip(buffer, ref description);
                 return;
             }
 
             pool.LogResize(buffer, ref description); // We have to log before Init
 
             string name = buffer.Name;
-            buffer.Dispose();
+            buffer.DisposeInternal();
 
             if (initializer != null)
                 initializer(buffer);
@@ -425,7 +420,7 @@ namespace VRage.Render11.Resources
 
         #region Disposal
 
-        void DisposeInternal<TBuffer>(TBuffer buffer, bool log = true)
+        public void DisposeInternal<TBuffer>(TBuffer buffer)
             where TBuffer : MyBufferInternal, new()
         {
             //Debug.Assert(m_isDeviceInit, "Cannot modify buffer resources when the device has not been initialized!");
@@ -435,10 +430,9 @@ namespace VRage.Render11.Resources
 
             var pool = GetPool<TBuffer>();
 
-            if (log)
-                pool.LogDispose(buffer);
+            pool.LogDispose(buffer);
 
-            buffer.Dispose();
+            buffer.DisposeInternal();
             pool.Deallocate(buffer);
         }
 

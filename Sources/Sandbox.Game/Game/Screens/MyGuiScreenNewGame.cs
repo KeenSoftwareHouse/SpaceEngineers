@@ -43,21 +43,22 @@ namespace Sandbox.Game.Screens
         private MyGuiControlCheckbox        m_onlineMode;
 
         private MyGuiControlMultilineText   m_descriptionMultilineText;
+        private MyGuiControlPanel           m_descriptionPanel;
 
         private MyGuiControlButton          m_publishButton;
 
         #endregion
 
-        float MARGIN_TOP = 0.12f;
-        float MARGIN_BOTTOM = 0.12f;
-        float MARGIN_LEFT = 0.3f;
-        float MARGIN_RIGHT =0.075f;
+        float MARGIN_TOP = 0.18f;
+        float MARGIN_BOTTOM = 0.11f;
+        float MARGIN_LEFT_INFO = 0.23f;
+        float MARGIN_RIGHT = 0.03f;
+        float MARGIN_LEFT_LIST = 0.015f;
 
         public MyGuiScreenNewGame()
             : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.9f, 0.97f))
         {
             EnabledBackgroundFade = true;
-
             RecreateControls(true);
         }
 
@@ -79,7 +80,9 @@ namespace Sandbox.Game.Screens
                 )
             );
 
-            AddCaption(MyCommonTexts.ScreenMenuButtonCampaign);
+            //AddCaption(MyCommonTexts.ScreenMenuButtonCampaign);
+
+            new MyGuiControlScreenSwitchPanel(this, MyTexts.Get(MyCommonTexts.NewGameScreen_Description));
 
             InitCampaignList();
             InitRightSide();
@@ -89,14 +92,35 @@ namespace Sandbox.Game.Screens
 
         public override bool Update(bool hasFocus)
         {
-            m_publishButton.Enabled = m_selectedCampaign != null && m_selectedCampaign.IsLocalMod;
+            var prevVisibilityValue = m_publishButton.Visible;
+            m_publishButton.Visible = m_selectedCampaign != null && m_selectedCampaign.IsLocalMod;
+
+            if (prevVisibilityValue != m_publishButton.Visible)
+            {
+                if (!m_publishButton.Visible)
+                {
+                    m_descriptionMultilineText.Size = new Vector2(
+                        m_descriptionMultilineText.Size.X, m_descriptionMultilineText.Size.Y + m_publishButton.Size.Y);
+
+                    m_descriptionPanel.Size = new Vector2(
+                        m_descriptionPanel.Size.X, m_descriptionPanel.Size.Y + m_publishButton.Size.Y);
+                }
+                else
+                {
+                    m_descriptionMultilineText.Size = new Vector2(
+                        m_descriptionMultilineText.Size.X, m_descriptionMultilineText.Size.Y - m_publishButton.Size.Y);
+
+                    m_descriptionPanel.Size = new Vector2(
+                        m_descriptionPanel.Size.X, m_descriptionPanel.Size.Y - m_publishButton.Size.Y);
+                }
+            }
 
             return base.Update(hasFocus);
         }
 
         private void InitCampaignList()
         {
-            Vector2 originL = -m_size.Value / 2 + new Vector2(0.07f, MARGIN_TOP);
+            Vector2 originL = -m_size.Value / 2 + new Vector2(MARGIN_LEFT_LIST, MARGIN_TOP);
 
             m_campaignTypesGroup = new MyGuiControlRadioButtonGroup();
             m_campaignTypesGroup.SelectedChanged += CampaignSelectionChanged;
@@ -105,24 +129,24 @@ namespace Sandbox.Game.Screens
             {
               OriginAlign  = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
               Position = originL,
-              Size = new Vector2(0.19f, m_size.Value.Y - 0.03f - MARGIN_TOP),
+              Size = new Vector2(MyGuiConstants.LISTBOX_WIDTH, m_size.Value.Y - 0.02f - MARGIN_TOP),
             };
 
-            var separator = new MyGuiControlSeparatorList()
-            {
-                Size = new Vector2(0.03f, m_campaignList.Size.Y),
-                OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                Position = m_campaignList.Position + new Vector2(m_campaignList.Size.X + 0.015f, 0f)
-            };
-            separator.AddVertical(new Vector2(0f, -m_campaignList.Size.Y/2), separator.Size.Y);
+            //var separator = new MyGuiControlSeparatorList()
+            //{
+            //    Size = new Vector2(0.03f, m_campaignList.Size.Y),
+            //    OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+            //    Position = m_campaignList.Position + new Vector2(m_campaignList.Size.X + 0.015f, 0f)
+            //};
+            //separator.AddVertical(new Vector2(0f, -m_campaignList.Size.Y/2), separator.Size.Y);
 
-            Controls.Add(separator);
+            //Controls.Add(separator);
             Controls.Add(m_campaignList);
         }
 
         private void CampaignSelectionChanged(MyGuiControlRadioButtonGroup args)
         {
-            var button = args.SelectedButton as MyGuiControlCampaignButton;
+            var button = args.SelectedButton as MyGuiControlContentButton;
             if (button != null)
             {
                 var campaign = button.UserData as MyObjectBuilder_Campaign;
@@ -148,11 +172,11 @@ namespace Sandbox.Game.Screens
 
         private void InitRightSide()
         {
-            var originL = -m_size.Value / 2 + new Vector2(MARGIN_LEFT, MARGIN_TOP);
+            var originL = -m_size.Value / 2 + new Vector2(MARGIN_LEFT_INFO, MARGIN_TOP);
 
             var screenSize = m_size.Value;
-            var layoutSize = new Vector2(screenSize.X / 2 - originL.X, screenSize.Y - MARGIN_TOP - MARGIN_BOTTOM) - new Vector2(0.05f, 0.05f);
-            var columnWidthLabel = layoutSize.X * 0.4f;
+            var layoutSize = new Vector2(screenSize.X / 2 - originL.X, screenSize.Y - MARGIN_TOP - MARGIN_BOTTOM) - new Vector2(MARGIN_RIGHT, 0.05f);
+            var columnWidthLabel = layoutSize.X * 0.43f;
             var columnWidthControl = layoutSize.X - columnWidthLabel;
             var rowHeight = 0.052f;
             var leftHeight = layoutSize.Y - 4 * rowHeight;
@@ -216,7 +240,7 @@ namespace Sandbox.Game.Screens
                 TextBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP
             };
 
-            var panel = new MyGuiControlCompositePanel
+            m_descriptionPanel = new MyGuiControlCompositePanel
             {
                 BackgroundTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK,
             };
@@ -230,22 +254,28 @@ namespace Sandbox.Game.Screens
             m_tableLayout.AddWithSize(m_difficultyCombo, MyAlignH.Left, MyAlignV.Center, 2, 1);
             m_tableLayout.AddWithSize(m_onlineMode, MyAlignH.Left, MyAlignV.Center, 3, 1);
 
-            m_tableLayout.AddWithSize(panel, MyAlignH.Left, MyAlignV.Top, 4, 0, 1, 2);
+            m_tableLayout.AddWithSize(m_descriptionPanel, MyAlignH.Left, MyAlignV.Top, 4, 0, 1, 2);
             m_tableLayout.AddWithSize(m_descriptionMultilineText, MyAlignH.Left, MyAlignV.Top, 4, 0, 1, 2);
 
             // Panel offset from text
             var bothSidesOffset = 0.003f;
-            panel.Position = new Vector2(panel.PositionX - bothSidesOffset, panel.PositionY - bothSidesOffset);
-            panel.Size = new Vector2(panel.Size.X + bothSidesOffset, panel.Size.Y + bothSidesOffset * 2);
+            m_descriptionPanel.Position = new Vector2(m_descriptionPanel.PositionX - bothSidesOffset, m_descriptionPanel.PositionY - bothSidesOffset);
+            m_descriptionPanel.Size = new Vector2(m_descriptionPanel.Size.X + bothSidesOffset, m_descriptionPanel.Size.Y + bothSidesOffset * 2);
 
             // The bulgarian constant is offset from side to match the size of the layout
-            var buttonsOrigin = panel.Position + new Vector2(panel.Size.X, panel.Size.Y + 0.02f);
+            var buttonsOrigin = m_size.Value / 2; buttonsOrigin.X -= MARGIN_RIGHT; buttonsOrigin.Y -= 0.03f;
             var buttonSize = MyGuiConstants.BACK_BUTTON_SIZE;
-            var buttonHorizontalSpacing = 0.02f;
+            var buttonHorizontalPadding = MyGuiConstants.GENERIC_BUTTON_SPACING.X;
+            var buttonVerticalPadding = MyGuiConstants.GENERIC_BUTTON_SPACING.Y;
             // Ok/Cancel/Publish
-            m_publishButton = new MyGuiControlButton(position: buttonsOrigin, size: buttonSize, text: MyTexts.Get(MyCommonTexts.LoadScreenButtonPublish), onButtonClick: OnPublishButtonOnClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
-            var cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0, buttonSize.Y), size: buttonSize, text: MyTexts.Get(MyCommonTexts.Cancel), onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
-            var okButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(-buttonSize.X - buttonHorizontalSpacing, buttonSize.Y), size: buttonSize, text: MyTexts.Get(MyCommonTexts.Ok), onButtonClick: OnOkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
+            m_publishButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0, buttonSize.Y + buttonVerticalPadding), size: buttonSize, text: MyTexts.Get(MyCommonTexts.LoadScreenButtonPublish), onButtonClick: OnPublishButtonOnClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            var cancelButton = new MyGuiControlButton(position: buttonsOrigin, size: buttonSize, text: MyTexts.Get(MyCommonTexts.Cancel), onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            var okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(cancelButton.Size.X + buttonHorizontalPadding, 0), size: buttonSize, text: MyTexts.Get(MyCommonTexts.Ok), onButtonClick: OnOkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+
+            // Start hidden, because shrinking
+            m_publishButton.Visible = false;
+            m_descriptionPanel.Size = new Vector2(m_descriptionPanel.Size.X, m_descriptionPanel.Size.Y + MyGuiConstants.BACK_BUTTON_SIZE.Y);
+            m_descriptionMultilineText.Size = new Vector2(m_descriptionMultilineText.Size.X, m_descriptionMultilineText.Size.Y + MyGuiConstants.BACK_BUTTON_SIZE.Y);
 
             Controls.Add(m_publishButton);
             Controls.Add(okButton);
@@ -286,9 +316,11 @@ namespace Sandbox.Game.Screens
         private void RefreshCampaignList()
         {
             var campaigns = MyCampaignManager.Static.Campaigns;
-            List<MyObjectBuilder_Campaign> vanilla = new List<MyObjectBuilder_Campaign>();
-            List<MyObjectBuilder_Campaign> localMods = new List<MyObjectBuilder_Campaign>();
-            List<MyObjectBuilder_Campaign> mods = new List<MyObjectBuilder_Campaign>();
+            var vanilla = new List<MyObjectBuilder_Campaign>();
+            var localMods = new List<MyObjectBuilder_Campaign>();
+            var mods = new List<MyObjectBuilder_Campaign>();
+            var debug = new List<MyObjectBuilder_Campaign>();
+
 
             foreach (var campaign in campaigns)
             {
@@ -296,6 +328,8 @@ namespace Sandbox.Game.Screens
                     vanilla.Add(campaign);
                 else if(campaign.IsLocalMod)
                     localMods.Add(campaign);
+                else if(campaign.IsDebug)
+                    debug.Add(campaign);
                 else
                     mods.Add(campaign);
             }
@@ -303,14 +337,20 @@ namespace Sandbox.Game.Screens
             m_campaignList.Controls.Clear();
             m_campaignTypesGroup.Clear();
 
+            if (!MyFinalBuildConstants.IS_OFFICIAL)
+            {
+                AddSeparator("DEBUG");
+                foreach (var campaign in debug)
+                {
+                    AddCampaignButton(campaign);
+                }
+            }
+
             AddSeparator("Official");
 
             foreach (var campaign in vanilla)
             {
-                var button = new MyGuiControlCampaignButton(campaign.Name, GetImagePath(campaign));
-                button.UserData = campaign;
-                m_campaignTypesGroup.Add(button);
-                m_campaignList.Controls.Add(button);
+                AddCampaignButton(campaign);
             }
 
             if(mods.Count > 0)
@@ -318,11 +358,7 @@ namespace Sandbox.Game.Screens
 
             foreach (var campaign in mods)
             {
-                var button = new MyGuiControlCampaignButton(campaign.Name, GetImagePath(campaign));
-                button.UserData = campaign;
-                button.IsWorkshopMod = true;
-                m_campaignTypesGroup.Add(button);
-                m_campaignList.Controls.Add(button);
+                AddCampaignButton(campaign, isWorkshopMod: true);
             }
 
             if(localMods.Count > 0)
@@ -330,12 +366,20 @@ namespace Sandbox.Game.Screens
 
             foreach (var campaign in localMods)
             {
-                var button = new MyGuiControlCampaignButton(campaign.Name, GetImagePath(campaign));
-                button.UserData = campaign;
-                button.IsLocalMod = true;
-                m_campaignTypesGroup.Add(button);
-                m_campaignList.Controls.Add(button);
+                AddCampaignButton(campaign, isLocalMod: true);
             }
+        }
+
+        private void AddCampaignButton(MyObjectBuilder_Campaign campaign, bool isLocalMod = false, bool isWorkshopMod = false)
+        {
+            var button = new MyGuiControlContentButton(campaign.Name, GetImagePath(campaign))
+            {
+                UserData = campaign,
+                IsLocalMod = isLocalMod,
+                IsWorkshopMod = isWorkshopMod,
+            };
+            m_campaignTypesGroup.Add(button);
+            m_campaignList.Controls.Add(button);
         }
 
         private string GetImagePath(MyObjectBuilder_Campaign campaign)
@@ -347,7 +391,7 @@ namespace Sandbox.Game.Screens
 
             if (!campaign.IsVanilla)
             {
-                imagePath = Path.Combine(campaign.ModFolderPath, campaign.ImagePath);
+                imagePath = campaign.ModFolderPath != null ? Path.Combine(campaign.ModFolderPath, campaign.ImagePath) : string.Empty;
                 if (!MyFileSystem.FileExists(imagePath))
                 {
                     imagePath = Path.Combine(MyFileSystem.ContentPath, campaign.ImagePath);

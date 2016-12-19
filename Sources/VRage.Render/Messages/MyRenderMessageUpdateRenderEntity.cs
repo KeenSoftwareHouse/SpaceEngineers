@@ -7,6 +7,7 @@ namespace VRageRender.Messages
         public uint ID;
         public Color? DiffuseColor;
         public Vector3? ColorMaskHSV;
+        public float Emissivity;
         public float Dithering;
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }

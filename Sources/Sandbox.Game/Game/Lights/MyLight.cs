@@ -113,6 +113,8 @@ namespace Sandbox.Game.Lights
         private BoundingSphereD m_pointBoundingSphere;
 
         private float m_shadowDistance;
+        private float m_glareQueryFreqMinMs;
+        private float m_glareQueryFreqRndMs;
 
         #endregion
 
@@ -555,6 +557,32 @@ namespace Sandbox.Game.Lights
             }
         }
 
+        public float GlareQueryFreqMinMs
+        {
+            get { return m_glareQueryFreqMinMs; }
+            set
+            {
+                if (m_glareQueryFreqMinMs != value)
+                {
+                    m_glareQueryFreqMinMs = value;
+                    m_propertiesDirty = true;
+                }
+            }
+        }
+
+        public float GlareQueryFreqRndMs
+        {
+            get { return m_glareQueryFreqRndMs; }
+            set
+            {
+                if (m_glareQueryFreqRndMs != value)
+                {
+                    m_glareQueryFreqRndMs = value;
+                    m_propertiesDirty = true;
+                }
+            }
+        }
+
         public float GlareIntensity
         {
             get { return m_glareIntensity; }
@@ -777,9 +805,12 @@ namespace Sandbox.Game.Lights
                     Type = GlareType,
                     Size = GlareSize,
                     QuerySize = GlareQuerySize,
+                    QueryFreqMinMs = GlareQueryFreqMinMs,
+                    QueryFreqRndMs = GlareQueryFreqRndMs,
                     Intensity = GlareIntensity,
                     Material = MyStringId.GetOrCompute(GlareMaterial),
                     MaxDistance = GlareMaxDistance,
+                    ParentGID = ParentID,
                 };
 
                 UpdateRenderLightData renderLightData = new UpdateRenderLightData()
@@ -892,6 +923,8 @@ namespace Sandbox.Game.Lights
             Intensity          = 1.0f;
             UseInForwardRender = false;
             GlareOn            = false;
+            GlareQueryFreqMinMs = 150;
+            GlareQueryFreqRndMs = 100;
             PointLightOffset   = 0;
             CastShadows        = true;
             Range              = 0.5f;
@@ -908,13 +941,15 @@ namespace Sandbox.Game.Lights
         {
             if (!m_spotParamsDirty)
                 return;
+            if (ReflectorConeMaxAngleCos == 0)
+                return;
 
             ProfilerShort.Begin("UpdateSpotParams");
             m_spotParamsDirty = false;
             float scaleZ, scaleXY;
             Vector3D position = Position;
             CalculateAABB(ref m_spotBoundingBox, out scaleZ, out scaleXY, position, m_reflectorDirection, m_reflectorUp, ReflectorConeMaxAngleCos, ReflectorRange);
-            m_spotWorld = Matrix.CreateScale(scaleXY, scaleXY, scaleZ) * Matrix.CreateWorld(Position, ReflectorDirection, ReflectorUp);
+            m_spotWorld = MatrixD.CreateScale(scaleXY, scaleXY, scaleZ) * MatrixD.CreateWorld(Position, ReflectorDirection, ReflectorUp);
             ProfilerShort.End();
         }
 

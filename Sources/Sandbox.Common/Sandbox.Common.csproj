@@ -308,6 +308,7 @@
     <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlTitleTool.cs" />
     <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalValueControl.cs" />
     <Compile Include="ModAPI\MyAPIGateway.cs" />
+    <Compile Include="ModAPI\Ingame\MyDetectedEntityInfo.cs" />
     <Compile Include="ModAPI\MyWhitelistTarget.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -485,6 +485,7 @@ namespace Sandbox.Game.Multiplayer
         {
             if (Sync.IsServer && MyVisualScriptLogicProvider.PlayerConnected != null)
                 MyVisualScriptLogicProvider.PlayerConnected(newPlayer.Identity.IdentityId);
+            newPlayer.Identity.LastLoginTime = DateTime.Now;
             m_players.Add(playerId, newPlayer);
             OnPlayersChanged(true, playerId);
         }
@@ -567,7 +568,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 return;
             }
-
+            m_missingControlledEntities.Remove(entityId);
             MyTrace.Send(TraceWindow.Multiplayer, "OnControlChanged to entity: " + entityId, playerId.ToString());
 
             Sync.Players.SetControlledEntityInternal(playerId, entity);
@@ -713,7 +714,7 @@ namespace Sandbox.Game.Multiplayer
         {
             var localHumanPlayerId = new MyPlayer.PlayerId(Sync.MyId, 0);
             var playerId = new MyPlayer.PlayerId(clientSteamId, playerSerialId);
-            if (playerId == localHumanPlayerId && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
+            if (playerId == localHumanPlayerId)
             {
                 if (!MySession.Static.IsScenario || MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
                     MyPlayerCollection.RequestLocalRespawn();
@@ -1080,7 +1081,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 long relatedEntity = spawnedBy.EntityId;
                 Vector3 relativePosition = (newCharacter.WorldMatrix * MatrixD.Invert(spawnedBy.WorldMatrix)).Translation;
-               MyMultiplayer.RaiseEvent(newCharacter, x => x.SpawCharacterRelative, relatedEntity, relativePosition);   
+               MyMultiplayer.RaiseEvent(newCharacter, x => x.SpawnCharacterRelative, relatedEntity, relativePosition);   
             }           
         }
 
@@ -1336,6 +1337,14 @@ namespace Sandbox.Game.Multiplayer
             var playerId = new PlayerId(steamId, serialId);
             m_playerIdentityIds.TryGetValue(playerId, out identityId);
             return identityId;
+        }
+
+        public ulong TryGetSteamId(long identityId)
+        {
+            PlayerId result;
+            if (!TryGetPlayerId(identityId, out result))
+                return 0;
+            return result.SteamId;
         }
 
         public void MarkIdentityAsNPC(long identityId)

@@ -69,6 +69,11 @@ namespace VRage.Profiler
         /// Tries to navigate to the path in the clipboard
         /// </summary>
         TryGoToPathInClipboard,
+
+        GetFomServer,
+        GetFromClient,
+        SaveToFile,
+        LoadFromFile,
     }
 
     /// <summary>
@@ -166,6 +171,10 @@ namespace VRage.Profiler
 
         public static bool Paused = false;
 
+        public static Action<int> GetProfilerFromServer;
+        public static Action<int> SaveProfilerToFile;
+        public static Action<int> LoadProfilerFromFile;
+
         [ThreadStatic]
         static MyProfiler m_threadProfiler;
         static MyProfiler m_gpuProfiler;
@@ -198,12 +207,26 @@ namespace VRage.Profiler
 
         protected static MyProfiler m_selectedProfiler;
 
+        public static MyProfiler SelectedProfiler
+        {
+            get { return m_selectedProfiler; }
+            set { m_selectedProfiler = value; }
+        }
+
+        public static int SelectedIndex
+        {
+            get { return m_threadProfilers.IndexOf(m_selectedProfiler); }
+        }
+
         protected static bool m_enabled = false;
         protected static int m_selectedFrame = 0;   // Index of selected frame. It will be showed in text legend.
         protected static int m_levelLimit = -1;
         protected static bool m_useCustomFrame = false;
         protected static int m_frameLocalArea = MyProfiler.MAX_FRAMES;
         private int m_currentDumpNumber = 0;
+
+        public static int ServerSelectedIndex;
+        public static bool IsProfilerFromServer;
 
         static MyRenderProfiler()
         {
@@ -356,25 +379,47 @@ namespace VRage.Profiler
                     {
                         Paused = !Paused;
                         GpuProfiler.AutoCommit = !Paused;
+
+                        if (IsProfilerFromServer)
+                        {
+                            m_selectedProfiler = m_threadProfilers[0];
+                            IsProfilerFromServer = false;
+                        }
                         break;
                     }
 
                 case RenderProfilerCommand.NextThread:
                     {
-                        lock (m_threadProfilers)
+                        if (IsProfilerFromServer && GetProfilerFromServer != null)
                         {
-                            int profilerIndex = (m_threadProfilers.IndexOf(m_selectedProfiler) + 1) % m_threadProfilers.Count;
-                            m_selectedProfiler = m_threadProfilers[profilerIndex];
+                            ServerSelectedIndex++;
+                            GetProfilerFromServer(ServerSelectedIndex);
+                        }
+                        else
+                        {
+                            lock (m_threadProfilers)
+                            {
+                                int profilerIndex = (m_threadProfilers.IndexOf(m_selectedProfiler) + 1) % m_threadProfilers.Count;
+                                m_selectedProfiler = m_threadProfilers[profilerIndex];
+                            }
                         }
                         break;
                     }
 
                 case RenderProfilerCommand.PreviousThread:
                     {
-                        lock (m_threadProfilers)
+                        if (IsProfilerFromServer && GetProfilerFromServer != null)
                         {
-                            int profilerIndex = (m_threadProfilers.IndexOf(m_selectedProfiler) - 1 + m_threadProfilers.Count) % m_threadProfilers.Count;
-                            m_selectedProfiler = m_threadProfilers[profilerIndex];
+                            ServerSelectedIndex--;
+                            GetProfilerFromServer(ServerSelectedIndex);
+                        }
+                        else
+                        {
+                            lock (m_threadProfilers)
+                            {
+                                int profilerIndex = (m_threadProfilers.IndexOf(m_selectedProfiler) - 1 + m_threadProfilers.Count) % m_threadProfilers.Count;
+                                m_selectedProfiler = m_threadProfilers[profilerIndex];
+                            }
                         }
                         break;
                     }
@@ -536,6 +581,28 @@ namespace VRage.Profiler
                         m_sortingOrder = RenderProfilerSortingOrder.Id;
                     break;
 
+                case RenderProfilerCommand.GetFomServer:
+                    if (m_enabled && GetProfilerFromServer != null)
+                    {
+                        GetProfilerFromServer(ServerSelectedIndex);
+                        Paused = true;
+                    }
+                    break;
+
+                case RenderProfilerCommand.GetFromClient:
+                    m_selectedProfiler = m_threadProfilers[0];
+                    IsProfilerFromServer = false;
+                    break;
+
+                case RenderProfilerCommand.SaveToFile:
+                    SaveProfilerToFile(index);
+                    break;
+
+                case RenderProfilerCommand.LoadFromFile:
+                    LoadProfilerFromFile(index);
+                    Paused = true;
+                    break;
+
                 default:
                     System.Diagnostics.Debug.Assert(false, "Unknown command");
                     break;
@@ -638,12 +705,13 @@ namespace VRage.Profiler
             if (!Paused)
             {
                 profiler.CommitFrame();
+                m_useCustomFrame = true;
             }
             else
             {
                 profiler.ClearFrame();
             }
-            profiler.ProfileCustomValue("Profiler.Commit", member, line, file, 0, MyTimeSpan.FromMiliseconds(profiler.Stopwatch.ElapsedMilliseconds), null, null);
+            profiler.ProfileCustomValue("Profiler.Commit", member, line, file, 0, MyTimeSpan.FromMilliseconds(profiler.Stopwatch.ElapsedMilliseconds), null, null);
         }
 
         public void Draw([CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
@@ -664,7 +732,7 @@ namespace VRage.Profiler
                     Draw(drawProfiler, lastFrameIndex, frameToDraw);
                 }
 
-                profiler.ProfileCustomValue("Profiler.Draw", member, line, file, 0, MyTimeSpan.FromMiliseconds(profiler.Stopwatch.Elapsed.TotalMilliseconds), null, null);
+                profiler.ProfileCustomValue("Profiler.Draw", member, line, file, 0, MyTimeSpan.FromMilliseconds(profiler.Stopwatch.Elapsed.TotalMilliseconds), null, null);
             }
         }
 
@@ -759,6 +827,15 @@ namespace VRage.Profiler
                 stream.Close();
             }
             catch { }
+        }
+
+        public static MyProfiler GetProfilerAtIndex(int index)
+        {
+            index = MyMath.Mod(index, m_threadProfilers.Count);
+            if (m_threadProfilers[index] != null)
+                return m_threadProfilers[index];
+            else
+                return m_threadProfilers[0];
         }
     }
 }

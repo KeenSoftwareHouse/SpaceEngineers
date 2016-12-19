@@ -272,6 +272,9 @@ namespace Sandbox.Graphics.GUI
         // Previously clicked item. Used for check, whether item released can be called
         private EventArgs? m_itemClicked;
         private int? m_lastClick = null;
+
+        public Dictionary<int, Color> ModalItems;
+
         #endregion
 
         #region Construction & serialization
@@ -522,6 +525,13 @@ namespace Sandbox.Graphics.GUI
 
         public bool IsValidIndex(int index)
         {
+            if (ModalItems != null && ModalItems.Count > 0)
+            {
+                if (!ModalItems.ContainsKey(index))
+                {
+                    return false;
+                }
+            }
             return 0 <= index && index < m_items.Count && index < m_maxItemCount;
         }
 
@@ -841,7 +851,21 @@ namespace Sandbox.Graphics.GUI
                         blinkingTransparency = item.blinkingTransparency();
                     }
                 }
-                bool highlight = enabled && (idx == MouseOverIndex || idx == SelectedIndex || shouldBlink);
+                bool highlight = enabled && IsValidIndex(MouseOverIndex) && (idx == MouseOverIndex || idx == SelectedIndex || shouldBlink);
+
+                var colorMask = ColorMask;
+                if (ModalItems != null && ModalItems.Count > 0)
+                {
+                    if (ModalItems.ContainsKey(idx))
+                    {
+                        colorMask = ModalItems[idx];
+                        MyGuiConstants.TEXTURE_RECTANGLE_NEUTRAL.Draw(drawPositionTopLeft, ItemSize, Color.Yellow);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
 
                 if (ShowEmptySlots)
                 {
@@ -849,7 +873,7 @@ namespace Sandbox.Graphics.GUI
                         texture: highlight ? highlightTexture : normalTexture,
                         normalizedCoord: drawPositionTopLeft,
                         normalizedSize: ItemSize,
-                        color: ApplyColorMaskModifiers(ColorMask, enabled, transitionAlpha * blinkingTransparency),
+                        color: ApplyColorMaskModifiers(colorMask, enabled, transitionAlpha * blinkingTransparency),
                         drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
                 }
                 else if (item != null)
@@ -858,7 +882,7 @@ namespace Sandbox.Graphics.GUI
                         texture: highlight ? highlightTexture : normalTexture,
                         normalizedCoord: drawPositionTopLeft,
                         normalizedSize: ItemSize,
-                        color: ApplyColorMaskModifiers(ColorMask, enabled, transitionAlpha * blinkingTransparency),
+                        color: ApplyColorMaskModifiers(colorMask, enabled, transitionAlpha * blinkingTransparency),
                         drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
                 }
             }
@@ -876,19 +900,29 @@ namespace Sandbox.Graphics.GUI
                 var item = TryGetItemAt(idx);
                 var drawPositionTopLeft = m_itemsRectangle.Position + m_itemStep * new Vector2((float)col, (float)row);
 
+                var colorMask = ColorMask;
+
+                bool itemEnabled = true;
+
+                if (ModalItems != null && ModalItems.Count > 0)
+                {
+                    if (!ModalItems.ContainsKey(idx))
+                        continue;
+                }
+
                 //Sets the subicon at 8/9 of the cube
                 Vector2 subIconAdjust = new Vector2(8 / 9.0f, 4 / 9.0f);
                 var drawPositionTopRight = m_itemsRectangle.Position + m_itemStep * (new Vector2((float)col, (float)row) + subIconAdjust);
 
                 if (item != null && item.Icons != null)
                 {
-                    bool enabled = this.Enabled && item.Enabled;
+                    bool enabled = this.Enabled && item.Enabled && itemEnabled;
                     for (int i = 0; i < item.Icons.Length; i++)
                         MyGuiManager.DrawSpriteBatch(
                             texture: item.Icons[i],
                             normalizedCoord: drawPositionTopLeft,
                             normalizedSize: ItemSize,
-                            color: ApplyColorMaskModifiers(ColorMask * item.IconColorMask, enabled, transitionAlpha),
+                            color: ApplyColorMaskModifiers(colorMask * item.IconColorMask, enabled, transitionAlpha),
                             drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                             waitTillLoaded: false);
                     if (item.SubIcon != null && item.SubIcon != "")
@@ -897,7 +931,7 @@ namespace Sandbox.Graphics.GUI
                         texture: item.SubIcon,
                         normalizedCoord: drawPositionTopRight,
                         normalizedSize: ItemSize / 3,
-                        color: ApplyColorMaskModifiers(ColorMask * item.IconColorMask, enabled, transitionAlpha),
+                        color: ApplyColorMaskModifiers(colorMask * item.IconColorMask, enabled, transitionAlpha),
                         drawAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM,
                         waitTillLoaded: false);
 
@@ -908,7 +942,7 @@ namespace Sandbox.Graphics.GUI
                             texture: MyGuiConstants.BLANK_TEXTURE,
                             normalizedCoord: drawPositionTopLeft,
                             normalizedSize: ItemSize * new Vector2(item.OverlayPercent, 1f),
-                            color: ApplyColorMaskModifiers(ColorMask * item.OverlayColorMask, enabled, transitionAlpha * 0.5f),
+                            color: ApplyColorMaskModifiers(colorMask * item.OverlayColorMask, enabled, transitionAlpha * 0.5f),
                             drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                             waitTillLoaded: false);
                     }
@@ -916,7 +950,7 @@ namespace Sandbox.Graphics.GUI
                 }
                 else if (EmptyItemIcon != null)
                 {
-                    bool enabled = this.Enabled;
+                    bool enabled = this.Enabled && itemEnabled;
                     MyGuiManager.DrawSpriteBatch(
                         texture: EmptyItemIcon,
                         normalizedCoord: drawPositionTopLeft,

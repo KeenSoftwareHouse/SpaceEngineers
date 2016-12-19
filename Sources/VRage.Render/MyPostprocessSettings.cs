@@ -9,7 +9,6 @@ namespace VRageRender
     public static class MyPostprocessSettingsWrapper
     {
         public static MyPostprocessSettings Settings = MyPostprocessSettings.Default;
-        public static MyPostprocessSettings PlanetSettings = MyPostprocessSettings.Default;
     }
 
     [Serializable]

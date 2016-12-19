@@ -136,6 +136,7 @@ namespace SpaceEngineers.Game.Entities.Cube
                         m_buttonDesc.Coords = ActivationMatrix.Translation;
                         m_buttonDesc.ShowOnHud = true;
                         m_buttonDesc.DiscardAt = null;
+                        m_buttonDesc.AlwaysVisible = true;
                     }
 
                     MyHud.ButtonPanelMarkers.RegisterMarker(m_buttonDesc);

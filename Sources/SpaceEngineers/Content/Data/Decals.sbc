@@ -26,12 +26,13 @@
       <Depth>0.05</Depth>
     </Decal>
 	
-<!--     <Decal>
+	<Decal>
       <Id>
         <TypeId>DecalDefinition</TypeId>
         <SubtypeId>RifleBulletDamage1</SubtypeId>
       </Id>
       <Source>RifleBullet</Source>
+	  <Target>Metal</Target>
       <Material>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_01_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_01_cm.dds</ColorMetalTexture>
@@ -41,14 +42,15 @@
       <MinSize>0.3</MinSize>
       <MaxSize>0.35</MaxSize>
       <Depth>0.05</Depth>
-    </Decal> -->
+    </Decal> 
 	
-<!-- 	<Decal>
+ 	<Decal>
       <Id>
         <TypeId>DecalDefinition</TypeId>
         <SubtypeId>RifleBulletDamage1</SubtypeId>
       </Id>
       <Source>RifleBullet</Source>
+	  <Target>Metal</Target>
       <Material>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_02_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_02_cm.dds</ColorMetalTexture>
@@ -66,6 +68,7 @@
         <SubtypeId>RifleBulletDamage1</SubtypeId>
       </Id>
       <Source>RifleBullet</Source>
+	  <Target>Metal</Target>
       <Material>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_03_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_03_cm.dds</ColorMetalTexture>
@@ -75,7 +78,7 @@
       <MinSize>0.1</MinSize>
       <MaxSize>0.15</MaxSize>
       <Depth>0.05</Depth>
-    </Decal> -->
+    </Decal> 
 	
 	<Decal>
       <Id>
@@ -83,6 +86,7 @@
         <SubtypeId>RifleBulletDamage1</SubtypeId>
       </Id>
       <Source>RifleBullet</Source>
+	  <Target>Metal</Target>
       <Material>
         <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_04_ng.dds</NormalmapTexture>
@@ -101,6 +105,7 @@
         <SubtypeId>GunBulletDamage1</SubtypeId>
       </Id>
       <Source>GunBullet</Source>
+	  <Target>Metal</Target>
       <Material>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_04_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_04_cm.dds</ColorMetalTexture>
@@ -118,6 +123,7 @@
         <SubtypeId>GunBulletDamage1</SubtypeId>
       </Id>
       <Source>GunBullet</Source>
+	  <Target>Metal</Target>
       <Material>
         <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_04_ng.dds</NormalmapTexture>
@@ -179,6 +185,7 @@
       <MinSize>0.1</MinSize>
       <MaxSize>0.12</MaxSize>
       <Depth>0.05</Depth>
+	  <Transparent>true</Transparent>
     </Decal>
 	
 	<Decal>
@@ -195,6 +202,7 @@
       <MinSize>0.5</MinSize>
       <MaxSize>0.7</MaxSize>
       <Depth>0.05</Depth>
+	  <Transparent>true</Transparent>
     </Decal>
 	
     <Decal>
@@ -213,6 +221,7 @@
       <MaxSize>0.2</MaxSize>
       <Depth>0.05</Depth>
     </Decal>
+	
 	
 	<Decal>
       <Id>

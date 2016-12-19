@@ -16,11 +16,13 @@ namespace VRage.Library.Collections
         private const long Int64Msb = ((long)1) << 63;
         private const int Int32Msb = ((int)1) << 31;
 
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+        [System.Security.SecurityCriticalAttribute]
         ulong ReadInternal(int bitSize)
         {
             Debug.Assert(!m_writing, "Trying to read from non-reading stream");
-            if (m_bitLength < m_bitPosition + bitSize)
-                throw new BitStreamException(new System.IO.EndOfStreamException("Cannot read from bit stream, end of steam"));
+            //if (m_bitLength < m_bitPosition + bitSize)
+              //  throw new BitStreamException(new System.IO.EndOfStreamException("Cannot read from bit stream, end of steam"));
 
             int longOffsetStart = m_bitPosition >> 6;
             int longOffsetEnd = (m_bitPosition + bitSize - 1) >> 6;

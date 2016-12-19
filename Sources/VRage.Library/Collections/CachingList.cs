@@ -11,7 +11,7 @@ namespace VRage.Collections
     /// List wrapper that allows for addition and removal even during enumeration.
     /// Done by caching changes and allowing explicit application using Apply* methods.
     /// </summary>
-    public class CachingList<T> : IEnumerable<T>
+    public class CachingList<T> : IReadOnlyList<T>
     {
         List<T> m_list = new List<T>();
         List<T> m_toAdd = new List<T>();

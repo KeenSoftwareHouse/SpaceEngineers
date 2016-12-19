@@ -6,28 +6,22 @@ namespace VRageRender
 {
     public class MyMaterialsSettings
     {
-        [XmlElement(Type = typeof(MyStructXmlSerializer<Struct>))] 
-        public Struct Data = Struct.Default;
-
-        [XmlType("MyMaterialsSettings.Struct")]
+        [XmlType("MyShadowSettings.Struct")]
         public struct Struct
         {
-            [StructDefault] public static readonly Struct Default;
-
-            static Struct()
-            {
-                Default = new Struct()
-                {
-                };
-            }
+            public static Struct Default = new Struct();
         }
+
+        [XmlElement(Type = typeof(MyStructXmlSerializer<Struct>))]
+        public Struct Data = Struct.Default;
+
+
 
         [XmlType("MyChangeableMaterial")]
         public struct MyChangeableMaterial
         {
             public string MaterialName;
         }
-
         MyChangeableMaterial[] m_changeableMaterials;
 
         [XmlArrayItem("ChangeableMaterial")]
@@ -49,7 +43,6 @@ namespace VRageRender
 
         public void CopyFrom(MyMaterialsSettings settings)
         {
-            Data = settings.Data;
             ChangeableMaterials = settings.ChangeableMaterials;
         }
     }

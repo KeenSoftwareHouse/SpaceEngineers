@@ -235,10 +235,12 @@ namespace VRage.Game.Components
         /// </summary>
         /// <param name="worldMatrix">The world matrix.</param>
         /// <param name="source">The source object that caused this change or null when not important.</param>
-        public virtual void SetWorldMatrix(MatrixD worldMatrix, object source = null, bool forceUpdate = false)
+        public virtual void SetWorldMatrix(MatrixD worldMatrix, object source = null, bool forceUpdate = false, bool updateChildren = true)
         {
             if (Entity.Parent != null && source != Entity.Parent)
                 return;
+
+            worldMatrix.AssertIsValid();
 
             if (Scale != null)
             {
@@ -246,7 +248,7 @@ namespace VRage.Game.Components
                 worldMatrix = MatrixD.CreateScale(Scale.Value) * worldMatrix;
             }
 
-            if (m_worldMatrix.EqualsFast(ref worldMatrix) && !forceUpdate)
+            if (!forceUpdate && m_worldMatrix.EqualsFast(ref worldMatrix))
                 return;
 
 
@@ -280,6 +282,7 @@ namespace VRage.Game.Components
             {
                 //m_localMatrixChanged = true;
                 m_localMatrix = localMatrix;
+                m_localMatrix.AssertIsValid();
                 UpdateWorldMatrix(source);
             }
         }
@@ -300,6 +303,8 @@ namespace VRage.Game.Components
         /// <param name="pos">The pos.</param>
         public void SetPosition(Vector3D pos)
         {
+            pos.AssertIsValid();
+
             if (!MyUtils.IsZero(m_worldMatrix.Translation - pos))
             {
                 m_worldMatrix.Translation = pos;
@@ -409,6 +414,7 @@ namespace VRage.Game.Components
         public virtual void UpdateWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
         {
             MatrixD.Multiply(ref m_localMatrix, ref parentWorldMatrix, out m_worldMatrix);
+            m_worldMatrix.AssertIsValid();
             OnWorldPositionChanged(source);
         }
 
@@ -416,7 +422,7 @@ namespace VRage.Game.Components
         /// Called when [world position changed].
         /// </summary>
         /// <param name="source">The source object that caused this event.</param>
-        protected virtual void OnWorldPositionChanged(object source)
+        protected virtual void OnWorldPositionChanged(object source, bool updateChildren = true)
         {
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
 

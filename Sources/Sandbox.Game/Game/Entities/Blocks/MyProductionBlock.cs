@@ -176,7 +176,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         #endregion Properties
@@ -721,7 +721,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             ProfilerShort.Begin("UpdateProduction");
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-			if (ResourceSink.IsPowered)
+            if (ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 UpdateProduction(currentTime - m_lastUpdateTime);
             }
@@ -870,7 +870,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private void Receiver_IsPoweredChanged()
         {
-			if (!ResourceSink.IsPowered)
+            if (!ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
                 IsProducing = false;
             UpdateIsWorking();
         }

@@ -121,7 +121,7 @@ namespace Sandbox.Graphics.GUI
         /// <summary>
         /// Index computed from scrollbar.
         /// </summary>
-        private int m_visibleRowIndexOffset;
+        protected int m_visibleRowIndexOffset;
 
         private int m_lastSortedColumnIdx;
 
@@ -271,6 +271,17 @@ namespace Sandbox.Graphics.GUI
 
         public void Clear()
         {
+            foreach (var row in m_rows)
+            {
+                foreach (var cell in row.Cells)
+                {
+                    if (cell.Control != null)
+                    {
+                        cell.Control.OnRemoving();
+                        cell.Control.Clear();
+                    }
+                }
+            }
             m_rows.Clear();
             SelectedRowIndex = null;
             RefreshScrollbar();
@@ -464,7 +475,10 @@ namespace Sandbox.Graphics.GUI
         public void ScrollToSelection()
         {
             if (SelectedRow == null)
+            {
+                m_visibleRowIndexOffset = 0;
                 return;
+            }
 
             int selectedIdx = SelectedRowIndex.Value;
 
@@ -583,6 +597,11 @@ namespace Sandbox.Graphics.GUI
                     if (cell.ToolTip != null)
                         m_toolTip = cell.ToolTip;
                 }
+            }
+
+            foreach (var control in Controls.GetVisibleControls())
+            {
+                control.ShowToolTip();
             }
 
             base.ShowToolTip();
@@ -911,6 +930,7 @@ namespace Sandbox.Graphics.GUI
             var position = new Vector2(posTopRight.X - (margin.Right + m_scrollBar.Size.X),
                                        posTopRight.Y + margin.Top);
             m_scrollBar.Layout(position, Size.Y - (margin.Top + margin.Bottom));
+            m_scrollBar.ChangeValue(0);
         }
 
         private void RefreshVisualStyle()

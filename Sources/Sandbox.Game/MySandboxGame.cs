@@ -57,6 +57,7 @@ using VRage.Game.VisualScripting;
 using MyVisualScriptLogicProvider = VRage.Game.VisualScripting.MyVisualScriptLogicProvider;
 using VRage.Library;
 using VRage.Game.SessionComponents;
+using VRage.Library.Utils;
 using VRage.Profiler;
 using VRage.Voxels;
 using VRageRender.ExternalApp;
@@ -147,7 +148,7 @@ namespace Sandbox
         }
 
         //  Total time independent of whether game is paused. It increments all the time, no matter if game is paused.
-        public static int TotalTimeInMilliseconds { get { return (int)Static.UpdateTime.Miliseconds; } }
+        public static int TotalTimeInMilliseconds { get { return (int)Static.UpdateTime.Milliseconds; } }
 
         //  Helpers for knowing when pauses started and total time spent in pause mode (even if there were many pauses)
         static int m_pauseStartTimeInMilliseconds;
@@ -250,9 +251,6 @@ namespace Sandbox
             ProfilerShort.BeginNextBlock("MyDefinitionManager.LoadScenarios");
             MyDefinitionManager.Static.LoadScenarios();
 
-            ProfilerShort.BeginNextBlock("MyTutorialHelper.Init");
-            MyTutorialHelper.Init();
-
             ProfilerShort.BeginNextBlock("Preallocate");
             Preallocate();
 
@@ -276,11 +274,7 @@ namespace Sandbox
 
                 MyLog.Default.WriteLineAndConsole("Bind IP : " + ep.ToString());
 
-                MyDedicatedServerBase dedicatedServer = null;
-                if (MyFakes.ENABLE_BATTLE_SYSTEM && MySandboxGame.ConfigDedicated.SessionSettings.Battle)
-                    dedicatedServer = new MyDedicatedServerBattle(ep);
-                else 
-                    dedicatedServer = new MyDedicatedServer(ep);
+                MyDedicatedServerBase dedicatedServer = new MyDedicatedServer(ep);
 
                 MyMultiplayer.Static = dedicatedServer;
 
@@ -322,12 +316,13 @@ namespace Sandbox
             MyMessageLoop.AddMessageHandler(MyWMCodes.GAME_IS_RUNNING_REQUEST, OnToolIsGameRunningMessage);
 #endif
 
-            MySandboxGame.Log.DecreaseIndent();
-            MySandboxGame.Log.WriteLine("MySandboxGame.Constructor() - END");
+            ProfilerShort.Begin("InitCampaignManager");
+            MyCampaignManager.Static.Init();
             ProfilerShort.End();
 
-            ProfilerShort.BeginNextBlock("InitCampaignManager");
-            MyCampaignManager.Static.Init();
+            MySandboxGame.Log.DecreaseIndent();
+            MySandboxGame.Log.WriteLine("MySandboxGame.Constructor() - END");
+
             ProfilerShort.End();
         }
 
@@ -478,6 +473,9 @@ namespace Sandbox
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 MyGuiGameControlsHelpers.Add(MyControlsSpace.MISSION_SETTINGS, new MyGuiDescriptor(MySpaceTexts.ControlName_MissionSettings));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.FREE_ROTATION, new MyGuiDescriptor(MySpaceTexts.StationRotation_Static, MySpaceTexts.StationRotation_Static_Desc));
+            if (MyPerGameSettings.VoiceChatEnabled)
+                MyGuiGameControlsHelpers.Add(MyControlsSpace.VOICE_CHAT, new MyGuiDescriptor(MyCommonTexts.ControlName_VoiceChat));
+
 
             Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>(MyStringId.Comparer);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.FORWARD, null, MyKeys.W);
@@ -533,6 +531,9 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems1, MyControlsSpace.CONTROL_MENU);
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems2, MyControlsSpace.MISSION_SETTINGS, null, MyKeys.U);
+            if (MyPerGameSettings.VoiceChatEnabled)
+                AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.VOICE_CHAT, key: MyKeys.U);
+   
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.FREE_ROTATION, null, MyKeys.B);
 
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT1, null, MyKeys.D1);
@@ -652,6 +653,14 @@ namespace Sandbox
         public static void AfterLogos()
         {
             MyGuiSandbox.BackToMainMenu();
+
+            TryShowEmailScreen();
+        }
+
+        private static void TryShowEmailScreen()
+        {
+            if (MyEShop.ShowNewsletterScreenAtStartup)
+                MyGuiSandbox.AddScreen(new MyGuiScreenNewsletter());
         }
 
         /// <summary>
@@ -724,11 +733,7 @@ namespace Sandbox
                             if (result.Success)
                             {
                                 MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
-                                if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
-                                    MySession.LoadBattle(lastSessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
-                                else
-                                    MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
-
+                                MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
                                 MySession.Static.StartServer(MyMultiplayer.Static);
                                 MyModAPIHelper.OnSessionLoaded();
                             }
@@ -763,11 +768,7 @@ namespace Sandbox
                                 if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods).Success)
                                 {
                                     MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
-                                    if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
-                                        MySession.LoadBattle(sessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
-                                    else
-                                        MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
-
+                                    MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
                                     MySession.Static.StartServer(MyMultiplayer.Static);
                                     MyModAPIHelper.OnSessionLoaded();
                                 }
@@ -806,30 +807,35 @@ namespace Sandbox
                 { //Start new session in dedicated server
                     var settings = ConfigDedicated.SessionSettings;
 
-                    MyDefinitionBase def;
-                    if (MyDefinitionManager.Static.TryGetDefinition(ConfigDedicated.Scenario, out def) && def is MyScenarioDefinition)
+                    if(MyFileSystem.DirectoryExists(ConfigDedicated.PremadeCheckpointPath))
                     {
-                        var mods = new List<MyObjectBuilder_Checkpoint.ModItem>(MySandboxGame.ConfigDedicated.Mods.Count);
+                        ulong checkpointSizeInBytes;
+                        var sesionPath = ConfigDedicated.PremadeCheckpointPath;
 
-                        if (MySandboxGame.IsDedicated)
+                        var checkpoint = MyLocalCache.LoadCheckpoint(sesionPath, out checkpointSizeInBytes);
+
+                        if (checkpoint == null) return;
+
+                        checkpoint.Settings = settings;
+                        checkpoint.SessionName = ConfigDedicated.WorldName;
+
+                        // process mods
+                        var mods = new List<MyObjectBuilder_Checkpoint.ModItem>(ConfigDedicated.Mods.Count);
+
+                        if (IsDedicated)
                         {
                             foreach (ulong publishedFileId in ConfigDedicated.Mods)
                             {
                                 mods.Insert(0, new MyObjectBuilder_Checkpoint.ModItem(publishedFileId));
                             }
                         }
-
-#if !XB1
+                        // MODS
                         if (MySteamWorkshop.DownloadWorldModsBlocking(mods).Success)
                         {
-                            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
+                            checkpoint.Mods = mods;
 
-                            MySession.Start(newWorldName, "", "", settings, mods,
-                                new MyWorldGenerator.Args()
-                                {
-                                    Scenario = (MyScenarioDefinition)def,
-                                    AsteroidAmount = ConfigDedicated.AsteroidAmount
-                                });
+                            MySession.Load(sesionPath, checkpoint, checkpointSizeInBytes);
+                            MySession.Static.Save(Path.Combine(MyFileSystem.SavesPath, checkpoint.SessionName.Replace(':', '-')));
                             MySession.Static.StartServer(MyMultiplayer.Static);
                             MyModAPIHelper.OnSessionLoaded();
                         }
@@ -837,11 +843,10 @@ namespace Sandbox
                         {
                             MyLog.Default.WriteLineAndConsole("Unable to download mods");
                         }
-#endif // !XB1
                     }
                     else
                     {
-                        MyLog.Default.WriteLineAndConsole("Cannot start new world - scenario not found " + ConfigDedicated.Scenario);
+                        MyLog.Default.WriteLineAndConsole("Cannot start new world - Premade world not found " + ConfigDedicated.PremadeCheckpointPath);
                     }
                 }
             }
@@ -1033,6 +1038,7 @@ namespace Sandbox
             MyVisualScriptingProxy.Init();
             MyVisualScriptingProxy.RegisterLogicProvider(typeof(MyVisualScriptLogicProvider));
             MyVisualScriptingProxy.RegisterLogicProvider(typeof(Game.MyVisualScriptLogicProvider));
+            MyObjectBuilder_Profiler.SetDelegates();
 
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MySandboxGame.Initialize() - END");
@@ -1043,6 +1049,7 @@ namespace Sandbox
         {
             if (MySandboxGame.Config.SyncRendering)
             {
+                VRage.Library.Utils.MyRandom.DisableRandomSeed = true;
                 GameRenderComponent.StartSync(m_gameTimer, InitializeRenderThread(), settingsToTry, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);
             }
             else
@@ -1221,7 +1228,16 @@ namespace Sandbox
             }
             if (MyPerGameSettings.UseReverbEffect)
             {
+                //GK: SharpDX native code crashes when revert enabled and sample rate > 48kHz! Disable for now
+                if (MySandboxGame.Config.EnableReverb && MyAudio.Static.SampleRate > MyAudio.MAX_SAMPLE_RATE)
+                {
+                    MySandboxGame.Config.EnableReverb = false;
+                }
+                else
+                {
                 MyAudio.Static.EnableReverb = MySandboxGame.Config.EnableReverb;
+                    MySandboxGame.Config.Save();
+            }
             }
 
             //  Volume from config
@@ -1254,6 +1270,7 @@ namespace Sandbox
             ProfilerShort.End();
             if(MySandboxGame.IsDedicated)
                 MyParticlesManager.Enabled = false;
+            MyParticlesManager.EnableCPUGenerations = MyFakes.ENABLE_CPU_PARTICLES;
 
             MyParticlesManager.CalculateGravityInPoint = Sandbox.Game.GameSystems.MyGravityProviderSystem.CalculateTotalGravityInPoint;
 
@@ -1467,6 +1484,7 @@ namespace Sandbox
                         typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties),
                         typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AdvancedDoor),
                         typeof(Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_AdvancedDoorDefinition),
+                        typeof(VRage.Game.ObjectBuilders.ComponentSystem.MyObjectBuilder_ComponentBase),
                         typeof(VRage.ObjectBuilders.MyObjectBuilder_Base),
                         typeof(VRage.Game.Components.MyIngameScript),
                         typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent),
@@ -1589,6 +1607,20 @@ namespace Sandbox
 
                     handle.AllowTypes(MyWhitelistTarget.ModApi,
                         typeof(VRageRender.MyLodTypeEnum),
+                        typeof(VRageRender.MyMaterialsSettings),
+                        typeof(VRageRender.MyShadowsSettings),
+                        typeof(VRageRender.MyPostprocessSettings),
+                        typeof(VRageRender.Messages.MyHBAOData),
+                        typeof(VRageRender.MySSAOSettings),
+                        typeof(VRageRender.MyEnvironmentLightData),
+                        typeof(VRageRender.MyEnvironmentData),
+                        typeof(VRageRender.MyPostprocessSettings.Layout),
+                        typeof(VRageRender.MySSAOSettings.Layout),
+                        typeof(VRageRender.MyShadowsSettings.Struct),
+                        typeof(VRageRender.MyShadowsSettings.Cascade),
+                        typeof(VRageRender.MyShadowsSettings.NewStruct),
+                        typeof(VRageRender.MyMaterialsSettings.Struct),
+                        typeof(VRageRender.MyMaterialsSettings.MyChangeableMaterial),
                         typeof(ProtoBuf.ProtoMemberAttribute),
                         typeof(ProtoBuf.ProtoContractAttribute),
                         typeof(VRageRender.Lights.MyGlareTypeEnum),
@@ -1996,16 +2028,17 @@ namespace Sandbox
             {
                 if (MySandboxGame.Services != null && MySandboxGame.Services.SteamService != null)
                 {
-                    ProfilerShort.Begin("SteamCallback");
+                    ProfilerShort.Begin("SteamAPICallback");
                     if (MySteam.API != null)
                         MySteam.API.RunCallbacks();
 
+                    ProfilerShort.BeginNextBlock("SteamServerCallback");
                     if (MySteam.Server != null)
                         MySteam.Server.RunCallbacks();
                     ProfilerShort.End();
 
                     ProfilerShort.Begin("Network callbacks");
-                    MyNetworkReader.Process(TimeSpan.Zero);
+                    MyNetworkReader.Process(MyTimeSpan.Zero);
                     ProfilerShort.End();
                 }
             }

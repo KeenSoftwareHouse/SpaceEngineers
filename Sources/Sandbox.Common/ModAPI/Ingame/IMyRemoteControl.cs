@@ -61,8 +61,5 @@ namespace Sandbox.ModAPI.Ingame
         /// Determines whether the autopilot is currently enabled.
         /// </summary>
         bool IsAutoPilotEnabled { get; }
-
-        // CH: TODO: Uncomment later for drones
-        Vector3D GetFreeDestination(Vector3D originalDestination, float checkRadius, float shipRadius);
     }
 }

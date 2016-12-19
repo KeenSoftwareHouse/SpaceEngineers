@@ -88,6 +88,7 @@ Particle Simulate(Particle pa, float frameTimeDelta)
 
             // Calculate the new position of the particle
             vNewPosition += pa.Velocity * frameTimeDelta;
+            vNewPosition += emitter.PositionDelta * emitter.MotionInheritance;
 
             if (emitter.Flags & EMITTERFLAG_COLLIDE)
                 Collide(pa, frameTimeDelta, vNewPosition, emitter.Bounciness);

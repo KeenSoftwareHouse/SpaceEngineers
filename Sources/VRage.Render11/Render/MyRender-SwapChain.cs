@@ -235,6 +235,7 @@ namespace VRageRender
 
             MyRender11.Settings.GrassDensityFactor = settings.GrassDensityFactor;
             if (settings.GrassDensityFactor == 0.0f) m_renderSettings.FoliageDetails = MyFoliageDetails.DISABLED;
+            MyRender11.Settings.ModelQuality = settings.ModelQuality;
             MyRender11.Settings.VoxelQuality = settings.VoxelQuality;
 
             //       if(settings.GrassDensityFactor != prevSettings.GrassDensityFactor)
@@ -498,21 +499,6 @@ namespace VRageRender
             Log.WriteLine("}");
         }
 
-        internal static void CheckAdapterChange(ref MyRenderDeviceSettings settings)
-        {
-            settings.AdapterOrdinal = ValidateAdapterIndex(settings.AdapterOrdinal);
-
-            bool differentAdapter = m_adapterInfoList[m_settings.AdapterOrdinal].AdapterDeviceId != m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId;
-
-            if (differentAdapter)
-            {
-                if (m_settings.UseStereoRendering)
-                    settings.UseStereoRendering = true;
-                m_settings = settings;
-                HandleDeviceReset();
-            }
-        }
-
         internal static void ApplySettings(MyRenderDeviceSettings settings)
         {
             Log.WriteLine("ApplySettings");
@@ -522,64 +508,60 @@ namespace VRageRender
             CommandsListsSupported = m_adapterInfoList[m_settings.AdapterOrdinal].MultithreadedRenderingSupported;
             IsIntelBrokenCubemapsWorkaround = m_adapterInfoList[m_settings.AdapterOrdinal].Priority == 1; // 1 is intel
 
-            bool deviceRemoved = false;
-
             try
             {
                 ResizeSwapchain(settings.BackBufferWidth, settings.BackBufferHeight);
             }
-            catch(SharpDXException e)
+            catch (SharpDXException e)
             {
-                if (e.Descriptor == SharpDX.DXGI.ResultCode.DeviceRemoved && Device.DeviceRemovedReason == SharpDX.DXGI.ResultCode.DeviceRemoved)
-                {
-                    deviceRemoved = true;
-                    Log.WriteLine("Device removed - resetting device" + e.Message);
-                    HandleDeviceReset();
-                    Log.WriteLine("Device removed - resetting completed");
-                }
+                Log.WriteLine("Exception during ApplySettings with descriptor: " + e.Descriptor);
+                Log.WriteLine("Logging previous settings");
+                LogSettings(ref m_settings);
+
+                if (e.Descriptor == SharpDX.DXGI.ResultCode.DeviceRemoved)
+                    Log.WriteLine("Device removed reason:\n" + Device.DeviceRemovedReason);
+
+                throw e;
             }
 
-            if(!deviceRemoved)
+            ModeDescription md = new ModeDescription();
+            md.Format = MyRender11Constants.DX11_BACKBUFFER_FORMAT;
+            md.Height = settings.BackBufferHeight;
+            md.Width = settings.BackBufferWidth;
+            md.Scaling = DisplayModeScaling.Unspecified;
+            md.ScanlineOrdering = DisplayModeScanlineOrder.Progressive;
+            md.RefreshRate.Numerator = 60000;
+            md.RefreshRate.Denominator = 1000;
+
+            FixModeDescriptionForFullscreen(ref md);
+
+            // to fullscreen
+            if (settings.WindowMode == MyWindowModeEnum.Fullscreen)
             {
-                ModeDescription md = new ModeDescription();
-                md.Format = MyRender11Constants.DX11_BACKBUFFER_FORMAT;
-                md.Height = settings.BackBufferHeight;
-                md.Width = settings.BackBufferWidth;
-                md.Scaling = DisplayModeScaling.Unspecified;
-                md.ScanlineOrdering = DisplayModeScanlineOrder.Progressive;
-                md.RefreshRate.Numerator = 60000;
-                md.RefreshRate.Denominator = 1000;
-
-                FixModeDescriptionForFullscreen(ref md);
-
-                // to fullscreen
-                if (settings.WindowMode == MyWindowModeEnum.Fullscreen)
+                if (settings.WindowMode != m_settings.WindowMode)
                 {
-                    if (settings.WindowMode != m_settings.WindowMode)
-                    {
-                        m_changeToFullscreen = md;
-                    }
-                    else
-                    {
-                        m_swapchain.ResizeTarget(ref md);
-                        md.RefreshRate.Denominator = 0;
-                        md.RefreshRate.Numerator = 0;
-                        m_swapchain.ResizeTarget(ref md);
-                    }
+                    m_changeToFullscreen = md;
                 }
-                // from fullscreen
-                else if (settings.WindowMode != m_settings.WindowMode && m_settings.WindowMode == MyWindowModeEnum.Fullscreen)
+                else
                 {
                     m_swapchain.ResizeTarget(ref md);
-                    m_swapchain.SetFullscreenState(false, null);
+                    md.RefreshRate.Denominator = 0;
+                    md.RefreshRate.Numerator = 0;
+                    m_swapchain.ResizeTarget(ref md);
                 }
-
-                if (m_settings.UseStereoRendering)
-                    settings.UseStereoRendering = true;
-                m_settings = settings;
-
-                TryChangeToFullscreen();
             }
+            // from fullscreen
+            else if (settings.WindowMode != m_settings.WindowMode && m_settings.WindowMode == MyWindowModeEnum.Fullscreen)
+            {
+                m_swapchain.ResizeTarget(ref md);
+                m_swapchain.SetFullscreenState(false, null);
+            }
+
+            if (m_settings.UseStereoRendering)
+                settings.UseStereoRendering = true;
+            m_settings = settings;
+
+            TryChangeToFullscreen();
 
             Log.DecreaseIndent();
         }

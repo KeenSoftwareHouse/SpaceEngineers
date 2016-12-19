@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Utils;
@@ -16,6 +13,9 @@ namespace Sandbox.Graphics.GUI
 
         public Vector2 Size;
 
+        public bool Highlight { get; set; }
+        public Vector4 HighlightColor { get; set; }
+
         /// <summary>
         /// Creates new instance with empty tooltips
         /// </summary>
@@ -24,6 +24,7 @@ namespace Sandbox.Graphics.GUI
             ToolTips = new ObservableCollection<MyColoredText>();
             ToolTips.CollectionChanged += ToolTips_CollectionChanged;
             Size = new Vector2(-1f);
+            HighlightColor = Color.Orange.ToVector4();
         }
 
         void ToolTips_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -98,6 +99,15 @@ namespace Sandbox.Graphics.GUI
                 if (bgPosition.Y + bgSize.Y > rightbottom.Y) bgPosition.Y = rightbottom.Y - bgSize.Y;
                 if (bgPosition.X < topleft.X) bgPosition.X = topleft.X;
                 if (bgPosition.Y < topleft.Y) bgPosition.Y = topleft.Y;
+
+                if (Highlight)
+                {
+                    Vector2 offset = new Vector2(0.003f, 0.004f);
+                    Vector2 highlightPosition = bgPosition - offset;
+                    Vector2 highlightSize = bgSize + 2 * offset;
+
+                    MyGuiConstants.TEXTURE_RECTANGLE_NEUTRAL.Draw(highlightPosition, highlightSize, HighlightColor);
+                }
 
                 MyGuiManager.DrawSpriteBatch(MyGuiConstants.BLANK_TEXTURE, bgPosition, bgSize, MyGuiConstants.THEMED_GUI_BACKGROUND_COLOR, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
                 MyGuiManager.DrawBorders(bgPosition, bgSize, MyGuiConstants.THEMED_GUI_LINE_COLOR, 1);

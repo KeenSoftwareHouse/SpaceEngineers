@@ -138,7 +138,17 @@ namespace VRage.Render11.RenderContext
                 m_computeShaderStage = null;
             }
             if (m_isDeferred)
-                m_deviceContext.Dispose();
+            {
+                try
+                {
+                    m_deviceContext.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    MyRender11.Log.Log(Utils.MyLogSeverity.Error, "Exception disposing device context: {0}", ex.ToString());
+                    MyRender11.Log.Flush();
+                }
+            }
 
             m_disposed = true;
         }
@@ -506,12 +516,12 @@ namespace VRage.Render11.RenderContext
             CheckErrors();
         }
 
-        internal void SetVertexBuffer(int slot, IVertexBuffer vb, int stride = -1)
+        internal void SetVertexBuffer(int slot, IVertexBuffer vb, int stride = -1, int byteOffset = 0)
         {
             if (vb != null && stride < 0)
                 stride = vb.Description.StructureByteStride;
 
-            m_state.SetVertexBuffer(slot, vb, stride);
+            m_state.SetVertexBuffer(slot, vb, stride, byteOffset);
             CheckErrors();
         }
 

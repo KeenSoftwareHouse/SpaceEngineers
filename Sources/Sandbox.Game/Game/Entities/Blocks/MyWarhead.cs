@@ -64,6 +64,10 @@ namespace Sandbox.Game.Entities.Cube
         private readonly Sync<int> m_countdownMs;
         public bool IsCountingDown { get; private set; }
 
+        // Used for achievement to get player who clicked Detonate button
+        // Called only on client
+        public static Action<MyWarhead> OnWarheadDetonatedClient;
+
         private int BlinkDelay
         {
             get
@@ -149,7 +153,15 @@ namespace Sandbox.Game.Entities.Cube
                 "Detonate",
                 MySpaceTexts.TerminalControlPanel_Warhead_Detonate,
                 MySpaceTexts.TerminalControlPanel_Warhead_Detonate,
-                (b) => { if (b.IsArmed) { MyMultiplayer.RaiseEvent(b, x => x.DetonateRequest); } });
+                (b) =>
+                {
+                    if (b.IsArmed)
+                    {
+                        MyMultiplayer.RaiseEvent(b, x => x.DetonateRequest);
+                        var handler = OnWarheadDetonatedClient;
+                        if (handler != null) handler(b);
+                    }
+                });
             detonateButton.Enabled = (x) => x.IsArmed;
             detonateButton.EnableAction();
             MyTerminalControlFactory.AddControl(detonateButton);
@@ -367,7 +379,7 @@ namespace Sandbox.Game.Entities.Cube
             //Small grid = 2.5m radius
             float radiusMultiplier = 4; //reduced by 20%
             float warheadBlockRadius = CubeGrid.GridSize * radiusMultiplier;
-           
+
             float shrink = 0.85f;
             m_explosionShrinkenSphere = new BoundingSphereD(PositionComp.GetPosition(), (double)warheadBlockRadius * shrink);
 
@@ -497,7 +509,7 @@ namespace Sandbox.Game.Entities.Cube
             if (success)
             {
                 MyMultiplayer.RaiseEvent(this, x => x.SetCountdownClient, countdownState);
-            }     
+            }
         }
 
         [Event, Reliable, Broadcast]

@@ -448,6 +448,9 @@ namespace Sandbox.ModAPI
             return false;
         }
 
-
+        bool IMyUtilities.RemoveVariable(string name)
+        {
+            return Variables.Remove(name);
+        }
     }
 }

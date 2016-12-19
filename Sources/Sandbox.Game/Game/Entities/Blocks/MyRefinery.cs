@@ -215,7 +215,7 @@ namespace Sandbox.Game.Entities.Cube
             MyValueFormatter.AppendWorkInBestUnit(GetOperationalPowerConsumption(), DetailedInfo);
             DetailedInfo.AppendFormat("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
 
             DetailedInfo.AppendFormat("\n\n");
             DetailedInfo.Append("Productivity: ");
@@ -324,10 +324,11 @@ namespace Sandbox.Game.Entities.Cube
 
             foreach (var prerequisite in queueItem.Prerequisites)
             {
-                var obPrerequisite = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(prerequisite.Id);
+                MyObjectBuilder_PhysicalObject obPrerequisite = MyObjectBuilderSerializer.CreateNewObject(prerequisite.Id) as MyObjectBuilder_PhysicalObject;
                 if (obPrerequisite == null)
                 {
                     Debug.Fail("obPrerequisite shouldn't be null!!!");
+                    MyLog.Default.WriteLine("obPrerequisite shouldn't be null!!! " + this);
                     continue;
                 }
                 var prerequisiteAmount = blueprintAmount * prerequisite.Amount;
@@ -337,10 +338,11 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var result in queueItem.Results)
             {
                 var resultId = result.Id;
-                var obResult = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(resultId);
+                MyObjectBuilder_PhysicalObject obResult = MyObjectBuilderSerializer.CreateNewObject(resultId) as MyObjectBuilder_PhysicalObject;
                 if (obResult == null)
                 {
                     Debug.Fail("obResult shouldn't be null!!!");
+                    MyLog.Default.WriteLine("obResult shouldn't be null!!! " + this);
                     continue;
                 }
                 var conversionRatio = result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];

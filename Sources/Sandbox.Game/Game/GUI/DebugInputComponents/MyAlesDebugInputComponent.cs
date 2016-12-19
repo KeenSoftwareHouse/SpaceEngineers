@@ -207,7 +207,7 @@ namespace Sandbox.Game.Gui
         [Event, Reliable, Server]
         public static void TravelToWaypoint(Vector3D pos)
         {
-            MySession.Static.ControlledEntity.Teleport(pos);
+            MyMultiplayer.TeleportControlledEntity(pos);
         }
 
 

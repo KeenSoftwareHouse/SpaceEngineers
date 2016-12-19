@@ -45,6 +45,8 @@ namespace Sandbox.Game.Entities.Cube
         {
             get
             {
+                if (m_textPanel.Render == null)
+                    return -1;
                 var renderObjectIds = m_textPanel.Render.RenderObjectIDs;
                 if (renderObjectIds.Length > 0)
                     return (int)renderObjectIds[0];
@@ -68,7 +70,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 UseActionEnum actions = UseActionEnum.None;
 
-                if (!m_textPanel.IsAccessibleForOnlyOwner)
+                if (m_textPanel.GetPlayerRelationToOwner() != MyRelationsBetweenPlayerAndBlock.Enemies)
                     actions |= UseActionEnum.Manipulate | UseActionEnum.OpenTerminal;
 
                 return actions; 

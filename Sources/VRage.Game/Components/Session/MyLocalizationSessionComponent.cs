@@ -52,12 +52,31 @@ namespace VRage.Game.Components.Session
             // Add custom content folders
             foreach (var path in paths)
             {
-                var files = MyFileSystem.GetFiles(Path.Combine(MyFileSystem.ContentPath, path), "*.sbl", MySearchOption.AllDirectories);
-                foreach (var filePath in files)
-                {
-                    m_campaignBundle.FilePaths.Add(filePath);
-                }
+                try 
+                { 
+                    var contentPath = Path.Combine(MyFileSystem.ContentPath, path);
+                    var modPath = campaignModFolderPath != null ? Path.Combine(campaignModFolderPath, path) : string.Empty;
+                    if (MyFileSystem.FileExists(contentPath))
+                    {
+                        m_campaignBundle.FilePaths.Add(contentPath);
+                    } 
+                    else if(!string.IsNullOrEmpty(campaignModFolderPath) && MyFileSystem.FileExists(modPath))
+                    {
+                        m_campaignBundle.FilePaths.Add(modPath);
+                    }
+                    else
+                    { 
+                        var files = MyFileSystem.GetFiles(Path.Combine(MyFileSystem.ContentPath, path), "*.sbl", MySearchOption.AllDirectories);
+                        foreach (var filePath in files)
+                        {
+                            m_campaignBundle.FilePaths.Add(filePath);
+                        }
+                    }
+                } 
+                catch
+                { }
             }
+
 
             // For nonempty bundles, clear contexts
             if(m_campaignBundle.FilePaths.Count > 0)
@@ -134,7 +153,7 @@ namespace VRage.Game.Components.Session
                 foreach (var path in m_campaignBundle.FilePaths)
                 {
                     // Remove the content path from relative file path
-                    ob.CampaignPaths.Add(path.Replace(MyFileSystem.ContentPath, ""));
+                    ob.CampaignPaths.Add(path.Replace(MyFileSystem.ContentPath + "\\", ""));
                 }
             }
 

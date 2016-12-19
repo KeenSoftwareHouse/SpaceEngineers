@@ -25,7 +25,7 @@ namespace VRageRender
             RC.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MySamplerStateManager.Shadowmap);
             RC.PixelShader.SetSrv(31, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapBackup);
 
-            RC.SetDepthStencilState(null);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.DepthTestWrite);
         }
 
         protected sealed override unsafe void RecordCommandsInternal(MyRenderableProxy proxy)
@@ -51,7 +51,6 @@ namespace VRageRender
             else
                 RC.SetRasterizerState(null);
 
-            ++Stats.Submeshes;
             var submesh = proxy.DrawSubmesh;
 
             if (submesh.MaterialId != Locals.matTexturesID)

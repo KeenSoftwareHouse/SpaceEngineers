@@ -33,8 +33,8 @@ namespace Sandbox.Game.Gui
         InventoryFull,
         MissingComponent,
         ScreenHint,
-        SlotEquipHint,
-        HudHideHint,
+        //SlotEquipHint,
+        //HudHideHint,
         WorldLoaded,
         RespawnShipWarning,
         ClientCannotSave,
@@ -50,8 +50,6 @@ namespace Sandbox.Game.Gui
         AdminMenuNotAvailable,
         BuildingModeOn,
         BuildingModeOff,
-        PlayerPromoted,
-        PlayerDemoted,
         PasteFailed,
         ManipulatingDoorFailed,
         
@@ -60,6 +58,18 @@ namespace Sandbox.Game.Gui
         HeadAlreadyExists,
 
         ShipOverLimits,
+
+        PlayerDemotedNone,
+        PlayerDemotedScripter,
+        PlayerDemotedModerator,
+        PlayerDemotedSpaceMaster,
+
+        PlayerPromotedScripter,
+        PlayerPromotedModerator,
+        PlayerPromotedSpaceMaster,
+        PlayerPromotedAdmin,
+
+        BlueprintScriptsRemoved,
     }
 
     public class MyHudNotifications
@@ -141,13 +151,20 @@ namespace Sandbox.Game.Gui
             Register(MyNotificationSingletons.HideHints,                    new MyHudNotification(disappearTimeMs: 0, level: MyNotificationLevel.Control, text: MyCommonTexts.NotificationHideHintsInGameOptions, priority: 2));
             Register(MyNotificationSingletons.HelpHint,                     new MyHudNotification(disappearTimeMs: 0, level: MyNotificationLevel.Control, text: MyCommonTexts.NotificationNeedShowHelpScreen, priority: 1));
             Register(MyNotificationSingletons.ScreenHint,                   new MyHudNotification(disappearTimeMs: 0, level: MyNotificationLevel.Control, text: MyCommonTexts.NotificationScreenFormat));
-            Register(MyNotificationSingletons.SlotEquipHint,                new MyHudNotification(disappearTimeMs: 0, level: MyNotificationLevel.Control, text: MyCommonTexts.NotificationSlotEquipFormat));
-            Register(MyNotificationSingletons.HudHideHint,                  new MyHudNotification(disappearTimeMs: 0, level: MyNotificationLevel.Control, text: MyCommonTexts.NotificationHudHideFormat));
+            //Register(MyNotificationSingletons.SlotEquipHint,                new MyHudNotification(disappearTimeMs: 0, level: MyNotificationLevel.Control, text: MyCommonTexts.NotificationSlotEquipFormat));
+            //Register(MyNotificationSingletons.HudHideHint,                  new MyHudNotification(disappearTimeMs: 0, level: MyNotificationLevel.Control, text: MyCommonTexts.NotificationHudHideFormat));
 
             Register(MyNotificationSingletons.RespawnShipWarning,       new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationRespawnShipDelete, font: MyFontEnum.Red));
 
-            Register(MyNotificationSingletons.PlayerPromoted, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerPromoted, font: MyFontEnum.Blue));
-            Register(MyNotificationSingletons.PlayerDemoted, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerDemoted, font: MyFontEnum.Red));
+            Register(MyNotificationSingletons.PlayerDemotedNone, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerDemoted_None, font: MyFontEnum.Red));
+            Register(MyNotificationSingletons.PlayerDemotedScripter, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerDemoted_Scripter, font: MyFontEnum.Red));
+            Register(MyNotificationSingletons.PlayerDemotedModerator, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerDemoted_Moderator, font: MyFontEnum.Red));
+            Register(MyNotificationSingletons.PlayerDemotedSpaceMaster, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerDemoted_SpaceMaster, font: MyFontEnum.Red));
+
+            Register(MyNotificationSingletons.PlayerPromotedScripter, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerPromoted_Scripter, font: MyFontEnum.Blue));
+            Register(MyNotificationSingletons.PlayerPromotedModerator, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerPromoted_Moderator, font: MyFontEnum.Blue));
+            Register(MyNotificationSingletons.PlayerPromotedSpaceMaster, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerPromoted_SpaceMaster, font: MyFontEnum.Blue));
+            Register(MyNotificationSingletons.PlayerPromotedAdmin, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerPromoted_Admin, font: MyFontEnum.Blue));
 
             Register(MyNotificationSingletons.PasteFailed, new MyHudNotification(disappearTimeMs: 1300, level: MyNotificationLevel.Important, text: MyCommonTexts.NotificationPasteFailed, font: MyFontEnum.Red));
 
@@ -180,11 +197,13 @@ namespace Sandbox.Game.Gui
 
             Register(MyNotificationSingletons.ManipulatingDoorFailed, new MyHudNotification(disappearTimeMs: 2500, level: MyNotificationLevel.Important, text: MyCommonTexts.Notification_CannotManipulateDoor, font: MyFontEnum.Red));
 
+            Register(MyNotificationSingletons.BlueprintScriptsRemoved, new MyHudNotification(MySpaceTexts.Notification_BlueprintScriptRemoved, 2500, MyFontEnum.Red));
+
             Add(MyNotificationSingletons.HelpHint);
             Add(MyNotificationSingletons.HideHints);
             Add(MyNotificationSingletons.ScreenHint);
-            Add(MyNotificationSingletons.SlotEquipHint);
-            Add(MyNotificationSingletons.HudHideHint);
+            //Add(MyNotificationSingletons.SlotEquipHint);
+            //Add(MyNotificationSingletons.HudHideHint);
 
             FormatNotifications(MyInput.Static.IsJoystickConnected() && MyFakes.ENABLE_CONTROLLER_HINTS);
             MyInput.Static.JoystickConnected += Static_JoystickConnected;
@@ -401,7 +420,9 @@ namespace Sandbox.Game.Gui
             bool isDrawn = notification.Alive;
             if (notification.IsControlsHint)
                 isDrawn = isDrawn && MySandboxGame.Config.ControlsHints;
-            if (MyHud.MinimalHud && notification.Level != MyNotificationLevel.Important)
+            if (MyHud.MinimalHud && !MyHud.CutsceneHud && notification.Level != MyNotificationLevel.Important)
+                isDrawn = false;
+            if(MyHud.CutsceneHud && notification.Level == MyNotificationLevel.Control)
                 isDrawn = false;
 
             return isDrawn;
@@ -426,7 +447,7 @@ namespace Sandbox.Game.Gui
                 var nextItemCode = MyControllerHelper.GetCodeForControl(cx_char, MyControlsSpace.TOOLBAR_NEXT_ITEM);
                 var prevItemCode = MyControllerHelper.GetCodeForControl(cx_char, MyControlsSpace.TOOLBAR_PREV_ITEM);
 
-                Remove(MyNotificationSingletons.HudHideHint);
+                //Remove(MyNotificationSingletons.HudHideHint);
                 if (MyPerGameSettings.Game == GameEnum.ME_GAME)
                 {
                     Remove(MyNotificationSingletons.GameplayOptions);
@@ -434,7 +455,7 @@ namespace Sandbox.Game.Gui
 
                 SetNotificationTextAndArgs(MyNotificationSingletons.HelpHint, MyCommonTexts.NotificationJoystickControlMenuFormat, controlMenuCode);
                 SetNotificationTextAndArgs(MyNotificationSingletons.ScreenHint, MyCommonTexts.NotificationJoystickMenus);
-                SetNotificationTextAndArgs(MyNotificationSingletons.SlotEquipHint, MyCommonTexts.NotificationJoystickSlotEquipFormat, prevItemCode, nextItemCode);
+                //SetNotificationTextAndArgs(MyNotificationSingletons.SlotEquipHint, MyCommonTexts.NotificationJoystickSlotEquipFormat, prevItemCode, nextItemCode);
             }
             else
             {          
@@ -446,7 +467,7 @@ namespace Sandbox.Game.Gui
                 var help = MyInput.Static.GetGameControl(MyControlsSpace.HELP_SCREEN);
                 var compoundToggle = MyInput.Static.GetGameControl(MyControlsSpace.SWITCH_COMPOUND);             
 
-                Add(MyNotificationSingletons.HudHideHint);
+                //Add(MyNotificationSingletons.HudHideHint);
                 if (MyPerGameSettings.Game == GameEnum.ME_GAME)
                 {
                     Add(MyNotificationSingletons.GameplayOptions);
@@ -455,8 +476,8 @@ namespace Sandbox.Game.Gui
 
                 SetNotificationTextAndArgs(MyNotificationSingletons.HelpHint, MyCommonTexts.NotificationNeedShowHelpScreen, help);
                 SetNotificationTextAndArgs(MyNotificationSingletons.ScreenHint, MyCommonTexts.NotificationScreenFormat, buildScreen);
-                SetNotificationTextAndArgs(MyNotificationSingletons.HudHideHint, MyCommonTexts.NotificationHudHideFormat, hud);
-                SetNotificationTextAndArgs(MyNotificationSingletons.SlotEquipHint, MyCommonTexts.NotificationSlotEquipFormat, slot1, slot2, slot3);
+                //SetNotificationTextAndArgs(MyNotificationSingletons.HudHideHint, MyCommonTexts.NotificationHudHideFormat, hud);
+                //SetNotificationTextAndArgs(MyNotificationSingletons.SlotEquipHint, MyCommonTexts.NotificationSlotEquipFormat, slot1, slot2, slot3);
             }
         }
     }

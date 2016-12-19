@@ -276,6 +276,7 @@ namespace Sandbox.Game.GUI.HudViewers
             public PointOfInterestType POIType { get; private set; }
             public MyRelationsBetweenPlayerAndBlock Relationship { get; private set; }
             public MyEntity Entity { get; private set; }
+            public Color DefaultColor = new Color(117, 201, 241); 
 
             public StringBuilder Text { get; private set; }
 
@@ -591,8 +592,8 @@ namespace Sandbox.Game.GUI.HudViewers
 
                     // GPS is always blue
                     case PointOfInterestType.GPS:
-                        poiColor = new Color(117, 201, 241);
-                        fontColor = new Color(117, 201, 241);
+                        poiColor = DefaultColor;
+                        fontColor = DefaultColor;
                         font = MyFontEnum.Blue;
                         break;
                 }
@@ -1338,13 +1339,14 @@ namespace Sandbox.Game.GUI.HudViewers
             poi.SetText(entityName);
         }
 
-        public void AddGPS(Vector3D worldPosition, string name, bool alwaysVisible)
+        public void AddGPS(Vector3D worldPosition, string name, bool alwaysVisible, Color color)
         {
             // Don't add poi if we're not displaying them
             if (SignalDisplayMode == SignalMode.Off) return;
 
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
+            poi.DefaultColor = color;
             poi.Reset();
             poi.SetState(worldPosition, PointOfInterest.PointOfInterestType.GPS, MyRelationsBetweenPlayerAndBlock.Owner);
             poi.SetText(name);
@@ -1357,10 +1359,11 @@ namespace Sandbox.Game.GUI.HudViewers
             //if (SignalDisplayMode == SignalMode.Off) return;
 
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
-            m_pointsOfInterest.Add(poi);
             poi.Reset();
+            poi.AlwaysVisible = true;
             poi.SetState(worldPosition, PointOfInterest.PointOfInterestType.ButtonMarker, MyRelationsBetweenPlayerAndBlock.Owner);
             poi.SetText(name);
+            m_pointsOfInterest.Add(poi);
         }
 
         public void AddOre(Vector3D worldPosition, string name)
@@ -1460,6 +1463,13 @@ namespace Sandbox.Game.GUI.HudViewers
                 {
                     PointOfInterest poi = m_pointsOfInterest[i];
                     PointOfInterest groupPOI = null;
+
+                    if (poi.AlwaysVisible)
+                    {
+                        finalPOIs.Add(poi);
+                        continue;
+                    }
+
 
                     if (poi.AllowsCluster)
                     {

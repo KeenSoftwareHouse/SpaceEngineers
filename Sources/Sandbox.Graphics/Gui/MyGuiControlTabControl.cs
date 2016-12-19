@@ -361,6 +361,14 @@ namespace Sandbox.Graphics.GUI
 
             SelectedPage = previousPage != int.MinValue ? previousPage : lastPage;
         }
+
+        public override MyGuiControlGridDragAndDrop GetDragAndDropHandlingNow()
+        {
+            if (m_selectedPage > -1)
+                return m_pages[m_selectedPage].GetDragAndDropHandlingNow();
+
+            return null;
+        }
     }
 }
 

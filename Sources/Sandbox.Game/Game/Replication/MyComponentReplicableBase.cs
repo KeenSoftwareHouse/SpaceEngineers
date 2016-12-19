@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Library.Collections;
@@ -17,16 +14,10 @@ namespace Sandbox.Game.Replication
         where T: MyEntityComponentBase, IMyEventProxy
     {
         public T Component { get { return Instance; } }
-
-        private bool m_parentDirty;
-        public IMyReplicable m_parent;
-
         Action<MyEntity> m_raiseDestroyedHandler;
 
         public MyComponentReplicableBase()
         {
-            m_parentDirty = true;
-            m_parent = null;
             m_raiseDestroyedHandler = (entity) => RaiseDestroyed();
         }
 
@@ -49,38 +40,18 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        private void UpdateParent()
-        {
-            if (m_parentDirty)
-            {
-                m_parent = GetParent();
-                m_parentDirty = false;
-            }
-        }
-
-        protected abstract IMyReplicable GetParent();
-
-        public override bool IsChild
+        public override bool HasToBeChild
         {
             get
             {
-                UpdateParent();
-                return m_parent != null;
+                return true;
             }
         }
 
-        public override IMyReplicable GetDependency()
+        public override float GetPriority(MyClientInfo client, bool cached)
         {
-            UpdateParent();
-            return m_parent;
-        }
-
-        public override float GetPriority(MyClientInfo client,bool cached)
-        {
-            UpdateParent();
-
-            Debug.Assert(!IsChild || Sandbox.Engine.Utils.MyFakes.DISABLE_MULTIPLAYER_ASSERTS, "Getting priority of a child replicable!");
-            return 1.0f;
+            System.Diagnostics.Debug.Fail("Cannot call GetPriority on children");
+            return 0;
         }
 
         protected override void OnLoad(BitStream stream, Action<T> loadingDoneHandler)
@@ -127,5 +98,11 @@ namespace Sandbox.Game.Replication
         }
 
         public override void GetStateGroups(List<IMyStateGroup> resultList) { }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            System.Diagnostics.Debug.Fail("GetAABB can be called only on root replicables");
+            return VRageMath.BoundingBoxD.CreateInvalid();
+        }
     }
 }

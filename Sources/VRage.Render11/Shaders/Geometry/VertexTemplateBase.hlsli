@@ -1,12 +1,12 @@
-#include <Template.hlsli>
+ #include <Template.hlsli>
 
-#ifndef VERTEX_COMPONENTS_DECLARATIONS
-#define VERTEX_COMPONENTS_DECLARATIONS
-#endif
-
-#ifndef TRANSFER_VERTEX_COMPONENTS
-#define TRANSFER_VERTEX_COMPONENTS
-#endif
+//#ifndef VERTEX_COMPONENTS_DECLARATIONS
+//#define VERTEX_COMPONENTS_DECLARATIONS
+//#endif
+//
+//#ifndef TRANSFER_VERTEX_COMPONENTS
+//#define TRANSFER_VERTEX_COMPONENTS
+//#endif
 
 struct VertexShaderInterface
 {
@@ -15,7 +15,9 @@ struct VertexShaderInterface
     float4 position_clip;
 
     float2 texcoord0;
+#ifdef USE_TEXTURE_INDICES
     float4 texIndices;
+#endif
     float3 material_weights;
     float colorBrightnessFactor;
 
@@ -79,7 +81,6 @@ VertexShaderInterface make_vs_interface()
     return data;
 }
 
-
 #include <VertexTransformations.hlsli>
 #include "VertexMergeInstancing.hlsli"
 #include "AlphamaskViews.hlsli"
@@ -117,7 +118,9 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     float3 __material_weights = 0;
     float  __colorBrightnessFactor = 0;
 	float2 __texcoord0 = 0;
+#ifdef USE_TEXTURE_INDICES
 	float4 __texIndices = 0;
+#endif
     float3 __normal = 0;
     float4 __tangent = 0;
     // morphing
@@ -131,6 +134,10 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     float4 __blend_weights = 0;
     // instancing
     matrix __instance_matrix;
+	float3 __instance_keyColor;
+	float __instance_dithering;
+	float3 __instance_colorMult;
+	float __instance_emissivity;
     // cube instancing (deformation needs bones, processing need to be deferred to after loading all data from vertex!)
     float4 __packed_bone0;
     float4 __packed_bone1;
@@ -150,10 +157,14 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     matrix view_proj = projection_.view_proj_matrix;
 
 #ifndef USE_MERGE_INSTANCING
-    matrix local_matrix = get_object_matrix();
+#ifdef USE_SIMPLE_INSTANCING
+	matrix local_matrix = __instance_matrix;
+#else
+	matrix local_matrix = get_object_matrix();
+#endif
     float3x3 normal_matrix = (float3x3)local_matrix;
 #endif
-
+	
     float facing = 0;
     float windScale = 0;
     float windFrequency = 0;
@@ -216,12 +227,14 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 
 #ifndef DEPTH_ONLY
     VertexPacked packed_vert = VertexPackedSRV[index];
-    __normal = unpack_normal(D3DX_R8G8B8A8_UNORM_to_FLOAT4(packed_vert.packed_norm));
+    __normal = unpack_normal(D3DX_R16G16_UINT_to_UINT2(packed_vert.packed_norm));
     __tangent = unpack_tangent_sign(D3DX_R8G8B8A8_UNORM_to_FLOAT4(packed_vert.packed_tan));
     __texcoord0 = float2(
         f16tof32(packed_vert.packed_uv),
         f16tof32(packed_vert.packed_uv >> 16));
+#ifdef USE_TEXTURE_INDICES
 	__texIndices = unpack_texIndices(packed_vert.texIndices);
+#endif
 	THIS SHOULD NOT BE COMPILED, IF IT IS, PLEASE WRITE FUNCTION "unpack_texIndices"
 #endif
 #endif
@@ -279,7 +292,6 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 
     float4 position = local_matrix._41_42_43_44;
     matrix faced_matrix = local_matrix;
-
 
 #if defined(USE_GENERIC_INSTANCING) || defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING)
 #ifdef USE_GENERIC_INSTANCING
@@ -457,7 +469,10 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     result.position_scaled_translated.xyz += voxelOffset +  centerOffset;
 
 	result.texcoord0 = __texcoord0;
+
+#ifdef USE_TEXTURE_INDICES
 	result.texIndices = __texIndices;
+#endif
 
     result.material_weights = __material_weights;
     result.colorBrightnessFactor = __colorBrightnessFactor;
@@ -480,6 +495,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     result.key_color = __colormask.xyz;
     result.custom_alpha += __colormask.w;
 #endif
+
 
 #if defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING)
 	// __packed_bone7.w contains flag for hologram. Don't do dithering for holograms

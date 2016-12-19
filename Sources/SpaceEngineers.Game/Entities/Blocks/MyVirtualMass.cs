@@ -31,7 +31,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         #endregion
@@ -120,10 +120,10 @@ namespace SpaceEngineers.Game.Entities.Blocks
             DetailedInfo.Append(IsWorking ? BlockDefinition.VirtualMass.ToString() : "0");
             DetailedInfo.Append(" kg\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RequiredInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
             RaisePropertiesChanged();
         }
 

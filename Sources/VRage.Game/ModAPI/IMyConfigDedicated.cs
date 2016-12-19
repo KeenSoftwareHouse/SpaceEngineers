@@ -20,5 +20,6 @@
         MyObjectBuilder_SessionSettings SessionSettings { get; set; }
         int SteamPort { get; set; }
         string WorldName { get; set; }
+        string PremadeCheckpointPath { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using VRageMath;
 using System;
 using System.Collections.Generic;
 using VRage.Game.Entity;
+using VRage.Game.VisualScripting.Utils;
 using VRage.Library.Utils;
 
 namespace VRage.Game.VisualScripting
@@ -25,6 +26,8 @@ namespace VRage.Game.VisualScripting
 
         public static void Init()
         {
+            MyVisualScriptingProxy.WhitelistExtensions(typeof(MyVSCollectionExtensions));
+
             var listType = typeof(List<>);
             MyVisualScriptingProxy.WhitelistMethod(listType.GetMethod("Insert"), true);
             MyVisualScriptingProxy.WhitelistMethod(listType.GetMethod("RemoveAt"), true);
@@ -151,6 +154,15 @@ namespace VRage.Game.VisualScripting
 
         [VisualScriptingMiscData("Math")]
         [VisualScriptingMember]
+        public static Vector3D DirectionVector(Vector3D speed)
+        {
+            if (speed == Vector3D.Zero)
+                return Vector3D.Forward;
+            return Vector3D.Normalize(speed);
+        }
+
+        [VisualScriptingMiscData("Math")]
+        [VisualScriptingMember]
         public static int Ceil(float value)
         {
             return (int)Math.Ceiling(value);
@@ -203,6 +215,22 @@ namespace VRage.Game.VisualScripting
         public static float DistanceVector3(Vector3 posA, Vector3 posB)
         {
             return Vector3.Distance(posA, posB);
+        }
+
+        [VisualScriptingMiscData("Math")]
+        [VisualScriptingMember]
+        public static Vector3D CreateVector3D(float x = 0, float y = 0, float z = 0)
+        {
+            return new Vector3D(x, y, z);
+        }
+
+        [VisualScriptingMiscData("Math")]
+        [VisualScriptingMember]
+        public static void GetVector3DComponents(Vector3D vector, out float x, out float y, out float z)
+        {
+            x = (float)vector.X;
+            y = (float)vector.Y;
+            z = (float)vector.Z;
         }
 
         [VisualScriptingMiscData("Math")]

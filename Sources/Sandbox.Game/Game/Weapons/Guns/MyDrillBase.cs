@@ -296,7 +296,7 @@ namespace Sandbox.Game.Weapons
                             m_lastItemId = entry.Value.ItemId;
                             m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                         }
-                        if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime > MyDrillConstants.DRILL_UPDATE_INTERVAL_IN_MILISECONDS * speedMultiplier)
+                        if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime > MyDebrisConstants.CUT_TREE_IN_MILISECONDS * speedMultiplier)
                         {
                             var sectorProxy = (entity as MyEnvironmentSector).GetModule<MyBreakableEnvironmentProxy>();
                             sectorProxy.BreakAt(entry.Value.ItemId, entry.Value.DetectionPoint, Vector3D.Zero, 0);
@@ -464,7 +464,6 @@ namespace Sandbox.Game.Weapons
 
                 if (DustParticles != null)
                 {
-                    DustParticles.Near = m_drillEntity.Render.NearFlag;
                     DustParticles.WorldMatrix = MatrixD.CreateTranslation(position);
                 }
             }
@@ -475,7 +474,6 @@ namespace Sandbox.Game.Weapons
                 if (MyParticlesManager.TryCreateParticleEffect((int)m_sparksEffectId, out SparkEffect))
                 {
                     SparkEffect.WorldMatrix = Matrix.CreateTranslation(position);
-                    SparkEffect.Near = m_drillEntity.Render.NearFlag;
                 }
                 ProfilerShort.End();
             }

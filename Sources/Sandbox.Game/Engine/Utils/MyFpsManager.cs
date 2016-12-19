@@ -103,7 +103,8 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        public static void Reset(){
+        public static void Reset()
+        {
             m_maxSessionFPS = 0;
             m_minSessionFPS = int.MaxValue;
             m_fpsCounter = 0;

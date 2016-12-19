@@ -12,6 +12,7 @@ using VRage.Utils;
 using SteamSDK;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Graphics;
+using VRage.FileSystem;
 using VRage.Game;
 
 namespace Sandbox.Game.Gui
@@ -64,7 +65,7 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_editButton = MakeButton(buttonOrigin + buttonDelta * 2, MyCommonTexts.LoadScreenButtonEditSettings, OnEditClick));
             Controls.Add(m_saveButton = MakeButton(buttonOrigin + buttonDelta * 3, MyCommonTexts.LoadScreenButtonSaveAs, OnSaveAsClick));
             Controls.Add(m_deleteButton = MakeButton(buttonOrigin + buttonDelta * 4, MyCommonTexts.LoadScreenButtonDelete, OnDeleteClick));
-            Controls.Add(MakeButton(buttonOrigin + buttonDelta * 6, MyCommonTexts.ScreenMenuButtonSubscribedWorlds, OnWorkshopClick));
+            //Controls.Add(MakeButton(buttonOrigin + buttonDelta * 6, MyCommonTexts.ScreenMenuButtonSubscribedWorlds, OnWorkshopClick));
             m_publishButton = MakeButton(buttonOrigin + buttonDelta * 7, MyCommonTexts.LoadScreenButtonPublish, OnPublishClick);
             if (!MyFakes.XB1_PREVIEW)
             {
@@ -81,7 +82,38 @@ namespace Sandbox.Game.Gui
             m_saveButton.DrawCrossTextureWhenDisabled = false;
             m_publishButton.DrawCrossTextureWhenDisabled = false;
 
+            // Debug saves switch checkbox
+            if (MyCompilationSymbols.IsDebugBuild)
+            {
+                var debugWorldForlderCheckbox = new MyGuiControlCheckbox
+                {
+                    IsChecked = false,
+                    OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM,
+                    Position = m_saveBrowser.Position + new Vector2(m_saveBrowser.Size.X + 0.0015f, 0f),
+                    IsCheckedChanged = DebugWorldCheckboxIsCheckChanged
+                };
+
+                var debugLabel = new MyGuiControlLabel
+                {
+                    Text = "Debug Worlds: ",
+                    OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER,
+                    Position = debugWorldForlderCheckbox.Position - new Vector2(debugWorldForlderCheckbox.Size.X, debugWorldForlderCheckbox.Size.Y / 2),
+                    Font = MyFontEnum.Red
+                };
+
+                Controls.Add(debugLabel);
+                Controls.Add(debugWorldForlderCheckbox);
+            }
+
             CloseButtonEnabled = true;
+        }
+
+        private void DebugWorldCheckboxIsCheckChanged(MyGuiControlCheckbox checkbox)
+        {
+            // Switch the directory to either Content/Worlds or Saves
+            string directoryPath = checkbox.IsChecked ? Path.Combine(MyFileSystem.ContentPath, "Worlds") : MyFileSystem.SavesPath;
+            m_saveBrowser.SetTopMostAndCurrentDir(directoryPath);
+            m_saveBrowser.Refresh();
         }
 
         private void OnBackupsButtonClick(MyGuiControlButton myGuiControlButton)
@@ -147,8 +179,14 @@ namespace Sandbox.Game.Gui
             {
                 // TODO: EXISTING SESION NAMES
                 var saveAsScreen = new MyGuiScreenSaveAs(save.Item2, save.Item1, null);
+                saveAsScreen.SaveAsConfirm += OnSaveAsConfirm;
                 MyGuiSandbox.AddScreen(saveAsScreen);
             }
+        }
+
+        void OnSaveAsConfirm()
+        {
+            m_saveBrowser.ForceRefresh();
         }
 
         void OnDeleteClick(MyGuiControlButton sender)

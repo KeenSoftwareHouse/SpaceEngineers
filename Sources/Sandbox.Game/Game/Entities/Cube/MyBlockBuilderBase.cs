@@ -84,7 +84,7 @@ namespace Sandbox.Game.Entities
             get
             {
                 return MyFakes.ENABLE_ADMIN_SPECTATOR_BUILDING && MySession.Static != null && MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator
-                    && MyMultiplayer.Static != null && MySession.Static.LocalHumanPlayer != null && MyMultiplayer.Static.IsAdmin(MySession.Static.LocalHumanPlayer.Id.SteamId) && !MySession.Static.Battle;
+                    && MyMultiplayer.Static != null && MySession.Static.LocalHumanPlayer != null && MySession.Static.LocalHumanPlayer.IsAdmin;
             }
         }
 
@@ -110,7 +110,7 @@ namespace Sandbox.Game.Entities
             get
             {
                 var cameraController = MySession.Static.GetCameraControllerEnum();
-                return cameraController == MyCameraControllerEnum.Spectator || cameraController == MyCameraControllerEnum.SpectatorDelta;
+                return cameraController == MyCameraControllerEnum.Spectator || cameraController == MyCameraControllerEnum.SpectatorDelta || cameraController == MyCameraControllerEnum.SpectatorOrbit;
             }
         }
 

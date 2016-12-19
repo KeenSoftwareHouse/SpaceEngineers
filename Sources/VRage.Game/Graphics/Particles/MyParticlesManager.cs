@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using VRage.Generics;
 using VRage.Profiler;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRageRender.Messages;
@@ -36,6 +37,8 @@ namespace VRage.Game
         }
 
         public static Func<Vector3D, Vector3> CalculateGravityInPoint;
+
+        public static bool EnableCPUGenerations = true;
 
 
         #region Pools
@@ -168,8 +171,40 @@ namespace VRage.Game
             //TestGPUParticles();
         }
 
-
-
+        struct Statistics
+        {
+            public int GPUGens;
+            public int CPUGens;
+            public int Instances;
+        }
+        public static void LogEffects()
+        {
+            var stats = new Dictionary<string, Statistics>();
+            foreach (MyParticleEffect effect in m_particleEffectsForUpdate)
+            {
+                Statistics value;
+                if (stats.TryGetValue(effect.Name, out value))
+                {
+                    value.Instances++;
+                    stats[effect.Name] = value;
+                }
+                else
+                {
+                    value = new Statistics();
+                    foreach (var item in effect.GetGenerations())
+                    {
+                        if (item is MyParticleGPUGeneration)
+                            value.GPUGens++;
+                        else value.CPUGens++;
+                    }
+                    value.Instances = 1;
+                    stats[effect.Name] = value;
+                }
+            }
+            
+            foreach (var item in stats)
+                MyLog.Default.WriteLine(item.Key + ": #" + item.Value.Instances + " GPU " + item.Value.GPUGens + " CPU " + item.Value.CPUGens);
+        }
 
         private static void UpdateEffects()
         {

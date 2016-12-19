@@ -21,8 +21,8 @@ namespace Sandbox.Game.Replication
 {
     class MyInventoryReplicable : MyExternalReplicableEvent<MyInventory>
     {
-        MyPropertySyncStateGroup m_propertySync;
-        MyEntityInventoryStateGroup m_stateGroup;
+        StateGroups.MyPropertySyncStateGroup m_propertySync;
+        StateGroups.MyEntityInventoryStateGroup m_stateGroup;
         MyExternalReplicable m_parent;
 
         public MyInventory Inventory { get { return Instance; } }
@@ -41,15 +41,18 @@ namespace Sandbox.Game.Replication
             base.OnHook();
             if (Inventory != null)
             {
-                m_stateGroup = new MyEntityInventoryStateGroup(Inventory, Sync.IsServer);
+                m_stateGroup = new StateGroups.MyEntityInventoryStateGroup(Inventory, Sync.IsServer, this);
                 ((MyEntity)Inventory.Owner).OnClose += m_destroyEntity;
                 Inventory.BeforeRemovedFromContainer += (component) => OnRemovedFromContainer();
-                m_propertySync = new MyPropertySyncStateGroup(this, Instance.SyncType);
+                m_propertySync = new StateGroups.MyPropertySyncStateGroup(this, Instance.SyncType);
             }
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
+            if (Inventory == null)
+                return null;
+
             Debug.Assert(!((MyEntity)Inventory.Owner).Closed, "Sending inventory of closed entity");
          
             if (Inventory.Owner is MyCubeBlock)
@@ -62,7 +65,6 @@ namespace Sandbox.Game.Replication
 
         public override float GetPriority(MyClientInfo client,bool cached)
         {
-            Debug.Assert(!IsChild);
             MyEntity owner = Inventory.Owner.GetTopMostParent();
 
             if (owner != m_owner)
@@ -163,9 +165,15 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public override bool IsChild
+        public override bool HasToBeChild
         {
-            get { return !(Inventory.Owner is MyCharacter); }
+            get { return true; }
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            System.Diagnostics.Debug.Fail("GetAABB can be called only on root replicables");
+            return VRageMath.BoundingBoxD.CreateInvalid();
         }
     }
 }

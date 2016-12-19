@@ -123,10 +123,9 @@ namespace VRage.Game.Components
         /// Indicates whether a session component should be used in current configuration.
         /// Example: MyDestructionData component returns true only when game uses Havok Destruction
         /// </summary>
-        [Obsolete]
         public virtual bool IsRequiredByGame
         {
-            get { return true; }
+            get { return false; }
         }
 
         public virtual void InitFromDefinition(MySessionComponentDefinition definition)

@@ -11,7 +11,7 @@ using VRage.Render11.Resources.Textures;
 namespace VRage.Render11.Resources
 {
     // TODO: Not used
-    internal class MyRwTextureCatalog : IManager, IManagerDevice, IManagerCallback
+    internal class MyRwTextureCatalog : IManager, IManagerDevice, IManagerFrameEnd
     {
         private Dictionary<string, MyTextureKeyIdentity> m_textureKeysCatalog = new Dictionary<string, MyTextureKeyIdentity>();
         private Dictionary<string, IBorrowedSrvTexture> m_texturesMap = new Dictionary<string, IBorrowedSrvTexture>();
@@ -59,15 +59,13 @@ namespace VRage.Render11.Resources
             return (IUavTexture)GetTexture(textureName);
         }
 
-        public void OnFrameEnd()
+        void IManagerFrameEnd.OnFrameEnd()
         {
             foreach (var texture in m_texturesMap.Values)
                 texture.Release();
 
             m_texturesMap.Clear();
         }
-
-        public void OnUnloadData() { }
 
         public void OnDeviceInit() { }
 

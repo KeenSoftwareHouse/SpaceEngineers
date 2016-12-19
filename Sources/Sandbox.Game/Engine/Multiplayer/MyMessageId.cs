@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace Sandbox.Engine.Multiplayer
 {
     public enum MyMessageId : byte
@@ -15,7 +11,8 @@ namespace Sandbox.Engine.Multiplayer
         SERVER_DATA = 6, // Server -> Client, initial server data, response to client ready
         SERVER_STATE_SYNC = 7, // Server -> Client, state sync data (physics, inventory, terminal)
         CLIENT_READY = 8, // Client -> Server, when world is loaded
-        CLIENT_UPDATE = 9, // Client -> Server, client state (client physics, his context, state sync acks)
+        CLIENT_ACKS = 17, // Client -> Server, state sync acks
+        CLIENT_UPDATE = 9, // Client -> Server, client state (client physics, his context)
         REPLICATION_READY = 10, // Client -> Server, when replicable is ready on client
         REPLICATION_STREAM_BEGIN = 11,
 

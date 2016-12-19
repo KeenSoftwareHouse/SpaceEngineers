@@ -68,6 +68,7 @@ namespace Sandbox.Game.AI.Pathfinding
         private const int NAVMESH_LOD = 0;
         private Dictionary<Vector3I, MyIsoMesh> m_meshCache = new Dictionary<Vector3I, MyIsoMesh>(1024, new Vector3I.EqualityComparer());
         private List<CacheInterval> m_invalidateMeshCacheCoord = new List<CacheInterval>();
+        private List<CacheInterval> m_tmpInvalidCache = new List<CacheInterval>();
         private MyPlanet m_planet;
         private Vector3D m_center;
         private Quaternion rdWorldQuaternion;
@@ -841,7 +842,10 @@ namespace Sandbox.Game.AI.Pathfinding
         {
             if (m_invalidateMeshCacheCoord.Count > 0)
             {
-                foreach (var invalidatedCoord in m_invalidateMeshCacheCoord)
+                m_tmpInvalidCache.AddRange(m_invalidateMeshCacheCoord);
+                m_invalidateMeshCacheCoord.Clear();
+
+                foreach (var invalidatedCoord in m_tmpInvalidCache)
                     for (int i = 0; i < m_meshCache.Count; )
                     {
                         var voxelVector = m_meshCache.ElementAt(i).Key;
@@ -851,12 +855,15 @@ namespace Sandbox.Game.AI.Pathfinding
                             voxelVector.X <= invalidatedCoord.Max.X &&
                             voxelVector.Y <= invalidatedCoord.Max.Y &&
                             voxelVector.Z <= invalidatedCoord.Max.Z)
+                        {
                             m_meshCache.Remove(voxelVector);
+                            break;
+                        }
                         else
                             i++;
                     }
 
-                m_invalidateMeshCacheCoord.Clear();
+                m_tmpInvalidCache.Clear();
             }
         }
 

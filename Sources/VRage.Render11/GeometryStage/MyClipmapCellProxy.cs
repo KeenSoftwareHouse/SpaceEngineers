@@ -113,7 +113,7 @@ namespace VRageRender
             bool shouldInitializeFoliage = false;
 
             if(refresh && foliageComponent != null)
-                foliageComponent.InvalidateStreams();
+                foliageComponent.RefreshStreams();
 
             if (foliageComponent == null && !removeComponent)
                 shouldInitializeFoliage = m_mesh.ShouldHaveFoliage();

@@ -32,14 +32,6 @@ namespace Sandbox.Game.Replication
             if (physicsComponent == null)
                 return false;
 
-            Vector3 velocity = physicsComponent.LinearVelocity;
-            velocity *= MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
-            physicsComponent.LinearVelocity = velocity;
-
-            velocity = physicsComponent.AngularVelocity;
-            velocity *= MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
-            physicsComponent.AngularVelocity = velocity;
-
             VRage.Serialization.MySerializer.Write(stream, ref builder, MyObjectBuilderSerializer.Dynamic);
 
             return true;
@@ -53,14 +45,6 @@ namespace Sandbox.Game.Replication
             if (physicsComponent == null)
                 return;
 
-            Vector3 velocity = physicsComponent.LinearVelocity;
-            velocity /= MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
-            physicsComponent.LinearVelocity = velocity;
-
-            velocity = physicsComponent.AngularVelocity;
-            velocity /= MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
-            physicsComponent.AngularVelocity = velocity;
-
             MyInventoryBagEntity entity = (MyInventoryBagEntity)MyEntities.CreateFromObjectBuilderAndAdd(builder);
             entity.DebugCreatedBy = DebugCreatedBy.FromServer;     
             loadingDoneHandler(entity);        
@@ -68,12 +52,7 @@ namespace Sandbox.Game.Replication
 
         protected override IMyStateGroup CreatePhysicsGroup()
         {
-            return new MyEntityPhysicsStateGroupWithSupport(Instance, this) { FindSupportDelegate = FindSupport };
-        }
-
-        MyEntityPhysicsStateGroup FindSupport()
-        {
-            return MySupportHelper.FindSupportForCharacter(Instance);
+            return new StateGroups.MyEntityPhysicsStateGroup(Instance, this);
         }
     }
 }

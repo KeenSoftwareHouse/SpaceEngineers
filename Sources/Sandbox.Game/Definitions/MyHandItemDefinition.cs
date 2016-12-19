@@ -71,6 +71,7 @@ namespace Sandbox.Definitions
         public MyItemPositioningEnum ItemPositioningShoot3rd = MyItemPositioningEnum.TransformFromData;
 
         public List<ToolSound> ToolSounds;
+        public MyStringHash ToolMaterial;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -143,6 +144,7 @@ namespace Sandbox.Definitions
             ShakeAmountNoTarget = ob.ShakeAmountNoTarget;
 
             ToolSounds = ob.ToolSounds;
+            ToolMaterial = MyStringHash.GetOrCompute(ob.ToolMaterial);
 
             ItemPositioning = ob.ItemPositioning;
             ItemPositioning3rd = ob.ItemPositioning3rd;
@@ -154,7 +156,7 @@ namespace Sandbox.Definitions
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
         {
-            var ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_HandItemDefinition>();
+            var ob = (MyObjectBuilder_HandItemDefinition)base.GetObjectBuilder();
             
             ob.Id = Id;
 
@@ -222,6 +224,7 @@ namespace Sandbox.Definitions
             ob.ShakeAmountNoTarget = ShakeAmountNoTarget;
 
             ob.ToolSounds = ToolSounds;
+            ob.ToolMaterial = ToolMaterial.ToString();
 
             ob.ItemPositioning = ItemPositioning;
             ob.ItemPositioning3rd = ItemPositioning3rd;

@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Forms;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Networking;
 using Sandbox.Game.AI;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.Entities;
@@ -46,6 +48,13 @@ using VRage.Audio;
 using VRage.Data.Audio;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Screens;
+using Sandbox.Graphics;
+
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ObjectBuilders.AI;
+
 #endregion
 
 namespace Sandbox.Game
@@ -76,6 +85,12 @@ namespace Sandbox.Game
     [VisualScriptingEvent(new []{ true, true, true})]
     public delegate void BlockEvent(string typeId, string subtypeId, string gridName, long blockId);
 
+    [VisualScriptingEvent(new[] { true, true, false, false, false })]
+    public delegate void ItemSpawnedEvent(string itemTypeName, string itemSubTypeName, long itemId, int amount, Vector3D position);
+
+    [VisualScriptingEvent]
+    public delegate void ScreenManagerEvent(MyGuiScreenBase screen);
+
     #endregion
 
     [StaticEventOwner]
@@ -103,26 +118,22 @@ namespace Sandbox.Game
         public static SingleKeyEntityNameEvent NPCDied;
 
         public static SingleKeyEntityNameEvent TimerBlockTriggered;
+        public static SingleKeyEntityNameEvent TimerBlockTriggeredEntityName;
 
         public static FloatingObjectPlayerEvent PlayerPickedUp;
         public static PlayerItemEvent PlayerDropped;
+        public static ItemSpawnedEvent ItemSpawned;
 
         public static SingleKeyTriggerEvent AreaTrigger_Left;
         public static SingleKeyTriggerEvent AreaTrigger_Entered;
+
+        public static ScreenManagerEvent ScreenAdded;
+        public static ScreenManagerEvent ScreenRemoved;
 
         public static SingleKeyEntityNameGridNameEvent BlockDestroyed;
         public static BlockEvent BlockBuilt;
         private static MyStringId MUSIC = MyStringId.GetOrCompute("Music");
         public static bool GameIsReady = false;
-
-        public static MyEntity GetEntityByName(string name)
-        {
-            MyEntity entity;
-            if(!MyEntities.TryGetEntityByName(name, out entity))
-                return null;
-
-            return entity;
-        }
 
         private static bool m_registered = false;
         public static void Init()
@@ -170,8 +181,24 @@ namespace Sandbox.Game
                 }
             };
 
+            MyScreenManager.ScreenRemoved += screen =>
+            {
+                if(ScreenRemoved != null)
+                    ScreenRemoved(screen);
+            };
+
+            MyScreenManager.ScreenAdded += screen =>
+            {
+                if(ScreenAdded != null)
+                    ScreenAdded(screen);
+            };
+
             // Register types that are used in VS but are not part of VRage
             MyVisualScriptingProxy.RegisterType(typeof(MyGuiSounds));
+            MyVisualScriptingProxy.RegisterType(typeof(MyKeys));
+            MyVisualScriptingProxy.RegisterType(typeof(Sandbox.Game.Entities.MyRemoteControl.FlightMode));
+            
+            MyVisualScriptingProxy.WhitelistExtensions(typeof(MyVisualScriptLogicProvider));
         }
 
         #endregion
@@ -224,20 +251,67 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("AI")]
         [VisualScriptingMember(true)]
-        public static void SetDroneBehaviour(string entityName, string presetName = "Default", bool activate = true, bool assignToPirates = true)
+        public static void SetDroneBehaviourBasic(string entityName, string presetName = "Default")
         {
-            SetDroneBehaviourWithFirstWaypoint(entityName, Vector3D.Zero, presetName, activate, assignToPirates);
+            SetDroneBehaviourMethod(entityName, presetName, null, null, true, true, 10, TargetPrioritization.PriorityRandom, 10000, false);
         }
 
         [VisualScriptingMiscData("AI")]
         [VisualScriptingMember(true)]
-        public static void SetDroneBehaviourWithFirstWaypoint(string entityName, Vector3D firstWaypoint, string presetName = "Default", bool activate = true, bool assignToPirates = true)
+        public static void SetDroneBehaviourAdvanced(string entityName, string presetName = "Default", bool activate = true, bool assignToPirates = true,
+            List<MyEntity> waypoints = null, bool cycleWaypoints = false, List<MyEntity> targets = null)
+        {
+            List<DroneTarget> targetPairs = DroneProcessTargets(targets);
+            SetDroneBehaviourMethod(entityName, presetName, waypoints, targetPairs, activate, assignToPirates, 10, TargetPrioritization.PriorityRandom, 10000, cycleWaypoints);
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void SetDroneBehaviourFull(string entityName, string presetName = "Default", bool activate = true, bool assignToPirates = true,
+            List<MyEntity> waypoints = null, bool cycleWaypoints = false, List<MyEntity> targets = null, int playerPriority = 10, float maxPlayerDistance = 10000, 
+            TargetPrioritization prioritizationStyle = TargetPrioritization.PriorityRandom)
+        {
+            List<DroneTarget> targetPairs = DroneProcessTargets(targets);
+            SetDroneBehaviourMethod(entityName, presetName, waypoints, targetPairs, activate, assignToPirates, playerPriority, prioritizationStyle, maxPlayerDistance, cycleWaypoints);
+        }
+
+        private static List<DroneTarget> DroneProcessTargets(List<MyEntity> targets)
+        {
+            List<DroneTarget> targetPairs = new List<DroneTarget>();
+            if (targets != null)
+            {
+                foreach (MyEntity t in targets)
+                {
+                    if (t is MyCubeGrid)
+                    {
+                        foreach (var block in ((MyCubeGrid)t).GetBlocks())
+                        {
+                            if (block.FatBlock is MyShipController)
+                                targetPairs.Add(new DroneTarget((MyEntity)block.FatBlock, 8));
+
+                            if (block.FatBlock is MyReactor)
+                                targetPairs.Add(new DroneTarget((MyEntity)block.FatBlock, 6));
+
+                            if (block.FatBlock is MyUserControllableGun)
+                                targetPairs.Add(new DroneTarget((MyEntity)block.FatBlock, 10));
+                        }
+                    }
+                    else
+                    {
+                        targetPairs.Add(new DroneTarget(t));
+                    }
+                }
+            }
+            return targetPairs;
+        }
+
+        private static MyRemoteControl DroneGetRemote(string entityName)
         {
             var entity = GetEntityByName(entityName);
             if (entity == null)
             {
                 Debug.Fail("Entity of name \"" + entityName + "\" was not found.");
-                return;
+                return null;
             }
 
             MyRemoteControl remote = entity as MyRemoteControl;
@@ -256,28 +330,183 @@ namespace Sandbox.Game
                 }
             }
             Debug.Assert(remote != null, "Remote control was not found.");
+            return remote;
+        }
+
+        private static void SetDroneBehaviourMethod(string entityName, string presetName, List<MyEntity> waypoints, List<DroneTarget> targets,
+            bool activate, bool assignToPirates, int playerPriority, TargetPrioritization prioritizationStyle, float maxPlayerDistance, bool cycleWaypoints)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
             if (remote != null)
             {
-                MySpaceStrafeData droneBehavior = MySpaceStrafeDataStatic.LoadPreset(presetName);
-                var blocks = remote.CubeGrid.GetBlocks();
-                List<MyUserControllableGun> guns = new List<MyUserControllableGun>();
-                List<MyFunctionalBlock> tools = new List<MyFunctionalBlock>();
-                foreach (var block in blocks)
+                if (waypoints != null)
                 {
-                    if (block.FatBlock is MyUserControllableGun)
-                        guns.Add(block.FatBlock as MyUserControllableGun);
-                    if (block.FatBlock is MyShipToolBase)
-                        tools.Add(block.FatBlock as MyFunctionalBlock);
-                    if (block.FatBlock is MyShipDrill)
-                        tools.Add(block.FatBlock as MyFunctionalBlock);
+                    // Remove all null waypoints -- bad input protection.
+                    for (var index = 0; index < waypoints.Count;)
+                    {
+                        if (waypoints[index] == null)
+                        {
+                            waypoints.RemoveAtFast(index);
+                        }
+                        else
+                        {
+                            index++;
+                        }
+                    }
                 }
+
+                var blocks = remote.CubeGrid.GetBlocks();
                 if (assignToPirates)
                     remote.CubeGrid.ChangeGridOwnership(GetPirateId(), MyOwnershipShareModeEnum.Faction);
-                MyDroneStrafeBehaviour behaviourComponent = new MyDroneStrafeBehaviour(remote, droneBehavior, activate, guns, tools, firstWaypoint);
+                MyDroneStrafeBehaviour behaviourComponent = new MyDroneStrafeBehaviour(remote, presetName, activate, waypoints, targets, playerPriority, prioritizationStyle, maxPlayerDistance, cycleWaypoints);
                 remote.SetAutomaticBehaviour(behaviourComponent);
                 if (activate)
                     remote.SetAutoPilotEnabled(true);
             }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember]
+        public static int DroneGetWaypointCount(string entityName)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                return remote.AutomaticBehaviour.WaypointList.Count + (remote.AutomaticBehaviour.WaypointActive ? 1 : 0);
+            else
+                return -1;
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember]
+        public static int DroneGetTargetsCount(string entityName)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                return remote.AutomaticBehaviour.TargetList.Count;
+            else
+                return -1;
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneWaypointAdd(string entityName, MyEntity waypoint)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.WaypointAdd(waypoint);
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneWaypointSetCycling(string entityName, bool cycleWaypoints = true)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.CycleWaypoints = cycleWaypoints;
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneSetPlayerPriority(string entityName, int priority)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.PlayerPriority = priority;
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneSetPrioritizationStyle(string entityName, TargetPrioritization style)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.PrioritizationStyle = style;
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneWaypointClear(string entityName)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.WaypointClear();
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneTargetAdd(string entityName, MyEntity target, int priority = 1)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+            {
+                if (target is MyCubeGrid)
+                {
+                    List<DroneTarget> targetPairs = DroneProcessTargets(new List<MyEntity>() { target });
+                    foreach (var targetEntity in targetPairs)
+                        remote.AutomaticBehaviour.TargetAdd(targetEntity);
+                }
+                else
+                    remote.AutomaticBehaviour.TargetAdd(new DroneTarget(target, priority));
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneTargetClear(string entityName)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.TargetClear();
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneTargetRemove(string entityName, MyEntity target)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.TargetRemove(target);
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneTargetLoseCurrent(string entityName)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.TargetLoseCurrent();
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneSetCollisionAvoidance(string entityName, bool collisionAvoidance = true)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+            {
+                remote.SetCollisionAvoidance(collisionAvoidance);
+                remote.AutomaticBehaviour.CollisionAvoidance = collisionAvoidance;
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneSetRetreatPosition(string entityName, Vector3D position)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+            {
+                remote.AutomaticBehaviour.OriginPoint = position;
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void DroneSetRotateToTarget(string entityName, bool rotateToTarget = true)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null && remote.AutomaticBehaviour != null)
+                remote.AutomaticBehaviour.RotateToTarget = rotateToTarget;
         }
 
         [VisualScriptingMiscData("AI")]
@@ -337,6 +566,87 @@ namespace Sandbox.Game
             else
             {
                 Debug.Fail("Grid or block with name \"" + gridName + "\" was not found.");
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void AutopilotGoToPosition(string entityName, Vector3D position, string waypointName = "Waypoint", float speedLimit = 120f, bool collisionAvoidance = true, bool precisionMode = false)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null)
+            {
+                remote.SetCollisionAvoidance(collisionAvoidance);
+                remote.SetAutoPilotSpeedLimit(speedLimit);
+                remote.ChangeFlightMode(Sandbox.Game.Entities.MyRemoteControl.FlightMode.OneWay);
+                remote.SetDockingMode(precisionMode);
+                remote.ClearWaypoints();
+                remote.AddWaypoint(position, waypointName);
+                remote.SetAutoPilotEnabled(true);
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void AutopilotClearWaypoints(string entityName)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null)
+            {
+                remote.ClearWaypoints();
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void AutopilotAddWaypoint(string entityName, Vector3D position, string waypointName = "Waypoint")
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null)
+            {
+                remote.AddWaypoint(position, waypointName);
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void AutopilotSetWaypoints(string entityName, List<Vector3D> positions, string waypointName = "Waypoint")
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null)
+            {
+                remote.ClearWaypoints();
+                if (positions != null)
+                {
+                    for (int i = 0; i < positions.Count; i++)
+                        remote.AddWaypoint(positions[i], waypointName + " " + (i + 1).ToString());
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void AutopilotEnabled(string entityName, bool enabled = true)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null)
+            {
+                remote.SetAutoPilotEnabled(enabled);
+            }
+        }
+
+        [VisualScriptingMiscData("AI")]
+        [VisualScriptingMember(true)]
+        public static void AutopilotActivate(string entityName, Sandbox.Game.Entities.MyRemoteControl.FlightMode mode = MyRemoteControl.FlightMode.OneWay, float speedLimit = 120f, bool collisionAvoidance = true, bool precisionMode = false)
+        {
+            MyRemoteControl remote = DroneGetRemote(entityName);
+            if (remote != null)
+            {
+                remote.SetCollisionAvoidance(collisionAvoidance);
+                remote.SetAutoPilotSpeedLimit(speedLimit);
+                remote.ChangeFlightMode(mode);
+                remote.SetDockingMode(precisionMode);
+                remote.SetAutoPilotEnabled(true);
             }
         }
 
@@ -561,16 +871,16 @@ namespace Sandbox.Game
 
         #endregion
 
-        #region Blocks
+        #region BlocksGeneric
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksGeneric")]
         [VisualScriptingMember(true)]
         public static void EnableBlock(string blockName)
         {
             SetBlockState(blockName, true);
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksGeneric")]
         [VisualScriptingMember(true)]
         public static void DisableBlock(string blockName)
         {
@@ -590,119 +900,14 @@ namespace Sandbox.Game
             }
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksGeneric")]
         [VisualScriptingMember(true)]
-        public static void WeaponShootOnce(string weaponName)
+        public static void SetBlockEnabled(string blockName, bool enabled = true)
         {
-            MyEntity entity;
-
-            if (MyEntities.TryGetEntityByName(weaponName, out entity))
-            {
-                if (entity is MyUserControllableGun)
-                {
-                    (entity as MyUserControllableGun).ShootFromTerminal(entity.WorldMatrix.Forward);
-                }
-            }
+            SetBlockState(blockName, enabled);
         }
 
-        [VisualScriptingMiscData("Blocks")]
-        [VisualScriptingMember(true)]
-        public static void WeaponSetShooting(string weaponName, bool shooting = true)
-        {
-            MyEntity entity;
-
-            if (MyEntities.TryGetEntityByName(weaponName, out entity))
-            {
-                if (entity is MyUserControllableGun)
-                {
-                    (entity as MyUserControllableGun).SetShooting(shooting);
-                }
-            }
-        }
-
-        [VisualScriptingMiscData("Blocks")]
-        [VisualScriptingMember(true)]
-        public static void StartTimerBlock(string blockName)
-        {
-            MyEntity entity;
-            if (!MyEntities.TryGetEntityByName(blockName, out entity))
-                return;
-
-            var block = entity as IMyFunctionalBlock;
-            if (block != null)
-            {
-                block.ApplyAction("Start");
-            }
-        }
-
-        [VisualScriptingMiscData("Blocks")]
-        [VisualScriptingMember(true)]
-        public static void SetLandingGearLock(string entityName, bool locked = true)
-        {
-            MyEntity entity = GetEntityByName(entityName);
-            Debug.Assert(entity != null, "Designers: Entity was not found: " + entityName);
-
-            var landingGear = entity as IMyLandingGear;
-            Debug.Assert(landingGear != null, "Entity of name: " + entityName + " is not a landingGear.");
-            if (landingGear != null)
-            {
-                landingGear.RequestLock(locked);
-            }
-        }
-
-        [VisualScriptingMiscData("Blocks")]
-        [VisualScriptingMember]
-        public static bool IsLandingGearLocked(string entityName)
-        {
-            var entity = GetEntityByName(entityName);
-            Debug.Assert(entity != null, "Entity of name " + entityName + " was not found.");
-            if (entity == null) return false;
-
-            var landingGear = entity as IMyLandingGear;
-            if (landingGear != null)
-            {
-                if (landingGear.LockMode == LandingGearMode.Locked)
-                    return true;
-            }
-            else
-            {
-                Debug.Fail("Entity is not a LandingGear: " + entityName);
-            }
-
-            return false;
-        }
-
-        [VisualScriptingMiscData("Blocks")]
-        [VisualScriptingMember(true)]
-        public static void StopTimerBlock(string blockName)
-        {
-            MyEntity entity;
-            if (!MyEntities.TryGetEntityByName(blockName, out entity))
-                return;
-
-            var block = entity as IMyFunctionalBlock;
-            if (block != null)
-            {
-                block.ApplyAction("Stop");
-            }
-        }
-
-        [VisualScriptingMiscData("Blocks")]
-        [VisualScriptingMember(true)]
-        public static void TriggerTimerBlock(string blockName)
-        {
-            MyEntity entity;
-            if (!MyEntities.TryGetEntityByName(blockName, out entity))
-                return;
-
-            var block = entity as IMyFunctionalBlock;
-            if (block != null)
-            {
-                block.ApplyAction("TriggerNow");
-            }
-        }
-
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksGeneric")]
         [VisualScriptingMember]
         public static bool IsBlockFunctional(string name)
         {
@@ -710,15 +915,15 @@ namespace Sandbox.Game
 
             if (MyEntities.TryGetEntityByName(name, out entity))
             {
-                if (entity is MyFunctionalBlock)
+                if (entity is MyCubeBlock)
                 {
-                    return (entity as MyFunctionalBlock).IsFunctional;
+                    return (entity as MyCubeBlock).IsFunctional;
                 }
             }
             return false;
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksGeneric")]
         [VisualScriptingMember]
         public static bool IsBlockPowered(string name)
         {
@@ -734,7 +939,7 @@ namespace Sandbox.Game
             return false;
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksGeneric")]
         [VisualScriptingMember]
         public static bool IsBlockEnabled(string name)
         {
@@ -750,7 +955,7 @@ namespace Sandbox.Game
             return false;
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksGeneric")]
         [VisualScriptingMember]
         public static bool IsBlockWorking(string name)
         {
@@ -766,7 +971,299 @@ namespace Sandbox.Game
             return false;
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksGeneric")]
+        [VisualScriptingMember(true)]
+        public static void SetBlockGeneralDamageModifier(string blockName, float modifier = 1f)
+        {
+            MyEntity entity;
+
+            if (MyEntities.TryGetEntityByName(blockName, out entity))
+            {
+                if (entity is MyCubeBlock)
+                {
+                    ((MyCubeBlock)entity).SlimBlock.BlockGeneralDamageModifier = modifier;
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksGeneric")]
+        [VisualScriptingMember]
+        public static long GetGridIdOfBlock(string entityName)
+        {
+            MyCubeBlock block = GetEntityByName(entityName) as MyCubeBlock;
+            Debug.Assert(block != null, "Block of name " + entityName + " was not found.");
+            if (block == null) return 0;
+            return block.CubeGrid.EntityId;
+        }
+
+        [VisualScriptingMiscData("BlocksGeneric")]
+        [VisualScriptingMember]
+        public static float GetBlockHealth(string entityName, bool buildIntegrity = true)
+        {
+            MyCubeBlock block = GetEntityByName(entityName) as MyCubeBlock;
+            Debug.Assert(block != null, "Block of name " + entityName + " was not found.");
+            if (block != null)
+            {
+                if (buildIntegrity)
+                    return block.SlimBlock.BuildIntegrity;
+                else
+                    return block.SlimBlock.Integrity;
+            }
+            return 0f;
+        }
+
+        [VisualScriptingMiscData("BlocksGeneric")]
+        [VisualScriptingMember(true)]
+        public static void SetBlockHealth(string entityName, float integrity = 1f, bool damageChange = true, long changeOwner = 0)
+        {
+            MyCubeBlock block = GetEntityByName(entityName) as MyCubeBlock;
+            Debug.Assert(block != null, "Block of name " + entityName + " was not found.");
+            if (block != null)
+            {
+                if (damageChange)
+                    block.SlimBlock.SetIntegrity(block.SlimBlock.BuildIntegrity, integrity, MyIntegrityChangeEnum.Damage, changeOwner);
+                else
+                    block.SlimBlock.SetIntegrity(integrity, integrity, MyIntegrityChangeEnum.Repair, changeOwner);
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksGeneric")]
+        [VisualScriptingMember(true)]
+        public static void DamageBlock(string entityName, float damage = 0f, long damageOwner = 0)
+        {
+            MyCubeBlock block = GetEntityByName(entityName) as MyCubeBlock;
+            Debug.Assert(block != null, "Block of name " + entityName + " was not found.");
+            if (block != null)
+            {
+                block.SlimBlock.DoDamage(damage, MyDamageType.Destruction, attackerId: damageOwner);
+            }
+        }
+
+        #endregion
+
+        #region BlocksSpecific
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember]
+        public static int GetMergeBlockStatus(string mergeBlockName)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityByName(mergeBlockName, out entity);
+
+            Debug.Assert(entity != null, "Entity of name " + mergeBlockName + " was not found.");
+            if (entity == null) return -1;
+
+            MyFunctionalBlock mergeBlock = entity as MyFunctionalBlock;
+            if (mergeBlock != null)
+                return mergeBlock.GetBlockSpecificState();
+            else
+                Debug.Fail("Entity is not a MergeBlock: " + mergeBlockName);
+
+            return -1;
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void WeaponShootOnce(string weaponName)
+        {
+            MyEntity entity;
+
+            if (MyEntities.TryGetEntityByName(weaponName, out entity))
+            {
+                if (entity is MyUserControllableGun)
+                {
+                    (entity as MyUserControllableGun).ShootFromTerminal(entity.WorldMatrix.Forward);
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void WeaponSetShooting(string weaponName, bool shooting = true)
+        {
+            MyEntity entity;
+
+            if (MyEntities.TryGetEntityByName(weaponName, out entity))
+            {
+                if (entity is MyUserControllableGun)
+                {
+                    (entity as MyUserControllableGun).SetShooting(shooting);
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void StartTimerBlock(string blockName)
+        {
+            MyEntity entity;
+            if (!MyEntities.TryGetEntityByName(blockName, out entity))
+                return;
+
+            IMyFunctionalBlock block = entity as IMyFunctionalBlock;
+            if (block != null)
+            {
+                block.ApplyAction("Start");
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void SetLandingGearLock(string entityName, bool locked = true)
+        {
+            MyEntity entity = GetEntityByName(entityName);
+            Debug.Assert(entity != null, "Designers: Entity was not found: " + entityName);
+
+            IMyLandingGear landingGear = entity as IMyLandingGear;
+            Debug.Assert(landingGear != null, "Entity of name: " + entityName + " is not a landingGear.");
+            if (landingGear != null)
+            {
+                landingGear.RequestLock(locked);
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember]
+        public static bool IsLandingGearLocked(string entityName)
+        {
+            MyEntity entity = GetEntityByName(entityName);
+            Debug.Assert(entity != null, "Entity of name " + entityName + " was not found.");
+            if (entity == null) return false;
+
+            IMyLandingGear landingGear = entity as IMyLandingGear;
+            if (landingGear != null)
+            {
+                if (landingGear.LockMode == LandingGearMode.Locked)
+                    return true;
+            }
+            else
+            {
+                Debug.Fail("Entity is not a LandingGear: " + entityName);
+            }
+
+            return false;
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember]
+        public static bool GetLandingGearInformation(string entityName, out bool locked, out bool inConstraint, out string attachedType, out string attachedName)
+        {
+            locked = false;
+            inConstraint = false;
+            attachedType = "";
+            attachedName = "";
+
+            MyEntity entity = GetEntityByName(entityName);
+            Debug.Assert(entity != null, "Entity of name " + entityName + " was not found.");
+            if (entity == null) return false;
+
+            IMyLandingGear landingGear = entity as IMyLandingGear;
+            if (landingGear != null)
+            {
+                locked = landingGear.LockMode == LandingGearMode.Locked;
+                inConstraint = landingGear.LockMode == LandingGearMode.ReadyToLock;
+                if (locked)
+                {
+                    MyEntity other = landingGear.GetAttachedEntity() as MyEntity;
+                    if (other != null)
+                    {
+                        attachedType = other is MyCubeBlock ? "Block" : (other is MyCubeGrid ? "Grid" : (other is MyVoxelBase ? "Voxel" : "Other"));
+                        attachedName = other.Name;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                Debug.Fail("Entity is not a LandingGear: " + entityName);
+            }
+
+            return false;
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember]
+        public static bool GetLandingGearInformationFromEntity(MyEntity entity, out bool locked, out bool inConstraint, out string attachedType, out string attachedName)
+        {
+            locked = false;
+            inConstraint = false;
+            attachedType = "";
+            attachedName = "";
+
+            if (entity == null) return false;
+
+            IMyLandingGear landingGear = entity as IMyLandingGear;
+            if (landingGear != null)
+            {
+                locked = landingGear.LockMode == LandingGearMode.Locked;
+                inConstraint = landingGear.LockMode == LandingGearMode.ReadyToLock;
+                if (locked)
+                {
+                    MyEntity other = landingGear.GetAttachedEntity() as MyEntity;
+                    if (other != null)
+                    {
+                        attachedType = other is MyCubeBlock ? "Block" : (other is MyCubeGrid ? "Grid" : (other is MyVoxelBase ? "Voxel" : "Other"));
+                        attachedName = other.Name;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                Debug.Fail("Entity is not a LandingGear: " + entity.ToString());
+            }
+
+            return false;
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember]
+        public static bool IsConnectorLocked(string connectorName)
+        {
+            MyEntity entity = GetEntityByName(connectorName);
+            Debug.Assert(entity != null, "Entity of name " + connectorName + " was not found.");
+            if (entity == null) return false;
+
+            IMyShipConnector connector = entity as IMyShipConnector;
+            if (connector != null)
+                return connector.IsConnected;
+            else
+                Debug.Fail("Entity is not a LandingGear: " + connectorName);
+
+            return false;
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void StopTimerBlock(string blockName)
+        {
+            MyEntity entity;
+            if (!MyEntities.TryGetEntityByName(blockName, out entity))
+                return;
+
+            var block = entity as IMyFunctionalBlock;
+            if (block != null)
+            {
+                block.ApplyAction("Stop");
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void TriggerTimerBlock(string blockName)
+        {
+            MyEntity entity;
+            if (!MyEntities.TryGetEntityByName(blockName, out entity))
+                return;
+
+            var block = entity as IMyFunctionalBlock;
+            if (block != null)
+            {
+                block.ApplyAction("TriggerNow");
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
         [VisualScriptingMember(true)]
         public static void ChangeDoorState(string doorBlockName, bool open = true)
         {
@@ -782,7 +1279,24 @@ namespace Sandbox.Game
             }
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember]
+        public static bool IsDoorOpen(string doorBlockName)
+        {
+            MyEntity entity;
+            if (MyEntities.TryGetEntityByName(doorBlockName, out entity))
+            {
+                if (entity is MyAdvancedDoor)
+                    return (entity as MyAdvancedDoor).Open;
+                if (entity is MyAirtightDoorGeneric)
+                    return (entity as MyAirtightDoorGeneric).Open;
+                if (entity is MyDoor)
+                    return (entity as MyDoor).Open;
+            }
+            return false;
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
         [VisualScriptingMember(true)]
         public static void SetTextPanelDescription(string panelName, string description, bool publicDescription = true)
         {
@@ -801,7 +1315,26 @@ namespace Sandbox.Game
             }
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void SetTextPanelColors(string panelName, Color fontColor, Color backgroundColor)
+        {
+            MyEntity entity;
+
+            if (MyEntities.TryGetEntityByName(panelName, out entity))
+            {
+                MyTextPanel panel = entity as MyTextPanel;
+                if (panel != null)
+                {
+                    if(fontColor != Color.Transparent)
+                        panel.FontColor = fontColor;
+                    if (backgroundColor != Color.Transparent)
+                        panel.BackgroundColor = backgroundColor;
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
         [VisualScriptingMember(true)]
         public static void SetTextPanelTitle(string panelName, string title, bool publicTitle = true)
         {
@@ -820,7 +1353,7 @@ namespace Sandbox.Game
             }
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksSpecific")]
         [VisualScriptingMember(true)]
         public static void CockpitRemovePilot(string cockpitName)
         {
@@ -836,7 +1369,7 @@ namespace Sandbox.Game
             }
         }
 
-        [VisualScriptingMiscData("Blocks")]
+        [VisualScriptingMiscData("BlocksSpecific")]
         [VisualScriptingMember(true)]
         public static void CockpitInsertPilot(string cockpitName, bool keepOriginalPlayerPosition = true, long playerId = -1)
         {
@@ -853,6 +1386,54 @@ namespace Sandbox.Game
                     if (MySession.Static.ControlledEntity is MyCockpit)
                         (MySession.Static.ControlledEntity as MyCockpit).RemovePilot();
                     cockpit.AttachPilot(MySession.Static.LocalCharacter, keepOriginalPlayerPosition);
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void SetLigtingBlockColor(string lightBlockName, Color color)
+        {
+            MyEntity entity;
+
+            if (MyEntities.TryGetEntityByName(lightBlockName, out entity))
+            {
+                MyLightingBlock light = entity as MyLightingBlock;
+                if (light != null)
+                {
+                    light.Color = color;
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void SetLigtingBlockIntensity(string lightBlockName, float intensity)
+        {
+            MyEntity entity;
+
+            if (MyEntities.TryGetEntityByName(lightBlockName, out entity))
+            {
+                MyLightingBlock light = entity as MyLightingBlock;
+                if (light != null)
+                {
+                    light.Intensity = intensity;
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("BlocksSpecific")]
+        [VisualScriptingMember(true)]
+        public static void SetLigtingBlockRadius(string lightBlockName, float radius)
+        {
+            MyEntity entity;
+
+            if (MyEntities.TryGetEntityByName(lightBlockName, out entity))
+            {
+                MyLightingBlock light = entity as MyLightingBlock;
+                if (light != null)
+                {
+                    light.Radius = radius;
                 }
             }
         }
@@ -927,7 +1508,7 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Effects")]
         [VisualScriptingMember(true)]
-        public static void CreateParticleEffectAtPosition(string effectName, Vector3 position)
+        public static void CreateParticleEffectAtPosition(string effectName, Vector3D position)
         {
             MyParticleEffect effect;
             if (MyParticlesManager.TryCreateParticleEffect(effectName, out effect))
@@ -953,9 +1534,84 @@ namespace Sandbox.Game
             }
         }
 
+        [VisualScriptingMiscData("Effects")]
+        [VisualScriptingMember(true)]
+        public static void ScreenColorFadingStart(float time = 1f, bool toOpaque = true)
+        {
+            MyHud.ScreenEffects.FadeScreen(toOpaque ? 0f : 1f, time);
+        }
+
+        [VisualScriptingMiscData("Effects")]
+        [VisualScriptingMember(true)]
+        public static void ScreenColorFadingSetColor(Color color)
+        {
+            MyHud.ScreenEffects.BlackScreenColor = new Color(color, 0f);
+        }
+
+        [VisualScriptingMiscData("Effects")]
+        [VisualScriptingMember(true)]
+        public static void ScreenColorFadingStartSwitch(float time = 1f)
+        {
+            MyHud.ScreenEffects.SwitchFadeScreen(time);
+        }
+
+        [VisualScriptingMiscData("Effects")]
+        [VisualScriptingMember(true)]
+        public static void ScreenColorFadingMinimalizeHUD(bool minimalize)
+        {
+            MyHud.ScreenEffects.BlackScreenMinimalizeHUD = minimalize;
+        }
+
+        [VisualScriptingMiscData("Effects")]
+        [VisualScriptingMember(true)]
+        public static void ShowHud(bool flag = true)
+        {
+            MyHud.MinimalHud = !flag;
+        }
+
         #endregion
 
         #region Entity
+
+        [VisualScriptingMiscData("Entity")]
+        [VisualScriptingMember]
+        public static MyEntity GetEntityByName(string name)
+        {
+            MyEntity entity;
+            if (!MyEntities.TryGetEntityByName(name, out entity))
+                return null;
+
+            return entity;
+        }
+
+        [VisualScriptingMiscData("Entity")]
+        [VisualScriptingMember]
+        public static MyEntity GetEntityById(long id)
+        {
+            MyEntity entity;
+            if (!MyEntities.TryGetEntityById(id, out entity))
+                return null;
+
+            return entity;
+        }
+
+        [VisualScriptingMiscData("Entity")]
+        [VisualScriptingMember]
+        public static long GetEntityIdFromName(string name)
+        {
+            MyEntity entity;
+            if (!MyEntities.TryGetEntityByName(name, out entity))
+                return 0;
+
+            return entity.EntityId;
+        }
+
+        [VisualScriptingMiscData("Entity")]
+        [VisualScriptingMember]
+        public static long GetEntityIdFromEntity(MyEntity entity)
+        {
+            return entity != null ? entity.EntityId : 0;
+        }
 
         [VisualScriptingMiscData("Entity")]
         [VisualScriptingMember]
@@ -966,6 +1622,59 @@ namespace Sandbox.Game
                 return entity.PositionComp.GetPosition();
 
             return Vector3D.Zero;
+        }
+
+        [VisualScriptingMiscData("Entity")]
+        [VisualScriptingMember]
+        public static void GetEntityVectors(string entityName, out Vector3D position, out Vector3D forward, out Vector3D up)
+        {
+            position = Vector3D.Zero;
+            forward = Vector3D.Forward;
+            up = Vector3D.Up;
+            MyEntity entity = GetEntityByName(entityName);
+            if (entity == null)
+                return;
+
+            position = entity.PositionComp.WorldMatrix.Translation;
+            forward = entity.PositionComp.WorldMatrix.Forward;
+            up = entity.PositionComp.WorldMatrix.Up;
+        }
+
+        [VisualScriptingMiscData("Entity")]
+        [VisualScriptingMember(true)]
+        public static void SetEntityPosition(string entityName, Vector3D position)
+        {
+            MyEntity entity = GetEntityByName(entityName);
+            if (entity != null)
+                entity.PositionComp.SetPosition(position);
+        }
+
+        [VisualScriptingMiscData("Entity")]
+        [VisualScriptingMember]
+        public static Vector3D GetEntityDirection(string entityName, Base6Directions.Direction direction = Base6Directions.Direction.Forward)
+        {
+            MyEntity entity = GetEntityByName(entityName);
+            if (entity == null)
+            {
+                Debug.Fail("Entity of name: " + entityName + " was not found.");
+                return Vector3D.Forward;
+            }
+            switch (direction)
+            {
+                default:
+                case Base6Directions.Direction.Forward:
+                    return entity.WorldMatrix.Forward;
+                case Base6Directions.Direction.Backward:
+                    return entity.WorldMatrix.Backward;
+                case Base6Directions.Direction.Up:
+                    return entity.WorldMatrix.Up;
+                case Base6Directions.Direction.Down:
+                    return entity.WorldMatrix.Down;
+                case Base6Directions.Direction.Left:
+                    return entity.WorldMatrix.Left;
+                case Base6Directions.Direction.Right:
+                    return entity.WorldMatrix.Right;
+            }
         }
 
         [VisualScriptingMiscData("Entity")]
@@ -1054,6 +1763,8 @@ namespace Sandbox.Game
                 var block = entity as MyCubeBlock;
                 if (block != null)
                 {
+                    // Has to use the intermediate "No Ownership" value
+                    block.ChangeBlockOwnerRequest(0, sharingOption);
                     block.ChangeBlockOwnerRequest(playerId, sharingOption);
                     return true;
                 }
@@ -1062,136 +1773,20 @@ namespace Sandbox.Game
                 if (grid != null)
                 {
                     foreach (var fatBlock in grid.GetFatBlocks())
-                        fatBlock.ChangeBlockOwnerRequest(playerId, sharingOption);
+                    {
+                        if(!(fatBlock is MyLightingBlock) && (fatBlock is MyFunctionalBlock || fatBlock is MyShipController))
+                        {
+                            // Has to use the intermediate "No Ownership" value
+                            fatBlock.ChangeBlockOwnerRequest(0, sharingOption);
+                            fatBlock.ChangeBlockOwnerRequest(playerId, sharingOption);
+                        }
+                    }
 
                     return true;
                 }
             }
 
             return false;
-        }
-        // Contains per player data in form of playerId => {enitityId, exclusiveLock} ...
-        private static readonly Dictionary<long, List<MyTuple<long, int>>> m_playerIdsToHighlightData = new Dictionary<long, List<MyTuple<long, int>>>();
-        private static readonly Color DEFAULT_HIGHLIGHT_COLOR = new Color(0, 96, 209, 25);
-
-        [VisualScriptingMiscData("Entity")]
-        [VisualScriptingMember(true)]
-        public static void SetHighlight(string entityName, bool enabled = true, int thickness = 1, int pulseTimeInFrames = 120, Color color = default(Color), long playerId = -1)
-        {
-            MyEntity entity;
-            if (MyEntities.TryGetEntityByName(entityName, out entity))
-            {
-                if (color == default(Color))
-                {
-                    color = DEFAULT_HIGHLIGHT_COLOR;
-                }
-
-                if(playerId == -1)
-                    playerId = GetLocalPlayerId();
-
-                // highlight for single entity
-                var highlightData = new MyHighlightSystem.MyHighlightData
-                {
-                    EntityId  = entity.EntityId,
-                    OutlineColor = color,
-                    PulseTimeInFrames = (ulong)pulseTimeInFrames,
-                    Thickness = enabled ? thickness : -1,
-                    PlayerId = playerId,
-                    IgnoreUseObjectData = true
-                };
-
-                SetHighlight(highlightData, playerId);
-            }
-        }
-
-
-        [VisualScriptingMiscData("Entity")]
-        [VisualScriptingMember(true)]
-        public static void SetGPSHighlight(string entityName, string GPSName, string GPSDescription, bool enabled = true, int thickness = 1, int pulseTimeInFrames = 120, Color color = default(Color), long playerId = -1)
-        {
-            MyEntity entity;
-            if (MyEntities.TryGetEntityByName(entityName, out entity))
-            {
-                if (playerId == -1)
-                    playerId = GetLocalPlayerId();
-                MyTuple<string, string> gpsIdentifier = new MyTuple<string, string>(entityName, GPSName);
-
-                if (enabled)
-                {
-                    MyGps newGPS = new MyGps { ShowOnHud = true, Name = GPSName, Description = GPSDescription, AlwaysVisible = true };
-                    MySession.Static.Gpss.SendAddGps(playerId, ref newGPS, entity.EntityId);
-                }
-                else
-                {
-                    var gps = MySession.Static.Gpss.GetGpsByName(playerId, GPSName);
-                    if (gps != null)
-                        MySession.Static.Gpss.SendDelete(playerId, gps.Hash);
-                }
-                SetHighlight(entityName, enabled: enabled, thickness: thickness, pulseTimeInFrames: pulseTimeInFrames, color: color, playerId: playerId);
-            }
-        }
-
-        // Common logic used for highlighting objects from logic provider
-        private static void SetHighlight(MyHighlightSystem.MyHighlightData highlightData, long playerId)
-        {
-            var highlightComp = MySession.Static.GetComponent<MyHighlightSystem>();
-            // Determine if we are getting rid of the highlight or updating/adding it
-            var enabled = highlightData.Thickness > -1;
-            // Try to find exclusive key in the local dictionary
-            var exclusiveKey = -1;
-            if (m_playerIdsToHighlightData.ContainsKey(playerId))
-            {
-                exclusiveKey = m_playerIdsToHighlightData[playerId].Find(tuple => tuple.Item1 == highlightData.EntityId).Item2;
-                // Tuples default int value is 0 and keys are in range of 10+
-                if (exclusiveKey == 0)
-                    exclusiveKey = -1;
-            }
-
-            // Add requst data with empty exclusive key for non existent records
-            if (exclusiveKey == -1)
-            {
-                // We have nothing to disable highlight for
-                if (!enabled)
-                    return;
-                // Listen to accepted and rejected events - They are being unregistered afterwards
-                highlightComp.ExclusiveHighlightAccepted += OnExclusiveHighlightAccepted;
-                highlightComp.ExclusiveHighlightRejected += OnExclusiveHighlightRejected;
-
-                if (!m_playerIdsToHighlightData.ContainsKey(playerId))
-                    m_playerIdsToHighlightData.Add(playerId, new List<MyTuple<long, int>>());
-
-                m_playerIdsToHighlightData[playerId].Add(new MyTuple<long, int>(highlightData.EntityId, -1));
-            }
-            else if (!enabled)
-            {
-                // Removing the highlight
-                // Remove the data from per player repository
-                m_playerIdsToHighlightData[playerId].RemoveAll(tuple => tuple.Item2 == exclusiveKey);
-            }
-
-            // Do the request
-            highlightComp.RequestHighlightChangeExclusive(highlightData, exclusiveKey);
-        }
-
-        private static void OnExclusiveHighlightRejected(MyHighlightSystem.MyHighlightData data, int exclusiveKey)
-        {
-            m_playerIdsToHighlightData[data.PlayerId].RemoveAll(tuple => tuple.Item1 == data.EntityId);
-            // unsubscribe the second event
-            MySession.Static.GetComponent<MyHighlightSystem>().ExclusiveHighlightAccepted -= OnExclusiveHighlightAccepted;
-        }
-
-        private static void OnExclusiveHighlightAccepted(MyHighlightSystem.MyHighlightData data, int exclusiveKey)
-        {
-            // Already disposed data
-            if (data.Thickness == -1f)
-                return;
-
-            var playersList = m_playerIdsToHighlightData[data.PlayerId];
-            var indexOf = playersList.FindIndex(tuple => tuple.Item1 == data.EntityId);
-            var originalData = playersList[indexOf];
-            m_playerIdsToHighlightData[data.PlayerId][indexOf] = new MyTuple<long, int>(originalData.Item1, exclusiveKey);
-            // unsubscribe the second event
-            MySession.Static.GetComponent<MyHighlightSystem>().ExclusiveHighlightRejected -= OnExclusiveHighlightRejected;
         }
 
         [VisualScriptingMiscData("Entity")]
@@ -1254,6 +1849,29 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Entity")]
         [VisualScriptingMember]
+        public static Vector3D GetEntitySpeed(string entityName)
+        {
+            var entity = GetEntityByName(entityName);
+            if (entity != null)
+            {
+                if (entity.Physics != null)
+                {
+                    return entity.Physics.LinearVelocity;
+                }
+                else
+                {
+                    Debug.Fail("Entity of name " + entityName + " does not have physics.");
+                }
+            }
+            else
+            {
+                Debug.Fail("Entity of name " + entityName + " does not exist.");
+            }
+            return Vector3D.Zero;
+        }
+
+        [VisualScriptingMiscData("Entity")]
+        [VisualScriptingMember]
         public static MyDefinitionId GetDefinitionId(string typeId, string subtypeId)
         {
             MyObjectBuilderType type;
@@ -1279,7 +1897,7 @@ namespace Sandbox.Game
 
                 if (entity is MyCubeGrid || entity is MyFloatingObject)
                 {
-                    MyEntities.Remove(entity);
+                    entity.Close();
                 }
 
                 if (entity is MyCubeBlock)
@@ -1295,6 +1913,8 @@ namespace Sandbox.Game
         public static bool EntityExists(string entityName)
         {
             var entity = GetEntityByName(entityName);
+            if (entity is MyCubeGrid)
+                return ((MyCubeGrid)entity).InScene && !((MyCubeGrid)entity).MarkedForClose;
             return entity != null;
         }
 
@@ -1405,6 +2025,61 @@ namespace Sandbox.Game
 
         #endregion
 
+        #region Factions
+
+        [VisualScriptingMiscData("Factions")]
+        [VisualScriptingMember]
+        public static long GetLocalPlayerId()
+        {
+            return MySession.Static.LocalPlayerId;
+        }
+
+        [VisualScriptingMiscData("Factions")]
+        [VisualScriptingMember]
+        public static long GetPirateId()
+        {
+            return MyPirateAntennas.GetPiratesId();
+        }
+
+        [VisualScriptingMiscData("Factions")]
+        [VisualScriptingMember]
+        public static string GetPlayersFactionTag(long playerId)
+        {
+            var faction = MySession.Static.Factions.TryGetPlayerFaction(playerId) as MyFaction;
+
+            Debug.Assert(faction != null, "Faction of player with id " + playerId.ToString() + " was not found.");
+            if (faction == null)
+                return "";
+
+            return faction.Tag;
+        }
+
+        [VisualScriptingMiscData("Factions")]
+        [VisualScriptingMember]
+        public static string GetPlayersFactionName(long playerId)
+        {
+            var faction = MySession.Static.Factions.TryGetPlayerFaction(playerId) as MyFaction;
+
+            Debug.Assert(faction != null, "Faction of player with id " + playerId.ToString() + " was not found.");
+            if (faction == null)
+                return "";
+
+            return faction.Name;
+        }
+
+        [VisualScriptingMiscData("Factions")]
+        [VisualScriptingMember(true)]
+        public static bool SetPlayersFaction(long playerId, string factionTag)
+        {
+            var faction = MySession.Static.Factions.TryGetFactionByTag(factionTag);
+            if(faction == null) return false;
+
+            MySession.Static.Factions.AddPlayerToFaction(playerId, faction.FactionId);
+            return true;
+        }
+
+        #endregion
+
         #region Gameplay
 
         [VisualScriptingMiscData("Gameplay")]
@@ -1455,6 +2130,62 @@ namespace Sandbox.Game
                     else
                         MySessionLoader.UnloadAndExitToMenu();
                 }));
+        }
+
+        [VisualScriptingMiscData("Gameplay")]
+        [VisualScriptingMember(true)]
+        public static void SessionClose(int fadeTimeMs = 10000)
+        {
+            if (fadeTimeMs < 0) fadeTimeMs = 10000;
+
+            var screen = new MyGuiScreenFade(Color.Black, (uint)fadeTimeMs, 0);
+            screen.Closed += source =>
+            {
+                if (MyCampaignManager.Static.IsCampaignRunning)
+                {
+                    var campaignComp = MySession.Static.GetComponent<MyCampaignSessionComponent>();
+                    campaignComp.LoadNextCampaignMission();
+                }
+                else
+                {
+                    MySessionLoader.UnloadAndExitToMenu();
+                }  
+            };
+            screen.Shown += fade => MyScreenManager.CloseScreen(typeof(MyGuiScreenFade));
+
+            MyHud.MinimalHud = true;
+            MyScreenManager.AddScreen(screen);
+        }
+
+        [VisualScriptingMiscData("Gameplay")]
+        [VisualScriptingMember(true)]
+        public static void SessionReloadLastCheckpoint(int fadeTimeMs = 10000, string message = null, float textScale = 1f, string font = "Blue")
+        {
+            if (fadeTimeMs < 0) fadeTimeMs = 10000;
+
+            var screen = new MyGuiScreenFade(Color.Black, (uint)fadeTimeMs, 0);
+            screen.Closed += source =>
+            {
+                MySessionLoader.LoadSingleplayerSession(MySession.Static.CurrentPath);
+                MyHud.MinimalHud = false;
+            };
+            screen.Shown += fade => MyScreenManager.CloseScreen(typeof(MyGuiScreenFade));
+
+            if(!string.IsNullOrEmpty(message))
+            {
+                screen.Controls.Add(
+                    new MyGuiControlMultilineText(
+                        new Vector2(0.5f),
+                        new Vector2(0.6f, 0.3f),
+                        contents: new StringBuilder(message),
+                        textScale: textScale,
+                        font: "Red"
+                        )
+                    );
+            }
+
+            MyHud.MinimalHud = true;
+            MyScreenManager.AddScreen(screen);
         }
 
         private static bool m_exitGameDialogOpened = false;
@@ -1518,11 +2249,147 @@ namespace Sandbox.Game
 
         #endregion
 
-        #region GPS
+        #region GPSAndHighligths
+        
+        // Contains per player data in form of playerId => {enitityId, exclusiveLock} ...
+        private static readonly Dictionary<long, List<MyTuple<long, int>>> m_playerIdsToHighlightData = new Dictionary<long, List<MyTuple<long, int>>>();
+        private static readonly Color DEFAULT_HIGHLIGHT_COLOR = new Color(0, 96, 209, 25);
 
-        [VisualScriptingMiscData("GPS")]
+        [VisualScriptingMiscData("GPSAndHighligths")]
         [VisualScriptingMember(true)]
-        public static void AddGPS(string name, string description, Vector3D position, int disappearsInS = 0)
+        public static void SetHighlight(string entityName, bool enabled = true, int thickness = 10, int pulseTimeInFrames = 120, Color color = default(Color), long playerId = -1, string subPartNames = null)
+        {
+            MyEntity entity;
+            if (MyEntities.TryGetEntityByName(entityName, out entity))
+            {
+                if (color == default(Color))
+                {
+                    color = DEFAULT_HIGHLIGHT_COLOR;
+                }
+
+                if (playerId == -1)
+                    playerId = GetLocalPlayerId();
+
+                // highlight for single entity
+                var highlightData = new MyHighlightSystem.MyHighlightData
+                {
+                    EntityId = entity.EntityId,
+                    OutlineColor = color,
+                    PulseTimeInFrames = (ulong)pulseTimeInFrames,
+                    Thickness = enabled ? thickness : -1,
+                    PlayerId = playerId,
+                    IgnoreUseObjectData = subPartNames == null,
+                    SubPartNames = subPartNames
+                };
+
+                SetHighlight(highlightData, playerId);
+            }
+        }
+
+
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
+        public static void SetGPSHighlight(string entityName, string GPSName, string GPSDescription, Color GPSColor, bool enabled = true, int thickness = 1, int pulseTimeInFrames = 120, Color color = default(Color), long playerId = -1, string subPartNames = null)
+        {
+            MyEntity entity;
+            if (MyEntities.TryGetEntityByName(entityName, out entity))
+            {
+                if (playerId == -1)
+                    playerId = GetLocalPlayerId();
+                MyTuple<string, string> gpsIdentifier = new MyTuple<string, string>(entityName, GPSName);
+
+                if (enabled)
+                {
+                    MyGps newGPS = new MyGps { ShowOnHud = true, Name = GPSName, Description = GPSDescription, AlwaysVisible = true };
+                    if (GPSColor != Color.Transparent)
+                        newGPS.GPSColor = GPSColor;
+                    MySession.Static.Gpss.SendAddGps(playerId, ref newGPS, entity.EntityId);
+                }
+                else
+                {
+                    var gps = MySession.Static.Gpss.GetGpsByName(playerId, GPSName);
+                    if (gps != null)
+                        MySession.Static.Gpss.SendDelete(playerId, gps.Hash);
+                }
+                SetHighlight(entityName, enabled: enabled, thickness: thickness, pulseTimeInFrames: pulseTimeInFrames, color: color, playerId: playerId, subPartNames: subPartNames);
+            }
+        }
+
+        // Common logic used for highlighting objects from logic provider
+        private static void SetHighlight(MyHighlightSystem.MyHighlightData highlightData, long playerId)
+        {
+            var highlightComp = MySession.Static.GetComponent<MyHighlightSystem>();
+            // Determine if we are getting rid of the highlight or updating/adding it
+            var enabled = highlightData.Thickness > -1;
+            // Try to find exclusive key in the local dictionary
+            var exclusiveKey = -1;
+            if (m_playerIdsToHighlightData.ContainsKey(playerId))
+            {
+                exclusiveKey = m_playerIdsToHighlightData[playerId].Find(tuple => tuple.Item1 == highlightData.EntityId).Item2;
+                // Tuples default int value is 0 and keys are in range of 10+
+                if (exclusiveKey == 0)
+                    exclusiveKey = -1;
+            }
+
+            // Add requst data with empty exclusive key for non existent records
+            if (exclusiveKey == -1)
+            {
+                // We have nothing to disable highlight for
+                if (!enabled)
+                    return;
+                // Listen to accepted and rejected events - They are being unregistered afterwards
+                highlightComp.ExclusiveHighlightAccepted += OnExclusiveHighlightAccepted;
+                highlightComp.ExclusiveHighlightRejected += OnExclusiveHighlightRejected;
+
+                if (!m_playerIdsToHighlightData.ContainsKey(playerId))
+                    m_playerIdsToHighlightData.Add(playerId, new List<MyTuple<long, int>>());
+
+                m_playerIdsToHighlightData[playerId].Add(new MyTuple<long, int>(highlightData.EntityId, -1));
+            }
+            else if (!enabled)
+            {
+                // Removing the highlight
+                // Remove the data from per player repository
+                m_playerIdsToHighlightData[playerId].RemoveAll(tuple => tuple.Item2 == exclusiveKey);
+            }
+
+            // Do the request
+            highlightComp.RequestHighlightChangeExclusive(highlightData, exclusiveKey);
+        }
+
+        private static void OnExclusiveHighlightRejected(MyHighlightSystem.MyHighlightData data, int exclusiveKey)
+        {
+            m_playerIdsToHighlightData[data.PlayerId].RemoveAll(tuple => tuple.Item1 == data.EntityId);
+            // unsubscribe the second event
+            MySession.Static.GetComponent<MyHighlightSystem>().ExclusiveHighlightAccepted -= OnExclusiveHighlightAccepted;
+        }
+
+        private static void OnExclusiveHighlightAccepted(MyHighlightSystem.MyHighlightData data, int exclusiveKey)
+        {
+            // Already disposed data
+            if (data.Thickness == -1f)
+                return;
+
+            var playersList = m_playerIdsToHighlightData[data.PlayerId];
+            var indexOf = playersList.FindIndex(tuple => tuple.Item1 == data.EntityId);
+            var originalData = playersList[indexOf];
+            m_playerIdsToHighlightData[data.PlayerId][indexOf] = new MyTuple<long, int>(originalData.Item1, exclusiveKey);
+            // unsubscribe the second event
+            MySession.Static.GetComponent<MyHighlightSystem>().ExclusiveHighlightRejected -= OnExclusiveHighlightRejected;
+        }
+
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
+        public static void SetGPSColor(string name, Color newColor, long playerId = -1)
+        {
+            IMyGps gps = MySession.Static.Gpss.GetGpsByName(playerId > 0 ? playerId : MySession.Static.LocalPlayerId, name);
+            if(gps != null)
+                MySession.Static.Gpss.ChangeColor(playerId > 0 ? playerId : MySession.Static.LocalPlayerId, gps.Hash, newColor);
+        }
+
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
+        public static void AddGPS(string name, string description, Vector3D position, Color GPSColor, int disappearsInS = 0)
         {
             var localPlayerID = MySession.Static.LocalPlayerId;
             var newGPS = new MyGps { ShowOnHud = true, Coords = position, Name = name, Description = description, AlwaysVisible = true };
@@ -1532,9 +2399,12 @@ namespace Sandbox.Game
                 newGPS.DiscardAt = timeSpan;
             }
             MySession.Static.Gpss.SendAddGps(localPlayerID, ref newGPS);
+            if (GPSColor != Color.Transparent)
+                newGPS.GPSColor = GPSColor;
+            MySession.Static.Gpss.SendAddGps(localPlayerID, ref newGPS);
         }
 
-        [VisualScriptingMiscData("GPS")]
+        [VisualScriptingMiscData("GPSAndHighligths")]
         [VisualScriptingMember(true)]
         public static void RemoveGPS(string name)
         {
@@ -1544,9 +2414,9 @@ namespace Sandbox.Game
                 MySession.Static.Gpss.SendDelete(localPlayerID, gps.Hash);
         }
 
-        [VisualScriptingMiscData("GPS")]
+        [VisualScriptingMiscData("GPSAndHighligths")]
         [VisualScriptingMember(true)]
-        public static void AddGPSToEntity(string entityName, string GPSName, string GPSDescription, long playerId = -1)
+        public static void AddGPSToEntity(string entityName, string GPSName, string GPSDescription, Color GPSColor, long playerId = -1)
         {
             MyEntity entity;
             if (MyEntities.TryGetEntityByName(entityName, out entity))
@@ -1556,11 +2426,13 @@ namespace Sandbox.Game
                 MyTuple<string, string> gpsIdentifier = new MyTuple<string, string>(entityName, GPSName);
 
                 MyGps newGPS = new MyGps { ShowOnHud = true, Name = GPSName, Description = GPSDescription, AlwaysVisible = true };
+                if (GPSColor != Color.Transparent)
+                    newGPS.GPSColor = GPSColor;
                 MySession.Static.Gpss.SendAddGps(playerId, ref newGPS, entity.EntityId);
             }
         }
 
-        [VisualScriptingMiscData("GPS")]
+        [VisualScriptingMiscData("GPSAndHighligths")]
         [VisualScriptingMember(true)]
         public static void RemoveGPSFromEntity(string entityName, string GPSName, string GPSDescription, long playerId = -1)
         {
@@ -1582,6 +2454,77 @@ namespace Sandbox.Game
         #region Grid
 
         [VisualScriptingMiscData("Grid")]
+        [VisualScriptingMember]
+        public static List<long> GetIdListOfSpecificGridBlocks(string gridName, MyDefinitionId blockId)
+        {
+            List<long> result = new List<long>();
+            MyEntity entity = GetEntityByName(gridName);
+            Debug.Assert(entity != null, "Entity was not found: " + gridName);
+            if (entity != null)
+            {
+                MyCubeGrid grid = entity as MyCubeGrid;
+                Debug.Assert(grid != null, "This entity is not a grid: " + gridName);
+                if (grid != null)
+                {
+                    foreach (var block in grid.GetFatBlocks())
+                    {
+                        if (block != null && block.BlockDefinition != null && block.BlockDefinition.Id == blockId)
+                            result.Add(block.EntityId);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        [VisualScriptingMiscData("Grid")]
+        [VisualScriptingMember]
+        public static int GetCountOfSpecificGridBlocks(string gridName, MyDefinitionId blockId)
+        {
+            int result = -2;
+            MyEntity entity = GetEntityByName(gridName);
+            Debug.Assert(entity != null, "Entity was not found: " + gridName);
+            if (entity != null)
+            {
+                result = -1;
+                MyCubeGrid grid = entity as MyCubeGrid;
+                Debug.Assert(grid != null, "This entity is not a grid: " + gridName);
+                if (grid != null)
+                {
+                    result = 0;
+                    foreach (var block in grid.GetFatBlocks())
+                    {
+                        if (block != null && block.BlockDefinition != null && block.BlockDefinition.Id == blockId)
+                            result++;
+                    }
+                }
+            }
+            return result;
+        }
+
+        [VisualScriptingMiscData("Grid")]
+        [VisualScriptingMember]
+        public static long GetIdOfFirstSpecificGridBlock(string gridName, MyDefinitionId blockId)
+        {
+            MyEntity entity = GetEntityByName(gridName);
+            Debug.Assert(entity != null, "Entity was not found: " + gridName);
+            if (entity != null)
+            {
+                MyCubeGrid grid = entity as MyCubeGrid;
+                Debug.Assert(grid != null, "This entity is not a grid: " + gridName);
+                if (grid != null)
+                {
+                    foreach (var block in grid.GetFatBlocks())
+                    {
+                        if (block != null && block.BlockDefinition != null && block.BlockDefinition.Id == blockId)
+                            return block.EntityId;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        [VisualScriptingMiscData("Grid")]
         [VisualScriptingMember(true)]
         public static void SetGridLandingGearsLock(string gridName, bool gearLock = true)
         {
@@ -1594,6 +2537,19 @@ namespace Sandbox.Game
         }
 
         [VisualScriptingMiscData("Grid")]
+        [VisualScriptingMember]
+        public static bool IsGridLockedWithLandingGear(string gridName)
+        {
+            MyCubeGrid grid = GetEntityByName(gridName) as MyCubeGrid;
+            Debug.Assert(grid != null, "Grid was not found: " + gridName);
+            if (grid != null)
+            {
+                return grid.GridSystems.LandingSystem.Locked == MyMultipleEnabledEnum.Mixed || grid.GridSystems.LandingSystem.Locked == MyMultipleEnabledEnum.AllEnabled;
+            }
+            return false;
+        }
+
+        [VisualScriptingMiscData("Grid")]
         [VisualScriptingMember(true)]
         public static void SetGridReactors(string gridName, bool turnOn = true)
         {
@@ -1603,11 +2559,11 @@ namespace Sandbox.Game
             {
                 if (turnOn)
                 {
-                    grid.SendPowerDistributorState(MyMultipleEnabledEnum.AllEnabled, MySession.Static.LocalPlayerId);
+                    grid.SendPowerDistributorState(MyMultipleEnabledEnum.AllEnabled, -1);
                 }
                 else
                 {
-                    grid.SendPowerDistributorState(MyMultipleEnabledEnum.AllDisabled, MySession.Static.LocalPlayerId);
+                    grid.SendPowerDistributorState(MyMultipleEnabledEnum.AllDisabled, -1);
                 }
             }
         }
@@ -1801,7 +2757,7 @@ namespace Sandbox.Game
                 if (!hasEnabledGyro)
                     return false;
 
-                var cockpits = grid.GetFatBlocks<MyCockpit>();
+                var cockpits = grid.GetFatBlocks<MyShipController>();
                 var hasEnabledCockpit = false;
                 foreach (var cockpit in cockpits)
                 {
@@ -1993,6 +2949,21 @@ namespace Sandbox.Game
                 grid.RequestConversionToShip();
         }
 
+        [VisualScriptingMiscData("Grid")]
+        [VisualScriptingMember(true)]
+        public static void SetGridGeneralDamageModifier(string gridName, float modifier = 1f)
+        {
+            MyEntity entity;
+
+            if (MyEntities.TryGetEntityByName(gridName, out entity))
+            {
+                if (entity is MyCubeGrid)
+                {
+                    ((MyCubeGrid)entity).GridGeneralDamageModifier = modifier;
+                }
+            }
+        }
+
         #endregion
 
         #region G-Screen
@@ -2100,6 +3071,287 @@ namespace Sandbox.Game
 
         #endregion
 
+        #region GUI
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static void GetToolbarConfigGridItemIndexAndControl(MyDefinitionId itemDefinition, out MyGuiControlBase control, out int index)
+        {
+            control = null;
+            index = -1;
+
+            var toolbarConf = GetOpenedToolbarConfig();
+            if (toolbarConf != null)
+            {
+                control = toolbarConf.GetControlByName(@"ScrollablePanel\Grid");
+                var grid = control as MyGuiControlGrid;
+                if (grid != null)
+                {
+                    for (index = 0; index < grid.GetItemsCount(); index++)
+                    {
+                        var item = grid.GetItemAt(index);
+                        if(item == null || item.UserData == null) continue;
+                        var toolbarItem = ((MyGuiScreenToolbarConfigBase.GridItemUserData)item.UserData).ItemData as MyObjectBuilder_ToolbarItemDefinition;
+                        if (toolbarItem != null && toolbarItem.DefinitionId == itemDefinition)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static void GetPlayersInventoryItemIndexAndControl(MyDefinitionId itemDefinition, out MyGuiControlBase control, out int index)
+        {
+            control = null;
+            index = -1;
+
+            var terminal = GetOpenedTerminal();
+            if (terminal != null)
+            {
+                control = terminal.GetControlByName(@"TerminalTabs\PageInventory\LeftInventory\MyGuiControlInventoryOwner\InventoryGrid");
+                var grid = control as MyGuiControlGrid;
+                if (grid != null)
+                {
+                    for (index = 0; index < grid.GetItemsCount(); index++)
+                    {
+                        var item = grid.GetItemAt(index);
+                        var physItem = (MyPhysicalInventoryItem)item.UserData;
+                        if (physItem.GetDefinitionId() == itemDefinition)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static void GetInteractedEntityInventoryItemIndexAndControl(MyDefinitionId itemDefinition, out MyGuiControlBase control, out int index)
+        {
+            control = null;
+            index = -1;
+
+            var terminal = GetOpenedTerminal();
+            if (terminal != null)
+            {
+                var inventoryOwner = terminal.GetControlByName(@"TerminalTabs\PageInventory\RightInventory\MyGuiControlInventoryOwner") as MyGuiControlInventoryOwner;
+                if(inventoryOwner == null) return;
+
+                foreach (var grid in inventoryOwner.ContentGrids)
+                {
+                    if (grid != null)
+                    {
+                        control = grid;
+                        for (index = 0; index < grid.GetItemsCount(); index++)
+                        {
+                            var item = grid.GetItemAt(index);
+                            var physItem = (MyPhysicalInventoryItem)item.UserData;
+                            if (physItem.GetDefinitionId() == itemDefinition)
+                            {
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember(true)]
+        public static void OpenSteamOverlay(string url, long playerId = 0)
+        {
+            if (playerId == 0)
+            {
+                OpenSteamOverlaySync(url);
+                return;
+            }
+
+            MyPlayer.PlayerId _playerId;
+            // Do nothing for nonexistent player ids
+            if (!MySession.Static.Players.TryGetPlayerId(playerId, out _playerId)) return;
+            // Send message to respective client
+            MyMultiplayer.RaiseStaticEvent(s => OpenSteamOverlaySync, url, new EndpointId(_playerId.SteamId));
+        }
+
+        [Event, Reliable, Client]
+        private static void OpenSteamOverlaySync(string url)
+        {
+            MySteam.API.OpenOverlayUrl(url);
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember(true)]
+        public static void HighlightGuiControl(string controlName, string activeScreenName)
+        {
+            foreach (var screen in MyScreenManager.Screens)
+            {
+                if (screen.Name == activeScreenName)
+                {
+                    foreach (var control in screen.Controls)
+                    {
+                        if (control.Name == controlName)
+                        {
+                            MyGuiScreenHighlight.HighlightControl(new MyGuiScreenHighlight.MyHighlightControl { Control = control });
+                        }
+                    }
+                }
+            }
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember(true)]
+        public static void HighlightGuiControl(MyGuiControlBase control, List<int> indicies = null, string customToolTipMessage = null)
+        {
+            if(control == null) return;
+
+            var highlightControl = new MyGuiScreenHighlight.MyHighlightControl { Control = control };
+            if(indicies != null)
+            {
+                highlightControl.Indices = indicies.ToArray();
+            }
+
+            if(!string.IsNullOrEmpty(customToolTipMessage))
+            {
+                highlightControl.CustomToolTips = new MyToolTips(customToolTipMessage);
+            }
+
+            MyGuiScreenHighlight.HighlightControl(highlightControl);
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static MyGuiControlBase GetControlByName(this MyGuiScreenBase screen, string controlName)
+        {
+            if(string.IsNullOrEmpty(controlName) || screen == null) return null;
+
+            var splits = controlName.Split('\\');
+
+            MyGuiControlBase currentControl = screen.Controls.GetControlByName(splits[0]);
+            for (int index = 1; index < splits.Length; index++)
+            {
+                var controlParent = currentControl as MyGuiControlParent;
+                if (controlParent != null)
+                {
+                    currentControl = controlParent.Controls.GetControlByName(splits[index]);
+                    continue;
+                }
+                var scrollPanel = currentControl as MyGuiControlScrollablePanel;
+                if (scrollPanel != null)
+                {
+                    currentControl = scrollPanel.Controls.GetControlByName(splits[index]);
+                    continue;
+                }
+                if(currentControl != null)
+                { 
+                    currentControl = currentControl.Elements.GetControlByName(splits[index]);
+                }
+
+                break;
+            }
+
+            return currentControl;
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static MyGuiControlBase GetControlByName(this MyGuiControlParent control, string controlName)
+        {
+            if (string.IsNullOrEmpty(controlName) || control == null) return null;
+
+            var splits = controlName.Split('\\');
+
+            MyGuiControlBase currentControl = control.Controls.GetControlByName(splits[0]);
+            for (int index = 1; index < splits.Length; index++)
+            {
+                var controlParent = currentControl as MyGuiControlParent;
+                if (controlParent != null)
+                {
+                    currentControl = controlParent.Controls.GetControlByName(splits[index]);
+                    continue;
+                }
+                var scrollPanel = currentControl as MyGuiControlScrollablePanel;
+                if (scrollPanel != null)
+                {
+                    currentControl = scrollPanel.Controls.GetControlByName(splits[index]);
+                    continue;
+                }
+                if (currentControl != null)
+                {
+                    currentControl = currentControl.Elements.GetControlByName(splits[index]);
+                }
+
+                break;
+            }
+
+            return currentControl;
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember(true)]
+        public static void SetTooltip(this MyGuiControlBase control, string text)
+        {
+            if(control == null) return;
+            control.SetToolTip(text);
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static MyGuiScreenTerminal GetOpenedTerminal()
+        {
+            var terminal = MyScreenManager.GetScreenWithFocus() as MyGuiScreenTerminal;
+            return terminal;
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static MyGuiControlTabPage GetTab(this MyGuiControlTabControl tabs, int key)
+        {
+            if(tabs == null) return null;
+            return tabs.GetTabSubControl(key);
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static MyGuiControlTabControl GetTabs(this MyGuiScreenTerminal terminal)
+        {
+            if (terminal == null) return null;
+            return terminal.Controls.GetControlByName("TerminalTabs") as MyGuiControlTabControl;
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static MyGuiScreenToolbarConfigBase GetOpenedToolbarConfig()
+        {
+            var tollbarConfig = MyScreenManager.GetScreenWithFocus() as MyGuiScreenToolbarConfigBase;
+            return tollbarConfig;
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static bool IsNewKeyPressed(MyKeys key)
+        {
+            return MyInput.Static.IsNewKeyPressed(key);
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember]
+        public static string GetFriendlyName(this MyGuiScreenBase screen)
+        {
+            return screen.GetFriendlyName();
+        }
+
+        [VisualScriptingMiscData("GUI")]
+        [VisualScriptingMember(true)]
+        public static void SetPage(this MyGuiControlTabControl pageControl, int pageNumber)
+        {
+            pageControl.SelectedPage = pageNumber;
+        }
+        #endregion
+
         #region Misc
 
         [VisualScriptingMiscData("Misc")]
@@ -2168,6 +3420,16 @@ namespace Sandbox.Game
             }
         }
 
+        [VisualScriptingMiscData("Misc")]
+        [VisualScriptingMember]
+        public static Color GetColor(float r = 0, float g = 0, float b = 0)
+        {
+            r = MathHelper.Clamp(r, 0f, 1f);
+            g = MathHelper.Clamp(g, 0f, 1f);
+            b = MathHelper.Clamp(b, 0f, 1f);
+            return new Color(r, g, b);
+        }
+
         #endregion
 
         #region Notifications
@@ -2196,12 +3458,31 @@ namespace Sandbox.Game
         [VisualScriptingMember(true)]
         public static void SendChatMessage(string message, string author = "", long playerId = 0, string font = MyFontEnum.Blue)
         {
-            ScriptedChatMsg msg;
-            msg.Text = message;
-            msg.Author = author;
-            msg.Target = playerId;
-            msg.Font = font;
-            MyMultiplayerBase.SendScriptedChatMessage(ref msg);
+            if (MyMultiplayer.Static != null)
+            {
+                ScriptedChatMsg msg;
+                msg.Text = message;
+                msg.Author = author;
+                msg.Target = playerId;
+                msg.Font = font;
+                MyMultiplayerBase.SendScriptedChatMessage(ref msg);
+            }
+            else
+                MyHud.Chat.multiplayer_ScriptedChatMessageReceived(message, author, font);
+        }
+
+        [VisualScriptingMiscData("Notifications")]
+        [VisualScriptingMember(true)]
+        public static void SetChatMessageDuration(int durationS = 15)
+        {
+            MyHudChat.MaxMessageTime = durationS * 1000;
+        }
+
+        [VisualScriptingMiscData("Notifications")]
+        [VisualScriptingMember(true)]
+        public static void SetChatMaxMessageCount(int count = 10)
+        {
+            MyHudChat.MaxMessageCount = count;
         }
 
         [Event, Reliable, Client]
@@ -2300,18 +3581,130 @@ namespace Sandbox.Game
 
         #region Players
 
+        private static MyCharacter GetCharacterFromPlayerId(long playerId)
+        {
+            if (playerId > 0)
+            {
+                var identity = MySession.Static.Players.TryGetIdentity(playerId);
+                if (identity != null)
+                    return identity.Character;
+            }
+            else
+            {
+                return MySession.Static.LocalCharacter;
+            }
+            return null;
+        }
+
+        private static MyIdentity GetIdentityFromPlayerId(long playerId)
+        {
+            if (playerId > 0)
+            {
+                return MySession.Static.Players.TryGetIdentity(playerId);
+            }
+            else
+            {
+                return MySession.Static.LocalHumanPlayer.Identity;
+            }
+            return null;
+        }
+
+        private static MyPlayer GetPlayerFromPlayerId(long playerId)
+        {
+            if (playerId > 0)
+            {
+                MyPlayer player = null;
+                MyPlayer.PlayerId playerIdInternal;
+                if (MySession.Static.Players.TryGetPlayerId(playerId, out playerIdInternal))
+                {
+                    MySession.Static.Players.TryGetPlayerById(playerIdInternal, out player);
+                }
+                return null;
+            }
+            else
+            {
+                return MySession.Static.LocalHumanPlayer;
+            }
+            return null;
+        }
+
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static bool IsPlayerInCockpit(string gridName = null, string cockpitName = null)
+        public static float GetOxygenLevelAtPlayersPosition(long playerId = -1)
         {
-            var cockpit = MySession.Static.ControlledEntity.Entity as MyCockpit;
+            if (MySession.Static.Settings.EnableOxygenPressurization && MySession.Static.Settings.EnableOxygen)
+            {
+                MyCharacter character = GetCharacterFromPlayerId(playerId);
+                if (character != null && character.OxygenComponent != null)
+                    return character.OxygenComponent.OxygenLevelAtCharacterLocation;
+            }
+
+            return 1f;
+        }
+
+        [VisualScriptingMiscData("Players")]
+        [VisualScriptingMember]
+        public static bool GetPlayersHelmetStatus(long playerId = -1)
+        {
+            if (MySession.Static.Settings.EnableOxygenPressurization && MySession.Static.Settings.EnableOxygen)
+            {
+                MyCharacter character = GetCharacterFromPlayerId(playerId);
+                if (character != null && character.OxygenComponent != null)
+                    return character.OxygenComponent.HelmetEnabled;
+            }
+
+            return false;
+        }
+
+        [VisualScriptingMiscData("Players")]
+        [VisualScriptingMember]
+        public static Vector3D GetPlayersSpeed(long playerId = -1)
+        {
+            MyCharacter character = GetCharacterFromPlayerId(playerId);
+            if (character != null)
+            {
+                return character.Physics.LinearVelocity;
+            }
+
+            return Vector3D.Zero;
+        }
+
+        [VisualScriptingMiscData("Players")]
+        [VisualScriptingMember(true)]
+        public static void SetPlayersSpeed(Vector3D speed = default(Vector3D), long playerId = -1)
+        {
+            MyCharacter character = GetCharacterFromPlayerId(playerId);
+            if (character != null)
+            {
+                if (speed != Vector3D.Zero)
+                {
+                    float maxCharacterSpeedRelativeToShip = Math.Max(character.Definition.MaxSprintSpeed, Math.Max(character.Definition.MaxRunSpeed, character.Definition.MaxBackrunSpeed));
+                    float maxSpeed = MyGridPhysics.ShipMaxLinearVelocity() + maxCharacterSpeedRelativeToShip;
+                    if (speed.LengthSquared() > maxSpeed * maxSpeed)
+                    {
+                        speed.Normalize();
+                        speed *= maxSpeed;
+                    }
+                }
+                character.Physics.LinearVelocity = speed;
+            }
+        }
+
+        [VisualScriptingMiscData("Players")]
+        [VisualScriptingMember]
+        public static bool IsPlayerInCockpit(long playerId = -1, string gridName = null, string cockpitName = null)
+        {
+            MyPlayer player = GetPlayerFromPlayerId(playerId);
+            MyCockpit cockpit = null;
+            if (player != null && player.Controller != null && player.Controller.ControlledEntity != null)
+                cockpit = player.Controller.ControlledEntity.Entity as MyCockpit;
 
             if (cockpit == null) return false;
 
-            if (gridName != null && cockpit.CubeGrid.Name != gridName)
+            if (string.IsNullOrEmpty(gridName) == false && cockpit.CubeGrid.Name != gridName)
                 return false;
 
-            if (cockpitName != null && cockpit.Name != cockpitName)
+            if (string.IsNullOrEmpty(cockpitName) == false && cockpit.Name != cockpitName)
                 return false;
 
             return true;
@@ -2319,16 +3712,19 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static bool IsPlayerInRemote(string gridName = null, string remoteName = null)
+        public static bool IsPlayerInRemote(long playerId = -1, string gridName = null, string remoteName = null)
         {
-            var remote = MySession.Static.ControlledEntity.Entity as MyRemoteControl;
+            MyPlayer player = GetPlayerFromPlayerId(playerId);
+            MyRemoteControl remote = null;
+            if (player != null && player.Controller != null && player.Controller.ControlledEntity != null)
+                remote = player.Controller.ControlledEntity.Entity as MyRemoteControl;
 
             if (remote == null) return false;
 
-            if (gridName != null && remote.CubeGrid.Name != gridName)
+            if (string.IsNullOrEmpty(gridName) == false && remote.CubeGrid.Name != gridName)
                 return false;
 
-            if (remoteName != null && remote.Name != remoteName)
+            if (string.IsNullOrEmpty(remoteName) == false && remote.Name != remoteName)
                 return false;
 
             return true;
@@ -2336,42 +3732,39 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static long GetLocalPlayerId()
+        public static bool IsPlayerInWeapon(long playerId = -1, string gridName = null, string weaponName = null)
         {
-            return MySession.Static.LocalPlayerId;
+            MyPlayer player = GetPlayerFromPlayerId(playerId);
+            MyUserControllableGun weapon = null;
+            if (player != null && player.Controller != null && player.Controller.ControlledEntity != null)
+                weapon = player.Controller.ControlledEntity.Entity as MyUserControllableGun;
+
+            if (weapon == null) return false;
+
+            if (string.IsNullOrEmpty(gridName) == false && weapon.CubeGrid.Name != gridName)
+                return false;
+
+            if (string.IsNullOrEmpty(weaponName) == false && weapon.Name != weaponName)
+                return false;
+
+            return true;
         }
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static string GetPlayersFactionTag(long playerId)
+        public static bool IsPlayerDead(long playerId = -1)
         {
-            var faction = MySession.Static.Factions.TryGetPlayerFaction(playerId) as MyFaction;
-
-            Debug.Assert(faction != null, "Faction of player with id " + playerId.ToString() + " was not found.");
-            if (faction == null)
-                return "";
-
-            return faction.Tag;
+            MyCharacter character = GetCharacterFromPlayerId(playerId);
+            if (character != null)
+                return character.IsDead;
+            return false;
         }
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static string GetPlayersFactionName(long playerId)
+        public static string GetPlayersName(long playerId = -1)
         {
-            var faction = MySession.Static.Factions.TryGetPlayerFaction(playerId) as MyFaction;
-
-            Debug.Assert(faction != null, "Faction of player with id " + playerId.ToString() + " was not found.");
-            if (faction == null)
-                return "";
-
-            return faction.Name;
-        }
-
-        [VisualScriptingMiscData("Players")]
-        [VisualScriptingMember]
-        public static string GetPlayersName(long playerId)
-        {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 return identity.DisplayName;
@@ -2382,16 +3775,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static long GetPirateId()
+        public static float GetPlayersHealth(long playerId = -1)
         {
-            return MyPirateAntennas.GetPiratesId();
-        }
-
-        [VisualScriptingMiscData("Players")]
-        [VisualScriptingMember]
-        public static float GetPlayersHealth(long playerId)
-        {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 return identity.Character.StatComp.Health.Value;
@@ -2402,9 +3788,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static bool IsPlayersJetpackEnabled(long playerId)
+        public static bool IsPlayersJetpackEnabled(long playerId = -1)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null && identity.Character != null && identity.Character.JetpackComp != null)
             {
                 return identity.Character.JetpackComp.TurnedOn;
@@ -2415,9 +3801,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static float GetPlayersOxygenLevel(long playerId)
+        public static float GetPlayersOxygenLevel(long playerId = -1)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 return identity.Character.OxygenComponent.SuitOxygenLevel;
@@ -2428,9 +3814,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static float GetPlayersHydrogenLevel(long playerId)
+        public static float GetPlayersHydrogenLevel(long playerId = -1)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 return identity.Character.OxygenComponent.GetGasFillLevel(MyCharacterOxygenComponent.HydrogenId);
@@ -2441,9 +3827,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static float GetPlayersEnergyLevel(long playerId)
+        public static float GetPlayersEnergyLevel(long playerId = -1)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 return identity.Character.SuitEnergyLevel;
@@ -2454,9 +3840,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember(true)]
-        public static void SetPlayersHealth(long playerId, float value)
+        public static void SetPlayersHealth(long playerId = -1, float value = 100f)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 identity.Character.StatComp.Health.Value = value;
@@ -2465,9 +3851,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember(true)]
-        public static void SetPlayersOxygenLevel(long playerId, float value)
+        public static void SetPlayersOxygenLevel(long playerId = -1, float value = 1f)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 identity.Character.OxygenComponent.SuitOxygenLevel = value;
@@ -2476,9 +3862,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember(true)]
-        public static void SetPlayersHydrogenLevel(long playerId, float value)
+        public static void SetPlayersHydrogenLevel(long playerId = -1, float value = 1f)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 var hydrogenId = MyCharacterOxygenComponent.HydrogenId;
@@ -2488,9 +3874,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember(true)]
-        public static void SetPlayersEnergyLevel(long playerId, float value)
+        public static void SetPlayersEnergyLevel(long playerId = -1, float value = 1f)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 identity.Character.SuitBattery.ResourceSource
@@ -2500,9 +3886,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember(true)]
-        public static void SetPlayersPosition(long playerId, Vector3D position)
+        public static void SetPlayersPosition(long playerId = -1, Vector3D position = default(Vector3D))
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 identity.Character.PositionComp.SetPosition(position);
@@ -2511,9 +3897,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static Vector3D GetPlayersPosition(long playerId)
+        public static Vector3D GetPlayersPosition(long playerId = -1)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 return identity.Character.PositionComp.GetPosition();
@@ -2524,12 +3910,12 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember]
-        public static int GetPlayersInventoryItemAmount(long playerId, MyDefinitionId itemId)
+        public static int GetPlayersInventoryItemAmount(long playerId = -1, MyDefinitionId itemId = default(MyDefinitionId))
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
-                if (!itemId.TypeId.IsNull)
+                if (!itemId.TypeId.IsNull && identity.Character != null)
                 {
                     var inventory = identity.Character.GetInventory();
                     if(inventory != null)
@@ -2544,9 +3930,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember(true)]
-        public static void AddToPlayersInventory(long playerId, MyDefinitionId itemId, int amount = 1)
+        public static void AddToPlayersInventory(long playerId = -1, MyDefinitionId itemId = default(MyDefinitionId), int amount = 1)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 var inventory = identity.Character.GetInventory();
@@ -2563,9 +3949,9 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Players")]
         [VisualScriptingMember(true)]
-        public static void RemoveFromPlayersInventory(long playerId, MyDefinitionId itemId, int amount = 1)
+        public static void RemoveFromPlayersInventory(long playerId = -1, MyDefinitionId itemId = default(MyDefinitionId), int amount = 1)
         {
-            var identity = MySession.Static.Players.TryGetIdentity(playerId);
+            MyIdentity identity = GetIdentityFromPlayerId(playerId);
             if (identity != null)
             {
                 var inventory = identity.Character.GetInventory();
@@ -2580,13 +3966,34 @@ namespace Sandbox.Game
             }
         }
 
+        [VisualScriptingMiscData("Players")]
+        [VisualScriptingMember(true)]
+        public static void SetPlayerGeneralDamageModifier(long playerId = -1, float modifier = 1f)
+        {
+            MyCharacter character = null;
+            if (playerId > 0)
+            {
+                var identity = MySession.Static.Players.TryGetIdentity(playerId);
+                if (identity != null)
+                    character = identity.Character;
+            }
+            else
+            {
+                character = MySession.Static.LocalCharacter;
+            }
+            if (character != null)
+            {
+                character.CharacterGeneralDamageModifier = modifier;
+            }
+        }
+
         #endregion
 
         #region Questlog
 
         [VisualScriptingMiscData("Questlog")]
         [VisualScriptingMember(true)]
-        public static void SetQuestlog(bool visible, string questName)
+        public static void SetQuestlog(bool visible = true, string questName = "")
         {
             MyHud.Questlog.QuestTitle = questName;
             MyHud.Questlog.CleanDetails();
@@ -2595,23 +4002,40 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Questlog")]
         [VisualScriptingMember(true)]
-        public static void SetQuestlogTitle(string questName)
+        public static void SetQuestlogTitle(string questName = "")
         {
             MyHud.Questlog.QuestTitle = questName;
         }
 
         [VisualScriptingMiscData("Questlog")]
         [VisualScriptingMember(true)]
-        public static int AddQuestlogDetail(string questDetailRow)
+        public static int AddQuestlogDetail(string questDetailRow = "", bool completePrevious = true, bool useTyping = true)
         {
-            return MyHud.Questlog.AddDetail(questDetailRow);
+            int id = MyHud.Questlog.AddDetail(questDetailRow, useTyping);
+            if (completePrevious)
+                MyHud.Questlog.SetCompleted(id - 1, true);
+            return id;
         }
 
         [VisualScriptingMiscData("Questlog")]
         [VisualScriptingMember(true)]
-        public static void ReplaceQuestlogDetail(int id, string newDetail)
+        public static void SetQuestlogDetailCompleted(int lineId = 0, bool completed = true)
         {
-            MyHud.Questlog.ModifyDetail(id, newDetail);
+            MyHud.Questlog.SetCompleted(lineId, completed);
+        }
+
+        [VisualScriptingMiscData("Questlog")]
+        [VisualScriptingMember(true)]
+        public static void SetAllQuestlogDetailsCompleted(bool completed = true)
+        {
+            MyHud.Questlog.SetAllCompleted(completed);
+        }
+
+        [VisualScriptingMiscData("Questlog")]
+        [VisualScriptingMember(true)]
+        public static void ReplaceQuestlogDetail(int id = 0, string newDetail = "", bool useTyping = true)
+        {
+            MyHud.Questlog.ModifyDetail(id, newDetail, useTyping);
         }
 
         [VisualScriptingMiscData("Questlog")]
@@ -2623,7 +4047,7 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Questlog")]
         [VisualScriptingMember(true)]
-        public static void SetQuestlogPage(int value)
+        public static void SetQuestlogPage(int value = 0)
         {
             MyHud.Questlog.Page = value;
         }
@@ -2644,21 +4068,21 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Questlog")]
         [VisualScriptingMember(true)]
-        public static void SetQuestlogVisible(bool value)
+        public static void SetQuestlogVisible(bool value = true)
         {
             MyHud.Questlog.Visible = value;
         }
 
         [VisualScriptingMiscData("Questlog")]
         [VisualScriptingMember(false)]
-        public static int GetQuestlogPageFromMessage(int id)
+        public static int GetQuestlogPageFromMessage(int id = 0)
         {
             return MyHud.Questlog.GetPageFromMessage(id);
         }
 
         [VisualScriptingMiscData("Questlog")]
         [VisualScriptingMember(true)]
-        public static void EnableHighlight(bool enable)
+        public static void EnableHighlight(bool enable = true)
         {
             MyHud.Questlog.HighlightChanges = enable;
         }
@@ -2690,6 +4114,18 @@ namespace Sandbox.Game
             up.Normalize();
             MatrixD originMatrix = MatrixD.CreateWorld(position, direction, up);
 
+            var namingCallback = new Action(() =>
+            {
+                if (newGridName != null && tmpGridList.Count > 0)
+                {
+                    tmpGridList[0].Name = newGridName;
+                    MyEntities.SetEntityName(tmpGridList[0]);
+                }
+            });
+
+            var actionStack = new Stack<Action>();
+            actionStack.Push(namingCallback);
+
             foreach (var prefab in definition.Prefabs)
             {
                 Vector3D shipPosition = Vector3D.Transform((Vector3D)prefab.Position, originMatrix);
@@ -2704,13 +4140,8 @@ namespace Sandbox.Game
                     beaconName: prefab.BeaconText,
                     spawningOptions: VRage.Game.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection,
                     ownerId: ownerId,
-                    updateSync: true);
-            }
-
-            if (newGridName != null && tmpGridList.Count > 0)
-            {
-                tmpGridList[0].Name = newGridName;
-                MyEntities.SetEntityName(tmpGridList[0]);
+                    updateSync: true,
+                    callbacks: actionStack);
             }
         }
 
@@ -3035,7 +4466,7 @@ namespace Sandbox.Game
         public static void RemoveTrigger(string triggerName)
         {
             MyTriggerComponent trigger;
-            MyEntity entity = MySessionComponentTriggerSystem.Static.GetTriggerEntity(triggerName, out trigger);
+            MyEntity entity = MySessionComponentTriggerSystem.Static.GetTriggersEntity(triggerName, out trigger);
             if (entity != null && trigger != null)
             {
                 MyTriggerAggregate aggregate;

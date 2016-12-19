@@ -125,6 +125,22 @@ namespace Sandbox.Definitions
             }
         }
 
+        public bool Contains(MyCubeBlockDefinition defCnt)
+        {
+            foreach (var def in m_definitions)
+            {
+                if (def == defCnt)
+                    return true;
+
+                foreach (var blockStage in def.BlockStages)
+                {
+                    if (defCnt.Id == blockStage)
+                        return true;
+                }
+            }
+            return false;
+        }
+
         public MyCubeBlockDefinition AnyPublic
         {
             get

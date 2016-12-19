@@ -1,7 +1,6 @@
-﻿using ProtoBuf;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
+using ProtoBuf;
 using System.Xml.Serialization;
-using VRage.Game.ObjectBuilders.VisualScripting;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game
@@ -13,6 +12,9 @@ namespace VRage.Game
         [ProtoMember]
         [XmlArrayItem("Cutscene")]
         public Cutscene[] Cutscenes;
+
+        [XmlArrayItem("WaypointName")]
+        public List<string> VoxelPrecachingWaypointNames = new List<string>();
     }
 
     [ProtoContract]
@@ -32,6 +34,12 @@ namespace VRage.Game
 
         [ProtoMember]
         public float StartingFOV = 70;
+
+        [ProtoMember]
+        public bool CanBeSkipped = true;
+
+        [ProtoMember]
+        public bool FireEventsDuringSkip = true;
 
         [ProtoMember]
         [XmlArrayItem("Node")]

@@ -154,6 +154,7 @@
     <Compile Include="Collections\BitStreamException.cs" />
     <Compile Include="Collections\CacheList.cs" />
     <Compile Include="Collections\CachingDictionary.cs" />
+    <Compile Include="Collections\MyDistributedUpdater.cs" />
     <Compile Include="Collections\ConcurrentCachingHashSet.cs" />
     <Compile Include="Collections\CachingHashSet.cs" />
     <Compile Include="Collections\ConcurrentCachingList.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="Collections\IBitSerializable.cs" />
     <Compile Include="Collections\MyConcurrentDictionary.cs" />
     <Compile Include="Collections\MyConcurrentHashSet.cs" />
+    <Compile Include="Collections\MyConcurrentObjectsPool.cs" />
     <Compile Include="Collections\MyFreeList.cs" />
     <Compile Include="Collections\MyIndexArray.cs" />
     <Compile Include="Collections\MyIndexedComponentContainer.cs" />

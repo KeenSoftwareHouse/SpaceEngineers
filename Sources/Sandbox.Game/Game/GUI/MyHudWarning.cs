@@ -347,11 +347,11 @@ namespace Sandbox.Game.Gui
                 var character = MySession.Static.LocalCharacter;
                 if (character == null) return false;
 
-                if (character.SuitBattery.ResourceSink.CurrentInput > 0)
+                if (character.SuitBattery.ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) > 0)
                     return false;
                 return (character.SuitBattery.ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId) / MyEnergyConstants.BATTERY_MAX_CAPACITY) <= treshold && !character.IsDead;
             }
-            else if (MySession.Static.ControlledEntity.Entity is MyCockpit && !MyHud.ShipInfo.AllEnabledRecently)
+            else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
                 var grid = (MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid;
                 var sourcesEnabled = grid.GridSystems.ResourceDistributor.SourcesEnabledByType(MyResourceDistributorComponent.ElectricityId);

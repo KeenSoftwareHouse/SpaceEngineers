@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.SessionComponents.Clipboard;
 using Sandbox.Game.World;
@@ -23,9 +24,9 @@ namespace Sandbox.Game.Gui
                () => "Teleport controlled object to camera position",
                delegate
                {
-                   if (MySession.Static.CameraController == MySpectator.Static && MySession.Static.ControlledEntity != null)
+                   if (MySession.Static.CameraController == MySpectator.Static)
                    {
-                       MySession.Static.ControlledEntity.Teleport(MySpectator.Static.Position);
+                       MyMultiplayer.TeleportControlledEntity(MySpectator.Static.Position);
                    }
                    return true;
                });

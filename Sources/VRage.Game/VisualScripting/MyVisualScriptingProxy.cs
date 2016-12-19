@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using VRage.Game.Entity;
 using VRageMath;
@@ -92,14 +93,51 @@ namespace VRage.Game.VisualScripting
             m_supportedTypes.Add(typeof(Vector3D));
             m_supportedTypes.Add(typeof(bool));
             m_supportedTypes.Add(typeof(long));
+            m_supportedTypes.Add(typeof(List<bool>));
             m_supportedTypes.Add(typeof(List<int>));
             m_supportedTypes.Add(typeof(List<float>));
             m_supportedTypes.Add(typeof(List<string>));
+            m_supportedTypes.Add(typeof(List<MyEntity>));
             m_supportedTypes.Add(typeof(MyEntity));
 
             MyVisualScriptLogicProvider.Init();
 
             m_initialized = true;
+        }
+
+        private static void RegisterMethod(Type declaringType, MethodInfo method, VisualScriptingMember attribute, bool ?overrideSequenceDependency = null)
+        {
+            if (declaringType.IsGenericType)
+            {
+                declaringType = declaringType.GetGenericTypeDefinition();
+            }
+
+            if (!m_whitelistedMethods.ContainsKey(declaringType))
+            {
+                m_whitelistedMethods[declaringType] = new HashSet<MethodInfo>();
+            }
+            // Register current type
+            m_whitelistedMethods[declaringType].Add(method);
+            m_whitelistedMethodsSequenceDependency[method] = overrideSequenceDependency ?? attribute.Sequential;
+
+            // Add to base types
+            foreach (var data in m_whitelistedMethods)
+            {
+                if (data.Key.IsAssignableFrom(declaringType))
+                {
+                    // Add methods of base type to derived types
+                    data.Value.Add(method);
+                }
+                else if(declaringType.IsAssignableFrom(data.Key))
+                {
+                    // Add methods of base types
+                    var set = m_whitelistedMethods[declaringType];
+                    foreach (var info in data.Value)
+                    {
+                        set.Add(info);
+                    }
+                }
+            }
         }
 
         public static void RegisterType(Type type)
@@ -110,17 +148,27 @@ namespace VRage.Game.VisualScripting
             m_registeredTypes.Add(signature, type);
         }
 
+        public static void WhitelistExtensions(Type type)
+        {
+            var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
+            foreach (var methodInfo in methods)
+            {
+                var vsAttribute = methodInfo.GetCustomAttribute<VisualScriptingMember>();
+                if (vsAttribute != null && methodInfo.IsDefined(typeof(ExtensionAttribute), false))
+                {
+                    var declaringType = methodInfo.GetParameters()[0].ParameterType;
+                    RegisterMethod(declaringType, methodInfo, vsAttribute);
+                }
+            }
+
+            m_registeredTypes[type.Signature()] = type;
+        }
+
         public static void WhitelistMethod(MethodInfo method, bool sequenceDependent)
         {
             var declaringType = method.DeclaringType;
             if(declaringType == null) return;
-            if (!m_whitelistedMethods.ContainsKey(declaringType))
-            {
-                m_whitelistedMethods.Add(declaringType, new HashSet<MethodInfo>());
-            }
-
-            m_whitelistedMethods[declaringType].Add(method);
-            m_whitelistedMethodsSequenceDependency.Add(method, sequenceDependent);
+            RegisterMethod(declaringType, method, null, sequenceDependent);
         }
 
         public static IEnumerable<MethodInfo> GetWhitelistedMethods(Type type)
@@ -145,19 +193,27 @@ namespace VRage.Game.VisualScripting
                 if(m_whitelistedMethods.TryGetValue(genericType, out res))
                 {
                     var wlMethods = new HashSet<MethodInfo>();
-                    m_whitelistedMethods.Add(type, wlMethods);
+                    m_whitelistedMethods[type] = wlMethods;
 
                     // Create specific versions of all methods 
                     foreach (var genericMethodInfo in res)
                     {
-                        // Todo: Create a better recreation of method infos from generic method infos
-                        var specificMethod = type.GetMethod(genericMethodInfo.Name);
+                        MethodInfo specificMethod = null;
+                        if (genericMethodInfo.IsDefined(typeof(ExtensionAttribute)))
+                        {
+                            specificMethod = genericMethodInfo.MakeGenericMethod(typeParameter);
+                        }
+                        else
+                        {
+                            // Todo: Create a better recreation of method infos from generic method infos
+                            specificMethod = type.GetMethod(genericMethodInfo.Name);
+                        }
                         wlMethods.Add(specificMethod);
                         // Add sequence dependency information
                         var sequenceDependent = m_whitelistedMethodsSequenceDependency[genericMethodInfo];
-                        m_whitelistedMethodsSequenceDependency.Add(specificMethod, sequenceDependent);
+                        m_whitelistedMethodsSequenceDependency[specificMethod] = sequenceDependent;
                         // Register method signature in signature dictionary
-                        m_visualScriptingMethodsBySignature.Add(specificMethod.Signature(), specificMethod);
+                        m_visualScriptingMethodsBySignature[specificMethod.Signature()] = specificMethod;
                     }
 
                     return wlMethods;
@@ -271,14 +327,62 @@ namespace VRage.Game.VisualScripting
             return info.DeclaringType.Namespace + "." + info.DeclaringType.Name + "." + info.Name;
         }
 
+        public static bool TryToRecoverMethodInfo(ref string oldSignature, Type declaringType, Type extensionType, out MethodInfo info)
+        {
+            info = null;
+
+            var index = 0;
+            for(;
+                index < oldSignature.Length && index < declaringType.FullName.Length &&
+                oldSignature[index] == declaringType.FullName[index];
+                index++)
+            {    
+            }
+
+            oldSignature = oldSignature.Remove(0, index + 1);
+            oldSignature = oldSignature.Remove(oldSignature.IndexOf('('));
+
+            if (extensionType != null && extensionType.IsGenericType)
+            {
+                var args = extensionType.GetGenericArguments();
+                var genericMethod = declaringType.GetMethod(oldSignature);
+                if(genericMethod != null)
+                {
+                    info = genericMethod.MakeGenericMethod(args);
+                }
+            }
+            else
+            {
+                info = declaringType.GetMethod(oldSignature);
+            }
+
+            if (info != null)
+            {
+                oldSignature = info.Signature();
+            }
+
+            return info != null;
+        }
+
         public static string Signature(this MethodInfo info)
         {
-            var sb = new StringBuilder(info.DeclaringType.Namespace + "." + info.DeclaringType.Name + "." + info.Name + '(');
+            var sb = new StringBuilder(info.DeclaringType.Signature());
             var parameters = info.GetParameters();
+
+            sb.Append('.').Append(info.Name).Append('(');
 
             for (var index = 0; index < parameters.Length; index++)
             {
-                sb.Append(parameters[index].ParameterType.Name + " " + parameters[index].Name);
+                if(parameters[index].ParameterType.IsGenericType)
+                {
+                    sb.Append(parameters[index].ParameterType.Signature());
+                }
+                else
+                {
+                    sb.Append(parameters[index].ParameterType.Name);
+                }
+
+                sb.Append(' ').Append(parameters[index].Name);
                 if(index < parameters.Length - 1)
                     sb.Append(", ");
             }

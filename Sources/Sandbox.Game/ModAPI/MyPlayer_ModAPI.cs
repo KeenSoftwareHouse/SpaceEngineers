@@ -76,7 +76,7 @@ namespace Sandbox.Game.World
 
         bool IMyPlayer.IsPromoted
         {
-            get { return IsPromoted; }
+            get { return IsSpaceMaster; }
         }
     }
 }

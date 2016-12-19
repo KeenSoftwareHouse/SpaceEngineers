@@ -148,7 +148,7 @@ namespace Sandbox.Engine.Models
                         Vector3 calculatedTriangleNormal = MyUtils.GetNormalVectorFromTriangle(ref triangle);
 
                         //  We need to remember original triangleVertexes coordinates (not transformed by world matrix)
-                        foundIntersection = new VRage.Game.Models.MyIntersectionResultLineTriangle(ref triangle, ref calculatedTriangleNormal, distance.Value);
+                        foundIntersection = new VRage.Game.Models.MyIntersectionResultLineTriangle(triangleIndex, ref triangle, ref calculatedTriangleNormal, distance.Value);
                     }
                 }
             }

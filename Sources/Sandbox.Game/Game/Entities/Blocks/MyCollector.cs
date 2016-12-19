@@ -59,7 +59,7 @@ namespace Sandbox.Game.Entities.Blocks
         protected override bool CheckIsWorking()
         {
             if (ResourceSink == null) return false;
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         private Sync<bool> m_useConveyorSystem;

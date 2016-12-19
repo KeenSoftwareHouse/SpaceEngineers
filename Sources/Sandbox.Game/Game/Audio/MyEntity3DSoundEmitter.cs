@@ -206,7 +206,6 @@ namespace Sandbox.Game.Entities
         private MyStringHash m_activeEffect = MyStringHash.NullOrEmpty;
         private static Dictionary<MyCueId, int> m_lastTimePlaying = new Dictionary<MyCueId,int>();
         private static List<MyEntity3DSoundEmitter> m_entityEmitters = new List<MyEntity3DSoundEmitter>();
-        private static bool m_enableUpdate = true;
 
         #endregion
 
@@ -311,7 +310,13 @@ namespace Sandbox.Game.Entities
 
             m_useRealisticByDefault = (MySession.Static != null && MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS);
             if (MySession.Static != null && MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS && useStaticList && entity != null && MyFakes.ENABLE_NEW_SOUNDS_QUICK_UPDATE)
-                m_entityEmitters.Add(this);
+            {
+                lock (m_entityEmitters)
+                {
+                    m_entityEmitters.Add(this);
+                }
+            }
+                
         }
 
         ~MyEntity3DSoundEmitter()
@@ -963,18 +968,18 @@ namespace Sandbox.Game.Entities
             if (now == 0 || Math.Abs(m_lastUpdate - now) < 5)
                 return;
             m_lastUpdate = now;
-            for (int i = 0; i < m_entityEmitters.Count; i++)
+            lock (m_entityEmitters)
             {
-                if (m_entityEmitters[i] != null && m_entityEmitters[i].Entity != null && m_entityEmitters[i].Entity.Closed == false)
+                for (int i = 0; i < m_entityEmitters.Count; i++)
                 {
-                    if ((m_entityEmitters[i].IsPlaying && updatePlaying) || (!m_entityEmitters[i].IsPlaying && updateNotPlaying))
+                    if (m_entityEmitters[i] != null && m_entityEmitters[i].Entity != null && m_entityEmitters[i].Entity.Closed == false)
                     {
-                        m_entityEmitters[i].Update();
+                        if ((m_entityEmitters[i].IsPlaying && updatePlaying) || (!m_entityEmitters[i].IsPlaying && updateNotPlaying))
+                        {
+                            m_entityEmitters[i].Update();
+                        }
                     }
-                }
-                else if (removeUnused)
-                {
-                    if (m_enableUpdate)
+                    else if (removeUnused)
                     {
                         m_entityEmitters.RemoveAt(i);
                         i--;
@@ -985,9 +990,8 @@ namespace Sandbox.Game.Entities
 
         public static void ClearEntityEmitters()
         {
-            m_enableUpdate = false;
-            m_entityEmitters.Clear();
-            m_enableUpdate = true;
+            lock (m_entityEmitters)
+                m_entityEmitters.Clear();
         }
 
         #endregion

@@ -300,7 +300,7 @@ namespace Sandbox.ModAPI
 
         IMyEntity IMyEntities.GetEntityById(long entityId)
         {
-            return MyEntities.GetEntityById(entityId);
+            return MyEntities.EntityExists(entityId) ? MyEntities.GetEntityById(entityId) : null;
         }
 
         IMyEntity IMyEntities.GetEntityById(long? entityId)

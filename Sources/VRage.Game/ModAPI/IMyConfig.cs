@@ -25,7 +25,6 @@ namespace VRage.Game.ModAPI
         bool MemoryLimits { get; }
         bool MinimalHud { get; }
         float MusicVolume { get; }
-        bool NeedShowTutorialQuestion { get; }
         int RefreshRate { get; }
         bool RenderInterpolation { get; }
         MyRenderQualityEnum? RenderQuality { get; }

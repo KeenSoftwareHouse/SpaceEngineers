@@ -229,11 +229,6 @@ namespace Sandbox.Game.Entities
             get {return MySpaceBindingCreator.CX_CHARACTER;}
         }
 
-        public void Teleport(Vector3D pos)
-        {
-            PositionComp.SetPosition(pos);
-        }
-
         public MyToolbar Toolbar { get { return null; } }
 
 

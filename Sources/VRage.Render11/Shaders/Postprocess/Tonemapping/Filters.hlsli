@@ -98,6 +98,6 @@ float3 VibranceFilter(float3 rgb)
     float saturation = maxc - minc;
 
     float vibrance = frame_.Post.Vibrance;
-    float s = 1 + (vibrance * (1 - (sign(vibrance) * saturation)));
+    float s = 1.0 + (vibrance * (1.0 - (sign(vibrance) * saturation)));
     return lerp(luminance, rgb, s);
 }

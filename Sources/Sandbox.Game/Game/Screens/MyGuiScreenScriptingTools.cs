@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Havok;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
@@ -150,7 +152,7 @@ namespace Sandbox.Game.Screens
                 m_transformSys.SetControlledEntity(null);
             }
 
-            if(MyInput.Static.IsAnyShiftKeyPressed() && MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsAnyAltKeyPressed())
+            if(MyInput.Static.IsAnyShiftKeyPressed() || MyInput.Static.IsAnyCtrlKeyPressed() || MyInput.Static.IsAnyAltKeyPressed())
                 return;
 
             // Enlarge trigger
@@ -223,60 +225,56 @@ namespace Sandbox.Game.Screens
             }
 
             // Update running state machines
-            if (m_scriptManager.SMManager.RunningMachines != null)
+            foreach (var stateMachine in m_scriptManager.SMManager.RunningMachines)
             {
-                foreach (var stateMachine in m_scriptManager.SMManager.RunningMachines)
+                var indexOf = m_smListBox.Items.FindIndex(item => (MyVSStateMachine)item.UserData == stateMachine);
+                if (indexOf == -1)
                 {
-                    var indexOf = m_smListBox.Items.FindIndex(item => (MyVSStateMachine) item.UserData == stateMachine);
-                    if (indexOf == -1)
-                    {
-                        // new Entry
-                        m_smListBox.Add(new MyGuiControlListbox.Item(new StringBuilder(stateMachine.Name),
-                            userData: stateMachine, toolTip: "Cursors:"));
-                        indexOf = m_smListBox.Items.Count - 1;
-                    }
+                    // new Entry
+                    m_smListBox.Add(new MyGuiControlListbox.Item(new StringBuilder(stateMachine.Name), userData: stateMachine, toolTip: "Cursors:"));
+                    indexOf = m_smListBox.Items.Count - 1;
+                }
 
-                    var listItem = m_smListBox.Items[indexOf];
-                    // Remove tooltips for missing cursors
-                    for (int index = listItem.ToolTip.ToolTips.Count - 1; index >= 0; index--)
-                    {
-                        var toolTip = listItem.ToolTip.ToolTips[index];
+                var listItem = m_smListBox.Items[indexOf];
+                // Remove tooltips for missing cursors
+                for (int index = listItem.ToolTip.ToolTips.Count - 1; index >= 0; index--)
+                {
+                    var toolTip = listItem.ToolTip.ToolTips[index];
 
-                        var found = false;
-                        foreach (var cursor in stateMachine.ActiveCursors)
-                        {
-                            if (toolTip.Text.CompareTo(cursor.Node.Name) == 0)
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if (!found && index != 0)
-                        {
-                            // remove missing
-                            listItem.ToolTip.ToolTips.RemoveAtFast(index);
-                        }
-                    }
-
+                    var found = false;
                     foreach (var cursor in stateMachine.ActiveCursors)
                     {
-                        var found = false;
-                        for (int index = listItem.ToolTip.ToolTips.Count - 1; index >= 0; index--)
+                        if (toolTip.Text.CompareTo(cursor.Node.Name) == 0)
                         {
-                            var text = listItem.ToolTip.ToolTips[index];
-                            if (text.Text.CompareTo(cursor.Node.Name) == 0)
-                            {
-                                found = true;
-                                break;
-                            }
+                            found = true;
+                            break;
                         }
+                    }
 
-                        if (!found)
+                    if (!found && index != 0)
+                    {
+                        // remove missing
+                        listItem.ToolTip.ToolTips.RemoveAtFast(index);
+                    }
+                }
+
+                foreach (var cursor in stateMachine.ActiveCursors)
+                {
+                    var found = false;
+                    for (int index = listItem.ToolTip.ToolTips.Count - 1; index >= 0; index--)
+                    {
+                        var text = listItem.ToolTip.ToolTips[index];
+                        if (text.Text.CompareTo(cursor.Node.Name) == 0)
                         {
-                            // Add missing
-                            listItem.ToolTip.AddToolTip(cursor.Node.Name);
+                            found = true;
+                            break;
                         }
+                    }
+
+                    if (!found)
+                    {
+                        // Add missing
+                        listItem.ToolTip.AddToolTip(cursor.Node.Name);
                     }
                 }
             }
@@ -336,8 +334,8 @@ namespace Sandbox.Game.Screens
             // Debug draw checkbox
             PositionControls(new MyGuiControlBase[]
             {
-                CreateLabel("Debug Draw"), 
-                CreateCheckbox(DebugDrawCheckedChanged, MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
+                CreateLabel("Disable Transformation"), 
+                CreateCheckbox(DisableTransformationOnCheckedChanged, m_transformSys.DisableTransformation)
             });
             // Selected entity controls
             m_selectedEntityNameBox = CreateTextbox("");
@@ -394,7 +392,7 @@ namespace Sandbox.Game.Screens
 
             // Listbox for queried triggers
             m_triggersListBox = CreateListBox();
-            m_triggersListBox.Size = new Vector2(0f, 0.06f);
+            m_triggersListBox.Size = new Vector2(0f, 0.07f);
             m_triggersListBox.ItemDoubleClicked += TriggersListBoxOnItemDoubleClicked;
             PositionControl(m_triggersListBox);
             // Because something is reseting the value
@@ -403,32 +401,25 @@ namespace Sandbox.Game.Screens
             // Running Level Scripts
             PositionControl(CreateLabel("Running Level Scripts"));
             m_levelScriptListBox = CreateListBox();
-            m_levelScriptListBox.Size = new Vector2(0f, 0.06f);
+            m_levelScriptListBox.Size = new Vector2(0f, 0.07f);
             PositionControl(m_levelScriptListBox);
             // Because something is reseting the value
             m_triggersListBox.ItemSize = new Vector2(SCREEN_SIZE.X, ITEM_SIZE.Y);
 
             // Fill with levelscripts -- they wont change during the process
-            if (m_scriptManager.RunningLevelScriptNames != null)
+            foreach (var runningLevelScriptName in m_scriptManager.RunningLevelScriptNames)
             {
-                foreach (var runningLevelScriptName in m_scriptManager.RunningLevelScriptNames)
-                {
-                    // user data are there to tell if the script already failed or not
-                    m_levelScriptListBox.Add(new MyGuiControlListbox.Item(new StringBuilder(runningLevelScriptName),
-                        userData: false));
-                }
+                // user data are there to tell if the script already failed or not
+                m_levelScriptListBox.Add(new MyGuiControlListbox.Item(new StringBuilder(runningLevelScriptName), userData: false));
             }
 
             // Running State machines
             PositionControl(CreateLabel("Running state machines"));
             m_smListBox = CreateListBox();
-            m_smListBox.Size = new Vector2(0f, 0.06f);
+            m_smListBox.Size = new Vector2(0f, 0.07f);
             PositionControl(m_smListBox);
             // Because something is reseting the value
             m_smListBox.ItemSize = new Vector2(SCREEN_SIZE.X, ITEM_SIZE.Y);
-
-            // Activate transfomation system
-            m_transformSys.Active = true;
         }
 
         #region GUI callbacks
@@ -436,8 +427,24 @@ namespace Sandbox.Game.Screens
         private void TransformSysOnRayCasted(LineD ray)
         {
             if(m_transformSys.ControlledEntity == null || m_disablePicking) return;
+
+            if(m_selectedFunctionalBlock != null)
+            {
+                // Disable highlight on block
+                var highlightSystem = MySession.Static.GetComponent<MyHighlightSystem>();
+                if (highlightSystem != null)
+                {
+                    highlightSystem.RequestHighlightChange(new MyHighlightSystem.MyHighlightData
+                    {
+                        EntityId = m_selectedFunctionalBlock.EntityId,
+                        PlayerId = -1,
+                        Thickness = -1
+                    });
+                }
+
+                m_selectedFunctionalBlock = null;
+            }
             // If the entity was a grid, try picking a functional block
-            m_selectedFunctionalBlock = null;
             var grid = m_transformSys.ControlledEntity as MyCubeGrid;
             if (grid != null)
             {
@@ -460,6 +467,21 @@ namespace Sandbox.Game.Screens
                 // Show display name when name is empty
                 m_helperStringBuilder
                     .Append(string.IsNullOrEmpty(m_selectedFunctionalBlock.Name) ? m_selectedFunctionalBlock.DisplayNameText : m_selectedFunctionalBlock.Name);
+
+                // Enable highlight on block
+                var highlightSystem = MySession.Static.GetComponent<MyHighlightSystem>();
+                if(highlightSystem != null)
+                {
+                    highlightSystem.RequestHighlightChange(new MyHighlightSystem.MyHighlightData
+                    {
+                        EntityId = m_selectedFunctionalBlock.EntityId,
+                        IgnoreUseObjectData = true,
+                        OutlineColor = Color.Blue,
+                        PulseTimeInFrames = 120,
+                        Thickness = 3,
+                        PlayerId = -1
+                    });
+                }
             }
 
             m_selectedFunctionalBlockNameBox.SetText(m_helperStringBuilder);
@@ -483,7 +505,8 @@ namespace Sandbox.Game.Screens
 
                     m_selectedFunctionalBlock.Name = text;
                     MyEntities.SetEntityName(m_selectedFunctionalBlock, true);
-
+                    m_helperStringBuilder.Clear().Append(text);
+                    m_selectedFunctionalBlockNameBox.SetText(m_helperStringBuilder);
                     return true;
                 });
 
@@ -514,6 +537,8 @@ namespace Sandbox.Game.Screens
                     selectedEntity.Name = text;
                     MyEntities.SetEntityName(selectedEntity, true);
 
+                    m_helperStringBuilder.Clear().Append(text);
+                    m_selectedEntityNameBox.SetText(m_helperStringBuilder);
                     return true;
                 });
 
@@ -526,7 +551,10 @@ namespace Sandbox.Game.Screens
         private void DeleteEntityOnClicked(MyGuiControlButton myGuiControlButton)
         {
             if(m_transformSys.ControlledEntity != null)
+            {
                 m_transformSys.ControlledEntity.Close();
+                m_transformSys.SetControlledEntity(null);
+            }
         }
 
         private void AttachTriggerOnClick(MyGuiControlButton myGuiControlButton)
@@ -707,18 +735,19 @@ namespace Sandbox.Game.Screens
                 DisplayName = "Entity",
                 Name = newEntityName
             };
-            entity.PositionComp.SetPosition(MyAPIGateway.Session.Camera.Position);
+            // Place the entity 2m in the front
+            entity.PositionComp.SetPosition(MyAPIGateway.Session.Camera.Position + MyAPIGateway.Session.Camera.WorldMatrix.Forward * 2);
             entity.Components.Remove<MyPhysicsComponentBase>();
 
             MyEntities.Add(entity);
             MyEntities.SetEntityName(entity, true);
+
+            m_transformSys.SetControlledEntity(entity);
         }
 
-        // Toggle the Debug draw
-        private void DebugDrawCheckedChanged(MyGuiControlCheckbox checkbox)
+        private void DisableTransformationOnCheckedChanged(MyGuiControlCheckbox checkbox)
         {
-            MyDebugDrawSettings.ENABLE_DEBUG_DRAW = checkbox.IsChecked;
-            MyDebugDrawSettings.DEBUG_DRAW_UPDATE_TRIGGER = checkbox.IsChecked;
+            m_transformSys.DisableTransformation = checkbox.IsChecked;
         }
 
         #endregion
@@ -784,7 +813,7 @@ namespace Sandbox.Game.Screens
             listBox.MultiSelect = false;
             listBox.Enabled = true;
             listBox.ItemSize = new Vector2(SCREEN_SIZE.X, ITEM_SIZE.Y);
-            listBox.VisibleRowsCount = 5;
+            listBox.VisibleRowsCount = 3;
 
             Controls.Add(listBox);
 

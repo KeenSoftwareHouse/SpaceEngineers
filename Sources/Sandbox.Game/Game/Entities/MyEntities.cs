@@ -60,13 +60,13 @@ namespace Sandbox.Game.Entities
         static CachingList<MyEntity> m_entitiesForUpdateOnce = new CachingList<MyEntity>();
 
         //Entities updated each frame
-        static CachingList<MyEntity> m_entitiesForUpdate = new CachingList<MyEntity>();
+        static MyDistributedUpdater<CachingList<MyEntity>, MyEntity> m_entitiesForUpdate = new MyDistributedUpdater<CachingList<MyEntity>, MyEntity>(1);
 
         //Entities updated each 10th frame
-        static CachingList<MyEntity> m_entitiesForUpdate10 = new CachingList<MyEntity>();
+        static MyDistributedUpdater<CachingList<MyEntity>, MyEntity> m_entitiesForUpdate10 = new MyDistributedUpdater<CachingList<MyEntity>, MyEntity>(10);
 
         //Entities updated each 100th frame
-        static CachingList<MyEntity> m_entitiesForUpdate100 = new CachingList<MyEntity>();
+        static MyDistributedUpdater<CachingList<MyEntity>, MyEntity> m_entitiesForUpdate100 = new MyDistributedUpdater<CachingList<MyEntity>, MyEntity>(100);
 
         //Entities drawn each frame
         static CachingList<IMyEntity> m_entitiesForDraw = new CachingList<IMyEntity>();
@@ -352,7 +352,7 @@ namespace Sandbox.Game.Entities
                         var ignoreAll = true;
                         foreach (var voxel in voxels)
                         {
-                            var planet = (MyPlanet)voxel;
+                            var planet = voxel as MyPlanet;
                             if (planet == null)
                             {
                                 ignoreAll = false;
@@ -759,12 +759,13 @@ namespace Sandbox.Game.Entities
 
             m_entities = new HashSet<MyEntity>();
             m_entitiesForUpdateOnce = new CachingList<MyEntity>();
-            m_entitiesForUpdate = new CachingList<MyEntity>();
-            m_entitiesForUpdate10 = new CachingList<MyEntity>();
-            m_entitiesForUpdate100 = new CachingList<MyEntity>();
+            m_entitiesForUpdate = new MyDistributedUpdater<CachingList<MyEntity>, MyEntity>(1);
+            m_entitiesForUpdate10 = new MyDistributedUpdater<CachingList<MyEntity>, MyEntity>(10);
+            m_entitiesForUpdate100 = new MyDistributedUpdater<CachingList<MyEntity>, MyEntity>(100);
             m_entitiesForDraw = new CachingList<IMyEntity>();
             m_remapHelper = new MyEntityIdRemapHelper();
             m_renderObjectToEntityMap = new Dictionary<uint, IMyEntity>();
+            m_entityNameDictionary.Clear();
         }
 
         //  IMPORTANT: Only adds object to the list. Caller must call Start() or Init() on the object.
@@ -772,6 +773,7 @@ namespace Sandbox.Game.Entities
         {
             System.Diagnostics.Debug.Assert(entity.Parent == null, "There are only root entities in MyEntities");
             MySandboxGame.AssertUpdateThread();
+            Debug.Assert(Sync.IsServer || !(entity is MyCubeGrid) || entity.SentFromServer || entity.Physics == null, "Entity on client was created without being sent from server.");
 
             if (insertIntoScene)
             {
@@ -967,9 +969,9 @@ namespace Sandbox.Game.Entities
             }
 
             m_entitiesForUpdateOnce.ApplyRemovals();
-            m_entitiesForUpdate.ApplyRemovals();
-            m_entitiesForUpdate10.ApplyRemovals();
-            m_entitiesForUpdate100.ApplyRemovals();
+            m_entitiesForUpdate.List.ApplyRemovals();
+            m_entitiesForUpdate10.List.ApplyRemovals();
+            m_entitiesForUpdate100.List.ApplyRemovals();
 
             CloseAllowed = false;
             m_entitiesToDelete.Clear();
@@ -981,9 +983,9 @@ namespace Sandbox.Game.Entities
             MyRadioBroadcasters.Clear();
 
             m_entitiesForUpdateOnce.DebugCheckEmpty();
-            m_entitiesForUpdate.DebugCheckEmpty();
-            m_entitiesForUpdate10.DebugCheckEmpty();
-            m_entitiesForUpdate100.DebugCheckEmpty();
+            m_entitiesForUpdate.List.DebugCheckEmpty();
+            m_entitiesForUpdate10.List.DebugCheckEmpty();
+            m_entitiesForUpdate100.List.DebugCheckEmpty();
             m_entitiesForDraw.ApplyChanges();
             Debug.Assert(m_entitiesForDraw.Count == 0);
         }
@@ -996,15 +998,15 @@ namespace Sandbox.Game.Entities
             }
             if ((entity.NeedsUpdate & MyEntityUpdateEnum.EACH_FRAME) > 0)
             {
-                m_entitiesForUpdate.Add(entity);
+                m_entitiesForUpdate.List.Add(entity);
             }
             if ((entity.NeedsUpdate & MyEntityUpdateEnum.EACH_10TH_FRAME) > 0)
             {
-                m_entitiesForUpdate10.Add(entity);
+                m_entitiesForUpdate10.List.Add(entity);
             }
             if ((entity.NeedsUpdate & MyEntityUpdateEnum.EACH_100TH_FRAME) > 0)
             {
-                m_entitiesForUpdate100.Add(entity);
+                m_entitiesForUpdate100.List.Add(entity);
             }
         }
 
@@ -1025,17 +1027,17 @@ namespace Sandbox.Game.Entities
 
             if ((entity.Flags & EntityFlags.NeedsUpdate) != 0)
             {
-                m_entitiesForUpdate.Remove(entity, immediate);
+                m_entitiesForUpdate.List.Remove(entity, immediate);
             }
 
             if ((entity.Flags & EntityFlags.NeedsUpdate10) != 0)
             {
-                m_entitiesForUpdate10.Remove(entity, immediate);
+                m_entitiesForUpdate10.List.Remove(entity, immediate);
             }
 
             if ((entity.Flags & EntityFlags.NeedsUpdate100) != 0)
             {
-                m_entitiesForUpdate100.Remove(entity, immediate);
+                m_entitiesForUpdate100.List.Remove(entity, immediate);
             }
         }
 
@@ -1073,65 +1075,48 @@ namespace Sandbox.Game.Entities
                 UpdateOnceBeforeFrame();
 
                 ProfilerShort.BeginNextBlock("Each update");
-                m_entitiesForUpdate.ApplyChanges();
-
+                m_entitiesForUpdate.List.ApplyChanges();
+                m_entitiesForUpdate.Update();
                 MySimpleProfiler.Begin("Blocks");
-                foreach (MyEntity entity in m_entitiesForUpdate)
+                m_entitiesForUpdate.Iterate((x) =>
                 {
-                    string typeName = entity.GetType().Name;
-                    //ProfilerShort.Begin(Partition.Select(entity.GetType().GetHashCode(), "Part1", "Part2", "Part3"));
-                    ProfilerShort.Begin(entity.GetType().Name);
-                    if (entity.MarkedForClose == false)
+                    ProfilerShort.Begin(x.GetType().Name);
+                    if (x.MarkedForClose == false)
                     {
-                        entity.UpdateBeforeSimulation();
+                        x.UpdateBeforeSimulation();
                     }
                     ProfilerShort.End();
-                    //ProfilerShort.End();
-                }
+                });
 
                 ProfilerShort.BeginNextBlock("10th update");
-                m_entitiesForUpdate10.ApplyChanges();
-                if (m_entitiesForUpdate10.Count > 0)
+                m_entitiesForUpdate10.List.ApplyChanges();
+                m_entitiesForUpdate10.Update();
+                m_entitiesForUpdate10.Iterate((x) => 
                 {
-                    ++m_update10Index;
-                    m_update10Index %= 10;
-                    for (int i = m_update10Index; i < m_entitiesForUpdate10.Count; i += 10)
+                    string typeName = x.GetType().Name;
+                    ProfilerShort.Begin(typeName);
+                    if (x.MarkedForClose == false)
                     {
-                        var entity = m_entitiesForUpdate10[i];
-
-                        string typeName = entity.GetType().Name;
-                        //ProfilerShort.Begin(Partition.Select(typeName.GetHashCode(), "Part1", "Part2", "Part3"));
-                        ProfilerShort.Begin(typeName);
-                        if (entity.MarkedForClose == false)
-                        {
-                            entity.UpdateBeforeSimulation10();
-                        }
-                        ProfilerShort.End();
-                        //ProfilerShort.End();
+                        x.UpdateBeforeSimulation10();
                     }
-                }
+                    ProfilerShort.End();
+                });
 
+                
                 ProfilerShort.BeginNextBlock("100th update");
-                m_entitiesForUpdate100.ApplyChanges();
-                if (m_entitiesForUpdate100.Count > 0)
+                m_entitiesForUpdate100.List.ApplyChanges();
+                m_entitiesForUpdate100.Update();
+                m_entitiesForUpdate100.Iterate((x) =>
                 {
-                    ++m_update100Index;
-                    m_update100Index %= 100;
-                    for (int i = m_update100Index; i < m_entitiesForUpdate100.Count; i += 100)
+                    string typeName = x.GetType().Name;
+                    ProfilerShort.Begin(typeName);
+                    if (x.MarkedForClose == false)
                     {
-                        var entity = m_entitiesForUpdate100[i];
-
-                        string typeName = entity.GetType().Name;
-                        //ProfilerShort.Begin(Partition.Select(typeName.GetHashCode(), "Part1", "Part2", "Part3"));
-                        ProfilerShort.Begin(typeName);
-                        if (entity.MarkedForClose == false)
-                        {
-                            entity.UpdateBeforeSimulation100();
-                        }
-                        ProfilerShort.End();
-                        //ProfilerShort.End();
+                        x.UpdateBeforeSimulation100();
                     }
-                }
+                    ProfilerShort.End();
+                });
+
                 ProfilerShort.End();
             }
             MySimpleProfiler.End("Blocks");
@@ -1167,66 +1152,46 @@ namespace Sandbox.Game.Entities
                 UpdateInProgress = true;
 
                 ProfilerShort.Begin("UpdateAfter1");
-                m_entitiesForUpdate.ApplyChanges();
-
+                m_entitiesForUpdate.List.ApplyChanges();
                 MySimpleProfiler.Begin("Blocks");
-                for (int i = 0; i < m_entitiesForUpdate.Count; i++)
+                m_entitiesForUpdate.Iterate((x) =>
                 {
-                    MyEntity entity = m_entitiesForUpdate[i];
-
-                    string typeName = entity.GetType().Name;
-                    //ProfilerShort.Begin(Partition.Select(typeName.GetHashCode(), "Part1", "Part2", "Part3"));
+                    string typeName = x.GetType().Name;
                     ProfilerShort.Begin(typeName);
-                    if (entity.MarkedForClose == false)
+                    if (x.MarkedForClose == false)
                     {
-                        entity.UpdateAfterSimulation();
+                        x.UpdateAfterSimulation();
                     }
                     ProfilerShort.End();
-                    //ProfilerShort.End();
-                }
-
+                });
                 ProfilerShort.End();
 
                 ProfilerShort.Begin("UpdateAfter10");
-                m_entitiesForUpdate10.ApplyChanges();
-                if (m_entitiesForUpdate10.Count > 0)
-                {
-                    for (int i = m_update10Index; i < m_entitiesForUpdate10.Count; i += 10)
+                m_entitiesForUpdate10.List.ApplyChanges();
+                m_entitiesForUpdate10.Iterate((x) =>
                     {
-                        MyEntity entity = m_entitiesForUpdate10[i];
-
-                        string typeName = entity.GetType().Name;
-                        //ProfilerShort.Begin(Partition.Select(typeName.GetHashCode(), "Part1", "Part2", "Part3"));
+                        string typeName = x.GetType().Name;
                         ProfilerShort.Begin(typeName);
-                        if (entity.MarkedForClose == false)
+                        if (x.MarkedForClose == false)
                         {
-                            entity.UpdateAfterSimulation10();
+                            x.UpdateAfterSimulation10();
                         }
                         ProfilerShort.End();
-                        //ProfilerShort.End();
-                    }
-                }
+                    });
                 ProfilerShort.End();
 
                 ProfilerShort.Begin("UpdateAfter100");
-                m_entitiesForUpdate100.ApplyChanges();
-                if (m_entitiesForUpdate100.Count > 0)
+                m_entitiesForUpdate100.List.ApplyChanges();
+                m_entitiesForUpdate100.Iterate((x) =>
                 {
-                    for (int i = m_update100Index; i < m_entitiesForUpdate100.Count; i += 100)
+                    string typeName = x.GetType().Name;
+                    ProfilerShort.Begin(typeName);
+                    if (x.MarkedForClose == false)
                     {
-                        MyEntity entity = m_entitiesForUpdate100[i];
-
-                        string typeName = entity.GetType().Name;
-                        //ProfilerShort.Begin(Partition.Select(typeName.GetHashCode(), "Part1", "Part2", "Part3"));
-                        ProfilerShort.Begin(typeName);
-                        if (entity.MarkedForClose == false)
-                        {
-                            entity.UpdateAfterSimulation100();
-                        }
-                        ProfilerShort.End();
-                        //ProfilerShort.End();
+                        x.UpdateAfterSimulation100();
                     }
-                }
+                    ProfilerShort.End();
+                });
                 ProfilerShort.End();
                 MySimpleProfiler.End("Blocks");
 
@@ -1242,9 +1207,9 @@ namespace Sandbox.Game.Entities
 
         public static void UpdatingStopped()
         {
-            for (int i = 0; i < m_entitiesForUpdate.Count; i++)
+            for (int i = 0; i < m_entitiesForUpdate.List.Count; i++)
             {
-                MyEntity entity = m_entitiesForUpdate[i];
+                MyEntity entity = m_entitiesForUpdate.List[i];
 
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock(entity.GetType().Name);
                 entity.UpdatingStopped();
@@ -1659,7 +1624,6 @@ namespace Sandbox.Game.Entities
         public static bool DetectorsHidden, DetectorsSelectable;
         public static bool ParticleEffectsHidden, ParticleEffectsSelectable;
 
-        public static bool ShowDebugDrawStatistics = false;
         static Dictionary<string, int> m_typesStats = new Dictionary<string, int>();
 
         #endregion
@@ -1668,10 +1632,10 @@ namespace Sandbox.Game.Entities
         {
             m_typesStats.Clear();
 
-            if (!ShowDebugDrawStatistics)
-                return;
+            Vector2 offset = new Vector2(100, 0);
+            MyRenderProxy.DebugDrawText2D(offset, "Detailed entity statistics", Color.Yellow, 1);
 
-            foreach (MyEntity entity in m_entitiesForUpdate)
+            foreach (MyEntity entity in m_entitiesForUpdate.List)
             {
                 string ts = entity.GetType().Name.ToString();
                 if (!m_typesStats.ContainsKey(ts))
@@ -1679,42 +1643,80 @@ namespace Sandbox.Game.Entities
                 m_typesStats[ts]++;
             }
 
-            Vector2 offset = new Vector2(100, 0);
-            // TODO: Par
-            //MyDebugDraw.DrawText(offset, new System.Text.StringBuilder("Detailed entity statistics"), Color.Yellow, 2);
-
-            // TODO: Par
-            //float scale = 0.7f;
-            //offset.Y += 50;
-            //MyDebugDraw.DrawText(offset, new System.Text.StringBuilder("Entities for update:"), Color.Yellow, scale);
-            //offset.Y += 30;
-            //foreach (KeyValuePair<string, int> pair in Render.MyRender.SortByValue(m_typesStats))
-            //{
-            //    MyDebugDraw.DrawText(offset, new System.Text.StringBuilder(pair.Key + ": " + pair.Value.ToString() + "x"), Color.Yellow, scale);
-            //    offset.Y += 20;
-            //}
+            float scale = 0.7f;
+            offset.Y += 50;
+            MyRenderProxy.DebugDrawText2D(offset, "Entities for update:", Color.Yellow, scale);
+            offset.Y += 30;
+            foreach (KeyValuePair<string, int> pair in m_typesStats.OrderByDescending(x => x.Value))
+            {
+                MyRenderProxy.DebugDrawText2D(offset, pair.Key + ": " + pair.Value.ToString() + "x", Color.Yellow, scale);
+                offset.Y += 20;
+            }
+            m_typesStats.Clear();
+            offset.Y = 0;
 
 
-            //m_typesStats.Clear();
+            foreach (MyEntity entity in m_entitiesForUpdate10.List)
+            {
+                string ts = entity.GetType().Name.ToString();
+                if (!m_typesStats.ContainsKey(ts))
+                    m_typesStats.Add(ts, 0);
+                m_typesStats[ts]++;
+            }
 
-            //foreach (MyEntity entity in m_entities)
-            //{
-            //    string ts = entity.GetType().Name.ToString();
-            //    if (!m_typesStats.ContainsKey(ts))
-            //        m_typesStats.Add(ts, 0);
-            //    m_typesStats[ts]++;
-            //}
+            offset.X += 300;
+            offset.Y += 50;
+            MyRenderProxy.DebugDrawText2D(offset, "Entities for update10:", Color.Yellow, scale);
+            offset.Y += 30;
+            foreach (KeyValuePair<string, int> pair in m_typesStats.OrderByDescending(x => x.Value))
+            {
+                MyRenderProxy.DebugDrawText2D(offset, pair.Key + ": " + pair.Value.ToString() + "x", Color.Yellow, scale);
+                offset.Y += 20;
+            }
+            m_typesStats.Clear();
+            offset.Y = 0;
 
-            //offset = new Vector2(500, 0);
-            //scale = 0.7f;
-            //offset.Y += 50;
-            //MyDebugDraw.DrawText(offset, new System.Text.StringBuilder("All entities:"), Color.Yellow, scale);
-            //offset.Y += 30;
-            //foreach (KeyValuePair<string, int> pair in Render.MyRender.SortByValue(m_typesStats))
-            //{
-            //    MyDebugDraw.DrawText(offset, new System.Text.StringBuilder(pair.Key + ": " + pair.Value.ToString() + "x"), Color.Yellow, scale);
-            //    offset.Y += 20;
-            //}
+
+            foreach (MyEntity entity in m_entitiesForUpdate100.List)
+            {
+                string ts = entity.GetType().Name.ToString();
+                if (!m_typesStats.ContainsKey(ts))
+                    m_typesStats.Add(ts, 0);
+                m_typesStats[ts]++;
+            }
+
+            offset.X += 300;
+            offset.Y += 50;
+            MyRenderProxy.DebugDrawText2D(offset, "Entities for update100:", Color.Yellow, scale);
+            offset.Y += 30;
+            foreach (KeyValuePair<string, int> pair in m_typesStats.OrderByDescending(x => x.Value))
+            {
+                MyRenderProxy.DebugDrawText2D(offset, pair.Key + ": " + pair.Value.ToString() + "x", Color.Yellow, scale);
+                offset.Y += 20;
+            }
+            m_typesStats.Clear();
+            offset.Y = 0;
+
+
+            foreach (MyEntity entity in m_entities)
+            {
+                string ts = entity.GetType().Name.ToString();
+                if (!m_typesStats.ContainsKey(ts))
+                    m_typesStats.Add(ts, 0);
+                m_typesStats[ts]++;
+            }
+
+            offset.X += 300;
+            offset.Y += 50;
+            scale = 0.7f;
+            offset.Y += 50;
+            MyRenderProxy.DebugDrawText2D(offset, "All entities:", Color.Yellow, scale);
+            offset.Y += 30;
+            foreach (KeyValuePair<string, int> pair in m_typesStats.OrderByDescending(x => x.Value))
+            {
+                MyRenderProxy.DebugDrawText2D(offset, pair.Key + ": " + pair.Value.ToString() + "x", Color.Yellow, scale);
+                offset.Y += 20;
+            }
         }
 
         static HashSet<IMyEntity> m_entitiesForDebugDraw = new HashSet<IMyEntity>();
@@ -1841,7 +1843,7 @@ namespace Sandbox.Game.Entities
                     // no render id.
                     foreach (var entity in m_entities)
                     {
-                        if (entity.DefinitionId == null)
+                        if (entity.DefinitionId == null || entity.Render.GetModel() == null)
                         {
                             m_entitiesForDebugDraw.Add(entity);
                         }
@@ -1935,6 +1937,14 @@ namespace Sandbox.Game.Entities
                 MyPhysics.DebugDrawClusters();
             }
             MyPhysics.DebugDrawClustersEnable = MyDebugDrawSettings.DEBUG_DRAW_PHYSICS_CLUSTERS;
+
+            if (MyDebugDrawSettings.DEBUG_DRAW_ENTITY_STATISTICS)
+            {
+                DebugDrawStatistics();
+            }
+
+
+
             ProfilerShort.End();
         }
 
@@ -2106,6 +2116,7 @@ namespace Sandbox.Game.Entities
             bool m_addToScene;
             Action m_completionCallback;
             MyEntity m_entity;
+            List<IMyEntity> m_resultIDs;
 
             public InitEntityData(MyObjectBuilder_EntityBase objectBuilder, bool addToScene, Action completionCallback, MyEntity entity)
             {
@@ -2119,10 +2130,14 @@ namespace Sandbox.Game.Entities
             {
                 try
                 {
+                    MyEntityIdentifier.LazyInitPerThreadStorage(2048);
                     InitEntity(m_objectBuilder, ref m_entity);
                 }
                 finally
                 {
+                    m_resultIDs = new List<IMyEntity>();
+                    MyEntityIdentifier.GetPerThreadEntities(m_resultIDs);
+                    MyEntityIdentifier.ClearPerThreadEntities();
                     Interlocked.Decrement(ref PendingInits);
                     if (PendingInits <= 0)
                         FinishedProcessingInits.Set();
@@ -2131,6 +2146,15 @@ namespace Sandbox.Game.Entities
 
             public void OnEntityInitialized()
             {
+                foreach (var entity in m_resultIDs)
+                {
+                    IMyEntity foundEntity;
+                    MyEntityIdentifier.TryGetEntity(entity.EntityId, out foundEntity);
+                    if (foundEntity == null)
+                        MyEntityIdentifier.AddEntityWithId(entity);
+                    else
+                        Debug.Fail("Two threads added the same entity");
+                }
                 if (m_addToScene)
                 {
                     bool insertIntoScene = (int)(m_objectBuilder.PersistentFlags & MyPersistentEntityFlags2.InScene) > 0;
@@ -2140,11 +2164,24 @@ namespace Sandbox.Game.Entities
 
                         if (m_completionCallback != null)
                             m_completionCallback();
-                        m_entity.IsReadyForReplication = true;
+
+                        SetReadyForReplication(m_entity);
                     }
                 }
             }
+
+            void SetReadyForReplication(MyEntity entity)
+            {
+                entity.IsReadyForReplication = true;
+
+                foreach (var child in entity.Hierarchy.Children)
+                {
+                    SetReadyForReplication((MyEntity)child.Entity);
+                }
+            }
+
         }
+
 
         /// <summary>
         /// Create and asynchronously initialize and entity.

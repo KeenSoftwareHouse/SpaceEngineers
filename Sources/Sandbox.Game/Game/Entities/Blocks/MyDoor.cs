@@ -42,7 +42,7 @@ namespace Sandbox.Game.Entities
         private MySoundPair m_openSound;
         private MySoundPair m_closeSound;
 
-        private readonly Sync<float> m_currOpening;
+        private float m_currOpening;
         private float m_currSpeed;
         private int m_lastUpdateTime;
 
@@ -53,7 +53,7 @@ namespace Sandbox.Game.Entities
 
         protected override bool CheckIsWorking()
         {
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         public override float DisassembleRatio
@@ -68,14 +68,12 @@ namespace Sandbox.Game.Entities
         public MyDoor() : base()
         {
 #if XB1 // XB1_SYNC_NOREFLECTION
-            m_currOpening = SyncType.CreateAndAddProp<float>();
             m_open = SyncType.CreateAndAddProp<bool>();
 #endif // XB1
             //GR: added to base class do not use here
             //CreateTerminalControls();
 
-            m_currOpening.ValidateNever();
-            m_currOpening.Value = 0f;
+            m_currOpening = 0f;
             m_currSpeed = 0f;
             m_open.ValidateNever();
             m_open.ValueChanged += x => OnStateChange();
@@ -89,7 +87,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateEmissivity()
         {
-			if (Enabled && ResourceSink.IsPowered)
+            if (Enabled && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Green, Color.White);
                 OnStateChange();
@@ -100,7 +98,7 @@ namespace Sandbox.Game.Entities
 
         public float OpenRatio
         {
-            get { return m_currOpening/MaxOpen; }
+            get { return m_currOpening / MaxOpen; }
         }
 
         protected override void OnEnabledChanged()
@@ -138,7 +136,7 @@ namespace Sandbox.Game.Entities
             sinkComp.Init(
                 resourceSinkGroup,
                 MyEnergyConstants.MAX_REQUIRED_POWER_DOOR,
-                () => (Enabled && IsFunctional) ? sinkComp.MaxRequiredInput : 0f);
+                () => (Enabled && IsFunctional) ? sinkComp.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0f);
             sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
          
 
@@ -153,14 +151,14 @@ namespace Sandbox.Game.Entities
             m_open.Value = ob.State;
             if (ob.Opening == -1)
             {
-                m_currOpening.Value = IsFunctional ? 0 : MaxOpen;
+                m_currOpening = IsFunctional ? 0 : MaxOpen;
                 m_open.Value = !IsFunctional;
             }
             else
-                m_currOpening.Value = ob.Opening;
+                m_currOpening = ob.Opening;
 
-		
-			if (!Enabled || !ResourceSink.IsPowered)
+
+            if (!Enabled || !ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
                 UpdateSlidingDoorsPosition();
 
             OnStateChange();
@@ -235,11 +233,10 @@ namespace Sandbox.Game.Entities
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-            if (Sync.IsServer)
-            {
-                UpdateCurrentOpening();
-            }
+
+            UpdateCurrentOpening();
             UpdateSlidingDoorsPosition();
+
             var handle = DoorStateChanged;
             if (handle != null) handle(m_open);
         }
@@ -275,10 +272,13 @@ namespace Sandbox.Game.Entities
             {
                 if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop && (BlockDefinition.DamagedSound == null || m_soundEmitter.SoundId != BlockDefinition.DamagedSound.SoundId))
                     m_soundEmitter.StopSound(false);
+
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+                m_currSpeed = 0;
                 return;
             }
 
-            if (m_soundEmitter != null && Enabled && ResourceSink.IsPowered)
+            if (m_soundEmitter != null && Enabled && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 if (Open)
                     StartSound(m_openSound);
@@ -287,21 +287,19 @@ namespace Sandbox.Game.Entities
             }
 
             base.UpdateBeforeSimulation();
-            if (Sync.IsServer)
-            {
-                UpdateCurrentOpening();
-            }
+
+            UpdateCurrentOpening();
 
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
 
         private void UpdateCurrentOpening()
         {
-			if (Enabled && ResourceSink.IsPowered)
+            if (Enabled && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
                 float deltaPos = m_currSpeed * timeDelta;
-                m_currOpening.Value = MathHelper.Clamp(m_currOpening + deltaPos, 0f, MaxOpen);
+                m_currOpening = MathHelper.Clamp(m_currOpening + deltaPos, 0f, MaxOpen);
             }
         }
 

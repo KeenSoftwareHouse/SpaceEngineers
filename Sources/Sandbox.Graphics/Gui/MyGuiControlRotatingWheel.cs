@@ -44,7 +44,7 @@ namespace Sandbox.Graphics.GUI
 
         public override void Update()
         {
-            if (ManualRotationUpdate)
+            if (ManualRotationUpdate && Visible)
                 UpdateRotation();
             base.Update();
         }

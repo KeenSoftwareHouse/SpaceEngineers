@@ -38,7 +38,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_AirVent))]
     public class MyAirVent : MyFunctionalBlock, IMyAirVent, IMyGasBlock
     {
-        private static readonly string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
+        private static readonly string[] m_emissiveNames = { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
         MyModelDummy VentDummy
         {
@@ -123,7 +123,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             base.CreateTerminalControls();
             var isDepressurizing = new MyTerminalControlOnOffSwitch<MyAirVent>("Depressurize", MySpaceTexts.BlockPropertyTitle_Depressurize, MySpaceTexts.BlockPropertyDescription_Depressurize);
             isDepressurizing.Getter = (x) => x.IsDepressurizing;
-            isDepressurizing.Setter = (x, v) => x.IsDepressurizing = v;
+            isDepressurizing.Setter = (x, v) => { x.IsDepressurizing = v; x.UpdateEmissivity(); };
             isDepressurizing.EnableToggleAction();
             isDepressurizing.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(isDepressurizing);
@@ -200,7 +200,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 m_onEmptyAction = MyToolbarItemFactory.CreateToolbarItem(builder.OnEmptyAction);
 
             UpdateEmissivity();
-            UdpateTexts();
+            UpdateTexts();
 
             AddDebugRenderComponent(new Sandbox.Game.Components.MyDebugRenderComponentDrawConveyorEndpoint(m_conveyorEndpoint));
 
@@ -270,7 +270,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             ResourceSink.Update();
 
-            UdpateTexts();
+            UpdateTexts();
             UpdateEmissivity();
 
             if (MyFakes.ENABLE_OXYGEN_SOUNDS)
@@ -566,14 +566,14 @@ namespace SpaceEngineers.Game.Entities.Blocks
             ResourceSink.Update();
         }
 
-        void UdpateTexts()
+        void UpdateTexts()
         {
             DetailedInfo.Clear();
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
             DetailedInfo.Append("\n");
 
             if (!MySession.Static.Settings.EnableOxygen || !MySession.Static.Settings.EnableOxygenPressurization)

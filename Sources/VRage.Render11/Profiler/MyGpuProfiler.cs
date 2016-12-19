@@ -18,9 +18,9 @@ namespace VRage.Render11.Profiler
 
     internal struct MyIssuedQuery
     {
-        internal string m_tag;
-        internal MyQuery m_query;
-        internal MyIssuedQueryEnum m_info;
+        internal readonly string m_tag;
+        internal readonly MyQuery m_query;
+        internal readonly MyIssuedQueryEnum m_info;
 
         internal MyIssuedQuery(MyQuery query, string tag, MyIssuedQueryEnum info)
         {
@@ -32,14 +32,14 @@ namespace VRage.Render11.Profiler
 
     internal class MyFrameProfilingContext
     {
-        internal Queue<MyIssuedQuery> m_issued = new Queue<MyIssuedQuery>(128);
+        internal readonly Queue<MyIssuedQuery> m_issued = new Queue<MyIssuedQuery>(128);
     }
 
 #if !XB1 // XB1_NOPROFILER
     internal class MyFrameProfiling
     {
         internal MyQuery m_disjoint;
-        internal Queue<MyIssuedQuery> m_issued = new Queue<MyIssuedQuery>(128);
+        internal readonly Queue<MyIssuedQuery> m_issued = new Queue<MyIssuedQuery>(128);
 
         internal bool IsFinished()
         {
@@ -61,15 +61,15 @@ namespace VRage.Render11.Profiler
         }
     }
 
-    internal class MyGpuProfiler
+    internal static class MyGpuProfiler
     {
-        static Queue<MyFrameProfiling> m_pooledFrames = new Queue<MyFrameProfiling>(MyQueryFactory.MaxFramesLag);
-        static Queue<MyFrameProfiling> m_frames = new Queue<MyFrameProfiling>(MyQueryFactory.MaxFramesLag);
+        static readonly Queue<MyFrameProfiling> m_pooledFrames = new Queue<MyFrameProfiling>(MyQueryFactory.MAX_FRAMES_LAG);
+        static readonly Queue<MyFrameProfiling> m_frames = new Queue<MyFrameProfiling>(MyQueryFactory.MAX_FRAMES_LAG);
         static MyFrameProfiling m_currentFrame = null;
 
         static MyGpuProfiler()
         {
-            for (int i = 0; i < MyQueryFactory.MaxFramesLag; i++)
+            for (int i = 0; i < MyQueryFactory.MAX_FRAMES_LAG; i++)
             {
                 m_pooledFrames.Enqueue(new MyFrameProfiling());
             }

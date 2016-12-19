@@ -53,18 +53,21 @@ namespace Sandbox.Game.Replication
 
         void Notify(SyncBase sync)
         {
-            if (Sync.IsServer)
+            if (sync != null)
             {
-                foreach (var data in m_clientData)
+                if (Sync.IsServer)
                 {
-                    data.Value.DirtyProperties[sync.Id] = true;
+                    foreach (var data in m_clientData)
+                    {
+                        data.Value.DirtyProperties[sync.Id] = true;
+                    }
                 }
+                else
+                {
+                    m_dirtyProperties[sync.Id] = true;
+                }
+                m_propertyDirty(this);
             }
-            else
-            {
-                m_dirtyProperties[sync.Id] = true;
-            }
-            m_propertyDirty(this);
         }
 
         public bool IsDirty(MyClientStateBase forClient)

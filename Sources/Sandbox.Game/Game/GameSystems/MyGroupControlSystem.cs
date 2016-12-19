@@ -38,12 +38,15 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation()
         {
-            if (!m_controlDirty) return;
+            if (m_controlDirty)
+            {
+                UpdateControl();
 
-            UpdateControl();
+                m_controlDirty = false;
+                m_firstControlRecalculation = false;
+            }
 
-            m_controlDirty = false;
-            m_firstControlRecalculation = false;
+            UpdateControls();
         }
 
         private void UpdateControl()
@@ -213,6 +216,14 @@ namespace Sandbox.Game.GameSystems
             foreach (var grid in m_cubeGrids)
             {
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, startYCoord), "  " + grid.ToString(), Color.LightYellow, 0.5f); startYCoord += 13.0f;
+            }
+        }
+
+        public void UpdateControls()
+        {
+            foreach (var controller in m_groupControllers)
+            {
+                controller.UpdateControls();
             }
         }
     }

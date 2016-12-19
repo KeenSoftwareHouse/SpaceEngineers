@@ -57,6 +57,9 @@ namespace Sandbox.Engine.Physics
         {
             public MyPhysicsBody Parent = null;
             public Matrix Transform = Matrix.Identity;
+            /// <summary>
+            /// This does NOT contain all welded bodies, see @MyWeldGroupData
+            /// </summary>
             public readonly HashSet<MyPhysicsBody> Children = new HashSet<MyPhysicsBody>();
             public HkMassElement MassElement;
 

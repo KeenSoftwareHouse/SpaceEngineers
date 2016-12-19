@@ -215,6 +215,11 @@ namespace SpaceEngineers.Game.AI
                     if (myFaction != null && faction == myFaction) continue;
                     if (character.IsDead) continue;
 
+                    //if character fly up exclude him from targets
+                    var result = Sandbox.Engine.Physics.MyPhysics.CastRay(character.WorldMatrix.Translation - 3 * character.WorldMatrix.Up, character.WorldMatrix.Translation + 3 * character.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                    if (result == null || (result as VRage.Game.ModAPI.IHitInfo).HitEntity == character)
+                        continue;
+
                     entityPriority = 1;
 
                     if (entityPriority < bestPriority)

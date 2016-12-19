@@ -29,13 +29,7 @@ namespace Sandbox.Game.Gui
 {
     public class MyGuiScreenCubeBuilder : MyGuiScreenToolbarConfigBase
     {
-        private MyGuiControlRadioButton m_rbGridSizeSmall;
-        private MyGuiControlRadioButton m_rbGridSizeLarge;
-        private MyGuiControlRadioButtonGroup m_rbGroupGridSize;
-        MyGuiControlButton m_goodAiBotButton;
         private MyGuiControlList m_blockInfoList;
-        //MyGuiControlBlockInfo m_blockInfoSmall;
-        //MyGuiControlBlockInfo m_blockInfoLarge;
         private MyGuiControlBlockInfo.MyControlBlockInfoStyle m_blockInfoStyle;
 
         public MyGuiScreenCubeBuilder(int scrollOffset = 0, MyCubeBlock owner = null)
@@ -94,49 +88,10 @@ namespace Sandbox.Game.Gui
                 EnableBlockTypePanel = false,
 			};
 
-            m_rbGridSizeSmall = (MyGuiControlRadioButton)Controls.GetControlByName("GridSizeSmall");
-            if(m_rbGridSizeSmall == null) 
-                Debug.Fail("Someone changed CubeBuilder.gsc file in Content folder? Please check");
-
-            m_rbGridSizeSmall.HighlightType = MyGuiControlHighlightType.NEVER;
-            m_rbGridSizeSmall.SelectedChanged += OnGridSizeSmallSelected;
-
-            m_rbGridSizeLarge = (MyGuiControlRadioButton)Controls.GetControlByName("GridSizeLarge");
-            if (m_rbGridSizeLarge == null)
-                Debug.Fail("Someone changed CubeBuilder.gsc file in Content folder? Please check");
-
-            m_rbGridSizeLarge.HighlightType = MyGuiControlHighlightType.NEVER;
-            m_rbGridSizeLarge.SelectedChanged += OnGridSizeLargeSelected;
-
-            m_rbGroupGridSize = new MyGuiControlRadioButtonGroup { m_rbGridSizeSmall, m_rbGridSizeLarge };
-            if (MyCubeBuilder.Static != null)
-            {
-                m_rbGroupGridSize.SelectedIndex = MyCubeBuilder.Static.CubeBuilderState.CubeSizeMode == MyCubeSize.Small ? 0 : 1;
-            }
-
-            MyGuiControlLabel gridSizeLabel = (MyGuiControlLabel)Controls.GetControlByName("GridSizeHintLabel");
-            gridSizeLabel.Text = string.Format(MyTexts.GetString(gridSizeLabel.TextEnum), MyGuiSandbox.GetKeyName(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE));
-
             m_blockInfoList = (MyGuiControlList)Controls.GetControlByName("BlockInfoPanel");
             if (m_blockInfoList == null)
                 Debug.Fail("Someone changed CubeBuilder.gsc file in Content folder? Please check");
 
-
-
-            //m_blockInfoSmall = new MyGuiControlBlockInfo(style, false, false);
-            //m_blockInfoSmall.Visible = false;
-            //m_blockInfoSmall.IsActiveControl = false;
-            //m_blockInfoSmall.BlockInfo = new MyHudBlockInfo();
-            //m_blockInfoSmall.Position = new Vector2(0.28f, -0.04f);
-            //m_blockInfoSmall.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-            //Controls.Add(m_blockInfoSmall);
-            //m_blockInfoLarge = new MyGuiControlBlockInfo(style, false, true);
-            //m_blockInfoLarge.Visible = false;
-            //m_blockInfoLarge.IsActiveControl = false;
-            //m_blockInfoLarge.BlockInfo = new MyHudBlockInfo();
-            //m_blockInfoLarge.Position = new Vector2(0.28f, -0.06f);
-            //m_blockInfoLarge.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
-            //Controls.Add(m_blockInfoLarge);
 
             ProfilerShort.End();
         }
@@ -172,25 +127,46 @@ namespace Sandbox.Game.Gui
                 {
                     var group = MyDefinitionManager.Static.GetDefinitionGroup((definition as MyCubeBlockDefinition).BlockPairName);
 
-                    if (MyCubeBuilder.Static.CubeBuilderState.CubeSizeMode == MyCubeSize.Small &&
-                        MyCubeBuilder.Static.IsCubeSizeAvailable(group.Small))
+                    List<MyGuiControlBase> blockInfos = null;
+
+                    if (group.Small != null)
                     {
-                        m_blockInfoList.InitControls(GenerateBlockInfos(group.Small, ref m_blockInfoStyle));
+                        var blockInfosSmall = GenerateBlockInfos(group.Small, ref m_blockInfoStyle);
+                        if (blockInfosSmall != null)
+                        {
+                            if (blockInfos == null)
+                                blockInfos = new List<MyGuiControlBase>();
+                            blockInfos.AddArray(blockInfosSmall);
+                        }
                     }
-                    else if (MyCubeBuilder.Static.CubeBuilderState.CubeSizeMode == MyCubeSize.Large &&
-                        MyCubeBuilder.Static.IsCubeSizeAvailable(group.Large))
+ 
+                    if (group.Large != null)
                     {
-                        m_blockInfoList.InitControls(GenerateBlockInfos(group.Large, ref m_blockInfoStyle));
+                        var blockInfosLarge = GenerateBlockInfos(group.Large, ref m_blockInfoStyle);
+                        if (blockInfosLarge != null)
+                        {
+                            if (blockInfos == null)
+                                blockInfos = new List<MyGuiControlBase>();
+                            blockInfos.AddArray(blockInfosLarge);
+                        }
                     }
+
+                    if (blockInfos != null)
+                        m_blockInfoList.InitControls(blockInfos);
                     else
                     {
-                        bool blockSizeLarge = MyCubeBuilder.Static.CubeBuilderState.CubeSizeMode == MyCubeSize.Large;
-                        m_blockInfoList.InitControls(new MyGuiControlBase[]
-                        {
-                            GenerateSizeInfoLabel(blockSizeLarge),
-                            GenerateSizeNotAvailableText(blockSizeLarge)
-                        });
+                        m_blockInfoList.InitControls(new MyGuiControlBase[] { });
                     }
+
+                    //else
+                    //{
+                    //    bool blockSizeLarge = MyCubeBuilder.Static.CubeBuilderState.CubeSizeMode == MyCubeSize.Large;
+                    //    m_blockInfoList.InitControls(new MyGuiControlBase[]
+                    //    {
+                    //        GenerateSizeInfoLabel(blockSizeLarge),
+                    //        GenerateSizeNotAvailableText(blockSizeLarge)
+                    //    });
+                    //}
                 }
                 
             }
@@ -270,80 +246,5 @@ namespace Sandbox.Game.Gui
 
             return blockInfo;
         } 
-
-        private void OnGridSizeLargeSelected(MyGuiControlRadioButton obj)
-        {
-            if (MyCubeBuilder.Static == null)
-                return;
-
-            if(obj.Selected)
-                MyCubeBuilder.Static.CubeBuilderState.SetCubeSize(MyCubeSize.Large);
-
-            this.UpdateGridControl();
-
-        }
-
-        private void OnGridSizeSmallSelected(MyGuiControlRadioButton obj)
-        {
-            if (MyCubeBuilder.Static == null)
-                return;
-
-            if (obj.Selected)
-                MyCubeBuilder.Static.CubeBuilderState.SetCubeSize(MyCubeSize.Small);
-
-            this.UpdateGridControl();
-        }
-
-        public override void HandleInput(bool receivedFocusInThisUpdate)
-        {
-            base.HandleInput(receivedFocusInThisUpdate);
-
-            if (MyCubeBuilder.Static == null)
-                return;
-
-            if (MyCubeBuilder.Static.IsCubeSizeModesAvailable && MyInput.Static.IsGameControlReleased(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE) &&
-                !m_searchItemTextBox.HasFocus)
-            {
-                int selectionIdx = MyCubeBuilder.Static.CubeBuilderState.CubeSizeMode == MyCubeSize.Large ? 0 : 1;
-                int? selIdx = m_gridBlocks.SelectedIndex;
-                float scrollValue = m_gridBlocksPanel.ScrollbarVPosition;
-                m_rbGroupGridSize.SelectedIndex = selectionIdx;
-                OnGridMouseOverIndexChanged(m_gridBlocks, new MyGuiControlGrid.EventArgs());
-                m_gridBlocks.SelectedIndex = selIdx;
-                m_gridBlocksPanel.ScrollbarVPosition = scrollValue;
-                MyGuiSoundManager.PlaySound(GuiSounds.MouseClick);
-
-                return;
-            }
-            
-        }
-
-        ///// <summary>
-        ///// Used in order to get material requirements from prefabs of the new station/ship and draw them to the hud
-        ///// </summary>
-        //void CreateToolTipForNewGrid(MyCubeSize size, bool isStatic)
-        //{
-        //    bool isLarge = (size == MyCubeSize.Large);
-           // MyGuiControlBlockInfo usedInfo = isLarge ? m_blockInfoLarge : m_blockInfoSmall;
-           // MyGuiControlBlockInfo unusedInfo = !isLarge ? m_blockInfoLarge : m_blockInfoSmall;
-            //string prefabName;
-            //MyDefinitionManager.Static.GetBaseBlockPrefabName(size, isStatic, MySession.Static.CreativeMode, out prefabName);
-            //if (prefabName == null)
-            //    return;
-            //var gridBuilders = MyPrefabManager.Static.GetGridPrefab(prefabName);
-            //Debug.Assert(gridBuilders != null && gridBuilders.Length > 0);
-            //if (gridBuilders == null || gridBuilders.Length == 0)
-            //    return;
-
-            //MyCubeBlockDefinition blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(gridBuilders[0].CubeBlocks[0].GetId());
-            //if (blockDefinition != null)
-            //{
-            //    usedInfo.BlockInfo.LoadDefinition(blockDefinition);
-            //    usedInfo.Visible = true;
-            //}
-            //else
-            //    usedInfo.Visible = false;
-            //unusedInfo.Visible = false;
-        //}
     }
 }

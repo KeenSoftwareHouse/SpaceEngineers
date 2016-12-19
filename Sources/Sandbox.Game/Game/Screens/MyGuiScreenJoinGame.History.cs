@@ -100,6 +100,7 @@ namespace Sandbox.Game.Gui
 
         void OnHistoryServerListResponded(int server)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnHistoryServerListResponded");
             GameServerItem serverItem = SteamAPI.Instance.GetHistoryServerDetails(server);
             AddServerItem(serverItem, 
                 delegate() 
@@ -107,11 +108,14 @@ namespace Sandbox.Game.Gui
                     m_historyPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_History).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
                 },
                 isFiltered: false);
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void OnHistoryServersCompleteResponse(MatchMakingServerResponseEnum response)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnHistoryServersCompleteResponse");
             CloseHistoryRequest();
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void CloseHistoryRequest()

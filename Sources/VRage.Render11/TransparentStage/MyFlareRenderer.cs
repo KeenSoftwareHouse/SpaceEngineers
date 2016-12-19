@@ -6,7 +6,7 @@ using VRageRender.Messages;
 
 namespace VRageRender
 {
-    struct FlareId
+    internal struct FlareId
     {
         internal int Index;
         
@@ -39,48 +39,86 @@ namespace VRageRender
         #endregion
     }
 
-    internal class MyFlareRenderer
+    internal static class MyFlareRenderer
     {
-        private static MyFreelist<MyFlareDesc> m_flares = new MyFreelist<MyFlareDesc>(256);
+        private struct Data
+        {
+            public MyFlareDesc Desc;
+            public Vector3 DirectionWorld;
+            public MyOcclusionQueryRender Query;
+        }
+        private static readonly MyFreelist<Data> m_flares = new MyFreelist<Data>(256);
 
-        internal static FlareId Update(int parentGID, FlareId flareId, MyFlareDesc desc)
+        internal static FlareId Set(FlareId flareId, MyFlareDesc desc)
         {
             if (desc.Enabled)
             {
                 if (flareId == FlareId.NULL)
-                    flareId = new FlareId { Index = m_flares.Allocate() };
-
-                var gid = parentGID;
-                if (gid != -1 && MyIDTracker<MyActor>.FindByID((uint)gid) != null)
                 {
-                    var matrix = MyIDTracker<MyActor>.FindByID((uint)gid).WorldMatrix;
-                    Vector3.TransformNormal(ref desc.Direction, ref matrix, out desc.Direction);
+                    flareId = new FlareId {Index = m_flares.Allocate()};
+                }
+                if (Math.Abs(desc.Intensity) > 0.01f)
+                {
+                    if (m_flares.Data[flareId.Index].Query == null)
+                        m_flares.Data[flareId.Index].Query = MyOcclusionQueryRenderer.Get(desc.Material.ToString());
+                }
+                else if (m_flares.Data[flareId.Index].Query != null)
+                {
+                    MyOcclusionQueryRenderer.Remove(m_flares.Data[flareId.Index].Query);
+                    m_flares.Data[flareId.Index].Query = null;
                 }
 
-                desc.MaxDistance = (desc.MaxDistance > 0)
-                    ? (float)Math.Min(MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE, desc.MaxDistance)
-                    : MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE;
+                if (desc.MaxDistance > 0)
+                {
+                    if (m_flares.Data[flareId.Index].Desc.Type != Lights.MyGlareTypeEnum.Distant)
+                        desc.MaxDistance = Math.Min(MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE, desc.MaxDistance);
+                }
+                else desc.MaxDistance = MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE;
 
-                m_flares.Data[flareId.Index] = desc;
+                m_flares.Data[flareId.Index].Desc = desc;
+                if (desc.ParentGID == -1)
+                    m_flares.Data[flareId.Index].DirectionWorld = desc.Direction;
             }
-            else if (flareId != FlareId.NULL)
+            else 
             {
-                m_flares.Free(flareId.Index);
+                Remove(flareId);
                 flareId = FlareId.NULL;
             }
             return flareId;
         }
+
+        internal static void Update(FlareId flareId)
+        {
+            var gid = m_flares.Data[flareId.Index].Desc.ParentGID;
+            if (gid != -1 && m_flares.Data[flareId.Index].Desc.Type == Lights.MyGlareTypeEnum.Directional)
+            {
+                var actor = MyIDTracker<MyActor>.FindByID((uint) gid);
+                if (actor != null)
+                {
+                    var matrix = actor.WorldMatrix;
+                    Vector3.TransformNormal(ref m_flares.Data[flareId.Index].Desc.Direction, ref matrix, out m_flares.Data[flareId.Index].DirectionWorld);
+                }
+            }
+        }
+
         internal static void Remove(FlareId flareId)
         {
             if (flareId != FlareId.NULL)
+            {
+                if (m_flares.Data[flareId.Index].Query != null)
+                {
+                    MyOcclusionQueryRenderer.Remove(m_flares.Data[flareId.Index].Query);
+                    m_flares.Data[flareId.Index].Query = null;
+                }
                 m_flares.Free(flareId.Index);
+            }
         }
         internal static void Draw(FlareId flareId, Vector3D position)
         {
             var L = MyRender11.Environment.Matrices.CameraPosition - position;
             var distance = (float)L.Length();
 
-            switch (m_flares.Data[flareId.Index].Type)
+            switch (m_flares.Data[flareId.Index].Desc.Type)
             {
                 case Lights.MyGlareTypeEnum.Distant:
                     DrawDistantFlare(position, ref m_flares.Data[flareId.Index], distance);
@@ -94,27 +132,32 @@ namespace VRageRender
             }
         }
 
-        private static void DrawNormalFlare(Vector3D position, ref MyFlareDesc flare, Vector3 L, float distance)
+        private static void DrawNormalFlare(Vector3D position, ref Data flare, Vector3 L, float distance)
         {
-            //if (m_occlusionRatio <= MyMathConstants.EPSILON)
-            //    return;
+            if (flare.Query == null)
+                return;
 
-            var intensity = flare.Intensity;
-            var maxDistance = flare.MaxDistance;
+            flare.Query.Position = position;
+            flare.Query.Size = flare.Desc.QuerySize;
+            flare.Query.FreqMinMs = flare.Desc.QueryFreqMinMs;
+            flare.Query.FreqRndMs = flare.Desc.QueryFreqRndMs;
+            flare.Query.Visible = true;
 
-            //float alpha = m_occlusionRatio * intensity;
-            float alpha = intensity;
+            var intensity = flare.Desc.Intensity;
+            var maxDistance = flare.Desc.MaxDistance;
+
+            float alpha = flare.Query.LastResult * flare.Query.LastResult * intensity;
 
 
             const float minFlareRadius = 0.2f;
             const float maxFlareRadius = 10;
-            float radius = MathHelper.Clamp(flare.Range * 20, minFlareRadius, maxFlareRadius);
+            float radius = MathHelper.Clamp(flare.Desc.Range * 20, minFlareRadius, maxFlareRadius);
 
-            float drawingRadius = radius * flare.Size;
+            float drawingRadius = radius * flare.Desc.Size;
 
-            if (flare.Type == Lights.MyGlareTypeEnum.Directional)
+            if (flare.Desc.Type == Lights.MyGlareTypeEnum.Directional)
             {
-                float dot = Vector3.Dot(L, flare.Direction);
+                float dot = Vector3.Dot(L, flare.DirectionWorld);
                 alpha *= dot;
             }
 
@@ -133,33 +176,45 @@ namespace VRageRender
             if (drawingRadius <= float.Epsilon)
                 return;
 
-            var color = flare.Color;
+            var color = flare.Desc.Color;
             //color.A = 0;
-
-            var material = MyTransparentMaterials.GetMaterial(flare.Material.ToString());
-            MyBillboardsHelper.AddBillboardOriented(flare.Material.ToString(),
-                color * alpha, position, MyRender11.Environment.Matrices.InvView.Left, MyRender11.Environment.Matrices.InvView.Up, drawingRadius);
+            
+            var material = MyTransparentMaterials.GetMaterial(flare.Desc.Material.ToString());
+            MyBillboardsHelper.AddBillboardOriented(flare.Desc.Material.ToString(),
+                color * alpha, position, MyRender11.Environment.Matrices.InvView.Left, MyRender11.Environment.Matrices.InvView.Up, drawingRadius, 
+                MyBillboard.BlenType.AdditiveTop);
         }
 
-        private static void DrawDistantFlare(Vector3D position, ref MyFlareDesc flare, float distance)
+        private static void DrawDistantFlare(Vector3D position, ref Data flare, float distance)
         {
-            //float alpha = m_occlusionRatio * intensity;
+            if (flare.Query == null)
+                return;
 
-            float alpha = flare.Intensity * (flare.QuerySize / 7.5f);
+            flare.Query.Position = position;
+            flare.Query.Size = flare.Desc.QuerySize;
+            flare.Query.FreqMinMs = flare.Desc.QueryFreqMinMs;
+            flare.Query.FreqRndMs = flare.Desc.QueryFreqRndMs;
+            flare.Query.Visible = true;
+
+            const float RESULT_FLOOR = 0.01f;
+            float result = (flare.Query.LastResult - RESULT_FLOOR) * (1 / (1 - RESULT_FLOOR));
+            float alpha = result * result * flare.Desc.Intensity;
 
             if (alpha < MyMathConstants.EPSILON)
                 return;
 
-            const int minFlareRadius = 5;
+            /*const int minFlareRadius = 5;
             const int maxFlareRadius = 150;
 
-            //flare.QuerySize
-
             // parent range
-            float drawingRadius = MathHelper.Clamp(flare.Range * distance / 1000.0f, minFlareRadius, maxFlareRadius);
+            float drawingRadius = MathHelper.Clamp(flare.Desc.Range * distance / 1000.0f, minFlareRadius, maxFlareRadius);*/
+            const float minFlareRadius = 0.2f;
+            const float maxFlareRadius = 10;
+            float radius = MathHelper.Clamp(flare.Desc.Range * 20, minFlareRadius, maxFlareRadius);
+            float drawingRadius = radius * flare.Desc.Size;
 
-            var startFadeout = 800;
-            var endFadeout = 1000;
+            var startFadeout = flare.Desc.MaxDistance * 0.8f;
+            var endFadeout = flare.Desc.MaxDistance;
 
             if (distance > startFadeout)
             {
@@ -170,13 +225,14 @@ namespace VRageRender
             if (alpha < MyMathConstants.EPSILON)
                 return;
 
-            var color = flare.Color;
-            //color.A = 0;
+            var color = flare.Desc.Color;
 
-            var material = (flare.Type == Lights.MyGlareTypeEnum.Distant && distance > MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE) ? "LightGlareDistant" : "LightGlare";
+            //var material = (flare.Desc.Type == Lights.MyGlareTypeEnum.Distant && distance > MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE) ? 
+            //  "LightGlareDistant" : "LightGlare";
 
-            MyBillboardsHelper.AddBillboardOriented(material,
-                color * alpha, position, MyRender11.Environment.Matrices.InvView.Left, MyRender11.Environment.Matrices.InvView.Up, drawingRadius);
+            MyBillboardsHelper.AddBillboardOriented(flare.Desc.Material.ToString(),
+                color * alpha, position, MyRender11.Environment.Matrices.InvView.Left, MyRender11.Environment.Matrices.InvView.Up, drawingRadius, 
+                MyBillboard.BlenType.AdditiveTop);
         }
     }
 }

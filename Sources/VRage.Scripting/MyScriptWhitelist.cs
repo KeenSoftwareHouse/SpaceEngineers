@@ -82,7 +82,8 @@ namespace VRage.Scripting
                     typeof(SerializableAttribute),
                     typeof(GuidAttribute),
                     typeof(StructLayoutAttribute),
-                    typeof(LayoutKind)
+                    typeof(LayoutKind),
+                    typeof(Guid)
                 );
                 
                 // TODO: Evaluate whether any of the following may be better off whitelisted for modAPI only

@@ -14,25 +14,15 @@ namespace VRage.Game
         Line = 1, 
         Trail = 2,
     }
-
-
+    
     public class MyAnimatedParticle
     {
-        [System.Flags]
-        public enum ParticleFlags : byte
-        {
-            BlendTextures = 1 << 0,
-            IsInFrustum =   1 << 1
-        }
-
-        public object Tag;
-
         float m_elapsedTime;  //secs
-        
 
         MyParticleGeneration m_generation;
 
         public MyParticleTypeEnum Type;
+        public MyBillboard.BlenType BlendType;
 
         public MyQuadD Quad = new MyQuadD();
 
@@ -52,7 +42,6 @@ namespace VRage.Game
         public Vector3 Angle; //degrees
         public MyAnimatedPropertyVector3 RotationSpeed; //degrees
         public float Thickness;
-        public ParticleFlags Flags;
         public float ColorIntensity;
         public float SoftParticleDistanceScale;
 
@@ -284,16 +273,13 @@ namespace VRage.Game
                 MyTransparentGeometry.EndParticleProfilingBlock();
             }
 
-            billboard.ContainedBillboards.Clear();
-
-            billboard.Near = m_generation.GetEffect().Near;
-            billboard.Lowres = VRageRender.MyRenderConstants.RenderQualityProfile.LowResParticles;
             billboard.CustomViewProjection = -1;
             billboard.ParentID = -1;
             billboard.AlphaCutout = actualAlphaCutout;
             billboard.UVOffset = Vector2.Zero;
             billboard.UVSize = Vector2.One;
 
+            billboard.BlendType = BlendType;
 
 
             float alpha = 1;
@@ -514,23 +500,8 @@ namespace VRage.Game
                 }
             }
 
-
             var material1 = MyTransparentMaterials.GetMaterial("ErrorMaterial");
-            var material2 = MyTransparentMaterials.GetMaterial("ErrorMaterial");
-            float textureBlendRatio = 0;
-            if ((Flags & ParticleFlags.BlendTextures) != 0)
-            {
-                float prevTime, nextTime, difference;
-                Material.GetPreviousValue(m_normalizedTime, out material1, out prevTime);
-                Material.GetNextValue(m_normalizedTime, out material2, out nextTime, out difference);
-
-                if (prevTime != nextTime)
-                    textureBlendRatio = (m_normalizedTime - prevTime) * difference;
-            }
-            else
-            {
-                Material.GetInterpolatedValue(m_normalizedTime, out material1);
-            }
+            Material.GetInterpolatedValue(m_normalizedTime, out material1);
 
             MyTransparentGeometry.EndParticleProfilingBlock();
                      
@@ -539,10 +510,6 @@ namespace VRage.Game
 
             if (material1 != null)
                 billboard.Material = material1.Name;
-
-            billboard.BlendMaterial = material2.Name;
-            billboard.BlendTextureRatio = textureBlendRatio;
-            billboard.EnableColorize = false;
 
             billboard.Color = color * alpha * m_generation.GetEffect().UserColorMultiplier;
             billboard.ColorIntensity = ColorIntensity;
@@ -627,9 +594,6 @@ namespace VRage.Game
 
             Vector3D v1 = Vector3.TransformNormal(billboardAxisX + billboardAxisY, transform);
             Vector3D v2 = Vector3.TransformNormal(billboardAxisX - billboardAxisY, transform);
-
-
-
 
             //	Coordinates of four points of a billboard's quad
             billboard.Position0.X = position.X + v1.X;

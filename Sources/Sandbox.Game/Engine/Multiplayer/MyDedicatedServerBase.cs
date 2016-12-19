@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game;
@@ -18,7 +14,6 @@ using VRage.Trace;
 using VRage.Utils;
 using VRage.Network;
 using VRage.Library.Utils;
-using VRage.Library.Collections;
 
 namespace Sandbox.Engine.Multiplayer
 {
@@ -487,6 +482,15 @@ namespace Sandbox.Engine.Multiplayer
             return null;
         }
 
+        public override void DisconnectClient(ulong userId)
+        {
+            MyControlDisconnectedMsg msg = new MyControlDisconnectedMsg();
+            msg.Client = ServerId;
+            SendControlMessage(userId, ref msg);
+
+            RaiseClientLeft(userId, ChatMemberStateChangeEnum.Disconnected);
+        }
+
         public override void KickClient(ulong userId)
         {
             MyControlKickClientMsg msg = new MyControlKickClientMsg();
@@ -643,6 +647,7 @@ namespace Sandbox.Engine.Multiplayer
             return ServerId;
         }
 
+        [Obsolete("Use MySession.IsUserAdmin")]
         public override bool IsAdmin(ulong steamID)
         {
             if (m_memberData.ContainsKey(steamID))
@@ -743,19 +748,14 @@ namespace Sandbox.Engine.Multiplayer
 
         protected override void OnClientKick(ref MyControlKickClientMsg data, ulong sender)
         {
-            if (IsAdmin(sender))
+            if (MySession.Static.IsUserAdmin(sender))
                 KickClient(data.KickedClient);
         }
 
         protected override void OnClientBan(ref MyControlBanClientMsg data, ulong sender)
         {
-            if (IsAdmin(sender))
+            if (MySession.Static.IsUserAdmin(sender))
                 BanClient(data.BannedClient, data.Banned);
-        }
-
-        protected override void OnPing(ref MyControlPingMsg data, ulong sender)
-        {
-            SendControlMessage(sender, ref data);
         }
 
         void ClientConnected(VRage.MyPacket packet)

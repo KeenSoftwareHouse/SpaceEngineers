@@ -83,16 +83,7 @@ namespace Sandbox.Game.Weapons.Guns.Barrels
 
         public virtual bool StartShooting()
         {
-            if (IsControlledByPlayer())
-            {
-                return true;
-            }
-
             return true;
-         
-
-            StopShooting();
-            return false;
         }
 
         public virtual void StopShooting()

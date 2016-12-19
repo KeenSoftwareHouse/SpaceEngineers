@@ -179,6 +179,7 @@ namespace Sandbox.Game.Entities
                     MakeVisible(voxelMap);
                     m_shouldMarkForClose = false;
                     MyEntities.RaiseEntityCreated(voxelMap);
+                    voxelMap.IsReadyForReplication = true;
                 }
                 else
                 {

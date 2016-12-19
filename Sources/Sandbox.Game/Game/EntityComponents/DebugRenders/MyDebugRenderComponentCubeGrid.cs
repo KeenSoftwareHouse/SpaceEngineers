@@ -47,7 +47,7 @@ namespace Sandbox.Game.Components
 
             if (MyDebugDrawSettings.DEBUG_DRAW_GRID_DIRTY_BLOCKS)
             {
-                MyTimeSpan delay = MyTimeSpan.FromMiliseconds(1500);
+                MyTimeSpan delay = MyTimeSpan.FromMilliseconds(1500);
                 using (m_tmpRemoveList.GetClearToken())
                 {
                     foreach (var b in m_dirtyBlocks)

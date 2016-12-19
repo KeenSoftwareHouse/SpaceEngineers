@@ -39,6 +39,8 @@ namespace Sandbox.Graphics.GUI
         public static readonly string TEXTURE_ICON_FILTER_AMMO_25MM = @"Textures\GUI\Icons\FilterAmmo25mm.dds";
         public static readonly string TEXTURE_ICON_FILTER_AMMO_5_54MM = @"Textures\GUI\Icons\FilterAmmo5.54mm.dds";
         public static readonly string TEXTURE_ICON_FILTER_COMPONENT = @"Textures\GUI\Icons\FilterComponent.dds";
+        public static readonly string TEXTURE_ICON_LARGE_BLOCK = @"Textures\GUI\CubeBuilder\GridModeLargeHighl.PNG";
+        public static readonly string TEXTURE_ICON_SMALL_BLOCK = @"Textures\GUI\CubeBuilder\GridModeSmallHighl.PNG";
 
         public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_DEFAULT_NORMAL    = new MyGuiCompositeTexture() { LeftTop = new MyGuiSizedTexture() { SizePx = new Vector2(285f, 65f), Texture = @"Textures\GUI\Controls\button_default.dds", } };
         public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_DEFAULT_HIGHLIGHT = new MyGuiCompositeTexture() { LeftTop = new MyGuiSizedTexture() { SizePx = new Vector2(285f, 65f), Texture = @"Textures\GUI\Controls\button_default_highlight.dds", } };
@@ -120,6 +122,18 @@ namespace Sandbox.Graphics.GUI
 
         public static readonly MyGuiHighlightTexture TEXTURE_BUTTON_ARROW_SINGLE = new MyGuiHighlightTexture() { SizePx = new Vector2(64f, 64f), Normal = @"Textures\GUI\Icons\buttons\ArrowSingle.dds", Highlight = @"Textures\GUI\Icons\buttons\ArrowSingleHighlight.dds", };
         public static readonly MyGuiHighlightTexture TEXTURE_BUTTON_ARROW_DOUBLE = new MyGuiHighlightTexture() { SizePx = new Vector2(64f, 64f), Normal = @"Textures\GUI\Icons\buttons\ArrowDouble.dds", Highlight = @"Textures\GUI\Icons\buttons\ArrowDoubleHighlight.dds", };
+
+        public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_LIKE_NORMAL = new MyGuiCompositeTexture { Center = new MyGuiSizedTexture { SizePx = new Vector2(128f, 128f), Texture = @"Textures\GUI\Icons\Like.dds" } };
+        public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_LIKE_HIGHLIGHT = new MyGuiCompositeTexture { Center = new MyGuiSizedTexture { SizePx = new Vector2(128f, 128f), Texture = @"Textures\GUI\Icons\LikeHighlight.dds" } };
+
+        public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_BUG_NORMAL = new MyGuiCompositeTexture { Center = new MyGuiSizedTexture { SizePx = new Vector2(128f, 128f), Texture = @"Textures\GUI\Icons\Bug.dds" } };
+        public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_BUG_HIGHLIGHT = new MyGuiCompositeTexture { Center = new MyGuiSizedTexture { SizePx = new Vector2(128f, 128f), Texture = @"Textures\GUI\Icons\BugHighlight.dds" } };
+
+        public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_HELP_NORMAL = new MyGuiCompositeTexture { Center = new MyGuiSizedTexture { SizePx = new Vector2(128f, 128f), Texture = @"Textures\GUI\Icons\Help.dds" } };
+        public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_HELP_HIGHLIGHT = new MyGuiCompositeTexture { Center = new MyGuiSizedTexture { SizePx = new Vector2(128f, 128f), Texture = @"Textures\GUI\Icons\HelpHighlight.dds" } };
+
+        public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_ENVELOPE_NORMAL = new MyGuiCompositeTexture { Center = new MyGuiSizedTexture { SizePx = new Vector2(128f, 128f), Texture = @"Textures\GUI\Icons\Envelope.dds" } };
+        public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_ENVELOPE_HIGHLIGHT = new MyGuiCompositeTexture { Center = new MyGuiSizedTexture { SizePx = new Vector2(128f, 128f), Texture = @"Textures\GUI\Icons\EnvelopeHighlight.dds" } };
 
         public static readonly MyGuiCompositeTexture TEXTURE_BUTTON_SQUARE_HIGHLIGHT = new MyGuiCompositeTexture()
         {
@@ -773,6 +787,7 @@ namespace Sandbox.Graphics.GUI
         public static readonly Vector4 BACK_BUTTON_TEXT_COLOR = DEFAULT_CONTROL_NONACTIVE_COLOR;
         public static readonly Vector2 BACK_BUTTON_SIZE = new Vector2(260f / 1600f, 70f / 1200f);
         public static readonly Vector2 OK_BUTTON_SIZE = new Vector2(0.177f, 0.0765f);
+        public static readonly Vector2 GENERIC_BUTTON_SPACING = new Vector2(0.002f, 0.002f);
 
         public const float MAIN_MENU_BUTTON_TEXT_SCALE = 1.08f;
 
@@ -793,7 +808,7 @@ namespace Sandbox.Graphics.GUI
         public static readonly Vector4 LISTBOX_BACKGROUND_COLOR = DEFAULT_CONTROL_BACKGROUND_COLOR;
         public static readonly Vector2 LISTBOX_ICON_SIZE = new Vector2(0.0205f, 0.02733f);
         public static readonly Vector2 LISTBOX_ICON_OFFSET = LISTBOX_ICON_SIZE/8;
-
+        public static readonly float   LISTBOX_WIDTH = 0.197f;
 
         // Drag and drop gui constants
         public static readonly Vector2 DRAG_AND_DROP_TEXT_OFFSET = new Vector2(0.01f, 0);
@@ -815,8 +830,8 @@ namespace Sandbox.Graphics.GUI
         public const float TOOL_TIP_TEXT_SCALE = 0.7f;
 
         //  How long takes transition of opening and closing of the screen - in miliseconds
-        public const int TRANSITION_OPENING_TIME = 100;
-        public const int TRANSITION_CLOSING_TIME = 100;
+        public const int TRANSITION_OPENING_TIME = 200;
+        public const int TRANSITION_CLOSING_TIME = 200;
 
         //  Min and max values for transition alpha, where max is alpha when screen is fully active
         public const float TRANSITION_ALPHA_MIN = 0;
@@ -880,6 +895,17 @@ namespace Sandbox.Graphics.GUI
         public const string CB_LCS_GRID_ICON = @"Textures\GUI\CubeBuilder\OnGridIcon.png";
         public const string CB_LARGE_GRID_MODE = @"Textures\GUI\CubeBuilder\GridModeLargeHighl.png";
         public const string CB_SMALL_GRID_MODE = @"Textures\GUI\CubeBuilder\GridModeSmallHighl.png";
+
+        #endregion
+
+        #region Broadcast screen
+
+        public const string BS_ANTENNA_ON = @"Textures\GUI\Icons\BroadcastStatus\AntennaOn.png";
+        public const string BS_ANTENNA_OFF = @"Textures\GUI\Icons\BroadcastStatus\AntennaOff.png";
+        public const string BS_KEY_ON = @"Textures\GUI\Icons\BroadcastStatus\KeyOn.png";
+        public const string BS_KEY_OFF = @"Textures\GUI\Icons\BroadcastStatus\KeyOff.png";
+        public const string BS_REMOTE_ON = @"Textures\GUI\Icons\BroadcastStatus\RemoteOn.png";
+        public const string BS_REMOTE_OFF = @"Textures\GUI\Icons\BroadcastStatus\RemoteOff.png";
 
         #endregion
 

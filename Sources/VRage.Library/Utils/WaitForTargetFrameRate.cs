@@ -24,6 +24,8 @@ namespace VRage.Library.Utils
         private readonly ManualResetEventSlim m_waiter = new ManualResetEventSlim(false, 0);
         private readonly MyTimer.TimerEventHandler m_handler;
 
+        private int m_delta = 0;
+
         public WaitForTargetFrameRate(MyGameTimer timer, float targetFrequency = 59.75f)
         {
             m_timer = timer;
@@ -34,8 +36,14 @@ namespace VRage.Library.Utils
             });
         }
 
+        public void SetNextFrameDelayDelta(int delta)
+        {
+            m_delta = delta;
+        }
         public void Wait()
         {
+            m_timer.AddElapsed(MyTimeSpan.FromMilliseconds(-m_delta));
+
             var currentTicks = m_timer.ElapsedTicks;
 
             // Wait for correct frame start
@@ -52,12 +60,12 @@ namespace VRage.Library.Utils
                 if (EnableUpdateWait)
                 {
                     var remaining = MyTimeSpan.FromTicks(m_targetTicks - currentTicks);
-                    int waitMs = (int)(remaining.Miliseconds - 0.1); // To handle up to 0.1ms inaccuracy of timer
+                    int waitMs = (int)(remaining.Milliseconds - 0.1); // To handle up to 0.1ms inaccuracy of timer
                     if (waitMs > 0)
                     {
                         m_waiter.Reset();
                         MyTimer.StartOneShot(waitMs, m_handler);
-                        m_waiter.Wait(17); // Never wait more than 17ms
+                        m_waiter.Wait(17 + m_delta); // Never wait more than 17ms
                         //Debug.Assert(MyPerformanceCounter.ElapsedTicks < m_targetTicks);
                         //VRageRender.MyRenderStats.Write("WaitRemaining", (float)MyPerformanceCounter.TicksToMs(m_targetTicks - MyPerformanceCounter.ElapsedTicks), VRageRender.MyStatTypeEnum.MinMaxAvg, 300, 3);
                     }
@@ -73,6 +81,7 @@ namespace VRage.Library.Utils
                     m_targetTicks = m_timer.ElapsedTicks;
                 }
             }
+            m_delta = 0;
         }
     }
 }

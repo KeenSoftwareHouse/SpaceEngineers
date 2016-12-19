@@ -55,8 +55,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
         List<MyUseObjectPanelButton> m_buttonsUseObjects = new List<MyUseObjectPanelButton>();
         StringBuilder m_emptyName = new StringBuilder("");
 
-        Vector3D m_previusPosition = Vector3D.Zero;
-
         bool m_syncing = false;
 
         public MyButtonPanel()
@@ -159,7 +157,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 m_customButtonNames = ob.CustomButtonNames;
             }
 
-            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 
             UseObjectsComponent.GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
         }
@@ -385,20 +383,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
             return item;
         }
 
-        public override void UpdateAfterSimulation()
-        {
-            base.UpdateAfterSimulation();
-            if (m_previusPosition != PositionComp.GetPosition())
-            {
-                m_previusPosition = PositionComp.GetPosition();
-                foreach (var button in m_buttonsUseObjects)
-                {
-                    button.UpdateMarkerPosition();
-                }
-            }
-            
-        }
-
         [Event, Reliable, Server, Broadcast]
         void SendToolbarItemChanged(ToolbarItem sentItem, int index)
         {
@@ -410,6 +394,16 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
             Toolbar.SetItemAtIndex(index, item);
             m_syncing = false;
+        }
+
+        protected override void WorldPositionChanged(object source)
+        {
+            base.WorldPositionChanged(source);
+
+            foreach (var button in m_buttonsUseObjects)
+            {
+                button.UpdateMarkerPosition();
+            }
         }
     }
 }

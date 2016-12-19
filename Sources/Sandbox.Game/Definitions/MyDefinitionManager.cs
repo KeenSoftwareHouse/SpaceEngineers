@@ -393,6 +393,19 @@ namespace Sandbox.Definitions
             if (block.Model != null)
             {
                 var model = VRage.Game.Models.MyModels.GetModelOnlyData(block.Model);
+                if (MyFakes.TEST_MODELS_WRONG_TRIANGLES)
+                {
+                    int triCount = model.GetTrianglesCount();
+                    for (int i = 0; i < triCount; ++i)
+                    {
+                        var triangle = model.GetTriangle(i);
+                        if (MyUtils.IsWrongTriangle(model.GetVertex(triangle.I0), model.GetVertex(triangle.I1), model.GetVertex(triangle.I2)))
+                        {
+                            System.Diagnostics.Debug.Fail("Wrong triangle in " + model.AssetName + "!");
+                            break;
+                        }
+                    }
+                }
                 model.UnloadData();
             }
             foreach (var c in block.BuildProgressModels)
@@ -2339,7 +2352,7 @@ namespace Sandbox.Definitions
                 if (obj.MaxSize < obj.MinSize)
                     obj.MaxSize = obj.MinSize;
 
-                MyDecalMaterial material = new MyDecalMaterial(obj.Material,
+                MyDecalMaterial material = new MyDecalMaterial(obj.Material, obj.Transparent,
                     MyStringHash.GetOrCompute(obj.Target), MyStringHash.GetOrCompute(obj.Source),
                     obj.MinSize, obj.MaxSize, obj.Depth, obj.Rotation);
 
@@ -2671,9 +2684,7 @@ namespace Sandbox.Definitions
                     material.AlphaMistingEnable,
                     material.Color,
                     material.IgnoreDepth,
-                    material.NeedSort,
                     material.UseAtlas,
-                    material.Emissivity,
                     material.AlphaMistingStart,
                     material.AlphaMistingEnd,
                     material.AlphaSaturation,
@@ -3971,6 +3982,16 @@ namespace Sandbox.Definitions
         public MyComponentDefinitionBase GetEntityComponentDefinition(MyDefinitionId componentId)
         {
             return m_definitions.m_entityComponentDefinitions[componentId];
+        }
+
+        public ListReader<MyComponentDefinitionBase> GetEntityComponentDefinitions()
+        {
+            return GetEntityComponentDefinitions<MyComponentDefinitionBase>();
+        }
+
+        public ListReader<T> GetEntityComponentDefinitions<T>()
+        {
+            return new ListReader<T>(m_definitions.m_entityComponentDefinitions.Values.OfType<T>().ToList());
         }
 
         public bool TryGetContainerDefinition(MyDefinitionId containerId, out MyContainerDefinition definition)

@@ -105,6 +105,18 @@ namespace Sandbox.Game.Entities.Cube
             if (MyTerminalControlFactory.AreControlsCreated<MyMotorStator>())
                 return;
             base.CreateTerminalControls();
+
+            var addRotorHead = new MyTerminalControlButton<MyMotorStator>("Add Top Part", MySpaceTexts.BlockActionTitle_AddRotorHead, MySpaceTexts.BlockActionTooltip_AddRotorHead, (b) => b.RecreateTop());
+            addRotorHead.Enabled = (b) => (b.TopBlock == null);
+            addRotorHead.EnableAction(MyTerminalActionIcons.STATION_ON);
+            MyTerminalControlFactory.AddControl(addRotorHead);
+
+            var addSmallRotorHead = new MyTerminalControlButton<MyMotorStator>("Add Small Top Part", MySpaceTexts.BlockActionTitle_AddSmallRotorHead, MySpaceTexts.BlockActionTooltip_AddSmallRotorHead, (b) => b.RecreateTop(smallToLarge: true));
+            addSmallRotorHead.Enabled = (b) => (b.TopBlock == null);
+            addSmallRotorHead.Visible = (b) => (b.CubeGrid.GridSizeEnum == MyCubeSize.Large);
+            addSmallRotorHead.EnableAction(MyTerminalActionIcons.STATION_ON);
+            MyTerminalControlFactory.AddControl(addSmallRotorHead);
+
             var reverse = new MyTerminalControlButton<MyMotorStator>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (b) => b.TargetVelocityRPM = -b.TargetVelocityRPM);
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);
@@ -472,10 +484,10 @@ namespace Sandbox.Game.Entities.Cube
                     ScaleUp();
             }
 
-            var effectiveTorque = Math.Min(Torque, TopGrid.Physics.Mass * TopGrid.Physics.Mass) * Sync.RelativeSimulationRatio;
+            var effectiveTorque = Math.Min(Torque, TopGrid.Physics.Mass * TopGrid.Physics.Mass);
             m_motor.MaxForce = effectiveTorque;
             m_motor.MinForce = -effectiveTorque;
-            m_motor.VelocityTarget = TargetVelocity * Sync.RelativeSimulationRatio;
+            m_motor.VelocityTarget = TargetVelocity;
 
             bool motorRunning = IsWorking;
             if (data.MotorEnabled != motorRunning)

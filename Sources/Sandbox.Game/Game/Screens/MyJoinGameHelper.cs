@@ -71,16 +71,6 @@ namespace Sandbox.Game.Gui
             {
                 MyJoinGameHelper.JoinScenarioGame(lobby.LobbyId);
             }
-            else if (MyFakes.ENABLE_BATTLE_SYSTEM && MyMultiplayerLobby.GetLobbyBattle(lobby))
-            {
-                bool canBeJoined = MyMultiplayerLobby.GetLobbyBattleCanBeJoined(lobby);
-                // Check also valid faction ids in battle lobby.
-                long faction1Id = MyMultiplayerLobby.GetLobbyBattleFaction1Id(lobby);
-                long faction2Id = MyMultiplayerLobby.GetLobbyBattleFaction2Id(lobby);
-
-                if (canBeJoined && faction1Id != 0 && faction2Id != 0)
-                    MyJoinGameHelper.JoinBattleGame(lobby.LobbyId);
-            }
             else
             {
                 JoinGame(lobby.LobbyId);
@@ -119,43 +109,26 @@ namespace Sandbox.Game.Gui
             multiplayer.SendPlayerData(MySteam.UserName);
 
             string gamemode = server.GetGameTagByPrefix("gamemode");
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && gamemode == "B")
+            StringBuilder text = MyTexts.Get(MyCommonTexts.DialogTextJoiningWorld);
+
+            MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MyCommonTexts.Cancel);
+            MyGuiSandbox.AddScreen(progress);
+            progress.ProgressCancelled += () =>
             {
-                StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattle);
-
-                MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MyCommonTexts.Cancel);
-                MyGuiSandbox.AddScreen(progress);
-                progress.ProgressCancelled += () =>
+                multiplayer.Dispose();
+                MySessionLoader.UnloadAndExitToMenu();
+                if (MyMultiplayer.Static != null)
                 {
-                    multiplayer.Dispose();
-                    MySessionLoader.UnloadAndExitToMenu();
-                };
+                    MyMultiplayer.Static.Dispose();
+                }
+            };
 
-                multiplayer.OnJoin += delegate
-                {
-                    MyJoinGameHelper.OnJoinBattle(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
-                };
-            }
-            else
+            multiplayer.OnJoin += delegate
             {
-                StringBuilder text = MyTexts.Get(MyCommonTexts.DialogTextJoiningWorld);
+                MyJoinGameHelper.OnJoin(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
+            };
 
-                MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MyCommonTexts.Cancel);
-                MyGuiSandbox.AddScreen(progress);
-                progress.ProgressCancelled += () =>
-                {
-                    multiplayer.Dispose();
-                    if (MyMultiplayer.Static != null)
-                    {
-                        MyMultiplayer.Static.Dispose();
-                    }
-                };
-
-                multiplayer.OnJoin += delegate
-                {
-                    MyJoinGameHelper.OnJoin(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
-                };
-            }
+            VRage.Profiler.MyRenderProfiler.GetProfilerFromServer = MyMultiplayer.Static.DownloadProfiler;
         }
 
         public static void JoinGame(ulong lobbyId)
@@ -173,24 +146,7 @@ namespace Sandbox.Game.Gui
             result.JoinDone += (joinResult, info, multiplayer) => OnJoin(progress, joinResult, info, multiplayer);
 
             progress.ProgressCancelled += () => result.Cancel();
-        }
-
-        public static void JoinBattleGame(ulong lobbyId)
-        {
-            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattle);
-
-            MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MyCommonTexts.Cancel);
-            MyGuiSandbox.AddScreen(progress);
-
-            progress.ProgressCancelled += () => MySessionLoader.UnloadAndExitToMenu();
-
-            MyLog.Default.WriteLine("Joining battle lobby: " + lobbyId);
-
-            var result = MyMultiplayer.JoinLobby(lobbyId);
-            result.JoinDone += (joinResult, info, multiplayer) => OnJoinBattle(progress, joinResult, info, multiplayer);
-
-            progress.ProgressCancelled += () => result.Cancel();
-        }
+        }       
 
         public static void JoinScenarioGame(ulong lobbyId)
         {
@@ -313,62 +269,6 @@ namespace Sandbox.Game.Gui
             };
         }
 
-        public static void OnJoinBattle(MyGuiScreenProgress progress, Result joinResult, LobbyEnterInfo enterInfo, MyMultiplayerBase multiplayer)
-        {
-            MyLog.Default.WriteLine(String.Format("Battle lobby join response: {0}, enter state: {1}", joinResult.ToString(), enterInfo.EnterState));
-
-            bool battleCanBeJoined = multiplayer != null && multiplayer.BattleCanBeJoined;
-            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && battleCanBeJoined && multiplayer.GetOwner() != Sync.MyId)
-            {
-                // Create session with empty world
-                Debug.Assert(MySession.Static == null);
-
-                MySession.CreateWithEmptyWorld(multiplayer);
-                MySession.Static.Settings.Battle = true;
-
-                progress.CloseScreen();
-
-                MyLog.Default.WriteLine("Battle lobby joined");
-
-                if (MyPerGameSettings.GUI.BattleLobbyClientScreen != null)
-                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.BattleLobbyClientScreen));
-                else
-                    Debug.Fail("No battle lobby client screen");
-            }
-            else
-            {
-                bool statusFullMessage = true;
-                string status = MyTexts.GetString(MyCommonTexts.MultiplayerErrorServerHasLeft);
-
-                if (joinResult != Result.OK)
-                {
-                    status = joinResult.ToString();
-                    statusFullMessage = false;
-                }
-                else if (enterInfo.EnterState != LobbyEnterResponseEnum.Success)
-                {
-                    status = enterInfo.EnterState.ToString();
-                    statusFullMessage = false;
-                }
-                else if (!battleCanBeJoined)
-                {
-                    if (MyFakes.ENABLE_JOIN_STARTED_BATTLE)
-                    {
-                        status = status = MyTexts.GetString(MyCommonTexts.MultiplayerErrorSessionEnded);
-                        statusFullMessage = true;
-                    }
-                    else
-                    {
-                        status = "GameStarted";
-                        statusFullMessage = false;
-                    }
-                }
-
-                MyLog.Default.WriteLine("Battle join failed: " + status);
-
-                OnJoinBattleFailed(progress, multiplayer, status, statusFullMessage: statusFullMessage);
-            }
-        }
 
         public static void OnJoinScenario(MyGuiScreenProgress progress, Result joinResult, LobbyEnterInfo enterInfo, MyMultiplayerBase multiplayer)
         {
@@ -483,21 +383,7 @@ namespace Sandbox.Game.Gui
             bool needsDx11 = world.Checkpoint.RequiresDX >= 11;
             if (!needsDx11 || MySandboxGame.IsDirectX11)
             {
-                if (multiplayer.Battle)
-                {
-                    if (multiplayer.BattleCanBeJoined)
-                    {
-                        MySessionLoader.LoadMultiplayerBattleWorld(world, multiplayer);
-                    }
-                    else
-                    {
-                        MyLog.Default.WriteLine("World downloaded but battle game ended");
-                        MySessionLoader.UnloadAndExitToMenu();
-                        MyGuiSandbox.Show(MyCommonTexts.MultiplayerErrorSessionEnded);
-                        multiplayer.Dispose();
-                    }
-                }
-                else if (multiplayer.Scenario)
+                if (multiplayer.Scenario)
                 {
                     MySessionLoader.LoadMultiplayerScenarioWorld(world, multiplayer);
                 }

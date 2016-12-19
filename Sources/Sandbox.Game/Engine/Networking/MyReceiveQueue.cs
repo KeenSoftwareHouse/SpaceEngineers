@@ -1,17 +1,10 @@
-﻿using Sandbox.Engine.Networking;
-using Sandbox.Game.Multiplayer;
-using SteamSDK;
+﻿using SteamSDK;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Threading;
 using VRage.Collections;
 using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 
 namespace Sandbox.Engine.Networking
@@ -42,32 +35,34 @@ namespace Sandbox.Engine.Networking
 
         class Message
         {
-            public TimeSpan Timestamp;
+            public MyTimeSpan Timestamp;
             public byte[] Data;
             public int Length;
             public ulong UserId;
 
-            public long ReceiveTime;
+            public MyTimeSpan ReceivedTime;
         }
 
-        MyTimer m_timer;
+        readonly MyTimer m_timer;
         Action m_timerAction;
-        Thread m_readThread;
+        readonly Thread m_readThread;
 
         [ThreadStatic]
         bool m_knownThread;
 
-        MyConcurrentPool<Message> m_messagePool;
-        MyConcurrentQueue<Message> m_receiveQueue;
-        Func<TimeSpan> m_timestampProvider;
+        readonly MyConcurrentPool<Message> m_messagePool;
+        readonly MyConcurrentQueue<Message> m_receiveQueue;
+        readonly Func<MyTimeSpan> m_timestampProvider;
 
         public bool Disposed { get; private set; }
         public readonly int Channel;
         public readonly Mode ReadMode;
 
         public bool Started = false;
+        private readonly Action<ulong> m_disconnectPeerOnError;
 
-        public MyReceiveQueue(int channel, Mode readMode = Mode.Synchronized, int defaultMessageCount = 1, Func<TimeSpan> timestampProvider = null)
+        public MyReceiveQueue(int channel, Action<ulong> disconnectPeerOnError, Mode readMode = Mode.Synchronized, int defaultMessageCount = 1, 
+            Func<MyTimeSpan> timestampProvider = null)
         {
 #if !XB1
             Trace.Assert(readMode != Mode.Spin, "Spin mode should be used only for testing purposes, it keeps CPU under heavy load!");
@@ -82,6 +77,7 @@ namespace Sandbox.Engine.Networking
             m_messagePool = new MyConcurrentPool<Message>(defaultMessageCount, true);
             m_receiveQueue = new MyConcurrentQueue<Message>(defaultMessageCount);
             m_timestampProvider = timestampProvider;
+            m_disconnectPeerOnError = disconnectPeerOnError;
 
             if (readMode == Mode.Spin)
             {
@@ -159,7 +155,7 @@ namespace Sandbox.Engine.Networking
                         msg.Timestamp = m_timestampProvider();
                     }
 
-                    msg.ReceiveTime = Stopwatch.GetTimestamp();
+                    msg.ReceivedTime = MyTimeSpan.FromTicks(Stopwatch.GetTimestamp());
                     msg.Length = (int)length;
                     msg.UserId = sender;
 
@@ -191,7 +187,7 @@ namespace Sandbox.Engine.Networking
             var msg = GetMessage(length);
             Array.Copy(data, msg.Data, length);
             msg.Length = length;
-            msg.ReceiveTime = Stopwatch.GetTimestamp();
+            msg.ReceivedTime = MyTimeSpan.FromTicks(Stopwatch.GetTimestamp());
             if (m_timestampProvider != null)
             {
                 msg.Timestamp = m_timestampProvider();
@@ -204,7 +200,7 @@ namespace Sandbox.Engine.Networking
         /// Processes messages
         /// Delay indicates how long must be message in queue before processing (lag emulation)
         /// </summary>
-        public void Process(NetworkMessageDelegate handler, TimeSpan delay = default(TimeSpan))
+        public void Process(NetworkMessageDelegate handler, MyTimeSpan delay = default(MyTimeSpan))
         {
             if (ReadMode == Mode.Synchronized)
             {
@@ -225,24 +221,36 @@ namespace Sandbox.Engine.Networking
             }
         }
 
-        private void ProcessMessages(NetworkMessageDelegate handler, TimeSpan delay)
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+        [System.Security.SecurityCriticalAttribute]
+        private void ProcessMessages(NetworkMessageDelegate handler, MyTimeSpan delay)
         {
-            long delayTicks = (long)Math.Round(delay.TotalSeconds * Stopwatch.Frequency);
-            long processTime = Stopwatch.GetTimestamp() - delayTicks;
+            long delayTicks = (long)Math.Round(delay.Seconds * Stopwatch.Frequency);
+            var processTime = MyTimeSpan.FromTicks(Stopwatch.GetTimestamp() - delayTicks);
 
             Message msg;
             int count = m_receiveQueue.Count;
-            while (m_receiveQueue.TryPeek(out msg) && (processTime > msg.ReceiveTime) && count != 0)
+            while (m_receiveQueue.TryPeek(out msg) && (processTime > msg.ReceivedTime) && count != 0)
             {
                 count--;
                 if (m_receiveQueue.TryDequeue(out msg)) // Can fail when queue was cleared
                 {
-                    if (msg.Timestamp != TimeSpan.Zero)
+                    if (msg.Timestamp != MyTimeSpan.Zero)
                     {
                         msg.Timestamp += delay;
                     }
 
-                    handler(msg.Data, msg.Length, msg.UserId, msg.Timestamp);
+                    try
+                    {
+                        handler(msg.Data, msg.Length, msg.UserId, msg.Timestamp, msg.ReceivedTime);
+                    }
+                    catch (Exception ex)
+                    {
+                        MyLog.Default.WriteLine(ex);
+                        if (!Sandbox.Game.Multiplayer.Sync.IsServer)
+                            throw;
+                        m_disconnectPeerOnError(msg.UserId);
+                    }
                     m_messagePool.Return(msg);
                 }
             }

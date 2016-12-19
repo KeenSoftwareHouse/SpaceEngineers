@@ -1,14 +1,8 @@
-using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
-using VRageMath;
+using VRageRender;
 
-namespace VRageRender
+namespace VRage.Render11.LightingStage
 {
     class MyDepthResolve : MyScreenPass
     {

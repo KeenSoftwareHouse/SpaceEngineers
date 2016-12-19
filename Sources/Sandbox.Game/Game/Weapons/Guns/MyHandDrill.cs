@@ -1,4 +1,4 @@
-﻿//#define ROTATE_DRILL_SPIKE
+﻿#define ROTATE_DRILL_SPIKE
 
 #region Using
 
@@ -35,9 +35,10 @@ namespace Sandbox.Game.Weapons
     [MyEntityType(typeof(MyObjectBuilder_HandDrill))]
     public class MyHandDrill : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyGunBaseUser, IMyHandDrill
     {
-	    private const float SPIKE_THRUST_DISTANCE_HALF = 0.2f;
-        private const float SPIKE_THRUST_PERIOD_IN_SECONDS = 0.05f;
+        private const float SPIKE_THRUST_DISTANCE_HALF = 0.03f;
+        private const float SPIKE_THRUST_PERIOD_IN_SECONDS = 0.06f;
         private const float SPIKE_SLOWDOWN_TIME_IN_SECONDS = 0.5f;
+        private const float SPIKE_MAX_ROTATION_SPEED = -25f;
 
         private int m_lastTimeDrilled;
         private MyDrillBase m_drillBase;
@@ -54,6 +55,7 @@ namespace Sandbox.Game.Weapons
 
         MyOreDetectorComponent m_oreDetectorBase = new MyOreDetectorComponent();
 
+        private MyEntity[] m_shootIgnoreEntities;   // for projectiles to know which entities to ignore
 
         float m_speedMultiplier=1f;
 
@@ -110,6 +112,7 @@ namespace Sandbox.Game.Weapons
 
         public MyHandDrill()
         {
+            m_shootIgnoreEntities = new MyEntity[] { this };
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
         }
 
@@ -162,7 +165,7 @@ namespace Sandbox.Game.Weapons
             sinkComp.Init(
                 MyStringHash.GetOrCompute("Utility"), 
                 MyEnergyConstants.REQUIRED_INPUT_HAND_DRILL,
-                () => m_tryingToDrill ? SinkComp.MaxRequiredInput : 0f);
+                () => m_tryingToDrill ? SinkComp.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0f);
             SinkComp = sinkComp;
 
             foreach (ToolSound toolSound in definition.ToolSounds)
@@ -218,7 +221,7 @@ namespace Sandbox.Game.Weapons
             m_tryingToDrill = true;
 			SinkComp.Update();
 
-			if (!SinkComp.IsPowered)
+            if (!SinkComp.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
                 return false;
 
             m_lastTimeDrilled = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -243,12 +246,16 @@ namespace Sandbox.Game.Weapons
                 if (m_objectInDrillingRange && Owner != null && Owner.ControllerInfo.IsLocallyControlled() && (Owner.IsInFirstPersonView || Owner.ForceFirstPersonCamera))
                     m_drillBase.PerformCameraShake();
 
+                
+
+
 #if ROTATE_DRILL_SPIKE
                 m_spikeRotationAngle += timeDelta * m_drillBase.AnimationMaxSpeedRatio * SPIKE_MAX_ROTATION_SPEED;
                 if (m_spikeRotationAngle > MathHelper.TwoPi) m_spikeRotationAngle -= MathHelper.TwoPi;
+                if (m_spikeRotationAngle < MathHelper.TwoPi) m_spikeRotationAngle += MathHelper.TwoPi;
 #endif
 
-                m_spikeThrustPosition += timeDelta * m_drillBase.AnimationMaxSpeedRatio / SPIKE_THRUST_PERIOD_IN_SECONDS;
+                m_spikeThrustPosition += timeDelta * m_drillBase.AnimationMaxSpeedRatio / SPIKE_THRUST_PERIOD_IN_SECONDS; 
                 if (m_spikeThrustPosition > 1.0f)
                 {
                     m_spikeThrustPosition -= 2.0f;
@@ -262,7 +269,7 @@ namespace Sandbox.Game.Weapons
 #if ROTATE_DRILL_SPIKE
                     Matrix.CreateRotationZ(m_spikeRotationAngle) *
 #endif
-                    Matrix.CreateTranslation(m_spikeBasePos + Math.Abs(m_spikeThrustPosition) * Vector3.UnitZ * SPIKE_THRUST_DISTANCE_HALF);
+                    Matrix.CreateTranslation(m_spikeBasePos + Math.Abs(m_spikeThrustPosition) * Vector3.UnitZ * SPIKE_THRUST_DISTANCE_HALF); 
             }
 
             //MyTrace.Watch("MyHandDrill.RequiredPowerInput", RequiredPowerInput);
@@ -350,6 +357,10 @@ namespace Sandbox.Game.Weapons
         public void OnControlAcquired(MyCharacter owner)
         {
             m_owner = owner;
+
+            if (owner != null)
+                m_shootIgnoreEntities = new MyEntity[] { this, owner };
+
             m_drillBase.OutputInventory = null;
             m_drillBase.IgnoredEntities.Add(m_owner);
         }
@@ -444,9 +455,9 @@ namespace Sandbox.Game.Weapons
             return ob;
         }
 
-        MyEntity IMyGunBaseUser.IgnoreEntity
+        MyEntity[] IMyGunBaseUser.IgnoreEntities
         {
-            get { return this; }
+            get { return m_shootIgnoreEntities; }
         }
 
         MyEntity IMyGunBaseUser.Weapon

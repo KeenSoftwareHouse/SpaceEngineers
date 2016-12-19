@@ -25,7 +25,12 @@ namespace Sandbox.Engine.Platform
             StatGroup = statGroup ?? new MyStats();
             StatName = statName ?? "WaitForUpdate";
         }
-        
+
+        public void SetNextFrameDelayDelta(int delta)
+        {
+            m_waiter.SetNextFrameDelayDelta(delta);
+        }
+
         public override void Run(VoidAction tickCallback)
         {
             base.Run(delegate

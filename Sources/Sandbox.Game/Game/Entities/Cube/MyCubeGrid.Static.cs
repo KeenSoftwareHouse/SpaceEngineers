@@ -1578,11 +1578,20 @@ namespace Sandbox.Game.Entities
             // Remove character hits.
             m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
             {
-                return (hit.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
+                if (MySession.Static.ControlledEntity != null)
+                    return (hit.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
+
+                return false;
             });
 
             if (m_tmpHitList.Count == 0)
+            {
+                MyGamePruningStructure.GetTopmostEntitiesOverlappingRay(ref line, m_lineOverlapList);
+                if (m_lineOverlapList.Count > 0)
+                    return m_lineOverlapList[0].Element.GetTopMostParent();
+
                 return null;
+            }
 
             return m_tmpHitList[0].HkHitInfo.GetHitEntity() as MyEntity;
         }
@@ -1889,7 +1898,9 @@ namespace Sandbox.Game.Entities
         /// <returns></returns>
         public static bool IsAabbInsideVoxel(MatrixD worldMatrix, BoundingBoxD localAabb, MyGridPlacementSettings settings)
         {
-
+            if(settings.VoxelPlacement==null)
+                return false;
+            
             var worldAabb = localAabb.TransformFast(ref worldMatrix);
 
             List<MyVoxelBase> voxels = new List<MyVoxelBase>();
@@ -1925,7 +1936,10 @@ namespace Sandbox.Game.Entities
             MyGridPlacementSettings settingsCopy = settings;
 
             if (testVoxel && !TestVoxelPlacement(blockDefinition, settingsCopy, dynamicBuildMode, worldMatrix, localAabb))
+            {
+                ProfilerShort.End();
                 return false;
+            }
 
             ProfilerShort.End();
 
@@ -1962,8 +1976,7 @@ namespace Sandbox.Game.Entities
                     result = !result;
 
                 if (result)
-            {
-                    ProfilerShort.End();
+                {
                     return false;
                 }
             }
@@ -2757,6 +2770,16 @@ namespace Sandbox.Game.Entities
         {
             return MyCubeGridGroups.Static.BreakLink(type, linkId, parent, child);
         }
+
+        public static void ResetInfoGizmos()
+        {
+            ShowSenzorGizmos = false;
+            ShowGravityGizmos = false;
+            ShowCenterOfMass = false;
+            ShowGridPivot = false;
+            ShowAntennaGizmos = false;
+            ShowStructuralIntegrity = false;
+    }
     }
 
     struct BlockMaterial

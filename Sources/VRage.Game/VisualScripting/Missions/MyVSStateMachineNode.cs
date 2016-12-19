@@ -123,10 +123,8 @@ namespace VRage.Game.VisualScripting.Missions
             {
                 m_instance.Deserialize();
             }
-            else
-            {
-                m_instance.Init();   
-            }
+
+            m_instance.Init();   
 
             // reset transitions to blocking state
             foreach (var storage in m_transitionNamesToVariableStorages.Values)

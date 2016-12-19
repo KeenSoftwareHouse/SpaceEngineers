@@ -130,6 +130,11 @@ namespace VRage.Render11.Resources.Textures
         public abstract Vector2I Size { get; }
 
         public Format Format { get { return Key.Format; } }
+
+        public int MipmapCount
+        {
+            get { return 1; }
+        }
     }
 
     internal class MyBorrowedRtvTexture : MyBorrowedTexture, IBorrowedRtvTexture

@@ -196,7 +196,7 @@ namespace Sandbox.Game.Components
         public override void Draw()
         {
             base.Draw();
-            if (MyTrashRemoval.PreviewEnabled && MySession.Static.HasAdminRights)
+            if (MyTrashRemoval.PreviewEnabled && MySession.Static.HasCreativeRights)
             {
                 DrawTrashAdminView();
             }
@@ -254,7 +254,8 @@ namespace Sandbox.Game.Components
                     MySimpleObjectDraw.DrawLine(center - matrix.Up * 0.5f * size, center + matrix.Up * 0.5f * size, mat, ref color, thickness);
                     MySimpleObjectDraw.DrawLine(center - matrix.Forward * 0.5f * size, center + matrix.Forward * 0.5f * size, mat, ref color, thickness);
                     MySimpleObjectDraw.DrawLine(center - matrix.Right * 0.5f * size, center + matrix.Right * 0.5f * size, mat, ref color, thickness);
-                    MyTransparentGeometry.AddBillboardOriented("RedDotIgnoreDepth", Color.White.ToVector4(), center, MySector.MainCamera.LeftVector, MySector.MainCamera.UpVector, 0.1f * size, priority: 1);
+                    MyTransparentGeometry.AddBillboardOriented("RedDotIgnoreDepth", Color.White.ToVector4(), center, MySector.MainCamera.LeftVector, 
+                        MySector.MainCamera.UpVector, 0.1f * size);
                 }
             }
             if (MyCubeGrid.ShowGridPivot)
@@ -291,7 +292,8 @@ namespace Sandbox.Game.Components
                     MySimpleObjectDraw.DrawLine(pos, pos + matrix.Forward * 0.5f * size, mat, ref color, thickness);
                     color = Color.Red.ToVector4();
                     MySimpleObjectDraw.DrawLine(pos, pos + matrix.Right * 0.5f * size, mat, ref color, thickness);
-                    MyTransparentGeometry.AddBillboardOriented("RedDotIgnoreDepth", Color.White.ToVector4(), pos, MySector.MainCamera.LeftVector, MySector.MainCamera.UpVector, 0.1f * size, priority: 1);
+                    MyTransparentGeometry.AddBillboardOriented("RedDotIgnoreDepth", Color.White.ToVector4(), pos, MySector.MainCamera.LeftVector, 
+                        MySector.MainCamera.UpVector, 0.1f * size);
                     MyRenderProxy.DebugDrawAxis(matrix, 0.5f, false);//DX 11 desnt support depthRead false
                 }
             }

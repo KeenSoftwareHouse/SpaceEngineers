@@ -237,7 +237,7 @@ namespace Sandbox.Game.Gui
         public static GroupModes GroupMode = GroupModes.Default;
         private const int BLOCK_GROUPS_MIN_COUNT = 20;
 
-        protected class GridItemUserData
+        public class GridItemUserData
         {
             public MyObjectBuilder_ToolbarItem ItemData;
         }
@@ -625,7 +625,7 @@ namespace Sandbox.Game.Gui
 
             foreach (var category in loadedCategories)
             {
-                if (MySession.Static.SurvivalMode && !category.Value.AvailableInSurvival)
+                if (MySession.Static.SurvivalMode && !category.Value.AvailableInSurvival && !MySession.Static.IsUserAdmin(MyPlayer.GetPlayerFromCharacter(m_character).Client.SteamUserId))
                     continue;
 
                 if (MySession.Static.CreativeMode && !category.Value.ShowInCreative)
@@ -816,7 +816,7 @@ namespace Sandbox.Game.Gui
                     AddAreaMarkerDefinitions(searchCondition);
                 }
 
-                if (!MySession.Static.SurvivalMode)
+                if (!MySession.Static.SurvivalMode || MySession.Static.IsUserAdmin(MyPlayer.GetPlayerFromCharacter(character).Client.SteamUserId))
                     AddVoxelHands(searchCondition);
 
                 if (MyFakes.ENABLE_PREFAB_THROWER)
@@ -1052,10 +1052,10 @@ namespace Sandbox.Game.Gui
 
             bool enabled = true;
 
-            if (MyCubeBuilder.Static != null)
-            {
-                enabled &= MyCubeBuilder.Static.IsCubeSizeAvailable(anyDef);
-            }
+            //if (MyCubeBuilder.Static != null)
+            //{
+            //    enabled &= MyCubeBuilder.Static.IsCubeSizeAvailable(anyDef);
+            //}
 
             enabled &= MyToolbarComponent.GlobalBuilding || MySession.Static.ControlledEntity is MyCharacter ||
                        (MySession.Static.ControlledEntity is MyCockpit && (MySession.Static.ControlledEntity as MyCockpit).BuildingMode);

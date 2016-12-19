@@ -105,6 +105,7 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_FLORA_SPAWNED_ITEMS = false;
         public static bool DEBUG_DRAW_ENTITY_COMPONENTS = false;
         public static bool DEBUG_DRAW_GRIDS_DECAY = false;
+        public static bool DEBUG_DRAW_ENTITY_STATISTICS = false;
 
         public static MyWEMDebugDrawMode DEBUG_DRAW_NAVMESHES = MyWEMDebugDrawMode.NONE;
         internal static MyVoxelDebugDrawMode DEBUG_DRAW_VOXELS_MODE = MyVoxelDebugDrawMode.None;

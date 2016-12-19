@@ -14,12 +14,15 @@ namespace VRageRender
         POSITION_PACKED,
         POSITION2,
         POSITION3,
+        POSITION4,
         POSITION4_H,
         VOXEL_POSITION_MAT,
         VOXEL_NORMAL,
 
         CUBE_INSTANCE,
         GENERIC_INSTANCE,
+        SIMPLE_INSTANCE,
+        SIMPLE_INSTANCE_COLORING,
 
         BLEND_INDICES,
         BLEND_WEIGHTS,
@@ -38,7 +41,9 @@ namespace VRageRender
         CUSTOM_HALF4_2,
 
         CUSTOM_UNORM4_0,
-        CUSTOM_UNORM4_1
+        CUSTOM_UNORM4_1,
+
+        CUSTOM4_0
     }
 
     enum MyVertexInputComponentFreq
@@ -213,7 +218,7 @@ namespace VRageRender
 
             foreach (var component in components)
             {
-                MyVertexInputLayout.m_mapComponent[component.Type].AddComponent(component, elementsList, semanticDict, declarationBuilder, sourceBuilder);
+                MyVertexInputLayout.MapComponent[component.Type].AddComponent(component, elementsList, semanticDict, declarationBuilder, sourceBuilder);
             }
 
             elementsList.Capacity = elementsList.Count;
@@ -222,7 +227,7 @@ namespace VRageRender
             Layouts.Data[id.Index] = new MyVertexLayoutInfo {
                 Components = components,
                 Elements = elementsList.GetInternalArray(),
-                Macros = MyComponent.GetComponentMacros(declarationBuilder.ToString(), sourceBuilder.ToString()),
+                Macros = MyComponent.GetComponentMacros(declarationBuilder.ToString(), sourceBuilder.ToString(), components),
                 HasBonesInfo = components.Any(x => x.Type == MyVertexInputComponentType.BLEND_INDICES)
             };
 
@@ -231,20 +236,17 @@ namespace VRageRender
     }
 
     // kind of proxy to cached data
-    partial class MyVertexInputLayout
+    internal partial class MyVertexInputLayout
     {
         // input
         MyVertexInputComponent [] m_components = new MyVertexInputComponent[0];
         int m_hash;
         int m_id;
 
-        internal InputElement[] m_elements;
-        internal ShaderMacro[] m_macros;
+        private InputElement[] m_elements;
+        private ShaderMacro[] m_macros;
 
-        internal int Hash { get { return m_hash; } }
-        internal int ID { get { return m_id; } }
-
-        static Dictionary<int, MyVertexInputLayout> m_cached = new Dictionary<int, MyVertexInputLayout>();
+        static readonly Dictionary<int, MyVertexInputLayout> m_cached = new Dictionary<int, MyVertexInputLayout>();
 
         static MyVertexInputLayout()
         {
@@ -255,34 +257,21 @@ namespace VRageRender
             InitComponentsMap();
         }
 
-        private MyVertexInputLayout()
-        {
-
-        }
-
         internal static MyVertexInputLayout Empty { get { return m_cached[0]; } }
 
-        internal MyVertexInputLayout Append(MyVertexInputLayout other)
-        {
-            var current = this;
-            foreach(var component in other.m_components)
-            {
-                current = current.Append(component);
-            }
-            return current;
-        }
-
-        internal MyVertexInputLayout Append(MyVertexInputComponent component)
+        private MyVertexInputLayout Append(MyVertexInputComponent component)
         {
             return Append(component.Type, component.Slot, component.Freq);
         }
 
         internal MyVertexInputLayout Append(MyVertexInputComponentType type, int slot = 0, MyVertexInputComponentFreq freq = MyVertexInputComponentFreq.PER_VERTEX)
         {
-            MyVertexInputComponent component = new MyVertexInputComponent();
-            component.Type = type;
-            component.Slot = slot;
-            component.Freq = freq;
+            MyVertexInputComponent component = new MyVertexInputComponent
+            {
+                Type = type,
+                Slot = slot,
+                Freq = freq
+            };
 
             int nextHash = MyHashHelper.Combine(m_hash, component.GetHashCode());
 
@@ -292,33 +281,16 @@ namespace VRageRender
                 return next;
             }
 
-            next = new MyVertexInputLayout();
-            next.m_hash = nextHash;
-            next.m_id = m_cached.Count;
-            next.m_components = m_components.Concat(component.Yield_()).ToArray();
+            next = new MyVertexInputLayout
+            {
+                m_hash = nextHash,
+                m_id = m_cached.Count,
+                m_components = m_components.Concat(component.Yield_()).ToArray()
+            };
             next.Build();
 
             m_cached[nextHash] = next;
             return next;
-        }
-
-        internal static ShaderMacro[] GetMacros(int hash)
-        {
-            MyVertexInputLayout cached;
-            if (m_cached.TryGetValue(hash, out cached))
-            {
-                return cached.m_macros;
-            }
-            return null;
-        }
-
-        internal static InputLayout CreateLayout(MyVertexInputLayout layout, byte[] bytecode)
-        {
-            if(layout.m_elements.Length > 0)
-            {
-                return new InputLayout(MyRender11.Device, bytecode, layout.m_elements);
-            }
-            return null;
         }
 
         private void Build()
@@ -330,11 +302,11 @@ namespace VRageRender
 
             foreach (var component in m_components)
             {
-                m_mapComponent[component.Type].AddComponent(component, elementsList, semanticDict, declarationBuilder, sourceBuilder);
+                MapComponent[component.Type].AddComponent(component, elementsList, semanticDict, declarationBuilder, sourceBuilder);
             }
 
             m_elements = elementsList.ToArray();
-            m_macros = MyComponent.GetComponentMacros(declarationBuilder.ToString(), sourceBuilder.ToString());
+            m_macros = MyComponent.GetComponentMacros(declarationBuilder.ToString(), sourceBuilder.ToString(), m_components);
         }
     }
 }

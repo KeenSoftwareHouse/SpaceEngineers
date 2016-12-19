@@ -29,7 +29,7 @@ namespace SpaceEngineers.Game
 {
     public partial class SpaceEngineersGame : MySandboxGame
     {
-        const int SE_VERSION = 01161003;
+        const int SE_VERSION = 01166011;
 
         #region Constructor
 
@@ -97,7 +97,6 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.ControlMenuInitializerType = typeof(MySpaceControlMenuInitializer);
 
             MyPerGameSettings.EnableScenarios = true;
-            MyPerGameSettings.EnableTutorials = true;
 
             MyPerGameSettings.EnableJumpDrive = true;
             MyPerGameSettings.EnableShipSoundSystem = true;
@@ -130,22 +129,33 @@ namespace SpaceEngineers.Game
             {
                 @"Videos\Background01_720p.wmv",
                 @"Videos\Background02_720p.wmv",
-                @"Videos\Background03_720p.wmv",
-                @"Videos\Background04_720p.wmv",
-                @"Videos\Background05_720p.wmv",
-                @"Videos\Background06_720p.wmv",
-                @"Videos\Background07_720p.wmv",
-                @"Videos\Background08_720p.wmv",
+                //@"Videos\Background03_720p.wmv",
+            //    @"Videos\Background04_720p.wmv",
+             //   @"Videos\Background05_720p.wmv",
+             //   @"Videos\Background06_720p.wmv",
+            //    @"Videos\Background07_720p.wmv",
+            //    @"Videos\Background08_720p.wmv",
                 @"Videos\Background09_720p.wmv",
                 @"Videos\Background10_720p.wmv",
-                @"Videos\Background11_720p.wmv",
+           //     @"Videos\Background11_720p.wmv",
                 @"Videos\Background12_720p.wmv",
+                @"Videos\Background13_720p.wmv",
             };
 
 			SetupRender();
             FillCredits();
 
-            MyPerGameSettings.VoiceChatEnabled = false;
+            /*MyPerGameSettings.DefaultRenderDeviceSettings = new MyRenderDeviceSettings()
+            {
+                AdapterOrdinal = -1,
+                BackBufferHeight = 800,
+                BackBufferWidth = 1280,
+                WindowMode = MyWindowModeEnum.FullscreenWindow,
+                RefreshRate = 60000,
+                VSync = false,
+            };*/
+
+            MyPerGameSettings.VoiceChatEnabled = true;
             MyPerGameSettings.VoiceChatLogic = typeof(MyVoiceChatLogic);
 
 			MyPerGameSettings.ClientStateType = typeof(MySpaceClientState);
@@ -166,73 +176,103 @@ namespace SpaceEngineers.Game
 		    MyRenderProxy.Settings.GrassMaxDrawDistance = 400;
             MyRenderProxy.Settings.DrawMergeInstanced = false; 
             MyRenderProxy.Settings.PerInstanceLods = false;
-            MyRenderProxy.Settings.UseGeometryArrayTextures = true;
+            MyRenderProxy.Settings.UseGeometryArrayTextures = false;
 		}
 
         static void FillCredits()
         {
             //  Director
-            MyCreditsDepartment director = new MyCreditsDepartment("Produced and Directed By");
+            MyCreditsDepartment director = new MyCreditsDepartment("Executive Producer");
             MyPerGameSettings.Credits.Departments.Add(director);
             director.Persons = new List<MyCreditsPerson>();
             director.Persons.Add(new MyCreditsPerson("MAREK ROSA"));
+
+            //  Producer
+            MyCreditsDepartment producer = new MyCreditsDepartment("Lead Producer");
+            MyPerGameSettings.Credits.Departments.Add(producer);
+            producer.Persons = new List<MyCreditsPerson>();
+            producer.Persons.Add(new MyCreditsPerson("PETR MINARIK"));
+
+
+            //  Producer
+            MyCreditsDepartment producerAss = new MyCreditsDepartment("Assistent Producer");
+            MyPerGameSettings.Credits.Departments.Add(producerAss);
+            producerAss.Persons = new List<MyCreditsPerson>();
+            producerAss.Persons.Add(new MyCreditsPerson("ALES KOZAK"));
 
             //  Lead Programmers
             MyCreditsDepartment leadProgrammers = new MyCreditsDepartment("Lead Programmers");
             MyPerGameSettings.Credits.Departments.Add(leadProgrammers);
             leadProgrammers.Persons = new List<MyCreditsPerson>();
             leadProgrammers.Persons.Add(new MyCreditsPerson("PETR MINARIK"));
-            leadProgrammers.Persons.Add(new MyCreditsPerson("ONDREJ PETRZILKA"));
+            leadProgrammers.Persons.Add(new MyCreditsPerson("JAN \"CENDA\" HLOUSEK"));
 
             //  Lead Designers
-            MyCreditsDepartment leadDesigners = new MyCreditsDepartment("Lead Designer");
-            MyPerGameSettings.Credits.Departments.Add(leadDesigners);
-            leadDesigners.Persons = new List<MyCreditsPerson>();
-            leadDesigners.Persons.Add(new MyCreditsPerson("TOMAS RAMPAS"));
+            //MyCreditsDepartment leadDesigners = new MyCreditsDepartment("Game Designers");
+            //MyPerGameSettings.Credits.Departments.Add(leadDesigners);
+            //leadDesigners.Persons = new List<MyCreditsPerson>();
 
             //  Project Managers
-            MyCreditsDepartment projectManagers = new MyCreditsDepartment("Project Manager");
-            MyPerGameSettings.Credits.Departments.Add(projectManagers);
-            projectManagers.Persons = new List<MyCreditsPerson>();
-            projectManagers.Persons.Add(new MyCreditsPerson("TOMAS PSENICKA"));
+            //MyCreditsDepartment projectManagers = new MyCreditsDepartment("Project Manager");
+            //MyPerGameSettings.Credits.Departments.Add(projectManagers);
+            //projectManagers.Persons = new List<MyCreditsPerson>();
+            //projectManagers.Persons.Add(new MyCreditsPerson("TOMAS PSENICKA"));
 
-            //  Programmers
+                        //  Programmers
             MyCreditsDepartment programmers = new MyCreditsDepartment("Programmers");
             MyPerGameSettings.Credits.Departments.Add(programmers);
             programmers.Persons = new List<MyCreditsPerson>();
-            programmers.Persons.Add(new MyCreditsPerson("CESTMIR HOUSKA"));
             programmers.Persons.Add(new MyCreditsPerson("JAN NEKVAPIL"));
-            programmers.Persons.Add(new MyCreditsPerson("DUSAN ANDRAS"));
-            programmers.Persons.Add(new MyCreditsPerson("DANIEL ILHA"));
-            programmers.Persons.Add(new MyCreditsPerson("MARKO KORHONEN"));            
-            programmers.Persons.Add(new MyCreditsPerson("ALEX FLOREA"));
-            programmers.Persons.Add(new MyCreditsPerson("JAN VEBERSIK"));
-            programmers.Persons.Add(new MyCreditsPerson("MICHAL WROBEL"));
-            programmers.Persons.Add(new MyCreditsPerson("ONDREJ MAZANY"));
-            programmers.Persons.Add(new MyCreditsPerson("RADOVAN KOTRLA"));
-            programmers.Persons.Add(new MyCreditsPerson("JAKUB TYRCHA"));
-            programmers.Persons.Add(new MyCreditsPerson("PEDRO VERAS DA SILVA"));
-            programmers.Persons.Add(new MyCreditsPerson("MARTIN KROSLAK"));
-            programmers.Persons.Add(new MyCreditsPerson("STANISLAV \"NOBRAIN\" KRAL"));
+            programmers.Persons.Add(new MyCreditsPerson("MICHAL ZAK"));
+            programmers.Persons.Add(new MyCreditsPerson("SANDRA LENARDOVA"));
+            programmers.Persons.Add(new MyCreditsPerson("MICHAL KUCIS"));
+            programmers.Persons.Add(new MyCreditsPerson("TOMAS KOSEK"));
+            programmers.Persons.Add(new MyCreditsPerson("LUKAS VILIM"));                        
+            programmers.Persons.Add(new MyCreditsPerson("ALES BRICH"));
+            programmers.Persons.Add(new MyCreditsPerson("JOAO CARIAS"));
+            programmers.Persons.Add(new MyCreditsPerson("GREGORY KONTADAKIS"));
+            programmers.Persons.Add(new MyCreditsPerson("IVAN BARAN"));
+            programmers.Persons.Add(new MyCreditsPerson("PAVEL CHLAD"));
+            programmers.Persons.Add(new MyCreditsPerson("BRANT MARTIN"));
+
+            //  Additional Programmers
+            MyCreditsDepartment additionalProgrammers = new MyCreditsDepartment("Additional Programmers");
+            MyPerGameSettings.Credits.Departments.Add(additionalProgrammers);
+            additionalProgrammers.Persons.Add(new MyCreditsPerson("JAN VEBERSIK"));
+            additionalProgrammers.Persons.Add(new MyCreditsPerson("TIM TOXOPEUS"));
+            additionalProgrammers.Persons.Add(new MyCreditsPerson("DANIEL ILHA"));            
+            additionalProgrammers.Persons.Add(new MyCreditsPerson("MIRO FARKAS"));
+
 
             //  Artists
             MyCreditsDepartment artists = new MyCreditsDepartment("Artists");
             MyPerGameSettings.Credits.Departments.Add(artists);
             artists.Persons = new List<MyCreditsPerson>();
-            artists.Persons.Add(new MyCreditsPerson("ANTON \"TOTAL\" BAUER"));
             artists.Persons.Add(new MyCreditsPerson("NATIQ AGHAYEV"));
-            artists.Persons.Add(new MyCreditsPerson("JAN GOLMIC"));
-            artists.Persons.Add(new MyCreditsPerson("RENE RODER"));
-            artists.Persons.Add(new MyCreditsPerson("JIRI RUZICKA"));
-            artists.Persons.Add(new MyCreditsPerson("PAVEL OCOVAJ"));
-            artists.Persons.Add(new MyCreditsPerson("RASTKO STANOJEVIC"));
-            artists.Persons.Add(new MyCreditsPerson("SLOBODAN STEVIC"));
-            artists.Persons.Add(new MyCreditsPerson("ARTEM TARASSENKO"));
-            artists.Persons.Add(new MyCreditsPerson("ADAM TOWARD"));
-            artists.Persons.Add(new MyCreditsPerson("LUKAS CHRAPEK"));
-            artists.Persons.Add(new MyCreditsPerson("NIKITA OLHOVSKIS"));
-            artists.Persons.Add(new MyCreditsPerson("KEVIN STUTH"));
-            
+            artists.Persons.Add(new MyCreditsPerson("ANTON \"TOTAL\" BAUER"));
+            artists.Persons.Add(new MyCreditsPerson("JAN TRAUSKE"));
+            artists.Persons.Add(new MyCreditsPerson("KRISTIAAN RENAERTS"));
+            artists.Persons.Add(new MyCreditsPerson("ABDULAZIZ ALDIGS"));
+
+            MyCreditsDepartment additionalArtists = new MyCreditsDepartment("Additional Artists");
+            MyPerGameSettings.Credits.Departments.Add(additionalArtists);
+            additionalArtists.Persons = new List<MyCreditsPerson>();
+            additionalArtists.Persons.Add(new MyCreditsPerson("JAN GOLMIC"));
+            additionalArtists.Persons.Add(new MyCreditsPerson("THEO ESCAMEZ"));
+
+
+            //  Game Designers
+            MyCreditsDepartment gameDesigners = new MyCreditsDepartment("Game Designers");
+            MyPerGameSettings.Credits.Departments.Add(gameDesigners);
+            gameDesigners.Persons = new List<MyCreditsPerson>();
+            gameDesigners.Persons.Add(new MyCreditsPerson("JOACHIM KOOLHOF"));
+            gameDesigners.Persons.Add(new MyCreditsPerson("ADAM WILLIAMS"));
+
+            //  Additional Designers
+            MyCreditsDepartment additionalDesigners = new MyCreditsDepartment("Additional Designers");
+            MyPerGameSettings.Credits.Departments.Add(additionalDesigners);
+            additionalDesigners.Persons.Add(new MyCreditsPerson("TOMAS RAMPAS"));
+            additionalDesigners.Persons.Add(new MyCreditsPerson("LUKAS JANDIK"));
 
 
             // Sound design
@@ -240,57 +280,76 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.Credits.Departments.Add(soundDesign);
             soundDesign.Persons = new List<MyCreditsPerson>();
             soundDesign.Persons.Add(new MyCreditsPerson("LUKAS TVRDON"));
+            soundDesign.Persons.Add(new MyCreditsPerson("DOMINIK RAGANCIK"));
 
             // Music
             MyCreditsDepartment music = new MyCreditsDepartment("Music");
             MyPerGameSettings.Credits.Departments.Add(music);
             music.Persons = new List<MyCreditsPerson>();
             music.Persons.Add(new MyCreditsPerson("KAREL ANTONIN"));
-            music.Persons.Add(new MyCreditsPerson("\"Spazzmatica Polka\" Kevin MacLeod (incompetech.com) "));
-            music.Persons.Add(new MyCreditsPerson("MAREK MRKVICKA"));
             music.Persons.Add(new MyCreditsPerson("ANNA KALHAUSOVA (cello)"));
             music.Persons.Add(new MyCreditsPerson("MARIE SVOBODOVA (vocals)"));
 
-            //  Game Designers
-            MyCreditsDepartment gameDesigners = new MyCreditsDepartment("Game Designers");
-            MyPerGameSettings.Credits.Departments.Add(gameDesigners);
-            gameDesigners.Persons = new List<MyCreditsPerson>();
-            gameDesigners.Persons.Add(new MyCreditsPerson("LUKAS JANDIK"));
-            gameDesigners.Persons.Add(new MyCreditsPerson("ADAM WILLIAMS"));
-            gameDesigners.Persons.Add(new MyCreditsPerson("SIMON LESKA"));
+        
 
             //  Community & PR Managers
             MyCreditsDepartment managers = new MyCreditsDepartment("Community & PR Manager");
             MyPerGameSettings.Credits.Departments.Add(managers);
             managers.Persons = new List<MyCreditsPerson>();
-            managers.Persons.Add(new MyCreditsPerson("GEORGE MAMAKOS"));
+            managers.Persons.Add(new MyCreditsPerson("JOEL \"XOCLIW\" WILCOX"));
 
             //  Testers
             MyCreditsDepartment testers = new MyCreditsDepartment("Testers");
             MyPerGameSettings.Credits.Departments.Add(testers);
             testers.Persons = new List<MyCreditsPerson>();
-            testers.Persons.Add(new MyCreditsPerson("MARKETA JAROSOVA"));
+            testers.Persons.Add(new MyCreditsPerson("MATEJ VLK"));
             testers.Persons.Add(new MyCreditsPerson("VACLAV NOVOTNY"));
-            testers.Persons.Add(new MyCreditsPerson("MAREK OBRSAL"));
-            testers.Persons.Add(new MyCreditsPerson("DUSAN REPIK"));
-            testers.Persons.Add(new MyCreditsPerson("ALES KOZAK"));
-            testers.Persons.Add(new MyCreditsPerson("CHARLES WINTERS"));
-            testers.Persons.Add(new MyCreditsPerson("MICHAL ZAVADAK"));
+            testers.Persons.Add(new MyCreditsPerson("SEAN MATLOCK"));
+            testers.Persons.Add(new MyCreditsPerson("JAN HRIVNAC"));
+
+            MyCreditsDepartment additionalTesters = new MyCreditsDepartment("Additional Testers");
+            MyPerGameSettings.Credits.Departments.Add(additionalTesters);
+            additionalTesters.Persons.Add(new MyCreditsPerson("CHARLES WINTERS"));
+            additionalTesters.Persons.Add(new MyCreditsPerson("DUSAN REPIK"));
+            additionalTesters.Persons.Add(new MyCreditsPerson("JAKUB HRNCIR"));
+            additionalTesters.Persons.Add(new MyCreditsPerson("MICHAL ZAVADAK"));
+
+
+            // Office
+            MyCreditsDepartment office = new MyCreditsDepartment("Office");
+            MyPerGameSettings.Credits.Departments.Add(office);
+            office.Persons = new List<MyCreditsPerson>();
+            office.Persons.Add(new MyCreditsPerson("RADKA LISA"));
+            office.Persons.Add(new MyCreditsPerson("PETR KREJCI"));
+            office.Persons.Add(new MyCreditsPerson("VACLAV NOVOTNY"));
+            office.Persons.Add(new MyCreditsPerson("TOMAS STROUHAL"));
 
 
             //  Community Manager
             MyCreditsDepartment communityManagers = new MyCreditsDepartment("Community Managers");
             MyPerGameSettings.Credits.Departments.Add(communityManagers);
             communityManagers.Persons = new List<MyCreditsPerson>();
-            communityManagers.Persons.Add(new MyCreditsPerson("ADAM TOWARD"));
-            communityManagers.Persons.Add(new MyCreditsPerson("AUSTEN LINDSAY"));
             communityManagers.Persons.Add(new MyCreditsPerson("Dr Vagax"));
-            communityManagers.Persons.Add(new MyCreditsPerson("FILIP \"Tazoo\" JULIN"));
-            communityManagers.Persons.Add(new MyCreditsPerson("RocketRacer"));
-            communityManagers.Persons.Add(new MyCreditsPerson("NICK \"Drakon\" MILLER"));
-            communityManagers.Persons.Add(new MyCreditsPerson("SEBASTIAN SCHNEIDER"));
+            communityManagers.Persons.Add(new MyCreditsPerson("Conrad Larson"));
+            communityManagers.Persons.Add(new MyCreditsPerson("Dan2D3D"));
+            communityManagers.Persons.Add(new MyCreditsPerson("RayvenQ"));
+            communityManagers.Persons.Add(new MyCreditsPerson("Redphoenix"));
+            communityManagers.Persons.Add(new MyCreditsPerson("TodesRitter"));
 
-          
+            MyCreditsDepartment modContributors = new MyCreditsDepartment("Mod Contributors");
+            MyPerGameSettings.Credits.Departments.Add(modContributors);
+            modContributors.Persons = new List<MyCreditsPerson>();
+            modContributors.Persons.Add(new MyCreditsPerson("Tyrsis"));
+            modContributors.Persons.Add(new MyCreditsPerson("Phoenix84"));
+            modContributors.Persons.Add(new MyCreditsPerson("Malware"));
+            modContributors.Persons.Add(new MyCreditsPerson("Arindel"));
+            modContributors.Persons.Add(new MyCreditsPerson("Darth Biomech"));
+            modContributors.Persons.Add(new MyCreditsPerson("Night Lone"));
+            modContributors.Persons.Add(new MyCreditsPerson("Mexmer"));
+            modContributors.Persons.Add(new MyCreditsPerson("JD.Horx"));
+            
+
+
             //  Translators
             MyCreditsDepartment translators = new MyCreditsDepartment("Translators");
             MyPerGameSettings.Credits.Departments.Add(translators);
@@ -304,62 +363,33 @@ namespace SpaceEngineers.Game
             translators.Persons.Add(new MyCreditsPerson("gon.gged"));
             translators.Persons.Add(new MyCreditsPerson("Huberto"));
             translators.Persons.Add(new MyCreditsPerson("HunterNephilim"));
-            translators.Persons.Add(new MyCreditsPerson("madafaka"));
             translators.Persons.Add(new MyCreditsPerson("nintendo22"));
             translators.Persons.Add(new MyCreditsPerson("Quellix"));
             translators.Persons.Add(new MyCreditsPerson("raviool"));
-
-            MyCreditsDepartment explorationContentCreators = new MyCreditsDepartment("Exploration content creators");
-            MyPerGameSettings.Credits.Departments.Add(explorationContentCreators);
-            explorationContentCreators.Persons = new List<MyCreditsPerson>();
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Yatem"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"LorenzoPingue"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Weiss"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"smiffyjoebob"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"GEC"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"XD1LLW33DX"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"The Senate"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Thokari"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"zure87"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Gompasta"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"PeterHammerman"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"The_7th_Gamer (GameGunner5)"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"NeoValkyrion"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Tyriosh"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Tainja"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Agronom"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"govrom"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"vSure"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"G-Lu"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"snowshoe_hare"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"InfestedHydra"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Kovendon "));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Noxy"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Spetzy"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"SOLDIER 1st class"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Lord_matthew82"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Невероятный Алк"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Kaii-Killer"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"RelicSage"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"ErAgon"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"-=\\\Raeffi///=-"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"[MGE]LeonserG"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Lt Losho"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"jerryfanfan"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Stone Cold Jane Austen"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"NeXiZ"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"KillYaSoon"));
-            explorationContentCreators.Persons.Add(new MyCreditsPerson("Dorian \"JD.Horx\" Flores"));
-
-            MyCreditsDepartment modContributors = new MyCreditsDepartment("Mod Contributors");
-            MyPerGameSettings.Credits.Departments.Add(modContributors);
-            modContributors.Persons = new List<MyCreditsPerson>();
-            modContributors.Persons.Add(new MyCreditsPerson("Darth Biomech (fighter cockpit)"));
-            modContributors.Persons.Add(new MyCreditsPerson("Night Lone (programmable block extensions)"));
-            modContributors.Persons.Add(new MyCreditsPerson("Mexmer (transparent GUI)"));
-            modContributors.Persons.Add(new MyCreditsPerson("JD.Horx (IMDC faction fleet)"));
-
+         
+      
+            //  Thanks
+            MyCreditsDepartment thanks = new MyCreditsDepartment("Special Thanks");
+            MyPerGameSettings.Credits.Departments.Add(thanks);
+            thanks.Persons = new List<MyCreditsPerson>();
+            thanks.Persons.Add(new MyCreditsPerson("ONDREJ PETRZILKA"));
+            thanks.Persons.Add(new MyCreditsPerson("CESTMIR HOUSKA"));
+            thanks.Persons.Add(new MyCreditsPerson("MICHAL WROBEL"));
+            thanks.Persons.Add(new MyCreditsPerson("DUSAN ANDRAS"));
+            thanks.Persons.Add(new MyCreditsPerson("MARKO KORHONEN"));
+            thanks.Persons.Add(new MyCreditsPerson("ALEX FLOREA"));
+            thanks.Persons.Add(new MyCreditsPerson("FRANCESKO PRETTO"));
+            thanks.Persons.Add(new MyCreditsPerson("RADOVAN KOTRLA"));
+            thanks.Persons.Add(new MyCreditsPerson("MARTIN KOCISEK"));
+            thanks.Persons.Add(new MyCreditsPerson("LUKAS CHRAPEK"));            
+            thanks.Persons.Add(new MyCreditsPerson("GEORGE MAMAKOS"));
+            thanks.Persons.Add(new MyCreditsPerson("TOMAS PSENICKA"));
+            thanks.Persons.Add(new MyCreditsPerson("JOELLEN KOESTER"));
+            thanks.Persons.Add(new MyCreditsPerson("MARKETA JAROSOVA"));
+            thanks.Persons.Add(new MyCreditsPerson("VILEM SOULAK"));
+            thanks.Persons.Add(new MyCreditsPerson("MAREK OBRSAL"));
             
+                        
 
             //  Final
             MyCreditsDepartment final = new MyCreditsDepartment("For more information see");
@@ -374,7 +404,7 @@ namespace SpaceEngineers.Game
             vrageNotice.LogoTexture = "Textures\\Logo\\vrage_logo_2_0_white.dds";
             vrageNotice.LogoScale = 0.8f;
             vrageNotice.CreditNoticeLines.Add(new StringBuilder("Powered by VRAGE 2.0"));
-            vrageNotice.CreditNoticeLines.Add(new StringBuilder("Copyright © 2013-2015 KEEN SWH LTD."));
+            vrageNotice.CreditNoticeLines.Add(new StringBuilder("Copyright © 2013-2016 KEEN SWH LTD."));
             vrageNotice.CreditNoticeLines.Add(new StringBuilder("Space Engineers® and VRAGE™ are trademarks of KEEN SWH LTD."));
             vrageNotice.CreditNoticeLines.Add(new StringBuilder("www.keenswh.com"));
             MyPerGameSettings.Credits.CreditNotices.Add(vrageNotice);

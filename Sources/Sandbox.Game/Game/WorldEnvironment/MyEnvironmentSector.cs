@@ -596,14 +596,15 @@ namespace Sandbox.Game.WorldEnvironment
             {
                 for (int i = 0; i < totalItems; ++i)
                 {
-                    var model = items[i].ModelIndex;
-                    if (model < 0) continue;
+                    var modelId = items[i].ModelIndex;
+                    if (modelId < 0) continue;
+                    if (Owner.GetModelForId(modelId) == null) continue;
 
                     HkShape modelShape;
 
-                    if (!m_modelsToShapes.TryGetValue(model, out modelShape))
+                    if (!m_modelsToShapes.TryGetValue(modelId, out modelShape))
                     {
-                        var modelData = MyModels.GetModelOnlyData(Owner.GetModelForId(model).Model);
+                        var modelData = MyModels.GetModelOnlyData(Owner.GetModelForId(modelId).Model);
 
                         var shapes = modelData.HavokCollisionShapes;
                         if (shapes != null)
@@ -618,7 +619,7 @@ namespace Sandbox.Game.WorldEnvironment
                                 modelShape = shapes[0];
                             }
                         }
-                        m_modelsToShapes[model] = modelShape;
+                        m_modelsToShapes[modelId] = modelShape;
                     }
 
                     shape.AddInstance(i, ref items[i], modelShape);
@@ -661,11 +662,11 @@ namespace Sandbox.Game.WorldEnvironment
 
             var physics = (MyPhysicsBody)Physics;
 
-
             HkMassProperties massProperties = new HkMassProperties();
             //MatrixD matrix = MatrixD.CreateTranslation();
             physics.CreateFromCollisionObject(m_activeShape.Shape, Vector3.Zero, PositionComp.WorldMatrix, massProperties);
             physics.ContactPointCallback += Physics_onContactPoint;
+            physics.IsStaticForCluster = true;
 
             if (m_contactListeners != null && m_contactListeners.Count != 0)
                 Physics.RigidBody.ContactPointCallbackEnabled = true;
@@ -750,8 +751,14 @@ namespace Sandbox.Game.WorldEnvironment
 
             foreach (var modelData in instances)
             {
-                int modelId = MyModel.GetId(m_owner.GetModelForId(modelData.Key).Model);
-                m_render.AddInstances(modelId, modelData.Value);
+                var model = m_owner.GetModelForId(modelData.Key);
+                if (model != null)
+                {
+                    int modelId = MyModel.GetId(model.Model);
+                    m_render.AddInstances(modelId, modelData.Value);
+                }
+                else
+                    System.Diagnostics.Debug.Fail("Model shouldnt be null");
             }
             ProfilerShort.End();
         }
@@ -764,14 +771,14 @@ namespace Sandbox.Game.WorldEnvironment
             {
                 if (m_currentLod == m_lodToSwitch)
                 {
-                    if (item.ModelIndex >= 0)
+                    if (item.ModelIndex >= 0 && m_owner.GetModelForId(item.ModelIndex) != null)
                     {
                         int modelId = MyModel.GetId(m_owner.GetModelForId(item.ModelIndex).Model);
                         m_render.RemoveInstance(modelId, m_modelToItem[index]);
                         m_modelToItem[index] = -1;
                     }
 
-                    if (newModelIndex >= 0)
+                    if (newModelIndex >= 0 && m_owner.GetModelForId(newModelIndex) != null)
                     {
                         int modelId = MyModel.GetId(m_owner.GetModelForId(newModelIndex).Model);
 

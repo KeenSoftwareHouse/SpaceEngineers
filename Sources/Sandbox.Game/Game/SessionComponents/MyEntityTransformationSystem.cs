@@ -127,6 +127,11 @@ namespace Sandbox.Game.SessionComponents
         }
 
         /// <summary>
+        /// This will disable the transformation changes of picked entity.
+        /// </summary>
+        public bool DisableTransformation { get; set; }
+
+        /// <summary>
         /// Triggered when controlled entity has changed.
         /// First old, second new.
         /// </summary>
@@ -202,8 +207,18 @@ namespace Sandbox.Game.SessionComponents
 
             if (ControlledEntity.Parent != null)
             {
-                // Draw line to parent
-                MyRenderProxy.DebugDrawLine3D(ControlledEntity.Parent.PositionComp.GetPosition(), ControlledEntity.PositionComp.GetPosition(), Color.Orange, Color.Blue, false);
+                var parent = ControlledEntity.Parent;
+                while(parent != null)
+                {
+                    // Draw line to parent
+                    MyRenderProxy.DebugDrawLine3D(  ControlledEntity.Parent.PositionComp.GetPosition(), 
+                                                    ControlledEntity.PositionComp.GetPosition(), 
+                                                    Color.Orange, 
+                                                    Color.Blue, 
+                                                    false);
+                    
+                    parent = parent.Parent;
+                }
             }
 
             var textPosition = new Vector2(20, Session.Camera.ViewportSize.Y / 2);
@@ -220,7 +235,7 @@ namespace Sandbox.Game.SessionComponents
                     break;
             }
 
-            if (Operation == OperationMode.Translation)
+            if (Operation == OperationMode.Translation && !DisableTransformation)
             {
                 // Change the size of the control elements
                 var camPosition = Session.Camera.Position;
@@ -236,7 +251,7 @@ namespace Sandbox.Game.SessionComponents
                 DrawOBB(m_zBB, Color.Blue, 0.5f, 2);
             }
 
-            if(Operation != OperationMode.HierarchyAssignment)
+            if(Operation != OperationMode.HierarchyAssignment && !DisableTransformation)
             {
                 DrawOBB(m_xPlane, Color.Red, 0.2f, 3);
                 DrawOBB(m_yPlane, Color.Green, 0.2f, 4);
@@ -278,14 +293,18 @@ namespace Sandbox.Game.SessionComponents
                 m_selected = -1;
             }
 
-            if (m_dragActive)
+            // Stop when transformation is disabled 
+            if (!DisableTransformation)
             {
-                PerformDragg(m_dragOverAxis);
-            }
+                if (m_dragActive)
+                {
+                    PerformDragg(m_dragOverAxis);
+                }
 
-            if (m_rotationActive)
-            {
-                PerformRotation();
+                if (m_rotationActive)
+                {
+                    PerformRotation();
+                }
             }
 
             // Switch to rotation mode and back

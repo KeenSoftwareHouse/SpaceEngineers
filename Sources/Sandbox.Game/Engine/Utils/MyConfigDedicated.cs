@@ -115,6 +115,12 @@ namespace Sandbox.Engine.Utils
             set { m_data.WorldName = value; }
         }
 
+        public string PremadeCheckpointPath
+        {
+            get { return m_data.PremadeCheckpointPath; }
+            set { m_data.PremadeCheckpointPath = value; }
+        }
+
         public bool PauseGameWhenEmpty
         {
             get { return m_data.PauseGameWhenEmpty; }

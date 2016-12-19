@@ -46,7 +46,7 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        protected MyParticleEffectsIDEnum EffectId = MyParticleEffectsIDEnum.Welder;
+        protected string EffectId = "Welder";
         protected float EffectScale = 1f;
 
         protected bool HasPrimaryEffect = true;
@@ -224,7 +224,7 @@ namespace Sandbox.Game.Weapons
 
         protected float CalculateRequiredPower()
         {
-			return ShouldBePowered() ? SinkComp.MaxRequiredInput : 0.0f;
+            return ShouldBePowered() ? SinkComp.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0.0f;
         }
 
         private void UpdatePower()
@@ -296,7 +296,7 @@ namespace Sandbox.Game.Weapons
             
 			SinkComp.Update();
 
-			if (IsShooting && !SinkComp.IsPowered)
+            if (IsShooting && !SinkComp.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 EndShoot(MyShootActionEnum.PrimaryAction);
             }
@@ -391,7 +391,7 @@ namespace Sandbox.Game.Weapons
             m_shootFrameCounter++;
             m_tryingToShoot = true;
 			SinkComp.Update();
-			if (!SinkComp.IsPowered)
+            if (!SinkComp.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 CurrentEffect = 0;
                 return;
@@ -494,10 +494,13 @@ namespace Sandbox.Game.Weapons
         void StartEffect()
         {
             StopEffect();
-            MyParticlesManager.TryCreateParticleEffect((int)EffectId, out m_toolEffect);
-            if (m_toolEffect != null)
-                m_toolEffect.UserScale = EffectScale;
-            m_toolEffectLight = CreatePrimaryLight();
+            if (!string.IsNullOrEmpty(EffectId))
+            {
+                MyParticlesManager.TryCreateParticleEffect(EffectId, out m_toolEffect);
+                if (m_toolEffect != null)
+                    m_toolEffect.UserScale = EffectScale;
+                m_toolEffectLight = CreatePrimaryLight();
+            }
             UpdateEffect();
         }
 
@@ -506,7 +509,7 @@ namespace Sandbox.Game.Weapons
             MyLight light = MyLights.AddLight();
             light.Start(MyLight.LightTypeEnum.PointLight, Vector3.Zero, m_handItemDef.LightColor, m_handItemDef.LightFalloff, m_handItemDef.LightRadius);
             light.GlareMaterial = "GlareWelder";
-            light.GlareOn = true;
+            light.GlareOn = light.LightOn;
             light.GlareQuerySize = 1;
             light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
             return light;
@@ -525,7 +528,7 @@ namespace Sandbox.Game.Weapons
             MyLight light = MyLights.AddLight();
             light.Start(MyLight.LightTypeEnum.PointLight, Vector3.Zero, SecondaryLightColor, SecondaryLightFalloff, SecondaryLightRadius);
             light.GlareMaterial = "GlareWelder";
-            light.GlareOn = true;
+            light.GlareOn = light.LightOn;
             light.GlareQuerySize = 1;
             light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
             return light;

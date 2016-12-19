@@ -497,7 +497,7 @@ namespace Sandbox.Game.Entities
                     Vector3 positionToDragPointGlobal = Vector3.TransformNormal(-m_dragPointToPositionLocal, mat);
                     mat.Translation = mat.Translation + positionToDragPointGlobal;
 
-                    hints.CalculateRotationHints(mat, worldBox, !MyHud.MinimalHud && MySandboxGame.Config.RotationHints && MyFakes.ENABLE_ROTATION_HINTS, isRotating);
+                    hints.CalculateRotationHints(mat, worldBox, !MyHud.MinimalHud && !MyHud.CutsceneHud && MySandboxGame.Config.RotationHints && MyFakes.ENABLE_ROTATION_HINTS, isRotating);
                 }
             }
         }

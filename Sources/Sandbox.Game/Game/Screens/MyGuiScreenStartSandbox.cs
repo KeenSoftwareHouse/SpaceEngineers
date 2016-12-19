@@ -32,11 +32,7 @@ namespace Sandbox.Game.Gui
         {
             EnabledBackgroundFade = true;
 
-            if (MyFakes.ENABLE_BATTLE_SYSTEM)
-                m_additionalButtons++;
             if (MyPerGameSettings.EnableScenarios)
-                m_additionalButtons++;
-            if (MyPerGameSettings.EnableTutorials)
                 m_additionalButtons++;
 
             Size = new Vector2(0.36f, 0.3f + m_additionalButtons * 0.04f);
@@ -58,18 +54,6 @@ namespace Sandbox.Game.Gui
             //MyStringId? otherButtonsForbidden = null;
             //MyStringId newGameText = MySpaceTexts.StartDemo;
             int buttonPositionCounter = 0;
-
-            if (MyPerGameSettings.EnableTutorials)
-            {
-                // tutorials
-                var tutorialButton = new MyGuiControlButton(
-                    position: menuPositionOrigin + buttonPositionCounter++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
-                    text: MyTexts.Get(MySpaceTexts.ScreenCaptionTutorials),
-                    //toolTip: MyTexts.GetString(MySpaceTexts.ToolTipNewWorldCustomWorld),
-                    onButtonClick: OnTutorialClick);
-
-                Controls.Add(tutorialButton);
-            }
 
             //  Quickstart
             var quickstartButton = new MyGuiControlButton(
@@ -97,18 +81,6 @@ namespace Sandbox.Game.Gui
                     onButtonClick: OnScenarioGameClick);
 
                 Controls.Add(scenarioButton);
-            }
-
-            if (MyFakes.ENABLE_BATTLE_SYSTEM)
-            {
-                var battleButton = new MyGuiControlButton(
-                    position: menuPositionOrigin + buttonPositionCounter++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
-                    text: MyTexts.Get(MySpaceTexts.ScreenButtonBattle),
-                    //toolTip: MyTexts.GetString(MySpaceTexts.ToolTipNewWorldCustomWorld),
-                    onButtonClick: OnBattleClick);
-
-                Controls.Add(battleButton);
-
             }
 
             CloseButtonEnabled = true;
@@ -256,43 +228,7 @@ namespace Sandbox.Game.Gui
         public void OnTutorialClick(MyGuiControlButton sender)
         {
             MyAnalyticsHelper.ReportTutorialScreen("TutorialsButtonClicked");
-            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.TutorialScreen));
-        }
-
-        public void OnBattleClick(MyGuiControlButton sender)
-        {
-            if (MySteam.IsOnline)
-            {
-                if (MyFakes.ENABLE_TUTORIAL_PROMPT && MySandboxGame.Config.NeedShowBattleTutorialQuestion)
-                {
-                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(buttonType: MyMessageBoxButtonsType.YES_NO,
-                        messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextTutorialQuestion),
-                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionVideoTutorial),
-                        callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
-                        {
-                            if (val == MyGuiScreenMessageBox.ResultEnum.YES)
-                                MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_BATTLE, "Steam Guide");
-                            else
-                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.BattleScreen));
-                        }));
-
-                    MySandboxGame.Config.NeedShowBattleTutorialQuestion = false;
-                    MySandboxGame.Config.Save();
-                }
-                else
-                {
-                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.BattleScreen));
-                }
-            }
-            else
-            {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                    buttonType: MyMessageBoxButtonsType.OK,
-                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
-                    messageText: MyTexts.Get(MyCommonTexts.SteamIsOfflinePleaseRestart)
-                ));
-            }
-
+//            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.TutorialScreen));
         }
     }
 }

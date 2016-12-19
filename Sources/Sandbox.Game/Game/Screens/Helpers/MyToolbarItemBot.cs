@@ -33,9 +33,6 @@ namespace Sandbox.Game.Screens.Helpers
             if (Definition == null)
                 return false;
 
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
-                return false;
-
             MyAIComponent.Static.BotToSpawn = Definition as MyAgentDefinition;
             var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
             if (controlledObject != null)
@@ -54,7 +51,7 @@ namespace Sandbox.Game.Screens.Helpers
         public override MyToolbarItem.ChangeInfo Update(MyEntity owner, long playerID = 0)
         {
             var botDefinition = MyAIComponent.Static.BotToSpawn;
-            WantsToBeSelected = botDefinition != null && botDefinition.Id.SubtypeId == (this.Definition as MyAgentDefinition).Id.SubtypeId && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle);
+            WantsToBeSelected = botDefinition != null && botDefinition.Id.SubtypeId == (this.Definition as MyAgentDefinition).Id.SubtypeId;
             return ChangeInfo.None;
         }
     }

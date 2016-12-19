@@ -13,8 +13,10 @@ using System;
 using VRage;
 using Sandbox.Game.Screens.Helpers;
 using System.Diagnostics;
+using System.IO;
 using VRage.Utils;
 using Sandbox.Game.Localization;
+using VRage.FileSystem;
 using VRage.Game;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
@@ -148,10 +150,7 @@ namespace Sandbox.Game.Gui
         public static Vector2 CalcSize(MyObjectBuilder_Checkpoint checkpoint)
         {
             float width = checkpoint == null ? 0.9f : 0.65f;
-            float height = checkpoint == null ? 1.24f : 0.95f;
-            if (MyFakes.ENABLE_NEW_SOUNDS)
-                height += 0.05f;
-            height -= 0.27f;
+            float height = checkpoint == null ? 0.97f : 0.95f;
 
             return new Vector2(width, height);
         }
@@ -187,7 +186,10 @@ namespace Sandbox.Game.Gui
             BuildControls();
 
             if (m_isNewGame)
+            {
                 SetDefaultValues();
+                new MyGuiControlScreenSwitchPanel(this, MyTexts.Get(MyCommonTexts.WorldSettingsScreen_Description));
+            }
             else
             {
                 LoadValues();
@@ -203,15 +205,42 @@ namespace Sandbox.Game.Gui
 
         protected virtual void BuildControls()
         {
-            Vector2 buttonSize = MyGuiConstants.BACK_BUTTON_SIZE;
-            Vector2 buttonsOrigin = m_size.Value / 2 - new Vector2(0.23f, 0.03f);
 
             if (m_isNewGame)
-                AddCaption(MyCommonTexts.ScreenCaptionCustomWorld);
+            {
+                //AddCaption(MyCommonTexts.ScreenCaptionCustomWorld);
+            }
             else
                 AddCaption(MyCommonTexts.ScreenCaptionEditSettings);
 
             int numControls = 0;
+
+
+            float MARGIN_TOP = m_isNewGame ? 0.18f : 0.1f;
+            float MARGIN_BOTTOM = 0.11f;
+            float MARGIN_LEFT = m_isNewGame ? 0.23f : 0.03f;
+            float MARGIN_RIGHT = m_isNewGame ? 0.03f : 0.03f;
+            float MARGIN_BOTTOM_LISTBOX = 0.015f;
+
+            // Automatic layout.
+            Vector2 originL, originC, sizeL, sizeC, sizeControls;
+            Vector2 controlsDelta = new Vector2(0f, 0.052f);
+            float rightColumnOffset;
+            originL = -m_size.Value / 2 + new Vector2(MARGIN_LEFT, MARGIN_TOP) + controlsDelta / 2;
+            sizeControls = m_size.Value / 2 - originL;
+            sizeControls.X -= MARGIN_RIGHT + 0.005f;
+            sizeControls.Y -= MARGIN_BOTTOM;
+            sizeL = sizeControls * (m_isNewGame ? 0.44f : 0.395f);
+
+            originC = originL + new Vector2(sizeL.X, 0f);
+            sizeC = sizeControls - sizeL;
+            //rightColumnOffset = originC.X + m_onlineMode.Size.X - labelSize - 0.017f;
+
+            // Button positioning
+            Vector2 buttonSize = MyGuiConstants.BACK_BUTTON_SIZE;
+            Vector2 buttonsOrigin = m_size.Value / 2;
+            buttonsOrigin.X -= MARGIN_RIGHT;
+            buttonsOrigin.Y -= 0.03f;
 
             var nameLabel = MakeLabel(MyCommonTexts.Name);
             var descriptionLabel = MakeLabel(MyCommonTexts.Description);
@@ -219,15 +248,14 @@ namespace Sandbox.Game.Gui
             var onlineModeLabel = MakeLabel(MyCommonTexts.WorldSettings_OnlineMode);
             m_maxPlayersLabel = MakeLabel(MyCommonTexts.MaxPlayers);
             var environmentLabel = MakeLabel(MySpaceTexts.WorldSettings_EnvironmentHostility);
-            var scenarioLabel = MakeLabel(MySpaceTexts.WorldSettings_Scenario);
             var soundModeLabel = MakeLabel(MySpaceTexts.WorldSettings_SoundMode);
 
             float width = 0.284375f + 0.025f;
 
             m_nameTextbox = new MyGuiControlTextbox(maxLength: MySession.MAX_NAME_LENGTH);
             m_descriptionTextbox = new MyGuiControlTextbox(maxLength: MySession.MAX_DESCRIPTION_LENGTH);
-            m_onlineMode = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
-            m_environment = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+            m_onlineMode = new MyGuiControlCombobox(size: new Vector2(sizeC.X, 0.04f));
+            m_environment = new MyGuiControlCombobox(size: new Vector2(sizeC.X, 0.04f));
             m_maxPlayersSlider = new MyGuiControlSlider(
                 position: Vector2.Zero,
                 width: m_onlineMode.Size.X,
@@ -242,16 +270,17 @@ namespace Sandbox.Game.Gui
 
 
             m_asteroidAmountLabel = MakeLabel(MySpaceTexts.Asteroid_Amount);
-            m_asteroidAmountCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+            m_asteroidAmountCombo = new MyGuiControlCombobox(size: new Vector2(sizeC.X, 0.04f));
 
             m_asteroidAmountCombo.ItemSelected += m_asteroidAmountCombo_ItemSelected;
-            m_soundModeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+            m_soundModeCombo = new MyGuiControlCombobox(size: new Vector2(sizeC.X, 0.04f));
 
             m_scenarioTypesList = new MyGuiControlList();
 
             // Ok/Cancel
-            m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MyCommonTexts.Ok), onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MyCommonTexts.Cancel), onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
+            m_cancelButton = new MyGuiControlButton(position: buttonsOrigin, size: buttonSize, text: MyTexts.Get(MyCommonTexts.Cancel), onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            buttonsOrigin.X -= m_cancelButton.Size.X + MyGuiConstants.GENERIC_BUTTON_SPACING.X;
+            m_okButton = new MyGuiControlButton(position: buttonsOrigin, size: buttonSize, text: MyTexts.Get(MyCommonTexts.Ok), onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
 
             m_creativeModeButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MyCommonTexts.WorldSettings_GameModeCreative), onButtonClick: OnCreativeClick);
             m_creativeModeButton.SetToolTip(MySpaceTexts.ToolTipWorldSettingsModeCreative);
@@ -280,15 +309,8 @@ namespace Sandbox.Game.Gui
 
                 m_scenarioTypesGroup = new MyGuiControlRadioButtonGroup();
                 m_scenarioTypesGroup.SelectedChanged += scenario_SelectedChanged;
-                foreach (var scenario in MyDefinitionManager.Static.GetScenarioDefinitions())
-                {
-                    if (!scenario.Public && !MyFakes.ENABLE_NON_PUBLIC_SCENARIOS)
-                        continue;
 
-                    var button = new MyGuiControlScenarioButton(scenario);
-                    m_scenarioTypesGroup.Add(button);
-                    m_scenarioTypesList.Controls.Add(button);
-                }
+                RefreshCustomWorldsList();
             }
 
             m_nameTextbox.SetToolTip(string.Format(MyTexts.GetString(MyCommonTexts.ToolTipWorldSettingsName), MySession.MIN_NAME_LENGTH, MySession.MAX_NAME_LENGTH));
@@ -363,25 +385,11 @@ namespace Sandbox.Game.Gui
 
             Controls.Add(advanced);
 
+            // Uncomment to show the World generator button again
             if (m_isNewGame && MyFakes.ENABLE_PLANETS == true)
             {
                 Controls.Add(m_worldGeneratorButton);
             }
-
-            float labelSize = 0.20f;
-
-            float MARGIN_TOP = 0.12f;
-            float MARGIN_BOTTOM = 0.12f;
-            float MARGIN_LEFT = m_isNewGame ? 0.315f : 0.08f;
-            float MARGIN_RIGHT = m_isNewGame ? 0.075f : 0.045f;
-
-            // Automatic layout.
-            Vector2 originL, originC;
-            Vector2 controlsDelta = new Vector2(0f, 0.052f);
-            float rightColumnOffset;
-            originL = -m_size.Value / 2 + new Vector2(MARGIN_LEFT, MARGIN_TOP);
-            originC = originL + new Vector2(labelSize, 0f);
-            rightColumnOffset = originC.X + m_onlineMode.Size.X - labelSize - 0.017f;
 
             foreach (var control in Controls)
             {
@@ -396,25 +404,22 @@ namespace Sandbox.Game.Gui
             m_survivalModeButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
             m_survivalModeButton.Position = m_creativeModeButton.Position + new Vector2(m_onlineMode.Size.X, 0);
 
+            m_nameTextbox.Size = m_onlineMode.Size;
+            m_descriptionTextbox.Size = m_nameTextbox.Size;
+
             if (m_isNewGame)
             {
-                Vector2 scenarioPosition = new Vector2(-0.375f, nameLabel.Position.Y);
-
-                m_nameTextbox.Size = m_onlineMode.Size;
-                m_descriptionTextbox.Size = m_nameTextbox.Size;
-
-                scenarioLabel.Position = scenarioPosition;
+                Vector2 scenarioPosition = -m_size.Value / 2 + new Vector2(0.015f, MARGIN_TOP);
 
                 m_scenarioTypesList.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-                m_scenarioTypesList.Position = scenarioLabel.Position + new Vector2(0, 0.02f);
-                m_scenarioTypesList.Size = new Vector2(0.19f, m_size.Value.Y - MARGIN_BOTTOM - MARGIN_TOP);
-                Controls.Add(scenarioLabel);
+                m_scenarioTypesList.Position = scenarioPosition;
+                m_scenarioTypesList.Size = new Vector2(MyGuiConstants.LISTBOX_WIDTH, m_size.Value.Y - 0.02f - MARGIN_TOP);
                 Controls.Add(m_scenarioTypesList);
 
-                MyGuiControlSeparatorList m_verticalLine = new MyGuiControlSeparatorList();
-                Vector2 position = nameLabel.Position + new Vector2(-0.025f, -0.02f);
-                m_verticalLine.AddVertical(position, m_size.Value.Y - MARGIN_BOTTOM - MARGIN_TOP + 0.04f);
-                Controls.Add(m_verticalLine);
+                //MyGuiControlSeparatorList m_verticalLine = new MyGuiControlSeparatorList();
+                //Vector2 position = nameLabel.Position + new Vector2(-0.025f, -0.02f);
+                //m_verticalLine.AddVertical(position, m_size.Value.Y - MARGIN_BOTTOM - MARGIN_TOP + 0.04f);
+                //Controls.Add(m_verticalLine);
             }
 
             var pos2 = advanced.Position;
@@ -425,11 +430,11 @@ namespace Sandbox.Game.Gui
 
 #if !XB1 // XB1_NOWORKSHOP
             mods.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
-            mods.Position = advanced.Position - new Vector2(advanced.Size.X + 0.017f, 0);
+            mods.Position = advanced.Position - new Vector2(advanced.Size.X + MyGuiConstants.GENERIC_BUTTON_SPACING.X, 0);
 #endif // !XB1
 
             m_worldGeneratorButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
-            m_worldGeneratorButton.Position = advanced.Position - new Vector2(advanced.Size.X + 0.017f, -0.06f);
+            m_worldGeneratorButton.Position = advanced.Position - new Vector2(advanced.Size.X + MyGuiConstants.GENERIC_BUTTON_SPACING.X, -0.06f);
 
             if (MyFakes.XB1_PREVIEW)
             {
@@ -473,14 +478,14 @@ namespace Sandbox.Game.Gui
             // If the scenario selected is "Empty World" it will select Safe as the default environment, but only if this setting wasn't changed before 
             if (!m_isHostilityChanged)
             {
-                m_environment.SelectItemByKey((int)(m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.DefaultEnvironment);
+                m_environment.SelectItemByKey(0);
                 // It will change with the above code to true
                 m_isHostilityChanged = false;
             }
 
             if (MyFakes.ENABLE_PLANETS)
             {
-                m_worldGeneratorButton.Enabled = (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.AsteroidClustersEnabled;
+                m_worldGeneratorButton.Enabled = true;
                 if (m_worldGeneratorButton.Enabled)
                 {
                     if (WorldGenerator != null)
@@ -502,7 +507,7 @@ namespace Sandbox.Game.Gui
             }
             else
             {
-                UpdateAsteroidAmountEnabled((m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.AsteroidClustersEnabled);
+                UpdateAsteroidAmountEnabled(true);
             }
         }
 
@@ -531,9 +536,9 @@ namespace Sandbox.Game.Gui
 
         private void SetDefaultName()
         {
-            if (!m_nameRewritten)
+            if (!m_nameRewritten && m_scenarioTypesGroup.SelectedButton != null)
             {
-                var title = ((MyGuiControlScenarioButton)(m_scenarioTypesGroup.SelectedButton)).Title;
+                var title = ((MyGuiControlContentButton)(m_scenarioTypesGroup.SelectedButton)).Title;
                 m_nameTextbox.Text = title.ToString() + " " + DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                 m_nameRewritten = false;
             }
@@ -829,12 +834,7 @@ namespace Sandbox.Game.Gui
 
         private void CheckDx11AndStart()
         {
-            bool needsDx11 = (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.HasPlanets;
-            if(!needsDx11)
-            {
-                StartNewSandbox();
-            }
-            else if (MySandboxGame.IsDirectX11)
+            if (MySandboxGame.IsDirectX11)
             {
                 StartNewSandbox();
             }
@@ -879,15 +879,51 @@ namespace Sandbox.Game.Gui
             MyLog.Default.WriteLine("StartNewSandbox - Start");
 
             GetSettingsFromControls();
-            MySessionLoader.StartNewSession(
-                m_nameTextbox.Text, 
-                m_settings, 
-                m_mods, 
-                (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario, 
-                AsteroidAmount, 
-                GetDescription(), 
-                GetPassword()
-            );
+
+            // Load the checkpoint
+            ulong checkpointSizeInBytes;
+            var sesionPath = m_scenarioTypesGroup.SelectedButton.UserData as string;
+
+            var checkpoint = MyLocalCache.LoadCheckpoint(sesionPath, out checkpointSizeInBytes);
+
+            if(checkpoint == null) return;
+
+            GetSettingsFromControls();
+            checkpoint.Settings = m_settings;
+            checkpoint.SessionName = m_nameTextbox.Text;
+            checkpoint.Password = GetPassword();
+            checkpoint.Description = GetDescription();
+            checkpoint.Mods = m_mods;
+
+            SetupWorldGeneratorSettings(checkpoint);
+
+            MySessionLoader.LoadSingleplayerSession(
+                checkpoint,
+                sesionPath,
+                checkpointSizeInBytes,
+                () =>
+                {
+                    MySession.Static.Save(Path.Combine(MyFileSystem.SavesPath, checkpoint.SessionName.Replace(':','-')));
+                });
+        }
+
+        private void SetupWorldGeneratorSettings(MyObjectBuilder_Checkpoint checkpoint)
+        {
+            switch ((MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum)AsteroidAmount)
+            {
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow:
+                    checkpoint.Settings.ProceduralDensity = 0.25f;
+                    break;
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal:
+                    checkpoint.Settings.ProceduralDensity = 0.35f;
+                    break;
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh:
+                    checkpoint.Settings.ProceduralDensity = 0.50f;
+                    break;
+                default:
+                    throw new InvalidBranchException();
+                    break;
+            }
         }
 
         public void UpdateAsteroidAmountEnabled(bool enabled)
@@ -961,6 +997,43 @@ namespace Sandbox.Game.Gui
                     m_settings.EnableSpiders = false;
                 }
             }
+        }
+
+        private void RefreshCustomWorldsList()
+        {
+            // Add loading mini screen
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.LoadingPleaseWait, null, StartLoadingWorldInfos, OnLoadingFinished));
+        }
+
+        // Starts Async loading.
+        private IMyAsyncResult StartLoadingWorldInfos()
+        {
+            var customWorldsPath = @"CustomWorlds";
+            var customWorldsAbsolutePath = Path.Combine(MyFileSystem.ContentPath, customWorldsPath);
+            return new MyLoadWorldInfoListResult(customWorldsAbsolutePath);
+        }
+
+        // Checks for corrupted worlds and refreshes the table cells.
+        private void OnLoadingFinished(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
+        {
+            var loadListRes = (MyLoadListResult)result;
+
+            m_scenarioTypesGroup.Clear();
+            m_scenarioTypesList.Clear();
+
+            foreach (var saveTuple in loadListRes.AvailableSaves)
+            {
+                var button = new MyGuiControlContentButton(saveTuple.Item2.SessionName,
+                    Path.Combine(saveTuple.Item1, "thumb.jpg")) {UserData = saveTuple.Item1};
+
+                m_scenarioTypesGroup.Add(button);
+                m_scenarioTypesList.Controls.Add(button);
+            }
+
+            SetDefaultValues();
+
+            // Close the loading miniscreen
+            screen.CloseScreen();
         }
     }
 }

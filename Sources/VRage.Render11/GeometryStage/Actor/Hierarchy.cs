@@ -190,8 +190,9 @@ namespace VRageRender
             }
         }
 
-        internal void BuildProxy(out MyRenderableProxy_2 proxy, out UInt64 key)
+        internal unsafe void BuildProxy(out MyRenderableProxy_2 proxy, out UInt64 key)
         {
+            MyCommon.GetObjectCB(sizeof(MyMergeInstancingConstants));
             var material = MyMeshMaterials1.GetProxyId(MyMeshMaterials1.MaterialRkIndex.Get(m_rootMaterialRK, MyMeshMaterialId.NULL));
             proxy = new MyRenderableProxy_2
             {

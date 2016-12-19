@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using VRage.Collections;
 using System.Diagnostics;
+using System.Linq;
 
 namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
 {
@@ -279,6 +280,13 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                     }
                 });
             } while (true);
+
+            // Special case...
+            if (current.Node is MyVisualSyntaxForLoopNode)
+            {
+                var parent = current.Node.SequenceInputs.FirstOrDefault();
+                return parent;
+            }
 
             return current.Node;
         }

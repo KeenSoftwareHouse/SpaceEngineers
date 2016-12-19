@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Library.Collections;
+using VRage.Library.Utils;
+using VRageMath;
 
 namespace VRage.Network
 {
@@ -23,10 +25,20 @@ namespace VRage.Network
         /// Serializes state into/from bit stream.
         /// EndpointId should be ignored.
         /// </summary>
-        public abstract void Serialize(BitStream stream,uint timeStamp);
+        public abstract void Serialize(BitStream stream, bool outOfOrder);
 
-        public uint ClientTimeStamp;
+        public MyTimeSpan ClientTimeStamp;
 
         public long? SupportId { get; protected set; }
+
+        private Vector3D m_position;
+
+        public virtual Vector3D Position
+        {
+            get { return m_position; }
+            protected set { m_position = value; }
+        }
+
+        public abstract void Update();
     }
 }

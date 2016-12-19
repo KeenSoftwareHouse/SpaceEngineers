@@ -48,7 +48,7 @@ namespace VRage
 
             public double Average
             {
-                get { return TotalTime.Miliseconds / Frames; }
+                get { return TotalTime.Milliseconds / Frames; }
             }
 
             public void Log(MyTimeSpan currentTime)
@@ -74,6 +74,7 @@ namespace VRage
         private static readonly Dictionary<string, PerformanceWarning> m_currentWarnings = new Dictionary<string, PerformanceWarning>();
         private static bool m_initialized;
         private static string m_GPUBlock;
+        private static FastResourceLock m_blockLock = new FastResourceLock();
         
         public static Action<MySimpleProfilingBlock> ShowPerformanceWarning;
 
@@ -121,7 +122,10 @@ namespace VRage
             {
                 block = new MySimpleProfilingBlock();
                 block.Name = key;
-                m_profilingBlocks.Add(key, block);
+                using (m_blockLock.AcquireExclusiveUsing())
+                {
+                    m_profilingBlocks.Add(key, block);
+                }
             }
             block.TimeStamp = new MyTimeSpan(Stopwatch.GetTimestamp());
         }
@@ -142,7 +146,10 @@ namespace VRage
             {
                 block = new MySimpleProfilingBlock();
                 block.Name = key;
-                m_profilingBlocks.Add(key, block);
+                using (m_blockLock.AcquireExclusiveUsing())
+                {
+                    m_profilingBlocks.Add(key, block);
+                }
             }
         }
 
@@ -153,7 +160,10 @@ namespace VRage
         {
             if (!m_profilingBlocks.ContainsKey(key))
             {
-                m_profilingBlocks.Add(key, new MySimpleProfilingBlock() { Name = key, GPU = true });
+                using (m_blockLock.AcquireExclusiveUsing())
+                {
+                    m_profilingBlocks.Add(key, new MySimpleProfilingBlock() { Name = key, GPU = true });
+                }
             }
             m_GPUBlock = key;
         }
@@ -190,15 +200,18 @@ namespace VRage
 
             CheckPerformance();
 
-            foreach (MySimpleProfilingBlock block in m_profilingBlocks.Values)
+            using (m_blockLock.AcquireExclusiveUsing())
             {
-                if (!block.GPU)
-                    block.Frames++;
-                block.Time = MyTimeSpan.Zero;
-                if (block.Frames >= 60)
+                foreach (MySimpleProfilingBlock block in m_profilingBlocks.Values)
                 {
-                    block.Frames = 0;
-                    block.TotalTime = MyTimeSpan.Zero;
+                    if (!block.GPU)
+                        block.Frames++;
+                    block.Time = MyTimeSpan.Zero;
+                    if (block.Frames >= 60)
+                    {
+                        block.Frames = 0;
+                        block.TotalTime = MyTimeSpan.Zero;
+                    }
                 }
             }
 
@@ -235,32 +248,35 @@ namespace VRage
         private static void CheckPerformance()
         {
             bool performanceLow;
-            foreach (MySimpleProfilingBlock block in m_profilingBlocks.Values)
+            using (m_blockLock.AcquireExclusiveUsing())
             {
-                performanceLow = false;
-                if (block.ThresholdFrameMilliseconds > 0)
+                foreach (MySimpleProfilingBlock block in m_profilingBlocks.Values)
                 {
-                    performanceLow |= block.Time.Miliseconds > block.ThresholdFrameMilliseconds;
-                }
-                else if (block.ThresholdFrameMilliseconds < 0)
-                {
-                    performanceLow |= block.Time.Miliseconds < -block.ThresholdFrameMilliseconds;
-                }
-                // Only check the average if you have data from the entire second. Otherwise it can be inaccurate
-                if (block.Frames == 59)
-                {
-                    if (block.ThresholdSecondMilliseconds > 0)
+                    performanceLow = false;
+                    if (block.ThresholdFrameMilliseconds > 0)
                     {
-                        performanceLow |= block.Average > block.ThresholdSecondMilliseconds;
+                        performanceLow |= block.Time.Milliseconds > block.ThresholdFrameMilliseconds;
                     }
-                    else if (block.ThresholdSecondMilliseconds < 0)
+                    else if (block.ThresholdFrameMilliseconds < 0)
                     {
-                        performanceLow |= block.Average < -block.ThresholdSecondMilliseconds;
+                        performanceLow |= block.Time.Milliseconds < -block.ThresholdFrameMilliseconds;
                     }
-                }
-                if (performanceLow && ShowPerformanceWarning != null)
-                {
-                    ShowPerformanceWarning(block);
+                    // Only check the average if you have data from the entire second. Otherwise it can be inaccurate
+                    if (block.Frames == 59)
+                    {
+                        if (block.ThresholdSecondMilliseconds > 0)
+                        {
+                            performanceLow |= block.Average > block.ThresholdSecondMilliseconds;
+                        }
+                        else if (block.ThresholdSecondMilliseconds < 0)
+                        {
+                            performanceLow |= block.Average < -block.ThresholdSecondMilliseconds;
+                        }
+                    }
+                    if (performanceLow && ShowPerformanceWarning != null)
+                    {
+                        ShowPerformanceWarning(block);
+                    }
                 }
             }
         }
@@ -305,11 +321,11 @@ namespace VRage
 
                 if (block.ThresholdFrameMilliseconds > 0)
                 {
-                    performance = block.Time.Miliseconds / block.ThresholdFrameMilliseconds;
+                    performance = block.Time.Milliseconds / block.ThresholdFrameMilliseconds;
                 }
                 else if (block.ThresholdFrameMilliseconds < 0)
                 {
-                    performance = -block.ThresholdFrameMilliseconds / block.Time.Miliseconds;
+                    performance = -block.ThresholdFrameMilliseconds / block.Time.Milliseconds;
                 }
                 if (performance > worstPerformance)
                 {

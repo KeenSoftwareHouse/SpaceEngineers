@@ -316,6 +316,18 @@ namespace SpaceEngineers.Game.Entities.Blocks
             CheckEmissivity();
         }
 
+        protected override void OnStopWorking()
+        {
+            CheckEmissivity();
+            base.OnStopWorking();
+        }
+
+        protected override void OnStartWorking()
+        {
+            CheckEmissivity();
+            base.OnStartWorking();
+        }
+
         private void CheckEmissivity()
         {
             if (!InScene)
@@ -562,6 +574,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                         return;
 
                     if (!block.FriendlyWithBlock(this)) return;
+                    if (other is MyCubeGrid && MyCubeGridGroups.Static.Physical.HasSameGroup(other, CubeGrid)) return;
 
                     CreateConstraint(other, block);
 
@@ -734,5 +747,13 @@ namespace SpaceEngineers.Game.Entities.Blocks
             add { BeforeMerge += value; }
             remove { BeforeMerge += value; }
         }
+
+        public override int GetBlockSpecificState()
+        {
+            //returns 2 when locked, 1 when in constraint or 0 otherwise
+            return (m_emissivityState == EmissivityState.LOCKED ? 2 : (m_emissivityState == EmissivityState.CONSTRAINED ? 1 : 0));
+        }
+
+        public bool IsLocked { get { return m_emissivityState == EmissivityState.LOCKED; } }
     }
 }

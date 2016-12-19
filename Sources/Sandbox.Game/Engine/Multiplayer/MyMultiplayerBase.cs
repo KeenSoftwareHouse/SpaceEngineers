@@ -1,35 +1,25 @@
 ﻿#region Using
 
 
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Sandbox.Graphics.GUI;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Xml.Serialization;
 using VRage;
 using VRage.Collections;
 using VRage.Compiler;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 using VRage.Trace;
-using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Library.Collections;
-using Sandbox.Game.Entities;
 using VRage.Network;
 using VRage.Library.Utils;
 using Sandbox.Game;
 using VRage.Game;
-using SharpDX;
 using VRage.Profiler;
 
 #endregion
@@ -47,6 +37,8 @@ namespace Sandbox.Engine.Multiplayer
         Ping,
 
         BattleKeyValue,
+        ProfilerRequest,
+        HeaderAck,
     }
 
 
@@ -58,10 +50,19 @@ namespace Sandbox.Engine.Multiplayer
 
     public struct MyControlAckMessageMsg
     {
+        public int channel;
+        public int index;
+        public int head;
     }
 
-    public struct MyControlPingMsg
+    public struct MyControlAckHeaderMessageMsg
     {
+        public int channel;
+    }
+
+    public struct MyControlProfilerMsg
+    {
+        public int index;
     }
 
     public struct MyControlKickClientMsg
@@ -118,7 +119,7 @@ namespace Sandbox.Engine.Multiplayer
             Serializer.Serialize(destination, ref msg);
         }
 
-        void ITransportCallback.Receive(ByteStream source, ulong sender, TimeSpan timestamp)
+        void ITransportCallback.Receive(ByteStream source, ulong sender, MyTimeSpan timestamp)
         {
             if (!MySyncLayer.CheckReceivePermissions(sender, Permission))
             {
@@ -190,6 +191,9 @@ namespace Sandbox.Engine.Multiplayer
         Dictionary<Type, MyControlMessageEnum> m_controlMessageTypes = new Dictionary<Type, MyControlMessageEnum>();
 
         Dictionary<ulong, MyMultipartSender> m_worldSenders = new Dictionary<ulong, MyMultipartSender>();
+        Dictionary<ulong, MyMultipartSender> m_profilerSenders = new Dictionary<ulong, MyMultipartSender>();
+        List<ulong> m_worldSendersToRemove = new List<ulong>();
+        List<ulong> m_profilerSendersToRemove = new List<ulong>();
 
         private TimeSpan m_lastSentTimeTimestamp = new TimeSpan();
         private BitStream m_sendPhysicsStream = new BitStream();
@@ -222,6 +226,12 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
+        [Event, Server, Reliable]
+        public static void OnSetPriorityMultiplier(float priority)
+        {
+            MyMultiplayer.Static.ReplicationLayer.SetPriorityMultiplier(MyEventContext.Current.Sender, priority);
+        }
+
         public DictionaryReader<string, byte[]> VoxelMapData { get { return m_voxelMapData; } }
         public uint FrameCounter { get; private set; }
 
@@ -243,23 +253,6 @@ namespace Sandbox.Engine.Multiplayer
         public abstract bool Scenario { get; set; }
         public abstract string ScenarioBriefing { get; set; }
         public abstract DateTime ScenarioStartTime { get; set; }
-        public abstract bool Battle { get; set; }
-        // Battle game remaining time in seconds.
-        public abstract float BattleRemainingTime { get; set; }
-        public abstract bool BattleCanBeJoined { get; set; }
-        public abstract ulong BattleWorldWorkshopId { get; set; }
-        public abstract int BattleFaction1MaxBlueprintPoints { get; set; }
-        public abstract int BattleFaction2MaxBlueprintPoints { get; set; }
-        public abstract int BattleFaction1BlueprintPoints { get; set; }
-        public abstract int BattleFaction2BlueprintPoints { get; set; }
-        public abstract int BattleMapAttackerSlotsCount { get; set; }
-        public abstract long BattleFaction1Id { get; set; }
-        public abstract long BattleFaction2Id { get; set; }
-        public abstract int BattleFaction1Slot { get; set; }
-        public abstract int BattleFaction2Slot { get; set; }
-        public abstract bool BattleFaction1Ready { get; set; }
-        public abstract bool BattleFaction2Ready { get; set; }
-        public abstract int BattleTimeLimit { get; set; }
 
         #endregion
 
@@ -283,18 +276,22 @@ namespace Sandbox.Engine.Multiplayer
 
             m_lastKickUpdate = MySandboxGame.TotalTimeInMilliseconds;
 
-            MyNetworkReader.SetHandler(MyMultiplayer.ControlChannel, ControlMessageReceived);
+            MyNetworkReader.SetHandler(MyMultiplayer.ControlChannel, ControlMessageReceived, DisconnectClient);
 
             RegisterControlMessage<MyControlWorldRequestMsg>(MyControlMessageEnum.WorldRequest, OnWorldRequest, MyMessagePermissions.ToServer);
             RegisterControlMessage<MyControlAckMessageMsg>(MyControlMessageEnum.Ack, OnAck, MyMessagePermissions.ToServer);
+            RegisterControlMessage<MyControlAckHeaderMessageMsg>(MyControlMessageEnum.HeaderAck, OnHeaderAck, MyMessagePermissions.ToServer);
             RegisterControlMessage<MyControlKickClientMsg>(MyControlMessageEnum.Kick, OnClientKick, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
             RegisterControlMessage<MyControlDisconnectedMsg>(MyControlMessageEnum.Disconnected, OnDisconnectedClient, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
             RegisterControlMessage<MyControlBanClientMsg>(MyControlMessageEnum.Ban, OnClientBan, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
-            RegisterControlMessage<MyControlPingMsg>(MyControlMessageEnum.Ping, OnPing, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
+            RegisterControlMessage<MyControlProfilerMsg>(MyControlMessageEnum.ProfilerRequest, OnProfilerRequest, MyMessagePermissions.ToServer);
             //m_serializers[typeof(MyControlMessageData)] = new XmlSerializer(typeof(MyControlMessageData));
+
+            syncLayer.TransportLayer.DisconnectPeerOnError = DisconnectClient;
 
             // TODO: Remove
             //SyncLayer.TransportLayer.Register(MyMessageId.SERVER_UPDATE, OnServerPhysicsUpdate);
+
         }
 
         protected virtual void SetReplicationLayer(MyReplicationLayer layer)
@@ -347,7 +344,7 @@ namespace Sandbox.Engine.Multiplayer
             m_controlMessageTypes.Add(typeof(T), msg);
         }
 
-        unsafe void ControlMessageReceived(byte[] data, int dataSize, ulong sender, TimeSpan timestamp)
+        unsafe void ControlMessageReceived(byte[] data, int dataSize, ulong sender, MyTimeSpan timestamp, MyTimeSpan receivedTime)
         {
             ProfilerShort.Begin("Process control message");
 
@@ -358,27 +355,24 @@ namespace Sandbox.Engine.Multiplayer
             ITransportCallback handler;
             if (m_controlMessageHandlers.TryGetValue((int)msgId, out handler))
             {
-                handler.Receive(m_controlReceiveStream, sender, TimeSpan.Zero);
+                handler.Receive(m_controlReceiveStream, sender, MyTimeSpan.Zero);
             }
             ProfilerShort.End();
         }
 
-        public void SendAck(ulong sendTo)
+        public void SendAck(ulong sendTo, int channel, int index, int head)
         {
-            MyControlAckMessageMsg msg = new MyControlAckMessageMsg();
+            MyControlAckMessageMsg msg = new MyControlAckMessageMsg() { channel = channel, index = index, head = head };
+            SendControlMessage(sendTo, ref msg, false);
+        }
+
+        public void SendHeaderAck(ulong sendTo, int channel)
+        {
+            MyControlAckHeaderMessageMsg msg = new MyControlAckHeaderMessageMsg() { channel = channel };
             SendControlMessage(sendTo, ref msg);
         }
 
-        public void SendPingToServer()
-        {
-            if (IsServer)
-                return;
-
-            MyControlPingMsg msg = new MyControlPingMsg();
-            SendControlMessage(ServerId, ref msg);
-        }
-
-        protected void SendControlMessage<T>(ulong user, ref T message) where T : struct
+        protected void SendControlMessage<T>(ulong user, ref T message, bool reliable = true) where T : struct
         {
             ITransportCallback handler;
             MyControlMessageEnum messageEnum;
@@ -396,7 +390,7 @@ namespace Sandbox.Engine.Multiplayer
             m_controlSendStream.WriteUShort((ushort)messageEnum);
             callback.Write(m_controlSendStream, ref message);
 
-            if (!Peer2Peer.SendPacket(user, m_controlSendStream.Data, (int)m_controlSendStream.Position, P2PMessageEnum.Reliable, MyMultiplayer.ControlChannel))
+            if (!Peer2Peer.SendPacket(user, m_controlSendStream.Data, (int)m_controlSendStream.Position, reliable ? P2PMessageEnum.Reliable : P2PMessageEnum.Unreliable, MyMultiplayer.ControlChannel))
             {
                 System.Diagnostics.Debug.Fail("P2P packet not sent");
             }
@@ -417,13 +411,38 @@ namespace Sandbox.Engine.Multiplayer
         protected void OnAck(ref MyControlAckMessageMsg msg, ulong send)
         {
             MyMultipartSender msgSender;
-            if (m_worldSenders.TryGetValue(send, out msgSender))
+            switch (msg.channel)
             {
-                if (!msgSender.SendPart())
-                {
-                    // We're done, world is sent
-                    m_worldSenders.Remove(send);
-                }
+                case (int)MyMultiplayer.WorldDownloadChannel:
+                    if (m_worldSenders.TryGetValue(send, out msgSender))
+                        msgSender.ReceiveAck(msg.index, msg.head);
+                    break;
+                case (int)MyMultiplayer.ProfilerDownloadChannel:
+                    if (m_profilerSenders.TryGetValue(send, out msgSender))
+                        msgSender.ReceiveAck(msg.index, msg.head);
+                    break;
+            }
+        }
+
+        protected void OnHeaderAck(ref MyControlAckHeaderMessageMsg msg, ulong send)
+        {
+            MyMultipartSender msgSender;
+            switch (msg.channel)
+            {
+                case (int)MyMultiplayer.WorldDownloadChannel:
+                    if (m_worldSenders.TryGetValue(send, out msgSender))
+                    {
+                        msgSender.HeaderAck = true;
+                        msgSender.SendWhole();
+                    }
+                    break;
+                case (int)MyMultiplayer.ProfilerDownloadChannel:
+                    if (m_profilerSenders.TryGetValue(send, out msgSender))
+                    {
+                        msgSender.HeaderAck = true;
+                        msgSender.SendWhole();
+                    }
+                    break;
             }
         }
 
@@ -448,22 +467,23 @@ namespace Sandbox.Engine.Multiplayer
             {
                 MySandboxGame.Log.WriteLine("...responding");
 
-                MyMultipartMessage.SendPreemble(sender, MyMultiplayer.WorldDownloadChannel);
-
                 MyObjectBuilder_World worldData = MySession.Static.GetWorld(false);
                 var checkpoint = worldData.Checkpoint;
                 checkpoint.WorkshopId = null;
                 checkpoint.CharacterToolbar = null;
                 checkpoint.Settings.ScenarioEditMode = checkpoint.Settings.ScenarioEditMode && !MySession.Static.LoadedAsMission;
+
+                worldData.Clusters = new List<VRageMath.BoundingBoxD>();
+                Sandbox.Engine.Physics.MyPhysics.SerializeClusters(worldData.Clusters);
+
                 ProfilerShort.Begin("SerializeXML");
                 MyObjectBuilderSerializer.SerializeXML(m_worldSendStream, worldData, MyObjectBuilderSerializer.XmlCompression.Gzip);
                 ProfilerShort.BeginNextBlock("SendFlush");
                 SyncLayer.TransportLayer.SendFlush(sender);
                 ProfilerShort.End();
             }
-
             var buffer = m_worldSendStream.ToArray();
-            MyMultipartSender msgSender = new MyMultipartSender(buffer, buffer.Length, sender, MyMultiplayer.WorldDownloadChannel, 1150 * 12);
+            MyMultipartSender msgSender = new MyMultipartSender(buffer, buffer.Length, sender, MyMultiplayer.WorldDownloadChannel, 1150);
             m_worldSenders[sender] = msgSender;
 
             ProfilerShort.End();
@@ -471,7 +491,21 @@ namespace Sandbox.Engine.Multiplayer
 
         protected abstract void OnClientKick(ref MyControlKickClientMsg data, ulong sender);
         protected abstract void OnClientBan(ref MyControlBanClientMsg data, ulong sender);
-        protected abstract void OnPing(ref MyControlPingMsg data, ulong sender);
+
+        protected void OnProfilerRequest(ref MyControlProfilerMsg data, ulong sender)
+        {
+            if (IsServer && !m_profilerSenders.ContainsKey(sender))
+            {
+                MemoryStream profilerStream = new MemoryStream();
+
+                MyObjectBuilder_Profiler profilerData = MyObjectBuilder_Profiler.GetObjectBuilder(VRage.Profiler.MyRenderProfiler.GetProfilerAtIndex(data.index));
+                MyObjectBuilderSerializer.SerializeXML(profilerStream, profilerData, MyObjectBuilderSerializer.XmlCompression.Gzip);
+                SyncLayer.TransportLayer.SendFlush(sender);
+                var buffer = profilerStream.ToArray();
+                MyMultipartSender msgSender = new MyMultipartSender(buffer, buffer.Length, sender, MyMultiplayer.ProfilerDownloadChannel);
+                m_profilerSenders[sender] = msgSender;
+            }
+        }
 
         protected virtual void OnChatMessage(ref ChatMsg msg)
         {
@@ -499,6 +533,12 @@ namespace Sandbox.Engine.Multiplayer
             return null;
         }
 
+        public virtual void DownloadProfiler(int index)
+        {
+            return;
+        }
+
+        public abstract void DisconnectClient(ulong userId);
         public abstract void KickClient(ulong userId);
         public abstract void BanClient(ulong userId, bool banned);
 
@@ -592,13 +632,6 @@ namespace Sandbox.Engine.Multiplayer
         {
             FrameCounter++;
 
-            ProfilerShort.Begin("SendSimulationInfo");
-            if (MyFakes.ENABLE_MULTIPLAYER_CONSTRAINT_COMPENSATION && IsServer)
-            {
-                SendSimulationInfo();
-            }
-            ProfilerShort.End();
-
             ProfilerShort.Begin("SendElapsedGameTime");
             if (IsServer && (MySession.Static.ElapsedGameTime - m_lastSentTimeTimestamp).Seconds > 30)
             {
@@ -628,8 +661,8 @@ namespace Sandbox.Engine.Multiplayer
             }
             ProfilerShort.End();
             
-            ProfilerShort.Begin("ReplicationLayer.Update");
-            ReplicationLayer.Update();
+            ProfilerShort.Begin("ReplicationLayer.SendUpdate");
+            ReplicationLayer.SendUpdate();
             ProfilerShort.End();
             
             // TODO: Remove
@@ -638,14 +671,45 @@ namespace Sandbox.Engine.Multiplayer
             //    SendServerPhysicsUpdate();
             //}
 
+            SendWorlds();
+            SendProfilers();
+
             ProfilerShort.Begin("TransportLayer.Tick");
             Sync.Layer.TransportLayer.Tick();
             ProfilerShort.End();
 
             ProfilerShort.Begin("Trace, NetProfiler.Commit");
-            VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Multiplayer, "============ Frame end ============");
+            //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Multiplayer, "============ Frame end ============");
             NetProfiler.Commit();
             ProfilerShort.End();
+        }
+
+        private void SendWorlds()
+        {
+            foreach (var sender in m_worldSenders)
+            {
+                if (sender.Value.SendWhole())
+                    m_worldSendersToRemove.Add(sender.Key);
+            }
+            foreach (var sender in m_worldSendersToRemove)
+            {
+                m_worldSenders.Remove(sender);
+            }
+            m_worldSendersToRemove.Clear();
+        }
+
+        private void SendProfilers()
+        {
+            foreach (var sender in m_profilerSenders)
+            {
+                if (sender.Value.SendWhole())
+                    m_profilerSendersToRemove.Add(sender.Key);
+            }
+            foreach (var sender in m_profilerSendersToRemove)
+            {
+                m_profilerSenders.Remove(sender);
+            }
+            m_profilerSendersToRemove.Clear();
         }
 
         public abstract void SendChatMessage(string text);
@@ -726,6 +790,7 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public abstract ulong GetOwner();
+        [Obsolete("Use MySession.IsUserAdmin")]
         public abstract bool IsAdmin(ulong steamID);
         public abstract void SetOwner(ulong owner);
 
@@ -792,29 +857,7 @@ namespace Sandbox.Engine.Multiplayer
         {
             return Activator.CreateInstance(MyPerGameSettings.ClientStateType) as MyClientState;
         }
-
-        public static void SendSimulationInfo()
-        {
-            Debug.Assert(Sync.IsServer, "Only server should send simulation ratio");
-
-            ProfilerShort.Begin("GetSimSpeed");
-            Half simulationSpeed = Sandbox.Engine.Physics.MyPhysics.SimulationRatio;
-            ProfilerShort.End();
-            ProfilerShort.Begin("SendSimSpeed");
-            MyMultiplayer.RaiseStaticEvent(s => MyMultiplayerBase.OnSimulationInfo, simulationSpeed);
-            ProfilerShort.End();
-        }
-
-        [Event, Broadcast]
-        static void OnSimulationInfo(Half simulationSpeed)
-        {
-            Sync.ServerSimulationRatio = simulationSpeed;
-           /* if (MyPerGameSettings.EnableGlobalGravity)
-            {
-                Sandbox.Engine.Physics.MyPhysics.UpdateGravity(Sync.RelativeSimulationRatio);
-            }*/
-        }
-
+      
         public static void SendElapsedGameTime()
         {
             Debug.Assert(Sync.IsServer, "Only server can send time info");

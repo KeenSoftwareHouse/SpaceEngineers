@@ -115,7 +115,8 @@ namespace Sandbox.Game.World
             where EventDataType : MyGlobalEventBase, new()
         {
             var eventDefinition = MyDefinitionManager.Static.GetEventDefinition(id);
-
+            if (eventDefinition == null)
+                return null;
             Type eventDataType = typeof(EventDataType);
 
             EventDataType globalEvent = new EventDataType();
@@ -126,6 +127,8 @@ namespace Sandbox.Game.World
         public static MyGlobalEventBase CreateEvent(MyDefinitionId id)
         {
             var eventDefinition = MyDefinitionManager.Static.GetEventDefinition(id);
+            if (eventDefinition == null)
+                return null;
 
             MyGlobalEventBase globalEvent = m_globalEventFactory.CreateInstance(id.TypeId);
             if (globalEvent == null)

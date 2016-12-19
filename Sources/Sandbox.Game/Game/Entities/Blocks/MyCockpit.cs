@@ -701,6 +701,13 @@ namespace Sandbox.Game.Entities
             // by that point if this cockpit was added as a result of grid merging, deserialization, etc...
             if (m_savedPilot != null)
                 NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+
+            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, -1, "CockpitScreen_01", false, null, null);
+            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, -1, "CockpitScreen_02", false, null, null);
+            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, -1, "CockpitScreen_03", false, null, null);
+            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, -1, "CockpitScreen_04", false, null, null);
+            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, -1, "CockpitScreen_05", false, null, null);
+            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, -1, "CockpitScreen_06", false, null, null);
         }
 
         protected override void OnControlReleased(MyEntityController controller)
@@ -837,7 +844,7 @@ namespace Sandbox.Game.Entities
                 {
                     m_pilot.Physics.LinearVelocity = Parent.Physics.LinearVelocity;
 
-                    if (Parent.Physics.LinearVelocity.LengthSquared() > 100 * Sync.RelativeSimulationRatio)
+                    if (Parent.Physics.LinearVelocity.LengthSquared() > 100)
                     {
                         var jetpack = m_pilot.JetpackComp;
                         if (jetpack != null)
@@ -915,19 +922,12 @@ namespace Sandbox.Game.Entities
         }
 
 
-        protected override void WorldPositionChanged(object source)
-        {
-            base.WorldPositionChanged(source);
-            UpdateCockpitGlass();
-        }
-
         public void OnReleaseControl(IMyCameraController newCameraController)
         {
             UpdateNearFlag();
             if (m_enableFirstPerson)
             {
                 UpdateCockpitModel();
-                UpdateCockpitGlass();
             }
         }
 
@@ -958,7 +958,6 @@ namespace Sandbox.Game.Entities
             if (m_enableFirstPerson)
             {
                 UpdateCockpitModel();
-                UpdateCockpitGlass();
             }
         }
 
@@ -980,8 +979,6 @@ namespace Sandbox.Game.Entities
             {
                 VRageRender.MyRenderProxy.ChangeModel(Render.RenderObjectIDs[0], string.IsNullOrEmpty(m_cockpitInteriorModel) ? BlockDefinition.Model : m_cockpitInteriorModel);
                 VRageRender.MyRenderProxy.ChangeModel(Render.RenderObjectIDs[0], BlockDefinition.Model);
-                if (!string.IsNullOrEmpty(m_cockpitGlassModel))
-                    VRageRender.MyRenderProxy.UpdateCockpitGlass(false, m_cockpitGlassModel, PositionComp.WorldMatrix, GlassDirt);
             }
         }
 
@@ -1205,22 +1202,6 @@ namespace Sandbox.Game.Entities
         {
             new MyDefinitionId(typeof(MyObjectBuilder_CubePlacer))
         };
-
-        internal void UpdateCockpitGlass()
-        {
-            if (string.IsNullOrEmpty(m_cockpitGlassModel))
-                return;
-            if (m_lastNearFlag != Render.NearFlag)
-            {
-                m_lastNearFlag = Render.NearFlag;
-
-                if (!Render.NearFlag)
-                    VRageRender.MyRenderProxy.UpdateCockpitGlass(false, m_cockpitGlassModel, WorldMatrix, GlassDirt);
-            }
-
-            if (Render.NearFlag)
-                VRageRender.MyRenderProxy.UpdateCockpitGlass(true, m_cockpitGlassModel, WorldMatrix, GlassDirt);
-        }
 
         public void AddShake(float shakePower)
         {

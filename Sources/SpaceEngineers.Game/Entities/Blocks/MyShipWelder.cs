@@ -369,8 +369,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
             MyLight light = MyLights.AddLight();
             light.Start(MyLight.LightTypeEnum.PointLight, Vector3.Zero, new Vector4(1.0f, 0.8f, 0.6f, 1.0f), 2.0f, 10.0f);
             light.GlareMaterial = "GlareWelder";
-            light.GlareOn = true;
-            light.GlareQuerySize = 1;
+            light.GlareOn = light.LightOn;
+            light.GlareQuerySize = 0.4f;
             light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
             return light;
         }

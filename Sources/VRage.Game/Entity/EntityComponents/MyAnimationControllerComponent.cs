@@ -36,6 +36,8 @@ namespace VRage.Game.Components
         // Callback informing that we need to reload bones.
         public Action ReloadBonesNeeded;
 
+        public event Action<MyStringId> ActionTriggered;
+
         // ------------------------------------------------------------------------
 
         /// <summary>
@@ -238,6 +240,9 @@ namespace VRage.Game.Components
                     m_currentFrameActions.Add(actionName);
 #endif
                     Controller.TriggerAction(actionName);
+
+                    if(ActionTriggered != null)
+                        ActionTriggered(actionName);
                 }
             }
         }

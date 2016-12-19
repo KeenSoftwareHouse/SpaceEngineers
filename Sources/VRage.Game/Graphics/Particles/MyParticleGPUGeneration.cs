@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
@@ -23,26 +22,37 @@ namespace VRage.Game
     {
         #region Static
 
-        static int m_globalCounter;
-
         #endregion
 
         #region Members
 
-        static readonly int Version = 2;
-        string m_name;
+        private static readonly int m_version = 2;
+        private string m_name;
 
-        MyParticleEffect m_effect;
+        private MyParticleEffect m_effect;
 
-        FastResourceLock ParticlesLock = new FastResourceLock();
-        bool m_dirty;
-        bool m_animDirty;
-        bool m_positionDirty;
-        uint m_renderId = MyRenderProxy.RENDER_ID_UNASSIGNED;
+        private bool m_dirty;
+        private bool m_animDirty;
+        private bool m_positionDirty;
+        private uint m_renderId = MyRenderProxy.RENDER_ID_UNASSIGNED;
         private MyGPUEmitter m_emitter;
-        float m_currentParticlesPerSecond = 0;
+        private float m_currentParticlesPerSecond = 0;
 
-        
+        private enum MyRotationReference
+        {
+            Camera,
+            Local,
+            LocalAndCamera
+        }
+        private static readonly string[] m_myRotationReferenceStrings =
+        {
+            "Camera",            
+            "Local",           
+            "Local and camera"
+        };
+        private static readonly List<string> m_rotationReferenceStrings = m_myRotationReferenceStrings.ToList<string>();
+
+
         private enum MyGPUGenerationPropertiesEnum
         {
             ArraySize,
@@ -60,7 +70,7 @@ namespace VRage.Game
             Direction,
             Velocity,
             VelocityVar,
-            DirectionCone,
+            DirectionInnerCone,
             DirectionConeVar,
 
             Acceleration,
@@ -84,7 +94,6 @@ namespace VRage.Game
 
             OITWeightFactor,
 
-            Streaks,
             Collide,
             SleepState,
             Light,
@@ -98,10 +107,21 @@ namespace VRage.Game
             ColorVar,
             HueVar,
 
-            NumMembers,
+            RotationEnabled,
+            MotionInheritance,
+
+            LifeVar,
+
+            Streaks,
+            RotationReference,
+            Angle,
+            AngleVar,
+            Thickness,
+
+            NumMembers
         }
 
-        IMyConstProperty[] m_properties = new IMyConstProperty[(int) MyGPUGenerationPropertiesEnum.NumMembers];
+        private readonly IMyConstProperty[] m_properties = new IMyConstProperty[(int) MyGPUGenerationPropertiesEnum.NumMembers];
         
 
         /// <summary>
@@ -192,10 +212,10 @@ namespace VRage.Game
             private set { m_properties[(int)MyGPUGenerationPropertiesEnum.VelocityVar] = value; }
         }
 
-        public MyAnimatedPropertyFloat DirectionCone
+        public MyAnimatedPropertyFloat DirectionInnerCone
         {
-            get { return (MyAnimatedPropertyFloat)m_properties[(int)MyGPUGenerationPropertiesEnum.DirectionCone]; }
-            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.DirectionCone] = value; }
+            get { return (MyAnimatedPropertyFloat)m_properties[(int)MyGPUGenerationPropertiesEnum.DirectionInnerCone]; }
+            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.DirectionInnerCone] = value; }
         }
         public MyAnimatedPropertyFloat DirectionConeVar
         {
@@ -232,6 +252,12 @@ namespace VRage.Game
         {
             get { return (MyConstPropertyFloat)m_properties[(int)MyGPUGenerationPropertiesEnum.Life]; }
             private set { m_properties[(int)MyGPUGenerationPropertiesEnum.Life] = value; }
+        }
+
+        public MyConstPropertyFloat LifeVar
+        {
+            get { return (MyConstPropertyFloat)m_properties[(int)MyGPUGenerationPropertiesEnum.LifeVar]; }
+            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.LifeVar] = value; }
         }
 
         public MyConstPropertyFloat SoftParticleDistanceScale
@@ -276,6 +302,12 @@ namespace VRage.Game
             private set { m_properties[(int)MyGPUGenerationPropertiesEnum.Streaks] = value; }
         }
 
+        public MyConstPropertyBool RotationEnabled
+        {
+            get { return (MyConstPropertyBool)m_properties[(int)MyGPUGenerationPropertiesEnum.RotationEnabled]; }
+            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.RotationEnabled] = value; }
+        }
+
         public MyConstPropertyBool Collide
         {
             get { return (MyConstPropertyBool)m_properties[(int)MyGPUGenerationPropertiesEnum.Collide]; }
@@ -316,8 +348,38 @@ namespace VRage.Game
         {
             get { return (MyConstPropertyFloat)m_properties[(int)MyGPUGenerationPropertiesEnum.Gravity]; }
             private set { m_properties[(int)MyGPUGenerationPropertiesEnum.Gravity] = value; }
-        } 
-            
+        }
+
+        public MyConstPropertyFloat MotionInheritance
+        {
+            get { return (MyConstPropertyFloat)m_properties[(int)MyGPUGenerationPropertiesEnum.MotionInheritance]; }
+            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.MotionInheritance] = value; }
+        }
+
+        private MyRotationReference RotationReference
+        {
+            get { return (MyRotationReference)(int)((MyConstPropertyInt)m_properties[(int)MyGPUGenerationPropertiesEnum.RotationReference]); }
+            set { m_properties[(int)MyGPUGenerationPropertiesEnum.RotationReference].SetValue((int)value); }
+        }
+
+        public MyConstPropertyVector3 Angle
+        {
+            get { return (MyConstPropertyVector3)m_properties[(int)MyGPUGenerationPropertiesEnum.Angle]; }
+            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.Angle] = value; }
+        }
+
+        public MyConstPropertyVector3 AngleVar
+        {
+            get { return (MyConstPropertyVector3)m_properties[(int)MyGPUGenerationPropertiesEnum.AngleVar]; }
+            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.AngleVar] = value; }
+        }
+
+        public MyAnimatedProperty2DFloat Thickness
+        {
+            get { return (MyAnimatedProperty2DFloat)m_properties[(int)MyGPUGenerationPropertiesEnum.Thickness]; }
+            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.Thickness] = value; }
+        }
+
 
         //////////////////////////////
 
@@ -352,17 +414,19 @@ namespace VRage.Game
             AddProperty(MyGPUGenerationPropertiesEnum.Direction, new MyConstPropertyVector3("Direction"));
             AddProperty(MyGPUGenerationPropertiesEnum.Velocity, new MyAnimatedPropertyFloat("Velocity"));
             AddProperty(MyGPUGenerationPropertiesEnum.VelocityVar, new MyAnimatedPropertyFloat("Velocity var"));
-            AddProperty(MyGPUGenerationPropertiesEnum.DirectionCone, new MyAnimatedPropertyFloat("Direction cone"));
-            AddProperty(MyGPUGenerationPropertiesEnum.DirectionConeVar, new MyAnimatedPropertyFloat("Direction cone var"));
+            AddProperty(MyGPUGenerationPropertiesEnum.DirectionInnerCone, new MyAnimatedPropertyFloat("Direction inner cone"));
+            AddProperty(MyGPUGenerationPropertiesEnum.DirectionConeVar, new MyAnimatedPropertyFloat("Direction cone"));
 
             AddProperty(MyGPUGenerationPropertiesEnum.Acceleration, new MyConstPropertyVector3("Acceleration"));
 
             AddProperty(MyGPUGenerationPropertiesEnum.RotationVelocity, new MyConstPropertyFloat("Rotation velocity"));
             AddProperty(MyGPUGenerationPropertiesEnum.RotationVelocityVar, new MyConstPropertyFloat("Rotation velocity var"));
+            AddProperty(MyGPUGenerationPropertiesEnum.RotationEnabled, new MyConstPropertyBool("Rotation enabled"));
 
             AddProperty(MyGPUGenerationPropertiesEnum.Radius, new MyAnimatedProperty2DFloat("Radius"));
 
             AddProperty(MyGPUGenerationPropertiesEnum.Life, new MyConstPropertyFloat("Life"));
+            AddProperty(MyGPUGenerationPropertiesEnum.LifeVar, new MyConstPropertyFloat("Life var"));
 
             AddProperty(MyGPUGenerationPropertiesEnum.SoftParticleDistanceScale, new MyConstPropertyFloat("Soft particle distance scale"));
             
@@ -386,7 +450,13 @@ namespace VRage.Game
             AddProperty(MyGPUGenerationPropertiesEnum.VolumetricLight, new MyConstPropertyBool("VolumetricLight"));
 
             AddProperty(MyGPUGenerationPropertiesEnum.Gravity, new MyConstPropertyFloat("Gravity"));
+            AddProperty(MyGPUGenerationPropertiesEnum.MotionInheritance, new MyConstPropertyFloat("Motion inheritance"));
 
+            AddProperty(MyGPUGenerationPropertiesEnum.RotationReference, new MyConstPropertyEnum("Rotation reference", typeof(MyRotationReference), 
+                m_rotationReferenceStrings));
+            AddProperty(MyGPUGenerationPropertiesEnum.Angle, new MyConstPropertyVector3("Angle"));
+            AddProperty(MyGPUGenerationPropertiesEnum.AngleVar, new MyConstPropertyVector3("Angle var"));
+            AddProperty(MyGPUGenerationPropertiesEnum.Thickness, new MyAnimatedProperty2DFloat("Thickness"));
 
             InitDefault();
         }
@@ -465,7 +535,15 @@ namespace VRage.Game
             radiusAnim.AddKey(1, 0.1f);
             Radius.AddKey(0, radiusAnim);
 
+            var thicknessAnim = new MyAnimatedPropertyFloat();
+            thicknessAnim.AddKey(0, 1.0f);
+            thicknessAnim.AddKey(0.33f, 1.0f);
+            thicknessAnim.AddKey(0.66f, 1.0f);
+            thicknessAnim.AddKey(1, 1.0f);
+            Thickness.AddKey(0, thicknessAnim);
+
             Life.SetValue(1);
+            LifeVar.SetValue(0);
 
             StreakMultiplier.SetValue(4);
             AnimationFrameTime.SetValue(1);
@@ -474,7 +552,7 @@ namespace VRage.Game
 
             EmitterSize.AddKey(0, new Vector3(0.0f, 0.0f, 0.0f));
             EmitterSizeMin.AddKey(0, 0.0f);
-            DirectionCone.AddKey(0, 0.0f);
+            DirectionInnerCone.AddKey(0, 0.0f);
             DirectionConeVar.AddKey(0, 0.0f);
 
             Velocity.AddKey(0, 1.0f);
@@ -488,6 +566,9 @@ namespace VRage.Game
             ColorVar.SetValue(0);
             HueVar.SetValue(0);
 
+            RotationEnabled.SetValue(true);
+            MotionInheritance.SetValue(0);
+
             OITWeightFactor.SetValue(1f);
 
             TargetCoverage.SetValue(1f);
@@ -497,7 +578,7 @@ namespace VRage.Game
 
         #region Member properties
 
-        T AddProperty<T>(MyGPUGenerationPropertiesEnum e, T property) where T : IMyConstProperty
+        private T AddProperty<T>(MyGPUGenerationPropertiesEnum e, T property) where T : IMyConstProperty
         {
             System.Diagnostics.Debug.Assert(m_properties[(int)e] == null, "Property already assigned!");
 
@@ -531,7 +612,9 @@ namespace VRage.Game
         }
 
         private bool m_animatedTimeValues;
-        bool IsDirty
+        private float m_lastFramePPS;
+
+        private bool IsDirty
         {
             get
             {
@@ -562,13 +645,13 @@ namespace VRage.Game
             return MatrixD.CreateTranslation(pos * m_effect.GetEmitterScale()) * GetEffect().WorldMatrix;
         }
 
-        void FillDataComplete(ref MyGPUEmitter emitter)
+        private void FillDataComplete(ref MyGPUEmitter emitter)
         {
             float time;
 
             m_animatedTimeValues = Velocity.GetKeysCount() > 1 ||
                                    VelocityVar.GetKeysCount() > 1 ||
-                                   DirectionCone.GetKeysCount() > 1 ||
+                                   DirectionInnerCone.GetKeysCount() > 1 ||
                                    DirectionConeVar.GetKeysCount() > 1 ||
                                    EmitterSize.GetKeysCount() > 1 ||
                                    EmitterSizeMin.GetKeysCount() > 1;
@@ -579,9 +662,6 @@ namespace VRage.Game
             color.GetKey(1, out emitter.Data.ColorKey1, out emitter.Data.Color1);
             color.GetKey(2, out emitter.Data.ColorKey2, out emitter.Data.Color2);
             color.GetKey(3, out time, out emitter.Data.Color3);
-
-            m_currentParticlesPerSecond = GetParticlesPerSecond();
-            emitter.ParticlesPerSecond = m_show ? m_currentParticlesPerSecond : 0;
 
             // unmultiply colors and factor by intensity
             MyAnimatedPropertyFloat colorIntensity;
@@ -620,6 +700,13 @@ namespace VRage.Game
             emitter.Data.ParticleSize2 *= m_effect.UserRadiusMultiplier;
             emitter.Data.ParticleSize3 *= m_effect.UserRadiusMultiplier;
 
+            MyAnimatedPropertyFloat thickness;
+            Thickness.GetKey(0, out time, out thickness);
+            thickness.GetKey(0, out time, out emitter.Data.ParticleThickness0);
+            thickness.GetKey(1, out emitter.Data.ParticleThicknessKeys1, out emitter.Data.ParticleThickness1);
+            thickness.GetKey(2, out emitter.Data.ParticleThicknessKeys2, out emitter.Data.ParticleThickness2);
+            thickness.GetKey(3, out time, out emitter.Data.ParticleThickness3);
+
             emitter.Data.ColorVar = ColorVar;
             if (emitter.Data.ColorVar > 1.0f)
                 emitter.Data.ColorVar = 1.0f;
@@ -631,9 +718,12 @@ namespace VRage.Game
             else if (emitter.Data.HueVar < 0)
                 emitter.Data.HueVar = 0;
 
+            emitter.Data.MotionInheritance = MotionInheritance;
+
             emitter.Data.Bounciness = Bounciness;
 
             emitter.Data.ParticleLifeSpan = Life;
+            emitter.Data.ParticleLifeSpanVar = LifeVar;
 
             emitter.Data.Direction = Direction;
 
@@ -653,14 +743,25 @@ namespace VRage.Game
             emitter.AtlasFrameModulo = ArrayModulo;
 
             GPUEmitterFlags flags = 0;
-
-            flags |= Streaks ? GPUEmitterFlags.Streaks : 0;
+            switch (RotationReference)
+            {
+                case MyRotationReference.Local:
+                    flags |= GPUEmitterFlags.LocalRotation;
+                    break;
+                case MyRotationReference.LocalAndCamera:
+                    flags |= GPUEmitterFlags.LocalAndCameraRotation;
+                    break;
+                default:
+                    flags |= Streaks ? GPUEmitterFlags.Streaks : 0;
+                    break;
+            }
             flags |= Collide ? GPUEmitterFlags.Collide : 0;
             flags |= SleepState ? GPUEmitterFlags.SleepState : 0;
             flags |= Light ? GPUEmitterFlags.Light : 0;
             flags |= VolumetricLight ? GPUEmitterFlags.VolumetricLight : 0;
             flags |= m_effect.IsSimulationPaused || MyParticlesManager.Paused ? GPUEmitterFlags.FreezeSimulate : 0;
             flags |= MyParticlesManager.Paused ? GPUEmitterFlags.FreezeEmit : 0;
+            flags |= RotationEnabled ? GPUEmitterFlags.RandomRotationEnabled : 0;
 
             emitter.Data.Flags = flags;
 
@@ -669,23 +770,42 @@ namespace VRage.Game
             FillData(ref emitter);
         }
 
-        void FillData(ref MyGPUEmitter emitter)
+        private void FillData(ref MyGPUEmitter emitter)
         {
             MatrixD mat = CalculateWorldMatrix();
             emitter.Data.RotationMatrix = mat;
             emitter.WorldPosition = mat.Translation;
             emitter.Data.Scale = m_effect.GetEmitterScale();
             emitter.Data.Gravity = m_effect.Gravity * Gravity;
+            Vector3 angle = Angle;
+            Vector3 angleVar = AngleVar;
+            if (angleVar.LengthSquared() > 0)
+            {
+                angle = new Vector3(
+                    MyUtils.GetRandomFloat(angle.X - angleVar.X, angle.X + angleVar.X),
+                    MyUtils.GetRandomFloat(angle.Y - angleVar.Y, angle.Y + angleVar.Y),
+                    MyUtils.GetRandomFloat(angle.Z - angleVar.Z, angle.Z + angleVar.Z));
+            }
+            Matrix rot;
+            if (angle.LengthSquared() > 0)
+            {
+                rot = Matrix.CreateFromAxisAngle(mat.Right, MathHelper.ToRadians(angle.X)) *
+                      Matrix.CreateFromAxisAngle(mat.Up, MathHelper.ToRadians(angle.Y)) *
+                      Matrix.CreateFromAxisAngle(mat.Forward, MathHelper.ToRadians(angle.Z));
+            }
+            else rot = mat;
+            emitter.Data.ParticleRotationRow0 = rot.Right;
+            emitter.Data.ParticleRotationRow1 = rot.Up;
+            emitter.Data.ParticleRotationRow2 = rot.Backward;
 
-
-            emitter.ParticlesPerSecond = GetParticlesPerSecond();
+            emitter.ParticlesPerSecond = m_currentParticlesPerSecond = GetParticlesPerSecond();
             
 
             Velocity.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.Velocity);
             VelocityVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.VelocityVar);
             float cone;
-            DirectionCone.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out cone);
-            emitter.Data.DirectionCone = MathHelper.ToRadians(cone);
+            DirectionInnerCone.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out cone);
+            emitter.Data.DirectionInnerCone = cone;// MathHelper.ToRadians(cone);
             DirectionConeVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out cone);
             emitter.Data.DirectionConeVar = MathHelper.ToRadians(cone);
 
@@ -697,7 +817,7 @@ namespace VRage.Game
         {
             float particlesPerSecond;
 
-            if ((Enabled.GetValue<bool>() || (m_show && m_effect.ShowOnlyThisGeneration >= 0)) && !m_effect.IsEmittingStopped)
+            if (Enabled.GetValue<bool>() && m_show && !m_effect.IsEmittingStopped)
             {
                 ParticlesPerSecond.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out particlesPerSecond);
                 particlesPerSecond *= m_effect.UserBirthMultiplier;
@@ -719,6 +839,11 @@ namespace VRage.Game
 
         public void Clear()
         {
+            if (m_renderId != MyRenderProxy.RENDER_ID_UNASSIGNED)
+            {
+                MyRenderProxy.RemoveGPUEmitter(m_renderId, true);
+                m_renderId = MyRenderProxy.RENDER_ID_UNASSIGNED;
+            }
         }
 
         public void Deallocate()
@@ -825,7 +950,7 @@ namespace VRage.Game
         {
             writer.WriteStartElement("ParticleGeneration");
             writer.WriteAttributeString("Name", Name);
-            writer.WriteAttributeString("Version", Version.ToString(CultureInfo.InvariantCulture));
+            writer.WriteAttributeString("Version", m_version.ToString(CultureInfo.InvariantCulture));
             writer.WriteElementString("GenerationType", "GPU");
 
             writer.WriteStartElement("Properties");
@@ -866,9 +991,9 @@ namespace VRage.Game
                     }
                 }
             }
-            Debug.WriteLine("ParticlesPerSecond {0}, Velocity {1}", 
-                  ParticlesPerSecond.GetKeysCount(),
-                      Velocity.GetKeysCount());
+            //Debug.WriteLine("ParticlesPerSecond {0}, Velocity {1}", 
+            //      ParticlesPerSecond.GetKeysCount(),
+            //          Velocity.GetKeysCount());
         }
 
         public void Deserialize(XmlReader reader)
@@ -894,9 +1019,7 @@ namespace VRage.Game
 
         #region Draw
 
-        public bool NeedSorting() { return false; }
-
-        public void PrepareForDraw(ref VRageRender.MyBillboard effectBillboard)
+        public void PrepareForDraw()
         {
         }
 
@@ -904,13 +1027,18 @@ namespace VRage.Game
         {
             VRage.Profiler.ProfilerShort.Begin("GPU_Draw");
             if (m_renderId == MyRenderProxy.RENDER_ID_UNASSIGNED)
+            {
+                ProfilerShort.Begin("GPU_Create");
                 m_renderId = MyRenderProxy.CreateGPUEmitter();
-            
+                ProfilerShort.End();
+            }
+
             if (IsDirty)
             {
                 ProfilerShort.Begin("GPU_FillDataComplete");
                 m_emitter = new MyGPUEmitter();
                 FillDataComplete(ref m_emitter);
+                m_lastFramePPS = m_emitter.ParticlesPerSecond;
                 MyParticlesManager.GPUEmitters.Add(m_emitter);
                 ProfilerShort.End();
                 m_dirty = m_animDirty = m_positionDirty = false;
@@ -919,6 +1047,7 @@ namespace VRage.Game
             {
                 ProfilerShort.Begin("GPU_FillData");
                 FillData(ref m_emitter);
+                m_lastFramePPS = m_emitter.ParticlesPerSecond;
                 MyParticlesManager.GPUEmitters.Add(m_emitter);
                 ProfilerShort.End();
                 m_animDirty = false;
@@ -926,13 +1055,15 @@ namespace VRage.Game
             else if (IsPositionDirty)
             {
                 ProfilerShort.Begin("GPU_FillPosition");
+                var pps = GetParticlesPerSecond();
+                m_lastFramePPS = pps;
                 var transform = new MyGPUEmitterTransformUpdate()
                 {
                     GID = m_renderId,
                     Transform = CalculateWorldMatrix(),
                     Scale = m_effect.GetEmitterScale(),
                     Gravity = m_effect.Gravity * Gravity,
-                    ParticlesPerSecond = GetParticlesPerSecond()
+                    ParticlesPerSecond = pps
                 };
                 MyParticlesManager.GPUEmitterTransforms.Add(transform);
                 ProfilerShort.End();
@@ -942,11 +1073,16 @@ namespace VRage.Game
             else if (ParticlesPerSecond.GetKeysCount() > 1)
             {
                 ProfilerShort.Begin("GPU_FillLight");
-                MyParticlesManager.GPUEmittersLight.Add(new MyGPUEmitterLight()
+                var pps = GetParticlesPerSecond();
+                if (Math.Abs(m_lastFramePPS - pps) > 0.5f)
                 {
-                    GID = m_renderId,
-                    ParticlesPerSecond = GetParticlesPerSecond()
-                });
+                    m_lastFramePPS = pps;
+                    MyParticlesManager.GPUEmittersLight.Add(new MyGPUEmitterLight()
+                    {
+                        GID = m_renderId,
+                        ParticlesPerSecond = pps
+                    });
+                }
                 ProfilerShort.End();
             }
             ProfilerShort.End();

@@ -146,8 +146,8 @@ namespace Sandbox.Game.Gui
                 }
                 case MyHudObjectHighlightStyle.OutlineHighlight:
                 {
-                    int[] sectionIndices = selection.SectionIndices;
-                    if (sectionIndices != null && selection.SectionIndices.Length == 0
+                    string[] sectionNames = selection.SectionNames;
+                    if (sectionNames != null && selection.SectionNames.Length == 0
                         && selection.SubpartIndices == null)
                     {
                         // There was a problem with sections look-up, fallback to previous highlight style
@@ -183,8 +183,10 @@ namespace Sandbox.Game.Gui
             {
                 case MyHudObjectHighlightStyle.OutlineHighlight:
                 {
-                    if (!MySession.Static.GetComponent<MyHighlightSystem>().IsReserved(status.Instance.Owner.EntityId))
-                        MyRenderProxy.UpdateModelHighlight((uint)status.Instance.RenderObjectID, null, status.SubpartIndices, null, -1, 0, status.Instance.InstanceID);
+                    if (MySession.Static.GetComponent<MyHighlightSystem>() != null && 
+					    !MySession.Static.GetComponent<MyHighlightSystem>().IsReserved(status.Instance.Owner.EntityId))
+                        if (status.Instance.RenderObjectID != -1)
+                            MyRenderProxy.UpdateModelHighlight((uint)status.Instance.RenderObjectID, null, status.SubpartIndices, null, -1, 0, status.Instance.InstanceID);
                     break;
                 }
             }
@@ -209,7 +211,7 @@ namespace Sandbox.Game.Gui
         {
             bool retval = base.Draw();
 
-            if (MySandboxGame.Config.ShowCrosshair && !MyHud.MinimalHud)
+            if (MySandboxGame.Config.ShowCrosshair && !MyHud.MinimalHud && !MyHud.CutsceneHud)
             {
                 MyHud.Crosshair.Draw(m_atlas, m_atlasCoords);
             }
@@ -222,8 +224,8 @@ namespace Sandbox.Game.Gui
             Color color = MySector.EnvironmentDefinition.ContourHighlightColor;
             float thickness = MySector.EnvironmentDefinition.ContourHighlightThickness;
             ulong pulseTimeInFrames = (ulong)Math.Round(MySector.EnvironmentDefinition.HighlightPulseInSeconds * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
-            if (!MySession.Static.GetComponent<MyHighlightSystem>().IsReserved(selection.InteractiveObject.Owner.EntityId))
-                MyRenderProxy.UpdateModelHighlight((uint)selection.InteractiveObject.RenderObjectID, selection.SectionIndices, selection.SubpartIndices, color, thickness, pulseTimeInFrames, selection.InteractiveObject.InstanceID);
+            if (MySession.Static.GetComponent<MyHighlightSystem>() != null && !MySession.Static.GetComponent<MyHighlightSystem>().IsReserved(selection.InteractiveObject.Owner.EntityId))
+                MyRenderProxy.UpdateModelHighlight((uint)selection.InteractiveObject.RenderObjectID, selection.SectionNames, selection.SubpartIndices, color, thickness, pulseTimeInFrames, selection.InteractiveObject.InstanceID);
         }
 
         public static void DrawSelectedObjectHighlightDummy(MyHudSelectedObject selection, string atlasTexture, MyAtlasTextureCoordinate textureCoord)

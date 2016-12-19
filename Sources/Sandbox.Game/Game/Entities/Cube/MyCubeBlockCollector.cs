@@ -48,6 +48,9 @@ namespace Sandbox.Game.Entities.Cube
 
         HashSet<Vector3I> m_tmpCheck;
 
+        // Cubes with physics disabled due to prediction.
+        internal Dictionary<MySlimBlock, int> DisabledBlocks;
+
         public void Dispose()
         {
             Clear();
@@ -135,6 +138,8 @@ namespace Sandbox.Game.Entities.Cube
                 var block = grid.GetCubeBlock(pos);
                 if (block != null)
                 {
+                    if (DisabledBlocks != null && DisabledBlocks.ContainsKey(block))
+                        continue;
                     m_tmpRefreshSet.Add(block);
                 }
             }
@@ -302,6 +307,9 @@ namespace Sandbox.Game.Entities.Cube
             if (!block.HasPhysics || block.CubeGrid == null)
                 return;
 
+            if (DisabledBlocks != null && DisabledBlocks.ContainsKey(block))
+                return;
+
             if (massResults != null)
                 AddMass(block, massResults);
 
@@ -333,6 +341,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (physicsOption != MyPhysicsOption.None)
                 {
+                    ProfilerShort.Begin("BlockShape");
                     HkShape[] havokShapes = null;
                     if (block.FatBlock != null)
                     {
@@ -380,10 +389,10 @@ namespace Sandbox.Game.Entities.Cube
                             }
                             else
 
-                            for (int i = 0; i < shapes.Length; i++)
-                            {
-                                Shapes.Add(new HkConvexTransformShape((HkConvexShape)shapes[i], ref blockPos, ref blockOrientation, ref scale, HkReferencePolicy.None));
-                            }
+                                for (int i = 0; i < shapes.Length; i++)
+                                {
+                                    Shapes.Add(new HkConvexTransformShape((HkConvexShape)shapes[i], ref blockPos, ref blockOrientation, ref scale, HkReferencePolicy.None));
+                                }
                         ShapeInfos.Add(new ShapeInfo() { Count = shapes.Length, Min = block.Min, Max = block.Max });
                     }
                     else
@@ -417,6 +426,7 @@ namespace Sandbox.Game.Entities.Cube
                             }
                         }
                     }
+                    ProfilerShort.End();
                 }
             }
         }
@@ -442,20 +452,6 @@ namespace Sandbox.Game.Entities.Cube
             massResults[block.Position] = new HkMassElement() { Properties = massProperties, Tranform = Matrix.CreateTranslation(center) };
         }
 
-        Vector3 GetPointPos(Vector3 point, MySlimBlock block, bool applySkeleton, ref MyBlockOrientation blockOrientation)
-        {
-            Vector3 pos = Vector3.TransformNormal(point, blockOrientation);
-            if (applySkeleton)
-            {
-                pos = pos * block.CubeGrid.GridSizeHalf + block.CubeGrid.Skeleton.GetBone(block.Min, Vector3I.Round(pos) + 1);
-            }
-            else
-            {
-                pos *= block.CubeGrid.GridSizeHalf;
-            }
-            return pos + block.Min * block.CubeGrid.GridSize;
-        }
-
         void AddConvexShape(MySlimBlock block, bool applySkeleton)
         {
             ProfilerShort.Begin("AddConvexShape");
@@ -463,394 +459,20 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(block.BlockDefinition.BlockTopology == MyBlockTopology.Cube, "Convex shape is available only for cube block");
             Debug.Assert(block.BlockDefinition.CubeDefinition != null, "No cube definition! Only armor can be convex");
             m_tmpHelperVerts.Clear();
-            MyBlockOrientation blockOrientation = block.Orientation;
-            //.GetMatrix(out blockOrientation);
 
-            switch (block.BlockDefinition.CubeDefinition.CubeTopology)
+            var blockPos = block.Min * block.CubeGrid.GridSize;
+            var bonePos = block.Min * MyGridSkeleton.BoneDensity + 1;
+            var skeleton = block.CubeGrid.Skeleton;
+            Vector3 pointBone;
+            foreach (var point in MyBlockVerticesCache.GetBlockVertices(block.BlockDefinition.CubeDefinition.CubeTopology, block.Orientation))
             {
-                case MyCubeTopology.Slope:
-                case MyCubeTopology.RotatedSlope:
-                    // Main 6 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 9 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-                case MyCubeTopology.RoundSlope:
-                    // Main 6 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    //Slope points
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1f, 0.414f, 0.414f), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1f, 0.414f, 0.414f), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 9 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-                case MyCubeTopology.Corner:
-                case MyCubeTopology.RotatedCorner:
-                    // Main 4 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Inner bones (bottom)
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                        // Inner bones (middle)
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-                case MyCubeTopology.RoundCorner:
-                    // Main 4 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-
-                    //Slope points
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-0.414f, 0.414f, -1f), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-0.414f, -1f, 0.414f), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1f, 0.414f, 0.414f), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Inner bones (bottom)
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                        // Inner bones (middle)
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-
-                case MyCubeTopology.InvCorner:
-                    // Main 7 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 16 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-                case MyCubeTopology.RoundInvCorner:
-                    // Main 7 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    //Slope points
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(0.414f, -0.414f, -1f), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(0.414f, -1f, -0.414f), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1f, -0.414f, -0.414f), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 16 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-
-                case MyCubeTopology.Box:
-                case MyCubeTopology.RoundedSlope:
-                    // Main 8 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 19 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-
-                case MyCubeTopology.Slope2Base:
-                    // Main 8 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 19 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0.5f, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0.5f, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0.5f, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-
-                case MyCubeTopology.Slope2Tip:
-                    // Main 6 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 9 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -0.5f, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -0.5f, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -0.5f, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-                case MyCubeTopology.Corner2Base:
-                    // Main 6 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 9 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0.5f, -0.5f, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -0.5f, -0.5f), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-                case MyCubeTopology.Corner2Tip:
-                    // Main 4 corners
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Inner bones (bottom)
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0.5f, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                        // Inner bones (middle)
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -0.5f, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0.5f, -0.5f, -1), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-                case MyCubeTopology.InvCorner2Base:
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 16 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-
-                    break;
-                case MyCubeTopology.InvCorner2Tip:
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    //m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, -1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 1), block, applySkeleton, ref blockOrientation));
-                    m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, -1), block, applySkeleton, ref blockOrientation));
-
-                    if (ADD_INNER_BONES_TO_CONVEX)
-                    {
-                        // Other 16 bones
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(-1, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, -1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, -1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(0, 1, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 0), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 0, 1), block, applySkeleton, ref blockOrientation));
-                        m_tmpHelperVerts.Add(GetPointPos(new Vector3(1, 1, 0), block, applySkeleton, ref blockOrientation));
-                    }
-                    break;
-
-                    break;
-                default:
-                    Debug.Fail("Unknown topology");
-                    return;
+                var pointBonePos = bonePos + Vector3I.Round(point);
+                var vert = point * block.CubeGrid.GridSizeHalf;
+                if (skeleton.TryGetBone(ref pointBonePos, out pointBone))
+                    vert.Add(pointBone);
+                m_tmpHelperVerts.Add(vert + blockPos);
             }
+
             ProfilerShort.BeginNextBlock("BakeConvex");
             Shapes.Add(new HkConvexVerticesShape(m_tmpHelperVerts.GetInternalArray(), m_tmpHelperVerts.Count, SHRINK_CONVEX_SHAPE, MyPerGameSettings.PhysicsConvexRadius));
             ShapeInfos.Add(new ShapeInfo() { Count = 1, Min = block.Min, Max = block.Max });

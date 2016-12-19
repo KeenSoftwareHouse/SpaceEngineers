@@ -49,12 +49,10 @@ namespace Sandbox.Game.Screens.Helpers
                 MyCubeBuilder.Static.Activate(((MyCubeBlockDefinition)Definition).Id);
             }
             else
-            { }
-
             if (MyCubeBuilder.SpectatorIsBuilding)
             {
                 MyCubeBuilder.Static.Activate(((MyCubeBlockDefinition)Definition).Id);
-                }
+            }
             return true;
         }
 
@@ -84,7 +82,7 @@ namespace Sandbox.Game.Screens.Helpers
                 return changed;
             var blockDefinition = MyCubeBuilder.Static.IsActivated ? MyCubeBuilder.Static.ToolbarBlockDefinition : null;
             var blockDef = (this.Definition as Sandbox.Definitions.MyCubeBlockDefinition);
-            if ((MyCubeBuilder.Static.IsActivated /*|| MyCubeBuilder.Static.MultiBlockCreationIsActivated*/) && blockDefinition != null && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
+            if ((MyCubeBuilder.Static.IsActivated /*|| MyCubeBuilder.Static.MultiBlockCreationIsActivated*/) && blockDefinition != null)
             {
                 if (blockDefinition.BlockPairName == blockDef.BlockPairName)
                 {

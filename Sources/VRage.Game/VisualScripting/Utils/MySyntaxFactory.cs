@@ -756,7 +756,7 @@ namespace VRage.Game.VisualScripting.Utils
         public static LocalDeclarationStatementSyntax LocalVariable(string typeData, string variableName, ExpressionSyntax initializer = null)
         {
             var typeDeclaration = SyntaxFactory.VariableDeclaration(
-                    SyntaxFactory.IdentifierName(typeData)
+                SyntaxFactory.IdentifierName(typeData.Length > 0 ? typeData : "var")
                 );
 
             var variableDeclaration = SyntaxFactory.VariableDeclarator(

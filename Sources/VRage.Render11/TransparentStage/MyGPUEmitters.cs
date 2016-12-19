@@ -276,11 +276,10 @@ namespace VRageRender
 
             // sort emitters!
             List<MyLiveData> emitters = m_emitters.Values.ToList();
-            //if (emitters.Count > MAX_LIVE_EMITTERS)
+            if (emitters.Count > MAX_LIVE_EMITTERS)
                 emitters.Sort();
 
             int maxEmitterIndex = -1;
-            uint textureIndex = 0;
             int unassociatedCount = 0;
             int skipCount = 0;
             int unsortedCount = 0;
@@ -325,12 +324,8 @@ namespace VRageRender
                         emitter.ParticlesEmittedFraction = toEmit - emitter.GPUEmitter.Data.NumParticlesToEmitThisFrame;
                     }
 
-                    if (string.IsNullOrEmpty(emitter.GPUEmitter.AtlasTexture))
-                    {
-                        MyRenderProxy.Assert(m_textureArrayIndices.ContainsKey(emitter.GPUEmitter.AtlasTexture));
-                        textureIndex = m_textureArrayIndices[emitter.GPUEmitter.AtlasTexture].Index;
-                    }
-                    else textureIndex = 0;
+                    var textureIndex = m_textureArrayIndices.ContainsKey(emitter.GPUEmitter.AtlasTexture) ? 
+                        m_textureArrayIndices[emitter.GPUEmitter.AtlasTexture].Index : 0;
 
                     int bufferIndex = emitter.BufferIndex;
                     data[bufferIndex] = emitter.GPUEmitter.Data;
@@ -338,7 +333,7 @@ namespace VRageRender
                     data[bufferIndex].RotationMatrix.M14 = pos.X;
                     data[bufferIndex].RotationMatrix.M24 = pos.Y;
                     data[bufferIndex].RotationMatrix.M34 = pos.Z;
-                    data[bufferIndex].PositionDelta = emitter.LastWorldPosition - emitter.GPUEmitter.WorldPosition;
+                    data[bufferIndex].PositionDelta = emitter.GPUEmitter.WorldPosition - emitter.LastWorldPosition;
                     data[bufferIndex].TextureIndex1 |= textureIndex << (ATLAS_INDEX_BITS + ATLAS_DIMENSION_BITS * 2);
 
                     if (bufferIndex > maxEmitterIndex)

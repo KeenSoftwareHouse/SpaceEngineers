@@ -366,7 +366,7 @@ namespace Sandbox.Game
                 {
                     MyProjectiles.AddShrapnel(
                         SHRAPNEL_DATA,
-                        (m_explosionInfo.HitEntity is MyWarhead) ? m_explosionInfo.HitEntity : null, // do not play bullet sound when coming from warheads
+                        (m_explosionInfo.HitEntity is MyWarhead) ? new[] { m_explosionInfo.HitEntity } : null, // do not play bullet sound when coming from warheads, // MZ unfortunatelly this is the place where we need to allocate array of ignored entities (and the array is necessary)
                         m_explosionSphere.Center,
                         Vector3.Zero,
                         MyUtils.GetRandomVector3Normalized(),
@@ -601,7 +601,8 @@ namespace Sandbox.Game
             }
         }
 
-        private static HashSet<MyVoxelBase> m_VoxelsToCutTmp = new HashSet<MyVoxelBase>(); 
+        private static readonly HashSet<MyVoxelBase> m_rootVoxelsToCutTmp = new HashSet<MyVoxelBase>(); 
+        private static readonly List<MyVoxelBase> m_overlappingVoxelsTmp = new List<MyVoxelBase>(); 
 
         void ApplyExplosionOnVoxel(ref MyExplosionInfo explosionInfo)
         {
@@ -619,14 +620,15 @@ namespace Sandbox.Game
                 bool first = true;
 
                 //  If explosion sphere intersects a voxel map, we need to cut out a sphere, spawn debrises, etc
-                List<MyVoxelBase> voxelMaps = MySession.Static.VoxelMaps.GetAllOverlappingWithSphere(ref m_explosionSphere);
+                MySession.Static.VoxelMaps.GetAllOverlappingWithSphere(ref m_explosionSphere, m_overlappingVoxelsTmp);
 
-                for (int i = voxelMaps.Count - 1; i > 0; --i)
+                for (int i = m_overlappingVoxelsTmp.Count - 1; i >= 0; --i)
                 {
-                    m_VoxelsToCutTmp.Add(voxelMaps[i].RootVoxel);
+                    m_rootVoxelsToCutTmp.Add(m_overlappingVoxelsTmp[i].RootVoxel);
                 }
+                m_overlappingVoxelsTmp.Clear();
 
-                foreach (var voxelMap in m_VoxelsToCutTmp)
+                foreach (var voxelMap in m_rootVoxelsToCutTmp)
                 {
                     bool createDebris = first; // We want to create debris
                     /*
@@ -645,7 +647,7 @@ namespace Sandbox.Game
                     first = false;
                 }
 
-                m_VoxelsToCutTmp.Clear();
+                m_rootVoxelsToCutTmp.Clear();
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
 

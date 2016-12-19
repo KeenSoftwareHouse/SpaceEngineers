@@ -86,19 +86,54 @@ PS_INPUT __vertex_shader(uint VertexId : SV_VertexID)
     else
 #endif
     {
+        // PARTICLE THICKNESS
+        int keyIndex;
+        float keyFactor = Interpolate(lifetimeFactor, emitter.ParticleThicknessKeys, keyIndex);
+        float thickness = lerp(emitter.ParticleThickness[keyIndex], emitter.ParticleThickness[keyIndex + 1], keyFactor);
+
         float s, c;
-        sincos(lifetimeFactor * pa.RotationVelocity + M_PI * pa.Variation, s, c);
+        sincos(lifetimeFactor * pa.RotationVelocity + ((g_Emitters[pa.EmitterIndex].Flags & EMITTERFLAG_RANDOM_ROTATION_ENABLED) != 0 ? 
+            M_PI * pa.Variation : 0), s, c);
         float2x2 rotation = { float2(c, -s), float2(s, c) };
 
-        offset = mul(offset, rotation);
+        offset *= float2(radius, radius * thickness);
 
-        // individual billboarding
-        float2 localVertex = radius * offset;
-        float3 look = normalize(GetEyeCenterPosition() - pa.Position);
-        float3 upCamera = float3(frame_.Environment.view_matrix._12, frame_.Environment.view_matrix._22, frame_.Environment.view_matrix._32);
-        float3 right = cross(upCamera, look);
-        float3 up = cross(look, right);
-        float3x3 bbm = float3x3(right, up, look);
+        offset = mul(offset, rotation);
+        
+        float2 localVertex = offset;
+
+        float3x3 bbm;
+        if (emitter.Flags & EMITTERFLAG_LOCALROTATION)
+        {
+            bbm = float3x3(emitter.ParticleRotationRow0, emitter.ParticleRotationRow1, emitter.ParticleRotationRow2);
+        }
+        /*else if (emitter.Flags & EMITTERFLAG_LOCALANDCAMERAROTATION)
+        {
+            float3 look = -normalize(GetEyeCenterPosition() - pa.Position);
+            float3 localDir = -emitter.RotationMatrix._12_22_32;
+            float dotLookLocal = dot(look, localDir);
+            if (dotLookLocal < 0.9999f)
+            {
+                float3 sideVector = normalize(cross(look, localDir));
+                float3 upVector = normalize(cross(sideVector, localDir));
+                float3 right = cross(upVector, -localDir);
+
+                float3x3 velocityRef = float3x3(right, cross(-localDir, right), -localDir);
+                float3x3 angleMat = float3x3(emitter.ParticleRotationRow0, emitter.ParticleRotationRow1, emitter.ParticleRotationRow2);
+                bbm = velocityRef * angleMat;
+                bbm = velocityRef;
+            }
+            else bbm = float3x3(emitter.ParticleRotationRow0, emitter.ParticleRotationRow1, emitter.ParticleRotationRow2);
+        }*/
+        else
+        {
+            // individual billboarding
+            float3 look = normalize(GetEyeCenterPosition() - pa.Position);
+            float3 upCamera = float3(frame_.Environment.view_matrix._12, frame_.Environment.view_matrix._22, frame_.Environment.view_matrix._32);
+            float3 right = cross(upCamera, look);
+            float3 up = cross(look, right);
+            bbm = float3x3(right, up, look);
+        }
         wPos = mul(float3(localVertex, 0), bbm) + pa.Position;
         pPos = mul(float4(wPos, 1), frame_.Environment.view_projection_matrix);
 
@@ -160,7 +195,6 @@ PS_INPUT __vertex_shader(uint VertexId : SV_VertexID)
 
     return Output;
 }
-
 
 // The texture atlas for the particles
 Texture2DArray        g_ParticleTextureArray            : register(t1);

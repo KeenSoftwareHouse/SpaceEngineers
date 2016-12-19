@@ -21,7 +21,7 @@ namespace VRage.Profiler
 
         static MyTimeSpan? ToTime(this float customTime)
         {
-            return MyTimeSpan.FromMiliseconds(customTime);
+            return MyTimeSpan.FromMilliseconds(customTime);
         }
 
         static void TestUsage()
@@ -76,6 +76,12 @@ namespace VRage.Profiler
         //    m_profiler.StartBlock(name, member, line, file);
         //    m_profiler.EndBlock(member, line, file, customTime.ToTime(), customValue, "{0} KB", valueFormat);
         //}
+
+        public static void CustomTime(string name, float customTime, string timeFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+            m_profiler.StartBlock(name, member, line, file);
+            m_profiler.EndBlock(member, line, file, customTime.ToTime(), 0, timeFormat, "");
+        }
 
         public static void Commit()
         {

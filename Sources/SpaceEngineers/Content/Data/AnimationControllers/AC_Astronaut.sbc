@@ -92,7 +92,7 @@
                           <X>891</X>
                           <Y>-349</Y>
                         </EdPos>
-                        <PathToModel>Models\Characters\Animations\straferight.mwm</PathToModel>
+                        <PathToModel>Models\Characters\Animations\strafeleft.mwm</PathToModel>
                         <AnimationName>AnimStack::Take 001</AnimationName>
                         <Loop>true</Loop>
                         <Speed>1.0099999904632568</Speed>
@@ -122,8 +122,8 @@
                   <Param>-30</Param>
                   <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                     <EdPos>
-                      <X>533</X>
-                      <Y>-8</Y>
+                      <X>546</X>
+                      <Y>-41</Y>
                     </EdPos>
                     <PathToModel>Models\Characters\Animations\idle.mwm</PathToModel>
                     <AnimationName>AnimStack::Take 001</AnimationName>
@@ -136,8 +136,8 @@
                   <Param>30</Param>
                   <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                     <EdPos>
-                      <X>532</X>
-                      <Y>171</Y>
+                      <X>543</X>
+                      <Y>136</Y>
                     </EdPos>
                     <PathToModel>Models\Characters\Animations\idle.mwm</PathToModel>
                     <AnimationName>AnimStack::Take 001</AnimationName>
@@ -1659,8 +1659,8 @@
             <Name>Leaning</Name>
             <AnimationTree>
               <EdPos>
-                <X>-126</X>
-                <Y>8</Y>
+                <X>-522</X>
+                <Y>-77</Y>
               </EdPos>
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
@@ -1692,8 +1692,8 @@
                   <Param>22</Param>
                   <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                     <EdPos>
-                      <X>445</X>
-                      <Y>170</Y>
+                      <X>720</X>
+                      <Y>172</Y>
                     </EdPos>
                     <PathToModel>Models\Characters\Animations\bend_backwards.mwm</PathToModel>
                     <AnimationName>AnimStack::Take 001</AnimationName>
@@ -1706,6 +1706,7 @@
                 <Sensitivity>0.199999988</Sensitivity>
                 <MaxChange xsi:nil="true" />
               </Child>
+              <Orphans />
             </AnimationTree>
             <EdPos>
               <X>-194</X>
@@ -1771,8 +1772,8 @@
           <Node>
             <Name>Dead</Name>
             <EdPos>
-              <X>0</X>
-              <Y>175</Y>
+              <X>-29</X>
+              <Y>192</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -1830,21 +1831,75 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>301</X>
-                  <Y>-4</Y>
+                  <X>178</X>
+                  <Y>-31</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\run_rightfront.mwm</PathToModel>
-                <AnimationName>AnimStack::SE_astronaut</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>489</X>
+                      <Y>-111</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\run_rightfront.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>505</X>
+                      <Y>188</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>842</X>
+                          <Y>108</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_rightfront.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>842</X>
+                          <Y>330</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_rightfront_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>354</X>
-              <Y>-735</Y>
+              <X>410</X>
+              <Y>-788</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -1880,16 +1935,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>228</X>
-                  <Y>-25</Y>
+                  <X>272</X>
+                  <Y>-152</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\run.mwm</PathToModel>
-                <AnimationName>AnimStack::SE_astronaut</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>578</X>
+                      <Y>-256</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\run.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>592</X>
+                      <Y>19</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>999</X>
+                          <Y>-15</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>975</X>
+                          <Y>219</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -1905,16 +2014,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>269</X>
-                  <Y>-17</Y>
+                  <X>224</X>
+                  <Y>-71</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\run_leftfront.mwm</PathToModel>
-                <AnimationName>AnimStack::SE_astronaut</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>536</X>
+                      <Y>-68</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\run_leftfront.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>508</X>
+                      <Y>205</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>845</X>
+                          <Y>173</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_leftfront.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>836</X>
+                          <Y>396</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_leftfront_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -1930,16 +2093,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>260</X>
-                  <Y>-22</Y>
+                  <X>149</X>
+                  <Y>-75</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\runstrafe_left.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>433</X>
+                      <Y>-49</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\runstrafe_left.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>423</X>
+                      <Y>224</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>761</X>
+                          <Y>195</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\runstrafe_left.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>764</X>
+                          <Y>423</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\runstrafe_left_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -1955,16 +2172,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>194</X>
-                  <Y>-19</Y>
+                  <X>163</X>
+                  <Y>-62</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\run_leftback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>448</X>
+                      <Y>-39</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\run_leftback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>454</X>
+                      <Y>220</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>739</X>
+                          <Y>208</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_leftback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>740</X>
+                          <Y>437</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_rightback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -1980,16 +2251,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>230</X>
-                  <Y>-68</Y>
+                  <X>234</X>
+                  <Y>-115</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\runstrafe_right.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>546</X>
+                      <Y>-172</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\runstrafe_right.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>514</X>
+                      <Y>92</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>871</X>
+                          <Y>52</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\runstrafe_right.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>874</X>
+                          <Y>289</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\runstrafe_right_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -2005,16 +2330,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>296</X>
-                  <Y>-11</Y>
+                  <X>251</X>
+                  <Y>-59</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\run_rightback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>639</X>
+                      <Y>-86</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\run_rightback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>537</X>
+                      <Y>200</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>871</X>
+                          <Y>154</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_rightback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>842</X>
+                          <Y>378</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\run_rightback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -2030,16 +2409,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>149</X>
-                  <Y>-10</Y>
+                  <X>188</X>
+                  <Y>-35</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\runback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>543</X>
+                      <Y>-77</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\runback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>506</X>
+                      <Y>237</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>885</X>
+                          <Y>159</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\runback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>878</X>
+                          <Y>398</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\runback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -2505,21 +2938,75 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>301</X>
-                  <Y>-4</Y>
+                  <X>158</X>
+                  <Y>-56</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\walk_rightfront.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>470</X>
+                      <Y>-40</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\walk_rightfront.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>422</X>
+                      <Y>210</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>743</X>
+                          <Y>195</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_rightfront.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>739</X>
+                          <Y>427</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_rightfront_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>311</X>
-              <Y>-703</Y>
+              <X>456</X>
+              <Y>-789</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -2555,20 +3042,74 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>228</X>
-                  <Y>-25</Y>
+                  <X>189</X>
+                  <Y>-77</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\walk.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>491</X>
+                      <Y>-91</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\walk.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>477</X>
+                      <Y>175</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>829</X>
+                          <Y>102</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>851</X>
+                          <Y>352</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>-38</X>
+              <X>88</X>
               <Y>-807</Y>
             </EdPos>
             <Type>Normal</Type>
@@ -2580,21 +3121,75 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>269</X>
-                  <Y>-17</Y>
+                  <X>190</X>
+                  <Y>-73</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\walk_leftfront.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>493</X>
+                      <Y>-70</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\walk_leftfront.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>562</X>
+                      <Y>202</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>912</X>
+                          <Y>118</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_leftfront.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>912</X>
+                          <Y>352</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_leftfront_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>-255</X>
-              <Y>-728</Y>
+              <X>-390</X>
+              <Y>-803</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -2605,16 +3200,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>260</X>
-                  <Y>-22</Y>
+                  <X>188</X>
+                  <Y>-51</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\strafeleft.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>532</X>
+                      <Y>-31</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\strafeleft.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>477</X>
+                      <Y>227</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>805</X>
+                          <Y>186</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\strafeleft.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>803</X>
+                          <Y>438</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\strafeleft_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -2630,16 +3279,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>194</X>
-                  <Y>-19</Y>
+                  <X>166</X>
+                  <Y>-57</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\walk_leftback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>449</X>
+                      <Y>-30</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\walk_leftback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>446</X>
+                      <Y>261</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>769</X>
+                          <Y>164</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_leftback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>731</X>
+                          <Y>414</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_leftback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -2655,16 +3358,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>215</X>
-                  <Y>4</Y>
+                  <X>197</X>
+                  <Y>-8</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\straferight.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>554</X>
+                      <Y>0</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\straferight.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>503</X>
+                      <Y>250</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>880</X>
+                          <Y>217</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\straferight.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>866</X>
+                          <Y>489</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\straferight_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -2680,16 +3437,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>296</X>
-                  <Y>-11</Y>
+                  <X>197</X>
+                  <Y>-27</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\walk_rightback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>506</X>
+                      <Y>-16</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\walk_rightback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>478</X>
+                      <Y>217</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>830</X>
+                          <Y>199</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_rightback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>824</X>
+                          <Y>437</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walk_rightback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -2705,16 +3516,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>149</X>
-                  <Y>-10</Y>
+                  <X>176</X>
+                  <Y>-55</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\walkback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>511</X>
+                      <Y>-12</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\walkback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>463</X>
+                      <Y>242</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>757</X>
+                          <Y>224</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walkback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>780</X>
+                          <Y>452</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\walkback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -3168,24 +4033,78 @@
             <Name>RightFront</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
+                <X>-151</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>301</X>
-                  <Y>-4</Y>
+                  <X>90</X>
+                  <Y>-61</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\crouchwalk_rightfront.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>426</X>
+                      <Y>-64</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchwalk_rightfront.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>384</X>
+                      <Y>233</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>659</X>
+                          <Y>170</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_rightfront.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>665</X>
+                          <Y>388</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_rightfront_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_crouchwalk</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>311</X>
-              <Y>-703</Y>
+              <X>469</X>
+              <Y>-797</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -3193,7 +4112,7 @@
             <Name>Idle</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
+                <X>-105</X>
                 <Y>0</Y>
               </EdPos>
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
@@ -3202,7 +4121,7 @@
                   <Y>-3</Y>
                 </EdPos>
                 <PathToModel>Models\Characters\Animations\crouchidle.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_idle_final</AnimationName>
+                <AnimationName>AnimStack::Take 001</AnimationName>
                 <Loop>true</Loop>
                 <Speed>1</Speed>
                 <Interpolate>true</Interpolate>
@@ -3218,19 +4137,73 @@
             <Name>Front</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
-                <Y>0</Y>
+                <X>-284</X>
+                <Y>3</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>228</X>
-                  <Y>-25</Y>
+                  <X>-84</X>
+                  <Y>-39</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\crouchwalk.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>228</X>
+                      <Y>-25</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchwalk.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>254</X>
+                      <Y>242</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>589</X>
+                          <Y>207</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>579</X>
+                          <Y>429</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_crouchwalk</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -3243,24 +4216,78 @@
             <Name>LeftFront</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
-                <Y>0</Y>
+                <X>-321</X>
+                <Y>15</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>269</X>
-                  <Y>-17</Y>
+                  <X>-53</X>
+                  <Y>-80</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\crouchwalk_leftfront.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>269</X>
+                      <Y>-17</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchwalk_leftfront.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>231</X>
+                      <Y>216</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>523</X>
+                          <Y>214</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_leftfront.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>527</X>
+                          <Y>431</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_leftfront_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_crouchwalk</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>-255</X>
-              <Y>-728</Y>
+              <X>-421</X>
+              <Y>-820</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -3268,19 +4295,73 @@
             <Name>Left</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
-                <Y>0</Y>
+                <X>-304</X>
+                <Y>3</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>260</X>
-                  <Y>-22</Y>
+                  <X>-135</X>
+                  <Y>-49</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\crouchstrafe_left.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>208</X>
+                      <Y>-83</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchstrafe_left.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>168</X>
+                      <Y>183</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>493</X>
+                          <Y>164</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchstrafe_left.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>484</X>
+                          <Y>421</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchstrafe_left_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_crouchwalk</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -3296,16 +4377,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>194</X>
-                  <Y>-19</Y>
+                  <X>232</X>
+                  <Y>-51</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\crouchwalk_leftback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>532</X>
+                      <Y>-35</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchwalk_leftback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>518</X>
+                      <Y>222</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>826</X>
+                          <Y>202</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_leftback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>818</X>
+                          <Y>452</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_leftback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_crouchwalk</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -3318,19 +4453,73 @@
             <Name>Right</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
-                <Y>0</Y>
+                <X>3</X>
+                <Y>-36</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>215</X>
-                  <Y>4</Y>
+                  <X>192</X>
+                  <Y>-39</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\crouchstrafe_right.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>505</X>
+                      <Y>-38</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchstrafe_right.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>472</X>
+                      <Y>237</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>788</X>
+                          <Y>204</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchstrafe_right.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>781</X>
+                          <Y>452</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchstrafe_right_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_crouchwalk</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -3343,19 +4532,73 @@
             <Name>RightBack</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
-                <Y>0</Y>
+                <X>-257</X>
+                <Y>5</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>296</X>
-                  <Y>-11</Y>
+                  <X>-31</X>
+                  <Y>-51</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\crouchwalk_rightback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>296</X>
+                      <Y>-57</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchwalk_rightback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>265</X>
+                      <Y>215</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>599</X>
+                          <Y>191</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_rightback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>592</X>
+                          <Y>429</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalk_rightback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_crouchwalk</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>
@@ -3371,16 +4614,70 @@
                 <X>0</X>
                 <Y>0</Y>
               </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>149</X>
-                  <Y>-10</Y>
+                  <X>203</X>
+                  <Y>-36</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\crouchwalkback.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
-                <Loop>true</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
+                <ParameterName>firstperson</ParameterName>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>535</X>
+                      <Y>-49</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchwalkback.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>519</X>
+                      <Y>211</Y>
+                    </EdPos>
+                    <ParameterName>myobjectbuilder_anglegrinder</ParameterName>
+                    <Child>
+                      <Param>0</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>835</X>
+                          <Y>184</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalkback.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>1</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>824</X>
+                          <Y>433</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\crouchwalkback_grinder.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_crouchwalk</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>1</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
               </Child>
             </AnimationTree>
             <EdPos>

@@ -38,7 +38,7 @@ namespace Sandbox.Game.Components
         {
             get
             {
-                return MyFakes.ENABLE_PREFAB_THROWER;
+                return false;
             }
         }
 
@@ -62,9 +62,7 @@ namespace Sandbox.Game.Components
             if (!(MyScreenManager.GetScreenWithFocus() is MyGuiScreenGamePlay))
                 return;
 
-            if (!
-                (VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS || !MySession.Static.SurvivalMode || (MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.Static.LocalHumanPlayer.Id.SteamId)))
-                )
+            if (!(VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS || !MySession.Static.SurvivalMode || MySession.Static.LocalHumanPlayer.IsAdmin))
                 return;
 
 

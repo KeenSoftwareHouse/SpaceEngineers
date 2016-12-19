@@ -4,6 +4,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.ModAPI;
 using Sandbox.Common;
+using Sandbox.Game.World;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
@@ -12,6 +13,7 @@ using VRageMath;
 using VRage.Game;
 using VRageRender.Import;
 using VRage.Game.ModAPI;
+using Sandbox.Game.World;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -70,7 +72,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             var user = entity as MyCharacter;
             var relation = Block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-            if (!relation.IsFriendly())
+            if (!relation.IsFriendly() && !MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
             {
                 if (user.ControllerInfo.IsLocallyHumanControlled())
                 {

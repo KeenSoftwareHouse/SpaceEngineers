@@ -44,6 +44,7 @@ namespace Sandbox.Game.Multiplayer
             gps.Description = description;
             gps.Coords = coords;
             gps.ShowOnHud = showOnHud;
+            gps.GPSColor = new Color(117, 201, 241);
             if (temporary)
                 gps.SetDiscardAt();
             else

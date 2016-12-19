@@ -5,6 +5,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
 using Sandbox.Game.GameSystems;
+using Sandbox.Game.Multiplayer;
 using VRage.Game;
 using VRageMath;
 using VRage.Game.Entity;
@@ -32,7 +33,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (!exists)
                 return false;
 
-            bool isCreative = MySession.Static.CreativeMode;
+            bool isCreative = MySession.Static.CreativeMode || MySession.Static.CreativeToolsEnabled(Sync.MyId);
 
             if (isCreative)
                 MySession.Static.GameFocusManager.Clear();

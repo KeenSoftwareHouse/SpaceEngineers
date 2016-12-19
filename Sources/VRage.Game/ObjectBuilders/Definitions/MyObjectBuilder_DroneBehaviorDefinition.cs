@@ -29,8 +29,16 @@ namespace VRage.Game.ObjectBuilders.Definitions
         [ProtoMember]
         public bool UseRammingBehavior = false;
         [ProtoMember]
+        public bool CanBeDisabled = true;
+        [ProtoMember]
+        public bool UsePlanetHover = false;
+        [ProtoMember]
         public string AlternativeBehavior = "";
 
+        [ProtoMember]
+        public float PlanetHoverMin = 2f;
+        [ProtoMember]
+        public float PlanetHoverMax = 25f;
         [ProtoMember]
         public float SpeedLimit = 50f;
         [ProtoMember]

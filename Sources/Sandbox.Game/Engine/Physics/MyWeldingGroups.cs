@@ -40,6 +40,7 @@ namespace Sandbox.Engine.Physics
 
         /// <summary>
         /// Replace common parent in weld group
+        /// old parent is not considered part of weld group anymore (isnt welded to new parent)
         /// </summary>
         /// <param name="group">weld group</param>
         /// <param name="oldParent">old parent</param>

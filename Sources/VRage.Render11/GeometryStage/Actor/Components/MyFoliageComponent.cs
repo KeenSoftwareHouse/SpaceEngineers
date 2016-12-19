@@ -110,6 +110,8 @@ namespace VRageRender
         internal int m_btreeProxy;
         internal bool Updated;
 
+        private bool m_pendingRefresh;
+
         internal override void Construct()
         {
             base.Construct();
@@ -155,7 +157,7 @@ namespace VRageRender
 
         void PrepareStream(int materialId, int triangles, int voxelLod)
         {
-            float densityFactor = MyRender11.Settings.GrassDensityFactor * (float)MathHelper.Lerp(2*AllocationFactor, 1.0, MyRender11.Settings.GrassDensityFactor/10.0);
+            float densityFactor = MyRender11.Settings.GrassDensityFactor * (float)MathHelper.Lerp(2 * AllocationFactor, 1.0, MyRender11.Settings.GrassDensityFactor / 10.0);
             if (densityFactor < 0.1f)
             {
                 densityFactor = 0.1f;
@@ -164,10 +166,22 @@ namespace VRageRender
             int predictedAllocation = (int)(triangles * MyVoxelMaterials1.Table[materialId].FoliageDensity * densityFactor);
 
             var firstOrDefault = m_streams.GetValueOrDefault(materialId);
-            if(firstOrDefault == null)
+            if (firstOrDefault == null)
                 m_streams.SetDefault(materialId, new MyFoliageStream()).Reserve(predictedAllocation);
             else
                 firstOrDefault.Reserve(predictedAllocation);
+        }
+
+        public void RefreshStreams()
+        {
+            if (m_streams == null)
+                return;
+
+            m_pendingRefresh = true;
+            foreach (var stream in m_streams.Values)
+            {
+                stream.Reset();
+            }
         }
 
         internal void InvalidateStreams()
@@ -223,9 +237,11 @@ namespace VRageRender
 
         internal unsafe void FillStreams()
         {
-            bool alreadyFilled = m_streams != null && m_streams.Count > 0;
+            bool alreadyFilled = m_streams != null && m_streams.Count > 0 && !m_pendingRefresh;
             if (alreadyFilled)
                 return;
+
+            m_pendingRefresh = false;
 
             var mesh = Owner.GetRenderable().GetModel();
 
@@ -240,7 +256,8 @@ namespace VRageRender
             else
                 partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
 
-            m_streams = new Dictionary<int, MyFoliageStream>();
+            if(m_streams == null)
+                m_streams = new Dictionary<int, MyFoliageStream>();
 
             // analyze 
             for (int partIndex = 0; partIndex < partsNum; ++partIndex )

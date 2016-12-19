@@ -12,17 +12,17 @@ namespace Sandbox.Game.Replication
     /// </summary>    
     public class MyFloatingObjectReplicable : MyEntityReplicableBaseEvent<MyFloatingObject>
     {
-        private MyPropertySyncStateGroup m_propertySync;
+        private StateGroups.MyPropertySyncStateGroup m_propertySync;
 
         protected override IMyStateGroup CreatePhysicsGroup()
         {
-            return new MyFloatingObjectPhysicsStateGroup(Instance, this); // Physics synchronized by MyFloatingObjects
+            return new StateGroups.MyFloatingObjectPhysicsStateGroup(Instance, this); // Physics synchronized by MyFloatingObjects
         }
 
         protected override void OnHook()
         {
             base.OnHook();
-            m_propertySync = new MyPropertySyncStateGroup(this, Instance.SyncType);
+            m_propertySync = new StateGroups.MyPropertySyncStateGroup(this, Instance.SyncType);
         }
 
         public override bool OnSave(VRage.Library.Collections.BitStream stream)

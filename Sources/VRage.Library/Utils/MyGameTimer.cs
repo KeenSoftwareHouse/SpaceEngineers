@@ -54,6 +54,10 @@ namespace VRage.Library.Utils
             }
         }
 
+        public void AddElapsed(MyTimeSpan timespan)
+        {
+            m_startTicks -= timespan.Ticks;
+        }
         public MyGameTimer()
         {
             m_startTicks = Stopwatch.GetTimestamp();

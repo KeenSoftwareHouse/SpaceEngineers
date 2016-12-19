@@ -38,6 +38,7 @@ namespace Sandbox.Game.Entities.Character
         static string TopBody = "LeftHand RightHand LeftFingers RightFingers Head Spine";
 
         bool m_resetWeaponAnimationState;
+        private Quaternion m_lastRotation;
 
         #endregion
 
@@ -186,7 +187,7 @@ namespace Sandbox.Game.Entities.Character
             // character speed
             if (Physics != null && Physics.CharacterProxy != null)
             {
-                Vector3 localSpeedWorldRotUnfiltered = (Physics.CharacterProxy.LinearVelocity - Physics.CharacterProxy.CharacterRigidBody.GroundVelocity) / Sync.RelativeSimulationRatio;
+                Vector3 localSpeedWorldRotUnfiltered = (Physics.CharacterProxy.LinearVelocity - Physics.CharacterProxy.GroundVelocity);
                 var localSpeedWorldRot = FilterLocalSpeed(localSpeedWorldRotUnfiltered);
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeed, localSpeedWorldRot.Length());
             
@@ -203,9 +204,10 @@ namespace Sandbox.Game.Entities.Character
                     speedangle += 360.0f;
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedAngle, speedangle);
 
-                if (ControllerInfo.IsLocallyControlled())
-                    m_animTurningSpeed.Value = RotationIndicator.Y * 180.0f / (float)Math.PI;
+                Quaternion currentRotation = this.GetRotation();
+                m_animTurningSpeed = (Quaternion.Inverse(currentRotation) * m_lastRotation).Y / (CHARACTER_X_ROTATION_SPEED * CHARACTER_Y_ROTATION_FACTOR / 2) * 180.0f / (float)Math.PI;
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdTurningSpeed, m_animTurningSpeed);
+                m_lastRotation = currentRotation;
 
                 if (OxygenComponent != null)
                     variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdHelmetOpen, OxygenComponent.HelmetEnabled ? 0.0f : 1.0f);
@@ -219,10 +221,9 @@ namespace Sandbox.Game.Entities.Character
             if (JetpackComp != null)
                 AnimationController.Variables.SetValue(MyAnimationVariableStorageHints.StrIdFlying, JetpackComp.Running ? 1.0f : 0.0f);
 
-            AnimationController.Variables.SetValue(MyAnimationVariableStorageHints.StrIdFalling, GetCurrentMovementState() == MyCharacterMovementEnum.Falling ? 1.0f : 0.0f);
             MyCharacterMovementEnum movementState = GetCurrentMovementState();
             variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFlying, movementState == MyCharacterMovementEnum.Flying ? 1.0f : 0.0f);
-            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFalling, m_isFalling || movementState == MyCharacterMovementEnum.Falling ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFalling, IsFalling || movementState == MyCharacterMovementEnum.Falling ? 1.0f : 0.0f);
             variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdCrouch, (WantsCrouch && !WantsSprint) ? 1.0f : 0.0f);
             variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSitting, movementState == MyCharacterMovementEnum.Sitting ? 1.0f : 0.0f);
             variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdJumping, movementState == MyCharacterMovementEnum.Jump ? 1.0f : 0.0f);

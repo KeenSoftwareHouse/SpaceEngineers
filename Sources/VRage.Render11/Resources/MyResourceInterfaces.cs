@@ -21,9 +21,10 @@ namespace VRage.Render11.Resources
     internal interface ITexture : ISrvBindable
     {
         Format Format { get; }
+        int MipmapCount { get; }
     }
 
-    internal interface IBuffer : IResource, IDisposable
+    internal interface IBuffer : IResource
     {
         /// <summary>
         /// It's the same as <see cref="Description"/>.SizeInBytes.
@@ -33,6 +34,9 @@ namespace VRage.Render11.Resources
 
         BufferDescription Description { get; }
         Buffer Buffer { get; }
+
+        // this method should not be called outside of the MyBufferManager
+        void DisposeInternal();
     }
 
 

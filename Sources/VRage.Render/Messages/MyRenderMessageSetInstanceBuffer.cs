@@ -1,4 +1,5 @@
-﻿using VRageMath;
+﻿using VRage;
+using VRageMath;
 
 namespace VRageRender.Messages
 {
@@ -8,6 +9,10 @@ namespace VRageRender.Messages
         public uint InstanceBufferId;
         public int InstanceStart;
         public int InstanceCount;
+        /// <summary>
+        /// Fill in only the relevant data. Data ouside of the specified range would not be used.
+        /// </summary>
+        public MyInstanceData[] InstanceData;
         public BoundingBox LocalAabb;
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }

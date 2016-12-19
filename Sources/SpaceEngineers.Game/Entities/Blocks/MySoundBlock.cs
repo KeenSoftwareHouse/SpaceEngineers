@@ -276,7 +276,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 {
                     foreach (var soundDescTmp in category.Sounds)
                     {
-                        if (soundDescTmp.SoundId.Equals(cueId.SoundId))
+                        if (cueId.SoundId.ToString().EndsWith(soundDescTmp.SoundId.ToString()))    //GK: EndsWith instead of Equals to catch both Realistic and Arcade sounds
                             soundDesc = soundDescTmp;
                     }     
                 }
@@ -547,7 +547,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-			return base.CheckIsWorking() && ResourceSink.IsPowered;
+            return base.CheckIsWorking() && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId);
         }
 
         protected override void OnEnabledChanged()

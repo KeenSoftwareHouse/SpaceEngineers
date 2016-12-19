@@ -111,5 +111,15 @@ namespace Sandbox.Game.Multiplayer
                 }
             }
         }
+
+        long IMyPlayerCollection.TryGetIdentityId(ulong steamId)
+        {
+            return TryGetIdentityId(steamId);
+        }
+
+        ulong IMyPlayerCollection.TryGetSteamId(long identityId)
+        {
+            return TryGetSteamId(identityId);
+        }
     }
 }

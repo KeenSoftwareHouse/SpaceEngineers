@@ -30,17 +30,17 @@ namespace Sandbox.Game.EntityComponents
         private float m_levitationPeriodLength = 1.3f;
 
         private float m_levitationTorqueCoeficient = 0.25f;
-
-        protected override void UpdateThrusts(bool networkUpdate, bool enableDampeners)
+        private int m_index;
+        protected override void UpdateThrusts(bool enableDampeners)
         {
-            base.UpdateThrusts(networkUpdate, enableDampeners);
+            base.UpdateThrusts(enableDampeners);
 
             ProfilerShort.Begin("ThrusterBlockComponent.UpdateThrusts");
             if (CubeGrid != null && CubeGrid.Physics != null)
             {
                 if (CubeGrid.Physics.Enabled)
                 {
-                    if (FinalThrust.LengthSquared() > 0.001f)
+                    if (FinalThrust.LengthSquared() > 0.0001f)
                     {
                         var thrust = FinalThrust;
                         if (CubeGrid.Physics.IsWelded) //only reliable variant
@@ -50,11 +50,11 @@ namespace Sandbox.Game.EntityComponents
                         }
 
                         CubeGrid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, thrust, null, null);
+                        m_index++;
 
                         Vector3 velocity = CubeGrid.Physics.LinearVelocity;
                         float maxSpeed = CubeGrid.GridSizeEnum == MyCubeSize.Large ? MyGridPhysics.LargeShipMaxLinearVelocity() : MyGridPhysics.SmallShipMaxLinearVelocity();
 
-                        maxSpeed *= Sync.RelativeSimulationRatio;
                         if (velocity.LengthSquared() > maxSpeed * maxSpeed)
                         {
                             velocity.Normalize();
@@ -63,12 +63,6 @@ namespace Sandbox.Game.EntityComponents
                         }
                     }
 
-                    const float stoppingVelocitySq = 0.001f * 0.001f;
-                    if (CubeGrid.Physics.LinearVelocity != Vector3.Zero && CubeGrid.Physics.LinearVelocity.LengthSquared() < stoppingVelocitySq && CubeGrid.Physics.RigidBody.IsActive)
-                    {
-                        CubeGrid.Physics.LinearVelocity = Vector3.Zero;
-                        ControlThrustChanged = true;
-                    }
                 }
             }
             ProfilerShort.End();
@@ -398,11 +392,6 @@ namespace Sandbox.Game.EntityComponents
             }
 
             return gridMass;
-        }
-
-        protected override float GetMagicFactor()
-        {
-            return 0.9919f;
         }
     }
 }

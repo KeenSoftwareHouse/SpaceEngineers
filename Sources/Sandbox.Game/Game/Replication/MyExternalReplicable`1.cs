@@ -25,19 +25,30 @@ namespace Sandbox.Game.Replication
             get
             {
                 MyEntity entity = Instance as MyEntity;
+                var entityContainer = Instance as VRage.Game.Components.MyEntityComponentBase;
                 if (entity != null)
                     return entity.IsReadyForReplication;
-                else 
-                    return true;
+                else
+                    if (entityContainer != null)
+                        return ((MyEntity)entityContainer.Entity).IsReadyForReplication;
+                    else
+                        return base.IsReadyForReplication;
             }
         }
 
-        public override Action ReadyForReplicationAction
+        public override Dictionary<IMyReplicable, Action> ReadyForReplicationAction
         {
-            set
+            get
             {
                 MyEntity entity = Instance as MyEntity;
-                entity.ReadyForReplicationAction = value;
+                var entityContainer = Instance as VRage.Game.Components.MyEntityComponentBase;
+                if (entity != null)
+                    return entity.ReadyForReplicationAction;
+                else
+                    if (entityContainer != null)
+                        return ((MyEntity)entityContainer.Entity).ReadyForReplicationAction;
+                    else
+                        return base.ReadyForReplicationAction;
             }
         }
 

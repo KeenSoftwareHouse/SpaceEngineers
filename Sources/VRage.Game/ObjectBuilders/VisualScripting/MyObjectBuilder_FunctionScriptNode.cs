@@ -14,6 +14,9 @@ namespace VRage.Game
 
         public string Type = string.Empty;
         
+        // Extension of type
+        public string ExtOfType = string.Empty;
+
         public int SequenceInputID = -1;
         
         public int SequenceOutputID = -1;

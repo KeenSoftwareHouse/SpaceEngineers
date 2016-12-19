@@ -78,7 +78,6 @@
 			<Component>MyNeutralShipSpawner</Component>
       <Component Type="MyObjectBuilder_CubeBuilderDefinition" Subtype="CubeBuilderBase">MyCubeBuilder</Component>
 			<Component Type="MyObjectBuilder_DemoComponentDefinition" Subtype="Default">DemoComponent</Component>
-
 			<Component>MyPlanets</Component>
 			<Component>MyHeightMapLoadingSystem</Component>
 			<Component>MySessionComponentPlanetAmbientSounds</Component>
@@ -95,7 +94,10 @@
 			<Component>MySectorWeatherComponent</Component>
 			<Component>MyCampaignSessionComponent</Component>
 			<Component>MyEntityTransformationSystem</Component>
-      <Component>MySessionComponentResearch</Component>
+      		<Component>MySessionComponentResearch</Component>
+	  		<Component>MySteamAchievements</Component>
+			<Component>MySessionComponentTrash</Component>
+  		<Component>MySteamAchievements</Component>
 		</SessionComponents>
 	</Definition>
 </Definitions>

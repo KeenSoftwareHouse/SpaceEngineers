@@ -161,6 +161,16 @@ namespace VRageRender.Vertex
         internal static unsafe int STRIDE = sizeof(MyVertexFormatPositionTextureSkinning);
     }
 
+    struct MyVertexFormatPositionTexcoordNormalTangent
+    {
+        internal HalfVector4 Position;
+        internal Byte4 Normal;
+        internal Byte4 Tangent;
+        internal HalfVector2 Texcoord;
+
+        internal static unsafe int STRIDE = sizeof(MyVertexFormatPositionTexcoordNormalTangent);
+    }
+
     struct MyVertexFormatTexcoordNormalTangent
     {
         internal Byte4 Normal;

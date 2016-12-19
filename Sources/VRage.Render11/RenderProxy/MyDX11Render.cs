@@ -71,7 +71,6 @@ namespace VRageRender
 
         public void ApplySettings(MyRenderDeviceSettings settings)
         {
-            MyRender11.CheckAdapterChange(ref settings);
             MyRender11.ApplySettings(settings);
         }
 

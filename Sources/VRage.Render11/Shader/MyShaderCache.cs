@@ -73,7 +73,8 @@ namespace VRage.Render11.Shader
                 else
                 {
                     // Non match should happen in case of I/O error or extremely unlikely occurrence
-                    MyRender11.Log.WriteLine("Shader with hash " + identity.Hash + " didn't mach on cache");
+                    MyRender11.Log.WriteLine("Shader with hash " + identity.Hash + " didn't match.");
+                    File.Delete(cacheFilename);
                 }
             }
 

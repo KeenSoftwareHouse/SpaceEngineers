@@ -279,7 +279,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         protected float GetEffectiveStrength(MyShipConnector otherConnector)
@@ -308,7 +308,7 @@ namespace Sandbox.Game.Entities.Cube
             sinkComp.Init(
                 MyStringHash.GetOrCompute("Conveyors"),
                 consumption,
-                () => base.CheckIsWorking() ? ResourceSink.MaxRequiredInput : 0f
+                () => base.CheckIsWorking() ? ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0f
             );
             sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
             ResourceSink = sinkComp;
@@ -439,6 +439,18 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             UpdateEmissivity();
+        }
+
+        protected override void OnStopWorking()
+        {
+            UpdateEmissivity();
+            base.OnStopWorking();
+        }
+
+        protected override void OnStartWorking()
+        {
+            UpdateEmissivity();
+            base.OnStartWorking();
         }
 
         private void LoadDummies()
@@ -631,20 +643,22 @@ namespace Sandbox.Game.Entities.Cube
                     obj = m_other;
 
                 if (obj.Connected)
-                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.ForestGreen, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", Color.ForestGreen, 1);
                 else if (obj.IsReleasing)
-                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.RoyalBlue, 0.5f);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", Color.RoyalBlue, 0.5f);
                 else
-                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.Goldenrod, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", Color.Goldenrod, 1);
             }
             else
             {
                 if (!IsWorking && m_connectorMode == Mode.Connector)
-                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.Black, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", Color.Black, 1);
+                else if (IsWorking && m_connectorMode == Mode.Ejector)
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", Color.ForestGreen, 1);
                 else if (m_detectedFloaters.Count < 2 || !IsWorking)
-                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.Gray, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", Color.Gray, 1);
                 else
-                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.Red, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", Color.Red, 1);
             }
         }
 

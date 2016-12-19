@@ -177,6 +177,72 @@ namespace Sandbox
                 // Disable frame selection
                 if (MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsNewKeyPressed(MyKeys.End))
                     command = RenderProfilerCommand.DisableFrameSelection;
+
+                if (MyInput.Static.IsNewKeyPressed(MyKeys.S))
+                {
+                    command = RenderProfilerCommand.GetFomServer;
+                }
+
+                if (MyInput.Static.IsNewKeyPressed(MyKeys.C))
+                {
+                    command = RenderProfilerCommand.GetFromClient;
+                }
+                if (MyInput.Static.IsAnyCtrlKeyPressed())
+                {
+                    if (MyInput.Static.IsNewKeyPressed(MyKeys.D1))
+                    {
+                        command = RenderProfilerCommand.SaveToFile;
+                        index = 1;
+                    }
+                    else if (MyInput.Static.IsNewKeyPressed(MyKeys.D2))
+                    {
+                        command = RenderProfilerCommand.SaveToFile;
+                        index = 2;
+                    }
+                    else if (MyInput.Static.IsNewKeyPressed(MyKeys.D3))
+                    {
+                        command = RenderProfilerCommand.SaveToFile;
+                        index = 3;
+                    }
+                    else if (MyInput.Static.IsNewKeyPressed(MyKeys.D4))
+                    {
+                        command = RenderProfilerCommand.SaveToFile;
+                        index = 4;
+                    }
+                    else if (MyInput.Static.IsNewKeyPressed(MyKeys.D5))
+                    {
+                        command = RenderProfilerCommand.SaveToFile;
+                        index = 5;
+                    }
+                }
+                else
+                {
+                    if (MyInput.Static.IsNewKeyPressed(MyKeys.D1))
+                    {
+                        command = RenderProfilerCommand.LoadFromFile;
+                        index = 1;
+                    }
+                    else if (MyInput.Static.IsNewKeyPressed(MyKeys.D2))
+                    {
+                        command = RenderProfilerCommand.LoadFromFile;
+                        index = 2;
+                    }
+                    else if (MyInput.Static.IsNewKeyPressed(MyKeys.D3))
+                    {
+                        command = RenderProfilerCommand.LoadFromFile;
+                        index = 3;
+                    }
+                    else if (MyInput.Static.IsNewKeyPressed(MyKeys.D4))
+                    {
+                        command = RenderProfilerCommand.LoadFromFile;
+                        index = 4;
+                    }
+                    else if (MyInput.Static.IsNewKeyPressed(MyKeys.D5))
+                    {
+                        command = RenderProfilerCommand.LoadFromFile;
+                        index = 5;
+                    }
+                }
             }
 
             if (command.HasValue)

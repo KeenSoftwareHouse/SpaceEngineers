@@ -171,18 +171,17 @@ namespace Sandbox.Game.Entities.Cube
             int projectionId = 0;
             VRageRender.MyRenderProxy.AddBillboardViewProjection(projectionId, m_viewProjection);
 
-            //MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix,
-            //                ref worldBox, ref Vector4.One, MySimpleObjectRasterizer.Wireframe, 1, 0.04f, null, null, false, 0);
             if (draw)
             {
                 var white = Color.White;
                 var red = Color.Red;
 
-                MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref worldBox, ref white, ref red, MySimpleObjectRasterizer.Solid, 1, 0.04f, "SquareFullColor", null, false, projectionId, 100);
+                MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref worldBox, ref white, ref red, MySimpleObjectRasterizer.Solid, 1, 0.04f, 
+                    "SquareFullColor", null, false, projectionId);
 
                 Vector2 hintTextPos = new Vector2((int)(MySector.MainCamera.Viewport.Width - hintsWidth - hintsXOffset + hintsWidth / 2), hintsYOffset + 0.9f * hintsHeight);
                 m_mountpointNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.CUBE_DEFAULT_MOUNTPOINT).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard));
-                VRageRender.MyRenderProxy.DebugDrawText2D(hintTextPos, m_mountpointNotification.GetText(), Color.White, 1, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP);
+                VRageRender.MyRenderProxy.DebugDrawText2D(hintTextPos, m_mountpointNotification.GetText(), Color.White, 0.7f, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP);
             }
 
             MyOrientedBoundingBoxD rotateHintsBox = new MyOrientedBoundingBoxD(Vector3D.Transform(worldBox.Center, drawMatrix), worldBox.HalfExtents, Quaternion.CreateFromRotationMatrix(drawMatrix));
@@ -497,7 +496,7 @@ namespace Sandbox.Game.Entities.Cube
                                -RotationForwardDirection * forwDirection,
                                -RotationUpDirection * upDirection,
                                0.2f,
-                               110, false, projectionId);
+                               projectionId);
 
                         MyTransparentGeometry.AddBillboardOriented(
                                "ArrowRightGreen",
@@ -506,7 +505,7 @@ namespace Sandbox.Game.Entities.Cube
                                RotationForwardDirection * forwDirection,
                                RotationUpDirection * upDirection,
                                0.2f,
-                               110, false, projectionId);
+                               projectionId);
 
                         VRageRender.MyRenderProxy.DebugDrawText3D(faceCenter - RotationForwardDirection * forwDirection * 0.2f - RotationRightDirection * rightDirection * 0.01f, rightControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
                         VRageRender.MyRenderProxy.DebugDrawText3D(faceCenter + RotationForwardDirection * forwDirection * 0.2f - RotationRightDirection * rightDirection * 0.01f, rightControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
@@ -557,7 +556,7 @@ namespace Sandbox.Game.Entities.Cube
                                rightNormalBackWorld,
                                rightDirection,
                                0.5f,
-                               110, false, projectionId);
+                               projectionId);
 
                             MyTransparentGeometry.AddBillboardOriented(
                                "ArrowGreen",
@@ -566,7 +565,7 @@ namespace Sandbox.Game.Entities.Cube
                                rightNormalForwWorld,
                                rightDirection,
                                0.5f,
-                               110, false, projectionId);
+                               projectionId);
 
                             VRageRender.MyRenderProxy.DebugDrawText3D(rightCenter + rightNormalForwWorld * 0.3f - rightOffsetWorld * 0.01f, opposite ? rightControlName1 : rightControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
                             VRageRender.MyRenderProxy.DebugDrawText3D(rightCenter2 + rightNormalBackWorld * 0.3f - rightOffsetWorld * 0.01f, opposite ? rightControlName2 : rightControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
@@ -590,7 +589,7 @@ namespace Sandbox.Game.Entities.Cube
                                 rightNormalForwWorld,
                                 rightDirection,
                                 0.5f,
-                                110, false, projectionId);
+                                projectionId);
 
                             MyTransparentGeometry.AddBillboardOriented(
                                "ArrowGreen",
@@ -599,7 +598,7 @@ namespace Sandbox.Game.Entities.Cube
                                rightNormalBackWorld,
                                rightDirection,
                                0.5f,
-                               110, false, projectionId);
+                               projectionId);
 
                             VRageRender.MyRenderProxy.DebugDrawText3D(rightCenter + rightNormalForwWorld * 0.3f - rightNormalBackWorld * 0.01f, RotationRightDirection < 0 ? rightControlName1 : rightControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
                             VRageRender.MyRenderProxy.DebugDrawText3D(rightCenter + rightNormalBackWorld * 0.3f - rightNormalForwWorld * 0.01f, RotationRightDirection < 0 ? rightControlName2 : rightControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
@@ -622,7 +621,7 @@ namespace Sandbox.Game.Entities.Cube
                                -RotationRightDirection * rightDirection,
                                -RotationForwardDirection * forwDirection,
                                0.2f,
-                               110, false, projectionId);
+                               projectionId);
 
                         MyTransparentGeometry.AddBillboardOriented(
                                "ArrowRightRed",
@@ -631,7 +630,7 @@ namespace Sandbox.Game.Entities.Cube
                                RotationRightDirection * rightDirection,
                                RotationForwardDirection * forwDirection,
                                0.2f,
-                               110, false, projectionId);
+                               projectionId);
 
                         VRageRender.MyRenderProxy.DebugDrawText3D(faceCenter - RotationRightDirection * rightDirection * 0.2f - RotationUpDirection * upDirection * 0.01f, upControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
                         VRageRender.MyRenderProxy.DebugDrawText3D(faceCenter + RotationRightDirection * rightDirection * 0.2f - RotationUpDirection * upDirection * 0.01f, upControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
@@ -682,7 +681,7 @@ namespace Sandbox.Game.Entities.Cube
                               upNormalBackWorld,
                               upDirection,
                               0.5f,
-                              110, false, projectionId);
+                              projectionId);
 
                             MyTransparentGeometry.AddBillboardOriented(
                                "ArrowRed",
@@ -691,7 +690,7 @@ namespace Sandbox.Game.Entities.Cube
                                upNormalForwWorld,
                                upDirection,
                                0.5f,
-                               110, false, projectionId);
+                               projectionId);
 
                             VRageRender.MyRenderProxy.DebugDrawText3D(upCenter + upNormalForwWorld * 0.3f - upOffsetWorld * 0.01f, opposite ? upControlName2 : upControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
                             VRageRender.MyRenderProxy.DebugDrawText3D(upCenter2 + upNormalBackWorld * 0.3f - upOffsetWorld * 0.01f, opposite ? upControlName1 : upControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
@@ -715,7 +714,7 @@ namespace Sandbox.Game.Entities.Cube
                                 upNormalForwWorld,
                                 upDirection,
                                 0.5f,
-                                110, false, projectionId);
+                                projectionId);
 
                             MyTransparentGeometry.AddBillboardOriented(
                                "ArrowRed",
@@ -724,7 +723,7 @@ namespace Sandbox.Game.Entities.Cube
                                upNormalBackWorld,
                                upDirection,
                                0.5f,
-                               110, false, projectionId);
+                               projectionId);
 
                             VRageRender.MyRenderProxy.DebugDrawText3D(upCenter + upNormalForwWorld * 0.6f - upNormalBackWorld * 0.01f, RotationUpDirection > 0 ? upControlName1 : upControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
                             VRageRender.MyRenderProxy.DebugDrawText3D(upCenter + upNormalBackWorld * 0.6f - upNormalForwWorld * 0.01f, RotationUpDirection > 0 ? upControlName2 : upControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
@@ -746,7 +745,7 @@ namespace Sandbox.Game.Entities.Cube
                                RotationUpDirection * upDirection,
                                -RotationRightDirection * rightDirection,
                                0.2f,
-                               110, false, projectionId);
+                               projectionId);
 
                         MyTransparentGeometry.AddBillboardOriented(
                                "ArrowRightBlue",
@@ -755,7 +754,7 @@ namespace Sandbox.Game.Entities.Cube
                                -RotationUpDirection * upDirection,
                                RotationRightDirection * rightDirection,
                                0.2f,
-                               110, false, projectionId);
+                               projectionId);
 
                         VRageRender.MyRenderProxy.DebugDrawText3D(faceCenter + RotationUpDirection * upDirection * 0.2f - RotationForwardDirection * forwDirection * 0.01f, forwControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER, projectionId);
                         VRageRender.MyRenderProxy.DebugDrawText3D(faceCenter - RotationUpDirection * upDirection * 0.2f - RotationForwardDirection * forwDirection * 0.01f, forwControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER, projectionId);
@@ -806,7 +805,7 @@ namespace Sandbox.Game.Entities.Cube
                                forwNormalBackWorld,
                                forwDirection,
                                0.5f,
-                               110, false, projectionId);
+                               projectionId);
 
                             MyTransparentGeometry.AddBillboardOriented(
                                "ArrowBlue",
@@ -815,7 +814,7 @@ namespace Sandbox.Game.Entities.Cube
                                forwNormalForwWorld,
                                forwDirection,
                                0.5f,
-                               110, false, projectionId);
+                               projectionId);
 
                             VRageRender.MyRenderProxy.DebugDrawText3D(forwCenter + forwNormalForwWorld * 0.3f - forwOffsetWorld * 0.01f, opposite ? forwControlName1 : forwControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
                             VRageRender.MyRenderProxy.DebugDrawText3D(forwCenter2 + forwNormalBackWorld * 0.3f - forwOffsetWorld * 0.01f, opposite ? forwControlName2 : forwControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
@@ -838,7 +837,7 @@ namespace Sandbox.Game.Entities.Cube
                                 forwNormalForwWorld,
                                 forwDirection,
                                 0.5f,
-                                110, false, projectionId);
+                                projectionId);
 
                             MyTransparentGeometry.AddBillboardOriented(
                                "ArrowBlue",
@@ -847,7 +846,7 @@ namespace Sandbox.Game.Entities.Cube
                                forwNormalBackWorld,
                                forwDirection,
                                0.5f,
-                               110, false, projectionId);
+                               projectionId);
 
                             VRageRender.MyRenderProxy.DebugDrawText3D(forwCenter + forwNormalForwWorld * 0.3f - forwNormalBackWorld * 0.01f, RotationForwardDirection < 0 ? forwControlName1 : forwControlName2, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);
                             VRageRender.MyRenderProxy.DebugDrawText3D(forwCenter + forwNormalBackWorld * 0.3f - forwNormalForwWorld * 0.01f, RotationForwardDirection < 0 ? forwControlName2 : forwControlName1, Color.White, textScale, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, projectionId);

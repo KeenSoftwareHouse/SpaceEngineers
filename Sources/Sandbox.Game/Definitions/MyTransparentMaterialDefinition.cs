@@ -42,6 +42,8 @@ namespace Sandbox.Definitions
             MyDebug.AssertDebug(materialBuilder != null, "Initializing transparent material definition using wrong object builder.");
 
             Texture = materialBuilder.Texture;
+            if (Texture == null)
+                Texture = string.Empty;
             TextureType = materialBuilder.TextureType;
             CanBeAffectedByLights = materialBuilder.CanBeAffectedByOtherLights;
             AlphaMistingEnable = materialBuilder.AlphaMistingEnable;

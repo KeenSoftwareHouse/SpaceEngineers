@@ -1,18 +1,11 @@
 ﻿using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage;
 using VRage.Profiler;
-using VRage.Utils;
-using VRageMath;
 
 namespace Sandbox.Engine.Networking
 {
@@ -22,12 +15,8 @@ namespace Sandbox.Engine.Networking
         public static MyNetworkStats Static { get; private set; }
 
         public const float NETGRAPH_UPDATE_TIME_MS = 50;
-        public const float NETGRAPH_PING_TIME_S = 4;
+        public const float NETGRAPH_PING_TIME_S = 0.2f;
 
-        private DateTime m_lastStatMeasurePerUpdateTime;
-        private DateTime m_lastPingSent;
-        private long? m_lastSentPingInTicks;   
-        
         private Dictionary<string, NetworkStat> m_helper = new Dictionary<string, NetworkStat>();
         private List<Tuple<string, NetworkStat>> m_sendStatsCopy = new List<Tuple<string, NetworkStat>>();
         private List<Tuple<string, NetworkStat>> m_receivedStatsCopy = new List<Tuple<string, NetworkStat>>();
@@ -43,27 +32,19 @@ namespace Sandbox.Engine.Networking
             if (MySession.Static == null || MySession.Static.SyncLayer == null || MyMultiplayer.Static == null)
                 return;
 
-            if ((DateTime.UtcNow - m_lastStatMeasurePerUpdateTime).TotalMilliseconds > NETGRAPH_UPDATE_TIME_MS)
+            //if ((DateTime.UtcNow - m_lastStatMeasurePerUpdateTime).TotalMilliseconds > NETGRAPH_UPDATE_TIME_MS)
             {
-                m_lastStatMeasurePerUpdateTime = DateTime.UtcNow;
                 CopyStats(MySession.Static.SyncLayer.TransportLayer.SendStats, m_sendStatsCopy);
                 CopyStats(MySession.Static.SyncLayer.TransportLayer.ReceiveStats, m_receivedStatsCopy);
 
-                if (MyFakes.ENABLE_NETGRAPH && !MySandboxGame.IsDedicated)
+                if (!MySandboxGame.IsDedicated)
                 {
-                    MyHud.Netgraph.UpdateNextBar(
-                        MySession.Static.SyncLayer.TransportLayer.ByteCountReceived,
-                        MySession.Static.SyncLayer.TransportLayer.ByteCountSent,
-                        m_receivedStatsCopy);
-
-                    if (!Sync.IsServer && (DateTime.UtcNow - m_lastPingSent).TotalSeconds > NETGRAPH_PING_TIME_S)
+                    if (MyFakes.ENABLE_NETGRAPH)
                     {
-                        m_lastPingSent = DateTime.UtcNow;
-                        if (Sync.Layer != null && m_lastSentPingInTicks == null)
-                        {
-                            m_lastSentPingInTicks = DateTime.UtcNow.Ticks;
-                            MyMultiplayer.Static.SendPingToServer();
-                        }      
+                        MyHud.Netgraph.UpdateNextBar(
+                            MySession.Static.SyncLayer.TransportLayer.ByteCountReceived,
+                            MySession.Static.SyncLayer.TransportLayer.ByteCountSent,
+                            m_receivedStatsCopy);
                     }
                 }
             }
@@ -73,8 +54,6 @@ namespace Sandbox.Engine.Networking
 
         public void ClearStats()
         {
-            m_lastSentPingInTicks = null;
-            m_lastPingSent = m_lastStatMeasurePerUpdateTime = DateTime.UtcNow;
             m_receivedStatsCopy.Clear();
             m_sendStatsCopy.Clear();
         }
@@ -156,20 +135,6 @@ namespace Sandbox.Engine.Networking
             {
                 m_helper.Clear();
             }
-        }
-
-        public void OnPingSuccess()
-        {
-            MyDebug.AssertDebug(!Sync.IsServer && MyNetworkStats.Static.m_lastSentPingInTicks != null, "Ping failed!");
-
-            if (MyNetworkStats.Static.m_lastSentPingInTicks == null)
-                return;
-
-            long diff = DateTime.UtcNow.Ticks - MyNetworkStats.Static.m_lastSentPingInTicks.Value;
-
-			if (MyHud.Netgraph != null)
-                MyHud.Netgraph.Ping = (long)TimeSpan.FromTicks(diff).TotalMilliseconds;
-            MyNetworkStats.Static.m_lastSentPingInTicks = null;
         }
     }
 }

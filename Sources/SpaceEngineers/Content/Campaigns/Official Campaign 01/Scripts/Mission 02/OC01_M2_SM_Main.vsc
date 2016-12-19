@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_VSFiles xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <StateMachine>
+    <Name>OC01_M2_SM_Main</Name>
+    <OwnerId>0</OwnerId>
+    <Cursors>
+      <MyObjectBuilder_ScriptSMCursor>
+        <NodeName>Cutscene</NodeName>
+      </MyObjectBuilder_ScriptSMCursor>
+    </Cursors>
+    <Nodes>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="175.9158" y="195.8998" />
+        <Name>Start</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_Start.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_Start</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="594" y="178" />
+        <Name>Surface</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_Surface.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_Surface</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="894.932434" y="175.735382" />
+        <Name>Mines</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_Mines.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_Mines</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1429.36353" y="173.550232" />
+        <Name>Escape</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_Escape.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_Escape</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1943.52051" y="168.8974" />
+        <Name>EscapeShip</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_EscapeShip.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_EscapeShip</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="369.664856" y="-44.40618" />
+        <Name>Elevator</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_Elevator.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_Elevator</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode xsi:type="MyObjectBuilder_ScriptSMSpreadNode">
+        <Position x="411.989838" y="194.525024" />
+        <Name>Spread_9</Name>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="-166.975922" y="190.1591" />
+        <Name>Cutscene</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_Cutscene.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_Cutscene</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1683.68176" y="181.72345" />
+        <Name>ThePit</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_ThePit.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_ThePit</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1127.159" y="174.507965" />
+        <Name>ExtractionSite</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 02\OC01_M2_OLS_ExtractionSite.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M2_OLS_ExtractionSite</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+    </Nodes>
+    <Transitions>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Start</From>
+        <To>Spread_9</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Surface</From>
+        <To>Mines</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Mines</From>
+        <To>ExtractionSite</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Escape</From>
+        <To>ThePit</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_9</From>
+        <To>Surface</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_9</From>
+        <To>Elevator</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Cutscene</From>
+        <To>Start</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>ThePit</From>
+        <To>EscapeShip</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>ExtractionSite</From>
+        <To>Escape</To>
+      </MyObjectBuilder_ScriptSMTransition>
+    </Transitions>
+  </StateMachine>
+</MyObjectBuilder_VSFiles>

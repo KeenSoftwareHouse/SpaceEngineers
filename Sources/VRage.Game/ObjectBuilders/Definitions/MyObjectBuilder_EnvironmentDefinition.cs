@@ -32,6 +32,7 @@ namespace VRage.Game
         public MyHBAOData HBAOSettings = MyHBAOData.Default;
 
         public MyShadowsSettings ShadowSettings = new MyShadowsSettings();
+        public MyNewPipelineSettings NewPipelineSettings = new MyNewPipelineSettings();
         public MyMaterialsSettings MaterialsSettings = new MyMaterialsSettings();
 
         [ProtoContract]

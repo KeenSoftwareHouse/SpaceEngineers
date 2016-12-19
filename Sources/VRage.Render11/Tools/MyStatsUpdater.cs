@@ -1,7 +1,9 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using VRage.Render11.Common;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
@@ -14,12 +16,8 @@ namespace VRage.Render11.Tools
         public struct MyPasses
         {
             public int GBufferObjects;
-            public int GBufferDraws;
-            public int GBufferTris;
 
             public int ShadowProjectionObjects;
-            public int ShadowProjectionDraws;
-            public int ShadowProjectionTris;
 
             public int DrawShadows;
             public int DrawBillboards;
@@ -61,26 +59,56 @@ namespace VRage.Render11.Tools
         static void UpdateResources(string page)
         {
             string group = "Resources count";
-            MyStatsDisplay.Write(group, "RW textures", MyManagers.RwTextures.GetTexturesCount(), page);
-            MyStatsDisplay.Write(group, "File textures", MyManagers.FileTextures.FileTexturesCount, page);
-            MyStatsDisplay.Write(group, "File textures (generated)", MyManagers.FileTextures.GeneratedTexturesCount, page);
-            MyStatsDisplay.Write(group, "File array textures", MyManagers.FileArrayTextures.GetTexturesCount(), page);
             MyStatsDisplay.Write(group, "Array textures", MyManagers.ArrayTextures.GetArrayTexturesCount(), page);
             MyStatsDisplay.Write(group, "DepthStencils", MyManagers.DepthStencils.GetDepthStencilsCount(), page);
             MyStatsDisplay.Write(group, "Custom textures", MyManagers.CustomTextures.GetTexturesCount(), page);
-            MyStatsDisplay.Write(group, "Generated textures", MyManagers.GeneratedTextures.ActiveTexturesCount, page);
 
             MyStatsDisplay.Write(group, "Blend states", MyManagers.BlendStates.GetResourcesCount(), page);
             MyStatsDisplay.Write(group, "Depth stencil states", MyManagers.DepthStencilStates.GetResourcesCount(), page);
             MyStatsDisplay.Write(group, "Rasterizer states", MyManagers.RasterizerStates.GetResourcesCount(), page);
             MyStatsDisplay.Write(group, "Sampler states", MyManagers.SamplerStates.GetResourcesCount(), page);
 
-            MyStatsDisplay.Write(group, "Deferred RCs", MyManagers.DeferredRCs.GetRCsCount(), page);
+            MyStatsDisplay.Write(group, "Deferred RCs", MyDeferredRenderContextManager.MaxDeferredRCsCount, page);
 
-            group = "Resources byte size";
-            MyStatsDisplay.Write(group, "File textures (MBs)", (int)(MyManagers.FileTextures.GetTotalByteSizeOfResources() / 1024 / 1024), page);
-            MyStatsDisplay.Write(group, "File array textures (MBs)", (int)(MyManagers.FileArrayTextures.GetTotalByteSizeOfResources() / 1024 / 1024), page);
+            group = "Hardware Buffers";
+            foreach (var bufferStatistic in MyManagers.Buffers.GetReport())
+            {
+                MyStatsDisplay.Write(group, bufferStatistic.Name + " TotalBuffers", bufferStatistic.TotalBuffers, page);
+                MyStatsDisplay.Write(group, bufferStatistic.Name + " TotalBytes", bufferStatistic.TotalBytes, page);
+                MyStatsDisplay.Write(group, bufferStatistic.Name + " TotalBuffersPeak", bufferStatistic.TotalBuffersPeak, page);
+                MyStatsDisplay.Write(group, bufferStatistic.Name + " TotalBytesPeak", bufferStatistic.TotalBytesPeak, page);
+            }
 
+            group = "File Textures";
+            MyFileTextureUsageReport report = MyManagers.FileTextures.GetReport();
+
+            MyStatsDisplay.Write(group, "Total", report.TexturesTotal, page);
+            MyStatsDisplay.Write(group, "Loaded", report.TexturesLoaded, page);
+            MyStatsDisplay.Write(group, "Memory KB", (int)(report.TotalTextureMemory / 1024), page);
+            MyStatsDisplay.Write(group, "Total (peak)", report.TexturesTotalPeak, page);
+            MyStatsDisplay.Write(group, "Loaded (peak)", report.TexturesLoadedPeak, page);
+            MyStatsDisplay.Write(group, "Memory (peak) KB", (int)(report.TotalTextureMemoryPeak / 1024), page);
+
+            group = "Texture Arrays";
+            MyTextureStatistics statistics = MyManagers.FileArrayTextures.Statistics;
+            MyStatsDisplay.Write(group, "Total", statistics.TexturesTotal, page);
+            MyStatsDisplay.Write(group, "Memory KB", (int)(statistics.TotalTextureMemory / 1024), page);
+            MyStatsDisplay.Write(group, "Total (peak)", statistics.TexturesTotalPeak, page);
+            MyStatsDisplay.Write(group, "Memory (peak) KB", (int)(statistics.TotalTextureMemoryPeak / 1024), page);
+
+            group = "RW Textures";
+            statistics = MyManagers.RwTextures.Statistics;
+            MyStatsDisplay.Write(group, "Total", statistics.TexturesTotal, page);
+            MyStatsDisplay.Write(group, "Memory KB", (int)(statistics.TotalTextureMemory / 1024), page);
+            MyStatsDisplay.Write(group, "Total (peak)", statistics.TexturesTotalPeak, page);
+            MyStatsDisplay.Write(group, "Memory (peak) KB", (int)(statistics.TotalTextureMemoryPeak / 1024), page);
+
+            group = "Generated Textures";
+            statistics = MyManagers.GeneratedTextures.Statistics;
+            MyStatsDisplay.Write(group, "Total", statistics.TexturesTotal, page);
+            MyStatsDisplay.Write(group, "Memory KB", (int)(statistics.TotalTextureMemory / 1024), page);
+            MyStatsDisplay.Write(group, "Total (peak)", statistics.TexturesTotalPeak, page);
+            MyStatsDisplay.Write(group, "Memory (peak) KB", (int)(statistics.TotalTextureMemoryPeak / 1024), page);
         }
 
         static void UpdatePasses(string page)
@@ -111,10 +139,19 @@ namespace VRage.Render11.Tools
             }
 
             group = "Tris in passes";
-            MyStatsDisplay.Write(group, "GBuffer", Passes.GBufferTris, page);
-            for (int i = 0; i < CSMObjects.Length; i++)
-                MyStatsDisplay.Write(group, "CSM" + i, CSMTris[i], page);
-            MyStatsDisplay.Write(group, "Shadow projection", Passes.ShadowProjectionTris, page);
+            foreach (var statsTuple in MyRender11.PassStats)
+            {
+                if (statsTuple.Value.Count == 0)
+                    continue;
+
+                int idx = 0;
+
+                foreach (var myPassStats in statsTuple.Value.OrderBy(stats => stats.Key))
+                {
+                    MyStatsDisplay.Write(group, statsTuple.Key + idx, myPassStats.Value.Triangles, page);
+                    idx++;
+                }
+            }
 
             Passes.Clear();
             for (int i = 0; i < CSMObjects.Length; i++)
@@ -160,7 +197,7 @@ namespace VRage.Render11.Tools
             m_tmpRCStatistics.Clear();
             MyRenderProxy.Assert(m_tmpListRCs.Count == 0, "Temporary data are persistently stored in list");
             MyDeferredRenderContextManager rcManager = MyManagers.DeferredRCs;
-            for (int i = 0; i < rcManager.GetRCsCount(); i++)
+            for (int i = 0; i < MyDeferredRenderContextManager.MaxDeferredRCsCount; i++)
             {
                 MyRenderContext rc = rcManager.AcquireRC();
                 m_tmpListRCs.Add(rc);
@@ -206,7 +243,7 @@ namespace VRage.Render11.Tools
             UpdateStateChanges("Common");
             UpdateGPUParams("Common");
             UpdatePasses("Common");
-            UpdateResources("Common");
+            UpdateResources("Resources");
             UpdateTimestamps("Common");
             MyManagers.RwTexturesPool.UpdateStats();
         }

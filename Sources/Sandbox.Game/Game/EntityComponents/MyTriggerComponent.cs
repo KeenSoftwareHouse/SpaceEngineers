@@ -107,9 +107,7 @@ namespace Sandbox.Game.Components
 
         public override void OnAddedToScene()
         {
-            base.OnAddedToScene();
-            if (!MySessionComponentTriggerSystem.Static.Contains(this))
-                MySessionComponentTriggerSystem.Static.AddTrigger(this);
+            MySessionComponentTriggerSystem.Static.AddTrigger(this);
         }
 
         public override void OnBeforeRemovedFromContainer()
@@ -123,10 +121,12 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer()
         {
             base.OnAddedToContainer();
-            if (!MySessionComponentTriggerSystem.Static.Contains(this))
-                MySessionComponentTriggerSystem.Static.AddTrigger(this);
-
             Entity.PositionComp.OnPositionChanged += OnEntityPositionCompPositionChanged;
+
+            if(Entity.InScene)
+            {
+                MySessionComponentTriggerSystem.Static.AddTrigger(this);
+            }
         }
 
         private void OnEntityPositionCompPositionChanged(MyPositionComponentBase myPositionComponentBase)

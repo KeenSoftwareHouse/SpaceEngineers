@@ -102,9 +102,7 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
 
             if (m_shotSmoke != null)
             {
-                m_shotSmoke.UserEmitterScale = m_smokeToGenerate;
                 m_shotSmoke.WorldMatrix = m_gunBase.GetMuzzleWorldMatrix();
-                m_shotSmoke.UserScale = 5;
             }
 
             GetWeaponBase().PlayShootingSound();

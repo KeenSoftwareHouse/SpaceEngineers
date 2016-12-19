@@ -115,7 +115,7 @@ namespace Sandbox.Game.Weapons
                 }
                 else
                 {
-                    if (!MySession.Static.Battle && MySession.Static.IsAdminModeEnabled(Sync.MyId)==false)
+                    if (!MySession.Static.CreativeToolsEnabled(Sync.MyId))
                         OnMissingComponents(definition);
                 }
             }
@@ -193,10 +193,10 @@ namespace Sandbox.Game.Weapons
                     Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
                 }
 
-                if (Owner.ControllerInfo.IsLocallyHumanControlled())
-                {
-                    BlockBuilder.Activate();
-                }
+                //if (Owner.ControllerInfo.IsLocallyHumanControlled())
+                //{
+                //    BlockBuilder.Activate();
+                //}
             }
         }
 

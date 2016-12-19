@@ -1121,6 +1121,12 @@ namespace VRageMath
                 Max.Z = minCenter.Z + minimumSize.Z / 2;
             }
         }
+
+        public bool IsValid
+        {
+            get { return Min.X <= Max.X && Min.Y <= Max.Y && Min.Z <= Max.Z; }
+        }
+
         //#region Comparer
 
         //public class ComparerType : IEqualityComparer<BoundingBoxD>

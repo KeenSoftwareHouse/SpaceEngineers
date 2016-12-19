@@ -1,11 +1,8 @@
 ﻿using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Components;
-using Sandbox.Game.Replication;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage.Network;
 
 using VRage.Game.Components;
@@ -70,7 +67,7 @@ namespace Sandbox.Game.Replication
             loadingDoneHandler(craftComp); 
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
             System.Diagnostics.Debug.Assert(!((MyEntity)CraftingComponent.Entity).Closed, "Sending inventory of closed entity");
             if (CraftingComponent.Entity is MyCharacter)
@@ -121,9 +118,15 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public override bool IsChild
+        public override bool HasToBeChild
         {
-            get { return false; }
+            get { return true; }
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            System.Diagnostics.Debug.Fail("GetAABB can be called only on root replicables");
+            return VRageMath.BoundingBoxD.CreateInvalid();
         }
     }
 }

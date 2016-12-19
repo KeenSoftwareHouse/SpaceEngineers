@@ -32,7 +32,10 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
 
             // Save names of variables
             firstVariableName = m_inputANode.VariableSyntaxName(ObjectBuilder.InputAID.VariableName);
-            secondVariableName = m_inputBNode.VariableSyntaxName(ObjectBuilder.InputBID.VariableName);
+            secondVariableName = m_inputBNode != null ? m_inputBNode.VariableSyntaxName(ObjectBuilder.InputBID.VariableName) : "null";
+
+            if (m_inputBNode == null && ObjectBuilder.Operation != "==" && ObjectBuilder.Operation != "!=")
+                throw new Exception("Null check with Operation " + ObjectBuilder.Operation + " is prohibited.");
 
             // Create expression for arithmetic operation
             Debug.Assert(!string.IsNullOrEmpty(firstVariableName) && !string.IsNullOrEmpty(secondVariableName));
@@ -63,11 +66,14 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
                 Debug.Assert(m_inputANode != null);
 
                 // Read the Input B data
-                if (ObjectBuilder.InputBID.NodeID == -1)
-                    throw new Exception("Missing inputA in arithmetic node: " + ObjectBuilder.ID);
-
-                m_inputBNode = Navigator.GetNodeByID(ObjectBuilder.InputBID.NodeID);
-                Debug.Assert(m_inputBNode != null);
+                if (ObjectBuilder.InputBID.NodeID != -1)
+                {
+                    m_inputBNode = Navigator.GetNodeByID(ObjectBuilder.InputBID.NodeID);
+                    if (m_inputBNode == null)
+                    {
+                        throw new Exception("Missing inputB in arithmetic node: " + ObjectBuilder.ID);
+                    }
+                }
 
                 // Fill in the Output data
                 for(int index = 0; index < ObjectBuilder.OutputNodeIDs.Count; index++)
@@ -83,7 +89,9 @@ namespace VRage.Game.VisualScripting.ScriptBuilder.Nodes
 
                 // Fill in the Input nodes
                 Inputs.Add(m_inputANode);
-                Inputs.Add(m_inputBNode);
+                // B is not mandatory (null)
+                if(m_inputBNode != null)
+                    Inputs.Add(m_inputBNode);
             }
 
             // Base call will take care of the rest

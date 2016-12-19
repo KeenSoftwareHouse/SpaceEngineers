@@ -7,7 +7,7 @@ namespace VRageRender.Messages
         public uint ID;
         public int InstanceIndex;
         public string Model;
-        public int[] SectionIndices;
+        public string[] SectionNames;
         public uint[] SubpartIndices;
         public Color? OutlineColor;
         public float Thickness;

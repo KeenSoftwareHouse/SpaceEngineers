@@ -82,7 +82,7 @@ namespace Sandbox.Game.Weapons
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         protected override void CreateTerminalControls()
@@ -256,7 +256,7 @@ namespace Sandbox.Game.Weapons
         {
             if (ResourceSink != null)
                 ResourceSink.Update();
-			if ((Enabled || WantsToActivate) && IsFunctional && ResourceSink.IsPowered)
+            if ((Enabled || WantsToActivate) && IsFunctional && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 StartShooting();
             }
@@ -268,7 +268,7 @@ namespace Sandbox.Game.Weapons
 
         private float ComputeRequiredPower()
         {
-			return (IsFunctional && (Enabled || WantsToActivate)) ? ResourceSink.MaxRequiredInput : 0f;
+            return (IsFunctional && (Enabled || WantsToActivate)) ? ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0f;
         }
 
         public override void UpdateAfterSimulation()

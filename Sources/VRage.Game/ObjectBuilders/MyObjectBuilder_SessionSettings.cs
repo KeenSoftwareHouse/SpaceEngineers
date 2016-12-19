@@ -137,11 +137,6 @@ namespace VRage.Game
         [GameRelation(Game.Shared)]
         public bool EnableSpectator = false;
 
-        [ProtoMember]
-        [Display(Name = "Remove trash")]
-        [GameRelation(Game.SpaceEngineers)]
-        public bool RemoveTrash = true;
-
         /// <summary>
         /// Size of the edge of the world area cube.
         /// Don't use directly, as it is error-prone (it's km instead of m and edge size instead of half-extent)
@@ -285,26 +280,19 @@ namespace VRage.Game
         public bool StationVoxelSupport = false;
 
         [ProtoMember]
-        [Display(Name = "Enable Sun Rotation")]
+        [Display(Name = "Enable sun rotation")]
         [GameRelation(Game.SpaceEngineers)]
         public bool EnableSunRotation = true;
 
-        // Should have been named "EnableRespawnShips" to avoid a negative
-        // but it's alread public now
         [ProtoMember]
-        [Display(Name = "Disable respawn ships / carts")]
+        [Display(Name = "Enable respawn ships / carts")]
         [GameRelation(Game.Shared)]
-        public bool DisableRespawnShips = false;
+        public bool EnableRespawnShips = true;
 
         [ProtoMember]
         [Display(Name = "")]
         [GameRelation(Game.SpaceEngineers)]
         public bool ScenarioEditMode = false;
-
-        [ProtoMember]
-        [GameRelation(Game.MedievalEngineers)]
-        [Display(Name = "")]
-        public bool Battle = false;
 
         [ProtoMember]
         [Display(Name = "")]
@@ -317,7 +305,7 @@ namespace VRage.Game
         public bool CanJoinRunning = false;
 
         [ProtoMember]
-        public int PhysicsIterations = 4;
+        public int PhysicsIterations = 8;
 
         [ProtoMember]
         [Display(Name = "Sun rotation interval")]
@@ -365,7 +353,7 @@ namespace VRage.Game
         public bool? EnableSpiders;
 
         [ProtoMember]
-        [Display(Name = "Flora Density Multiplier")]
+        [Display(Name = "Flora density multiplier")]
         [GameRelation(Game.Shared)]
         public float FloraDensityMultiplier = 1f;
 
@@ -400,7 +388,11 @@ namespace VRage.Game
             { "ShipWelder", 100 },
             { "ShipGrinder", 150 }
         });
-        
+
+        [ProtoMember]
+        [Display(Name = "Enable Scripter role")]
+        [GameRelation(Game.SpaceEngineers)]
+        public bool EnableScripterRole = false;
 
 
         public void LogMembers(MyLog log, LoggingOptions options)
@@ -440,7 +432,6 @@ namespace VRage.Game
                 log.WriteLine("DestructibleBlocks = " + DestructibleBlocks);
                 log.WriteLine("EnableIngameScripts = " + EnableIngameScripts);
                 log.WriteLine("ViewDistance = " + ViewDistance);
-                log.WriteLine("Battle = " + Battle);
                 log.WriteLine("Voxel destruction = " + EnableVoxelDestruction);
                 log.WriteLine("EnableStructuralSimulation = " + EnableStructuralSimulation);
                 log.WriteLine("MaxActiveFracturePieces = " + MaxActiveFracturePieces);
@@ -490,5 +481,6 @@ namespace VRage.Game
         public string WorldName = "";
         public bool PauseGameWhenEmpty = false;
         public bool IgnoreLastSession = false;
+        public string PremadeCheckpointPath = "";
     }
 }

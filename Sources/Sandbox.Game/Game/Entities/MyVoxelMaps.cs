@@ -77,13 +77,6 @@ namespace Sandbox.Game.Entities
             MyGamePruningStructure.GetAllVoxelMapsInSphere(ref sphere, voxels);
         }
 
-        public List<MyVoxelBase> GetAllOverlappingWithSphere(ref BoundingSphereD sphere)
-        {
-            List<MyVoxelBase> voxels = new List<MyVoxelBase>();
-            MyGamePruningStructure.GetAllVoxelMapsInSphere(ref sphere, voxels);
-            return voxels;
-        }
-
         public void Add(MyVoxelBase voxelMap)
         {
             if (!Exist(voxelMap))

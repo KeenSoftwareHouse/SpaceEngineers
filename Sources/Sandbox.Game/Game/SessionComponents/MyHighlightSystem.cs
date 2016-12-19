@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
@@ -54,6 +55,12 @@ namespace Sandbox.Game.SessionComponents
             /// IMyUseObject logic to process the highlight.
             /// </summary>
             public bool IgnoreUseObjectData;
+            /// <summary>
+            /// Specify there the names of the subparts that would be highlighted
+            /// instead of the full model.
+            /// Format: "subpart_1;subpart_2"
+            /// </summary>
+            public string SubPartNames;
 
             /// <summary>
             /// Constructor.
@@ -64,8 +71,9 @@ namespace Sandbox.Game.SessionComponents
             /// <param name="outlineColor">Color of overlay.</param>
             /// <param name="ignoreUseObjectData">Used to ignore IMyUseObject logic for highlighting.</param>
             /// <param name="playerId">Id of receiving player.</param>
+            /// <param name="subPartNames">Names of subparts that should be highlighted instead of the full model.</param>
             public MyHighlightData(long entityId = 0, int thickness = -1, ulong pulseTimeInFrames = 0,
-                Color? outlineColor = null, bool ignoreUseObjectData = false, long playerId = -1)
+                Color? outlineColor = null, bool ignoreUseObjectData = false, long playerId = -1, string subPartNames = null)
             {
                 EntityId = entityId;
                 Thickness = thickness;
@@ -73,6 +81,7 @@ namespace Sandbox.Game.SessionComponents
                 PulseTimeInFrames = pulseTimeInFrames;
                 PlayerId = playerId;
                 IgnoreUseObjectData = ignoreUseObjectData;
+                SubPartNames = subPartNames;
             }
         }
 
@@ -318,26 +327,58 @@ namespace Sandbox.Game.SessionComponents
             }
         }
 
+        private StringBuilder m_highlightAttributeBuilder = new StringBuilder();
         // Local helper method for use object highlighting.
         private void HighlightUseObject(IMyUseObject useObject, MyHighlightData data)
         {
             // Use the helper to perform preprocessing 
             m_highlightCalculationHelper.HighlightAttribute = null;
-            m_highlightCalculationHelper.Highlight(useObject);
 
-            // For objects with dummy prepare dummy data
             if (useObject.Dummy != null)
             {
+                // For objects with dummy prepare dummy data
                 object attributeData;
                 useObject.Dummy.CustomData.TryGetValue(MyModelDummy.ATTRIBUTE_HIGHLIGHT, out attributeData);
                 string highlightAttribute = attributeData as string;
-                m_highlightCalculationHelper.HighlightAttribute = highlightAttribute;
+
+                if(highlightAttribute == null)
+                     return;
+
+                if (data.SubPartNames != null)
+                {
+                    // When the SubPartName hints are present check the attributes.
+                    // Use only those who should be rendered.
+                    m_highlightAttributeBuilder.Clear();
+
+                    var splits = data.SubPartNames.Split(';');
+                    foreach (var split in splits)
+                    {
+                        if (highlightAttribute.Contains(split))
+                        {
+                            m_highlightAttributeBuilder.Append(split).Append(';');
+                        }
+                    }
+
+                    if(m_highlightAttributeBuilder.Length > 0)
+                        m_highlightAttributeBuilder.TrimEnd(1);
+                    m_highlightCalculationHelper.HighlightAttribute = m_highlightAttributeBuilder.ToString();
+                }
+                else
+                {
+                    // Use whole set of attributes.
+                    m_highlightCalculationHelper.HighlightAttribute = highlightAttribute;
+                }
+
+                if(string.IsNullOrEmpty(m_highlightCalculationHelper.HighlightAttribute))
+                    return;
             }
+
+            m_highlightCalculationHelper.Highlight(useObject);
 
             // Send message to renderer
             MyRenderProxy.UpdateModelHighlight(
                 (uint)m_highlightCalculationHelper.InteractiveObject.RenderObjectID,
-                m_highlightCalculationHelper.SectionIndices,
+                m_highlightCalculationHelper.SectionNames,
                 m_highlightCalculationHelper.SubpartIndices,
                 data.OutlineColor,
                 data.Thickness,

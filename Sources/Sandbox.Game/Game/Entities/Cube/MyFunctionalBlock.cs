@@ -53,9 +53,7 @@ namespace Sandbox.Game.Entities.Cube
             m_enabled = SyncType.CreateAndAddProp<bool>();
 #endif // BX1
             CreateTerminalControls();
-
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
-
+          
             m_enabled.ValueChanged += (x)=> EnabledSyncChanged();
         }
 
@@ -207,6 +205,11 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
             base.OnDestroy();
+        }
+
+        public virtual int GetBlockSpecificState()
+        {
+            return -1;
         }
     }
 }

@@ -405,7 +405,7 @@ namespace Sandbox.Graphics.GUI
                  {
                      if (block.IDModule != null)
                      {
-                         if (shareMode >= 0 && (block.OwnerId == MySession.Static.LocalPlayerId))
+                         if (shareMode >= 0 && (block.OwnerId == MySession.Static.LocalPlayerId || MySession.Static.IsUserSpaceMaster(MySession.Static.LocalHumanPlayer.Client.SteamUserId)))
                          {
                              m_requests.Add(new MyCubeGrid.MySingleOwnershipRequest()
                              {
@@ -455,7 +455,7 @@ namespace Sandbox.Graphics.GUI
                                 {
                                     if (block.IDModule != null)
                                     {
-                                        if (block.OwnerId == 0 || block.OwnerId == MySession.Static.LocalPlayerId)
+                                        if (block.OwnerId == 0 || block.OwnerId == MySession.Static.LocalPlayerId || MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
                                         {
                                             m_requests.Add(new MyCubeGrid.MySingleOwnershipRequest()
                                             {
@@ -468,7 +468,7 @@ namespace Sandbox.Graphics.GUI
 
                                 if (m_requests.Count > 0)
                                 {
-                                    if (MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(ownerKey)) 
+                                    if (MySession.Static.IsUserSpaceMaster(MySession.Static.LocalHumanPlayer.Client.SteamUserId) && Sync.Players.IdentityIsNpc(ownerKey)) 
                                     {
                                         MyCubeGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests, MySession.Static.LocalPlayerId);
                                     }
@@ -542,7 +542,7 @@ namespace Sandbox.Graphics.GUI
 
             if (!propertyMixed)
             {
-                if (owner.Value == MySession.Static.LocalPlayerId)
+                if (owner.Value == MySession.Static.LocalPlayerId || MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
                 {
                     m_shareModeCombobox.Enabled = true;
                 }
@@ -558,7 +558,7 @@ namespace Sandbox.Graphics.GUI
                 }
                 else
                 {
-                    m_transferToCombobox.Enabled = owner.Value == MySession.Static.LocalPlayerId;
+                    m_transferToCombobox.Enabled = owner.Value == MySession.Static.LocalPlayerId || MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals);
                     m_ownerLabel.TextEnum = MySpaceTexts.BlockOwner_Me;
                     if (owner.Value != MySession.Static.LocalPlayerId)
                     {

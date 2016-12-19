@@ -750,7 +750,7 @@ namespace Sandbox.Graphics.GUI
         /// </summary>
         public void ScrollToolbarToTop()
         {
-            m_scrollBar.ChangeValue(0);
+            m_scrollBar.SetPage(0);
         }
 
         private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

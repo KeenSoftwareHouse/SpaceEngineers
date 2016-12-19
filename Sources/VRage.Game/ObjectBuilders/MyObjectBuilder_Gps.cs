@@ -31,6 +31,9 @@ namespace VRage.Game
 
                 [ProtoMember]
                 public bool alwaysVisible;
+
+                [ProtoMember]
+                public Color color;
             }
 
             [ProtoMember]

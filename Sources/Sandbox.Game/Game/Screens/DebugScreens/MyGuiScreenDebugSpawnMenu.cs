@@ -24,10 +24,14 @@ using VRage.ObjectBuilders;
 using VRage.Network;
 using VRage.Serialization;
 using System.Diagnostics;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
 using VRage.Game;
 using Sandbox.Game.SessionComponents.Clipboard;
+using VRage.Game.Entity;
 using VRage.Voxels;
 using VRageRender.Messages;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Gui
 {
@@ -286,6 +290,23 @@ namespace Sandbox.Game.Gui
             m_errorLabel.Visible = false;
             CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_SpawnObject, OnSpawnPhysicalObject);
 
+            MyCharacterDetectorComponent comp;
+            MyTerminalBlock detected = null;
+            bool enableButton = false;
+
+            if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Components.TryGet(out comp) && comp.UseObject != null)
+                detected = comp.DetectedEntity as MyTerminalBlock;
+           
+            string name = "-";
+            if (detected != null && detected.HasInventory && detected.HasLocalPlayerAccess())
+            {
+                name = detected.CustomName.ToString();
+                enableButton = true;
+            }
+
+            AddLabel(MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_CurrentTarget) + name, Color.White.ToVector4(), m_scale);
+            CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_SpawnTargeted, OnSpawnIntoContainer, enableButton);
+
             m_currentPosition.Y += separatorSize;
         }
 
@@ -410,6 +431,58 @@ namespace Sandbox.Game.Gui
 
             SpawnFloatingObjectPreview();
             CloseScreenNow();
+        }
+
+        private void OnSpawnIntoContainer(MyGuiControlButton myGuiControlButton)
+        {
+            if (!IsValidAmount())
+            {
+                m_errorLabel.Visible = true;
+                return;
+            }
+
+            MyCharacterDetectorComponent comp;
+
+            if (MySession.Static.LocalCharacter == null || !MySession.Static.LocalCharacter.Components.TryGet(out comp))
+                return;
+
+            MyTerminalBlock entity = comp.DetectedEntity as MyTerminalBlock;
+
+            if (entity == null || !entity.HasInventory)
+                return;
+
+            SerializableDefinitionId itemId = m_physicalItemDefinitions[(int)m_physicalObjectCombobox.GetSelectedKey()].Id;
+
+            if (Sync.IsServer)
+                SpawnIntoContainer_Implementation(m_amount, itemId, entity.EntityId, MySession.Static.LocalPlayerId);
+            else
+                MyMultiplayer.RaiseStaticEvent(x => SpawnIntoContainer_Implementation, m_amount, itemId, entity.EntityId, MySession.Static.LocalPlayerId);
+        }
+
+        [Event, Reliable, Server]
+        private static void SpawnIntoContainer_Implementation(long amount, SerializableDefinitionId item, long entityId, long playerId)
+        {
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
+
+            MyEntity entity;
+            if (!MyEntities.TryGetEntityById(entityId, out entity))
+                return;
+
+            if(!entity.HasInventory || !((MyTerminalBlock)entity).HasPlayerAccess(playerId))
+                return;
+
+            MyInventory inventory = entity.GetInventory();
+
+            if(!inventory.CheckConstraint(item))
+                return;
+
+            MyFixedPoint itemAmt = (MyFixedPoint)Math.Min(amount, (decimal)inventory.ComputeAmountThatFits(item));
+
+            inventory.AddItems(itemAmt, (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(item));
         }
 
         private void OnLoadAsteroid(MyGuiControlButton obj)
@@ -543,7 +616,12 @@ namespace Sandbox.Game.Gui
             if (m_lastAsteroidInfo.IsProcedural)
                 storage = CreateProceduralAsteroidStorage(seed, radius);
             else
+            {
+                bool oldValue = MyStorageBase.UseStorageCache;
+                MyStorageBase.UseStorageCache = false;
                 storage = CreateAsteroidStorage(m_lastAsteroidInfo.Asteroid, seed);
+                MyStorageBase.UseStorageCache = oldValue;
+            }
             var builder = CreateAsteroidObjectBuilder(storageName);
 
             MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, dragVectorLength);
@@ -631,7 +709,7 @@ namespace Sandbox.Game.Gui
         static public void SpawnAsteroid(Vector3D pos)
         {
             m_lastAsteroidInfo.Position = pos;
-            if (MySession.Static.HasAdminRights || MySession.Static.CreativeMode)
+            if (MySession.Static.HasCreativeRights || MySession.Static.CreativeMode)
             {
                 MyMultiplayer.RaiseStaticEvent(s => SpawnAsteroid, m_lastAsteroidInfo);
             }
@@ -640,7 +718,7 @@ namespace Sandbox.Game.Gui
         [Event, Reliable, Server]
         static void SpawnAsteroid(SpawnAsteroidInfo asteroidInfo)
         {
-            if (MySession.Static.CreativeMode || MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            if (MySession.Static.CreativeMode || MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
             {
                 MyStorageBase storage;
                 string storageName;
@@ -667,6 +745,7 @@ namespace Sandbox.Game.Gui
                 pastedVoxelMap.Init(storageName, storage, asteroidInfo.Position - storage.Size * 0.5f);
                 MyEntities.Add(pastedVoxelMap);
                 MyEntities.RaiseEntityCreated(pastedVoxelMap);
+                pastedVoxelMap.IsReadyForReplication = true;
             }
         }
 
@@ -798,7 +877,7 @@ namespace Sandbox.Game.Gui
         [Event, Reliable, Server]
         static void SpawnPlanet_Server(string planetName, float size, int seed, Vector3D pos)
         {
-            if (MySession.Static.CreativeMode || MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            if (MySession.Static.CreativeMode || MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
             {
                 var storageNameBase = planetName + "-" + seed + "d" + size;
 

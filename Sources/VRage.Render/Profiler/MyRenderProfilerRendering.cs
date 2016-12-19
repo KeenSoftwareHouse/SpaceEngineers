@@ -306,7 +306,7 @@ namespace VRageRender.Profiler
             }
 
             // Update horizontal offset
-            if (!Paused && !m_useCustomFrame)
+            if (!Paused)
             {
                 m_selectedFrame = lastFrameIndex;
             }

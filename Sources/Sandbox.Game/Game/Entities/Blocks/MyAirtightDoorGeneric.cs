@@ -57,7 +57,7 @@ namespace Sandbox.Game.Entities
 
         protected override bool CheckIsWorking()
         {
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
 
@@ -190,6 +190,7 @@ namespace Sandbox.Game.Entities
                 if (m_soundEmitter != null && m_soundEmitter.Loop)
                     m_soundEmitter.StopSound(false);
                 m_currSpeed = 0;
+                NeedsUpdate &= ~(MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME);
                 ResourceSink.Update();
                 RaisePropertiesChanged();
                 if (!m_open)
@@ -201,7 +202,7 @@ namespace Sandbox.Game.Entities
             }
             if (m_soundEmitter != null)
             {
-                if (Enabled && ResourceSink.IsPowered && m_currSpeed != 0)
+                if (Enabled && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && m_currSpeed != 0)
                 {
                     StartSound(m_sound);
                 }
@@ -215,7 +216,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateCurrentOpening()
         {
-            if (Enabled && ResourceSink.IsPowered)
+            if (Enabled && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
                 float deltaPos = m_currSpeed * timeDelta;
@@ -265,7 +266,7 @@ namespace Sandbox.Game.Entities
 
         internal void DoChangeOpenClose()
         {
-            if (!Enabled || !ResourceSink.IsPowered)
+            if (!Enabled || !ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
                 return;
 
             if (m_soundEmitter != null)

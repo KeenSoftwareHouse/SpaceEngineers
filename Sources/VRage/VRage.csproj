@@ -51,7 +51,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
@@ -66,7 +66,7 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\x64\Release\VRage.xml</DocumentationFile>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <NoWarn>1591,1572,1571,1573,1587,1570,0162</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -243,7 +243,11 @@
     <Compile Include="Replication\IMyStreamableReplicable.cs" />
     <Compile Include="Replication\MyBandwidthLimits.cs" />
     <Compile Include="Replication\MyClientInfo.cs" />
-    <Compile Include="Replication\MyReplicables.cs" />
+    <Compile Include="Replication\MyPacketStatistics.cs" />
+    <Compile Include="Replication\MyPacketTracker.cs" />
+    <Compile Include="Replication\MyReplicablesBase.cs" />
+    <Compile Include="Replication\MyReplicablesAABB.cs" />
+    <Compile Include="Replication\MyReplicablesLinear.cs" />
     <Compile Include="Replication\NotReplicableAttribute.cs" />
     <Compile Include="Replication\StaticEventOwnerAttribute.cs" />
     <Compile Include="Replication\Extensions.cs" />
@@ -281,6 +285,7 @@
     <Compile Include="Replication\StateGroupEnum.cs" />
     <Compile Include="Replication\TypeId.cs" />
     <Compile Include="SerializableDictionary.cs" />
+    <Compile Include="Serialization\MySerializerGuid.cs" />
     <Compile Include="Serialization\Xml\CustomRootReader.cs" />
     <Compile Include="Serialization\DynamicKeyAttribute.cs" />
     <Compile Include="Serialization\DynamicItemAttribute.cs" />

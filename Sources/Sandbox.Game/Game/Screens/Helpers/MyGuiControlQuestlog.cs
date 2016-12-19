@@ -5,6 +5,7 @@ using Sandbox.Game.Entities;
 using System;
 using System;
 using VRage.Audio;
+using VRage.Game.ObjectBuilders.Gui;
 using VRage.Utils;
 using VRageMath;
 
@@ -15,13 +16,15 @@ namespace Sandbox.Game.Screens
     {
         private static readonly float ANIMATION_PERIOD = 10;
         private static readonly int NUMER_OF_PERIODS = 3;
-        private MySoundPair m_highlightSound = new MySoundPair("SoundBlockAlert2");
+        private static readonly int CHARACTER_TYPING_FREQUENCY = 2;
         private IMySourceVoice m_currentSoundID;
 
         public MyHudQuestlog QuestInfo;
 
         private Vector2 m_position;
         private float m_currentFrame = float.MaxValue;
+        private int m_timer = 0;
+        private bool m_characterWasAdded = false;
 
         public MyGuiControlQuestlog(Vector2 position)
         {
@@ -44,12 +47,22 @@ namespace Sandbox.Game.Screens
             if (QuestInfo.HighlightChanges)
             {
                 m_currentFrame = 0;
-                if (m_currentSoundID == null && MyAudio.Static != null)
-                    m_currentSoundID = MyAudio.Static.PlaySound(m_highlightSound.SoundId);
             }
             else
             {
                 m_currentFrame = float.MaxValue;
+            }
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            m_timer++;
+            if (m_timer % CHARACTER_TYPING_FREQUENCY == 0)
+            {
+                m_timer = 0;
+                if (m_characterWasAdded)
+                    RecreateControls();
             }
         }
 
@@ -60,8 +73,6 @@ namespace Sandbox.Game.Screens
                 Position = m_position + this.Size / 2;
                 RecreateControls();
                 m_currentFrame = 0;
-                if (m_currentSoundID == null)
-                    m_currentSoundID = MyAudio.Static.PlaySound(m_highlightSound.SoundId);
             }
             else
             {
@@ -110,7 +121,7 @@ namespace Sandbox.Game.Screens
             Elements.Add(title);
 
             // Pages
-            if (QuestInfo.MaxPages != 0)
+            if (QuestInfo.MaxPages > 1)
             {
                 MyGuiControlLabel numbers = new MyGuiControlLabel();
                 numbers.Text = QuestInfo.Page + "/" + QuestInfo.MaxPages;
@@ -127,18 +138,29 @@ namespace Sandbox.Game.Screens
             Elements.Add(m_separator);
 
             // Details
+            m_characterWasAdded = false;
             var rowOffset = new Vector2(0, 0.025f);
-            string[] details = QuestInfo.GetQuestGetails();
+            MultilineData[] details = QuestInfo.GetQuestGetails();
             int idx = 0;
             for (int i = 0; i < details.Length; i++)
             {
                 if (details[i] == null)
                     continue;
+
+                if(details[i].charactersDisplayed < details[i].data.Length)
+                {
+                    if (m_characterWasAdded)
+                        continue;
+                    details[i].charactersDisplayed++;
+                    m_characterWasAdded = true;
+                }
+
                 MyGuiControlMultilineText textBox = new MyGuiControlMultilineText(
                     size: new Vector2(Size.X * 0.92f, rowOffset.Y * 5),
                     position: topleft + textOffset + new Vector2(0, 0.04f) + rowOffset * idx,
                     textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                     textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                    font: details[i].completed ? VRage.Game.MyFontEnum.Green : VRage.Game.MyFontEnum.Blue,
                     //Debug purpose
                     //backgroundColor: Vector4.One,
                     //backgroundTexture: BackgroundTexture,
@@ -146,7 +168,8 @@ namespace Sandbox.Game.Screens
                     );
                 textBox.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
                 textBox.TextScale = 0.9f;
-                textBox.AppendText(details[i]);
+                textBox.AppendText((details[i].completed ? "• " : "") 
+                    + ((details[i].charactersDisplayed < details[i].data.Length) ? details[i].data.Substring(0, details[i].charactersDisplayed) : details[i].data));
                 textBox.Visible = true;
                 idx += textBox.NumberOfRows;
                 Elements.Add(textBox);

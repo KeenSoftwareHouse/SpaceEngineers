@@ -49,10 +49,10 @@
       <DamageRatio>1</DamageRatio>
       <ParticleEffect>Collision_Meteor</ParticleEffect>
       
-      <DiffuseXZ>Textures\Voxels\Sand_02_ForAxisXZ_de.dds</DiffuseXZ>
+      <!--<DiffuseXZ>Textures\Voxels\Sand_02_ForAxisXZ_de.dds</DiffuseXZ>
       <NormalXZ>Textures\Voxels\Sand_02_ForAxisXZ_ns.dds</NormalXZ>
       <DiffuseY>Textures\Voxels\Sand_02_ForAxisXZ_de.dds</DiffuseY>
-      <NormalY>Textures\Voxels\Sand_02_ForAxisXZ_ns.dds</NormalY>
+      <NormalY>Textures\Voxels\Sand_02_ForAxisXZ_ns.dds</NormalY>-->
       <ColorMetalXZnY>Textures\Voxels\Sand_02_ForAxisXZ_cm.dds</ColorMetalXZnY>
       <NormalGlossXZnY>Textures\Voxels\Sand_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
       <ExtXZnY>Textures\Voxels\Sand_02_ForAxisXZ_add.dds</ExtXZnY>
@@ -66,6 +66,8 @@
       <ExtXZnYFar2>Textures\Voxels\Sand_02_ForAxisXZ_Far2_add.dds</ExtXZnYFar2>
 
       <ExtDetailScale>0.005</ExtDetailScale>
+      <InitialScale>1.6</InitialScale>
+      <ScaleMultiplier>5.2</ScaleMultiplier>
       <Scale>2</Scale>
       <Far1Distance>22</Far1Distance>
       <Far2Distance>500</Far2Distance>
@@ -112,10 +114,10 @@
       <DamageRatio>1</DamageRatio>
       <ParticleEffect>Collision_Meteor</ParticleEffect>
       
-      <DiffuseXZ>Textures\Voxels\RocksDesert_ForAxisXZ_de.dds</DiffuseXZ>
+      <!--<DiffuseXZ>Textures\Voxels\RocksDesert_ForAxisXZ_de.dds</DiffuseXZ>
       <NormalXZ>Textures\Voxels\RocksDesert_ForAxisXZ_ns.dds</NormalXZ>
       <DiffuseY>Textures\Voxels\RocksDesert_ForAxisXZ_de.dds</DiffuseY>
-      <NormalY>Textures\Voxels\RocksDesert_ForAxisXZ_ns.dds</NormalY>
+      <NormalY>Textures\Voxels\RocksDesert_ForAxisXZ_ns.dds</NormalY>-->
       <ColorMetalXZnY>Textures\Voxels\RocksDesert_ForAxisXZ_cm.dds</ColorMetalXZnY>
       <NormalGlossXZnY>Textures\Voxels\RocksDesert_ForAxisXZ_ng.dds</NormalGlossXZnY>
       <ExtXZnY>Textures\Voxels\RocksDesert_ForAxisXZ_add.dds</ExtXZnY>
@@ -124,17 +126,16 @@
       <NormalGlossXZnYFar1>Textures\Voxels\RocksDesert_ForAxisXZ_Far1_ng.dds</NormalGlossXZnYFar1>
       <ExtXZnYFar1>Textures\Voxels\RocksDesert_ForAxisXZ_Far1_add.dds</ExtXZnYFar1>
 
-      <ColorMetalXZnYFar2>Textures\Voxels\RocksDesert_ForAxisXZ_Far2_cm.dds</ColorMetalXZnYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\RocksDesert_ForAxisXZ_Far2_ng.dds</NormalGlossXZnYFar2>
-      <ExtXZnYFar2>Textures\Voxels\RocksDesert_ForAxisXZ_Far2_add.dds</ExtXZnYFar2>
+      <ColorMetalXZnYFar2>Textures\Voxels\RocksDesert_ForAxisXZ_Far1_cm.dds</ColorMetalXZnYFar2>
+      <NormalGlossXZnYFar2>Textures\Voxels\RocksDesert_ForAxisXZ_Far1_ng.dds</NormalGlossXZnYFar2>
+      <ExtXZnYFar2>Textures\Voxels\RocksDesert_ForAxisXZ_Far1_add.dds</ExtXZnYFar2>
 
 
       <ExtDetailScale>0.005</ExtDetailScale>
-      <Scale>2</Scale>
-      <Far1Distance>1000</Far1Distance>
-      <Far2Distance>500</Far2Distance>
-      <Far1Scale>300</Far1Scale>
-      <Far2Scale>3000</Far2Scale>
+      <Far1Distance>30</Far1Distance>
+      <Far2Distance>300</Far2Distance>
+      <Far1Scale>120</Far1Scale>
+      <Far2Scale>1000</Far2Scale>
       
       
       <SpecularPower>24</SpecularPower>
@@ -157,6 +158,9 @@
       <BiomeValueMin>1</BiomeValueMin>
       <BiomeValueMax>1</BiomeValueMax>
 
+      <!--<InitialScale>4</InitialScale>
+	    <ScaleMultiplier>9</ScaleMultiplier>-->
+      
     </VoxelMaterial>
     
     <!-- MarsRock -->
@@ -719,6 +723,7 @@
       <DamageThreashold>0.1</DamageThreashold>
       <DamagedMaterial>Soil</DamagedMaterial>
     </VoxelMaterial>
+    
     <!-- Grass_02 -->
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -736,20 +741,28 @@
       <DamageRatio>1</DamageRatio>
       <ParticleEffect>Collision_Meteor</ParticleEffect>
       
-      <DiffuseXZ>Textures\Voxels\Grass_ForAxisXZ_de.dds</DiffuseXZ>
+      <!--<DiffuseXZ>Textures\Voxels\Grass_ForAxisXZ_de.dds</DiffuseXZ>
       <NormalXZ>Textures\Voxels\Grass_ForAxisXZ_ns.dds</NormalXZ>
       <DiffuseY>Textures\Voxels\Grass_ForAxisY_de.dds</DiffuseY>
-      <NormalY>Textures\Voxels\Grass_ForAxisY_ns.dds</NormalY>
+      <NormalY>Textures\Voxels\Grass_ForAxisY_ns.dds</NormalY>-->
 
       <ColorMetalXZnY>Textures\Voxels\Grass_02_cm.dds</ColorMetalXZnY>
       <NormalGlossXZnY>Textures\Voxels\Grass_02_ng.dds</NormalGlossXZnY>
       <ExtXZnY>Textures\Voxels\Grass_02_add.dds</ExtXZnY>
+            
+      <!--<ColorMetalXZnYFar1>Textures\Voxels\Grass_02_cm.dds</ColorMetalXZnYFar1>
+      <NormalGlossXZnYFar1>Textures\Voxels\Grass_02_cm.dds</NormalGlossXZnYFar1>
+      <ExtXZnYFar1>Textures\Voxels\Dummy_add.dds</ExtXZnYFar1>-->
+           
       <ExtDetailScale>0.0005</ExtDetailScale>
 
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
 
-      
+      <!--<Far1Distance>30</Far1Distance>
+      <Far1Scale>10</Far1Scale>-->
+
+     <!--Foliage-->
 	  <FoliageTextureArray1>Textures\Models\Environment\Grass\Grass_array.dds</FoliageTextureArray1>
       <FoliageDensity>8</FoliageDensity>
       <FoliageScale>
@@ -770,6 +783,7 @@
 <DamageThreashold>0.1</DamageThreashold>
       <DamagedMaterial>Soil</DamagedMaterial>
     </VoxelMaterial>
+    
     
     <!-- Woods_grass -->
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
@@ -806,8 +820,12 @@
       <NormalGlossXZnYFar2>Textures\Voxels\Woods_grass_Far2_ng.dds</NormalGlossXZnYFar2>
       <ExtXZnYFar2>Textures\Voxels\Dummy_add.dds</ExtXZnYFar2>
 
-      <ExtDetailScale>0.005</ExtDetailScale>
+      <ExtDetailScale>0.005</ExtDetailScale>   
       <Scale>2</Scale>
+
+      <InitialScale>1.5</InitialScale>
+      <ScaleMultiplier>4</ScaleMultiplier>
+
       <Far1Distance>30</Far1Distance>
       <Far2Distance>500</Far2Distance>
       <Far1Scale>200</Far1Scale>

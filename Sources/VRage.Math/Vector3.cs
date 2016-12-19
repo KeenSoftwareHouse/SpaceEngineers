@@ -17,7 +17,7 @@ namespace VRageMath
     /// Defines a vector with three components.
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]
-	[Unsharper.UnsharperDisableReflection()]
+    [Unsharper.UnsharperDisableReflection()]
 #if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct Vector3 : IEquatable<Vector3>
 #else // XB1
@@ -276,6 +276,28 @@ namespace VRageMath
             vector3.Y = value / divider.Y;
             vector3.Z = value / divider.Z;
             return vector3;
+        }
+
+        public void Divide(float divider)
+        {
+            float num = 1f / divider;
+            X *= num;
+            Y *= num;
+            Z *= num;
+        }
+
+        public void Multiply(float scale)
+        {
+            X *= scale;
+            Y *= scale;
+            Z *= scale;
+        }
+
+        public void Add(Vector3 other)
+        {
+            X += other.X;
+            Y += other.Y;
+            Z += other.Z;
         }
 
         public static Vector3 Abs(Vector3 value)

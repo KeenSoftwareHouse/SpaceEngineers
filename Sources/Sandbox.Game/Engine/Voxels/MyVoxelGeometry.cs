@@ -334,7 +334,7 @@ namespace Sandbox.Engine.Voxels
                 if ((distance != null) && ((result == null) || (distance.Value < result.Value.Distance)))
                 {
                     minDistanceUntilNow = distance.Value;
-                    result = new VRage.Game.Models.MyIntersectionResultLineTriangle(ref triangleVertices, ref calculatedTriangleNormal, distance.Value);
+                    result = new VRage.Game.Models.MyIntersectionResultLineTriangle(i, ref triangleVertices, ref calculatedTriangleNormal, distance.Value);
                 }
             }
         }

@@ -254,7 +254,7 @@ namespace Sandbox.Game.Gui
             m_buttonKick.ButtonClicked       -= OnKickPlayerClicked;
             m_buttonAcceptJoin.ButtonClicked -= OnAcceptJoinClicked;
             m_buttonDemote.ButtonClicked     -= OnDemoteClicked;
-            m_buttonAddNpc.ButtonClicked += OnNewNpcClicked;
+            m_buttonAddNpc.ButtonClicked -= OnNewNpcClicked;
         }
 
         private void OnFactionsTableItemSelected(MyGuiControlTable sender, Sandbox.Graphics.GUI.MyGuiControlTable.EventArgs args)
@@ -635,7 +635,7 @@ namespace Sandbox.Game.Gui
                         m_buttonEdit.Visible       = true;
                         m_buttonPromote.Visible    = true;
                         m_buttonDemote.Visible     = true;
-                        if (MySession.Static.Settings.ScenarioEditMode)
+                        if (MySession.Static.IsUserSpaceMaster(MySession.Static.LocalHumanPlayer.Client.SteamUserId))
                             m_buttonAddNpc.Visible = true;
                     }
                 }

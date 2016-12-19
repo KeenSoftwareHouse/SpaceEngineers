@@ -42,6 +42,7 @@ namespace SpaceEngineers.Game.GUI
                 AmbientOcclusionEnabled = false,
                 TextureQuality = MyTextureQuality.LOW,
                 Dx9Quality = MyRenderQualityEnum.LOW,
+                ModelQuality = MyFakes.ENABLE_MODEL_QUALITY_IN_GRAPHICS_OPTION ? MyRenderQualityEnum.LOW : MyRenderQualityEnum.HIGH,
                 VoxelQuality = MyRenderQualityEnum.LOW,
                 GrassDensityFactor = 0
             },
@@ -54,6 +55,7 @@ namespace SpaceEngineers.Game.GUI
                 AmbientOcclusionEnabled = true,
                 TextureQuality = MyTextureQuality.MEDIUM,
                 Dx9Quality = MyRenderQualityEnum.NORMAL,
+                ModelQuality = MyFakes.ENABLE_MODEL_QUALITY_IN_GRAPHICS_OPTION ? MyRenderQualityEnum.NORMAL : MyRenderQualityEnum.HIGH,
                 VoxelQuality = MyRenderQualityEnum.NORMAL,
                 GrassDensityFactor = 1
 
@@ -67,6 +69,7 @@ namespace SpaceEngineers.Game.GUI
                 AmbientOcclusionEnabled = true,
                 TextureQuality = MyTextureQuality.HIGH,
                 Dx9Quality = MyRenderQualityEnum.HIGH,
+                ModelQuality = MyRenderQualityEnum.HIGH,
                 VoxelQuality = MyRenderQualityEnum.HIGH,
                 GrassDensityFactor = 1
             },
@@ -82,6 +85,7 @@ namespace SpaceEngineers.Game.GUI
         private MyGuiControlCombobox m_comboAnisotropicFiltering;
         private MyGuiControlCombobox m_comboGraphicsPresets;
         private MyGuiControlCombobox m_comboFoliageDetails;
+        private MyGuiControlCombobox m_comboModelQuality;
         private MyGuiControlCombobox m_comboVoxelQuality;
         private MyGuiControlSliderBase m_vegetationViewDistance;
         private MyGuiControlSlider m_grassDensitySlider;
@@ -102,6 +106,10 @@ namespace SpaceEngineers.Game.GUI
             Size = new Vector2(1000f, 1075f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
 
             if (MyFakes.ENABLE_PLANETS)
+            {
+                Size += new Vector2(0f, 60f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
+            }
+            if (MyFakes.ENABLE_MODEL_QUALITY_IN_GRAPHICS_OPTION)
             {
                 Size += new Vector2(0f, 60f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
             }
@@ -130,6 +138,7 @@ namespace SpaceEngineers.Game.GUI
             var labelMultithreadedRendering = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_MultiThreadedRendering));
             //var labelTonemapping            = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_Tonemapping));
             var labelTextureQuality         = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_TextureQuality));
+            var labelModelQuality           = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_ModelQuality));
             var labelVoxelQuality           = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_VoxelQuality));
             var labelAnisotropicFiltering   = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_AnisotropicFiltering));
             var labelGraphicsPresets        = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_QualityPreset));
@@ -159,6 +168,7 @@ namespace SpaceEngineers.Game.GUI
                 labelFont: MyFontEnum.Blue,
                 defaultValue: MathHelper.ToDegrees(MySandboxGame.Config.FieldOfView));
 
+            m_comboModelQuality = new MyGuiControlCombobox();
             m_comboVoxelQuality = new MyGuiControlCombobox();
 
             m_comboFoliageDetails = new MyGuiControlCombobox();
@@ -212,6 +222,10 @@ namespace SpaceEngineers.Game.GUI
             m_comboFoliageDetails.AddItem((int)MyFoliageDetails.MEDIUM, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails_Medium));
             m_comboFoliageDetails.AddItem((int)MyFoliageDetails.HIGH, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails_High));
 
+            m_comboModelQuality.AddItem((int)MyRenderQualityEnum.LOW, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails_Low));
+            m_comboModelQuality.AddItem((int)MyRenderQualityEnum.NORMAL, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails_Medium));
+            m_comboModelQuality.AddItem((int)MyRenderQualityEnum.HIGH, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails_High)); 
+            
             m_comboVoxelQuality.AddItem((int)MyRenderQualityEnum.LOW, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails_Low));
             m_comboVoxelQuality.AddItem((int)MyRenderQualityEnum.NORMAL, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails_Medium));
             m_comboVoxelQuality.AddItem((int)MyRenderQualityEnum.HIGH, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails_High));
@@ -226,7 +240,10 @@ namespace SpaceEngineers.Game.GUI
             {
                 const float h = 60f;
                 table.SetColumnWidths(60f, 400f, 460f);
-                table.SetRowHeights(100f, h, h, h, h, h, 40f, h, h, h, h, h, h, h, h, h, 120f);
+                if (MyFakes.ENABLE_MODEL_QUALITY_IN_GRAPHICS_OPTION)
+                    table.SetRowHeights(100f, h, h, h, h, h, 40f, h, h, h, h, h, h, h, h, h, h, 120f);
+                else
+                    table.SetRowHeights(100f, h, h, h, h, h, 40f, h, h, h, h, h, h, h, h, h, 120f);
             }
             int row = 1;
             const int leftCol = 1;
@@ -256,6 +273,11 @@ namespace SpaceEngineers.Game.GUI
                 table.Add(m_comboAmbientOcclusionHBAO, hAlign, vAlign, row++, rightCol);
                 table.Add(labelTextureQuality, hAlign, vAlign, row, leftCol);
                 table.Add(m_comboTextureQuality, hAlign, vAlign, row++, rightCol);
+                if (MyFakes.ENABLE_MODEL_QUALITY_IN_GRAPHICS_OPTION)
+                {
+                    table.Add(labelModelQuality, hAlign, vAlign, row, leftCol);
+                    table.Add(m_comboModelQuality, hAlign, vAlign, row++, rightCol);
+                }
                 table.Add(labelVoxelQuality, hAlign, vAlign, row, leftCol);
                 table.Add(m_comboVoxelQuality, hAlign, vAlign, row++, rightCol);
                 table.Add(labelAnisotropicFiltering, hAlign, vAlign, row, leftCol);
@@ -393,6 +415,7 @@ namespace SpaceEngineers.Game.GUI
                 read.Render.AnisotropicFiltering  = (MyTextureAnisoFiltering)m_comboAnisotropicFiltering.GetSelectedKey();
                 read.Render.Dx9Quality            = graphicsSettings.Render.Dx9Quality;
                 read.Render.FoliageDetails        = (MyFoliageDetails)m_comboFoliageDetails.GetSelectedKey();
+                read.Render.ModelQuality          = (MyRenderQualityEnum)m_comboModelQuality.GetSelectedKey();
                 read.Render.VoxelQuality          = (MyRenderQualityEnum)m_comboVoxelQuality.GetSelectedKey();
                 read.Render.GrassDensityFactor    = m_grassDensitySlider.Value;
                 read.VegetationDrawDistance = m_vegetationViewDistance.Value;
@@ -414,6 +437,7 @@ namespace SpaceEngineers.Game.GUI
 
             m_sliderFov.Value = MathHelper.ToDegrees(graphicsSettings.FieldOfView);
             m_comboFoliageDetails.SelectItemByKey((long)graphicsSettings.Render.FoliageDetails, sendEvent: false);
+            m_comboModelQuality.SelectItemByKey((long)graphicsSettings.Render.ModelQuality, sendEvent: false);
             m_comboVoxelQuality.SelectItemByKey((long)graphicsSettings.Render.VoxelQuality, sendEvent: false);
 
             m_grassDensitySlider.Value = graphicsSettings.Render.GrassDensityFactor;

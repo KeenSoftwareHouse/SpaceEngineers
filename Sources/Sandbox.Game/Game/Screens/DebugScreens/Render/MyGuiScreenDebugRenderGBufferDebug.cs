@@ -49,6 +49,9 @@ namespace Sandbox.Game.Gui
             m_cbs.Add(AddCheckBox("Stencil", MyRenderProxy.Settings.DisplayStencil, (x) => MyRenderProxy.Settings.DisplayStencil = x.IsChecked));
             m_currentPosition.Y += 0.01f;
 
+            m_cbs.Add(AddCheckBox("Reprojection test", MyRenderProxy.Settings.DisplayReprojectedDepth, (x) => MyRenderProxy.Settings.DisplayReprojectedDepth = x.IsChecked));
+            m_currentPosition.Y += 0.01f;
+
             AddLabel("Environment light", Color.Yellow.ToVector4(), 1.2f);
             m_cbs.Add(AddCheckBox("Ambient diffuse", MyRenderProxy.Settings.DisplayAmbientDiffuse, (x) => MyRenderProxy.Settings.DisplayAmbientDiffuse = x.IsChecked));
             m_cbs.Add(AddCheckBox("Ambient specular", MyRenderProxy.Settings.DisplayAmbientSpecular, (x) => MyRenderProxy.Settings.DisplayAmbientSpecular = x.IsChecked));

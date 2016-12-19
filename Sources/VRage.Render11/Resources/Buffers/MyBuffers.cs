@@ -9,6 +9,7 @@ using VRageRender.Utils;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Resource = SharpDX.Direct3D11.Resource;
 using Format = SharpDX.DXGI.Format;
+using VRage.Utils;
 
 namespace VRage.Render11.Resources.Buffers
 {
@@ -46,6 +47,32 @@ namespace VRage.Render11.Resources.Buffers
 
         #endregion
 
+        private void LogCreateBuffer(string name, ref BufferDescription description, Exception e)
+        {
+            MyLog.Default.Error("Error creating buffer: {0}\nName: {1}\nDebug name: {2}\nBufferDescription: [\n", e.ToString(), GetType().Name, Name);
+            MyLog.Default.IncreaseIndent();
+            MyLog.Default.Error("BindFlags = {0}", description.BindFlags);
+            MyLog.Default.Error("CpuAccessFlags = {0}", description.CpuAccessFlags);
+            MyLog.Default.Error("OptionFlags = {0}", description.OptionFlags);
+            MyLog.Default.Error("SizeInBytes = {0}", description.SizeInBytes);
+            MyLog.Default.Error("StructureByteStride = {0}", description.StructureByteStride);
+            MyLog.Default.Error("Usage = {0}", description.Usage);
+            MyLog.Default.DecreaseIndent();
+            MyLog.Default.Error("]");
+            MyLog.Default.Flush();
+
+            MyRender11.Log.Log(Utils.MyLogSeverity.Error, "Error creating buffer: {0}\nName: {1}\nDebug name: {2}\nBufferDescription: [\n", e.ToString(), GetType().Name, Name);
+            MyRender11.Log.IncreaseIndent();
+            MyRender11.Log.Log(Utils.MyLogSeverity.Error, "BindFlags = {0}", description.BindFlags);
+            MyRender11.Log.Log(Utils.MyLogSeverity.Error, "CpuAccessFlags = {0}", description.CpuAccessFlags);
+            MyRender11.Log.Log(Utils.MyLogSeverity.Error, "OptionFlags = {0}", description.OptionFlags);
+            MyRender11.Log.Log(Utils.MyLogSeverity.Error, "SizeInBytes = {0}", description.SizeInBytes);
+            MyRender11.Log.Log(Utils.MyLogSeverity.Error, "StructureByteStride = {0}", description.StructureByteStride);
+            MyRender11.Log.Log(Utils.MyLogSeverity.Error, "Usage = {0}", description.Usage);
+            MyRender11.Log.DecreaseIndent();
+            MyRender11.Log.Log(Utils.MyLogSeverity.Error, "]");
+            MyRender11.Log.Flush();
+        }
 
         internal void Init(string name, ref BufferDescription description, IntPtr? initData)
         {
@@ -61,8 +88,17 @@ namespace VRage.Render11.Resources.Buffers
             }
             catch (SharpDXException e)
             {
+                if (description.SizeInBytes == 0)
+                    MyRenderProxy.Log.WriteLine("Error requesting for buffer with zero size");
                 MyRenderProxy.Log.WriteLine("Error during allocation of a directX buffer!");
                 LogStuff(e);
+
+                LogCreateBuffer(name, ref description, e);
+                throw;
+            }
+            catch (Exception e)
+            {
+                LogCreateBuffer(name, ref description, e);
                 throw;
             }
 
@@ -83,7 +119,7 @@ namespace VRage.Render11.Resources.Buffers
         protected virtual void AfterBufferInit()
         { }
 
-        public virtual void Dispose()
+        public virtual void DisposeInternal()
         {
             IsReleased = true;
 
@@ -174,7 +210,7 @@ namespace VRage.Render11.Resources.Buffers
             };
         }
 
-        public override void Dispose()
+        public override void DisposeInternal()
         {
             if (m_srv != null)
             {
@@ -182,7 +218,7 @@ namespace VRage.Render11.Resources.Buffers
                 m_srv = null;
             }
 
-            base.Dispose();
+            base.DisposeInternal();
         }
     }
 
@@ -223,7 +259,7 @@ namespace VRage.Render11.Resources.Buffers
             m_uav.DebugName = Name + "_Uav";
         }
 
-        public override void Dispose()
+        public override void DisposeInternal()
         {
             if (m_uav != null)
             {
@@ -231,7 +267,7 @@ namespace VRage.Render11.Resources.Buffers
                 m_uav = null;
             }
 
-            base.Dispose();
+            base.DisposeInternal();
         }
     }
 
@@ -254,7 +290,7 @@ namespace VRage.Render11.Resources.Buffers
             };
         }
 
-        public override void Dispose()
+        public override void DisposeInternal()
         {
             if (m_srv != null)
             {
@@ -262,7 +298,7 @@ namespace VRage.Render11.Resources.Buffers
                 m_srv = null;
             }
 
-            base.Dispose();
+            base.DisposeInternal();
         }
     }
 
@@ -296,7 +332,7 @@ namespace VRage.Render11.Resources.Buffers
             };
         }
 
-        public override void Dispose()
+        public override void DisposeInternal()
         {
             if (m_uav != null)
             {
@@ -304,7 +340,7 @@ namespace VRage.Render11.Resources.Buffers
                 m_uav = null;
             }
 
-            base.Dispose();
+            base.DisposeInternal();
         }
     }
 

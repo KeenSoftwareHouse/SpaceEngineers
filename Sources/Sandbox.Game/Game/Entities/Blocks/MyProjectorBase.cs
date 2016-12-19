@@ -794,6 +794,18 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        protected override void OnStopWorking()
+        {
+            UpdateEmissivity();
+            base.OnStopWorking();
+        }
+
+        protected override void OnStartWorking()
+        {
+            UpdateEmissivity();
+            base.OnStartWorking();
+        }
+
         private void UpdateEmissivity()
         {
             UpdateIsWorking();
@@ -955,7 +967,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void PowerReceiver_IsPoweredChanged()
         {
-			if (!ResourceSink.IsPowered && IsProjecting())
+            if (!ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && IsProjecting())
             {
                 RequestRemoveProjection();
             }
@@ -1294,7 +1306,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             objectBuilder.ConstructionInventory = null;
             objectBuilder.BuiltBy = builtBy;
-            bool buildInstant = requestInstant && MySession.Static.IsAdminModeEnabled(Sync.MyId);
+            bool buildInstant = requestInstant && MySession.Static.CreativeToolsEnabled(Sync.MyId);
             MyMultiplayer.RaiseEvent(projectorGrid, x => x.BuildBlockRequest, cubeBlock.ColorMaskHSV.PackHSVToUint(), location, objectBuilder, builder, buildInstant, owner);
             HideCube(cubeBlock);
         }
@@ -1345,8 +1357,37 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (MyEventContext.Current.IsLocallyInvoked == false)
             {
+                if (!MySession.Static.IsUserScripter(MyEventContext.Current.Sender.Value))
+                {
+                    if (RemoveScriptsFromProjection(ref projectedGrid))
+                        MyMultiplayer.RaiseEvent(this, x => x.ShowScriptRemoveMessage, MyEventContext.Current.Sender);
+                }
                 SetNewBlueprint(projectedGrid);
             }
+        }
+
+        private bool RemoveScriptsFromProjection(ref MyObjectBuilder_CubeGrid grid)
+        {
+            bool found = false;
+            foreach (var block in grid.CubeBlocks)
+            {
+                var programmable = block as MyObjectBuilder_MyProgrammableBlock;
+                if (programmable == null)
+                    continue;
+
+                if (programmable.Program != null)
+                {
+                    programmable.Program = null;
+                    found = true;
+                }
+            }
+            return found;
+        }
+
+        [Event, Reliable, Client]
+        private void ShowScriptRemoveMessage()
+        {
+            MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.Notification_BlueprintScriptRemoved, 5000, MyFontEnum.Red));
         }
 
         public void SendNewOffset(Vector3I positionOffset, Vector3I rotationOffset, bool showOnlyBuildable)

@@ -15,7 +15,7 @@ namespace VRage.Network
 
         public int Compare(MyStateDataEntry x, MyStateDataEntry y)
         {
-            int group = x.GroupType.CompareTo(y.GroupType);
+            int group = x.Group.GroupType.CompareTo(y.Group.GroupType);
             if (group == 0)
             {
                 return y.Priority.CompareTo(x.Priority);

@@ -451,7 +451,7 @@ namespace Sandbox.Game.SessionComponents
                 }
             }
             CurrentShape.Draw(ref ShapeColor);
-            if (MyHud.MinimalHud == false)
+            if (!MyHud.MinimalHud && !MyHud.CutsceneHud)
             {
                 DrawMaterial();
             }

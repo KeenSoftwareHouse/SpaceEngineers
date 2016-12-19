@@ -132,7 +132,7 @@ namespace Sandbox.Game.SessionComponents
 
         public static void RunScript(string scriptName)
         {
-            if (!Sync.IsServer && !MyMultiplayer.Static.IsAdmin(Sync.MyId))
+            if (!Sync.IsServer && !MySession.Static.IsUserAdmin(Sync.MyId))
                 return;
             var scriptId = MyStringHash.Get(scriptName);
             if (Sync.IsServer)
@@ -150,8 +150,8 @@ namespace Sandbox.Game.SessionComponents
         static void RunScriptRequest(MyStringHash stringId)
         {
 
-            Debug.Assert(Sync.IsServer || MyMultiplayer.Static.IsAdmin(MyEventContext.Current.Sender.Value));
-            if (!Sync.IsServer && !MyMultiplayer.Static.IsAdmin(MyEventContext.Current.Sender.Value))
+            Debug.Assert(Sync.IsServer || MySession.Static.IsUserAdmin(MyEventContext.Current.Sender.Value));
+            if (!Sync.IsServer && !MySession.Static.IsUserAdmin(MyEventContext.Current.Sender.Value))
                 return;
             Static.RunScriptInternal(stringId);
         }

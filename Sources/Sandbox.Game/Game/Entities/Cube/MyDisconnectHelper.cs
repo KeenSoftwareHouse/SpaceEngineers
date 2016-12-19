@@ -111,6 +111,7 @@ namespace Sandbox.Game.Entities.Cube
                     m_groups.Clear();
                     m_sortedBlocks.Clear();
                     m_disconnectHelper.Clear();
+                    ProfilerShort.End();
                     return true;
                 }
                 MyCubeGrid.CreateSplits(grid, m_sortedBlocks, m_groups);

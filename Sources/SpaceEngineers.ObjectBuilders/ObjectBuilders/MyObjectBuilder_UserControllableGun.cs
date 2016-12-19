@@ -17,5 +17,12 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public bool IsLargeTurret = false;
+
+        [ProtoMember]
+        public float MinFov = 0.1f;
+
+        [ProtoMember]
+        public float MaxFov = 1.04719755f;
+
     }
 }

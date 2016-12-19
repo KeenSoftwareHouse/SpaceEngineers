@@ -360,6 +360,7 @@ namespace Sandbox.Game.World
             voxelMap.Init(storageName, storage, positionMinCorner);
             MyEntities.RaiseEntityCreated(voxelMap);
             MyEntities.Add(voxelMap);
+            voxelMap.IsReadyForReplication = true;
             return voxelMap;
         }
 
@@ -376,6 +377,7 @@ namespace Sandbox.Game.World
             voxelMap.Init(storageName, storage, worldMatrix);
             MyEntities.Add(voxelMap);
             MyEntities.RaiseEntityCreated(voxelMap);
+            voxelMap.IsReadyForReplication = true;
 
             ProfilerShort.End();
             return voxelMap;

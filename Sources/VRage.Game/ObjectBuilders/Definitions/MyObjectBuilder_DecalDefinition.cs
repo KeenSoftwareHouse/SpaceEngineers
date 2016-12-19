@@ -28,6 +28,9 @@ namespace VRage.Game
 
         [ProtoMember]
         public float Rotation = float.PositiveInfinity;
+
+        [ProtoMember]
+        public bool Transparent = false;
     }
 
     [ProtoContract]

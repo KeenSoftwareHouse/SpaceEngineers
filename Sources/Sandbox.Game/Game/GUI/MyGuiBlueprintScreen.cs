@@ -744,6 +744,28 @@ namespace Sandbox.Game.Gui
             return true;
         }
 
+        /// <summary>
+        /// GK: Check this sperately in order not to intervene with loading the prefab
+        /// </summary>
+        private void CheckDevTag()
+        {
+#if !XB1
+            var itemInfo = m_selectedItem.UserData as MyBlueprintItemInfo;
+
+            bool devTagMismatch = itemInfo.Item != null && itemInfo.Item.Tags != null && itemInfo.Item.Tags.Contains(MySteamWorkshop.WORKSHOP_DEVELOPMENT_TAG) && MyFinalBuildConstants.IS_STABLE;
+
+            if (devTagMismatch)
+            {
+               MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                buttonType: MyMessageBoxButtonsType.OK,
+                styleEnum: MyMessageBoxStyleEnum.Info,
+                messageCaption: MyTexts.Get(MySpaceTexts.BlueprintScreen_DevMismatchCaption),
+               messageText: MyTexts.Get(MySpaceTexts.BlueprintScreen_DevMismatchMessage)
+               ));
+            }
+#endif // !XB1
+        }
+
         class LoadPrefabData : WorkData
         {
             MyObjectBuilder_Definitions m_prefab;
@@ -847,6 +869,7 @@ namespace Sandbox.Game.Gui
                                    if (CopyBlueprintPrefabToClipboard(prefab, m_clipboard))
                                    {
                                        CloseScreen();
+                                       CheckDevTag();
                                    }
                                }
                            }));
@@ -854,8 +877,11 @@ namespace Sandbox.Game.Gui
                 else
                 {
                     if (CopyBlueprintPrefabToClipboard(prefab, m_clipboard))
+                    {
                         CloseScreen();
+                        CheckDevTag();
                 }
+            }
             }
             else
             {
@@ -970,6 +996,7 @@ namespace Sandbox.Game.Gui
                 foreach (var item in m_blueprintList.Items)
                     item.Visible = true;
             }
+            m_blueprintList.ScrollToolbarToTop();
         }
 
         void OpenSharedBlueprint(MyBlueprintItemInfo itemInfo)
@@ -1023,20 +1050,6 @@ namespace Sandbox.Game.Gui
 
             var itemInfo = m_selectedItem.UserData as MyBlueprintItemInfo;
 
-#if !XB1
-            bool devTagMismatch = itemInfo.Item != null && itemInfo.Item.Tags != null && itemInfo.Item.Tags.Contains(MySteamWorkshop.WORKSHOP_DEVELOPMENT_TAG) && MyFinalBuildConstants.IS_STABLE;
-
-            if (devTagMismatch)
-            {
-               MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                buttonType: MyMessageBoxButtonsType.OK,
-                styleEnum: MyMessageBoxStyleEnum.Info,
-                messageCaption: MyTexts.Get(MySpaceTexts.BlueprintScreen_DevMismatchCaption),
-               messageText: MyTexts.Get(MySpaceTexts.BlueprintScreen_DevMismatchMessage)));
-
-            }
-#endif // !XB1
-  
             if (itemInfo.Type == MyBlueprintTypeEnum.SHARED)
             {
                 OpenSharedBlueprint(itemInfo);
@@ -1322,8 +1335,6 @@ namespace Sandbox.Game.Gui
             prefab.RespawnShip = false;
             prefab.DisplayName = MySteam.UserName;
             prefab.OwnerSteamId = Sync.MyId;
-            if (MyFakes.ENABLE_BATTLE_SYSTEM)
-                prefab.Points = MyBattleHelper.GetBattlePoints(prefab.CubeGrids);
             prefab.CubeGrids[0].DisplayName = name;
 
             var definitions = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
@@ -1391,10 +1402,6 @@ namespace Sandbox.Game.Gui
                             var oldBlueprint = LoadPrefab(path);
                             m_clipboard.CopiedGrids[0].DisplayName = name;
                             oldBlueprint.ShipBlueprints[0].CubeGrids = m_clipboard.CopiedGrids.ToArray();
-
-                            if (MyFakes.ENABLE_BATTLE_SYSTEM)
-                                oldBlueprint.ShipBlueprints[0].Points = MyBattleHelper.GetBattlePoints(oldBlueprint.ShipBlueprints[0].CubeGrids);
-
                             SavePrefabToFile(oldBlueprint, m_clipboard.CopiedGridsName, replace: true);
                             RefreshBlueprintList();
                         }

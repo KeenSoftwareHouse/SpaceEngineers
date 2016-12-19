@@ -102,11 +102,13 @@ namespace Sandbox.Game.Entities.Cube
             MyPhysics.CastRay(line.From, line.To, m_tmpHitList,
                 MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
             // Remove character hits.
-
-            m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hitInfo)
+            if (MySession.Static.ControlledEntity != null)
             {
-                return (hitInfo.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
-            });
+                m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hitInfo)
+                {
+                    return (hitInfo.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
+                });
+            }
 
             if (m_tmpHitList.Count == 0)
                 return;

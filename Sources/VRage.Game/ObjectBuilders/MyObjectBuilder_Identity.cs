@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using System;
+using ProtoBuf;
 using System.Diagnostics;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
@@ -38,5 +39,8 @@ namespace VRage.Game
 
         [ProtoMember]
         public int BlockLimitModifier;
+
+        [ProtoMember]
+        public DateTime LastLoginTime;
     }
 }

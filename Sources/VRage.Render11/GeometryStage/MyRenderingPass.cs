@@ -8,7 +8,7 @@ using VRage.Render11.Common;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
 using VRage.Utils;
-
+using VRageRender.Import;
 using Matrix = VRageMath.Matrix;
 
 namespace VRageRender
@@ -29,7 +29,6 @@ namespace VRageRender
     struct MyPassStats
     {
         internal int Draws;
-        internal int Submeshes;
         internal int Billboards;
         internal int Instances;
         internal int Triangles;
@@ -39,7 +38,6 @@ namespace VRageRender
         internal void Clear()
         {
             Draws = 0;
-            Submeshes = 0;
             Billboards = 0;
             ObjectConstantsChanges = 0;
             MaterialConstantsChanges = 0;
@@ -50,7 +48,6 @@ namespace VRageRender
         internal void Gather(MyPassStats other)
         {
             Draws += other.Draws;
-            Submeshes += other.Submeshes;
             Billboards += other.Billboards;
             Instances += other.Instances;
             Triangles += other.Triangles;
@@ -239,6 +236,11 @@ namespace VRageRender
 
         internal void RecordCommands(MyRenderableProxy proxy)
         {
+            bool draw = true;
+            FilterRenderable(proxy, ref draw);
+            if (!draw)
+                return;
+
             RecordCommandsInternal(proxy);
         }
 
@@ -276,7 +278,7 @@ namespace VRageRender
             {
                 int size = sizeof(MyMergeInstancingConstants);
                 var buffer = new byte[sizeof(MyMergeInstancingConstants)];
-
+                
                 proxy.ObjectConstants = new MyConstantsPack()
                 {
                     BindFlag = MyBindFlag.BIND_VS,
@@ -360,6 +362,37 @@ namespace VRageRender
 
             }
             rc.SetIndexBuffer(buffers.IB);
+        }
+
+        [Conditional("DEBUG")]
+        void FilterRenderable(MyRenderableProxy proxy, ref bool draw)
+        {
+            if (proxy.Material == MyMeshMaterialId.NULL)
+            {
+                if (proxy.VoxelCommonObjectData.IsValid)
+                    draw &= MyRender11.Settings.DrawVoxels;
+
+                return;
+            }
+
+            switch (proxy.Material.Info.Technique)
+            {
+                case MyMeshDrawTechnique.MESH:
+                {
+                    if (proxy.InstanceCount == 0)
+                        draw &= MyRender11.Settings.DrawMeshes;
+                    else
+                        draw &= MyRender11.Settings.DrawInstancedMeshes;
+                    break;
+                }
+                case MyMeshDrawTechnique.ALPHA_MASKED:
+                {
+                    draw &= MyRender11.Settings.DrawAlphamasked;
+                    if (proxy.Material.Info.Facing == MyFacingEnum.Impostor)
+                        draw &= MyRender11.Settings.DrawImpostors;
+                    break;
+                }
+            }
         }
 
         internal virtual MyRenderingPass Fork()

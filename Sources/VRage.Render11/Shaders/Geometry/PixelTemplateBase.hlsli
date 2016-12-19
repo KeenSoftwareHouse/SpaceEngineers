@@ -42,8 +42,8 @@ void init_ps_interface(inout PixelInterface pix)
 	pix.key_color = object_.key_color;
 	pix.custom_alpha = object_.custom_alpha;
 	pix.color_mul = object_.color_mul;
-	pix.emissive = object_.emissive;
 #endif
+	pix.emissive = object_.emissive;
 }
 
 struct MaterialOutputInterface

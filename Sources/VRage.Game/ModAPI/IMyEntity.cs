@@ -120,7 +120,14 @@ namespace VRage.ModAPI
         MyEntityComponentBase GameLogic { get; set; }
         MyHierarchyComponentBase Hierarchy { get; set; }
         MySyncComponentBase SyncObject { get; }
-
+        
+        /// <summary>
+        /// Custom storage for mods. Shared with all mods.
+        /// </summary>
+        /// <remarks>Not synced, but saved with blueprints.
+        /// Only use set accessor if value is null.
+        /// </remarks>
+        MyModStorageComponentBase Storage { get; set; }
 
         //Entity core
         EntityFlags Flags { get; set; }

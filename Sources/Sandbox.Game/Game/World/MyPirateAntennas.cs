@@ -190,6 +190,8 @@ namespace Sandbox.Game.World
                             Sync.Players.CreateNewIdentity(IDENTITY_NAME, m_piratesIdentityId, null);
                         }
 
+                        pirateIdentity.LastLoginTime = DateTime.Now;
+
                         // Check if he is already in a faction.
                         MyFaction oldPirateFaction = MySession.Static.Factions.GetPlayerFaction(m_piratesIdentityId);
                         if (oldPirateFaction == null)

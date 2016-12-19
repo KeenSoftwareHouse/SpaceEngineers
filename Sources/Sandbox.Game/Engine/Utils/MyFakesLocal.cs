@@ -10,19 +10,12 @@ namespace Sandbox.Engine.Utils
         static MyFakesLocal()
         {
             // NOTE: Set your fakes here. Never commit this!
-            MyDebugDrawSettings.DEBUG_DRAW_DECAY = true;
+
         }
 
         public static void SetupLocalPerGameSettings()
         {
             // NOTE: Change per game settings in this method. It will override the game's per game settings. Never commit this!
-
-            //MyVoxelPhysicsBody.DebugDrawRequestShapeBlocking = true;
-
-            MyFakes.ENABLE_VOXEL_LOD_MORPHING = false;
-
-            MyFakes.ENABLE_PLANETS = true;
-            MyDebugDrawSettings.DEBUG_DRAW_DECAY = true;
         }
     }
 }

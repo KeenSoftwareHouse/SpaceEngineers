@@ -107,7 +107,6 @@ namespace VRageRender
                 }
             }
 
-            ++Stats.Submeshes;
             var submesh = proxy.DrawSubmesh;
             if (submesh.MaterialId != Locals.matTexturesID)
             {

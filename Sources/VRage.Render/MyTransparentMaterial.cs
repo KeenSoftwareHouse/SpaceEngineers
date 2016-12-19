@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using VRage.Collections;
 using VRageMath;
 
@@ -9,7 +8,7 @@ namespace VRageRender
     public class MyTransparentMaterial
     {
         public readonly string Name;
-        public MyTransparentMaterialTextureType TextureType;
+        public readonly MyTransparentMaterialTextureType TextureType;
         public readonly string Texture;
 
         //  If true, then we calculate sun shadow value for a particle, and also per-pixel lighting. Set it to true only if really unneceserary as it
@@ -18,15 +17,12 @@ namespace VRageRender
 
         public readonly bool AlphaMistingEnable;
         public readonly bool IgnoreDepth;
-        public readonly bool NeedSort;
         public readonly bool UseAtlas;
 
         public readonly float AlphaMistingStart;
         public readonly float AlphaMistingEnd;
 
         public readonly float SoftParticleDistanceScale;
-
-        public readonly float Emissivity;
 
         public readonly float AlphaSaturation;
         public readonly bool AlphaCutout;
@@ -37,8 +33,8 @@ namespace VRageRender
         // Used when binding RW textures of given size
         public Vector2I TargetSize;
 
-        public Vector4 Color = Vector4.One;
-        public float Reflectivity;
+        public Vector4 Color;
+        public readonly float Reflectivity;
 
         // Render sets this and uses that
         public object RenderTexture;
@@ -52,9 +48,7 @@ namespace VRageRender
             bool AlphaMistingEnable,
             Vector4 Color,
             bool IgnoreDepth = false,
-            bool NeedSort = true,
             bool UseAtlas = false,
-            float Emissivity = 0,
             float AlphaMistingStart = 1,
             float AlphaMistingEnd = 4,
             float AlphaSaturation = 1,
@@ -69,9 +63,7 @@ namespace VRageRender
             this.CanBeAffectedByOtherLights = CanBeAffectedByOtherLights;
             this.AlphaMistingEnable = AlphaMistingEnable;
             this.IgnoreDepth = IgnoreDepth;
-            this.NeedSort = NeedSort;
             this.UseAtlas = UseAtlas;
-            this.Emissivity = Emissivity;
             this.AlphaMistingStart = AlphaMistingStart;
             this.AlphaMistingEnd = AlphaMistingEnd;
             this.AlphaSaturation = AlphaSaturation;
@@ -79,10 +71,7 @@ namespace VRageRender
             this.Color = Color;
             this.Reflectivity = Reflectivity;
 
-            if (TargetSize == null)
-                this.TargetSize = new Vector2I(-1, -1);
-            else
-                this.TargetSize = TargetSize.Value;
+            this.TargetSize = TargetSize ?? new Vector2I(-1, -1);
 
             UVOffset = new Vector2(0, 0);
             UVSize = new Vector2(1, 1);
@@ -101,7 +90,7 @@ namespace VRageRender
 
         private static readonly MyTransparentMaterial ErrorMaterial;
 
-        public static Action OnUpdate;
+        private static Action m_onUpdate;
 
         static MyTransparentMaterials()
         {
@@ -142,7 +131,7 @@ namespace VRageRender
             m_materialsByName[material.Name] = material;
         }
 
-        public static void Clear()
+        private static void Clear()
         {
             m_materialsByName.Clear();
             AddMaterial(ErrorMaterial);
@@ -155,8 +144,8 @@ namespace VRageRender
 
         public static void Update()
         {
-            if (OnUpdate != null)
-                OnUpdate();
+            if (m_onUpdate != null)
+                m_onUpdate();
         }
     }
 }

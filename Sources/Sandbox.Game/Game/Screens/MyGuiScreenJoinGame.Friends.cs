@@ -100,6 +100,7 @@ namespace Sandbox.Game.Gui
 
         void OnFriendsServerListResponded(int server)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnFriendsServerListResponded");
             GameServerItem serverItem = SteamAPI.Instance.GetFriendsServerDetails(server);
             AddServerItem(serverItem, 
                 delegate() 
@@ -107,11 +108,14 @@ namespace Sandbox.Game.Gui
                     m_friendsPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_Friends).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
                 },
                 isFiltered: false);
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void OnFriendsServersCompleteResponse(MatchMakingServerResponseEnum response)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnFriendsServersCompleteResponse");
             CloseFriendsRequest();
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void CloseFriendsRequest()

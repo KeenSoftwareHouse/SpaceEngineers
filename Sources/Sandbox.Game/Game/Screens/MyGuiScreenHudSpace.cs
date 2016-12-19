@@ -27,6 +27,7 @@ using Color = VRageMath.Color;
 using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
 using OreDepositMarker = VRage.MyTuple<VRageMath.Vector3D, Sandbox.Game.Entities.Cube.MyEntityOreDeposit>;
 using Vector2 = VRageMath.Vector2;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Gui
 {
@@ -36,6 +37,8 @@ namespace Sandbox.Game.Gui
 
         //GR: Trigger recalculation of oxygen after when altitude differs by this amount
         private const float ALTITUDE_CHANGE_THRESHOLD = 2000;
+        private const int PING_THRESHOLD_MILLISECONDS = 250;
+        private const float SERVER_SIMSPEED_THRESHOLD = 0.5f;
 
         private MyGuiControlToolbar m_toolbarControl;
         private MyGuiControlBlockInfo m_blockInfo;
@@ -62,6 +65,8 @@ namespace Sandbox.Game.Gui
         private MyGuiControlLabel m_noConnectionNotification;
         private MyGuiControlLabel m_serverSavingNotification;
         private MyGuiControlLabel m_relayNotification;
+        private MyGuiControlLabel m_highPingNotification;
+        private MyGuiControlLabel m_lowSimSpeedNotification;
 
         private bool m_hiddenToolbar;
 
@@ -189,6 +194,17 @@ namespace Sandbox.Game.Gui
             m_serverSavingNotification.Visible = false;
             Controls.Add(m_serverSavingNotification);
 
+            m_highPingNotification = new MyGuiControlLabel(new Vector2(1, 0) + offset, font: MyFontEnum.White, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
+            m_highPingNotification.TextEnum = MyCommonTexts.Multiplayer_HighPing;
+            m_highPingNotification.Visible = false;
+            Controls.Add(m_highPingNotification);
+
+            offset += new Vector2(0, m_highPingNotification.Size.Y);
+            m_lowSimSpeedNotification = new MyGuiControlLabel(new Vector2(1, 0) + offset, font: MyFontEnum.White, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
+            m_lowSimSpeedNotification.TextEnum = MyCommonTexts.Multiplayer_LowSimSpeed;
+            m_lowSimSpeedNotification.Visible = false;
+            Controls.Add(m_lowSimSpeedNotification);
+
             MyHud.ReloadTexts();
         }
 
@@ -202,7 +218,7 @@ namespace Sandbox.Game.Gui
                 MyHud.ObjectiveLine.AdvanceObjective();
             }
 
-            if (!MyHud.MinimalHud)
+            if (!MyHud.MinimalHud && !MyHud.CutsceneHud)
             {
                 ProfilerShort.Begin("Marker rendering");
                 ProfilerShort.Begin("m_markerRender.Draw");
@@ -213,7 +229,7 @@ namespace Sandbox.Game.Gui
                 ProfilerShort.End();
             }
 
-            m_toolbarControl.Visible = !(m_hiddenToolbar || MyHud.MinimalHud);
+            m_toolbarControl.Visible = !(m_hiddenToolbar || MyHud.MinimalHud || MyHud.CutsceneHud);
 
             Vector2 position = new Vector2(0.99f, 0.75f);
             if (MySession.Static.ControlledEntity is MyShipController) position.Y = 0.65f;
@@ -222,20 +238,20 @@ namespace Sandbox.Game.Gui
                 position.X += 1.0f;
 
             // TODO: refactor this
-            m_blockInfo.Visible = MyHud.BlockInfo.Visible && !MyHud.MinimalHud;
+            m_blockInfo.Visible = MyHud.BlockInfo.Visible && !MyHud.MinimalHud && !MyHud.CutsceneHud;
             m_blockInfo.BlockInfo = m_blockInfo.Visible ? MyHud.BlockInfo : null;
             m_blockInfo.Position = position;
             m_blockInfo.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
 
-            m_questlogControl.Visible = MyHud.Questlog.Visible && !MyHud.MinimalHud;
+            m_questlogControl.Visible = MyHud.Questlog.Visible && !MyHud.MinimalHud && !MyHud.CutsceneHud;
             //m_questlogControl.QuestInfo = MyHud.Questlog;
             //m_questlogControl.RecreateControls();
             //m_questlogControl.Position = GetRealPositionOnCenterScreen(Vector2.Zero);
             //m_questlogControl.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
 
-            m_rotatingWheelControl.Visible = MyHud.RotatingWheelVisible && !MyHud.MinimalHud;
+            m_rotatingWheelControl.Visible = MyHud.RotatingWheelVisible && !MyHud.MinimalHud && !MyHud.CutsceneHud;
 
-            m_chatControl.Visible = !(MyScreenManager.GetScreenWithFocus() is MyGuiScreenScenarioMpBase) && (!MyHud.MinimalHud || m_chatControl.HasFocus);
+            m_chatControl.Visible = !(MyScreenManager.GetScreenWithFocus() is MyGuiScreenScenarioMpBase) && (!MyHud.MinimalHud || m_chatControl.HasFocus || MyHud.CutsceneHud);
 
             if (!base.Draw())
                 return false;
@@ -250,7 +266,7 @@ namespace Sandbox.Game.Gui
             m_cameraInfoMultilineControl.Position = bgPos;
             m_cameraInfoMultilineControl.TextScale = 0.9f;
 
-            if (!MyHud.MinimalHud)
+            if (!MyHud.MinimalHud && !MyHud.CutsceneHud)
             {
                 bool inNaturalGravity = false;
                 var cockpit = MySession.Static.ControlledEntity as MyCockpit;
@@ -266,7 +282,7 @@ namespace Sandbox.Game.Gui
 
             MyHud.Notifications.Draw();
 
-            if (!MyHud.MinimalHud)
+            if (!MyHud.MinimalHud && !MyHud.CutsceneHud)
             {
                 m_buildModeLabel.Visible = MyHud.IsBuildMode;
 
@@ -311,7 +327,7 @@ namespace Sandbox.Game.Gui
                 MyGuiScreenHudBase.HandleSelectedObjectHighlight(MyHud.SelectedObjectHighlight, data);
             }
 
-            if (!MyHud.MinimalHud)
+            if (!MyHud.MinimalHud && !MyHud.CutsceneHud)
             {
                 if (MyHud.GravityIndicator.Visible)
                     DrawGravityIndicator(MyHud.GravityIndicator, MyHud.CharacterInfo);
@@ -351,11 +367,11 @@ namespace Sandbox.Game.Gui
             //if (Sync.MultiplayerActive)
             DrawMultiplayerNotifications();
 
-            if (!MyHud.MinimalHud)
-            {
-                if (MyHud.VoiceChat.Visible)
-                    DrawVoiceChat(MyHud.VoiceChat);
+            if (MyHud.VoiceChat.Visible)
+                DrawVoiceChat(MyHud.VoiceChat);
 
+            if (!MyHud.MinimalHud && !MyHud.CutsceneHud)
+            {
                 if (MyHud.ScenarioInfo.Visible)
                     DrawScenarioInfo(MyHud.ScenarioInfo);
             }
@@ -429,6 +445,24 @@ namespace Sandbox.Game.Gui
             }
             else
                 m_relayNotification.Visible = false;
+
+            if (!Sync.IsServer && MySession.Static.MultiplayerPing.Milliseconds > PING_THRESHOLD_MILLISECONDS)
+            {
+                m_highPingNotification.Visible = true;
+            }
+            else
+            {
+                m_highPingNotification.Visible = false;
+            }
+
+            if (!Sync.IsServer && Sync.ServerSimulationRatio < SERVER_SIMSPEED_THRESHOLD)
+            {
+                m_lowSimSpeedNotification.Visible = true;
+            }
+            else
+            {
+                m_lowSimSpeedNotification.Visible = false;
+            }
         }
 
         public void SetToolbarVisible(bool visible)
@@ -896,7 +930,7 @@ namespace Sandbox.Game.Gui
             //gpsMarkers.Sort();//re-sort by distance from new camera coordinates
             foreach (var gps in gpsMarkers.MarkerEntities)
             {
-                m_markerRender.AddGPS(gps.Coords, gps.Name, gps.AlwaysVisible);
+                m_markerRender.AddGPS(gps.Coords, gps.Name, gps.AlwaysVisible, gps.GPSColor);
             }
             ProfilerShort.End();
         }
@@ -1051,11 +1085,16 @@ namespace Sandbox.Game.Gui
 
         private void DrawNetgraph(MyHudNetgraph netgraph)
         {
-            Vector2 bgPos = MyGuiConstants.NETGRAPH_INITIAL_POSITION;
+            //Vector2 bgPos = MyGuiConstants.NETGRAPH_INITIAL_POSITION;
+            Vector2 bgPos = new Vector2(1.0f);
+
+
             var texture = MyGuiConstants.NETGRAPH_BG_TEXTURE;
             Vector2 normBgPos = ConvertHudToNormalizedGuiPosition(ref bgPos);
-            Vector2 normSizeBg = MyGuiManager.GetNormalizedSizeFromScreenSize(texture.SizePx);
-            normSizeBg.Y = MyGuiConstants.NETGRAPH_BG_NORM_SIZE_Y;
+            Vector2 normSizeBg = new Vector2(1.3f);// MyGuiManager.GetNormalizedSizeFromScreenSize(texture.SizePx);
+            
+            //normSizeBg.Y = MyGuiConstants.NETGRAPH_BG_NORM_SIZE_Y;
+            normSizeBg.Y = 1;
 
 
             Vector2 screenOptimalBarSize = MyGuiManager.GetScreenSizeFromNormalizedSize(MyHudNetgraph.OPTIMAL_LENGTH_BAR_NORMALIZED);
@@ -1090,14 +1129,14 @@ namespace Sandbox.Game.Gui
 
             ProfilerShort.Begin("Draw netgraph bars");
             // draw netgraph bars
-            for (int i = netgraph.CurrentFirstIndex; i < MyHudNetgraph.NUMBER_OF_VISIBLE_PACKETS; i++)
+            for (int i = netgraph.CurrentFirstIndex; i < MyHudNetgraph.NUMBER_OF_VISIBLE_PACKETS - 1; i++)
             {
-                DrawNetgraphLine(netgraph.GetNetgraphLineDataAtIndex(i), ref linePosition, ref screenOptimalBarSizeMulitplier);
+                DrawNetgraphLine(netgraph.GetNetgraphLineDataAtIndex(i), netgraph.GetNetgraphLineDataAtIndex(i+1), ref linePosition, ref screenOptimalBarSizeMulitplier);
                 linePosition.X++;
             }
-            for (int i = 0; i < netgraph.CurrentFirstIndex; i++)
+            for (int i = 0; i < netgraph.CurrentFirstIndex - 1; i++)
             {
-                DrawNetgraphLine(netgraph.GetNetgraphLineDataAtIndex(i), ref linePosition, ref screenOptimalBarSizeMulitplier);
+                DrawNetgraphLine(netgraph.GetNetgraphLineDataAtIndex(i), netgraph.GetNetgraphLineDataAtIndex(i+1), ref linePosition, ref screenOptimalBarSizeMulitplier);
                 linePosition.X++;
             }
             ProfilerShort.End();
@@ -1105,21 +1144,28 @@ namespace Sandbox.Game.Gui
             ProfilerShort.Begin("Draw average line");
             // draw average line
             linePosition = cachedLinePosition;
-            float averageOnFirstLine = netgraph.GetNetgraphLineDataAtIndex(netgraph.CurrentFirstIndex).AverageOnThisLine;
+            float averageReceivedOnFirstLine = netgraph.GetNetgraphLineDataAtIndex(netgraph.CurrentFirstIndex).AverageReceivedOnThisLine;
+            float averageSentOnFirstLine = netgraph.GetNetgraphLineDataAtIndex(netgraph.CurrentFirstIndex).AverageSentOnThisLine;
             linePosition.X++;
             for (int i = netgraph.CurrentFirstIndex + 1; i < MyHudNetgraph.NUMBER_OF_VISIBLE_PACKETS; i++)
             {
-                float averageOnSecondLine = netgraph.GetNetgraphLineDataAtIndex(i).AverageOnThisLine;
-                DrawNetgraphAverageLine(ref linePosition, averageOnFirstLine, averageOnSecondLine, averageGraphSizeMultiplier, Color.Red);
+                float averageReceivedOnSecondLine = netgraph.GetNetgraphLineDataAtIndex(i).AverageReceivedOnThisLine;
+                float averageSentOnSecondLine = netgraph.GetNetgraphLineDataAtIndex(i).AverageSentOnThisLine;
+                DrawNetgraphAverageLine(ref linePosition, averageReceivedOnFirstLine, averageReceivedOnSecondLine, averageGraphSizeMultiplier, Color.Red);
+                DrawNetgraphAverageLine(ref linePosition, averageSentOnFirstLine, averageSentOnSecondLine, averageGraphSizeMultiplier, Color.Yellow);
                 linePosition.X++;
-                averageOnFirstLine = averageOnSecondLine;
+                averageReceivedOnFirstLine = averageReceivedOnSecondLine;
+                averageSentOnFirstLine = averageSentOnSecondLine;
             }
             for (int i = 0; i < netgraph.CurrentFirstIndex; i++)
             {
-                float averageOnSecondLine = netgraph.GetNetgraphLineDataAtIndex(i).AverageOnThisLine;
-                DrawNetgraphAverageLine(ref linePosition, averageOnFirstLine, averageOnSecondLine, averageGraphSizeMultiplier, Color.Red);
+                float averageReceivedOnSecondLine = netgraph.GetNetgraphLineDataAtIndex(i).AverageReceivedOnThisLine;
+                float averageSentOnSecondLine = netgraph.GetNetgraphLineDataAtIndex(i).AverageSentOnThisLine;
+                DrawNetgraphAverageLine(ref linePosition, averageReceivedOnFirstLine, averageReceivedOnSecondLine, averageGraphSizeMultiplier, Color.Red);
+                DrawNetgraphAverageLine(ref linePosition, averageSentOnFirstLine, averageSentOnSecondLine, averageGraphSizeMultiplier, Color.Yellow);
                 linePosition.X++;
-                averageOnFirstLine = averageOnSecondLine;
+                averageReceivedOnFirstLine = averageReceivedOnSecondLine;
+                averageSentOnFirstLine = averageSentOnSecondLine;
             }
             ProfilerShort.End();
             // draw netgraph status data
@@ -1132,37 +1178,76 @@ namespace Sandbox.Game.Gui
             textPosition = scalePosition;
             textPosition.X -= 0.022f;
             textPosition.Y -= 0.2f;
-            m_helperSB.Clear().Append("Reliable");
+            m_helperSB.Clear().Append("Received");
             Color tmp = MyGuiConstants.NETGRAPH_RELIABLE_PACKET_COLOR;
             tmp.A = 255;
             MyGuiManager.DrawString(MyFontEnum.White, m_helperSB, textPosition, 0.7f, tmp, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
             textPosition.Y += 0.02f;
-            m_helperSB.Clear().Append("Unreliable");
-            tmp = MyGuiConstants.NETGRAPH_UNRELIABLE_PACKET_COLOR;
-            tmp.A = 255;
-            MyGuiManager.DrawString(MyFontEnum.White, m_helperSB, textPosition, 0.7f, tmp, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
-            textPosition.Y += 0.02f;
+            //m_helperSB.Clear().Append("Unreliable");
+            //tmp = MyGuiConstants.NETGRAPH_UNRELIABLE_PACKET_COLOR;
+            //tmp.A = 255;
+            //MyGuiManager.DrawString(MyFontEnum.White, m_helperSB, textPosition, 0.7f, tmp, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
+            //textPosition.Y += 0.02f;
             m_helperSB.Clear().Append("Sent");
-            tmp = MyGuiConstants.NETGRAPH_SENT_PACKET_COLOR;
+            //tmp = MyGuiConstants.NETGRAPH_SENT_PACKET_COLOR;
+            tmp = Color.CadetBlue;
             tmp.A = 255;
             MyGuiManager.DrawString(MyFontEnum.White, m_helperSB, textPosition, 0.7f, tmp, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
+            textPosition.Y += 0.05f;
+            m_helperSB.Clear().Append("Avg in");
+            MyGuiManager.DrawString(MyFontEnum.White, m_helperSB, textPosition, 0.7f, Color.Red, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
+            textPosition.Y += 0.02f;
+            m_helperSB.Clear().Append("Avg out");
+            MyGuiManager.DrawString(MyFontEnum.White, m_helperSB, textPosition, 0.7f, Color.Yellow, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
         }
 
-        private void DrawNetgraphLine(MyHudNetgraph.NetgraphLineData lineData, ref Vector2 position, ref Vector2 size)
+        private void DrawNetgraphLine(MyHudNetgraph.NetgraphLineData lineData1, MyHudNetgraph.NetgraphLineData lineData2, ref Vector2 position, ref Vector2 size)
         {
             Vector2I offset = new Vector2I(0, 0);
             Vector2I positionI = new Vector2I((int)position.X, (int)position.Y);
 
-            DrawNetgraphLineBar(positionI.X, ref positionI.Y, lineData.ByteCountReliableReceived, size.Y,
+            DrawNetgraphLineConnected(positionI.X, ref positionI.Y, lineData1.ByteCountReliableReceived, lineData2.ByteCountReliableReceived, size.Y,
                 MyGuiConstants.NETGRAPH_RELIABLE_PACKET_COLOR, MyGuiConstants.NETGRAPH_RELIABLE_PACKET_COLOR_TOP);
 
-            DrawNetgraphLineBar(positionI.X, ref positionI.Y, lineData.ByteCountUnreliableReceived, size.Y,
-                 MyGuiConstants.NETGRAPH_UNRELIABLE_PACKET_COLOR, MyGuiConstants.NETGRAPH_UNRELIABLE_PACKET_COLOR_TOP);
 
-            DrawNetgraphLineBar(positionI.X, ref positionI.Y, lineData.ByteCountSent, size.Y,
+            //DrawNetgraphLineBar(positionI.X, ref positionI.Y, lineData.ByteCountUnreliableReceived, size.Y,
+            //     MyGuiConstants.NETGRAPH_UNRELIABLE_PACKET_COLOR, MyGuiConstants.NETGRAPH_UNRELIABLE_PACKET_COLOR_TOP);
+
+            DrawNetgraphLineConnected(positionI.X, ref positionI.Y, lineData1.ByteCountSent, lineData2.ByteCountSent, size.Y,
                  MyGuiConstants.NETGRAPH_SENT_PACKET_COLOR, MyGuiConstants.NETGRAPH_SENT_PACKET_COLOR_TOP);
         }
 
+        private void DrawNetgraphLineConnected(int positionX, ref int positionY, long value, long value2, float sizeMultiplier, Color colorLine, Color colorTop)
+        {
+            float offset1 = value * sizeMultiplier;
+            float offset2 = value2 * sizeMultiplier;
+            int offsetI1 = (int)Math.Ceiling(offset1);
+            int offsetI2 = (int)Math.Ceiling(offset2);
+
+            VRageRender.MyRenderProxy.DebugDrawLine2D(
+                new Vector2(positionX, positionY - offsetI1),
+                new Vector2(positionX + 1, positionY - offsetI2),
+                colorLine,
+                colorLine);
+
+            // small dots above each bar
+            //if (offsetI > 0)
+            //{
+            //MyGuiManager.DrawSpriteBatch(MyGuiConstants.NETGRAPH_BG_TEXTURE.Texture,
+            //    positionX,
+            //    (positionY - offsetI - 1),
+            //    1,
+            //    1,
+            //    top);
+
+            //VRageRender.MyRenderProxy.DebugDrawLine2D(
+            //    new Vector2(positionX, positionY - offsetI),
+            //    new Vector2(positionX, positionY - offsetI - 1),
+            //    colorTop,
+            //    colorTop);
+            //}
+            //positionY -= (offsetI);
+        }
         private void DrawNetgraphLineBar(int positionX, ref int positionY, long value, float sizeMultiplier, Color colorLine, Color colorTop)
         {
             float offset = value * sizeMultiplier;

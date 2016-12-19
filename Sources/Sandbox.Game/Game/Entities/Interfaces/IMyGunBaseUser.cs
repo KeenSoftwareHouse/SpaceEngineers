@@ -10,7 +10,8 @@ namespace Sandbox.Game.Entities
 {
     public interface IMyGunBaseUser
     {
-        MyEntity IgnoreEntity { get; }
+        MyEntity[] IgnoreEntities { get; }
+
         MyEntity Weapon { get; }
         MyEntity Owner { get; }
         IMyMissileGunObject Launcher { get; }

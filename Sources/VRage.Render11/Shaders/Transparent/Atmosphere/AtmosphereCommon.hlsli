@@ -1,4 +1,29 @@
 #include <Math/Math.hlsli>
+#include <Common.hlsli>
+
+Texture2D<float2> DensityLut : register(t5);
+
+cbuffer AtmosphereConstants : register(b1)
+{
+    float3  PlanetCenter;
+    float   RadiusAtmosphere;
+
+    float3  BetaRayleighScattering;
+    float   RadiusGround;
+
+    float3  BetaMieScattering;
+    float   MieG;
+
+    float2  HeightScaleRayleighMie;
+    float	PlanetScaleFactor;
+    float   AtmosphereScaleFactor;
+
+    float   Intensity;
+    float   FogIntensity;
+    float2  __padding;
+
+    matrix  WorldViewProj;
+};
 
 
 void GetRaySphereIntersection(float3 origin, float3 direction, float3 center, float radius, out float2 intersections)
@@ -138,11 +163,10 @@ float GetRayLength(int i, int steps)
 }
 
 //float4 ComputeAtmosphere(SurfaceInterface input)
-float4 ComputeAtmosphere(float3 inputV, float3 position, float depth, float native_depth, int steps)
+float4 ComputeAtmosphere(float3 inputV, float3 position, float3 lightVec, float depth, float native_depth, int steps)
 {
-	
 	const float3 V = -normalize(inputV);
-	const float3 L = -normalize(frame_.Light.directionalLightVec);
+    const float3 L = -normalize(lightVec);
 
 	float3 planetCenter = GetPlanetCenter();
 	float2 viewAtmosphereInt;

@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using ParallelTasks;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Inventory;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -32,6 +34,9 @@ namespace Sandbox.Game.SessionComponents
         #region Private Fields
         // Active campaign SM
         private MyCampaignStateMachine  m_runningCampaignSM;
+        // Storage filled between levels by player data
+        private readonly Dictionary<ulong, MyObjectBuilder_Inventory> m_savedCharacterInventoriesPlayerIds 
+            = new Dictionary<ulong, MyObjectBuilder_Inventory>(); 
         #endregion
 
         #region Public Properties
@@ -81,12 +86,70 @@ namespace Sandbox.Game.SessionComponents
             CampaignLevelOutcome = null;
         }
 
+        // Sets callbacks for successful restoration of all players inventories.
+        private void LoadPlayersInventories()
+        {
+            // Load local player inventory.
+            MyObjectBuilder_Inventory inv;
+            if (m_savedCharacterInventoriesPlayerIds.TryGetValue(MySession.Static.LocalHumanPlayer.Id.SteamId, out inv))
+            {
+                if(MySession.Static.LocalCharacter != null)
+                {
+                    var charactersInventory = MySession.Static.LocalCharacter.GetInventory();
+                    foreach (var inventoryItem in inv.Items)
+                    {
+                        charactersInventory.AddItems(inventoryItem.Amount, inventoryItem.PhysicalContent);
+                    }
+                }
+            }
+
+            // The rest needs to be done for multiplayer only.
+            if (MyMultiplayer.Static == null || !MyMultiplayer.Static.IsServer) return;
+
+            // Init the players inventory with stored values.
+            MySession.Static.Players.PlayersChanged += (added, id) =>
+            {
+                var player = MySession.Static.Players.GetPlayerById(id);
+                Debug.Assert(player.Character != null);
+                MyObjectBuilder_Inventory inventoryOb;
+                if (player.Character != null && m_savedCharacterInventoriesPlayerIds.TryGetValue(player.Id.SteamId, out inventoryOb))
+                {
+                    var charactersInventory = MySession.Static.LocalCharacter.GetInventory();
+                    foreach (var inventoryItem in inventoryOb.Items)
+                    {
+                        charactersInventory.AddItems(inventoryItem.Amount, inventoryItem.PhysicalContent);
+                    }
+                }
+            };
+        }
+
+        // Stores the contents of players inventory in the component.
+        private void SavePlayersInventories()
+        {
+            m_savedCharacterInventoriesPlayerIds.Clear();
+            foreach (var onlinePlayer in MySession.Static.Players.GetOnlinePlayers())
+            {
+                if(onlinePlayer.Character != null)
+                {
+                    var inventory = onlinePlayer.Character.GetInventory();
+                    if(inventory != null)
+                    {
+                        var inventoryData = inventory.GetObjectBuilder();
+                        m_savedCharacterInventoriesPlayerIds[onlinePlayer.Id.SteamId] = inventoryData;
+                    }
+                }
+            }
+        }
+
         // unregisters callbacks and runs new mission when the session is being unloaded.
         public void LoadNextCampaignMission()
         {
             // Only server can switch missions
             if (MyMultiplayer.Static != null && !MyMultiplayer.Static.IsServer)
                 return;
+
+            // Save inventories
+            SavePlayersInventories();
 
             var savePath = MySession.Static.CurrentPath;
             var folderName = Path.GetDirectoryName(savePath.Replace(MyFileSystem.SavesPath + "\\", ""));
@@ -97,6 +160,16 @@ namespace Sandbox.Game.SessionComponents
                 CallCloseOnClients();
                 // Return to main menu
                 MySessionLoader.UnloadAndExitToMenu();
+                
+                // Call event OnCampaignFinished
+                MyCampaignManager.Static.NotifyCampaignFinished();
+
+                // Start Credits when the vanilla game ends.
+                if(MyCampaignManager.Static.ActiveCampaign.IsVanilla)
+                {
+                    MyScreenManager.AddScreen(new MyGuiScreenGameCredits());
+                }
+
                 return;
             }
 
@@ -118,6 +191,7 @@ namespace Sandbox.Game.SessionComponents
             {
                 // Recycle this component
                 MySession.Static.RegisterComponent(this, MyUpdateOrder.NoUpdate, 555);
+                LoadPlayersInventories();
             }, folderName
             );
         }

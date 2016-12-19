@@ -259,6 +259,18 @@ namespace VRage.Game.Entity
             }
         }
 
+        MyModStorageComponentBase IMyEntity.Storage
+        {
+            get
+            {
+                return Storage;
+            }
+            set
+            {
+                Storage = value;
+            }
+        }
+
         bool IMyEntity.Visible
         {
             get

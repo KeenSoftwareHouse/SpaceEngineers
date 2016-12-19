@@ -18,7 +18,7 @@ namespace Sandbox.Game.Replication
     {
         List<MyEntity> m_entities;
         Action<MyVoxelBase> m_loadingDoneHandler;
-        MyStreamingEntityStateGroup<MyVoxelReplicable> m_streamingGroup;
+        StateGroups.MyStreamingEntityStateGroup<MyVoxelReplicable> m_streamingGroup;
 
         public MyVoxelBase Voxel { get { return Instance; } }
 
@@ -212,7 +212,7 @@ namespace Sandbox.Game.Replication
         {
             if (m_streamingGroup == null)
             {
-                m_streamingGroup = new MyStreamingEntityStateGroup<MyVoxelReplicable>(this);
+                m_streamingGroup = new StateGroups.MyStreamingEntityStateGroup<MyVoxelReplicable>(this, this);
             }
             return m_streamingGroup;
         }
@@ -278,6 +278,20 @@ namespace Sandbox.Game.Replication
         public void LoadCancel()
         {
             m_loadingDoneHandler(null);
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            //We want detect planets and asteroids from larger distance
+            var aabb = Instance.PositionComp.WorldAABB;
+
+            if (Voxel is MyPlanet)
+                aabb.Inflate((Voxel as MyPlanet).MaximumRadius * 50);
+            else
+                aabb.Inflate(Voxel.SizeInMetres.Length() * 50);
+            return aabb;
+
+            return Instance.PositionComp.WorldAABB;
         }
     }
 }

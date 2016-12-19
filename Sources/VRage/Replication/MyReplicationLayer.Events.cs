@@ -104,6 +104,8 @@ namespace VRage.Network
                 site.Serializer(arg1, m_sendStreamEvent, ref arg2, ref arg3, ref arg4, ref arg5, ref arg6, ref arg7);
             }
 
+            m_sendStreamEvent.Terminate();
+
             bool dispatchRes = false;
             // If blocking event, than process a little differently. (Internally it will call DispatchEvent anyway)
             if (!blockingNetworkId.IsInvalid)
@@ -131,8 +133,8 @@ namespace VRage.Network
 
         public void ProcessEvent(MyPacket packet)
         {
-            m_receiveStream.ResetRead(packet);
-            ProcessEvent(m_receiveStream, packet.Sender);
+            ReceiveStream.ResetRead(packet);
+            ProcessEvent(ReceiveStream, packet.Sender);
         }
 
         void ProcessEvent(BitStream stream, EndpointId sender)

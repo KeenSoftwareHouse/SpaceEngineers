@@ -25,10 +25,17 @@ namespace Sandbox.Game.Replication
             get { return m_physicsSync; }
         }
 
-        public float GetBasePriority(Vector3 position, Vector3 size, MyClientInfo client)
+        protected virtual float BaseVisibility
         {
-            float planeArea = Math.Max(size.X * size.Y, Math.Max(size.X * size.Z, size.Y * size.Z)) + 0.01f;
-            float distSq = (float)Vector3D.DistanceSquared(((MyClientState)client.State).Position, position);
+            get { return m_baseVisibility; }
+        }
+
+        public float GetBasePriority(Vector3D position, Vector3D size, MyClientInfo client)
+        {
+            System.Diagnostics.Debug.Assert(!HasToBeChild, "Priority is irrelevant for children. Use parent priority");
+
+            double planeArea = Math.Max(size.X * size.Y, Math.Max(size.X * size.Z, size.Y * size.Z)) + 0.01;
+            double distSq = Vector3D.DistanceSquared(((MyClientState)client.State).Position, position);
 
             // Anything bigger than this will behave like it's only this size, it will be hidden anyway by view distance limit
             //float planeAreaMaxSqrt = MyMultiplayer.ReplicationDistance / baseVisibility;
@@ -38,7 +45,7 @@ namespace Sandbox.Game.Replication
                 return 0;
 
             float relativeDistance = (float)Math.Sqrt(distSq / planeArea); // How far the object would be when recalculated to 1m size
-            float ratio = relativeDistance / m_baseVisibility; // 0 very close; 1 at the edge of visibility; >1 too far
+            float ratio = relativeDistance / BaseVisibility; // 0 very close; 1 at the edge of visibility; >1 too far
             return MathHelper.Clamp(1 - ratio, 0, 1);
         }
         
@@ -48,6 +55,7 @@ namespace Sandbox.Game.Replication
             T entity = (T)MyEntities.CreateFromObjectBuilder(builder);
             if (entity != null)
             {
+                entity.SentFromServer = true;
                 entity.DebugCreatedBy = DebugCreatedBy.FromServer;
                 MyEntities.Add(entity);
             }
@@ -64,6 +72,13 @@ namespace Sandbox.Game.Replication
             m_physicsSync = CreatePhysicsGroup();
             OnCloseAction = OnClose;
             Instance.OnClose += OnCloseAction;
+            Instance.PositionComp.OnPositionChanged += PositionComp_OnPositionChanged;
+        }
+
+        void PositionComp_OnPositionChanged(VRage.Game.Components.MyPositionComponentBase obj)
+        {
+            if (OnAABBChanged != null)
+                OnAABBChanged(this);
         }
 
         public void OnClose(MyEntity ent)
@@ -73,10 +88,10 @@ namespace Sandbox.Game.Replication
 
         protected virtual IMyStateGroup CreatePhysicsGroup()
         {
-            return new MyEntityPhysicsStateGroup(Instance, this);
+            return new StateGroups.MyEntityPhysicsStateGroup(Instance, this);
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
             return null;
         }
@@ -114,11 +129,9 @@ namespace Sandbox.Game.Replication
         {
             if (Instance != null)
             {
+                Instance.PositionComp.OnPositionChanged -= PositionComp_OnPositionChanged;
+
                 Instance.Close();
-                while (MyEntities.HasEntitiesToDelete())
-                {
-                    MyEntities.DeleteRememberedEntities();
-                }
             }
          
             m_physicsSync = null;
@@ -132,9 +145,14 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public override bool IsChild
+        public override bool HasToBeChild
         {
             get { return false; }
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            return Instance.PositionComp.WorldAABB;
         }
     }
 }

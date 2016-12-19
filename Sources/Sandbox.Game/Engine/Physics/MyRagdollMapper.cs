@@ -856,8 +856,9 @@ namespace Sandbox.Engine.Physics
                                 
                 m_changed = distance > 0.001f || forwardChange > 0.001f || upChange > 0.001f;
 
-                if (distance > 10)
+                if (distance > 10 || m_character.m_positionResetFromServer)
                 {
+                    m_character.m_positionResetFromServer = false;
                     if (MyFakes.ENABLE_RAGDOLL_DEBUG)
                     {
                         Debug.WriteLine("MyRagdollMapper.UpdateRagdollPosition");
