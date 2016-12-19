@@ -108,6 +108,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
+  </ImportGroup>
   <ItemGroup>
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
