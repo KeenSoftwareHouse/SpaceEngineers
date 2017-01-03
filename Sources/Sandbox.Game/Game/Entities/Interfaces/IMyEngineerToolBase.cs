@@ -11,5 +11,6 @@ namespace Sandbox.ModAPI.Weapons
 {
     public interface IMyEngineerToolBase : IMyEntity, IMyHandheldGunObject<MyToolBase>
     {
+       IMyCharacter Owner { get; }
     }
 }
