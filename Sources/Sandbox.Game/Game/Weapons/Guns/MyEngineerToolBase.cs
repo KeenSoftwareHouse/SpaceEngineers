@@ -66,7 +66,7 @@ namespace Sandbox.Game.Weapons
 
         protected MyEntity3DSoundEmitter m_soundEmitter;
 
-        protected MyCharacter Owner;
+        public MyCharacter Owner { get; protected set; }
 
         protected MyToolBase m_gunBase;
         public MyToolBase GunBase  { get { return m_gunBase;}}
