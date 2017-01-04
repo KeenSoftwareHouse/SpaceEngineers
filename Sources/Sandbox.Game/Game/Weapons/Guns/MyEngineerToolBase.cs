@@ -28,7 +28,7 @@ using Sandbox.ModAPI.Weapons;
 
 namespace Sandbox.Game.Weapons
 {
-    public abstract class MyEngineerToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyEngineerToolBase
+    public abstract partial class MyEngineerToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyEngineerToolBase
     {
         public static float GLARE_SIZE = 0.068f;
         /// <summary>
