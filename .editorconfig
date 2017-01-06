@@ -1,0 +1,16 @@
+# see http://editorconfig.org/
+
+root = true
+
+# Defaults
+[*]
+charset = utf-8
+end_of_line = crlf
+indent_size = 2
+indent_style = space
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# C# Scripts
+[*.cs]
+indent_size = 4
