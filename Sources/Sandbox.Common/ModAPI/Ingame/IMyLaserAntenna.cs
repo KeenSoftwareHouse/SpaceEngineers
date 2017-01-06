@@ -29,6 +29,14 @@ namespace Sandbox.ModAPI.Ingame
         /// Connect to target defined by SetTargetCoords
         /// </summary>
         void Connect();
+    
+        /// <summary>
+        /// Runs the script of a specified programmable block connected to the current grid via laser antenna with a custom argument.
+        /// </summary>
+        /// <param name="pb_name">The name of the target programmable block for this message.</param>
+        /// <param name="message">The custom argument string.</param>
+        /// <returns>Returns true if the pb could be reached. False otherwise.</returns>
+        bool SendMessage(string pb_name, string message);
 
         /// <summary>
         /// Connection is permanent
