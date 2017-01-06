@@ -360,7 +360,9 @@ namespace Sandbox.Game.Entities.Cube
             if (!string.IsNullOrEmpty(GetOwnerFactionTag()))
             {
                 CustomNameWithFaction.Append(GetOwnerFactionTag());
-                CustomNameWithFaction.Append(".");
+                
+                if (CustomName.Length > 0)
+                    CustomNameWithFaction.Append(".");
             }
 
             CustomNameWithFaction.AppendStringBuilder(CustomName);
