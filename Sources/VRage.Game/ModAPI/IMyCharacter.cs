@@ -45,5 +45,9 @@ namespace VRage.Game.ModAPI
         /// <param name="eventName">Event name.</param>
         /// <param name="sync">Synchronize over network</param>
 	    void TriggerCharacterAnimationEvent(string eventName, bool sync);
+
+        MyCharacterMovementEnum GetCurrentMovementState();
+
+        IMyPlayer GetPlayer();
     }
 }

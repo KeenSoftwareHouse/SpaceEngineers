@@ -14,9 +14,14 @@ namespace VRage.Game.ModAPI
         VRageMath.Vector3D GetPosition();
         ulong SteamUserId { get; }
         string DisplayName { get; }
+        [System.Obsolete("use IdentityId")]
         long PlayerID { get; }
         long IdentityId { get; }
         bool IsAdmin { get; }
         bool IsPromoted { get; }
+        IMyIdentity Identity { get; }
+        IMyCharacter Character { get; }
+        bool IsRealPlayer { get; }
+        bool IsBot { get; }
     }
 }

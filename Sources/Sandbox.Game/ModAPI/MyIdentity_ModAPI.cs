@@ -38,5 +38,11 @@ namespace Sandbox.Game.World
         {
             get { return IsDead; }
         }
+
+        IMyCharacter IMyIdentity.Character
+        {
+            get { return Character; }
+        }
+
     }
 }

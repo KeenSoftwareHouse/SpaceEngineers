@@ -78,5 +78,26 @@ namespace Sandbox.Game.World
         {
             get { return IsSpaceMaster; }
         }
+
+        IMyIdentity IMyPlayer.Identity
+        {
+            get { return Identity; }
+        }
+
+        IMyCharacter IMyPlayer.Character
+        {
+            get { return Character; }
+        }
+
+        bool IMyPlayer.IsRealPlayer
+        {
+            get { return IsRealPlayer; }
+        }
+
+        bool IMyPlayer.IsBot
+        {
+            get { return IsBot; }
+        }
+
     }
 }
