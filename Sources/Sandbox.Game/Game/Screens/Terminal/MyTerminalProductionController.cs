@@ -733,6 +733,14 @@ namespace Sandbox.Game.Gui
             RefreshMaterialsPreview();
         }
 
+        private void ShowAmountTransferDialog(MyBlueprintDefinitionBase blueprint, Action<float> onConfirmed)
+        {
+            var default_amt = 1.0f;
+            var dialog = new MyGuiScreenDialogAmount(0, 999999, minMaxDecimalDigits: 0, parseAsInteger: true, defaultAmount: default_amt);
+            dialog.OnConfirmed += onConfirmed;
+            MyGuiSandbox.AddScreen(dialog);
+        }
+
         void blueprintsGrid_ItemClicked(MyGuiControlGrid control, MyGuiControlGrid.EventArgs args)
         {
             Debug.Assert(control == m_blueprintsGrid);
@@ -744,9 +752,21 @@ namespace Sandbox.Game.Gui
                     return;
 
                 var blueprint = (MyBlueprintDefinitionBase)item.UserData;
-                var amount = MyInput.Static.IsAnyShiftKeyPressed() ? 100 :
-                             MyInput.Static.IsAnyCtrlKeyPressed() ? 10 : 1;
-                EnqueueBlueprint(blueprint, amount);
+
+                if (args.Button == MySharedButtonsEnum.Primary)
+                {
+                    var amount = MyInput.Static.IsAnyShiftKeyPressed() ? 100 :
+                                 MyInput.Static.IsAnyCtrlKeyPressed() ? 10 : 1;
+                    EnqueueBlueprint(blueprint, amount);
+                }
+                else if (args.Button == MySharedButtonsEnum.Secondary)
+                {
+                    ShowAmountTransferDialog(blueprint, delegate(float amount)
+                    {
+                        if (amount == 0) return;
+                        EnqueueBlueprint(blueprint, (MyFixedPoint)amount);
+                    });
+                }
             }
         }
 
@@ -765,9 +785,20 @@ namespace Sandbox.Game.Gui
             var blueprint = MyDefinitionManager.Static.TryGetBlueprintDefinitionByResultId(item.Content.GetId());
             if (blueprint != null)
             {
-                var amount = MyInput.Static.IsAnyShiftKeyPressed() ? 100 :
-                             MyInput.Static.IsAnyCtrlKeyPressed() ? 10 : 1;
-                EnqueueBlueprint(blueprint, amount);
+                if (args.Button == MySharedButtonsEnum.Primary)
+                {
+                    var amount = MyInput.Static.IsAnyShiftKeyPressed() ? 100 :
+                                 MyInput.Static.IsAnyCtrlKeyPressed() ? 10 : 1;
+                    EnqueueBlueprint(blueprint, amount);
+                }
+                else if (args.Button == MySharedButtonsEnum.Secondary)
+                {
+                    ShowAmountTransferDialog(blueprint, delegate(float amount)
+                    {
+                        if (amount == 0) return;
+                        EnqueueBlueprint(blueprint, (MyFixedPoint)amount);
+                    });
+                }
             }
         }
 
