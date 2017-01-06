@@ -184,11 +184,6 @@ public void Main(string argument) {{
                 return false;
             }
 
-            if (!IsFunctional || !IsWorking)
-            {
-                return false;
-            }
-
             string response;
             var result = this.ExecuteCode(argument ?? "", out response);
             SetDetailedInfo(response);
@@ -476,6 +471,20 @@ public void Main(string argument) {{
                     }
                 } else {
                     response += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
+					
+                    // Get both StackTraces
+                    StringBuilder ExceptionStackTrace = new StringBuilder(ex.StackTrace);
+                    string[] currentStackTrace = Environment.StackTrace.Split(new string[] {Environment.NewLine}, StringSplitOptions.None);
+					
+                    // Remove All internal calls before the Script Call
+                    for (int i = 0; i < currentStackTrace.Length; i++)
+                    {
+                        ExceptionStackTrace.Replace(currentStackTrace[i], "");
+                    }
+					
+                    // Add Script StackTrace to response Line
+                    response += "\n" + ExceptionStackTrace.ToString();
+					
                     OnProgramTermination(ScriptTerminationReason.RuntimeException);
                 }
                 return m_terminationReason;
