@@ -19,15 +19,13 @@ namespace VRageRender.Messages
         Light = 0x10,
         // use volumetric lighting based on the particle's initial emitted position and velocity; if not set, volumetricLight = 1
         VolumetricLight = 0x20,
-        // Simulates position of emitter in shaders; it uses Direction, Velocity and Acceleration for movement of the emitter
-        // It emits at the actual position of the emitter with zero Direction and Velocity for particle; particles inherit Acceleration of emitter
-        SimulateEmitter = 0x40,
         // do not simulate particles (freeze)
         FreezeSimulate = 0x80,
         // do not emit particles
         FreezeEmit = 0x100,
         // random rotate particles at birth
         RandomRotationEnabled = 0x200,
+        // use ParticleRotation for orienting particles, do not billboard at all
         LocalRotation = 0x400,
         LocalAndCameraRotation = 0x800
     }
@@ -116,7 +114,7 @@ namespace VRageRender.Messages
         public Vector3 ParticleRotationRow0;
         public float ParticleLifeSpanVar;
         public Vector3 ParticleRotationRow1;
-        public float Thickness;
+        public float _pad0;
         public Vector3 ParticleRotationRow2;
         public float _pad1;
 
@@ -154,7 +152,9 @@ namespace VRageRender.Messages
         public uint GID;
         // # of particles to emit per second
         public float ParticlesPerSecond;
-        
+        // # of particles to burst once
+        public float ParticlesPerFrame;
+
         // path to atlas texture (from content folder as root)
         // all atlases are bundled into one texture array, so they have to have same dimension, pixel format, # mipmaps etc.
         public string AtlasTexture;

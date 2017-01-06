@@ -224,8 +224,11 @@ namespace Sandbox.Game.Weapons
                 if (block.UseDamageSystem)
                     MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
 
-                block.DecreaseMountLevel(damageInfo.Amount, CharacterInventory);
-                block.MoveItemsFromConstructionStockpile(CharacterInventory);
+                if (block.CubeGrid.Editable)
+                {
+                    block.DecreaseMountLevel(damageInfo.Amount, CharacterInventory);
+                    block.MoveItemsFromConstructionStockpile(CharacterInventory);
+                }
 
                 if (MySession.Static != null && Owner == MySession.Static.LocalCharacter && MyMusicController.Static != null)
                     MyMusicController.Static.Building(250);

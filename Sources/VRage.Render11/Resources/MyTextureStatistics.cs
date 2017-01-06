@@ -16,7 +16,7 @@ namespace VRage.Render11.Resources
         public void Add(ITexture texture)
         {
             TexturesTotal++;
-            TotalTextureMemory += texture.GetTextureSize();
+            TotalTextureMemory += texture.GetTextureByteSize();
             TexturesTotalPeak = Math.Max(TexturesTotalPeak, TexturesTotal);
             TotalTextureMemoryPeak = Math.Max(TotalTextureMemoryPeak, TotalTextureMemory);
         }
@@ -24,7 +24,7 @@ namespace VRage.Render11.Resources
         public void Remove(ITexture texture)
         {
             TexturesTotal--;
-            TotalTextureMemory -= texture.GetTextureSize();
+            TotalTextureMemory -= texture.GetTextureByteSize();
         }
     }
 }

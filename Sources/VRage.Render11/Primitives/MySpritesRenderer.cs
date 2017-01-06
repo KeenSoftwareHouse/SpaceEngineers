@@ -316,7 +316,7 @@ namespace VRageRender
             return font.DrawString(
                 MyUtils.GetCoordAligned(screenCoord, font.MeasureString(text, scale), align),
                 color,
-                text,
+                text.ToString(),
                 scale);
         }
 
@@ -325,7 +325,7 @@ namespace VRageRender
             return MyRender11.DebugFont.DrawString(
                 screenCoord,
                 color,
-                text,
+                text.ToString(),
                 scale);
         }
     }

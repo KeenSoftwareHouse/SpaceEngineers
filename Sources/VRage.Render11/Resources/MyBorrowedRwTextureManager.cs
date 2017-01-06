@@ -128,6 +128,9 @@ namespace VRage.Render11.Resources
 
         public IBorrowedRtvTexture BorrowRtv(string debugName, int width, int height, Format format, int samplesCount = 1, int samplesQuality = 0)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+
             MyBorrowedTextureKey key = new MyBorrowedTextureKey
             {
                 Width = width,
@@ -161,6 +164,9 @@ namespace VRage.Render11.Resources
 
         public IBorrowedUavTexture BorrowUav(string debugName, int width, int height, Format format, int samplesCount = 1, int samplesQuality = 0)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+
             MyBorrowedTextureKey key = new MyBorrowedTextureKey
             {
                 Width = width,
@@ -193,6 +199,9 @@ namespace VRage.Render11.Resources
 
         public IBorrowedCustomTexture BorrowCustom(string debugName, int width, int height, int samplesCount = 1, int samplesQuality = 0)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+
             MyBorrowedTextureKey key = new MyBorrowedTextureKey
             {
                 Width = width,
@@ -220,6 +229,9 @@ namespace VRage.Render11.Resources
 
         public IBorrowedDepthStencilTexture BorrowDepthStencil(string debugName, int width, int height, int samplesCount = 1, int samplesQuality = 0)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+
             MyBorrowedTextureKey key = new MyBorrowedTextureKey
             {
                 Width = width,

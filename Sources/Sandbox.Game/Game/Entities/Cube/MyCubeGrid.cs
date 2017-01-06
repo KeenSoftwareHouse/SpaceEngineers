@@ -1775,12 +1775,15 @@ namespace Sandbox.Game.Entities
 
                 if (Physics.RigidBody2 != null)
                 {
+                    /*
+                    //No need, we use ApplyHardKeyFrame utility
                     if (Physics.RigidBody2.LinearVelocity != Physics.RigidBody.LinearVelocity)
                         Physics.RigidBody2.LinearVelocity = Physics.RigidBody.LinearVelocity;
-
+                                      
                     if (Physics.RigidBody2.AngularVelocity != Physics.RigidBody.AngularVelocity)
-                        Physics.RigidBody2.AngularVelocity = Physics.RigidBody.AngularVelocity;
-
+                       Physics.RigidBody2.AngularVelocity = Physics.RigidBody.AngularVelocity;
+                    */
+                                      
                     if (Physics.RigidBody2.CenterOfMassLocal != Physics.RigidBody.CenterOfMassLocal)
                         Physics.RigidBody2.CenterOfMassLocal = Physics.RigidBody.CenterOfMassLocal;
                 }
@@ -3981,6 +3984,7 @@ namespace Sandbox.Game.Entities
             {
                 block = AddBlock(blockObjectBuilder, testMerge);
             }
+
             if (block != null)
             {
                 // We have to use block.CubeGrid instead of this because adding the block could have caused a grid merge
@@ -3995,9 +3999,9 @@ namespace Sandbox.Game.Entities
                 {
                     MyCubeBuilder.BuildComponent.AfterSuccessfulBuild(builderEntity, buildAsAdmin);
                 }
-            }
 
-            MyCubeGrids.NotifyBlockBuilt(this, block);
+                MyCubeGrids.NotifyBlockBuilt(this, block);
+            }
 
             ProfilerShort.End();
             return block;
@@ -8938,7 +8942,11 @@ namespace Sandbox.Game.Entities
                 }
                 else
                 {
-                    System.Diagnostics.Debug.Fail("Invalid ownership change request!");
+                    bool shouldHaveOwnership = block.BlockDefinition.ContainsComputer();
+                    if (block.UseObjectsComponent != null)
+                        shouldHaveOwnership = shouldHaveOwnership || block.UseObjectsComponent.GetDetectors("ownership").Count > 0;
+                    if (shouldHaveOwnership)
+                        System.Diagnostics.Debug.Fail("Invalid ownership change request!");
                 }
             }
         }

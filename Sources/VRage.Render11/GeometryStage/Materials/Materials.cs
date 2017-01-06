@@ -1,23 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Utils;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using VRageMath;
-using System.Diagnostics;
-using VRage.Import;
 using VRage;
-using VRage.Library.Utils;
-using System.IO;
-using VRage.FileSystem;
 using VRage.Render11.Common;
 using VRage.Render11.Resources;
 
 namespace VRageRender
 {
-
     struct MyMaterialProxyId
     {
         internal int Index;
@@ -71,12 +62,12 @@ namespace VRageRender
         public MyVoxelMaterialEntry entry2;
     }
 
-    class MyVoxelMaterials1
+    static class MyVoxelMaterials1
     {
-        internal static Dictionary<MyVoxelMaterialTriple, MyMaterialProxyId> MaterialProxyTripleIndex = new Dictionary<MyVoxelMaterialTriple, MyMaterialProxyId>(MyVoxelMaterialTriple.Comparer);
+        private static readonly Dictionary<MyVoxelMaterialTriple, MyMaterialProxyId> m_materialProxyTripleIndex = new Dictionary<MyVoxelMaterialTriple, MyMaterialProxyId>(MyVoxelMaterialTriple.Comparer);
         internal static MyVoxelMaterial1[] Table = new MyVoxelMaterial1[0];
         // not hash set but list
-        internal static List<int> MaterialQueryResourcesTable = new List<int>();
+        private static readonly List<int> m_materialQueryResourcesTable = new List<int>();
 
         private static string[] CreateStringArray(string str1, string str2, string str3)
         {
@@ -100,6 +91,8 @@ namespace VRageRender
             {
                 // copy data 
                 int index = update ? list[i].Index : i;
+
+                MyCommon.VoxelMaterialsConstants.Invalidate(index);
 
                 Table[index].Resource.ColorMetalXZnY_Filepaths = CreateStringArray(list[i].ColorMetalXZnY,
                     list[i].ColorMetalXZnYFar1, list[i].ColorMetalXZnYFar2);
@@ -138,7 +131,7 @@ namespace VRageRender
                 Table[index].Far3Color = list[i].Far3Color;
                 Table[index].ExtensionDetailScale = list[i].ExtensionDetailScale;
 
-                MaterialQueryResourcesTable.Add(index);
+                m_materialQueryResourcesTable.Add(index);
             }
         }
 
@@ -154,7 +147,7 @@ namespace VRageRender
             return true;
         }
 
-        internal unsafe static void RebuildMaterialFoliageTable()
+        private static unsafe void RebuildMaterialFoliageTable()
         {
             var array = stackalloc MaterialFoliageConstantsElem[256];
             int N = Table.Length;
@@ -188,22 +181,12 @@ namespace VRageRender
         internal static MyMaterialProxyId GetMaterialProxyId(MyVoxelMaterialTriple materialSet)
         {
             MyMaterialProxyId pid;
-            if (!MaterialProxyTripleIndex.TryGetValue(materialSet, out pid))
+            if (!m_materialProxyTripleIndex.TryGetValue(materialSet, out pid))
             {
-                pid = MaterialProxyTripleIndex[materialSet] = MyMaterials1.AllocateProxy();
-                MyMaterials1.ProxyPool.Data[pid.Index] = CreateProxy(materialSet);
+                pid = m_materialProxyTripleIndex[materialSet] = MyMaterials1.AllocateProxy();
+                MyMaterials1.ProxyPool.Data[pid.Index] = CreateProxyWithValidMaterialConstants(materialSet);
             }
             return pid;
-        }
-
-        static Vector4I GetSlices(IDynamicFileArrayTexture tex, string[] filepaths)
-        {
-            Vector4I v;
-            v.X = tex.GetOrAddSlice(filepaths[0]);
-            v.Y = tex.GetOrAddSlice(filepaths[1]);
-            v.Z = tex.GetOrAddSlice(filepaths[2]);
-            v.W = 0;
-            return v;
         }
 
         static void UpdateVoxelSlices(ref MyVoxelMaterialEntry entry, IDynamicFileArrayTexture cm, string[] cmXZnY,
@@ -260,7 +243,44 @@ namespace VRageRender
             entry = zero;
         }
 
-        static unsafe MyMaterialProxy_2 CreateProxy(MyVoxelMaterialTriple triple)
+        public static void UpdateGlobalVoxelMaterialsCB(int matId)
+        {
+            if (MyCommon.VoxelMaterialsConstants.NeedsUpdate(matId))
+            {
+                MyVoxelMaterialConstants constantsData = new MyVoxelMaterialConstants();
+
+                FillVoxelMaterialEntry(ref constantsData.entry, ref Table[matId]);
+                MyCommon.VoxelMaterialsConstants.UpdateEntry(matId, ref constantsData.entry);
+            }
+        }
+
+        static MyMaterialProxy_2 CreateProxyWithPlaceholderdMaterialConstants(MyVoxelMaterialTriple triple)
+        {
+            var version = triple.I0.GetHashCode();
+            MyHashHelper.Combine(ref version, triple.I1.GetHashCode());
+            MyHashHelper.Combine(ref version, triple.I2.GetHashCode());
+
+            MySrvTable srvTable = new MySrvTable
+            {
+                BindFlag = MyBindFlag.BIND_PS,
+                StartSlot = 0,
+                Version = version,
+                Srvs = new ISrvBindable[] 
+							{ 
+                                MyGlobalResources.FileArrayTextureVoxelCM,
+                                MyGlobalResources.FileArrayTextureVoxelNG,
+                                MyGlobalResources.FileArrayTextureVoxelExt,
+							}
+            };
+
+            return new MyMaterialProxy_2
+            {
+                MaterialConstants = new MyConstantsPack(),
+                MaterialSrvs = srvTable
+            };
+        }
+
+        static unsafe MyMaterialProxy_2 CreateProxyWithValidMaterialConstants(MyVoxelMaterialTriple triple)
         {
             byte[] buffer;
             int size;
@@ -279,13 +299,14 @@ namespace VRageRender
 
             if(singleMaterial)
             {
+                // this is for the old rendering and also for the debris
                 size = sizeof(MyVoxelMaterialConstants);
                 MyVoxelMaterialConstants constantsData = new MyVoxelMaterialConstants();
-                FillVoxelMaterialEntry(ref constantsData.entry, ref Table[triple.I0]);
 
                 buffer = new byte[size];
-                fixed(byte* dstPtr = buffer)
+                fixed (byte* dstPtr = buffer)
                 {
+                    FillVoxelMaterialEntry(ref constantsData.entry, ref Table[triple.I0]);
 #if XB1
                     SharpDX.Utilities.CopyMemory(new IntPtr(dstPtr), new IntPtr(&constantsData), size);
 #else // !XB1
@@ -295,13 +316,17 @@ namespace VRageRender
             }
             else
             {
+                // this is for the old rendering and also for the debris
                 size = sizeof(MyVoxelMultiMaterialConstants);
                 MyVoxelMultiMaterialConstants constantsData = new MyVoxelMultiMaterialConstants();
 
-                FillVoxelMaterialEntry(ref constantsData.entry0, ref Table[triple.I0]); 
+                FillVoxelMaterialEntry(ref constantsData.entry0, ref Table[triple.I0]);
                 FillVoxelMaterialEntry(ref constantsData.entry1, ref Table[triple.I1]);
+
                 if (triple.I2 >= 0)
+                {
                     FillVoxelMaterialEntry(ref constantsData.entry2, ref Table[triple.I2]);
+                }
                 else
                     ResetVoxelMaterialEntry(out constantsData.entry2);
 
@@ -315,18 +340,17 @@ namespace VRageRender
 #endif // !XB1
                 }
             }
-
             var version = triple.I0.GetHashCode();
             MyHashHelper.Combine(ref version, triple.I1.GetHashCode());
             MyHashHelper.Combine(ref version, triple.I2.GetHashCode());
 
-			MyConstantsPack materialConstants = new MyConstantsPack
-				{
-					BindFlag = MyBindFlag.BIND_PS,
-					CB = MyCommon.GetMaterialCB(size),
-					Version = version,
-					Data = buffer
-				};
+            MyConstantsPack materialConstants = new MyConstantsPack
+            {
+                BindFlag = MyBindFlag.BIND_PS,
+                CB = MyCommon.GetMaterialCB(size),
+                Version = version,
+                Data = buffer
+            };
 
 			MySrvTable srvTable = new MySrvTable
 				{
@@ -349,6 +373,15 @@ namespace VRageRender
                 };
         }
 
+        static MyMaterialProxy_2 CreateProxy(MyVoxelMaterialTriple triple)
+        {
+            if (triple.IsFillingMaterialCB)
+                return CreateProxyWithValidMaterialConstants(triple);
+            else
+                return CreateProxyWithPlaceholderdMaterialConstants(triple);
+        }
+        
+
         //internal static void ReleaseResources()
         //{
         //    for (int i = 0; i < Table.Length; i++)
@@ -363,7 +396,7 @@ namespace VRageRender
 
         internal static void OnResourcesRequesting()
         {
-            foreach (var id in MaterialQueryResourcesTable)
+            foreach (var id in m_materialQueryResourcesTable)
             {
                 // query all textures
                 MyVoxelMaterialDetailSet.RequestResources(ref Table[id].Resource);
@@ -375,19 +408,19 @@ namespace VRageRender
 
         internal static void OnResourcesGather()
         {
-            if (MaterialQueryResourcesTable.Count > 0)
+            if (m_materialQueryResourcesTable.Count > 0)
             {
                 // because array of foliage might have changed
                 RebuildMaterialFoliageTable();
 
                 // traverse and update all existing proxies
-                foreach (var kv in MaterialProxyTripleIndex)
+                foreach (var kv in m_materialProxyTripleIndex)
                 {
                     MyMaterials1.ProxyPool.Data[kv.Value.Index] = CreateProxy(kv.Key);
                 }
             }
 
-            MaterialQueryResourcesTable.Clear();
+            m_materialQueryResourcesTable.Clear();
         }
 
         internal static void Init()
@@ -408,15 +441,15 @@ namespace VRageRender
         {
             for (int i = 0; i < Table.Length; i++)
             {
-                MaterialQueryResourcesTable.Add(i);
+                m_materialQueryResourcesTable.Add(i);
             }
         }
 
         internal static void OnSessionEnd()
         {
-            MaterialQueryResourcesTable.Clear();
+            m_materialQueryResourcesTable.Clear();
             // clear material proxies
-            MaterialProxyTripleIndex.Clear();
+            m_materialProxyTripleIndex.Clear();
         }
 
         internal static void OnDeviceEnd()
@@ -429,9 +462,9 @@ namespace VRageRender
     }
 
 
-    class MyMaterials1
+    static class MyMaterials1
     {
-        internal static MyFreelist<MyMaterialProxy_2> ProxyPool = new MyFreelist<MyMaterialProxy_2>(512);
+        internal static readonly MyFreelist<MyMaterialProxy_2> ProxyPool = new MyFreelist<MyMaterialProxy_2>(512);
 
         internal static MyMaterialProxyId AllocateProxy()
         {

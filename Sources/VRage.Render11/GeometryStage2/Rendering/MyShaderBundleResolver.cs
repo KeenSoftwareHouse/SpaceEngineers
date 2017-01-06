@@ -66,6 +66,17 @@ namespace VRage.Render11.GeometryStage2.Rendering
                 listHighlight.Add(new MyVertexInputComponent(MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT, 1));
                 listHighlight.Add(new MyVertexInputComponent(MyVertexInputComponentType.TEXCOORD0_H, 1));
                 return listHighlight.ToArray();
+            } 
+            else if (pass == MyRenderPassType.Glass)
+            {
+                List<MyVertexInputComponent> listGBuffer = new List<MyVertexInputComponent>();
+                listGBuffer.Add(new MyVertexInputComponent(MyVertexInputComponentType.POSITION_PACKED));
+                listGBuffer.Add(new MyVertexInputComponent(MyVertexInputComponentType.NORMAL, 1));
+                listGBuffer.Add(new MyVertexInputComponent(MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT, 1));
+                listGBuffer.Add(new MyVertexInputComponent(MyVertexInputComponentType.TEXCOORD0_H, 1));
+                listGBuffer.Add(new MyVertexInputComponent(MyVertexInputComponentType.SIMPLE_INSTANCE, 2, MyVertexInputComponentFreq.PER_INSTANCE));
+                listGBuffer.Add(new MyVertexInputComponent(MyVertexInputComponentType.SIMPLE_INSTANCE_COLORING, 2, MyVertexInputComponentFreq.PER_INSTANCE));
+                return listGBuffer.ToArray();
             }
             
             MyRenderProxy.Error("Unknown pass");
@@ -96,6 +107,15 @@ namespace VRage.Render11.GeometryStage2.Rendering
                 macros.AddRange(new ShaderMacro[]
                 {
                     new ShaderMacro("RENDERING_PASS", 3),
+                });
+            }
+            else if (pass == MyRenderPassType.Glass)
+            {
+                macros.AddRange(new ShaderMacro[]
+                {
+                    new ShaderMacro("RENDERING_PASS", 5), 
+                    new ShaderMacro("USE_SIMPLE_INSTANCING", null),
+                    new ShaderMacro("USE_SIMPLE_INSTANCING_COLORING", null),
                 });
             }
             else
@@ -129,6 +149,10 @@ namespace VRage.Render11.GeometryStage2.Rendering
                     macros.Add(new ShaderMacro("USE_NORMALGLOSS_TEXTURE", null));
                 if (isExt)
                     macros.Add(new ShaderMacro("USE_EXTENSION_TEXTURE", null));
+            }
+            else if (technique == MyMeshDrawTechnique.GLASS)
+            {
+
             }
             else
             {
@@ -171,8 +195,13 @@ namespace VRage.Render11.GeometryStage2.Rendering
             }
         }
 
+        enum MyShaderType
+        {
+            SHADER_TYPE_VERTEX,
+            SHADER_TYPE_PIXEL,
+        }
 
-        string GetShaderDirpath(MyMeshDrawTechnique technique)
+        string GetShaderFilepath(MyMeshDrawTechnique technique, MyShaderType type)
         {
             switch (technique)
             {
@@ -180,9 +209,20 @@ namespace VRage.Render11.GeometryStage2.Rendering
                 case MyMeshDrawTechnique.DECAL:
                 case MyMeshDrawTechnique.DECAL_CUTOUT:
                 case MyMeshDrawTechnique.DECAL_NOPREMULT:
-                    return "Geometry\\Materials\\Standard\\";
+                case MyMeshDrawTechnique.GLASS:
+                    if (type == MyShaderType.SHADER_TYPE_VERTEX)
+                        return "Geometry\\Materials\\Standard\\Vertex.hlsl";
+                    else if (type == MyShaderType.SHADER_TYPE_PIXEL)
+                        return "Geometry\\Materials\\Standard\\Pixel.hlsl";
+                    else
+                        MyRenderProxy.Error("Unresolved condition");
+                    return "";
                 case MyMeshDrawTechnique.ALPHA_MASKED:
-                    return "Geometry\\Materials\\AlphaMasked\\";
+                    if (type == MyShaderType.SHADER_TYPE_VERTEX)
+                        return "Geometry\\Materials\\AlphaMasked\\Vertex.hlsl";
+                    else if (type == MyShaderType.SHADER_TYPE_PIXEL)
+                        return "Geometry\\Materials\\AlphaMasked\\Pixel.hlsl";
+                    return "";
                 default:
                     MyRenderProxy.Error("Unknown technique");
                     return "";
@@ -256,8 +296,8 @@ namespace VRage.Render11.GeometryStage2.Rendering
 
             MyVertexInputComponent[] viComps = GetVertexInputComponents(pass);
             VertexLayoutId vl = MyVertexLayouts.GetLayout(viComps);
-            string vsFilepath = GetShaderDirpath(technique) + "Vertex.hlsl";
-            string psFilepath = GetShaderDirpath(technique) + "Pixel.hlsl";
+            string vsFilepath = GetShaderFilepath(technique, MyShaderType.SHADER_TYPE_VERTEX);
+            string psFilepath = GetShaderFilepath(technique, MyShaderType.SHADER_TYPE_PIXEL);
             List<ShaderMacro> macros = new List<ShaderMacro>();
             AddMacrosForRenderingPass(pass, ref macros);
             AddMacrosForTechnique(technique, isCm, isNg, isExt, ref macros);

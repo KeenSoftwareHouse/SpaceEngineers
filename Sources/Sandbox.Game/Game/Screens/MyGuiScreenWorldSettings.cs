@@ -101,6 +101,9 @@ namespace Sandbox.Game.Gui
                     case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many:
                         m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many);
                         return;
+                    case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNone:
+                        m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNone);
+                        return;
                     case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow:
                         m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow);
                         return;
@@ -508,6 +511,15 @@ namespace Sandbox.Game.Gui
             else
             {
                 UpdateAsteroidAmountEnabled(true);
+            }
+
+            var checkpointPath = group.SelectedButton.UserData as string;
+            ulong size;
+            var checkpoint = MyLocalCache.LoadCheckpoint(checkpointPath, out size);
+            if (checkpoint != null)
+            {
+                m_settings = CopySettings(checkpoint.Settings);
+                SetSettingsToControls();
             }
         }
 
@@ -920,6 +932,9 @@ namespace Sandbox.Game.Gui
                 case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh:
                     checkpoint.Settings.ProceduralDensity = 0.50f;
                     break;
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNone:
+                    checkpoint.Settings.ProceduralDensity = 0.0f;
+                    break;
                 default:
                     throw new InvalidBranchException();
                     break;
@@ -943,6 +958,7 @@ namespace Sandbox.Game.Gui
 
                 if (MyFakes.ENABLE_ASTEROID_FIELDS)
                 {
+                    m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNone, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNone);
                     m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow, MySpaceTexts.WorldSettings_AsteroidAmountProceduralLow);
                     m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNormal);
 #if XB1

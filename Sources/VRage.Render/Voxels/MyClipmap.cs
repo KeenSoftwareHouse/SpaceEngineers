@@ -292,11 +292,6 @@ namespace VRageRender.Voxels
             }
         }
 
-        public void DebugDrawMergedMeshCells()
-        {
-            m_cellHandler.DebugDrawMergedCells();
-        }
-
         public static void UnloadCache()
         {
             CellsCache.Reset();
@@ -308,12 +303,6 @@ namespace VRageRender.Voxels
         void ResetClipping()
         {
             m_updateClippingFrustum = true;
-        }
-
-        public void RequestMergeAll()
-        {
-            for (int lodIndex = 0; lodIndex < m_lodLevels.Length; ++lodIndex)
-                m_lodLevels[lodIndex].RequestMergeAll();
         }
 
         public bool IsDitheringInProgress()

@@ -102,6 +102,7 @@ namespace VRageRender
                 else
                 {
                     emitter.GPUEmitter.ParticlesPerSecond = 0;
+                    emitter.GPUEmitter.ParticlesPerFrame = 0;
                     emitter.DieAt = MyCommon.TimerMs + emitter.GPUEmitter.Data.ParticleLifeSpan * 1000;
                 }
             }
@@ -319,9 +320,10 @@ namespace VRageRender
                     if ((emitter.GPUEmitter.Data.Flags & GPUEmitterFlags.FreezeEmit) == 0)
                     {
                         float toEmit = MyCommon.LastFrameDelta() * emitter.GPUEmitter.ParticlesPerSecond +
-                            emitter.ParticlesEmittedFraction;
+                            emitter.ParticlesEmittedFraction + emitter.GPUEmitter.ParticlesPerFrame;
                         emitter.GPUEmitter.Data.NumParticlesToEmitThisFrame = (int)toEmit;
                         emitter.ParticlesEmittedFraction = toEmit - emitter.GPUEmitter.Data.NumParticlesToEmitThisFrame;
+                        emitter.GPUEmitter.ParticlesPerFrame = 0;
                     }
 
                     var textureIndex = m_textureArrayIndices.ContainsKey(emitter.GPUEmitter.AtlasTexture) ? 

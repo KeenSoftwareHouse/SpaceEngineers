@@ -41,6 +41,7 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 			float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 			float4 extras = ExtensionsTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 		#endif
+        //ng.w = linearizeColor(ng.w);
 		#ifdef BUILD_TANGENT_IN_PIXEL
 			FeedOutputBuildTangent(pixel, pixel.custom.texcoord0, pixel.custom.normal, output, ng, cm, extras);
 		#else

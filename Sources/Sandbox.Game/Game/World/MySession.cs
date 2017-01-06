@@ -65,6 +65,7 @@ namespace Sandbox.Game.World
         public ulong? WorkshopId = null;
         public string Briefing;
         public bool ScenarioEditMode = false;
+        public bool IsCorrupted = false;
     }
 
     [Flags]
@@ -1610,15 +1611,17 @@ namespace Sandbox.Game.World
             // MySpectator.Static.SpectatorCameraMovement = checkpoint.SpectatorCameraMovement;
             MySpectatorCameraController.Static.SetViewMatrix(MatrixD.Invert(checkpoint.SpectatorPosition.GetMatrix()));
 
-            if (MyPerGameSettings.Game == GameEnum.UNKNOWN_GAME || ((MyPerGameSettings.Game == GameEnum.ME_GAME) || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.SE_GAME)
-                || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.VRS_GAME)))
+            if (!(IsScenario && Static.Settings.StartInRespawnScreen))
             {
-                if (!(Static.IsScenario && Static.Settings.StartInRespawnScreen))
-                {
-                    Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
-                    Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);
-                }
+                Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
+                Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);
             }
+            else
+            {
+                // Next saved game needs to be normal
+                Static.Settings.StartInRespawnScreen = false;
+            }
+
             LoadCamera(checkpoint);
 
             //fix: saved in survival with dead player, changed to creative, loaded game, no character with no way to respawn
@@ -2249,7 +2252,7 @@ namespace Sandbox.Game.World
             {
                 Checkpoint = GetCheckpoint(Name),
                 Sector = GetSector(includeEntities),
-                VoxelMaps = new SerializableDictionary<string, byte[]>(Static.GetVoxelMapsArray(true))
+                VoxelMaps = new SerializableDictionary<string, byte[]>(Static.GetVoxelMapsArray(false))
             };
 
             ProfilerShort.End();

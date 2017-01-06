@@ -319,6 +319,7 @@ namespace Sandbox.Engine.Voxels
 
             private void OnComplete()
             {
+                ProfilerShort.Begin("MyPrecalcComponent - Complete");
                 foreach (var finished in m_finishedList)
                 {
                     finished.OnCompleteDelegate();
@@ -326,6 +327,7 @@ namespace Sandbox.Engine.Voxels
                 Queue = null;
                 m_finishedList.Clear();
                 m_workPool.Deallocate(this);
+                ProfilerShort.End();
             }
 
             public WorkPriority Priority

@@ -24,6 +24,10 @@ namespace Sandbox.Definitions
         {
             ShadowSettings = new MyShadowsSettings();
             NewPipelineSettings = new MyNewPipelineSettings();
+            UserLoddingSettings = new MyNewLoddingSettings();
+            LowLoddingSettings = new MyNewLoddingSettings();
+            MediumLoddingSettings = new MyNewLoddingSettings();
+            HighLoddingSettings = new MyNewLoddingSettings();
             MaterialsSettings = new MyMaterialsSettings();
         }
 
@@ -34,6 +38,10 @@ namespace Sandbox.Definitions
         public MyHBAOData HBAOSettings = MyHBAOData.Default;
         public MyShadowsSettings ShadowSettings { get; private set; }
         public MyNewPipelineSettings NewPipelineSettings { get; private set; }
+        public MyNewLoddingSettings UserLoddingSettings { get; private set; }
+        public MyNewLoddingSettings LowLoddingSettings { get; private set; }
+        public MyNewLoddingSettings MediumLoddingSettings { get; private set; }
+        public MyNewLoddingSettings HighLoddingSettings { get; private set; }
         public MyMaterialsSettings MaterialsSettings { get; private set; }
 
         public float LargeShipMaxSpeed = Defaults.LargeShipMaxSpeed;
@@ -91,6 +99,10 @@ namespace Sandbox.Definitions
             HBAOSettings = objBuilder.HBAOSettings;
             ShadowSettings.CopyFrom(objBuilder.ShadowSettings);
             NewPipelineSettings.CopyFrom(objBuilder.NewPipelineSettings);
+            UserLoddingSettings.CopyFrom(objBuilder.UserLoddingSettings);
+            LowLoddingSettings.CopyFrom(objBuilder.LowLoddingSettings);
+            MediumLoddingSettings.CopyFrom(objBuilder.MediumLoddingSettings);
+            HighLoddingSettings.CopyFrom(objBuilder.HighLoddingSettings);
             MaterialsSettings.CopyFrom(objBuilder.MaterialsSettings);
             SmallShipMaxSpeed = objBuilder.SmallShipMaxSpeed;
             LargeShipMaxSpeed = objBuilder.LargeShipMaxSpeed;
@@ -115,6 +127,10 @@ namespace Sandbox.Definitions
             result.HBAOSettings = HBAOSettings;
             result.ShadowSettings.CopyFrom(ShadowSettings);
             result.NewPipelineSettings.CopyFrom(NewPipelineSettings);
+            result.UserLoddingSettings.CopyFrom(UserLoddingSettings);
+            result.LowLoddingSettings.CopyFrom(LowLoddingSettings);
+            result.MediumLoddingSettings.CopyFrom(MediumLoddingSettings);
+            result.HighLoddingSettings.CopyFrom(HighLoddingSettings);
             result.MaterialsSettings.CopyFrom(MaterialsSettings);
             result.SmallShipMaxSpeed = this.SmallShipMaxSpeed;
             result.LargeShipMaxSpeed = this.LargeShipMaxSpeed;

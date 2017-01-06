@@ -466,7 +466,6 @@ namespace VRage.Game
     public class MyConfigDedicatedData<T> where T : MyObjectBuilder_SessionSettings, new()
     {
         public T SessionSettings = new T();
-        public SerializableDefinitionId Scenario;
         public string LoadWorld;
         public string IP = "0.0.0.0";
         public int SteamPort = 8766;

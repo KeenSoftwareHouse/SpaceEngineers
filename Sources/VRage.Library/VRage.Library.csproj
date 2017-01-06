@@ -216,6 +216,7 @@
     <Compile Include="DShow\QEdit.cs" />
     <Compile Include="DShow\VideoPlayer.cs" />
     <Compile Include="Environment\MyEnvironment.cs" />
+    <Compile Include="Exceptions\MyIncompatibleDataException.cs" />
     <Compile Include="Extensions\AttributeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DoubleExtensions.cs" />

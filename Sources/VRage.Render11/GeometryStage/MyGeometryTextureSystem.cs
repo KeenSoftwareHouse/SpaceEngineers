@@ -265,7 +265,7 @@ namespace VRage.Render11.GeometryStage
 
         Vector4I GetTextureIndices(string colorMetalTexture, string normalGlossTexture, string extensionTexture, string alphamaskTexture)
         {
-            if (!MyRenderProxy.Settings.UseGeometryArrayTextures)
+            if (!MyRender11.Settings.UseGeometryArrayTextures)
                 return new Vector4I(DEFAULT_ARRAY_TEXTURE_INDEX, DEFAULT_ARRAY_TEXTURE_INDEX, DEFAULT_ARRAY_TEXTURE_INDEX, DEFAULT_ARRAY_TEXTURE_INDEX);
 
             Vector2I defaultTextureSize = GetDefaultTextureSize(colorMetalTexture, normalGlossTexture, extensionTexture, alphamaskTexture);
@@ -287,7 +287,7 @@ namespace VRage.Render11.GeometryStage
             for (int i = 0; i < verticesNum; i++)
                 indices[i] = new Vector4I(DEFAULT_ARRAY_TEXTURE_INDEX, DEFAULT_ARRAY_TEXTURE_INDEX, DEFAULT_ARRAY_TEXTURE_INDEX, DEFAULT_ARRAY_TEXTURE_INDEX);
 
-            if (!MyRenderProxy.Settings.UseGeometryArrayTextures) // system is disabled
+            if (!MyRender11.Settings.UseGeometryArrayTextures) // system is disabled
                 return indices; 
             
             foreach (MyMeshPartInfo partInfo in partInfos)
@@ -326,7 +326,7 @@ namespace VRage.Render11.GeometryStage
             for (int i = 0; i < verticesNum; i++)
                 texIndices[i] = defaultArrayTexIndex;
 
-            if (!MyRenderProxy.Settings.UseGeometryArrayTextures) // system is disabled
+            if (!MyRender11.Settings.UseGeometryArrayTextures) // system is disabled
                 return texIndices;
 
             foreach (MyRuntimeSectionInfo sectionInfo in sectionInfos)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Import;
 using VRage.Utils;
@@ -14,7 +13,6 @@ using VRage.FileSystem;
 using SharpDX.Direct3D11;
 using VRage.Profiler;
 using VRage.Render11.Common;
-using VRage.Render11.GeometryStage;
 using VRage.Render11.Resources;
 using VRage.Voxels;
 using VRageRender.Import;
@@ -219,65 +217,6 @@ namespace VRageRender
         internal VertexLayoutId VertexLayout { get { return MyMeshes.LodMeshInfos.Data[Index].Data.VertexLayout; } }
     }
 
-    struct MyMergedLodMeshId : IEquatable<MyMergedLodMeshId>
-    {
-        internal int Index;
-
-        internal static readonly MyMergedLodMeshId NULL = new MyMergedLodMeshId { Index = -1 };
-
-        internal MyMergedLodMeshInfo Info { get { return MyMeshes.MergedLodMeshInfos.Data[Index]; } }
-        internal MyMeshBuffers Buffers { get { return Index != -1 ? MyMeshes.MergedLodMeshBuffers[Index] : MyMeshBuffers.Empty; } }
-        internal VertexLayoutId VertexLayout
-        {
-            get { var mergedMeshes = MyMeshes.MergedLodMeshInfos.Data[Index].MergedLodMeshes; return mergedMeshes.Count > 0 ? mergedMeshes.First().VertexLayout : VertexLayoutId.NULL; }
-        }
-
-        #region Equals
-        public class MyMergedLodMeshIdComparerType : IEqualityComparer<MyMergedLodMeshId>
-        {
-            public bool Equals(MyMergedLodMeshId left, MyMergedLodMeshId right)
-            {
-                return left.Index == right.Index;
-            }
-
-            public int GetHashCode(MyMergedLodMeshId mergedLodMeshId)
-            {
-                return mergedLodMeshId.GetHashCode();
-            }
-        }
-        internal static readonly MyMergedLodMeshIdComparerType Comparer = new MyMergedLodMeshIdComparerType();
-
-        bool IEquatable<MyMergedLodMeshId>.Equals(MyMergedLodMeshId other)
-        {
-            return this == other;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null || !(obj.GetType() == GetType()))
-                return false;
-
-            var meshId = (MyMergedLodMeshId)obj;
-            return this == meshId;
-        }
-
-        public static bool operator ==(MyMergedLodMeshId left, MyMergedLodMeshId right)
-        {
-            return left.Index == right.Index;
-        }
-
-        public static bool operator !=(MyMergedLodMeshId left, MyMergedLodMeshId right)
-        {
-            return !(left.Index == right.Index);
-        }
-        #endregion
-
-        public override int GetHashCode()
-        {
-            return Index;
-        }
-    }
-
     struct MeshPartId
     {
         internal int Index;
@@ -473,39 +412,6 @@ namespace VRageRender
         internal bool NullLodMesh;
     }
 
-    struct MyMergedLodMeshInfo
-    {
-        #region Comparer
-        public class MergedLodMeshInfoComparerType : IEqualityComparer<MyMergedLodMeshInfo>
-        {
-            public bool Equals(MyMergedLodMeshInfo x, MyMergedLodMeshInfo y)
-            {
-                return x.MergedLodMeshes == y.MergedLodMeshes;
-            }
-
-            public int GetHashCode(MyMergedLodMeshInfo obj)
-            {
-                return obj.MergedLodMeshes.GetHashCode();
-            }
-        }
-
-        internal static readonly MergedLodMeshInfoComparerType Comparer = new MergedLodMeshInfoComparerType();
-        #endregion
-
-        internal int PartsNum;
-        internal int VerticesNum;
-        internal int IndicesNum;
-        internal int TrianglesNum;
-        internal float TriangleDensity;
-
-        internal MyMeshRawData Data;
-
-        internal BoundingBox BoundingBox;
-
-        internal HashSet<LodMeshId> PendingLodMeshes;
-        internal HashSet<LodMeshId> MergedLodMeshes;
-    }
-
     struct MyMeshInfo
     {
         internal int LodsNum;
@@ -587,12 +493,6 @@ namespace VRageRender
         }
         public static readonly MyLodMeshComparerType Comparer = new MyLodMeshComparerType();
         #endregion
-    }
-
-    struct MyMergedLodMesh
-    {
-        internal MeshId Mesh;
-        internal int Lod;
     }
 
     struct MyMeshPart
@@ -681,24 +581,6 @@ namespace VRageRender
         static readonly Dictionary<MyMeshSection, MeshSectionId> SectionIndex =
             new Dictionary<MyMeshSection, MeshSectionId>(MyMeshSection.Comparer);
 
-        #region Merged meshes
-
-        private static readonly Dictionary<MyMergedLodMesh, MyMergedLodMeshId> MergedLodMeshIndex =
-            new Dictionary<MyMergedLodMesh, MyMergedLodMeshId>();
-
-        private static readonly Dictionary<MyMergedLodMeshId, MyVoxelCellInfo> MergedMeshVoxelInfo =
-            new Dictionary<MyMergedLodMeshId, MyVoxelCellInfo>(MyMergedLodMeshId.Comparer);
-
-        internal static readonly Dictionary<LodMeshId, MyMergedLodMeshId> LodMeshToMerged =
-            new Dictionary<LodMeshId, MyMergedLodMeshId>(LodMeshId.Comparer);
-
-        internal static readonly MyFreelist<MyMergedLodMeshInfo> MergedLodMeshInfos =
-            new MyFreelist<MyMergedLodMeshInfo>(2048);
-
-        internal static MyMeshBuffers[] MergedLodMeshBuffers = new MyMeshBuffers[4096];
-
-        #endregion
-
         internal static readonly MyFreelist<MyVoxelPartInfo1> VoxelParts = new MyFreelist<MyVoxelPartInfo1>(2048);
 
         static readonly Dictionary<MeshId, MyRuntimeMeshPersistentInfo> InterSessionData =
@@ -736,11 +618,6 @@ namespace VRageRender
                 LodMeshBuffers[bufferIndex] = MyMeshBuffers.Empty;
             }
 
-            for (int bufferIndex = 0; bufferIndex < MergedLodMeshBuffers.Length; ++bufferIndex)
-            {
-                MergedLodMeshBuffers[bufferIndex] = MyMeshBuffers.Empty;
-            }
-
             VoxelLayout = MyVertexLayouts.GetLayout(
                 new MyVertexInputComponent(MyVertexInputComponentType.VOXEL_POSITION_MAT),
                 new MyVertexInputComponent(MyVertexInputComponentType.VOXEL_NORMAL, 1));
@@ -759,19 +636,9 @@ namespace VRageRender
             return MeshVoxelInfo.ContainsKey(mesh);
         }
 
-        internal static bool IsMergedVoxelMesh(MeshId mesh)
-        {
-            return MergedLodMeshIndex.ContainsKey(new MyMergedLodMesh { Mesh = mesh, Lod = 0 });
-        }
-
         internal static MyVoxelCellInfo GetVoxelInfo(MeshId mesh)
         {
             return MeshVoxelInfo[mesh];
-        }
-
-        internal static MyVoxelCellInfo GetVoxelInfo(MyMergedLodMeshId mergedLodMeshId)
-        {
-            return MergedMeshVoxelInfo[mergedLodMeshId];
         }
 
         internal static LodMeshId GetLodMesh(MeshId mesh, int lod)
@@ -785,32 +652,6 @@ namespace VRageRender
             var lodMesh = new MyLodMesh { Mesh = mesh, Lod = lod };
 
             return LodMeshIndex.TryGetValue(lodMesh, out lodMeshId);
-        }
-
-        internal static MyMergedLodMeshId GetMergedLodMesh(MeshId mesh, int lod)
-        {
-            return MergedLodMeshIndex[new MyMergedLodMesh { Mesh = mesh, Lod = lod }];
-        }
-
-        internal static void LinkLodMeshToMerged(LodMeshId lodMeshId, MyMergedLodMeshId mergedLodMeshId)
-        {
-            LodMeshToMerged[lodMeshId] = mergedLodMeshId;
-        }
-
-        internal static bool UnlinkLodMeshFromMerged(LodMeshId lodMeshId)
-        {
-            Debug.Assert(LodMeshToMerged.ContainsKey(lodMeshId), "Trying to remove non-existent merged lod mesh link");
-            return LodMeshToMerged.Remove(lodMeshId);
-        }
-
-        internal static bool IsLodMeshMerged(LodMeshId lodMesh)
-        {
-            bool isMerged = false;
-            MyMergedLodMeshId mergedLodMesh;
-            if (LodMeshToMerged.TryGetValue(lodMesh, out mergedLodMesh))
-                isMerged = mergedLodMesh.Info.MergedLodMeshes.Contains(lodMesh);
-
-            return isMerged;
         }
 
         internal static MeshPartId GetMeshPart(MeshId mesh, int lod, int part)
@@ -838,7 +679,7 @@ namespace VRageRender
             return VoxelPartIndex[new MyMeshPart { Mesh = mesh, Lod = 0, Part = part }];
         }
 
-        internal static void InitState(MeshId id, MyMeshState state)
+        private static void InitState(MeshId id, MyMeshState state)
         {
             Debug.Assert(!CheckState(id, MyMeshState.LOADED));
             Debug.Assert(!CheckState(id, MyMeshState.WAITING));
@@ -846,22 +687,22 @@ namespace VRageRender
             State[(int)state].Add(id);
         }
 
-        internal static void MoveState(MeshId id, MyMeshState from, MyMeshState to)
+        private static void MoveState(MeshId id, MyMeshState from, MyMeshState to)
         {
             State[(int)from].Remove(id);
             State[(int)to].Add(id);
         }
 
-        internal static bool CheckState(MeshId id, MyMeshState state)
+        private static bool CheckState(MeshId id, MyMeshState state)
         {
             return State[(int)state].Contains(id);
         }
 
         internal static void ClearState(MeshId id)
         {
-            for (int i = 0; i < State.Length; i++)
+            foreach (HashSet<MeshId> t in State)
             {
-                State[i].Remove(id);
+                t.Remove(id);
             }
         }
 
@@ -974,22 +815,6 @@ namespace VRageRender
             LodMeshBuffers[id.Index] = MyMeshBuffers.Empty;
 
             return id;
-        }
-
-        static MyMergedLodMeshId NewMergedLodMesh(MeshId mesh)
-        {
-            var mergedId = new MyMergedLodMeshId { Index = MergedLodMeshInfos.Allocate() };
-            MergedLodMeshInfos.Data[mergedId.Index] = new MyMergedLodMeshInfo
-            {
-                PendingLodMeshes = new HashSet<LodMeshId>(LodMeshId.Comparer),
-                MergedLodMeshes = new HashSet<LodMeshId>(LodMeshId.Comparer)
-            };
-
-            MergedLodMeshIndex[new MyMergedLodMesh { Mesh = mesh, Lod = 0 }] = mergedId;
-            MyArrayHelpers.Reserve(ref MergedLodMeshBuffers, mergedId.Index + 1);
-            MergedLodMeshBuffers[mergedId.Index] = MyMeshBuffers.Empty;
-
-            return mergedId;
         }
 
         static MeshPartId NewMeshPart(MeshId mesh, int lod, int part)
@@ -1180,7 +1005,7 @@ namespace VRageRender
                 MyMeshMaterialId matId = MyMeshMaterials1.NullMaterialId;
                 bool isProcessedByGeometryTextureSystem = false;
 
-                if (MyRenderProxy.Settings.UseGeometryArrayTextures && materialDesc != null)
+                if (MyRender11.Settings.UseGeometryArrayTextures && materialDesc != null)
                 {
                     MyMeshMaterialInfo meshMaterialInfo = MyMeshMaterials1.ConvertImportDescToMeshMaterialInfo(materialDesc, contentPath, assetName);
                     if (MyManagers.GeometryTextureSystem.IsMaterialAcceptableForTheSystem(meshMaterialInfo))
@@ -1893,7 +1718,7 @@ namespace VRageRender
             }
         }
 
-        unsafe static void MoveData(LodMeshId lodMeshId)
+        static unsafe void MoveData(LodMeshId lodMeshId)
         {
             var info = LodMeshInfos.Data[lodMeshId.Index];
             if (info.NullLodMesh)
@@ -1904,14 +1729,7 @@ namespace VRageRender
             MoveData(lodMeshId.Info.VerticesNum, lodMeshId.Info.IndicesNum, ref LodMeshInfos.Data[lodMeshId.Index].Data, ref LodMeshBuffers[lodMeshId.Index]);
         }
 
-        unsafe static void MoveData(MyMergedLodMeshId mergedLodMeshId)
-        {
-            var info = MergedLodMeshInfos.Data[mergedLodMeshId.Index];
-            DisposeMergedLodMeshBuffers(mergedLodMeshId);
-            MoveData(mergedLodMeshId.Info.VerticesNum, mergedLodMeshId.Info.IndicesNum, ref MergedLodMeshInfos.Data[mergedLodMeshId.Index].Data, ref MergedLodMeshBuffers[mergedLodMeshId.Index]);
-        }
-
-        unsafe static void MoveData(int vertexCount, int indexCount, ref MyMeshRawData rawData, ref MyMeshBuffers meshBuffer)
+        static unsafe void MoveData(int vertexCount, int indexCount, ref MyMeshRawData rawData, ref MyMeshBuffers meshBuffer)
         {
             fixed (void* ptr = rawData.VertexStream0)
             {
@@ -1934,107 +1752,6 @@ namespace VRageRender
                     "ib", indexCount, new IntPtr(ptr),
                     rawData.IndicesFmt, ResourceUsage.Immutable);
             }
-        }
-
-        internal static MeshId CreateMergedVoxelCell(Vector3I coordinates, int lod)
-        {
-            var meshId = new MeshId { Index = MeshInfos.Allocate() };
-
-            MyVoxelCellInfo info = new MyVoxelCellInfo { Coord = coordinates, Lod = lod };
-            MeshVoxelInfo[meshId] = info;
-
-            MeshInfos.Data[meshId.Index] = new MyMeshInfo
-            {
-                Name = String.Format("MergedVoxelCell {0} Lod {1}", coordinates, lod),
-                NameKey = MyStringId.NullOrEmpty,
-                LodsNum = 1,
-                Dynamic = false,
-                RuntimeGenerated = true,
-            };
-
-            MyMergedLodMeshId mergedLodMesh = NewMergedLodMesh(meshId);
-            MergedMeshVoxelInfo[mergedLodMesh] = info;
-
-            MergedLodMeshInfos.Data[mergedLodMesh.Index].Data.VertexLayout = VoxelLayout;
-
-            return meshId;
-        }
-
-        internal static bool CanStartMerge(MeshId mergedMeshId, int pendingThreshold)
-        {
-            MyMergedLodMesh mergedMesh = new MyMergedLodMesh { Mesh = mergedMeshId, Lod = 0 };
-            MyMergedLodMeshId mergedLodMeshId = MergedLodMeshIndex[mergedMesh];
-
-            return mergedLodMeshId.CanStartMerge(pendingThreshold);
-        }
-
-        internal static bool TryStartMerge(MeshId mergedMeshId, uint clipmapId, int pendingThreshold, List<LodMeshId> outLodMeshesSent, ulong workId)
-        {
-            MyMergedLodMeshId mergedLodMeshId = MergedLodMeshIndex[new MyMergedLodMesh { Mesh = mergedMeshId, Lod = 0 }];
-            return mergedLodMeshId.TryStartMerge(clipmapId, pendingThreshold, outLodMeshesSent, workId);
-        }
-
-        internal static bool UpdateMergedVoxelCell(MeshId mesh, ref MyClipmapCellMeshMetadata metadata, List<MyClipmapCellBatch> batches)
-        {
-            ProfilerShort.Begin("MyMeshes.UpdateMergedVoxelCell");
-            var mergedLodMesh = new MyMergedLodMesh { Mesh = mesh, Lod = 0 };
-
-            MyMergedLodMeshId mergedLodMeshId;
-            if (!MergedLodMeshIndex.TryGetValue(mergedLodMesh, out mergedLodMeshId))
-            {
-                Debug.Fail("Merged lod mesh not found!");
-                ProfilerShort.End();
-                return false;
-            }
-
-            // We'd immediately need to recalculate, don't bother
-            if (mergedLodMeshId.Info.PendingLodMeshes.Count > 0)
-            {
-                ProfilerShort.End();
-                return false;
-            }
-
-            MyVoxelCellInfo info = new MyVoxelCellInfo { Coord = metadata.Cell.CoordInLod, Lod = metadata.Cell.Lod };
-            MeshVoxelInfo[mesh] = info;
-            MergedMeshVoxelInfo[mergedLodMeshId] = info;
-
-            ResizeVoxelParts(mesh, mergedLodMeshId, batches.Count);
-
-            long vertexCount, indexCount;
-            CalculateRequiredBufferCapacities(batches, out vertexCount, out indexCount);
-
-            if (vertexCount <= ushort.MaxValue)
-            {
-                ProfilerShort.Begin("MyMeshes.CombineBatchesToParts");
-                CombineBatchesToParts(mesh, batches, ref m_tmpVertices0, ref m_tmpVertices1, ref m_tmpShortIndices, vertexCount, indexCount);
-                ProfilerShort.BeginNextBlock("MyMeshes.FillMeshRawData");
-                FillMeshRawData(ref MergedLodMeshInfos.Data[mergedLodMeshId.Index].Data, m_tmpVertices0, m_tmpVertices1, m_tmpShortIndices, (int)vertexCount, (int)indexCount);
-            }
-            else if (vertexCount <= uint.MaxValue)
-            {
-                ProfilerShort.Begin("MyMeshes.CombineBatchesToParts");
-                CombineBatchesToParts(mesh, batches, ref m_tmpVertices0, ref m_tmpVertices1, ref m_tmpIndices, vertexCount, indexCount);
-                ProfilerShort.BeginNextBlock("MyMeshes.FillMeshRawData");
-                FillMeshRawData(ref MergedLodMeshInfos.Data[mergedLodMeshId.Index].Data, m_tmpVertices0, m_tmpVertices1, m_tmpIndices, (int)vertexCount, (int)indexCount);
-            }
-            else
-                Debug.Fail("Index overflow");
-
-            MergedLodMeshInfos.Data[mergedLodMeshId.Index].BoundingBox = metadata.LocalAabb;
-            MergedLodMeshInfos.Data[mergedLodMeshId.Index].VerticesNum = (int)vertexCount;
-            MergedLodMeshInfos.Data[mergedLodMeshId.Index].IndicesNum = (int)indexCount;
-            MergedLodMeshInfos.Data[mergedLodMeshId.Index].TrianglesNum = (int)(indexCount / 3);
-
-            var diagonal = metadata.LocalAabb.Size.Length();
-            MergedLodMeshInfos.Data[mergedLodMeshId.Index].TriangleDensity = (int)(indexCount / 3) / (diagonal * diagonal);
-
-            ProfilerShort.BeginNextBlock("MyMeshes.MoveData");
-            MoveData(mergedLodMeshId);
-            ProfilerShort.End();
-
-
-            ProfilerShort.End();
-            return true;
         }
 
         internal static MeshId CreateVoxelCell(Vector3I coord, int lod)
@@ -2062,7 +1779,138 @@ namespace VRageRender
             return id;
         }
 
+        internal static int BatchNumMaterials(MyClipmapCellBatch b)
+        {
+            int res = 0;
+
+            if (b.Material0 != -1)
+                res++;
+
+            if (b.Material1 != -1)
+                res++;
+
+            if (b.Material2 != -1)
+                res++;
+
+            return res;
+        }
+
+        internal static int CalcNumSingleMatBatches(List<MyClipmapCellBatch> batches)
+        {
+            int res = 0;
+
+            for (int i = 0; i < batches.Count; i++)
+            {
+                if (BatchNumMaterials(batches[i]) == 1)
+                {
+                    res++;
+                }
+            }
+
+            return res;
+        }
+
+        // NOTE: batches are expected to be sorted by single/multi material property
+        static List<MyClipmapCellBatch> CollapseBatches(List<MyClipmapCellBatch> batches)
+        {
+            List<MyClipmapCellBatch> res = new List<MyClipmapCellBatch>();
+
+            for (int i = 0; i < batches.Count;)
+            {
+                bool startBatchIsMulti = BatchNumMaterials(batches[i]) > 1;
+                int  numInCluster = 1;
+
+                for ( ;(i + numInCluster) < batches.Count; numInCluster++)
+                {
+                    bool currBatchIsMulti = BatchNumMaterials(batches[i + numInCluster]) > 1;
+
+                    if (startBatchIsMulti != currBatchIsMulti)
+                    {
+                        break;
+                    }
+                }
+
+                int numVerts = 0;
+                int numIndices = 0;
+
+                for (int j = 0; j < numInCluster; j++)
+                {
+                    numVerts += batches[i + j].Vertices.Length;
+                    numIndices += batches[i + j].Indices.Length;
+                }
+
+                MyClipmapCellBatch newBatch = new MyClipmapCellBatch();
+
+                newBatch.Vertices = new MyVertexFormatVoxelSingleData[numVerts];
+                newBatch.Indices = new uint[numIndices];
+
+                {
+                    int vertexOffs = 0;
+                    int indexOffs = 0;
+
+                    for (int j = 0; j < numInCluster; j++)
+                    {
+                        int currNumVerts = batches[i + j].Vertices.Length;
+                        int currNumIndices = batches[i + j].Indices.Length;
+
+                        Array.Copy(batches[i + j].Vertices, 0, newBatch.Vertices, vertexOffs, currNumVerts);
+
+                        var srcIndices = batches[i + j].Indices;
+
+                        for (int k = 0; k < currNumIndices; k++)
+                        {
+                            newBatch.Indices[indexOffs + k] = srcIndices[k] + (uint)vertexOffs;
+                        }
+
+                        vertexOffs += currNumVerts;
+                        indexOffs += currNumIndices;
+                    }
+                }
+
+                // When merging batches for rendering, we actually don't care about materials, because they are handled
+                // through global material lookup table accessed from GPU
+
+                newBatch.Material0 = batches[i].Material0;
+                newBatch.Material1 = batches[i].Material1;
+                newBatch.Material2 = batches[i].Material2;
+
+                res.Add(newBatch);
+
+                i += numInCluster;
+            }
+
+            return res;
+        }
+
         internal static void UpdateVoxelCell(MeshId mesh, MyClipmapCellMeshMetadata metadata, List<MyClipmapCellBatch> batches)
+        {
+            //
+            // This block of code updates global voxel-materials related constant buffer. It is very likely
+            // that this is not the best place where to perform this action and somebody with better
+            // understanding of engine architecture should fix it.
+            //
+
+            for (int i = 0; i < batches.Count; i++)
+            {
+                if (batches[i].Material0 != -1)
+                    MyVoxelMaterials1.UpdateGlobalVoxelMaterialsCB(batches[i].Material0);
+
+                if (batches[i].Material1 != -1)
+                    MyVoxelMaterials1.UpdateGlobalVoxelMaterialsCB(batches[i].Material1);
+
+                if (batches[i].Material2 != -1)
+                    MyVoxelMaterials1.UpdateGlobalVoxelMaterialsCB(batches[i].Material2);
+            }
+
+            List<MyClipmapCellBatch>  collapsedBatches = CollapseBatches(batches);
+            MyClipmapCellMeshMetadata metadataForCollapsed = metadata;
+
+            metadataForCollapsed.BatchCount = collapsedBatches.Count;
+
+            UpdateVoxelCellInternal(mesh, metadataForCollapsed, collapsedBatches);
+        }
+
+        private static void UpdateVoxelCellInternal(MeshId mesh, MyClipmapCellMeshMetadata metadata, List<MyClipmapCellBatch> batches)
         {
             var lodMesh = new MyLodMesh { Mesh = mesh, Lod = 0 };
 
@@ -2133,7 +1981,7 @@ namespace VRageRender
             }
         }
 
-        private unsafe static void CopyVertices(MyVertexFormatVoxelSingleData* sourcePointer, MyVertexFormatVoxel* destinationPointer0, MyVertexFormatNormal* destinationPointer1, uint elementsToCopy)
+        private static unsafe void CopyVertices(MyVertexFormatVoxelSingleData* sourcePointer, MyVertexFormatVoxel* destinationPointer0, MyVertexFormatNormal* destinationPointer1, uint elementsToCopy)
         {
             MyVertexFormatVoxel* currentDestination0 = destinationPointer0;
             MyVertexFormatNormal* currentDestination1 = destinationPointer1;
@@ -2144,8 +1992,11 @@ namespace VRageRender
             {
                 MyVertexFormatVoxelSingleData* batchVertex = sourcePointer + batchVertexIndex;
 
+                // NOTE: I don't like this :-)
                 *((MyVertexCopyHelper*)currentDestination0) = (*((MyVertexCopyHelper*)batchVertex) + ValueToAdd128);
                 *((ulong*)currentDestination1) = *((ulong*)batchVertex + 2);
+
+                currentDestination0->m_materialInfo = batchVertex->MaterialInfo;
 
                 //currentDestination0->Position = batchVertex->Position;
                 //currentDestination0->PositionMorph = batchVertex->PositionMorph;
@@ -2160,7 +2011,7 @@ namespace VRageRender
             }
         }
 
-        private unsafe static void CopyIndices(uint* sourcePointer, void* destinationPointer, int startIndex, int baseVertex, int destinationIndexStride, uint elementsToCopy)
+        private static unsafe void CopyIndices(uint* sourcePointer, void* destinationPointer, int startIndex, int baseVertex, int destinationIndexStride, uint elementsToCopy)
         {
             switch (destinationIndexStride)
             {
@@ -2195,7 +2046,7 @@ namespace VRageRender
         }
 
         // ushort overload
-        private unsafe static void CombineBatchesToParts(
+        private static unsafe void CombineBatchesToParts(
             MeshId mesh,
             List<MyClipmapCellBatch> batches,
             ref MyVertexFormatVoxel[] vertices0,
@@ -2221,7 +2072,7 @@ namespace VRageRender
         }
 
         // uint overload
-        private unsafe static void CombineBatchesToParts(
+        private static unsafe void CombineBatchesToParts(
             MeshId mesh,
             List<MyClipmapCellBatch> batches,
             ref MyVertexFormatVoxel[] vertices0,
@@ -2247,7 +2098,7 @@ namespace VRageRender
         }
 
         // Overload that does the actual work
-        private unsafe static void CombineBatchesToParts(
+        private static unsafe void CombineBatchesToParts(
             MeshId mesh,
             List<MyClipmapCellBatch> batches,
             MyVertexFormatVoxel* vertices0,
@@ -2264,7 +2115,7 @@ namespace VRageRender
             {
                 var batchVertices = batches[batchIndex].Vertices;
                 var batchIndices = batches[batchIndex].Indices;
-                var batchMaterial = new MyVoxelMaterialTriple(batches[batchIndex].Material0, batches[batchIndex].Material1, batches[batchIndex].Material2);
+                var batchMaterial = new MyVoxelMaterialTriple(batches[batchIndex].Material0, batches[batchIndex].Material1, batches[batchIndex].Material2, false);
 
                 fixed (MyVertexFormatVoxelSingleData* sourcePointer = batchVertices)
                 {
@@ -2342,7 +2193,7 @@ namespace VRageRender
             FillIndexData(ref meshRawData, indices, indexCapacity);
         }
 
-        unsafe static void FillStreamData(ref byte[] destinationData, void* sourcePointer, int elementCount, int elementStride)
+        static unsafe void FillStreamData(ref byte[] destinationData, void* sourcePointer, int elementCount, int elementStride)
         {
             var byteSize = elementCount * elementStride;
             MyArrayHelpers.ResizeNoCopy(ref destinationData, byteSize);
@@ -2352,13 +2203,13 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillStream0Data(ref MyMeshRawData rawData, void* sourcePointer, int vertexCount, int vertexStride)
+        static unsafe void FillStream0Data(ref MyMeshRawData rawData, void* sourcePointer, int vertexCount, int vertexStride)
         {
             rawData.Stride0 = vertexStride;
             FillStreamData(ref rawData.VertexStream0, sourcePointer, vertexCount, vertexStride);
         }
 
-        unsafe static void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatPositionH4[] vertices, int vertexCount)
+        static unsafe void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatPositionH4[] vertices, int vertexCount)
         {
             fixed (void* sourcePointer = vertices)
             {
@@ -2366,7 +2217,7 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillStream0Data(ref MyMeshRawData rawData, HalfVector4[] vertices, int vertexCount)
+        static unsafe void FillStream0Data(ref MyMeshRawData rawData, HalfVector4[] vertices, int vertexCount)
         {
             fixed (void* sourcePointer = vertices)
             {
@@ -2374,7 +2225,7 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatPositionSkinning[] vertices, int vertexCount)
+        static unsafe void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatPositionSkinning[] vertices, int vertexCount)
         {
             fixed (void* sourcePointer = vertices)
             {
@@ -2382,7 +2233,7 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatVoxel[] vertices, int vertexCount)
+        static unsafe void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatVoxel[] vertices, int vertexCount)
         {
             fixed (void* sourcePointer = vertices)
             {
@@ -2390,13 +2241,13 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillStream1Data(ref MyMeshRawData rawData, void* sourcePointer, int vertexCount, int vertexStride)
+        static unsafe void FillStream1Data(ref MyMeshRawData rawData, void* sourcePointer, int vertexCount, int vertexStride)
         {
             rawData.Stride1 = vertexStride;
             FillStreamData(ref rawData.VertexStream1, sourcePointer, vertexCount, vertexStride);
         }
 
-        unsafe static void FillStream1Data(ref MyMeshRawData rawData, MyVertexFormatTexcoordNormalTangentTexindices[] vertices, int vertexCount)
+        static unsafe void FillStream1Data(ref MyMeshRawData rawData, MyVertexFormatTexcoordNormalTangentTexindices[] vertices, int vertexCount)
         {
             fixed (void* sourcePointer = vertices)
             {
@@ -2404,7 +2255,7 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillStream1Data(ref MyMeshRawData rawData, MyVertexFormatNormal[] vertices, int vertexCount)
+        static unsafe void FillStream1Data(ref MyMeshRawData rawData, MyVertexFormatNormal[] vertices, int vertexCount)
         {
             fixed (void* sourcePointer = vertices)
             {
@@ -2412,7 +2263,7 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillIndexData(ref MyMeshRawData rawData, ushort[] indices, int indexCapacity)
+        static unsafe void FillIndexData(ref MyMeshRawData rawData, ushort[] indices, int indexCapacity)
         {
             rawData.IndicesFmt = MyIndexBufferFormat.UShort;
             fixed (void* sourceIndices = indices)
@@ -2421,7 +2272,7 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillIndexData(ref MyMeshRawData rawData, uint[] indices, int indexCapacity)
+        static unsafe void FillIndexData(ref MyMeshRawData rawData, uint[] indices, int indexCapacity)
         {
             rawData.IndicesFmt = MyIndexBufferFormat.UInt;
             fixed (void* sourceIndices = indices)
@@ -2458,43 +2309,10 @@ namespace VRageRender
             LodMeshInfos.Data[lod.Index].DataBatches = new MyClipmapCellBatch[num];
         }
 
-        private static void ResizeVoxelParts(MeshId mesh, MyMergedLodMeshId mergedLodMeshId, int num)
-        {
-            int currentParts = MergedLodMeshInfos.Data[mergedLodMeshId.Index].PartsNum;
-
-            // extend
-            if (currentParts < num)
-            {
-                for (int i = currentParts; i < num; i++)
-                {
-                    var id = new VoxelPartId { Index = VoxelParts.Allocate() };
-                    VoxelPartIndex[new MyMeshPart { Mesh = mesh, Lod = 0, Part = i }] = id;
-                }
-            }
-            // drop
-            else if (currentParts > num)
-            {
-                for (int i = num; i < currentParts; i++)
-                {
-                    var id = VoxelPartIndex[new MyMeshPart { Mesh = mesh, Lod = 0, Part = i }];
-                    VoxelParts.Free(id.Index);
-                    VoxelPartIndex.Remove(new MyMeshPart { Mesh = mesh, Lod = 0, Part = i });
-                }
-            }
-
-            MergedLodMeshInfos.Data[mergedLodMeshId.Index].PartsNum = num;
-        }
-
         private static void DisposeLodMeshBuffers(LodMeshId lodMeshId)
         {
             DisposeMeshBuffers(lodMeshId.Buffers);
             LodMeshBuffers[lodMeshId.Index] = MyMeshBuffers.Empty;
-        }
-
-        private static void DisposeMergedLodMeshBuffers(MyMergedLodMeshId mergedLodMeshId)
-        {
-            DisposeMeshBuffers(mergedLodMeshId.Buffers);
-            MergedLodMeshBuffers[mergedLodMeshId.Index] = MyMeshBuffers.Empty;
         }
 
         private static void DisposeMeshBuffers(MyMeshBuffers buffers)
@@ -2514,45 +2332,19 @@ namespace VRageRender
             if (!MeshVoxelInfo.ContainsKey(id))
                 return;
 
-            bool isMergedMesh = IsMergedVoxelMesh(id);
-            if (!isMergedMesh)
+            MyLodMesh lodMesh = new MyLodMesh { Mesh = id, Lod = 0 };
+            if (LodMeshIndex.ContainsKey(lodMesh))
             {
+                var lodMeshId = LodMeshIndex[lodMesh];
 
-                MyLodMesh lodMesh = new MyLodMesh { Mesh = id, Lod = 0 };
-                if (LodMeshIndex.ContainsKey(lodMesh))
-                {
-                    var lodMeshId = LodMeshIndex[lodMesh];
+                ResizeVoxelParts(id, lodMeshId, 0);
+                DisposeLodMeshBuffers(lodMeshId);
+                LodMeshInfos.Data[lodMeshId.Index].Data = new MyMeshRawData();
+                LodMeshInfos.Free(lodMeshId.Index);
 
-                    bool isLodMerged = IsLodMeshMerged(lodMeshId);
-                    if (isLodMerged)
-                        LodMeshToMerged.Remove(lodMeshId);
-
-                    ResizeVoxelParts(id, lodMeshId, 0);
-                    DisposeLodMeshBuffers(lodMeshId);
-                    LodMeshInfos.Data[lodMeshId.Index].Data = new MyMeshRawData();
-                    LodMeshInfos.Free(lodMeshId.Index);
-
-                    LodMeshIndex.Remove(lodMesh);
-                }
+                LodMeshIndex.Remove(lodMesh);
             }
-            else
-            {
-                MyMergedLodMesh mergedLodMesh = new MyMergedLodMesh { Mesh = id, Lod = 0 };
-                if (MergedLodMeshIndex.ContainsKey(mergedLodMesh))
-                {
-                    var mergedMeshId = MergedLodMeshIndex[mergedLodMesh];
-
-                    ResizeVoxelParts(id, mergedMeshId, 0);
-                    DisposeMergedLodMeshBuffers(mergedMeshId);
-                    MergedLodMeshInfos.Data[mergedMeshId.Index].PendingLodMeshes.Clear();
-                    MergedLodMeshInfos.Data[mergedMeshId.Index].MergedLodMeshes.Clear();
-                    MergedLodMeshInfos.Free(mergedMeshId.Index);
-
-                    MergedLodMeshIndex.Remove(mergedLodMesh);
-                    MergedMeshVoxelInfo.Remove(mergedMeshId);
-                }
-            }
-
+            
             MeshInfos.Free(id.Index);
             MeshVoxelInfo.Remove(id);
         }

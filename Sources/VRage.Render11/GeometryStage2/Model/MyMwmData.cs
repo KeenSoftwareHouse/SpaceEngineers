@@ -71,6 +71,17 @@ namespace VRage.Render11.GeometryStage2.Model
             }
         }
 
+        public bool ContainsGlass
+        {
+            get
+            {
+                foreach(var part in PartInfos)
+                    if (part.Technique == MyMeshDrawTechnique.GLASS)
+                        return true;
+                return false;
+            }
+        }
+
         static MyModelImporter GetModelImporter(string mwmFilepath)
         {
             MyModelImporter importer = new MyModelImporter();

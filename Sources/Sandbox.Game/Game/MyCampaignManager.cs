@@ -101,6 +101,9 @@ namespace Sandbox.Game
         {
             get
             {
+                if (MySession.Static == null)
+                    return false;
+
                 var component = MySession.Static.GetComponent<MyCampaignSessionComponent>();
                 return component.Running;
             }
@@ -178,7 +181,7 @@ namespace Sandbox.Game
                     {
                         if (ob.Campaign != null)
                         {
-                            ob.Campaign.IsVanilla = false;
+                            ob.Campaign.IsVanilla = true;
                             ob.Campaign.IsLocalMod = false;
                             ob.Campaign.IsDebug = true;
                             LoadCampaignData(ob.Campaign);

@@ -91,12 +91,14 @@ namespace VRageRender
         internal int I0;
         internal int I1;
         internal int I2;
+        internal bool IsFillingMaterialCB;
 
-        internal MyVoxelMaterialTriple(int i0, int i1, int i2)
+        internal MyVoxelMaterialTriple(int i0, int i1, int i2, bool isFillingMaterialCB)
         {
             I0 = i0;
             I1 = i1;
             I2 = i2;
+            IsFillingMaterialCB = isFillingMaterialCB;
         }
 
         internal bool IsMultimaterial()
@@ -108,12 +110,13 @@ namespace VRageRender
         {
             public bool Equals(MyVoxelMaterialTriple x, MyVoxelMaterialTriple y)
             {
-                return x.I0 == y.I0 && x.I1 == y.I1 && x.I2 == y.I2;
+                return x.I0 == y.I0 && x.I1 == y.I1 && x.I2 == y.I2 && x.IsFillingMaterialCB == y.IsFillingMaterialCB;
             }
 
             public int GetHashCode(MyVoxelMaterialTriple obj)
             {
-                return (obj.I0 << 16 | obj.I1 << 8 | obj.I2).GetHashCode();
+                int hashIsFillingMaterialCB = obj.IsFillingMaterialCB ? 1 << 24 : 0;
+                return (obj.I0 << 16 | obj.I1 << 8 | obj.I2).GetHashCode() ^ hashIsFillingMaterialCB;
             }
         }
 
@@ -364,7 +367,7 @@ namespace VRageRender
 
     //        if(isSingleMaterial)
     //        {
-    //            bindings = MyShaderMaterialReflection.CreateBindings(MyVoxelMesh.SINGLE_MATERIAL_TAG);
+    //            bindings = MyShaderMaterialReflection.CreateBindings(MyVoxelMesh.TRIPLANAR_SINGLE_MATERIAL_TAG);
 
     //            bindings.SetFloat("highfreq_scale", material0.HighFreqScale);
     //            bindings.SetFloat("lowfreq_scale", material0.LowFreqScale);
@@ -377,7 +380,7 @@ namespace VRageRender
     //        }
     //        else
     //        {
-    //            bindings = MyShaderMaterialReflection.CreateBindings(MyVoxelMesh.MULTI_MATERIAL_TAG);
+    //            bindings = MyShaderMaterialReflection.CreateBindings(MyVoxelMesh.TRIPLANAR_MULTI_MATERIAL_TAG);
 
     //            bindings.SetFloat4("material_factors[0]", new Vector4(material0.HighFreqScale, material0.LowFreqScale, material0.TransitionRange, material0.HasFoliage ? 1 : 0));
     //            bindings.SetTexture("ColorMetal_XZnY_pY[0]", material0.ColorMetalArray.ShaderView);

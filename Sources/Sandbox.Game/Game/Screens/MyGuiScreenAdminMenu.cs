@@ -885,7 +885,7 @@ namespace Sandbox.Game.Gui
 
         private void OnTeleportButton(MyGuiControlButton obj)
         {
-            if (m_attachCamera == 0)
+            if (MySession.Static.CameraController == MySession.Static.LocalCharacter)
                 return;
 
             //TODO: Match character velocity with the ship we're teleporting to?

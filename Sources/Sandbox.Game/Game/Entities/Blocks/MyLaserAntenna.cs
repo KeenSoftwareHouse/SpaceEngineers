@@ -1327,6 +1327,9 @@ namespace Sandbox.Game.Entities.Cube
         {
             ClampRotationAndElevation();
 
+            if (m_base1 == null || m_base2 == null)
+                return;
+
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyLargeShipGunBase::RotateModels");
 
             Matrix m = (Matrix)InitializationMatrixWorld;

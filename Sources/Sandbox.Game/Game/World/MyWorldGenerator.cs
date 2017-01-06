@@ -478,6 +478,9 @@ namespace Sandbox.Game.World
             sessionSettings.ProceduralSeed = MyRandom.Instance.Next();
             switch ((MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum)asteroidAmount)
             {
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNone:
+                    sessionSettings.ProceduralDensity = 0.00f;
+                    break;
                 case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow:
                     sessionSettings.ProceduralDensity = 0.25f;
                     break;

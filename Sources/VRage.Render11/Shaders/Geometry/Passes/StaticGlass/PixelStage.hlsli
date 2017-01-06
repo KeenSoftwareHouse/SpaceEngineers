@@ -21,7 +21,7 @@ cbuffer GlassConstants : register (b2)
 
 void __pixel_shader(VertexStageOutput vertex, out float4 accumTarget : SV_TARGET0, out float4 coverageTarget : SV_TARGET1)
 {
-#if defined(DITHERED_LOD)
+#if defined(DITHERED_LOD) || defined(DITHERED)
     if (vertex.custom_alpha >= 0)
         Dither(vertex.position.xyz, vertex.custom_alpha);
 #endif

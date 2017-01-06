@@ -97,6 +97,7 @@ namespace VRage.Game.VisualScripting
             m_supportedTypes.Add(typeof(List<int>));
             m_supportedTypes.Add(typeof(List<float>));
             m_supportedTypes.Add(typeof(List<string>));
+            m_supportedTypes.Add(typeof(List<long>));
             m_supportedTypes.Add(typeof(List<MyEntity>));
             m_supportedTypes.Add(typeof(MyEntity));
 

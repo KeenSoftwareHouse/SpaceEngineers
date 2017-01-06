@@ -386,9 +386,9 @@ namespace Sandbox.Game.Gui
             var row = m_saveBrowser.SelectedRow;
             if (row != null)
             {
-                var saveInfo = row.UserData as FileInfo;
-                if (saveInfo == null) return;
-                MySessionLoader.LoadSingleplayerSession(saveInfo.DirectoryName);
+                var saveInfo = m_saveBrowser.GetSave(row);
+                if (saveInfo == null || saveInfo.Item2.IsCorrupted) return;
+                MySessionLoader.LoadSingleplayerSession(saveInfo.Item1);
             }
 
             MyLog.Default.WriteLine("LoadSandbox() - End");

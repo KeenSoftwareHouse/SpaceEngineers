@@ -12,6 +12,7 @@ using VRage.Render11.Resources;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender.Voxels;
+using VRage.Render11.GeometryStage.Materials;
 
 namespace VRageRender
 {
@@ -24,6 +25,7 @@ namespace VRageRender
         internal const int MATERIAL_SLOT = 3;
         internal const int FOLIAGE_SLOT = 4;
         internal const int ALPHAMASK_VIEWS_SLOT = 5;
+        internal const int VOXELS_MATERIALS_LUT_SLOT = 6;
 
         // srvs
         // geometry
@@ -61,6 +63,8 @@ namespace VRageRender
         internal static IConstantBuffer HighlightConstants { get; set; }
         internal static IConstantBuffer AlphamaskViewsConstants { get; set; }
 
+        internal static MyVoxelMaterialsConstantBuffer VoxelMaterialsConstants { get; set; }
+
         internal static UInt64 FrameCounter = 0;
 
         static MyCommon()
@@ -80,6 +84,7 @@ namespace VRageRender
             MaterialFoliageTableConstants = MyManagers.Buffers.CreateConstantBuffer("MaterialFoliageTableConstants", sizeof(Vector4) * 256, usage: ResourceUsage.Dynamic);
             HighlightConstants = MyManagers.Buffers.CreateConstantBuffer("HighlightConstants", sizeof(HighlightConstantsLayout), usage: ResourceUsage.Dynamic);
             AlphamaskViewsConstants = MyManagers.Buffers.CreateConstantBuffer("AlphamaskViewsConstants", sizeof(Matrix) * 181, usage: ResourceUsage.Dynamic);
+            VoxelMaterialsConstants = new MyVoxelMaterialsConstantBuffer();
 
             UpdateAlphamaskViewsConstants();
         }
@@ -329,7 +334,7 @@ namespace VRageRender
             // foliage
             constants.Foliage.ClippingScaling = new Vector4(
                 //MyRender.Settings.GrassGeometryClippingDistance,
-                MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance(),
+                MyRender11.Settings.User.FoliageDetails.GrassDrawDistance(),
                 MyRender11.Settings.GrassGeometryScalingNearDistance,
                 MyRender11.Settings.GrassGeometryScalingFarDistance,
                 MyRender11.Settings.GrassGeometryDistanceScalingFactor);

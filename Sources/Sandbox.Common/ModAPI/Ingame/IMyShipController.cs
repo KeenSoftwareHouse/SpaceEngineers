@@ -142,5 +142,20 @@ namespace Sandbox.ModAPI.Ingame
         /// <param name="elevation"></param>
         /// <returns></returns>
         bool TryGetPlanetElevation(MyPlanetElevation detail, out double elevation);
+
+        /// <summary>
+        /// Directional input from user/autopilot. Values can be very large with high controller sensitivity
+        /// </summary>
+        Vector3 MoveIndicator { get; }
+
+        /// <summary>
+        /// Pitch, yaw input from user/autopilot. Values can be very large with high controller sensitivity
+        /// </summary>
+        Vector2 RotationIndicator { get; }
+
+        /// <summary>
+        /// Roll input from user/autopilot. Values can be very large with high controller sensitivity
+        /// </summary>
+        float RollIndicator { get; }
     }
 }

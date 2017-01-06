@@ -12,6 +12,7 @@ using Sandbox.Game.Entities.Character;
 using VRage.Game;
 using VRage.Profiler;
 using VRage.Voxels;
+using VRage;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -291,8 +292,11 @@ namespace Sandbox.Engine.Voxels
             WriteDataProvider(stream, m_dataProvider);
             WriteOctreeNodes(stream, ChunkTypeEnum.MacroContentNodes, m_contentNodes);
             WriteOctreeNodes(stream, ChunkTypeEnum.MacroMaterialNodes, m_materialNodes);
-            WriteOctreeLeaves(stream, m_contentLeaves);
-            WriteOctreeLeaves(stream, m_materialLeaves);
+            using (m_storageLock.AcquireExclusiveUsing())
+            {
+                WriteOctreeLeaves(stream, m_contentLeaves);
+                WriteOctreeLeaves(stream, m_materialLeaves);
+            }
 
             new ChunkHeader()
             {

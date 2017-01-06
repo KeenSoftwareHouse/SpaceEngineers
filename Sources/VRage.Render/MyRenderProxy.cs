@@ -52,7 +52,7 @@ namespace VRageRender
 
         public static List<Vector3D> PointsForVoxelPrecache = new List<Vector3D>();
 
-        private static bool m_settingsDirty;
+        private static bool m_settingsDirty = true;
 
         static IMyRender m_render = null;
 
@@ -585,13 +585,13 @@ namespace VRageRender
             int fontIndex,
             Vector2 screenCoord,
             Color colorMask,
-            StringBuilder text,
+            string text,
             float screenScale,
             float screenMaxWidth,
             string targetTexture = null)
         {
             var message = MessagePool.Get<MyRenderMessageDrawString>(MyRenderMessageEnum.DrawString);
-            message.Text.Clear().AppendStringBuilder(text);
+            message.Text = text;
             message.FontIndex = fontIndex;
             message.ScreenCoord = screenCoord;
             message.ColorMask = colorMask;
@@ -786,6 +786,7 @@ namespace VRageRender
             float rescale = 1.0f
             )
         {
+            Debug.Assert(worldMatrix.IsValid() && !worldMatrix.Forward.Equals(Vector3D.Zero, 0.01f));
             var message = MessagePool.Get<MyRenderMessageCreateRenderEntity>(MyRenderMessageEnum.CreateRenderEntity);
 
             uint id = GetMessageId(ObjectType.Entity);
@@ -991,7 +992,9 @@ namespace VRageRender
             int lastMomentUpdateIndex = -1
             )
         {
-            CheckMessageId(id, new ObjectType[] {ObjectType.Entity, ObjectType.Clipmap});
+            Debug.Assert(worldMatrix.IsValid() && !worldMatrix.Forward.Equals(Vector3D.Zero, 0.01f));
+
+            CheckMessageId(id, new ObjectType[] { ObjectType.Entity, ObjectType.Clipmap });
             var message = MessagePool.Get<MyRenderMessageUpdateRenderObject>(MyRenderMessageEnum.UpdateRenderObject);
 
             message.ID = id;
@@ -1099,29 +1102,6 @@ namespace VRageRender
             return clipmapId;
         }
 
-        public static void UpdateMergedVoxelMesh(uint clipmapId, int lod, ulong workId, MyClipmapCellMeshMetadata metaData, List<MyClipmapCellBatch> mergedBatches)
-        {
-            CheckMessageId(clipmapId, ObjectType.Clipmap);
-            var message = MessagePool.Get<MyRenderMessageUpdateMergedVoxelMesh>(MyRenderMessageEnum.UpdateMergedVoxelMesh);
-
-            Debug.Assert(message.MergedBatches.Count == 0, "Message was not properly cleared");
-
-            message.ClipmapId = clipmapId;
-            message.Lod = lod;
-            message.WorkId = workId;
-            message.Metadata = metaData;
-            message.MergedBatches.AddList(mergedBatches);
-
-            EnqueueMessage(message);
-        }
-
-        public static void ResetMergedVoxels()
-        {
-            var msg = MessagePool.Get<MyRenderMessageResetMergedVoxels>(MyRenderMessageEnum.ResetMergedVoxels);
-
-            EnqueueMessage(msg);
-        }
-
         public static void UpdateClipmapCell(
             uint clipmapId,
             ref MyClipmapCellMeshMetadata metadata,
@@ -1178,13 +1158,6 @@ namespace VRageRender
         public static void ReloadTextures()
         {
             var message = MessagePool.Get<MyRenderMessageReloadTextures>(MyRenderMessageEnum.ReloadTextures);
-
-            EnqueueMessage(message);
-        }
-
-        public static void ReloadGrass()
-        {
-            var message = MessagePool.Get<MyRenderMessageReloadGrass>(MyRenderMessageEnum.ReloadGrass);
 
             EnqueueMessage(message);
         }
@@ -1283,7 +1256,7 @@ namespace VRageRender
             uint[] subpartIndices,
             Color? outlineColor,
             float thickness = -1,
-            ulong pulseTimeInFrames = 0,
+            float pulseTimeInSeconds = 0,
             int instanceIndex = -1
             )
         {
@@ -1296,7 +1269,7 @@ namespace VRageRender
             message.SubpartIndices = subpartIndices;
             message.OutlineColor = outlineColor;
             message.Thickness = thickness;
-            message.PulseTimeInFrames = pulseTimeInFrames;
+            message.PulseTimeInSeconds = pulseTimeInSeconds;
             message.InstanceIndex = instanceIndex;
 
             EnqueueMessage(message);
@@ -1446,35 +1419,6 @@ namespace VRageRender
             get { return m_render.OutputQueue; }
         }
 
-        public static void MergeVoxelMeshes(uint clipmapId, ulong workId, List<MyClipmapCellMeshMetadata> lodMeshMetadata, MyCellCoord cellCoord, List<MyClipmapCellBatch> batchesToMerge)
-        {
-            var message = MessagePool.Get<MyRenderMessageMergeVoxelMeshes>(MyRenderMessageEnum.MergeVoxelMeshes);
-
-            Debug.Assert(message.BatchesToMerge.Count == 0 && message.LodMeshMetadata.Count == 0, "Message not cleared!");
-            message.BatchesToMerge.Clear();
-            message.LodMeshMetadata.Clear();
-
-            message.ClipmapId = clipmapId;
-            message.CellCoord = cellCoord;
-            message.WorkId = workId;
-            message.Priority = () => 0;
-
-            message.LodMeshMetadata.AddList(lodMeshMetadata);
-            message.BatchesToMerge.AddList(batchesToMerge);
-
-            EnqueueOutputMessage(message);
-        }
-
-        public static void CancelVoxelMeshMerge(uint clipmapId, ulong workId)
-        {
-            var message = MessagePool.Get<MyRenderMessageCancelVoxelMeshMerge>(MyRenderMessageEnum.CancelVoxelMeshMerge);
-
-            message.ClipmapId = clipmapId;
-            message.WorkId = workId;
-
-            EnqueueOutputMessage(message);
-        }
-
         public static void RequireClipmapCell(uint clipmapId, MyCellCoord cell, Func<int> priority)
         {
             var message = MessagePool.Get<MyRenderMessageRequireClipmapCell>(MyRenderMessageEnum.RequireClipmapCell);
@@ -1504,6 +1448,8 @@ namespace VRageRender
 
         public static void UpdateRenderLight(ref UpdateRenderLightData data)
         {
+            Debug.Assert(!data.SpotLightOn || data.SpotLight.Direction.IsValid() && !data.SpotLight.Up.Equals(Vector3.Zero, 0.01f));
+            Debug.Assert(!data.SpotLightOn || data.SpotLight.Up.IsValid() && !data.SpotLight.Up.Equals(Vector3.Zero, 0.01f));
             var message = MessagePool.Get<MyRenderMessageUpdateRenderLight>(MyRenderMessageEnum.UpdateRenderLight);
             message.Data = data;
             EnqueueMessage(message);
@@ -1542,6 +1488,14 @@ namespace VRageRender
         public static void UpdateNewPipelineSettings(MyNewPipelineSettings settings)
         {
             var message = MessagePool.Get<MyRenderMessageUpdateNewPipelineSettings>(MyRenderMessageEnum.UpdateNewPipelineSettings);
+
+            message.Settings.CopyFrom(settings);
+            EnqueueMessage(message);
+        }
+
+        public static void UpdateNewLoddingSettings(MyNewLoddingSettings settings)
+        {
+            var message = MessagePool.Get<MyRenderMessageUpdateNewLoddingSettings>(MyRenderMessageEnum.UpdateNewLoddingSettings);
 
             message.Settings.CopyFrom(settings);
             EnqueueMessage(message);
@@ -2419,16 +2373,17 @@ namespace VRageRender
         public static void SwitchRenderSettings(MyRenderSettings settings)
         {
             var message = MessagePool.Get<MyRenderMessageSwitchRenderSettings>(MyRenderMessageEnum.SwitchRenderSettings);
-            message.SettingsOld = settings;
+            message.Settings = settings;
             m_settingsDirty = false;
             EnqueueMessage(message);
         }
 
         public static void SwitchRenderSettings(MyRenderSettings1 settings)
         {
-            var message = MessagePool.Get<MyRenderMessageSwitchRenderSettings>(MyRenderMessageEnum.SwitchRenderSettings);
-            message.Settings = settings;
-            EnqueueMessage(message);
+            Settings.User = settings;
+            if (settings.GrassDensityFactor == 0.0f) 
+                Settings.User.FoliageDetails = MyFoliageDetails.DISABLED;
+            SwitchRenderSettings(Settings);
         }
 
         public static void SwitchPostprocessSettings(ref MyPostprocessSettings settings)

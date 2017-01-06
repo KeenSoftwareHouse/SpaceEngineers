@@ -1,3 +1,7 @@
+
+// Following defines must be placed before TriplanarSampling.hlsli is included !
+
+
 #include "Declarations.hlsli"
 #include <Geometry/PixelTemplateBase.hlsli>
 #include <Geometry/Materials/PixelUtilsMaterials.hlsli>
@@ -5,56 +9,27 @@
 #include <Math/Math.hlsli>
 #include <Geometry/TriplanarSampling.hlsli>
 #include <Frame.hlsli>
-#include <Geometry/VoxelTransition.hlsli>
 
 #define WANTS_POSITION_WS 1
+
+cbuffer VoxelMaterialsConstants : register (b6)
+{
+	TriplanarMaterialConstants VoxelMaterials[MAX_VOXEL_MATERIALS];
+};
 
 void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 {
 	ProcessDithering(pixel, output);
 
 #ifndef DEPTH_ONLY
+    TriplanarInterface triplanarInput;
+    InitilizeTriplanarInterface(pixel, triplanarInput);
 
-	float d = pixel.custom.distance;
-	float3 N = normalize(pixel.custom.normal);
-	float3 weights = saturate(triplanar_weights(N));
+    TriplanarOutput triplanarOutput; 
+	TriplanarMaterialConstants material = VoxelMaterials[(uint)floor(pixel.custom.mat_idx + 0.5f)]; // Rounding is necessary, otherwise interesting things start happening :)
+    SampleTriplanarBranched(0, material, triplanarInput, triplanarOutput);
 
-    float voxelLodSize = 0;
-    float3 voxelOffset = 0;
-
-#ifdef USE_VOXEL_DATA
-    voxelLodSize = object_.voxelLodSize;
-    voxelOffset = object_.voxel_offset;
-#endif
-    float3 pos_ddx = ddx(pixel.position_ws);
-    float3 pos_ddy = ddy(pixel.position_ws);
-    float3 dpxperp = cross(N, pos_ddx);
-    float3 dpyperp = cross(pos_ddy, N);
-
-	float2 texcoords_ddx[3];
-	float2 texcoords_ddy[3];
-	calc_derivatives(pixel.custom.texcoords, texcoords_ddx, texcoords_ddy);
-
-    TriplanarMaterialConstants material = material_.triplanarMaterial;
-    TriplanarOutput triplanarOutput;
-	SampleTriplanar(0, material, d, N, weights, voxelOffset, dpxperp, dpyperp, pixel.custom.texcoords, texcoords_ddx, texcoords_ddy, triplanarOutput);
-
-	output.base_color = triplanarOutput.color_metal.xyz;
-    if (frame_.Voxels.DebugVoxelLod == 1.0f)
-	{
-        float3 debugColor = DEBUG_COLORS[clamp(voxelLodSize, 0, 15)];
-		output.base_color.xyz = debugColor;
-	}
-
-	output.metalness = triplanarOutput.color_metal.w;
-    output.normal = normalize(mul(triplanarOutput.normal_gloss.xyz, pixel.custom.world_matrix));
-	output.gloss = triplanarOutput.normal_gloss.w;
-	output.emissive = triplanarOutput.ext.y; 
-
-    output.ao = triplanarOutput.ext.x;
-
-    float hardAmbient = 1 - pixel.custom.colorBrightnessFactor;
-	output.base_color *= hardAmbient;
+    FeedOutputTriplanar(pixel, triplanarInput, triplanarOutput, output);
 #endif
 }
 

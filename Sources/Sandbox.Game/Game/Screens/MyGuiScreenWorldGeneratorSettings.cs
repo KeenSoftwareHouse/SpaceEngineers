@@ -27,6 +27,7 @@ namespace Sandbox.Game.Gui
             ProceduralLow = -1,
             ProceduralNormal = -2,
             ProceduralHigh = -3,
+            ProceduralNone = -4,
         }
 
         MyGuiScreenWorldSettings m_parent;
@@ -63,6 +64,9 @@ namespace Sandbox.Game.Gui
                         return;
                     case (int)AsteroidAmountEnum.Many:
                         m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.Many);
+                        return;
+                    case (int)AsteroidAmountEnum.ProceduralNone:
+                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.ProceduralNone);
                         return;
                     case (int)AsteroidAmountEnum.ProceduralLow:
                         m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.ProceduralLow);
@@ -142,6 +146,7 @@ namespace Sandbox.Game.Gui
 
             if (MyFakes.ENABLE_ASTEROID_FIELDS)
             {
+                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralNone, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNone);
                 m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralLow, MySpaceTexts.WorldSettings_AsteroidAmountProceduralLow);
                 m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralNormal, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNormal);
 #if XB1
@@ -205,7 +210,8 @@ namespace Sandbox.Game.Gui
 
         void grassDensitySlider_ValueChanged(MyGuiControlSlider slider)
         {
-            MyRenderProxy.Settings.GrassDensityFactor = slider.Value;
+            MyRenderProxy.Settings.User.GrassDensityFactor = slider.Value;
+            MyRenderProxy.SetSettingsDirty();
         }
 
         void m_asteroidAmountCombo_ItemSelected()
@@ -257,6 +263,9 @@ namespace Sandbox.Game.Gui
         {
             switch (@enum)
             {
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNone:
+                    return 0.00f;
+                    break;
                 case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow:
                     return 0.25f;
                     break;

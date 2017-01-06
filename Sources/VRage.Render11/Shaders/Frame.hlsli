@@ -1,5 +1,5 @@
-#ifndef FRAME_CONSTANTS__
-#define FRAME_CONSTANTS__
+#ifndef INCLUDE_FRAME_HLSLI
+#define INCLUDE_FRAME_HLSLI
 #include <Common.hlsli>
 #include <Math/Math.hlsli>
 

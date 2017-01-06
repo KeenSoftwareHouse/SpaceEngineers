@@ -58,6 +58,7 @@ using MyVisualScriptLogicProvider = VRage.Game.VisualScripting.MyVisualScriptLog
 using VRage.Library;
 using VRage.Game.SessionComponents;
 using VRage.Library.Utils;
+using VRage.Network;
 using VRage.Profiler;
 using VRage.Voxels;
 using VRageRender.ExternalApp;
@@ -1032,12 +1033,12 @@ namespace Sandbox
             // Load data
             LoadData();
 
-            InitQuickLaunch();
-
-            MyAnalyticsTracker.SendGameStart();
             MyVisualScriptingProxy.Init();
             MyVisualScriptingProxy.RegisterLogicProvider(typeof(MyVisualScriptLogicProvider));
             MyVisualScriptingProxy.RegisterLogicProvider(typeof(Game.MyVisualScriptLogicProvider));
+            InitQuickLaunch();
+
+            MyAnalyticsTracker.SendGameStart();
             MyObjectBuilder_Profiler.SetDelegates();
 
             MySandboxGame.Log.DecreaseIndent();
@@ -2038,7 +2039,18 @@ namespace Sandbox
                     ProfilerShort.End();
 
                     ProfilerShort.Begin("Network callbacks");
-                    MyNetworkReader.Process(MyTimeSpan.Zero);
+                    try
+                    {
+                        MyNetworkReader.Process(MyTimeSpan.Zero);
+                    }
+                    catch (MyIncompatibleDataException e)
+                    {
+                        MyMultiplayer.Static.Dispose();
+                        MySessionLoader.UnloadAndExitToMenu();
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                           messageText: MyTexts.Get(MyCommonTexts.IncompatibleDataNotification),
+                           messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError)));
+                    }
                     ProfilerShort.End();
                 }
             }
@@ -2336,36 +2348,6 @@ namespace Sandbox
                             if (MySession.Static.VoxelMaps.TryGetRenderComponent(rMessage.ClipmapId, out render))
                             {
                                 render.OnCellRequestCancelled(rMessage.Cell);
-                            }
-
-                            break;
-                        }
-
-                    case MyRenderMessageEnum.MergeVoxelMeshes:
-                        {
-                            if (MySession.Static == null)
-                                break;
-
-                            var rMessage = (MyRenderMessageMergeVoxelMeshes)message;
-                            MyRenderComponentVoxelMap render;
-                            if (MySession.Static.VoxelMaps.TryGetRenderComponent(rMessage.ClipmapId, out render))
-                            {
-                                render.OnMeshMergeRequest(rMessage.ClipmapId, rMessage.LodMeshMetadata, rMessage.CellCoord, rMessage.Priority, rMessage.WorkId, rMessage.BatchesToMerge);
-                            }
-
-                            break;
-                        }
-
-                    case MyRenderMessageEnum.CancelVoxelMeshMerge:
-                        {
-                            if (MySession.Static == null)
-                                break;
-
-                            var rMessage = (MyRenderMessageCancelVoxelMeshMerge)message;
-                            MyRenderComponentVoxelMap render;
-                            if (MySession.Static.VoxelMaps.TryGetRenderComponent(rMessage.ClipmapId, out render))
-                            {
-                                render.OnMeshMergeCancelled(rMessage.ClipmapId, rMessage.WorkId);
                             }
 
                             break;

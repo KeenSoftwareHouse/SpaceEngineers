@@ -523,7 +523,7 @@ namespace VRageRender
                 prevMaterial = material;
             }
             AddBatch(m_billboardCountSafe, currentOffset, prevTex, prevMaterial);
-        
+
             TransferDataCustomProjections();
             TransferDataBillboards(0, m_billboardCountSafe, ref m_arrayDataBillboards);
 

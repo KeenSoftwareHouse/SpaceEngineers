@@ -43,6 +43,13 @@ float3 rgb_to_srgb(float3 rgb)
     return pow(rgb, 1 / 2.2f);
 }
 
+float linearizeColor(float component)
+{
+    float lC = (component <= 0.04045) * component / 12.92;
+    lC += (component > 0.04045) * pow((abs(component) + 0.055) / 1.055, 2.4);
+    return lC;
+}
+
 float calc_luminance(float3 rgb)
 {
 	//return dot(rgb, float3(0.212671, 0.715160, 0.072169) );		// Defined by sRGB gamut

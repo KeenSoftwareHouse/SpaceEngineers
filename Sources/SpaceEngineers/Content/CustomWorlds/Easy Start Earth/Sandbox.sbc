@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <MyObjectBuilder_Checkpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <CurrentSector x="0" y="0" z="0" />
-  <ElapsedGameTime>3703360000</ElapsedGameTime>
+  <ElapsedGameTime>4785120000</ElapsedGameTime>
   <SessionName>Easy Start Earth</SessionName>
   <SpectatorPosition>
-    <Position x="54451.141714577352" y="-27001.311696782708" z="7269.6416681074779" />
-    <Forward x="0.125716969" y="0.6023824" z="0.7882453" />
-    <Up x="0.8845378" y="-0.4278339" z="0.185878947" />
+    <Position x="54451.141714577338" y="-27001.311696782705" z="7269.6416681074779" />
+    <Forward x="0.125717" y="0.6023823" z="0.7882453" />
+    <Up x="0.884537756" y="-0.427834" z="0.185878932" />
     <Orientation>
       <X>0.816285431</X>
-      <Y>0.4772848</Y>
-      <Z>-0.218162969</Z>
-      <W>0.241417184</W>
+      <Y>0.477284759</Y>
+      <Z>-0.218162939</Z>
+      <W>0.24141717</W>
     </Orientation>
   </SpectatorPosition>
   <SpectatorIsLightOn>false</SpectatorIsLightOn>
@@ -20,8 +20,8 @@
   <ControlledObject>103753901892655110</ControlledObject>
   <Password />
   <Description />
-  <LastSaveTime>2016-12-14T15:32:12.2419169+01:00</LastSaveTime>
-  <SpectatorDistance>11.5613909</SpectatorDistance>
+  <LastSaveTime>2016-12-19T14:42:01.1641711+01:00</LastSaveTime>
+  <SpectatorDistance>2.6</SpectatorDistance>
   <CharacterToolbar>
     <ToolbarType>Character</ToolbarType>
     <SelectedSlot xsi:nil="true" />
@@ -103,7 +103,7 @@
     </dictionary>
   </ControlledEntities>
   <Settings xsi:type="MyObjectBuilder_SessionSettings">
-    <GameMode>Creative</GameMode>
+    <GameMode>Survival</GameMode>
     <InventorySizeMultiplier>10</InventorySizeMultiplier>
     <AssemblerSpeedMultiplier>3</AssemblerSpeedMultiplier>
     <AssemblerEfficiencyMultiplier>3</AssemblerEfficiencyMultiplier>
@@ -122,7 +122,7 @@
     <WeaponsEnabled>true</WeaponsEnabled>
     <ShowPlayerNamesOnHud>true</ShowPlayerNamesOnHud>
     <ThrusterDamage>true</ThrusterDamage>
-    <CargoShipsEnabled>false</CargoShipsEnabled>
+    <CargoShipsEnabled>true</CargoShipsEnabled>
     <EnableSpectator>false</EnableSpectator>
     <WorldSizeKm>0</WorldSizeKm>
     <RespawnShipDelete>true</RespawnShipDelete>
@@ -135,8 +135,8 @@
     <AutoSaveInMinutes>5</AutoSaveInMinutes>
     <SpawnShipTimeMultiplier>0.5</SpawnShipTimeMultiplier>
     <ProceduralDensity>0.25</ProceduralDensity>
-    <ProceduralSeed>1204870751</ProceduralSeed>
-    <DestructibleBlocks>false</DestructibleBlocks>
+    <ProceduralSeed>0</ProceduralSeed>
+    <DestructibleBlocks>true</DestructibleBlocks>
     <EnableIngameScripts>true</EnableIngameScripts>
     <ViewDistance>15000</ViewDistance>
     <FloraDensity>20</FloraDensity>
@@ -145,7 +145,7 @@
     <EnableOxygen>true</EnableOxygen>
     <EnableOxygenPressurization>false</EnableOxygenPressurization>
     <Enable3rdPersonView>true</Enable3rdPersonView>
-    <EnableEncounters>false</EnableEncounters>
+    <EnableEncounters>true</EnableEncounters>
     <EnableFlora>true</EnableFlora>
     <EnableConvertToStation>true</EnableConvertToStation>
     <StationVoxelSupport>false</StationVoxelSupport>
@@ -161,8 +161,8 @@
     <StartInRespawnScreen>false</StartInRespawnScreen>
     <EnableVoxelDestruction>true</EnableVoxelDestruction>
     <MaxDrones>5</MaxDrones>
-    <EnableDrones>false</EnableDrones>
-    <EnableWolfs>false</EnableWolfs>
+    <EnableDrones>true</EnableDrones>
+    <EnableWolfs>true</EnableWolfs>
     <EnableSpiders>false</EnableSpiders>
     <FloraDensityMultiplier>1</FloraDensityMultiplier>
     <EnableStructuralSimulation>false</EnableStructuralSimulation>
@@ -274,6 +274,44 @@
         <AcceptHumans>true</AcceptHumans>
         <EnableFriendlyFire>false</EnableFriendlyFire>
       </MyObjectBuilder_Faction>
+      <MyObjectBuilder_Faction>
+        <FactionId>266336910824734862</FactionId>
+        <Tag>SPID</Tag>
+        <Name>Space spiders</Name>
+        <PrivateInfo />
+        <Members>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855885</PlayerId>
+            <IsLeader>true</IsLeader>
+            <IsFounder>true</IsFounder>
+          </MyObjectBuilder_FactionMember>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855884</PlayerId>
+            <IsLeader>true</IsLeader>
+            <IsFounder>false</IsFounder>
+          </MyObjectBuilder_FactionMember>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855886</PlayerId>
+            <IsLeader>false</IsLeader>
+            <IsFounder>false</IsFounder>
+          </MyObjectBuilder_FactionMember>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855887</PlayerId>
+            <IsLeader>false</IsLeader>
+            <IsFounder>false</IsFounder>
+          </MyObjectBuilder_FactionMember>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855888</PlayerId>
+            <IsLeader>false</IsLeader>
+            <IsFounder>false</IsFounder>
+          </MyObjectBuilder_FactionMember>
+        </Members>
+        <JoinRequests />
+        <AutoAcceptMember>true</AutoAcceptMember>
+        <AutoAcceptPeace>false</AutoAcceptPeace>
+        <AcceptHumans>true</AcceptHumans>
+        <EnableFriendlyFire>false</EnableFriendlyFire>
+      </MyObjectBuilder_Faction>
     </Factions>
     <Players>
       <dictionary>
@@ -289,12 +327,42 @@
           <Key xsi:type="xsd:long">144115188075855883</Key>
           <Value xsi:type="xsd:long">224505569467707501</Value>
         </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855885</Key>
+          <Value xsi:type="xsd:long">266336910824734862</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855884</Key>
+          <Value xsi:type="xsd:long">266336910824734862</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855886</Key>
+          <Value xsi:type="xsd:long">266336910824734862</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855887</Key>
+          <Value xsi:type="xsd:long">266336910824734862</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855888</Key>
+          <Value xsi:type="xsd:long">266336910824734862</Value>
+        </item>
       </dictionary>
     </Players>
     <Relations>
       <MyObjectBuilder_FactionRelation>
         <FactionId1>284909528200953604</FactionId1>
         <FactionId2>224505569467707501</FactionId2>
+        <Relation>Enemies</Relation>
+      </MyObjectBuilder_FactionRelation>
+      <MyObjectBuilder_FactionRelation>
+        <FactionId1>266336910824734862</FactionId1>
+        <FactionId2>224505569467707501</FactionId2>
+        <Relation>Enemies</Relation>
+      </MyObjectBuilder_FactionRelation>
+      <MyObjectBuilder_FactionRelation>
+        <FactionId1>266336910824734862</FactionId1>
+        <FactionId2>284909528200953604</FactionId2>
         <Relation>Enemies</Relation>
       </MyObjectBuilder_FactionRelation>
     </Relations>
@@ -312,14 +380,14 @@
       <DisplayName>First Colonist</DisplayName>
       <CharacterEntityId>0</CharacterEntityId>
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:25:05.9272897+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T14:39:43.7784339+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855882</IdentityId>
       <DisplayName>Space Pirates</DisplayName>
       <CharacterEntityId>0</CharacterEntityId>
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:25:05.9452915+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T14:39:57.6758235+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855883</IdentityId>
@@ -328,10 +396,17 @@
       <Model>Default_Astronaut</Model>
       <ColorMask x="0.575" y="0.15" z="0.2" />
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:25:05.9532923+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T14:39:57.6658225+01:00</LastLoginTime>
+    </MyObjectBuilder_Identity>
+    <MyObjectBuilder_Identity>
+      <IdentityId>144115188075855885</IdentityId>
+      <DisplayName>The Great Tarantula</DisplayName>
+      <CharacterEntityId>0</CharacterEntityId>
+      <BlockLimitModifier>0</BlockLimitModifier>
+      <LastLoginTime>2016-12-19T14:40:48.3388893+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
   </Identities>
-  <PreviousEnvironmentHostility xsi:nil="true" />
+  <PreviousEnvironmentHostility>SAFE</PreviousEnvironmentHostility>
   <AllPlayersData>
     <dictionary>
       <item>
@@ -437,13 +512,13 @@
           <BuildColorSlots>
             <Vector3>
               <X>0</X>
-              <Y>-0.81</Y>
-              <Z>-0.3</Z>
+              <Y>-1</Y>
+              <Z>0</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
-              <Y>-1</Y>
-              <Z>0</Z>
+              <Y>0</Y>
+              <Z>0.05</Z>
             </Vector3>
             <Vector3>
               <X>0.333333343</X>
@@ -468,7 +543,7 @@
             <Vector3>
               <X>0</X>
               <Y>-0.96</Y>
-              <Z>-1</Z>
+              <Z>-0.5</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
@@ -492,8 +567,8 @@
             </Vector3>
             <Vector3>
               <X>0.122222222</X>
-              <Y>0.05</Y>
-              <Z>0.46</Z>
+              <Y>0.0500000045</Y>
+              <Z>0.459999979</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
@@ -502,8 +577,8 @@
             </Vector3>
             <Vector3>
               <X>0</X>
-              <Y>-0.809999943</Y>
-              <Z>-0.3</Z>
+              <Y>-0.81</Y>
+              <Z>-0.13</Z>
             </Vector3>
           </BuildColorSlots>
         </Value>
@@ -597,6 +672,7 @@
   <NonPlayerIdentities>
     <long>144115188075855881</long>
     <long>144115188075855882</long>
+    <long>144115188075855885</long>
   </NonPlayerIdentities>
   <Gps>
     <dictionary />
@@ -605,6 +681,7 @@
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_LocalizationSessionComponent">
       <AdditionalPaths />
       <CampaignPaths />
+      <CampaignModFolderName />
       <Language>English</Language>
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SharedStorageComponent">
@@ -641,9 +718,11 @@
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SpaceFaunaComponent">
       <SpawnInfos>
-        <Info X="53574.419291837628" Y="-26702.638882721541" Z="11916.759319732904" S="33424" A="43611" />
+        <Info X="53586.440448577712" Y="-26662.433320217206" Z="11889.004204479041" S="8847" A="43543" />
       </SpawnInfos>
-      <TimeoutInfos />
+      <TimeoutInfos>
+        <Info X="53559.305003616057" Y="-26712.993500362845" Z="11923.673127735115" T="62003" />
+      </TimeoutInfos>
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_AIComponent" />
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_CampaignSessionComponent">
@@ -651,11 +730,11 @@
       <Mod />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_EnvironmentBotSpawningSystem">
-      <TimeSinceLastEventInMs>81489</TimeSinceLastEventInMs>
+      <TimeSinceLastEventInMs>75522</TimeSinceLastEventInMs>
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_CoordinateSystem">
       <Definition Type="MyObjectBuilder_CoordinateSystemDefinition" Subtype="CoordinateSystem" />
-      <LastCoordSysId>1</LastCoordSysId>
+      <LastCoordSysId>2</LastCoordSysId>
       <CoordSystems />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SectorWeatherComponent">
@@ -670,7 +749,9 @@
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SessionComponentResearch">
       <WhitelistMode>false</WhitelistMode>
     </MyObjectBuilder_SessionComponent>
-    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_Encounters" />
+    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_Encounters">
+      <SavedEcounters />
+    </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_WorldGenerator">
       <MarkedAreas>
         <EmptyArea>
@@ -760,8 +841,57 @@
             <Lost>false</Lost>
           </Value>
         </item>
+        <item>
+          <Key xsi:type="pair">
+            <stm>76561197967630685</stm>
+            <ser>1</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers />
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
+        <item>
+          <Key xsi:type="pair">
+            <stm>76561197967630685</stm>
+            <ser>2</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers />
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
+        <item>
+          <Key xsi:type="pair">
+            <stm>76561197967630685</stm>
+            <ser>3</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers />
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
+        <item>
+          <Key xsi:type="pair">
+            <stm>76561197967630685</stm>
+            <ser>4</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers />
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
       </dictionary>
     </Triggers>
   </MissionTriggers>
+  <CustomSkybox />
   <RequiresDX>11</RequiresDX>
 </MyObjectBuilder_Checkpoint>

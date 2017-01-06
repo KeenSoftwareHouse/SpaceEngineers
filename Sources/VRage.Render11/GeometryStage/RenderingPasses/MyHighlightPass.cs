@@ -39,8 +39,7 @@ namespace VRageRender
 
         public void RecordCommands(MyRenderableProxy proxy, int sectionmesh, int inctanceId)
         {
-			if ((proxy.Mesh.Buffers.IB == null && proxy.MergedMesh.Buffers.IB == null)
-                || proxy.DrawSubmesh.IndexCount == 0)
+			if (proxy.Mesh.Buffers.IB == null || proxy.DrawSubmesh.IndexCount == 0)
             {
                 return;
             }

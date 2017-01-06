@@ -1,4 +1,5 @@
 ﻿#region Usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -54,6 +55,7 @@ using Sandbox.Graphics;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ObjectBuilders.AI;
+using Sandbox.Game.GameSystems.Conveyors;
 
 #endregion
 
@@ -887,6 +889,29 @@ namespace Sandbox.Game
             SetBlockState(blockName, false);
         }
 
+        [VisualScriptingMiscData("BlocksGeneric")]
+        [VisualScriptingMember]
+        public static bool IsConveyorConnected(string firstBlock, string secondBlock)
+        {
+            MyEntity entity;
+            if (firstBlock.Equals(secondBlock))
+                return true;
+
+            if (MyEntities.TryGetEntityByName(firstBlock, out entity))
+            {
+                IMyConveyorEndpointBlock block1 = entity as IMyConveyorEndpointBlock;
+                if (block1 != null && MyEntities.TryGetEntityByName(secondBlock, out entity))
+                {
+                    IMyConveyorEndpointBlock block2 = entity as IMyConveyorEndpointBlock;
+                    if (block2 != null)
+                    {
+                        return MyGridConveyorSystem.Reachable(block1.ConveyorEndpoint, block2.ConveyorEndpoint);
+                    }
+                }
+            }
+            return false;
+        }
+
         private static void SetBlockState(string name, bool state)
         {
             MyEntity entity;
@@ -1374,7 +1399,8 @@ namespace Sandbox.Game
         public static void CockpitInsertPilot(string cockpitName, bool keepOriginalPlayerPosition = true, long playerId = -1)
         {
             MyEntity entity;
-            if(MySession.Static.LocalCharacter == null)
+            MyCharacter character = GetCharacterFromPlayerId(playerId);
+            if (character == null)
                 return;
 
             if (MyEntities.TryGetEntityByName(cockpitName, out entity))
@@ -1383,9 +1409,9 @@ namespace Sandbox.Game
                 if (cockpit != null)
                 {
                     cockpit.RemovePilot();
-                    if (MySession.Static.ControlledEntity is MyCockpit)
-                        (MySession.Static.ControlledEntity as MyCockpit).RemovePilot();
-                    cockpit.AttachPilot(MySession.Static.LocalCharacter, keepOriginalPlayerPosition);
+                    if (character.Parent is MyCockpit)
+                        (character.Parent as MyCockpit).RemovePilot();
+                    cockpit.AttachPilot(character, keepOriginalPlayerPosition);
                 }
             }
         }
@@ -1446,12 +1472,23 @@ namespace Sandbox.Game
         [VisualScriptingMember(true)]
         public static void StartCutscene(string cutsceneName)
         {
+            MyMultiplayer.RaiseStaticEvent(x => StartCutsceneSync, cutsceneName);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void StartCutsceneSync(string cutsceneName)
+        {
             MySession.Static.GetComponent<MySessionComponentCutscenes>().PlayCutscene(cutsceneName);
         }
+
 
         [VisualScriptingMiscData("Cutscenes")]
         [VisualScriptingMember(true)]
         public static void NextCutsceneNode()
+        {
+            MyMultiplayer.RaiseStaticEvent(x => NextCutsceneNodeSync);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void NextCutsceneNodeSync()
         {
             MySession.Static.GetComponent<MySessionComponentCutscenes>().CutsceneNext(true);
         }
@@ -1459,6 +1496,11 @@ namespace Sandbox.Game
         [VisualScriptingMiscData("Cutscenes")]
         [VisualScriptingMember(true)]
         public static void EndCutscene()
+        {
+            MyMultiplayer.RaiseStaticEvent(x => EndCutsceneSync);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void EndCutsceneSync()
         {
             MySession.Static.GetComponent<MySessionComponentCutscenes>().CutsceneEnd();
         }
@@ -1749,7 +1791,7 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Entity")]
         [VisualScriptingMember(true)]
-        public static bool ChangeOwner(string entityName, long playerId, bool factionShare = false, bool allShare = false)
+        public static bool ChangeOwner(string entityName, long playerId = 0, bool factionShare = false, bool allShare = false)
         {
             var sharingOption = MyOwnershipShareModeEnum.None;
             if(factionShare)
@@ -1765,7 +1807,8 @@ namespace Sandbox.Game
                 {
                     // Has to use the intermediate "No Ownership" value
                     block.ChangeBlockOwnerRequest(0, sharingOption);
-                    block.ChangeBlockOwnerRequest(playerId, sharingOption);
+                    if (playerId > 0)
+                        block.ChangeBlockOwnerRequest(playerId, sharingOption);
                     return true;
                 }
 
@@ -1778,7 +1821,8 @@ namespace Sandbox.Game
                         {
                             // Has to use the intermediate "No Ownership" value
                             fatBlock.ChangeBlockOwnerRequest(0, sharingOption);
-                            fatBlock.ChangeBlockOwnerRequest(playerId, sharingOption);
+                            if (playerId > 0)
+                                fatBlock.ChangeBlockOwnerRequest(playerId, sharingOption);
                         }
                     }
 
@@ -2279,17 +2323,30 @@ namespace Sandbox.Game
                     Thickness = enabled ? thickness : -1,
                     PlayerId = playerId,
                     IgnoreUseObjectData = subPartNames == null,
-                    SubPartNames = subPartNames
+                    SubPartNames = string.IsNullOrEmpty(subPartNames) ? "" : subPartNames
                 };
 
                 SetHighlight(highlightData, playerId);
             }
         }
 
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
+        public static void SetHighlightForAll(string entityName, bool enabled = true, int thickness = 10, int pulseTimeInFrames = 120, Color color = default(Color), string subPartNames = null)
+        {
+            var players = MySession.Static.Players.GetOnlinePlayers();
+            if (players == null || players.Count == 0)
+                return;
+            foreach (var player in players)
+            {
+                SetHighlight(entityName, enabled, thickness, pulseTimeInFrames, color, player.Identity.IdentityId, subPartNames);
+            }
+        }
+
 
         [VisualScriptingMiscData("GPSAndHighligths")]
         [VisualScriptingMember(true)]
-        public static void SetGPSHighlight(string entityName, string GPSName, string GPSDescription, Color GPSColor, bool enabled = true, int thickness = 1, int pulseTimeInFrames = 120, Color color = default(Color), long playerId = -1, string subPartNames = null)
+        public static void SetGPSHighlight(string entityName, string GPSName, string GPSDescription, Color GPSColor, bool enabled = true, int thickness = 10, int pulseTimeInFrames = 120, Color color = default(Color), long playerId = -1, string subPartNames = null)
         {
             MyEntity entity;
             if (MyEntities.TryGetEntityByName(entityName, out entity))
@@ -2312,6 +2369,20 @@ namespace Sandbox.Game
                         MySession.Static.Gpss.SendDelete(playerId, gps.Hash);
                 }
                 SetHighlight(entityName, enabled: enabled, thickness: thickness, pulseTimeInFrames: pulseTimeInFrames, color: color, playerId: playerId, subPartNames: subPartNames);
+            }
+        }
+
+
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
+        public static void SetGPSHighlightForAll(string entityName, string GPSName, string GPSDescription, Color GPSColor, bool enabled = true, int thickness = 10, int pulseTimeInFrames = 120, Color color = default(Color), string subPartNames = null)
+        {
+            var players = MySession.Static.Players.GetOnlinePlayers();
+            if (players == null || players.Count == 0)
+                return;
+            foreach (var player in players)
+            {
+                SetGPSHighlight(entityName, GPSName, GPSDescription, GPSColor, enabled, thickness, pulseTimeInFrames, color, player.Identity.IdentityId, subPartNames);
             }
         }
 
@@ -2389,29 +2460,56 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("GPSAndHighligths")]
         [VisualScriptingMember(true)]
-        public static void AddGPS(string name, string description, Vector3D position, Color GPSColor, int disappearsInS = 0)
+        public static void AddGPS(string name, string description, Vector3D position, Color GPSColor, int disappearsInS = 0, long playerId = -1)
         {
-            var localPlayerID = MySession.Static.LocalPlayerId;
+            if (playerId <= 0)
+                playerId = MySession.Static.LocalPlayerId;
             var newGPS = new MyGps { ShowOnHud = true, Coords = position, Name = name, Description = description, AlwaysVisible = true };
             if (disappearsInS > 0)
             {
                 var timeSpan = TimeSpan.FromSeconds(MySession.Static.ElapsedPlayTime.TotalSeconds + disappearsInS);
                 newGPS.DiscardAt = timeSpan;
             }
-            MySession.Static.Gpss.SendAddGps(localPlayerID, ref newGPS);
             if (GPSColor != Color.Transparent)
                 newGPS.GPSColor = GPSColor;
-            MySession.Static.Gpss.SendAddGps(localPlayerID, ref newGPS);
+            MySession.Static.Gpss.SendAddGps(playerId, ref newGPS);
         }
 
         [VisualScriptingMiscData("GPSAndHighligths")]
         [VisualScriptingMember(true)]
-        public static void RemoveGPS(string name)
+        public static void AddGPSForAll(string name, string description, Vector3D position, Color GPSColor, int disappearsInS = 0)
         {
-            var localPlayerID = MySession.Static.LocalPlayerId;
-            var gps = MySession.Static.Gpss.GetGpsByName(localPlayerID, name);
+            var players = MySession.Static.Players.GetOnlinePlayers();
+            if (players == null || players.Count == 0)
+                return;
+            foreach (var player in players)
+            {
+                AddGPS(name, description, position, GPSColor, disappearsInS, player.Identity.IdentityId);
+            }
+        }
+
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
+        public static void RemoveGPS(string name, long playerId = -1)
+        {
+            if (playerId <= 0)
+                playerId = MySession.Static.LocalPlayerId;
+            var gps = MySession.Static.Gpss.GetGpsByName(playerId, name);
             if (gps != null)
-                MySession.Static.Gpss.SendDelete(localPlayerID, gps.Hash);
+                MySession.Static.Gpss.SendDelete(playerId, gps.Hash);
+        }
+
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
+        public static void RemoveGPSForAll(string name)
+        {
+            var players = MySession.Static.Players.GetOnlinePlayers();
+            if (players == null || players.Count == 0)
+                return;
+            foreach (var player in players)
+            {
+                RemoveGPS(name, player.Identity.IdentityId);
+            }
         }
 
         [VisualScriptingMiscData("GPSAndHighligths")]
@@ -2434,6 +2532,19 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("GPSAndHighligths")]
         [VisualScriptingMember(true)]
+        public static void AddGPSToEntityForAll(string entityName, string GPSName, string GPSDescription, Color GPSColor)
+        {
+            var players = MySession.Static.Players.GetOnlinePlayers();
+            if (players == null || players.Count == 0)
+                return;
+            foreach (var player in players)
+            {
+                AddGPSToEntity(entityName, GPSName, GPSDescription, GPSColor, player.Identity.IdentityId);
+            }
+        }
+
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
         public static void RemoveGPSFromEntity(string entityName, string GPSName, string GPSDescription, long playerId = -1)
         {
             MyEntity entity;
@@ -2446,6 +2557,19 @@ namespace Sandbox.Game
                 var gps = MySession.Static.Gpss.GetGpsByName(playerId, GPSName);
                 if (gps != null)
                     MySession.Static.Gpss.SendDelete(playerId, gps.Hash);
+            }
+        }
+
+        [VisualScriptingMiscData("GPSAndHighligths")]
+        [VisualScriptingMember(true)]
+        public static void RemoveGPSFromEntityForAll(string entityName, string GPSName, string GPSDescription)
+        {
+            var players = MySession.Static.Players.GetOnlinePlayers();
+            if (players == null || players.Count == 0)
+                return;
+            foreach (var player in players)
+            {
+                RemoveGPSFromEntity(entityName, GPSName, GPSDescription, player.Identity.IdentityId);
             }
         }
 
@@ -2908,7 +3032,7 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Grid")]
         [VisualScriptingMember(true)]
-        public static void SetGridDestructible(string entityName, bool destructible)
+        public static void SetGridDestructible(string entityName, bool destructible = true)
         {
             var grid = GetEntityByName(entityName) as MyCubeGrid;
             Debug.Assert(grid != null, "Grid of name " + entityName + " was not found.");
@@ -2928,7 +3052,7 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Grid")]
         [VisualScriptingMember(true)]
-        public static void SetGridEditable(string entityName, bool editable)
+        public static void SetGridEditable(string entityName, bool editable = true)
         {
             var grid = GetEntityByName(entityName) as MyCubeGrid;
             Debug.Assert(grid != null, "Grid of name " + entityName + " was not found.");
@@ -3180,7 +3304,10 @@ namespace Sandbox.Game
         [Event, Reliable, Client]
         private static void OpenSteamOverlaySync(string url)
         {
-            MySteam.API.OpenOverlayUrl(url);
+            if(MyGuiSandbox.IsUrlWhitelisted(url))
+            {
+                MySteam.API.OpenOverlayUrl(url);
+            }
         }
 
         [VisualScriptingMiscData("GUI")]
@@ -3456,6 +3583,23 @@ namespace Sandbox.Game
 
         [VisualScriptingMiscData("Notifications")]
         [VisualScriptingMember(true)]
+        public static void ShowNotificationToAll(string message, int disappearTimeMs, string font = MyFontEnum.White)
+        {
+            if(MyMultiplayer.Static == null)
+            {
+                // For default player id do the action localy.
+                if (MyAPIGateway.Utilities != null)
+                    MyAPIGateway.Utilities.ShowNotification(message, disappearTimeMs, font);
+            }
+            else
+            {
+                // Send message to all clients
+                MyMultiplayer.RaiseStaticEvent(s => ShowNotificationToAllSync, message, disappearTimeMs, font);
+            }
+        }
+
+        [VisualScriptingMiscData("Notifications")]
+        [VisualScriptingMember(true)]
         public static void SendChatMessage(string message, string author = "", long playerId = 0, string font = MyFontEnum.Blue)
         {
             if (MyMultiplayer.Static != null)
@@ -3487,6 +3631,13 @@ namespace Sandbox.Game
 
         [Event, Reliable, Client]
         private static void ShowNotificationSync(string message, int disappearTimeMs, string font = MyFontEnum.White)
+        {
+            if (MyAPIGateway.Utilities != null)
+                MyAPIGateway.Utilities.ShowNotification(message, disappearTimeMs, font);
+        }
+
+        [Event, Reliable, Broadcast, Server]
+        private static void ShowNotificationToAllSync(string message, int disappearTimeMs, string font = MyFontEnum.White)
         {
             if (MyAPIGateway.Utilities != null)
                 MyAPIGateway.Utilities.ShowNotification(message, disappearTimeMs, font);
@@ -3626,6 +3777,20 @@ namespace Sandbox.Game
                 return MySession.Static.LocalHumanPlayer;
             }
             return null;
+        }
+
+        [VisualScriptingMiscData("Players")]
+        [VisualScriptingMember]
+        public static List<long> GetOnlinePlayers()
+        {
+            var players = MySession.Static.Players.GetOnlinePlayers();
+            List<long> result = new List<long>();
+            if (players != null && players.Count > 0)
+            {
+                foreach (var player in players)
+                    result.Add(player.Identity.IdentityId);
+            }
+            return result;
         }
 
         [VisualScriptingMiscData("Players")]

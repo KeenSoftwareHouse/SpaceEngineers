@@ -466,5 +466,45 @@ namespace Sandbox.Engine.Physics
                     break;
             }
         }
+
+        public static void DebugDrawCoordinateSystem(Vector3? position, Vector3? forward, Vector3? side, Vector3? up, float scale = 1)
+        {
+            if (position.HasValue)
+            {
+                Vector3D p = position.Value;
+
+                if (forward.HasValue)
+                {
+                    Vector3 f = forward.Value * scale;
+                    MyRenderProxy.DebugDrawArrow3D(p, p + f, Color.Blue, Color.Red, false);
+                }
+
+                if (side.HasValue)
+                {
+                    Vector3 s = side.Value * scale;
+                    MyRenderProxy.DebugDrawArrow3D(p, p + s, Color.Blue, Color.Green, false);
+                }
+
+                if (up.HasValue)
+                {
+                    Vector3 u = up.Value * scale;
+                    MyRenderProxy.DebugDrawArrow3D(p, p + u, Color.Blue, Color.Blue, false);
+                }
+            }
+        }
+
+        public static void DebugDrawVector3(Vector3? position, Vector3? vector, Color color, float scale = 0.01f)
+        {
+            if (position.HasValue)
+            {
+                Vector3D p = position.Value;
+
+                if (vector.HasValue)
+                {
+                    Vector3 v = vector.Value * scale;
+                    MyRenderProxy.DebugDrawArrow3D(p, p + v, color, color, false);
+                }
+            }
+        }
     }
 }

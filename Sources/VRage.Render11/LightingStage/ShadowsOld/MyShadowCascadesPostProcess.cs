@@ -188,7 +188,7 @@ namespace VRageRender
 
         internal void GatherArray(IUavTexture postprocessTarget, ISrvBindable cascadeArray, MyProjectionInfo[] cascadeInfo, IConstantBuffer cascadeConstantBuffer)
         {
-            MyShadowsQuality shadowsQuality = MyRender11.RenderSettings.ShadowQuality.GetShadowsQuality();
+            MyShadowsQuality shadowsQuality = MyRender11.Settings.User.ShadowQuality.GetShadowsQuality();
             if (!MyRender11.Settings.EnableShadows || !MyRender11.DebugOverrides.Shadows || shadowsQuality == MyShadowsQuality.DISABLED)
             {
                 RC.ClearUav(postprocessTarget, new RawInt4());

@@ -132,7 +132,7 @@ namespace VRageRender
             {
                 var renderableComponent = foliageComponent.Owner.GetRenderable();
                 bool removeDitheringInProgress = renderableComponent.m_objectDithering > 0 && renderableComponent.m_objectDithering < 2;
-                if (!removeDitheringInProgress && foliageComponent.Owner.CalculateCameraDistance() < MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance())
+                if (!removeDitheringInProgress && foliageComponent.Owner.CalculateCameraDistance() < MyRender11.Settings.User.FoliageDetails.GrassDrawDistance())
                 {
                     if (viewFrustum.Contains(foliageComponent.Owner.Aabb) != ContainmentType.Disjoint)
                     {

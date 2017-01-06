@@ -198,14 +198,17 @@ namespace VRage.Utils
 
             lock (m_lock)
             {
-                int threadId = GetThreadId();
-                m_indentsByThread[threadId] = GetIdentByThread(threadId) + 1;
+                if (m_enabled)
+                {
+                    int threadId = GetThreadId();
+                    m_indentsByThread[threadId] = GetIdentByThread(threadId) + 1;
 
-                MyLogIndentKey indentKey = new MyLogIndentKey(threadId, m_indentsByThread[threadId]);
-                m_indents[indentKey] = new MyLogIndentValue(GetManagedMemory(), GetSystemMemory(), DateTimeOffset.Now);
+                    MyLogIndentKey indentKey = new MyLogIndentKey(threadId, m_indentsByThread[threadId]);
+                    m_indents[indentKey] = new MyLogIndentValue(GetManagedMemory(), GetSystemMemory(), DateTimeOffset.Now);
 
-                if (LogForMemoryProfiler)
-                    MyMemoryLogs.StartEvent();
+                    if (LogForMemoryProfiler)
+                        MyMemoryLogs.StartEvent();
+                }
             }
         }
 
@@ -215,6 +218,8 @@ namespace VRage.Utils
 
             lock (m_lock)
             {
+                if (m_enabled == false) return false;
+
                 int threadId = GetThreadId();
                 MyLogIndentKey indentKey = new MyLogIndentKey(threadId, GetIdentByThread(threadId));
 
@@ -239,6 +244,8 @@ namespace VRage.Utils
 
             lock (m_lock)
             {
+                if (m_enabled == false) return;
+
                 int threadId = GetThreadId();
                 MyLogIndentKey indentKey = new MyLogIndentKey(threadId, GetIdentByThread(threadId));
 
@@ -293,6 +300,8 @@ namespace VRage.Utils
 
             lock (m_lock)
             {
+                if (m_enabled == false) return;
+
                 WriteLine("Log Closed");
 
                 m_streamWriter.Close();
@@ -391,12 +400,15 @@ namespace VRage.Utils
             {
                 lock (m_lock)
                 {
-                    WriteDateTimeAndThreadId();
-                    WriteString(msg);
-                    m_streamWriter.WriteLine();
+                    if (m_enabled)
+                    {
+                        WriteDateTimeAndThreadId();
+                        WriteString(msg);
+                        m_streamWriter.WriteLine();
 
-                    if (m_alwaysFlush)
-                        m_streamWriter.Flush();
+                        if (m_alwaysFlush)
+                            m_streamWriter.Flush();
+                    }
                 }
             }
 
@@ -486,6 +498,12 @@ namespace VRage.Utils
 
         void WriteString(String text)
         {
+            if (text == null ||
+    m_tmpWrite == null ||
+    m_streamWriter == null)
+                return;
+
+
             if (text == null)
             {
                 Debug.Fail("text shouldn't be null!");
@@ -542,19 +560,22 @@ namespace VRage.Utils
             {
                 lock (m_lock)
                 {
-                    WriteDateTimeAndThreadId();
+                    if (m_enabled)
+                    {
+                        WriteDateTimeAndThreadId();
 
-                    StringBuilder sb = m_stringBuilder;
-                    sb.Clear();
+                        StringBuilder sb = m_stringBuilder;
+                        sb.Clear();
 
-                    sb.AppendFormat("{0}: ", severity);
-                    sb.AppendFormat(format, args);
-                    sb.Append('\n');
+                        sb.AppendFormat("{0}: ", severity);
+                        sb.AppendFormat(format, args);
+                        sb.Append('\n');
 
-                    WriteStringBuilder(sb);
+                        WriteStringBuilder(sb);
 
-                    if ((int)severity >= (int)AssertLevel)
-                        SystemTrace.Fail(sb.ToString());
+                        if ((int)severity >= (int)AssertLevel)
+                            SystemTrace.Fail(sb.ToString());
+                    }
                 }
             }
         }
@@ -565,19 +586,22 @@ namespace VRage.Utils
             {
                 lock (m_lock)
                 {
-                    WriteDateTimeAndThreadId();
+                    if (m_enabled)
+                    {
+                        WriteDateTimeAndThreadId();
 
-                    StringBuilder sb = m_stringBuilder;
-                    sb.Clear();
+                        StringBuilder sb = m_stringBuilder;
+                        sb.Clear();
 
-                    sb.AppendFormat("{0}: ", severity);
-                    sb.AppendStringBuilder(builder);
-                    sb.Append('\n');
+                        sb.AppendFormat("{0}: ", severity);
+                        sb.AppendStringBuilder(builder);
+                        sb.Append('\n');
 
-                    WriteStringBuilder(sb);
+                        WriteStringBuilder(sb);
 
-                    if ((int)severity >= (int)AssertLevel)
-                        SystemTrace.Fail(sb.ToString());
+                        if ((int)severity >= (int)AssertLevel)
+                            SystemTrace.Fail(sb.ToString());
+                    }
                 }
             }
         }

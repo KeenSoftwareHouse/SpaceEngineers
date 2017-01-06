@@ -39,22 +39,6 @@ namespace VRageRender
             m_voxelOffset = Vector3.Zero;
         }
 
-        internal void SetMergedState(bool isMerged)
-        {
-            // Don't do anything when the state wouldn't change
-            if ((m_btreeProxy == MyDynamicAABBTreeD.NullNode && isMerged) || (m_btreeProxy != MyDynamicAABBTreeD.NullNode && !isMerged))
-                return;
-
-            if(isMerged)
-            {
-                RemoveFromRenderables();
-            }
-            else
-            {
-                AddToRenderables();
-            }
-        }
-
         internal override bool RebuildLodProxy(int lodNum, bool skinningEnabled, MySkinningComponent skinning)
         {
             Debug.Assert(Mesh.Info.LodsNum == 1);
@@ -63,43 +47,27 @@ namespace VRageRender
 
             int partCount;
             LodMeshId lodMesh = new LodMeshId();
-            MyMergedLodMeshId mergedLodMesh = new MyMergedLodMeshId();
             VertexLayoutId vertexLayout;
 
-            bool isMergedMesh = MyMeshes.IsMergedVoxelMesh(Mesh);
-            if (!isMergedMesh)
-            {
-                if (!Owner.IsVisible)
-                    return false;
+            if (!Owner.IsVisible)
+                return false;
 
-                lodMesh = MyMeshes.GetLodMesh(Mesh, 0);
-                vertexLayout = lodMesh.VertexLayout;
-                partCount = lodMesh.Info.PartsNum;
-            }
-            else
-            {
-                mergedLodMesh = MyMeshes.GetMergedLodMesh(Mesh, 0);
-                if (mergedLodMesh.VertexLayout == VertexLayoutId.NULL || mergedLodMesh.Info.MergedLodMeshes.Count == 0)
-                    return false;
-
-                partCount = mergedLodMesh.Info.PartsNum;
-                vertexLayout = mergedLodMesh.VertexLayout;
-            }
+            lodMesh = MyMeshes.GetLodMesh(Mesh, 0);
+            vertexLayout = lodMesh.VertexLayout;
+            partCount = lodMesh.Info.PartsNum;
 
             MyObjectPoolManager.Init(ref m_lods[lodNum]);
             lod = m_lods[lodNum];
             lod.VertexLayout1 = vertexLayout;
 
-            // Hide proxies when they will already be rendered in a merged mesh
-            if (!MyMeshes.IsLodMeshMerged(lodMesh))
-                AddToRenderables();
+            AddToRenderables();
 
             Debug.Assert(partCount > 0);
 
-            lod.VertexShaderFlags = MyShaderUnifiedFlags.USE_VOXEL_DATA | MyShaderUnifiedFlags.USE_VOXEL_MORPHING | MyShaderUnifiedFlags.DITHERED;
+            lod.VertexShaderFlags = MyShaderUnifiedFlags.USE_VOXEL_DATA | MyShaderUnifiedFlags.DITHERED ;//| MyShaderUnifiedFlags.USE_VOXEL_MORPHING;
 
-            bool initializeProxies = true;//isMergedMesh || !MyMeshes.IsLodMeshMerged(lodMesh);
-            bool initializeDepthProxy = true;//!isMergedMesh && Num > 0;
+            bool initializeProxies = true;
+            bool initializeDepthProxy = true;
 
             int numToInitialize = (initializeProxies ? partCount : 0) + (initializeDepthProxy ? 1 : 0);
             if (numToInitialize > 0)

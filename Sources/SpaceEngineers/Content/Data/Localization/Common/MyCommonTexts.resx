@@ -2776,4 +2776,10 @@ Note that by submitting this item, you agree to the workshop terms of service (s
   <data name="ScreenGraphicsOptions_ModelQuality" xml:space="preserve">
     <value>Model quality</value>
   </data>
+  <data name="IncompatibleDataNotification" xml:space="preserve">
+    <value>Server has incompatible game data.</value>
+  </data>
+  <data name="MessageBoxTextCampaignBeforeExit" xml:space="preserve">
+    <value>Are you sure you want to quit? All progress from the last checkpoint will be lost.</value>
+  </data>
 </root>

@@ -119,8 +119,11 @@ namespace Sandbox.Game.Weapons
                     if (block.UseDamageSystem)
                         MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
 
-                    block.DecreaseMountLevel(damageInfo.Amount, this.GetInventory());
-                    block.MoveItemsFromConstructionStockpile(this.GetInventory());
+                    if (block.CubeGrid.Editable)
+                    {
+                        block.DecreaseMountLevel(damageInfo.Amount, this.GetInventory());
+                        block.MoveItemsFromConstructionStockpile(this.GetInventory());
+                    }
 
                     if (block.UseDamageSystem)
                         MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);

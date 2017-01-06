@@ -223,9 +223,9 @@ namespace Sandbox.Game.Gui
         {
             Color color = MySector.EnvironmentDefinition.ContourHighlightColor;
             float thickness = MySector.EnvironmentDefinition.ContourHighlightThickness;
-            ulong pulseTimeInFrames = (ulong)Math.Round(MySector.EnvironmentDefinition.HighlightPulseInSeconds * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
+            float pulseTimeInSeconds = MySector.EnvironmentDefinition.HighlightPulseInSeconds;
             if (MySession.Static.GetComponent<MyHighlightSystem>() != null && !MySession.Static.GetComponent<MyHighlightSystem>().IsReserved(selection.InteractiveObject.Owner.EntityId))
-                MyRenderProxy.UpdateModelHighlight((uint)selection.InteractiveObject.RenderObjectID, selection.SectionNames, selection.SubpartIndices, color, thickness, pulseTimeInFrames, selection.InteractiveObject.InstanceID);
+                MyRenderProxy.UpdateModelHighlight((uint)selection.InteractiveObject.RenderObjectID, selection.SectionNames, selection.SubpartIndices, color, thickness, pulseTimeInSeconds, selection.InteractiveObject.InstanceID);
         }
 
         public static void DrawSelectedObjectHighlightDummy(MyHudSelectedObject selection, string atlasTexture, MyAtlasTextureCoordinate textureCoord)

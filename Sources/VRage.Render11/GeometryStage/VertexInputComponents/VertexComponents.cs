@@ -125,6 +125,7 @@ namespace VRageRender
         {
             AddSingle("POSITION", "float4 position", Format.R16G16B16A16_UNorm, component, list, dict, declaration);
             AddSingle("POSITION", "float4 position_morph", Format.R16G16B16A16_UNorm, component, list, dict, declaration);
+            AddSingle("BLENDINDICES", "uint4 mat_info", Format.R8G8B8A8_UInt, component, list, dict, declaration);
 
             code.Append("__position_object = unpack_voxel_position(input.position);\\\n");
             code.Append("__material_weights = unpack_voxel_weights(input.position.w);\\\n");
@@ -132,6 +133,7 @@ namespace VRageRender
             code.Append("__position_object_morph = unpack_voxel_position(input.position_morph);\\\n");
             code.Append("__material_weights_morph = unpack_voxel_weights(input.position_morph.w);\\\n");
             code.Append("__colorBrightnessFactor_morph = unpack_voxel_ao(input.position_morph.w);\\\n");
+            code.Append("__triplanar_mat_info = input.mat_info;\\\n");
         }
     }
 

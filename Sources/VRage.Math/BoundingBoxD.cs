@@ -1013,11 +1013,11 @@ namespace VRageMath
         /// <param name="bb">output transformed aabb</param>
         public void TransformFast(ref MatrixD m, ref BoundingBoxD bb)
         {
-            Debug.Assert(Math.Abs(m.Up.LengthSquared() - 1) < 1e-4f);
-            Debug.Assert(Math.Abs(m.Right.LengthSquared() - 1) < 1e-4f);
-            Debug.Assert(Math.Abs(m.Forward.LengthSquared() - 1) < 1e-4f);
-            Debug.Assert(Math.Abs(m.Right.Dot(m.Up)) < 1e-4f);
-            Debug.Assert(Math.Abs(m.Right.Dot(m.Forward)) < 1e-4f);
+            Debug.Assert(Math.Abs(m.Up.LengthSquared() - 1) < 1e-4f, "Warning 1/5: Rotation part of matrix is not orthogonal. Transform will be wrong. Use TransformSlow instead.");
+            Debug.Assert(Math.Abs(m.Right.LengthSquared() - 1) < 1e-4f, "Warning 2/5: Rotation part of matrix is not orthogonal. Transform will be wrong. Use TransformSlow instead.");
+            Debug.Assert(Math.Abs(m.Forward.LengthSquared() - 1) < 1e-4f, "Warning 3/5: Rotation part of matrix is not orthogonal. Transform will be wrong. Use TransformSlow instead.");
+            Debug.Assert(Math.Abs(m.Right.Dot(m.Up)) < 1e-4f, "Warning 4/5: Rotation part of matrix is not orthogonal. Transform will be wrong. Use TransformSlow instead.");
+            Debug.Assert(Math.Abs(m.Right.Dot(m.Forward)) < 1e-4f, "Warning 5/5: Rotation part of matrix is not orthogonal. Transform will be wrong. Use TransformSlow instead. If you saw all warning you should really consider using TransformSlow.");
 
             bb.Min = bb.Max = m.Translation;
             Vector3D min = m.Right * Min.X;

@@ -8,7 +8,7 @@ namespace VRageRender.Messages
         public int FontIndex;
         public Vector2 ScreenCoord;
         public Color ColorMask;
-        public readonly StringBuilder Text = new StringBuilder(1024);
+        public string Text;
         public float ScreenScale;
         public float ScreenMaxWidth;
 

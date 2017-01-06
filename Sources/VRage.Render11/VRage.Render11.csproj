@@ -155,9 +155,10 @@
     <Compile Include="GeometryStage2\Culling\MyCpuCulledEntity.cs" />
     <Compile Include="GeometryStage2\Instancing\MyInstanceComponent.cs" />
     <Compile Include="GeometryStage2\Instancing\MyLodStrategy.cs" />
+    <Compile Include="GeometryStage2\Model\MyGlassMaterial.cs" />
     <Compile Include="GeometryStage2\Model\MyLod.cs" />
     <Compile Include="GeometryStage2\Model\MyMaterialManager.cs" />
-    <Compile Include="GeometryStage2\Model\MyMaterial.cs" />
+    <Compile Include="GeometryStage2\Model\MyStandardMaterial.cs" />
     <Compile Include="GeometryStage2\Model\MyModelBufferManager.cs" />
     <Compile Include="GeometryStage2\Model\MyPart.cs" />
     <Compile Include="GeometryStage2\Culling\MyCpuFrustumCulling.cs" />
@@ -172,6 +173,8 @@
     <Compile Include="GeometryStage2\Model\MyModelFactory.cs" />
     <Compile Include="GeometryStage2\Model\MyMwmUtils.cs" />
     <Compile Include="GeometryStage2\Instancing\MyInstanceManager.cs" />
+    <Compile Include="GeometryStage\Materials\MyVoxelMaterialsConstantBuffer.cs" />
+    <Compile Include="GeometryStage2\Rendering\MyGeometrySrvStrategy.cs" />
     <Compile Include="GeometryStage\MyGeometryTextureSystem.cs" />
     <Compile Include="GeometryStage\RenderingPasses\MyHighlightPass.cs" />
     <Compile Include="LightingStage\Shadows\MyCascadeShadowMap.cs" />
@@ -202,7 +205,6 @@
     <Compile Include="GeometryStage\MyClipmapFactory.cs" />
     <Compile Include="GeometryStage\MyClipmapCellProxy.cs" />
     <Compile Include="GeometryStage\MyInstancing.cs" />
-    <Compile Include="GeometryStage\MyLodMeshMergeHandler.cs" />
     <Compile Include="GeometryStage\MyMapping.cs" />
     <Compile Include="GeometryStage\MyRenderingDispatcher.cs" />
     <Compile Include="GeometryStage\MySceneMaterials.cs" />
@@ -347,6 +349,9 @@
     <Content Include="Shaders\Debug\DebugLOD.hlsl" />
     <Content Include="Shaders\Debug\HeatMap.hlsli" />
     <Content Include="Shaders\Debug\DisplayHdrIntensity.hlsl" />
+    <Content Include="Shaders\Geometry\Materials\TriplanarDebris\Declarations.hlsli" />
+    <Content Include="Shaders\Geometry\Materials\TriplanarDebris\Pixel.hlsl" />
+    <Content Include="Shaders\Geometry\Materials\TriplanarDebris\Vertex.hlsl" />
     <Content Include="Shaders\Postprocess\Bloom\Blur.hlsl" />
     <Content Include="Shaders\Postprocess\Bloom\Defines.hlsli" />
     <Content Include="Shaders\Postprocess\Bloom\Downscale2.hlsl" />
@@ -554,7 +559,6 @@
     <Content Include="Shaders\Geometry\VertexTemplateBase.hlsli" />
     <Content Include="Shaders\Geometry\Materials\TriplanarMaterialConstants.hlsli" />
     <Content Include="Shaders\VertexTransformations.hlsli" />
-    <Content Include="Shaders\Geometry\VoxelTransition.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Shaders\Debug\DebugDepthReprojection.hlsl" />

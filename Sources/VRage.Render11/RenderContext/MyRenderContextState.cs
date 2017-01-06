@@ -59,7 +59,8 @@ namespace VRage.Render11.RenderContext.Internal
 
         internal void Clear()
         {
-            m_deviceContext.ClearState();
+            if (m_deviceContext != null)
+                m_deviceContext.ClearState();
 
             m_inputLayout = null;
             m_primitiveTopology = PrimitiveTopology.Undefined;
@@ -89,7 +90,8 @@ namespace VRage.Render11.RenderContext.Internal
             m_targetBuffer = null;
             m_targetOffsets = 0;
 
-            m_statistics.ClearStates++;
+            if (m_statistics != null)
+                m_statistics.ClearStates++;
         }
 
         internal void SetInputLayout(InputLayout il)

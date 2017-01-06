@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <MyObjectBuilder_Checkpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <CurrentSector x="0" y="0" z="0" />
-  <ElapsedGameTime>39360000000</ElapsedGameTime>
+  <ElapsedGameTime>40692160000</ElapsedGameTime>
   <SessionName>Easy Start Green</SessionName>
   <SpectatorPosition>
-    <Position x="-420.7155357003212" y="104.42853271961209" z="-202.30938541889196" />
-    <Forward x="0.577350259" y="-0.577350259" z="0.577350259" />
-    <Up x="0.408248276" y="0.8164966" z="0.408248276" />
+    <Position x="-442.86686847011396" y="127.90940286241366" z="-124.18989825696246" />
+    <Forward x="-0.511069059" y="0.0509971" z="-0.858025432" />
+    <Up x="0.07345053" y="0.997178137" z="0.0155180711" />
     <Orientation>
-      <X>0.1159169</X>
-      <Y>0.880476236</Y>
-      <Z>0.279848129</Z>
-      <W>-0.364705175</W>
+      <X>0.01726276</X>
+      <Y>0.265874535</Y>
+      <Z>-0.03336069</Z>
+      <W>0.963275552</W>
     </Orientation>
   </SpectatorPosition>
   <SpectatorIsLightOn>false</SpectatorIsLightOn>
@@ -20,8 +20,8 @@
   <ControlledObject>95826874364924781</ControlledObject>
   <Password />
   <Description />
-  <LastSaveTime>2016-12-14T12:13:51.9170034+01:00</LastSaveTime>
-  <SpectatorDistance>17.1068916</SpectatorDistance>
+  <LastSaveTime>2016-12-19T14:32:40.8491452+01:00</LastSaveTime>
+  <SpectatorDistance>2.6</SpectatorDistance>
   <CharacterToolbar>
     <ToolbarType>Character</ToolbarType>
     <SelectedSlot xsi:nil="true" />
@@ -116,9 +116,9 @@
     <MaxBlocksPerPlayer>100000</MaxBlocksPerPlayer>
     <EnableBlockLimits>true</EnableBlockLimits>
     <EnableRemoteBlockRemoval>true</EnableRemoteBlockRemoval>
-    <EnvironmentHostility>NORMAL</EnvironmentHostility>
+    <EnvironmentHostility>SAFE</EnvironmentHostility>
     <AutoHealing>true</AutoHealing>
-    <EnableCopyPaste>false</EnableCopyPaste>
+    <EnableCopyPaste>true</EnableCopyPaste>
     <WeaponsEnabled>true</WeaponsEnabled>
     <ShowPlayerNamesOnHud>true</ShowPlayerNamesOnHud>
     <ThrusterDamage>true</ThrusterDamage>
@@ -135,7 +135,7 @@
     <AutoSaveInMinutes>5</AutoSaveInMinutes>
     <SpawnShipTimeMultiplier>0.5</SpawnShipTimeMultiplier>
     <ProceduralDensity>0.25</ProceduralDensity>
-    <ProceduralSeed>432855516</ProceduralSeed>
+    <ProceduralSeed>0</ProceduralSeed>
     <DestructibleBlocks>true</DestructibleBlocks>
     <EnableIngameScripts>true</EnableIngameScripts>
     <ViewDistance>15000</ViewDistance>
@@ -230,7 +230,7 @@
       <dictionary />
     </variables>
   </ScriptManagerData>
-  <AppVersion>1165011</AppVersion>
+  <AppVersion>1166003</AppVersion>
   <Factions>
     <Factions>
       <MyObjectBuilder_Faction>
@@ -277,17 +277,17 @@
       <Model>Default_Astronaut</Model>
       <ColorMask x="0" y="-0.8" z="0.6" />
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T11:37:25.0983434+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T14:30:18.4649082+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855874</IdentityId>
       <DisplayName>Space Pirates</DisplayName>
       <CharacterEntityId>0</CharacterEntityId>
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T11:37:25.1103446+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T14:30:18.472909+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
   </Identities>
-  <PreviousEnvironmentHostility>NORMAL</PreviousEnvironmentHostility>
+  <PreviousEnvironmentHostility>SAFE</PreviousEnvironmentHostility>
   <AllPlayersData>
     <dictionary>
       <item>
@@ -464,7 +464,7 @@
             <Vector3>
               <X>0</X>
               <Y>-0.81</Y>
-              <Z>-0.3</Z>
+              <Z>-0.13</Z>
             </Vector3>
           </BuildColorSlots>
         </Value>
@@ -477,14 +477,7 @@
     <long>144115188075855874</long>
   </NonPlayerIdentities>
   <Gps>
-    <dictionary>
-      <item>
-        <Key xsi:type="xsd:long">144115188075855873</Key>
-        <Value xsi:type="MyObjectBuilder_Gps">
-          <Entries />
-        </Value>
-      </item>
-    </dictionary>
+    <dictionary />
   </Gps>
   <SessionComponents>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_LocalizationSessionComponent">
@@ -535,7 +528,7 @@
       <Mod />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_EnvironmentBotSpawningSystem">
-      <TimeSinceLastEventInMs>16887</TimeSinceLastEventInMs>
+      <TimeSinceLastEventInMs>49256</TimeSinceLastEventInMs>
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_CoordinateSystem">
       <Definition Type="MyObjectBuilder_CoordinateSystemDefinition" Subtype="CoordinateSystem" />

@@ -275,7 +275,7 @@ namespace Sandbox.Game.Gui
 
             if (DisableInput)
             {
-                if (MySession.Static.GetComponent<MySessionComponentCutscenes>().IsCutsceneRunning)
+                if (MySession.Static.GetComponent<MySessionComponentCutscenes>().IsCutsceneRunning && (MyMultiplayer.Static == null || MyMultiplayer.Static.IsServer))
                 {
                     if (MyInput.Static.IsNewKeyPressed(MyKeys.Enter) || MyInput.Static.IsNewKeyPressed(MyKeys.Space))
                         MySession.Static.GetComponent<MySessionComponentCutscenes>().CutsceneSkip();
@@ -952,17 +952,20 @@ namespace Sandbox.Game.Gui
 
         public static void SetCameraController()
         {
-            var remote = MySession.Static.ControlledEntity.Entity as MyRemoteControl;
-            if (remote != null)
+            if (MySession.Static.ControlledEntity != null)
             {
-                if (remote.PreviousControlledEntity is IMyCameraController)
+                var remote = MySession.Static.ControlledEntity.Entity as MyRemoteControl;
+                if (remote != null)
                 {
-                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, remote.PreviousControlledEntity.Entity);
+                    if (remote.PreviousControlledEntity is IMyCameraController)
+                    {
+                        MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, remote.PreviousControlledEntity.Entity);
+                    }
                 }
-            }
-            else
-            {
-                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.ControlledEntity.Entity);
+                else
+                {
+                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.ControlledEntity.Entity);
+                }
             }
         }
         #endregion

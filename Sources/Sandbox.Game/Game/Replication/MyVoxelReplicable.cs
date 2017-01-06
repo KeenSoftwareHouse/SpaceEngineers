@@ -9,6 +9,7 @@ using VRage.Game.Entity;
 using VRage.Library.Collections;
 using VRage.Network;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 
@@ -67,11 +68,11 @@ namespace Sandbox.Game.Replication
 
             bool isUserCreated = VRage.Serialization.MySerializer.CreateAndRead<bool>(stream);
             bool isFromPrefab = VRage.Serialization.MySerializer.CreateAndRead<bool>(stream);
-            bool rangeChanged = VRage.Serialization.MySerializer.CreateAndRead<bool>(stream);
+            bool contentChanged = VRage.Serialization.MySerializer.CreateAndRead<bool>(stream);
 
             byte[] data = null;
             string asteroidName = null;
-            if (rangeChanged)
+            if (contentChanged)
             {
                 data = VRage.Serialization.MySerializer.CreateAndRead<byte[]>(stream);
             }
@@ -80,13 +81,16 @@ namespace Sandbox.Game.Replication
                 asteroidName = VRage.Serialization.MySerializer.CreateAndRead<string>(stream);
             }
 
+            MyLog.Default.WriteLine("MyVoxelReplicable.OnLoad - isUserCreated:" + isUserCreated + " isFromPrefab:" + isFromPrefab + " contentChanged:" + contentChanged + " data?: " + (data != null).ToString());
+
             if (isFromPrefab)
             {
                 var builder = VRage.Serialization.MySerializer.CreateAndRead<MyObjectBuilder_EntityBase>(stream, MyObjectBuilderSerializer.Dynamic);
 
-                if (rangeChanged && data != null)
+                if (contentChanged && data != null)
                 {
                     IMyStorage storage = MyStorageBase.Load(data);
+
                     if (MyEntities.TryGetEntityById<MyVoxelBase>(builder.EntityId, out voxelMap))
                     {
                         if(voxelMap is MyVoxelMap)
@@ -226,7 +230,7 @@ namespace Sandbox.Game.Replication
             bool isFromPrefab = Voxel.Save;
             VRage.Serialization.MySerializer.Write(stream, ref isFromPrefab);
 
-            bool contentChanged = (Voxel.ContentChanged || (Voxel.CreatedByUser && Voxel.AsteroidName == null));
+            bool contentChanged = (Voxel.ContentChanged || Voxel.BeforeContentChanged || (Voxel.CreatedByUser && Voxel.AsteroidName == null));
             VRage.Serialization.MySerializer.Write(stream, ref contentChanged);
 
             if (contentChanged)

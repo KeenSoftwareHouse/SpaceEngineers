@@ -100,7 +100,7 @@ namespace Sandbox.Game.Gui
 
             // DEBUG ONLY
             // REMOVES foliage
-            MyRenderProxy.Settings.TerrainDetailD0 = 0;
+            /*MyRenderProxy.Settings.TerrainDetailD0 = 0;
             MyRenderProxy.Settings.TerrainDetailD1 = 0;
             MyRenderProxy.Settings.TerrainDetailD2 = 0;
             MyRenderProxy.Settings.TerrainDetailD3 = 0;
@@ -111,6 +111,7 @@ namespace Sandbox.Game.Gui
             MyRenderProxy.Settings.GrassGeometryScalingFarDistance = 0;
             MyRenderProxy.Settings.GrassGeometryDistanceScalingFactor = 0;
             MyRenderProxy.Settings.WindStrength = 0;
+            MyRenderProxy.SetSettingsDirty();*/
         }
 
         private static bool m_drawDebug = false;

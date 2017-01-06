@@ -667,6 +667,9 @@ namespace VRage.Render11.Resources
 
         internal IUavArrayTexture CreateUavCube(string debugName, int size, Format format, int mipmapLevels = 1)
         {
+            MyRenderProxy.Assert(size > 0);
+            MyRenderProxy.Assert(mipmapLevels > 0);
+
             MyUavArrayTexture tex;
             m_uavArrays.AllocateOrCreate(out tex);
 
@@ -709,6 +712,9 @@ namespace VRage.Render11.Resources
 
         internal IDepthArrayTexture CreateDepthCube(string debugName, int size, Format resourceFormat, Format srvFormat, Format dsvFormat, int mipmapLevels = 1)
         {
+            MyRenderProxy.Assert(size > 0);
+            MyRenderProxy.Assert(mipmapLevels > 0);
+
             MyDepthArrayTexture tex;
             m_depthArrays.AllocateOrCreate(out tex);
 
@@ -764,6 +770,11 @@ namespace VRage.Render11.Resources
         internal IRtvArrayTexture CreateRtvArray(string debugName, int width, int height, int arraySize,
             Format format, int mipmapLevels = 1)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+            MyRenderProxy.Assert(arraySize > 0);
+            MyRenderProxy.Assert(mipmapLevels > 0);
+
             MyRtvArrayTexture tex;
             m_rtvArrays.AllocateOrCreate(out tex);
 
@@ -810,6 +821,11 @@ namespace VRage.Render11.Resources
         internal IUavArrayTexture CreateUavArray(string debugName, int width, int height, int arraySize,
             Format format, int mipmapLevels = 1)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+            MyRenderProxy.Assert(arraySize > 0);
+            MyRenderProxy.Assert(mipmapLevels > 0); 
+            
             MyUavArrayTexture tex;
             m_uavArrays.AllocateOrCreate(out tex);
 
@@ -856,6 +872,11 @@ namespace VRage.Render11.Resources
         internal IDepthArrayTexture CreateDepthArray(string debugName, int width, int height, int arraySize,
             Format resourceFormat, Format srvFormat, Format dsvFormat, int mipmapLevels = 1)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+            MyRenderProxy.Assert(arraySize > 0);
+            MyRenderProxy.Assert(mipmapLevels > 0);
+
             MyDepthArrayTexture tex;
             m_depthArrays.AllocateOrCreate(out tex);
 

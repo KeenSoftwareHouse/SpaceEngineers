@@ -68,7 +68,7 @@ SamplerState	AlphamaskArraySampler   : register( s5 );
 #endif
 
 #define MAX_ADDITIONAL_SUNS 5
-
+#define MAX_VOXEL_MATERIALS 128
 
 
 

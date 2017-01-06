@@ -23,6 +23,7 @@ using VRage.ModAPI;
 using VRage.Game.Models;
 using VRage.Profiler;
 using VRage.Sync;
+using VRageRender;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -608,19 +609,19 @@ namespace Sandbox.Game.Entities.Blocks
             double lengthSq = diff.LengthSquared();
             if (lengthSq > MIN_MOVEMENT_SQUARED_FOR_UPDATE)
             {
-                if (m_light != null)
+                if (m_light != null && m_light.RenderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
                     m_light.MarkPositionDirty();
             }
             oldWorldPosition = worldPosition;
 
             if (m_oldWorldMatrix.Forward != WorldMatrix.Forward)
             {
-                if (m_light != null)
+                if (m_light != null && m_light.RenderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
                     m_light.MarkPositionDirty();
             }
             m_oldWorldMatrix = WorldMatrix;
 
-            if (m_light != null)
+            if (m_light != null && m_light.RenderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
                 m_light.UpdateLight();
         }
 

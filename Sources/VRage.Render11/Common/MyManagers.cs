@@ -67,6 +67,7 @@ namespace VRage.Render11.Common
         public static MyEnvironmentProbe EnvironmentProbe = new MyEnvironmentProbe();
         public static MyGeometryTextureSystem GeometryTextureSystem = new MyGeometryTextureSystem();
 
+        public static MyGeometrySrvResolver GeometrySrvResolver = new MyGeometrySrvResolver();
         public static MyShaderBundleManager ShaderBundles = new MyShaderBundleManager();
         public static MyIDGeneratorManager IDGenerator = new MyIDGeneratorManager(); 
         public static MyMaterialManager Materials = new MyMaterialManager();
@@ -110,11 +111,14 @@ namespace VRage.Render11.Common
             m_generalManager.RegisterManager(MyManagers.EnvironmentProbe);
             m_generalManager.RegisterManager(MyManagers.GeometryTextureSystem);
 
+            m_generalManager.RegisterManager(MyManagers.GeometrySrvResolver);
+            m_generalManager.RegisterManager(MyManagers.ShaderBundles);
             m_generalManager.RegisterManager(MyManagers.IDGenerator);
             m_generalManager.RegisterManager(MyManagers.Materials);
             m_generalManager.RegisterManager(MyManagers.ModelBuffers);
             m_generalManager.RegisterManager(MyManagers.ModelFactory);
             m_generalManager.RegisterManager(MyManagers.Instances);
+
             m_generalManager.RegisterManager(MyManagers.GeometryRenderer);
             m_generalManager.RegisterManager(MyManagers.HierarchicalCulledEntities);
         }

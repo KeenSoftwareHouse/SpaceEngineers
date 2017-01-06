@@ -1,4 +1,5 @@
 #include "Declarations.hlsli"
+#include <Common.hlsli>
 #include <Math/Math.hlsli>
 #include <Geometry/VertexTemplateBase.hlsli>
 
@@ -19,11 +20,13 @@ void vertex_program(inout VertexShaderInterface vertex, out MaterialVertexPayloa
 #endif
 
 	float dist = length(vertex.position_local.xyz - get_camera_position());
+
 	custom_output.normal = vertex.normal_object;
 	custom_output.texcoords = vertex.position_scaled_untranslated.xyz;
     custom_output.colorBrightnessFactor = vertex.colorBrightnessFactor;
 	custom_output.distance = dist;
 	custom_output.world_matrix = vertex._local_matrix;
+	custom_output.mat_idx = vertex.triplanar_mat_info.w;
 }
 
 #include <Geometry/Passes/VertexStage.hlsli>

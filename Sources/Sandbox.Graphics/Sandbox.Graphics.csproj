@@ -126,6 +126,7 @@
     <Compile Include="Gui\MyGuiControlImageButton.cs" />
     <Compile Include="Gui\MyGuiControlLabeledGrid.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
+    <Compile Include="Gui\MyGuiControlProgressBarHud.cs" />
     <Compile Include="Gui\MyGuiControlSliderBase.cs" />
     <Compile Include="Gui\MyGuiScreenDialogAmount.cs" />
     <Compile Include="Gui\MyGuiTextShadows.cs" />

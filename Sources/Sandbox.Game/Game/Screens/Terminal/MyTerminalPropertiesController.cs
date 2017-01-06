@@ -592,7 +592,7 @@ namespace Sandbox.Game.Screens.Terminal
                         return MyRefuseReason.NoOwner;
                 }
 
-                if (gridInfo.Status == MyCubeGridConnectionStatus.OutOfReceivingRange && !MySession.Static.LocalCharacter.RadioBroadcaster.Enabled && (MySession.Static.ControlledEntity.Entity is MyCharacter))
+                if (gridInfo.Status == MyCubeGridConnectionStatus.OutOfReceivingRange && (MySession.Static.ControlledEntity.Entity is MyCharacter) && !(MySession.Static.ControlledEntity.Entity as MyCharacter).RadioBroadcaster.Enabled)
                 {
                     return MyRefuseReason.PlayerBroadcastOff;
                 }

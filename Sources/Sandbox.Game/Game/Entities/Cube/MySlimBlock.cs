@@ -1104,7 +1104,7 @@ namespace Sandbox.Game.Entities.Cube
         public bool DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             damage = damage * BlockGeneralDamageModifier * CubeGrid.GridGeneralDamageModifier;
-            if (damage < 0)
+            if (damage <= 0)
                 return false;
             if (sync)
             {
@@ -1345,6 +1345,8 @@ namespace Sandbox.Game.Entities.Cube
             {
                 EnsureConstructionStockpileExists();
             }
+
+            float predmgIntegrity = Integrity;
             if (m_stockpile != null)
             {
                 m_stockpile.ClearSyncList();
@@ -1361,9 +1363,11 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             //by Gregory: BuildRatio is not updated for this!!! For now check this way TODO
-            if (BlockDefinition.RatioEnoughForDamageEffect((Integrity) / MaxIntegrity))
+            // AB: we need to call it only when red line is crossed and only once
+            if (!BlockDefinition.RatioEnoughForDamageEffect(predmgIntegrity / MaxIntegrity) &&
+                BlockDefinition.RatioEnoughForDamageEffect((Integrity) / MaxIntegrity))
             {
-                if (FatBlock != null && FatBlock.OwnerId != 0 && FatBlock.OwnerId != MySession.Static.LocalPlayerId)
+                if (FatBlock != null)
                 {
                     FatBlock.OnIntegrityChanged(BuildIntegrity, Integrity, false, MySession.Static.LocalPlayerId);
                 }

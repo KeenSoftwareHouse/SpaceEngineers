@@ -67,12 +67,6 @@ namespace Sandbox.Engine.Utils
             set { m_data.ServerPort = value; }
         }
 
-        public MyDefinitionId Scenario
-        {
-            get { return new MyDefinitionId(m_data.Scenario.TypeId, m_data.Scenario.SubtypeId); }
-            set { m_data.Scenario = value; }
-        }
-
         public int AsteroidAmount
         {
             get { return m_data.AsteroidAmount; }
@@ -261,18 +255,6 @@ namespace Sandbox.Engine.Utils
         void IMyConfigDedicated.Save(string path = null)
         {
             Save(path);
-        }
-
-        MyDefinitionId IMyConfigDedicated.Scenario
-        {
-            get
-            {
-                return Scenario;
-            }
-            set
-            {
-                Scenario = value;
-            }
         }
 
         string IMyConfigDedicated.ServerName

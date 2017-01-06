@@ -118,6 +118,8 @@ namespace VRage.Game
             AngleVar,
             Thickness,
 
+            ParticlesPerFrame,
+
             NumMembers
         }
 
@@ -290,6 +292,12 @@ namespace VRage.Game
             private set { m_properties[(int)MyGPUGenerationPropertiesEnum.ParticlesPerSecond] = value; }
         }
 
+        public MyAnimatedPropertyFloat ParticlesPerFrame
+        {
+            get { return (MyAnimatedPropertyFloat)m_properties[(int)MyGPUGenerationPropertiesEnum.ParticlesPerFrame]; }
+            private set { m_properties[(int)MyGPUGenerationPropertiesEnum.ParticlesPerFrame] = value; }
+        }
+
         public MyConstPropertyTransparentMaterial Material
         {
             get { return (MyConstPropertyTransparentMaterial)m_properties[(int)MyGPUGenerationPropertiesEnum.Material]; }
@@ -437,6 +445,7 @@ namespace VRage.Game
             AddProperty(MyGPUGenerationPropertiesEnum.Enabled, new MyConstPropertyBool("Enabled"));
 
             AddProperty(MyGPUGenerationPropertiesEnum.ParticlesPerSecond, new MyAnimatedPropertyFloat("Particles per second"));
+            AddProperty(MyGPUGenerationPropertiesEnum.ParticlesPerFrame, new MyAnimatedPropertyFloat("Particles per frame"));
 
             AddProperty(MyGPUGenerationPropertiesEnum.Material, new MyConstPropertyTransparentMaterial("Material"));
 
@@ -654,7 +663,8 @@ namespace VRage.Game
                                    DirectionInnerCone.GetKeysCount() > 1 ||
                                    DirectionConeVar.GetKeysCount() > 1 ||
                                    EmitterSize.GetKeysCount() > 1 ||
-                                   EmitterSizeMin.GetKeysCount() > 1;
+                                   EmitterSizeMin.GetKeysCount() > 1 ||
+                                   ParticlesPerFrame.GetKeysCount() > 0;
 
             MyAnimatedPropertyVector4 color;
             Color.GetKey(0, out time, out color);
@@ -777,29 +787,25 @@ namespace VRage.Game
             emitter.WorldPosition = mat.Translation;
             emitter.Data.Scale = m_effect.GetEmitterScale();
             emitter.Data.Gravity = m_effect.Gravity * Gravity;
-            Vector3 angle = Angle;
-            Vector3 angleVar = AngleVar;
-            if (angleVar.LengthSquared() > 0)
-            {
-                angle = new Vector3(
-                    MyUtils.GetRandomFloat(angle.X - angleVar.X, angle.X + angleVar.X),
-                    MyUtils.GetRandomFloat(angle.Y - angleVar.Y, angle.Y + angleVar.Y),
-                    MyUtils.GetRandomFloat(angle.Z - angleVar.Z, angle.Z + angleVar.Z));
-            }
-            Matrix rot;
-            if (angle.LengthSquared() > 0)
-            {
-                rot = Matrix.CreateFromAxisAngle(mat.Right, MathHelper.ToRadians(angle.X)) *
-                      Matrix.CreateFromAxisAngle(mat.Up, MathHelper.ToRadians(angle.Y)) *
-                      Matrix.CreateFromAxisAngle(mat.Forward, MathHelper.ToRadians(angle.Z));
-            }
-            else rot = mat;
-            emitter.Data.ParticleRotationRow0 = rot.Right;
-            emitter.Data.ParticleRotationRow1 = rot.Up;
-            emitter.Data.ParticleRotationRow2 = rot.Backward;
+            var rotMat = CalculateParticleRotation(mat);
+            emitter.Data.ParticleRotationRow0 = rotMat.Right;
+            emitter.Data.ParticleRotationRow1 = rotMat.Up;
+            emitter.Data.ParticleRotationRow2 = rotMat.Backward;
 
             emitter.ParticlesPerSecond = m_currentParticlesPerSecond = GetParticlesPerSecond();
-            
+
+
+            if (ParticlesPerFrame.GetKeysCount() > 0)
+            {
+                float keyTime, diff;
+                ParticlesPerFrame.GetNextValue(m_effect.GetElapsedTime() - VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, out emitter.ParticlesPerFrame, 
+                    out keyTime, out diff);
+                if (keyTime < (m_effect.GetElapsedTime() - VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS) ||
+                    keyTime >= m_effect.GetElapsedTime())
+                    emitter.ParticlesPerFrame = 0;
+                else emitter.ParticlesPerFrame *= m_effect.UserBirthMultiplier;
+            }
+
 
             Velocity.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.Velocity);
             VelocityVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.VelocityVar);
@@ -811,6 +817,26 @@ namespace VRage.Game
 
             EmitterSize.GetInterpolatedValue<Vector3>(m_effect.GetElapsedTime(), out emitter.Data.EmitterSize);
             EmitterSizeMin.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.Data.EmitterSizeMin);
+        }
+
+        private Matrix CalculateParticleRotation(MatrixD mat)
+        {
+            Vector3 angle = Angle;
+            Vector3 angleVar = AngleVar;
+            if (angleVar.LengthSquared() > 0)
+            {
+                angle = new Vector3(
+                    MyUtils.GetRandomFloat(angle.X - angleVar.X, angle.X + angleVar.X),
+                    MyUtils.GetRandomFloat(angle.Y - angleVar.Y, angle.Y + angleVar.Y),
+                    MyUtils.GetRandomFloat(angle.Z - angleVar.Z, angle.Z + angleVar.Z));
+            }
+            if (angle.LengthSquared() > 0)
+            {
+                return Matrix.CreateFromAxisAngle(mat.Right, MathHelper.ToRadians(angle.X)) *
+                      Matrix.CreateFromAxisAngle(mat.Up, MathHelper.ToRadians(angle.Y)) *
+                      Matrix.CreateFromAxisAngle(mat.Forward, MathHelper.ToRadians(angle.Z));
+            }
+            else return mat;
         }
 
         private float GetParticlesPerSecond()

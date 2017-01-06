@@ -45,7 +45,7 @@ namespace Sandbox.Game.Components
             int width = textureResolution * aspectRatio;
             int height = textureResolution;
             MyRenderProxy.CreateGeneratedTexture(offscreenTexture, width, height);
-            MyRenderProxy.DrawString((int)MyDefinitionManager.Static.GetFontSafe(m_textPanel.Font.SubtypeName).Id.SubtypeId, Vector2.Zero, fontColor, new StringBuilder(text), scale, float.PositiveInfinity, offscreenTexture);
+            MyRenderProxy.DrawString((int)MyDefinitionManager.Static.GetFontSafe(m_textPanel.Font.SubtypeName).Id.SubtypeId, Vector2.Zero, fontColor, text, scale, float.PositiveInfinity, offscreenTexture);
             MyRenderProxy.RenderOffscreenTextureToMaterial(RenderObjectIDs[0], PANEL_MATERIAL_NAME, offscreenTexture, backgroundColor);
         }
         public override void ReleaseRenderObjectID(int index)

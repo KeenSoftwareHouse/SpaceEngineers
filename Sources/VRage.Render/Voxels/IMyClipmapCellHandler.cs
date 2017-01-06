@@ -12,13 +12,8 @@ namespace VRageRender.Voxels
         void AddToScene(IMyClipmapCell cell);
         void RemoveFromScene(IMyClipmapCell cell);
 
-        void AddToMergeBatch(IMyClipmapCell cell);
-
         float GetTime(); //Seconds
 
         void UpdateMesh(IMyClipmapCell cell, MyRenderMessageUpdateClipmapCell msg);
-        void UpdateMerging();
-
-        void DebugDrawMergedCells();
     }
 }

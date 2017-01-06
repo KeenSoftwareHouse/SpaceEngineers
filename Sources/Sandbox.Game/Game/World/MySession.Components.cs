@@ -18,6 +18,7 @@ using VRage.Collections;
 using VRage.Game.Definitions;
 using VRage.Profiler;
 using VRageMath;
+using Sandbox.Graphics;
 
 namespace Sandbox.Game.World
 {
@@ -68,6 +69,16 @@ namespace Sandbox.Game.World
             MyDefinitionManager.Static.LoadData(checkpoint.Mods);
 
             LoadGameDefinition(checkpoint);
+
+            var fonts = MyDefinitionManager.Static.GetFontDefinitions();
+            foreach (var font in fonts)
+            {
+                if (!MyGuiManager.FontExists(font.Id.SubtypeId.String))
+                {
+                    VRageRender.MyRenderProxy.CreateFont((int)font.Id.SubtypeId, font.Path, false);
+                }
+            }
+
 
             MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Scenario);
 

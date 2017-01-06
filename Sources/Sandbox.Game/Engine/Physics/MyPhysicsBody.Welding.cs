@@ -243,6 +243,10 @@ namespace Sandbox.Engine.Physics
                     var transformShape = new HkTransformShape(child.WeldedRigidBody.GetShape(), ref child.WeldInfo.Transform);
                     HkShape.SetUserData(transformShape, child.WeldedRigidBody);
                     m_tmpShapeList.Add(transformShape);
+
+                    //TODO:this saves from crash but disables the collision of excessive entities
+                    if(m_tmpShapeList.Count == HkSmartListShape.MaxChildren)
+                        break;
                     //m_tmpElements.Add(child.WeldInfo.MassElement);
                 }
                 //var list = new HkListShape(m_tmpShapeList.ToArray(), HkReferencePolicy.None);

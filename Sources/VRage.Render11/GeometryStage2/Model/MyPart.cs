@@ -11,7 +11,8 @@ namespace VRage.Render11.GeometryStage2.Model
     {
         public MyLod Parent { get; private set; }
         public string Name { get; private set; }
-        public IMaterial Material { get; private set; }
+        public MyStandardMaterial StandardMaterial { get; private set; }
+        public MyGlassMaterial GlassMaterial { get; private set; }
         public int InstanceMaterialOffsetInLod { get; private set; }
 
         MyShaderBundle[] m_shaderBundles;
@@ -32,10 +33,10 @@ namespace VRage.Render11.GeometryStage2.Model
             InstanceMaterialOffsetInLod = lodOffset;
         }
 
-        public void InitForGBuffer(MyLod parent, string name, string contentPath, MyMeshPartInfo mwmPartInfo, IMaterial material,
+        public void InitForGBuffer(MyLod parent, string name, string contentPath, MyMeshPartInfo mwmPartInfo, MyStandardMaterial standardMaterial,
             int startIndex, int indicesCount, int startVertex)
         {
-            MyRenderProxy.Assert(Material == null && StartIndex == 0 && IndicesCount == 0 && StartVertex == 0, "The part has been initialised before!");
+            MyRenderProxy.Assert(StartIndex == 0 && IndicesCount == 0 && StartVertex == 0, "The part has been initialised before!");
             MyRenderProxy.Assert(indicesCount != 0, "Invalid input");
  
             bool isCmTexture = !string.IsNullOrEmpty(MyMwmUtils.GetColorMetalTexture(mwmPartInfo, contentPath));
@@ -69,8 +70,9 @@ namespace VRage.Render11.GeometryStage2.Model
                 isNgTexture,
                 isExtTexture);
             Parent = parent;
-            Name = name; 
-            Material = material;
+            Name = name;
+            StandardMaterial = standardMaterial; 
+            GlassMaterial = null;
             InstanceMaterialOffsetInLod = -1; // <- not used so far
             StartIndex = startIndex;
             IndicesCount = indicesCount;
@@ -91,7 +93,7 @@ namespace VRage.Render11.GeometryStage2.Model
             Parent = parent;
             Name = name;
             Technique = technique;
-            Material = null;
+            StandardMaterial = null;
             InstanceMaterialOffsetInLod = -1; // <- not used so far
             StartIndex = startIndex;
             IndicesCount = indicesCount;
@@ -101,7 +103,7 @@ namespace VRage.Render11.GeometryStage2.Model
         public void InitForHighlight(MyLod parent, string name, MyMeshDrawTechnique technique, int startIndex, int indicesCount,
             int startVertex)
         {
-            m_shaderBundles = new MyShaderBundle[(int)2];  // only solid rendering is enabled
+            m_shaderBundles = new MyShaderBundle[(int)2];  // the support for highlight is enabled only for 2 techniques
             m_shaderBundles[(int)MyInstanceLodState.Solid] = MyManagers.ShaderBundles.GetShaderBundle(MyRenderPassType.Highlight,
                 technique,
                 MyInstanceLodState.Solid,
@@ -119,7 +121,47 @@ namespace VRage.Render11.GeometryStage2.Model
             Parent = parent;
             Name = name;
             Technique = technique;
-            Material = null;
+            StandardMaterial = null;
+            GlassMaterial = null;
+            InstanceMaterialOffsetInLod = -1; // <- not used so far
+            StartIndex = startIndex;
+            IndicesCount = indicesCount;
+            StartVertex = startVertex;
+        }
+
+        public void InitForGlass(MyLod parent, string name, MyGlassMaterial glassMaterial, MyMeshDrawTechnique technique, int startIndex, int indicesCount, int startVertex)
+        {
+            m_shaderBundles = new MyShaderBundle[(int)4];  // the support for glass is enabled only for 2 techniques
+            m_shaderBundles[(int)MyInstanceLodState.Solid] = MyManagers.ShaderBundles.GetShaderBundle(MyRenderPassType.Glass,
+                technique,
+                MyInstanceLodState.Solid,
+                false,
+                false,
+                false);
+
+            m_shaderBundles[(int)MyInstanceLodState.Transition] = MyManagers.ShaderBundles.GetShaderBundle(MyRenderPassType.Glass,
+                technique,
+                MyInstanceLodState.Transition,
+                false,
+                false,
+                false);
+            m_shaderBundles[(int)MyInstanceLodState.Hologram] = MyManagers.ShaderBundles.GetShaderBundle(MyRenderPassType.Glass,
+                Technique,
+                MyInstanceLodState.Hologram,
+                false,
+                false,
+                false);
+            m_shaderBundles[(int)MyInstanceLodState.Dithered] = MyManagers.ShaderBundles.GetShaderBundle(MyRenderPassType.Glass,
+                Technique,
+                MyInstanceLodState.Dithered,
+                false,
+                false,
+                false);
+            Parent = parent;
+            Name = name;
+            Technique = technique;
+            StandardMaterial = null;
+            GlassMaterial = glassMaterial;
             InstanceMaterialOffsetInLod = -1; // <- not used so far
             StartIndex = startIndex;
             IndicesCount = indicesCount;

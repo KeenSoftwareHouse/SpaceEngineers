@@ -546,7 +546,8 @@ namespace Sandbox.Game.Multiplayer
                 coords = gps.Coords,
                 isFinal = (gps.DiscardAt == null ? true : false),
                 showOnHud = gps.ShowOnHud,
-                alwaysVisible = gps.AlwaysVisible
+                alwaysVisible = gps.AlwaysVisible,
+                color = gps.GPSColor
             };
 
         }

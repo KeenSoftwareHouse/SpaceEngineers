@@ -1120,6 +1120,7 @@ namespace Sandbox.Game.Entities
                 m_pilotRelativeWorld.Value = (Matrix)MatrixD.Multiply(pilot.WorldMatrix, this.PositionComp.WorldMatrixNormalizedInv);
             }
 
+            long playerId = pilot.GetPlayerIdentityId();
             if (pilot.InScene)
                 MyEntities.Remove(pilot);
 
@@ -1185,7 +1186,7 @@ namespace Sandbox.Game.Entities
             m_playIdleSound = true;
 
             if(MyVisualScriptLogicProvider.PlayerEnteredCockpit != null)
-                MyVisualScriptLogicProvider.PlayerEnteredCockpit(Name, pilot.GetPlayerIdentityId(), CubeGrid.Name);
+                MyVisualScriptLogicProvider.PlayerEnteredCockpit(Name, playerId, CubeGrid.Name);
 
         }
 

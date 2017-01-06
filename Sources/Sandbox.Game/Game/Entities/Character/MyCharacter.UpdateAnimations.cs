@@ -188,6 +188,17 @@ namespace Sandbox.Game.Entities.Character
             if (Physics != null && Physics.CharacterProxy != null)
             {
                 Vector3 localSpeedWorldRotUnfiltered = (Physics.CharacterProxy.LinearVelocity - Physics.CharacterProxy.GroundVelocity);
+
+                //Minimize walking bug during standing on floating object
+                if ((GetCurrentMovementState() == MyCharacterMovementEnum.Standing) /*&& Physics.CharacterProxy.CharacterRigidBody.IsSupportedByFloatingObject()*/)
+                {
+                   float r = Physics.CharacterProxy.Up.Dot(localSpeedWorldRotUnfiltered);
+                   if (r < 0.0f)
+                   {
+                       localSpeedWorldRotUnfiltered -= Physics.CharacterProxy.Up * r;
+                   }
+                }
+                                               
                 var localSpeedWorldRot = FilterLocalSpeed(localSpeedWorldRotUnfiltered);
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeed, localSpeedWorldRot.Length());
             

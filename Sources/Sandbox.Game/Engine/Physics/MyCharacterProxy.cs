@@ -1,10 +1,26 @@
-﻿#region Using
+﻿
+#region Using
 
+using System.Diagnostics;
+using Sandbox.Engine.Physics;
 using VRageMath;
+
+using Sandbox.Game.Entities;
 using Sandbox.Engine.Utils;
+using VRage.Utils;
+using System.Linq;
+using System.Collections.Generic;
+
+using VRageRender;
+using Sandbox.AppCode.Game;
+using Sandbox.Game.Utils;
+using Sandbox.Engine.Models;
 using Havok;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Common;
+using Sandbox.Game;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Entities.Character;
 
 #endregion
 
@@ -38,7 +54,7 @@ namespace Sandbox.Engine.Physics
         HkSimpleShapePhantom CharacterPhantom;
 
         //dynamic
-        HkCharacterRigidBody CharacterRigidBody;
+        public HkCharacterRigidBody CharacterRigidBody { get; private set; }
 
         #endregion
 
@@ -538,6 +554,47 @@ namespace Sandbox.Engine.Physics
                 Supported = CharacterRigidBody.Supported;
                 SupportNormal = CharacterRigidBody.SupportNormal;
                 GroundVelocity = CharacterRigidBody.GroundVelocity;
+
+                if(false)
+                {
+                    // Coordinate system
+                    Matrix worldMatrix = GetPhysicsBody().GetWorldMatrix();
+                    Vector3 Side = CharacterRigidBody.Up.Cross(CharacterRigidBody.Forward);
+                    //MyPhysicsDebugDraw.DebugDrawCoordinateSystem(worldMatrix.Translation, CharacterRigidBody.Forward, Side, CharacterRigidBody.Up);
+
+                    //BoundingBoxD 
+                    //MyPhysicsDebugDraw.DebugDrawAabb(worldMatrix.Translation,Color.LightBlue);
+
+                    //Velocity and Acceleration
+                    MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.LinearVelocity, Color.Red, 1.0f);
+                    //MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.LinearAcceleration, Color.Blue, 1.0f);
+
+                    // Gravity
+                    MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.Gravity, Color.Yellow, 0.1f);
+
+                    // Controller Up
+                    //MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.GetControllerUp(), Color.Pink, 1.0f);
+                    MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.Up, Color.Pink, 1.0f);
+
+                    Vector3 TestUp = Vector3.Up;
+                    MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, TestUp, Color.Green, 1.0f);
+
+                    /*
+                    // Capsule Shape draw 
+                    float radius = 0.4f;
+                    Vector3 vertexA = Vector3.Zero;
+                    Vector3 vertexB = Vector3.Zero;
+                    CharacterRigidBody.GetPxCapsuleShapeDrawData(ref radius,ref vertexA,ref vertexB);
+                    if ((vertexA != vertexB) && (radius > 0.0f))
+                    {
+                        HkShape capsuleShape = new HkCapsuleShape(vertexA, vertexB, radius); // only for debug display
+
+                        int index = 0;
+                        const float alpha = 0.3f;
+                        MyPhysicsDebugDraw.DrawCollisionShape(capsuleShape, worldMatrix, alpha, ref index);
+                    }
+                    */
+                }
             }           
         }
 
@@ -647,6 +704,12 @@ namespace Sandbox.Engine.Physics
                 CharacterRigidBody.ApplyAngularImpulse(impulse);
             }
         }
+
+        // Apply gravity as linear velocity to character proxy only
+        public void ApplyGravity(Vector3 gravity)
+        {
+            CharacterRigidBody.LinearVelocity += (gravity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS); 
+        }
       
         public bool ImmediateSetWorldTransform
         {
@@ -705,6 +768,15 @@ namespace Sandbox.Engine.Physics
                 }
                 return false;
             }
+        }
+
+        public MyPhysicsBody GetPhysicsBody()
+        {
+            if (m_physicsBody != null)
+            {
+                return m_physicsBody;
+            }
+            return null;
         }
 
         public HkEntity GetRigidBody()

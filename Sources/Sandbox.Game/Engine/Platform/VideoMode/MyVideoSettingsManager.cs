@@ -173,12 +173,14 @@ namespace Sandbox.Engine.Platform.VideoMode
             m_currentGraphicsSettings.Render.AnisotropicFiltering  = config.AnisotropicFiltering ?? DEFAULT_ANISOTROPIC_FILTERING;
             m_currentGraphicsSettings.Render.FoliageDetails        = config.FoliageDetails ?? DEFAULT_FOLIAGE_DETAILS;
             m_currentGraphicsSettings.Render.Dx9Quality            = config.Dx9RenderQuality ?? MyRenderQualityEnum.HIGH;
+            m_currentGraphicsSettings.Render.ModelQuality          = config.ModelQuality ?? MyRenderQualityEnum.HIGH;
             m_currentGraphicsSettings.Render.VoxelQuality          = config.VoxelQuality ?? MyRenderQualityEnum.HIGH;
+
+            MySector.Lodding.SelectQuality(m_currentGraphicsSettings.Render.ModelQuality); // this is hack
 
             SetEnableDamageEffects(config.EnableDamageEffects);
             // Need to send both messages as I don't know which one will be used. One of them will be ignored.
             MyRenderProxy.SwitchRenderSettings(m_currentGraphicsSettings.Render);
-            MyRenderProxy.SwitchRenderSettings(MyRenderProxy.Settings);
 
             // Load previous device settings that will be used for device creation.
             // If there are no settings in the config (eg. game is run for the first time), null is returned, leaving the decision up
@@ -295,10 +297,7 @@ namespace Sandbox.Engine.Platform.VideoMode
 
                 m_currentGraphicsSettings = settings;
 
-                if (settings.Render.GrassDensityFactor != MyRenderProxy.Settings.GrassDensityFactor)
-                {
-                    MyRenderProxy.ReloadGrass();
-                }
+                MySector.Lodding.SelectQuality(settings.Render.ModelQuality);
             }
 
             return ChangeResult.Success;
@@ -556,10 +555,14 @@ namespace Sandbox.Engine.Platform.VideoMode
             {
                 m_adapters = message.Adapters;
 
+                int currentAdapterIndex = -1;
+                MyAdapterInfo currentAdapter;
+                currentAdapter.Priority = 1000;
                 try
                 {
-                    var adapter = m_adapters[MySandboxGame.Static.GameRenderComponent.RenderThread.CurrentAdapter];
-                    GpuUnderMinimum = !(adapter.Has512MBRam || adapter.VRAM >= (512 * 1024 * 1024));
+                    currentAdapterIndex = MySandboxGame.Static.GameRenderComponent.RenderThread.CurrentAdapter;
+                    currentAdapter = m_adapters[currentAdapterIndex];
+                    GpuUnderMinimum = !(currentAdapter.Has512MBRam || currentAdapter.VRAM >= (512 * 1024 * 1024));
                 }
                 catch { }
 
@@ -596,6 +599,9 @@ namespace Sandbox.Engine.Platform.VideoMode
                             }
                         }
                     }
+
+                    MySandboxGame.ShowIsBetterGCAvailableNotification |= 
+                        currentAdapterIndex != adapterIndex && currentAdapter.Priority < adapter.Priority;
                 }
             }
         }
@@ -603,6 +609,7 @@ namespace Sandbox.Engine.Platform.VideoMode
         internal static void OnCreatedDeviceSettings(MyRenderMessageCreatedDeviceSettings message)
         {
             m_currentDeviceSettings = message.Settings;
+            m_currentDeviceSettings.NewAdapterOrdinal = m_currentDeviceSettings.AdapterOrdinal;
 
             float aspectRatio = (float)m_currentDeviceSettings.BackBufferWidth / (float)m_currentDeviceSettings.BackBufferHeight;
             m_currentDeviceIsTripleHead = GetAspectRatio(GetClosestAspectRatio(aspectRatio)).IsTripleHead;
@@ -635,8 +642,8 @@ namespace Sandbox.Engine.Platform.VideoMode
             config.TextureQuality         = render.TextureQuality == DEFAULT_TEXTURE_QUALITY ? (MyTextureQuality?)null : render.TextureQuality;
             config.AnisotropicFiltering   = render.AnisotropicFiltering == DEFAULT_ANISOTROPIC_FILTERING ? (MyTextureAnisoFiltering?)null : render.AnisotropicFiltering;
             config.FoliageDetails         = render.FoliageDetails == DEFAULT_FOLIAGE_DETAILS ? (MyFoliageDetails?)null : render.FoliageDetails;
+            config.ModelQuality           = render.ModelQuality == MyRenderQualityEnum.HIGH ? (MyRenderQualityEnum?)null : render.ModelQuality;
             config.VoxelQuality           = render.VoxelQuality == MyRenderQualityEnum.HIGH ? (MyRenderQualityEnum?)null : render.VoxelQuality;
-
 
             config.LowMemSwitchToLow = MyConfig.LowMemSwitch.ARMED;
             config.Save();

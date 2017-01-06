@@ -3919,11 +3919,12 @@ namespace Sandbox.Game.Entities
 
             MyDefinitionId id = new MyDefinitionId(typeof(MyObjectBuilder_CubeBlock), "LargeBlockArmorBlock");
             MyCubeBlockDefinition def;
-            MyDefinitionManager.Static.TryGetCubeBlockDefinition(id, out def);
-            Activate(def.Id);
-            m_stationPlacement = true;
-
-                }
+            if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(id, out def))
+            {
+                Activate(def.Id);
+                m_stationPlacement = true;
+            }
+        }
 
         protected static MyObjectBuilder_CubeGrid CreateMultiBlockGridBuilder(MyMultiBlockDefinition multiCubeBlockDefinition, Matrix rotationMatrix, Vector3D position = default(Vector3D))
         {
@@ -4136,11 +4137,11 @@ namespace Sandbox.Game.Entities
 
             if ((spawnFlags & SpawnFlags.AddToScene) != SpawnFlags.None)
             {
-                grid = MyEntities.CreateFromObjectBuilderParallel(gridBuilder, true, completionCallback) as MyCubeGrid;
+                grid = MyEntities.CreateFromObjectBuilderParallel(gridBuilder, true, completionCallback, callbackNeedsReplicable: true) as MyCubeGrid;
             }
             else
             {
-                grid = MyEntities.CreateFromObjectBuilderParallel(gridBuilder, completionCallback: completionCallback) as MyCubeGrid;
+                grid = MyEntities.CreateFromObjectBuilderParallel(gridBuilder, completionCallback: completionCallback, callbackNeedsReplicable: true) as MyCubeGrid;
             }
 
             return grid;

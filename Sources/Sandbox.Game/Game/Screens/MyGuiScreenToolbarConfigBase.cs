@@ -290,6 +290,12 @@ namespace Sandbox.Game.Gui
             MyGuiScreenGamePlay.ActiveGameplayScreen = null;
         }
 
+        //anything that needs to be reseted after the session is unloaded
+        public static void Reset()
+        {
+            m_allSelectedCategories.Clear();
+        }
+
         public override void HandleInput(bool receivedFocusInThisUpdate)
         {
             base.HandleInput(receivedFocusInThisUpdate);
@@ -623,9 +629,14 @@ namespace Sandbox.Game.Gui
                 }
             }
 
+            var player = MyPlayer.GetPlayerFromCharacter(m_character);
+            if (player == null)
+                return;
+
+
             foreach (var category in loadedCategories)
-            {
-                if (MySession.Static.SurvivalMode && !category.Value.AvailableInSurvival && !MySession.Static.IsUserAdmin(MyPlayer.GetPlayerFromCharacter(m_character).Client.SteamUserId))
+            {             
+                if (MySession.Static.SurvivalMode && !category.Value.AvailableInSurvival && !MySession.Static.IsUserAdmin(player.Client.SteamUserId))
                     continue;
 
                 if (MySession.Static.CreativeMode && !category.Value.ShowInCreative)

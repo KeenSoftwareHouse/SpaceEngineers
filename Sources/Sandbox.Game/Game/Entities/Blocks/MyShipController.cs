@@ -2369,6 +2369,21 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        Vector3 ModAPI.Ingame.IMyShipController.MoveIndicator
+        {
+            get { return MoveIndicator; }
+        }
+
+        Vector2 ModAPI.Ingame.IMyShipController.RotationIndicator
+        {
+            get { return RotationIndicator; }
+        }
+
+        float ModAPI.Ingame.IMyShipController.RollIndicator
+        {
+            get { return RollIndicator; }
+        }
+
         void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
         {
             CheckGridCokpit(grid1);

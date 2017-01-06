@@ -207,7 +207,9 @@ namespace Sandbox.Game.World
 
         public static void CheckMismatchmods(string mismatchMods, Action<ResultEnum> callback)
         {
-            if (String.IsNullOrEmpty(mismatchMods) == false && String.IsNullOrWhiteSpace(mismatchMods) == false)
+            if (String.IsNullOrEmpty(mismatchMods) == false && String.IsNullOrWhiteSpace(mismatchMods) == false && 
+                //TODO: Temp check until we remove total dark mod from campaign
+                MyCampaignManager.Static.ActiveCampaign == null)
             {
                 MyGuiSandbox.AddScreen(new MyGuiScreenText(
                     windowSize:new Vector2(0.73f, 0.7f),

@@ -27,7 +27,6 @@ namespace VRageRender
         protected readonly Dictionary<KernPair, sbyte> m_kernByPair = new Dictionary<KernPair, sbyte>(m_kernPairComparer);
         protected readonly string m_fontDirectory;
 
-        protected string path;
 
         #region Properties
 
@@ -70,8 +69,12 @@ namespace VRageRender
                 Spacing = spacing;
                 MyRenderProxy.Log.WriteLine("Font filename: " + fontFilePath);
 
-                path = Path.Combine(MyFileSystem.ContentPath, fontFilePath);
-                if (!File.Exists(path))
+                string path = fontFilePath;
+
+                if (!Path.IsPathRooted(fontFilePath))
+                    path = Path.Combine(MyFileSystem.ContentPath, fontFilePath);
+
+                if (!MyFileSystem.FileExists(path))
                 {
                     var message = string.Format("Unable to find font path '{0}'.", path);
                     Debug.Fail(message);
@@ -79,7 +82,8 @@ namespace VRageRender
                 }
 
                 m_fontDirectory = Path.GetDirectoryName(path);
-                LoadFontXML();
+
+                LoadFontXML(path);
 
                 MyRenderProxy.Log.WriteLine("FontFilePath: " + path);
                 MyRenderProxy.Log.WriteLine("LineHeight: " + LineHeight);
@@ -215,7 +219,7 @@ namespace VRageRender
 
         #region LoadFontXML
 
-        private void LoadFontXML()
+        private void LoadFontXML(string path)
         {
             var xd = new XmlDocument();
             using (var stream = MyFileSystem.OpenRead(path))

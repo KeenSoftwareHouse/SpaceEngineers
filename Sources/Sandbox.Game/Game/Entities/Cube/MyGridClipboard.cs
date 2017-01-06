@@ -1378,6 +1378,10 @@ namespace Sandbox.Game.Entities.Cube
 
         protected virtual void UpdateGridTransformations()
         {
+            Debug.Assert(m_copiedGrids.Count != 0);
+            if (m_copiedGrids.Count == 0)
+                return;
+
             Matrix originalOrientation = GetFirstGridOrientationMatrix();
             var invRotation = Matrix.Invert(m_copiedGrids[0].PositionAndOrientation.Value.GetMatrix()).GetOrientation();
             Matrix orientationDelta = invRotation * originalOrientation; // matrix from original orientation to new orientation

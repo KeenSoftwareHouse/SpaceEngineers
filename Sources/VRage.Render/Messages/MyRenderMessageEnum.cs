@@ -49,11 +49,6 @@
         InvalidateClipmapRange,
         ClipmapsReady, // Output
 
-        UpdateMergedVoxelMesh,
-        MergeVoxelMeshes,   // Output
-        CancelVoxelMeshMerge,   // Output
-        ResetMergedVoxels,
-
         CreateRenderVoxelMaterials,
         UpdateRenderVoxelMaterials,
         CreateRenderVoxelDebris,
@@ -71,13 +66,13 @@
         SetLightShadowIgnore,
         ClearLightShadowIgnore,
         UpdateShadowSettings,
+        UpdateNewLoddingSettings,
         UpdateNewPipelineSettings,
         UpdateMaterialsSettings,
 
         ReloadEffects,
         ReloadModels,
         ReloadTextures,
-        ReloadGrass,
 
         UpdatePostprocessSettings,
         UpdateRenderEnvironment,

@@ -295,7 +295,7 @@ namespace VRage.Render11.LightingStage
         private static void RenderDirectionalEnvironmentLight(ISrvTexture postProcessedShadows, IRtvTexture ambientOcclusion)
         {
             PixelShaderId directionalPixelShader;
-            MyShadowsQuality shadowsQuality = MyRender11.RenderSettings.ShadowQuality.GetShadowsQuality();
+            MyShadowsQuality shadowsQuality = MyRender11.Settings.User.ShadowQuality.GetShadowsQuality();
             if (!MyRender11.Settings.EnableShadows || !MyRender11.DebugOverrides.Shadows || shadowsQuality == MyShadowsQuality.DISABLED)
             {
                 if (m_directionalEnvironmentLightNoShadow == PixelShaderId.NULL)

@@ -71,7 +71,7 @@ namespace VRage.Render11.GeometryStage2.Culling
 
         public WorkPriority Priority
         {
-            get { return WorkPriority.Normal; }
+            get { return WorkPriority.VeryHigh; }
         }
 
         public void DoWork(WorkData workData = null)

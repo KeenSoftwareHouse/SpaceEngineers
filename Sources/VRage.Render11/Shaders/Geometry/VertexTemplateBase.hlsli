@@ -1,4 +1,7 @@
- #include <Template.hlsli>
+#ifndef INCLUDE_VERTEX_TEMPLATE_BASE_HLSLI
+#define INCLUDE_VERTEX_TEMPLATE_BASE_HLSLI
+
+#include <Template.hlsli>
 
 //#ifndef VERTEX_COMPONENTS_DECLARATIONS
 //#define VERTEX_COMPONENTS_DECLARATIONS
@@ -35,6 +38,7 @@ struct VertexShaderInterface
     float morphing;
     float4 position_scaled_untranslated; // for triplanar mapping + and foliage!!! (translation causes artifacts due lerp in rasterizer, pixel shader will do the translation)
     float4 position_scaled_translated; // for foliage
+	uint4 triplanar_mat_info; // for triplanar texturing of voxel surfaces
     matrix _local_matrix;
     float3 cDir;
     float3 cPos;
@@ -59,6 +63,7 @@ VertexShaderInterface make_vs_interface()
     data.position_local = 0;
     data.position_clip = 0;
     data.position_scaled_untranslated = 0;
+	data.triplanar_mat_info = 0;
     data.texcoord0 = 0;
     data.material_weights = 0;
     data.colorBrightnessFactor = 0;
@@ -149,7 +154,8 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     float4 __packed_bone7;
     float4 __cube_transformation;
     //
-    float4 __colormask = 1;
+	float4 __colormask = 1;
+	float4 __triplanar_mat_info = 0;
 
     TRANSFER_VERTEX_COMPONENTS
 
@@ -467,6 +473,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     result.position_scaled_untranslated.w = 1;
     result.position_scaled_translated = result.position_scaled_untranslated;
     result.position_scaled_translated.xyz += voxelOffset +  centerOffset;
+	result.triplanar_mat_info = __triplanar_mat_info;
 
 	result.texcoord0 = __texcoord0;
 
@@ -517,3 +524,5 @@ cbuffer Material : register(MERGE(b, MATERIAL_SLOT))
 {
     MaterialConstants material_;
 };
+
+#endif

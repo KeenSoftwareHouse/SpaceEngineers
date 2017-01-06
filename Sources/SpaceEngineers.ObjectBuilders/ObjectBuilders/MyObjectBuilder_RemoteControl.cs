@@ -47,7 +47,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool CollisionAvoidance = false;
 
         [ProtoMember]
-        [Serialize(MyObjectFlags.Nullable)]
+        [Serialize(MyObjectFlags.Dynamic | MyObjectFlags.Nullable, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))]
         public MyObjectBuilder_AutomaticBehaviour AutomaticBehaviour = null;
         
         /// <summary>

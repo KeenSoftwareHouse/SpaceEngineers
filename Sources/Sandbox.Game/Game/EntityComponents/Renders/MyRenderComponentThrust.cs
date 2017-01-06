@@ -92,14 +92,14 @@ namespace Sandbox.Game.Components
                         MyTransparentGeometry.AddPointBillboard(m_thrust.FlamePointMaterial, m_thrust.ThrustColor, flamePosition, -1, 
                             ref MatrixD.Identity, radius, 0, -1, MyBillboard.BlenType.AdditiveBottom);
 
-                    if (m_thrust.ThrustLengthRand > MyMathConstants.EPSILON && m_landingEffectUpdateCounter-- <= 0)
-					{
-						m_landingEffectUpdateCounter = (int)Math.Round(m_landingEffectUpdateInterval * (0.8f + MyRandom.Instance.NextFloat() * 0.4f));
+                    if (m_landingEffectUpdateCounter-- <= 0)
+                    {
+                        m_landingEffectUpdateCounter = (int)Math.Round(m_landingEffectUpdateInterval * (0.8f + MyRandom.Instance.NextFloat() * 0.4f));
 
-						m_lastHitInfo = MyPhysics.CastRay(flamePosition,
-							flamePosition + flameDirection * m_thrust.ThrustLengthRand * (m_thrust.CubeGrid.GridSizeEnum == MyCubeSize.Large ? 5.0f : 3.0f) * flame.Radius,
+                        m_lastHitInfo = m_thrust.ThrustLengthRand <= MyMathConstants.EPSILON ? null : MyPhysics.CastRay(flamePosition,
+                            flamePosition + flameDirection * m_thrust.ThrustLengthRand * 2.5f * flame.Radius,
                             MyPhysics.CollisionLayers.DefaultCollisionLayer);
-					}
+                    }
 
 					var voxelBase = m_lastHitInfo.HasValue ? m_lastHitInfo.Value.HkHitInfo.GetHitEntity() as MyVoxelPhysics : null;
 					if (voxelBase == null)

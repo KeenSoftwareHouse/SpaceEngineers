@@ -126,7 +126,7 @@ namespace Sandbox.Game.Entities.Debris
             {
                 case HkShapeType.Box:
                     Vector3 halfExtents = (model.BoundingBox.Max - model.BoundingBox.Min) / 2;
-                    return new HkBoxShape(Vector3.Max(halfExtents - 0.1f, new Vector3(0.05f)), 0.02f);
+                    return new HkBoxShape(Vector3.Max(halfExtents-0.05f, new Vector3(0.025f)), 0.02f);
                     break;
 
                 case HkShapeType.Sphere:

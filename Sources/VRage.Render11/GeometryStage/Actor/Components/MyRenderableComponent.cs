@@ -521,7 +521,7 @@ namespace VRageRender
             if (partId.Info.Material.Info.Facing == MyFacingEnum.Impostor)
                 flags |= MyShaderUnifiedFlags.ALPHA_MASK_ARRAY;
             MyMeshMaterialInfo info = partId.Info.Material.Info;
-            if (info.GeometryTextureRef.IsUsed && MyRenderProxy.Settings.UseGeometryArrayTextures)
+            if (info.GeometryTextureRef.IsUsed && MyRender11.Settings.UseGeometryArrayTextures)
                 flags |= MyShaderUnifiedFlags.USE_TEXTURE_INDICES;
 
             switch (partId.Info.Material.Info.Technique)
@@ -536,7 +536,7 @@ namespace VRageRender
             }                
 
             if (DebrisEntityVoxelMaterial.ContainsKey(Owner.ID))
-                technique = MyMeshDrawTechnique.VOXEL_MAP_SINGLE;
+                technique = MyMeshDrawTechnique.VOXELS_DEBRIS;
 
             MyStringId shaderMaterial = MyMaterialShaders.MapTechniqueToShaderMaterial(technique);
 
@@ -714,7 +714,8 @@ namespace VRageRender
 
             if (voxelMaterialId != -1)
             {
-                submesh.MaterialId = MyVoxelMaterials1.GetMaterialProxyId(new MyVoxelMaterialTriple(voxelMaterialId, -1, -1));
+                bool isFillingMaterialCB = technique == MyMeshDrawTechnique.VOXELS_DEBRIS;
+                submesh.MaterialId = MyVoxelMaterials1.GetMaterialProxyId(new MyVoxelMaterialTriple(voxelMaterialId, -1, -1, isFillingMaterialCB));
             }
 
             lod.RenderableProxies[partIndex].DrawSubmesh = submesh;

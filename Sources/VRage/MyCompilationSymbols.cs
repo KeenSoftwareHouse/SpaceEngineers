@@ -34,6 +34,8 @@ namespace VRage
         // enable/disable print of DirectX Debug messages that have type of Information
         public const bool DX11DebugOutputEnableInfo = false;
 
+        public const bool CreateRefenceDevice = false;
+
         // force stereo rendering even when OpenVR is not available
         public const bool DX11ForceStereo = false;
 

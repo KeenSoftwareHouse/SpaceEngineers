@@ -131,7 +131,6 @@ namespace VRageRender
         internal Matrix[] SkinningMatrices;
 
         internal LodMeshId Mesh;
-        internal MyMergedLodMeshId MergedMesh;
         internal InstancingId Instancing;
 
         internal MyMaterialShadersBundleId DepthShaders;
@@ -183,7 +182,6 @@ namespace VRageRender
             NonVoxelObjectData = MyObjectDataNonVoxel.Invalid;
             VoxelCommonObjectData = MyObjectDataVoxelCommon.Invalid;
             Mesh = LodMeshId.NULL;
-            MergedMesh = MyMergedLodMeshId.NULL;
             Instancing = InstancingId.NULL;
             DepthShaders = MyMaterialShadersBundleId.NULL;
             Shaders = MyMaterialShadersBundleId.NULL;

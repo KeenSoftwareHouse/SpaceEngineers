@@ -142,7 +142,6 @@ namespace VRageRender
         public bool SkipVoxels;
 
         //Debug properties
-        public bool TearingTest;
         public bool MultimonTest;
         public bool ShowEnvironmentScreens;
         public bool ShowBlendedScreens;
@@ -150,9 +149,6 @@ namespace VRageRender
         public bool ShowLod1WithRedOverlay;
 
         public bool EnableLightsRuntime;
-        public bool EnableSpotLights;
-        public bool EnablePointLights;
-        public bool EnableLightGlares;
 
         public bool ShowEnhancedRenderStatsEnabled;
         public bool ShowResourcesStatsEnabled;
@@ -163,15 +159,9 @@ namespace VRageRender
         public bool EnableAsteroidShadows;
         public bool EnableFog;
 
-        public bool DebugRenderMergedCells;
         public bool DebugRenderClipmapCells;
         public bool DebugClipmapLodColor;
         public bool SkipLodUpdates;
-
-        public MyRenderQualityEnum ModelQuality;
-        public MyRenderQualityEnum VoxelQuality;
-
-        public bool EnableVoxelMerging;
 
         public bool Wireframe;
         public bool EnableStencilOptimization;
@@ -194,8 +184,6 @@ namespace VRageRender
         // This value should be from interval (0, 2x update interval), good value is "update interval" + "upper usual update time"
         public float InterpolationLagMs;
         public float LagFeedbackMult;
-        public bool EnableCameraInterpolation;
-        public bool EnableObjectInterpolation;
 
         //
         public bool DisplayGbufferColor;
@@ -205,6 +193,7 @@ namespace VRageRender
         public bool DisplayGbufferGlossiness;
         public bool DisplayGbufferMetalness;
         public bool DisplayGbufferLOD;
+        public bool DisplayMipmap;
         public bool DisplayGbufferAO;
         public bool DisplayEmissive;
         public bool DisplayEdgeMask;
@@ -267,7 +256,6 @@ namespace VRageRender
         public float GrassGeometryScalingFarDistance;
         public float GrassGeometryDistanceScalingFactor;
         public float GrassMaxDrawDistance;
-		public float GrassDensityFactor;
         
         // Shadows
         public bool DisplayShadowsWithDebug;
@@ -312,6 +300,8 @@ namespace VRageRender
 
         public bool OffscreenSpritesRendering;
 
+        public MyRenderSettings1 User;
+
         static MyRenderSettings()
         {
             Default = new MyRenderSettings()
@@ -323,16 +313,12 @@ namespace VRageRender
                 SkipLOD_0 = false,
                 SkipLOD_1 = false,
                 SkipVoxels = false,
-                TearingTest = false,
                 MultimonTest = false,
                 ShowEnvironmentScreens = false,
                 ShowBlendedScreens = false,
                 ShowGreenBackground = false,
                 ShowLod1WithRedOverlay = false,
                 EnableLightsRuntime = true,
-                EnableSpotLights = true,
-                EnablePointLights = true,
-                EnableLightGlares = true,
                 ShowEnhancedRenderStatsEnabled = false,
                 ShowResourcesStatsEnabled = false,
                 ShowTexturesStatsEnabled = false,
@@ -340,12 +326,9 @@ namespace VRageRender
                 EnableShadows = true,
                 EnableAsteroidShadows = false,
                 EnableFog = true,
-                DebugRenderMergedCells = false,
                 DebugRenderClipmapCells = false,
                 DebugClipmapLodColor = false,
                 SkipLodUpdates = false,
-                VoxelQuality = MyRenderQualityEnum.NORMAL,
-                EnableVoxelMerging = false,
                 Wireframe = false,
                 EnableStencilOptimization = true,
                 EnableStencilOptimizationLOD1 = true,
@@ -360,8 +343,6 @@ namespace VRageRender
                 VisualizeOverdraw = false,
                 InterpolationLagMs = 22,
                 LagFeedbackMult = 0.25f,
-                EnableCameraInterpolation = false,
-                EnableObjectInterpolation = false,
                 DisplayGbufferColor = false,
                 DisplayGbufferAlbedo = false,
                 DisplayGbufferNormal = false,
@@ -369,6 +350,7 @@ namespace VRageRender
                 DisplayGbufferGlossiness = false,
                 DisplayGbufferMetalness = false,
                 DisplayGbufferLOD = false,
+                DisplayMipmap = false,
                 DisplayGbufferAO = false,
                 DisplayEmissive = false,
                 DisplayEdgeMask = false,
@@ -417,7 +399,6 @@ namespace VRageRender
                 GrassGeometryScalingFarDistance = 350f,
                 GrassGeometryDistanceScalingFactor = 5f,
                 GrassMaxDrawDistance = 250,
-                GrassDensityFactor = 1.0f,
                 DisplayShadowsWithDebug = false,
                 DrawCascadeTextures = false,
                 RwTexturePool_FramesToPreserveTextures = 16,
@@ -536,6 +517,7 @@ namespace VRageRender
                 InterpolationEnabled == other.InterpolationEnabled &&
                 GrassDensityFactor == other.GrassDensityFactor &&
                 Dx9Quality == other.Dx9Quality &&
+                ModelQuality == other.ModelQuality &&
                 VoxelQuality == other.VoxelQuality &&
                 AntialiasingMode == other.AntialiasingMode &&
                 ShadowQuality == other.ShadowQuality &&

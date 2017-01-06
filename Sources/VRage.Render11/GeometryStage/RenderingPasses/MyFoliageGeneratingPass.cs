@@ -96,7 +96,7 @@ namespace VRageRender
             RC.SetTarget(stream.m_stream, offset);
             RC.AllShaderStages.SetConstantBuffer(MyCommon.FOLIAGE_SLOT, MyCommon.FoliageConstants);
 
-            float densityFactor = MyVoxelMaterials1.Table[voxelMatId].FoliageDensity * MyRender11.Settings.GrassDensityFactor;
+            float densityFactor = MyVoxelMaterials1.Table[voxelMatId].FoliageDensity * MyRender11.Settings.User.GrassDensityFactor;
 
             float zero = 0;
             mapping = MyMapping.MapDiscard(RC, MyCommon.FoliageConstants);

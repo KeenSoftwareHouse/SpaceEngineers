@@ -58,6 +58,29 @@ namespace VRage.Game.Components.Session
             return true;
         }
 
+        public bool Write(string variableName, long value, bool @static = false)
+        {
+            if (m_objectBuilder == null) return false;
+            if (!m_objectBuilder.LongStorage.Dictionary.ContainsKey(variableName))
+                if (m_objectBuilder.ExistingFieldsAndStaticAttribute.Dictionary.ContainsKey(variableName))
+                    return false;
+                else
+                {
+                    m_objectBuilder.ExistingFieldsAndStaticAttribute.Dictionary.Add(variableName, @static);
+                    m_objectBuilder.LongStorage.Dictionary.Add(variableName, value);
+                }
+
+            else
+            {
+                if (m_objectBuilder.ExistingFieldsAndStaticAttribute.Dictionary[variableName])
+                    return false;
+
+                m_objectBuilder.LongStorage.Dictionary[variableName] = value;
+            }
+
+            return true;
+        }
+
         public bool Write(string variableName, bool value, bool @static = false)
         {
             if (m_objectBuilder == null) return false;
@@ -155,6 +178,16 @@ namespace VRage.Game.Components.Session
             if (m_objectBuilder == null) return -1;
             int val;
             if (m_objectBuilder.IntStorage.Dictionary.TryGetValue(variableName, out val))
+                return val;
+
+            return -1;
+        }
+
+        public long ReadLong(string variableName)
+        {
+            if (m_objectBuilder == null) return -1;
+            long val;
+            if (m_objectBuilder.LongStorage.Dictionary.TryGetValue(variableName, out val))
                 return val;
 
             return -1;

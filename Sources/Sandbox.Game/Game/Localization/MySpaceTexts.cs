@@ -9343,5 +9343,10 @@ namespace Sandbox.Game.Localization
         ///Some scripts were removed from this blueprint because you do not have Scripter permissions
         ///</summary>
         public static readonly MyStringId Notification_BlueprintScriptRemoved = MyStringId.GetOrCompute("Notification_BlueprintScriptRemoved");
+
+        ///<summary>
+        ///Infinite: None
+        ///</summary>
+        public static readonly MyStringId WorldSettings_AsteroidAmountProceduralNone = MyStringId.GetOrCompute("WorldSettings_AsteroidAmountProceduralNone");
     }
 }

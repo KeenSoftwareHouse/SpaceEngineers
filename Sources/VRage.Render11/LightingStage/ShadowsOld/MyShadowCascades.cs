@@ -247,7 +247,7 @@ namespace VRageRender
         internal unsafe void PrepareQueries(List<MyShadowmapQuery> appendShadowmapQueries)
         {
             Debug.Assert(appendShadowmapQueries != null, "Shadowmap query list cannot be null!");
-            if (!MyRender11.Settings.EnableShadows || !MyRender11.DebugOverrides.Shadows || MyRender11.RenderSettings.ShadowQuality.GetShadowsQuality() == MyShadowsQuality.DISABLED)
+            if (!MyRender11.Settings.EnableShadows || !MyRender11.DebugOverrides.Shadows || MyRender11.Settings.User.ShadowQuality.GetShadowsQuality() == MyShadowsQuality.DISABLED)
                 return;
 
             MyGpuProfiler.IC_BeginBlock("PrepareCascades");
@@ -274,11 +274,11 @@ namespace VRageRender
 
             float cascadesNearClip = 1f;
 
-            float backOffset = MyRender11.RenderSettings.ShadowQuality.BackOffset();
-            float shadowmapSize = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeResolution();
+            float backOffset = MyRender11.Settings.User.ShadowQuality.BackOffset();
+            float shadowmapSize = MyRender11.Settings.User.ShadowQuality.ShadowCascadeResolution();
 
             for (int cascadeIndex = 0; cascadeIndex < ShadowCascadeSplitDepths.Length; ++cascadeIndex)
-                ShadowCascadeSplitDepths[cascadeIndex] = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeSplit(cascadeIndex);
+                ShadowCascadeSplitDepths[cascadeIndex] = MyRender11.Settings.User.ShadowQuality.ShadowCascadeSplit(cascadeIndex);
 
             double unitWidth = 1.0 / MyRender11.Environment.Matrices.Projection.M11;
             double unitHeight = 1.0 / MyRender11.Environment.Matrices.Projection.M22;
@@ -402,7 +402,7 @@ namespace VRageRender
             for (int scaleIndex = ShadowCascadeScales.Length; scaleIndex < MaxShadowCascades; ++scaleIndex)
                 mapping.WriteAndPosition(ref Vector4.Zero);
 
-            float resolution = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeResolution();
+            float resolution = MyRender11.Settings.User.ShadowQuality.ShadowCascadeResolution();
             mapping.WriteAndPosition(ref resolution);
 
             for (int paddingIndex = 1; paddingIndex < 4; ++paddingIndex)

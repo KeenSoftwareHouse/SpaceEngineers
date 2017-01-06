@@ -361,16 +361,9 @@ namespace VRage.Render11.GeometryStage2.Instancing
                 lod = Models.DepthModel.GetLod(lodNum);
         }
 
-        public int GetHighlightLodsCount()
+        public MyLod GetHighlightLod()
         {
-            return m_lodStrategy.GetLodsCount(MyPassIdResolver.DefaultGBufferPassId);
-        }
-
-        public void GetHighlightLod(int i, out MyLod lod, out MyInstanceLodState stateId, out float stateData)
-        {
-            int lodNum;
-            m_lodStrategy.GetLod(MyPassIdResolver.DefaultGBufferPassId, i, out lodNum, out stateId, out stateData);
-            lod = Models.HighlightModel.GetLod(lodNum);
+            return Models.HighlightModel.GetLod(0);
         }
 
         public bool SetInstanceMaterial(string materialName, MyInstanceMaterial instanceMaterial)
@@ -449,13 +442,28 @@ namespace VRage.Render11.GeometryStage2.Instancing
             return m_instanceMaterials.Get(instanceMaterialOffset);
         }
 
-        public void UpdateLod(List<int> activePassIds, MyLodStrategyPreprocessor preprocessor)
+        public void UpdateLodExplicit(List<int> activePassIds, int explicitLodNum)
+        {
+            MyLodStrategyInfo lodStrategyInfo = StandardModel.GetLodStrategyInfo();
+            m_lodStrategy.ResolveExplicit(lodStrategyInfo, MyCommon.FrameCounter, explicitLodNum, activePassIds);
+        }
+
+        public void UpdateLodNoTransition(List<int> activePassIds, MyLodStrategyPreprocessor preprocessor)
         {
             MyLodStrategyInfo lodStrategyInfo = StandardModel.GetLodStrategyInfo();
             Vector3D cameraPos = MyRender11.Environment.Matrices.CameraPosition;
             Vector3D instancePos = m_transformStrategy.GetCoreTranslation();
 
-            m_lodStrategy.SmoothResolve(lodStrategyInfo, MyCommon.FrameCounter, MyCommon.LastFrameDelta(), cameraPos, instancePos, activePassIds, preprocessor);
+            m_lodStrategy.ResolveNoTransition(lodStrategyInfo, MyCommon.FrameCounter, cameraPos, instancePos, activePassIds, preprocessor);
+        }
+
+        public void UpdateLodSmoothly(List<int> activePassIds, MyLodStrategyPreprocessor preprocessor)
+        {
+            MyLodStrategyInfo lodStrategyInfo = StandardModel.GetLodStrategyInfo();
+            Vector3D cameraPos = MyRender11.Environment.Matrices.CameraPosition;
+            Vector3D instancePos = m_transformStrategy.GetCoreTranslation();
+
+            m_lodStrategy.ResolveSmoothly(lodStrategyInfo, MyCommon.FrameCounter, MyCommon.LastFrameDelta(), cameraPos, instancePos, activePassIds, preprocessor);
         }
 
         internal void InitInternal(MyModels models, bool isVisible, MyVisibilityExtFlags visibilityExt, MyCompatibilityDataForTheOldPipeline compatibilityData)

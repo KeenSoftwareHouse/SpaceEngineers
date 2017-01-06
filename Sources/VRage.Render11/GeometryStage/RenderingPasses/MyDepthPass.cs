@@ -46,7 +46,7 @@ namespace VRageRender
 
         protected sealed override void RecordCommandsInternal(MyRenderableProxy proxy)
         {
-			if ((proxy.Mesh.Buffers == MyMeshBuffers.Empty && proxy.MergedMesh.Buffers == MyMeshBuffers.Empty))
+			if (proxy.Mesh.Buffers == MyMeshBuffers.Empty)
             { 
                 return;
             }

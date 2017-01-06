@@ -1,4 +1,5 @@
 #include "Declarations.hlsli"
+#include <Common.hlsli>
 #include <Math/Math.hlsli>
 #include <Geometry/VertexTemplateBase.hlsli>
 
@@ -18,13 +19,20 @@ void vertex_program(inout VertexShaderInterface vertex, out MaterialVertexPayloa
 	}
 #endif
 
-	float dist = length(vertex.position_local.xyz - get_camera_position());
 	custom_output.normal = vertex.normal_object;
-	custom_output.texcoords = vertex.position_scaled_untranslated.xyz;
-	custom_output.mat_weights = vertex.material_weights;
+	custom_output.texcoords = vertex.position_scaled_untranslated.xyz;	
     custom_output.colorBrightnessFactor = vertex.colorBrightnessFactor;
-	custom_output.distance = dist;
 	custom_output.world_matrix = vertex._local_matrix;
+
+	float	dist		= length(vertex.position_local.xyz - get_camera_position());
+	custom_output.distance = dist;
+
+	uint4	matInfo		= vertex.triplanar_mat_info;
+	float3	tmpCmpMask	= matInfo.yzz != matInfo.xxy ? 1 : 0;
+    // this is mask to remove duplicated materials from triplet, so it is not blended-in multiple times
+	float3	weightsMask = float3(1, tmpCmpMask.x, tmpCmpMask.y * tmpCmpMask.z); 
+	custom_output.mat_indices = vertex.triplanar_mat_info.xyz;
+	custom_output.mat_weights = matInfo.xyz == matInfo.w ? weightsMask : 0;
 }
 
 #include <Geometry/Passes/VertexStage.hlsli>

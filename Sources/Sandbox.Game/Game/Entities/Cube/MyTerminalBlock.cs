@@ -58,17 +58,10 @@ namespace Sandbox.Game.Entities.Cube
         {
             get
             {
-                if (Storage == null)
-                {
-                    Storage = new MyModStorageComponent();
-                    Components.Add(Storage);
+                string value;
+                if (Storage == null || !Storage.TryGetValue(m_storageGuid, out value))
                     return string.Empty;
-                }
-
-                if (Storage.ContainsKey(m_storageGuid))
-                    return (string)Storage[m_storageGuid];
-                else
-                    return string.Empty;
+                return value;
             }
             set
             {

@@ -1,17 +1,20 @@
+#include <Common.hlsli>
 #include "../TriplanarMaterialConstants.hlsli"
 
 struct MaterialConstants
 {
-	TriplanarMaterialConstants triplanarMaterials[3];
 };
 
 struct MaterialVertexPayload
 {
-	float3 normal 		: NORMAL;
-	float3 texcoords	: TEXCOORD0;
-	float3 mat_weights	: TEXCOORD1;
-	float distance		: TEXCOORD2;
-    float3x3 world_matrix : TEXCOORD3;
+	float3 normal 				: NORMAL;
+	float3 texcoords			: TEXCOORD0;	
+	float distance				: TEXCOORD1;
+    float3x3 world_matrix		: TEXCOORD3;
+
+	uint3 mat_indices			: TEXCOORD2;
+
+	float3 mat_weights			: COLOR;
 	float colorBrightnessFactor : Ambient0;
 };
 

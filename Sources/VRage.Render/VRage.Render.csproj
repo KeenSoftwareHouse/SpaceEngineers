@@ -239,6 +239,7 @@
     <Compile Include="Messages\MyRenderMessageUpdateMaterialsSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateModelHighlight.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateModelProperties.cs" />
+    <Compile Include="Messages\MyRenderMessageUpdateNewLoddingSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateNewPipelineSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdatePostprocessSettings.cs" />
     <Compile Include="Messages\MyRenderMessageUpdateRenderEntity.cs" />
@@ -255,7 +256,6 @@
     <Compile Include="Messages\OutputMessages\MyRenderMessageCreatedDeviceSettings.cs" />
     <Compile Include="Messages\OutputMessages\MyRenderMessageError.cs" />
     <Compile Include="Messages\OutputMessages\MyRenderMessageExportToObjComplete.cs" />
-    <Compile Include="Messages\OutputMessages\MyRenderMessageMergeVoxelMeshes.cs" />
     <Compile Include="Messages\OutputMessages\MyRenderMessageRenderTextureFreed.cs" />
     <Compile Include="Messages\OutputMessages\MyRenderMessageRequireClipmapCell.cs" />
     <Compile Include="Messages\OutputMessages\MyRenderMessageScreenshotTaken.cs" />

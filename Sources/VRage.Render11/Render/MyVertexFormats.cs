@@ -250,8 +250,9 @@ namespace VRageRender.Vertex
 
     struct MyVertexFormatVoxel
     {
-        internal MyUShort4 m_positionMaterials;
-        internal MyUShort4 m_positionMaterialsMorph;
+        internal MyUShort4  m_positionMaterials;
+        internal MyUShort4  m_positionMaterialsMorph;
+        internal Byte4      m_materialInfo;
 
         public Vector3 Position
         {

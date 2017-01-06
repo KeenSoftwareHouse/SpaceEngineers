@@ -166,48 +166,198 @@
       </Data>
     </ShadowSettings>
     
-    <NewPipelineSettings>
+    <UserLoddingSettings>
       <!-- lodding selection is set here -->
-      <GBufferLodding>
+      <GBuffer>
         <LodShift>0</LodShift>
         <MinLod>0</MinLod>
-      </GBufferLodding>
-      <CascadeDepthLoddings>
-        <CascadeDepthLodding> <!-- shadow cascade num. 0 -->
+      </GBuffer>
+      <CascadeDepths>
+        <CascadeDepth> <!-- shadow cascade num. 0 -->
           <LodShift>0</LodShift>
           <MinLod>0</MinLod>
-        </CascadeDepthLodding>
-        <CascadeDepthLodding> <!-- shadow cascade num. 1 -->
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 1 -->
           <LodShift>0</LodShift>
           <MinLod>0</MinLod>
-        </CascadeDepthLodding>
-        <CascadeDepthLodding> <!-- shadow cascade num. 2 -->
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 2 -->
           <LodShift>0</LodShift>
           <MinLod>0</MinLod>
-        </CascadeDepthLodding>
-        <CascadeDepthLodding> <!-- shadow cascade num. 3 -->
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 3 -->
           <LodShift>0</LodShift>
           <MinLod>0</MinLod>
-        </CascadeDepthLodding>
-        <CascadeDepthLodding> <!-- shadow cascade num. 4 -->
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 4 -->
           <LodShift>0</LodShift>
           <MinLod>0</MinLod>
-        </CascadeDepthLodding>
-        <CascadeDepthLodding> <!-- shadow cascade num. 5 -->
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 5 -->
           <LodShift>0</LodShift>
           <MinLod>0</MinLod>
-        </CascadeDepthLodding>
-      </CascadeDepthLoddings>
-      <SingleDepthLodding>
+        </CascadeDepth>
+      </CascadeDepths>
+      <SingleDepth>
         <LodShift>0</LodShift>
         <MinLod>0</MinLod>
-      </SingleDepthLodding>
-      <GlobalLodding>
+      </SingleDepth>
+      <Global>
         <ObjectDistanceAdd>0</ObjectDistanceAdd>
         <ObjectDistanceMult>1</ObjectDistanceMult>
-      </GlobalLodding>
+        <IsUpdateEnabled>true</IsUpdateEnabled>
+        <MaxDistanceForSmoothCameraMovement>11</MaxDistanceForSmoothCameraMovement> <!--- if this value of units per frame is reached, the lods are skipped (no transition) -->
+      </Global>
+    </UserLoddingSettings>
 
-      <!-- If any of the following material names is found inside of the mwm, the object will be rendered with the old pipeline. Much slower but more versatile-->
+    <LowLoddingSettings>
+      <!-- lodding selection is set here -->
+      <GBuffer>
+        <LodShift>0</LodShift>
+        <MinLod>0</MinLod>
+      </GBuffer>
+      <CascadeDepths>
+        <CascadeDepth> <!-- shadow cascade num. 0 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 1 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 2 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 3 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 4 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth> <!-- shadow cascade num. 5 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+      </CascadeDepths>
+      <SingleDepth>
+        <LodShift>0</LodShift>
+        <MinLod>0</MinLod>
+      </SingleDepth>
+      <Global>
+        <ObjectDistanceAdd>0</ObjectDistanceAdd>
+        <ObjectDistanceMult>1</ObjectDistanceMult>
+        <IsUpdateEnabled>true</IsUpdateEnabled>
+        <MaxDistanceForSmoothCameraMovement>11</MaxDistanceForSmoothCameraMovement> <!--- if this value of units per frame is reached, the lods are skipped (no transition) -->
+      </Global>
+    </LowLoddingSettings>
+
+    <MediumLoddingSettings>
+      <!-- lodding selection is set here -->
+      <GBuffer>
+        <LodShift>0</LodShift>
+        <MinLod>0</MinLod>
+      </GBuffer>
+      <CascadeDepths>
+        <CascadeDepth>
+          <!-- shadow cascade num. 0 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 1 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 2 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 3 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 4 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 5 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+      </CascadeDepths>
+      <SingleDepth>
+        <LodShift>0</LodShift>
+        <MinLod>0</MinLod>
+      </SingleDepth>
+      <Global>
+        <ObjectDistanceAdd>0</ObjectDistanceAdd>
+        <ObjectDistanceMult>1</ObjectDistanceMult>
+        <IsUpdateEnabled>true</IsUpdateEnabled>
+        <MaxDistanceForSmoothCameraMovement>11</MaxDistanceForSmoothCameraMovement>
+        <!--- if this value of units per frame is reached, the lods are skipped (no transition) -->
+      </Global>
+    </MediumLoddingSettings>
+
+    <HighLoddingSettings>
+      <!-- lodding selection is set here -->
+      <GBuffer>
+        <LodShift>0</LodShift>
+        <MinLod>0</MinLod>
+      </GBuffer>
+      <CascadeDepths>
+        <CascadeDepth>
+          <!-- shadow cascade num. 0 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 1 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 2 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 3 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 4 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+        <CascadeDepth>
+          <!-- shadow cascade num. 5 -->
+          <LodShift>0</LodShift>
+          <MinLod>0</MinLod>
+        </CascadeDepth>
+      </CascadeDepths>
+      <SingleDepth>
+        <LodShift>0</LodShift>
+        <MinLod>0</MinLod>
+      </SingleDepth>
+      <Global>
+        <ObjectDistanceAdd>0</ObjectDistanceAdd>
+        <ObjectDistanceMult>1</ObjectDistanceMult>
+        <IsUpdateEnabled>true</IsUpdateEnabled>
+        <MaxDistanceForSmoothCameraMovement>11</MaxDistanceForSmoothCameraMovement>
+        <!--- if this value of units per frame is reached, the lods are skipped (no transition) -->
+      </Global>
+    </HighLoddingSettings>
+    
+    <NewPipelineSettings>
+       <!-- If any of the following material names is found inside of the mwm, the object will be rendered with the old pipeline. Much slower but more versatile-->
       <BlackListMaterials>
         <BlackListMaterial>ScreenArea</BlackListMaterial>
         <BlackListMaterial>Display</BlackListMaterial>

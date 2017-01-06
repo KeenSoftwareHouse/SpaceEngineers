@@ -19,8 +19,6 @@ namespace VRageRender
         readonly Vector3D m_massiveCenter;
         readonly float m_massiveRadius;
 
-        private MyLodMeshMergeHandler m_mergeHandler;
-
         readonly RenderFlags m_renderFlags;
         public RenderFlags RenderFlags { get { return m_renderFlags; } }
 
@@ -29,24 +27,11 @@ namespace VRageRender
             m_clipmapBase = new MyClipmap(id, scaleGroup, worldMatrix, sizeLod0, this, massiveCenter, massiveRadius, prunningFunc);
             m_massiveCenter = massiveCenter;
             m_renderFlags = additionalFlags;
-            m_mergeHandler = null;
 
             if (spherize)
                 m_massiveRadius = massiveRadius;
 
-            if (MyLodMeshMergeHandler.ShouldAllocate(m_mergeHandler))
-                m_mergeHandler = AllocateMergeHandler();
-
             MyClipmap.AddToUpdate(MyRender11.Environment.Matrices.CameraPosition, Base);
-        }
-
-        private MyLodMeshMergeHandler AllocateMergeHandler()
-        {
-            MyLodMeshMergeHandler mergeHandler;
-            MatrixD worldMatrix = Base.WorldMatrix;
-            Vector3D massiveCenter = m_massiveCenter;
-            mergeHandler = new MyLodMeshMergeHandler(Base, MyCellCoord.MAX_LOD_COUNT, MergeLodSubdivideCount, ref worldMatrix, ref massiveCenter, m_massiveRadius, m_renderFlags);
-            return mergeHandler;
         }
 
         public IMyClipmapCell CreateCell(MyClipmapScaleEnum scaleGroup, MyCellCoord cellCoord, ref MatrixD worldMatrix)
@@ -62,31 +47,6 @@ namespace VRageRender
             cell.UpdateMesh(msg);
         }
 
-        public void UpdateMerging()
-        {
-            if(m_mergeHandler != null)
-                m_mergeHandler.Update();
-        }
-
-        internal void UpdateMergedMesh(MyRenderMessageUpdateMergedVoxelMesh msg)
-        {
-            ProfilerShort.Begin("MyClipmapHandler.UpdateMergedMesh");
-
-            if(m_mergeHandler != null)
-                m_mergeHandler.UpdateMesh(msg);
-
-            ProfilerShort.End();
-        }
-
-        internal void ResetMergedMeshes()
-        {
-            if (MyLodMeshMergeHandler.ShouldAllocate(m_mergeHandler))
-                m_mergeHandler = AllocateMergeHandler();
-
-            if(m_mergeHandler != null)
-                m_mergeHandler.ResetMeshes();
-        }
-
         internal void UpdateWorldMatrix(ref MatrixD worldMatrix)
         {
             Base.UpdateWorldMatrix(ref worldMatrix, true);
@@ -99,8 +59,6 @@ namespace VRageRender
             if (cellProxy != null)
             {
                 cellProxy.SetVisibility(true);
-
-                AddToMergeBatch(cellProxy);
             }
         }
 
@@ -109,9 +67,6 @@ namespace VRageRender
             var cellProxy = cell as MyClipmapCellProxy;
             Debug.Assert(cellProxy != null, "Removing wrong type of clipmap cell from scene!");
             cellProxy.SetVisibility(false);
-
-            if(m_mergeHandler != null)
-                m_mergeHandler.OnRemovedFromScene(cellProxy);
         }
 
         public void DeleteCell(IMyClipmapCell cell)
@@ -120,17 +75,7 @@ namespace VRageRender
             Debug.Assert(cellProxy != null, "Deleting wrong type of clipmap cell!");
 
             if (cellProxy.Actor != null)
-			{
-            	if(m_mergeHandler == null || !m_mergeHandler.OnDeleteCell(cellProxy))
-                	cellProxy.Unload();
-			}
-        }
-
-        public void AddToMergeBatch(IMyClipmapCell cell)
-        {
-            var cellProxy = (MyClipmapCellProxy)cell;
-            if (m_mergeHandler != null)
-                m_mergeHandler.OnAddedToScene(cellProxy);
+			    cellProxy.Unload();
         }
 
         internal static void UpdateQueued()
@@ -153,11 +98,6 @@ namespace VRageRender
         float IMyClipmapCellHandler.GetTime()
         {
             return (float)MyRender11.CurrentDrawTime.Seconds;
-        }
-
-        void IMyClipmapCellHandler.DebugDrawMergedCells()
-        {
-            m_mergeHandler.DebugDrawCells();
         }
     }
 }

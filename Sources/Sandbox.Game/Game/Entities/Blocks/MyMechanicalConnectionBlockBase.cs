@@ -372,12 +372,17 @@ namespace Sandbox.Game.Entities.Blocks
                                         m_constraint.RigidBodyB == TopGrid.Physics.RigidBody) ||
                                        (m_constraint.RigidBodyA == TopGrid.Physics.RigidBody &&
                                         m_constraint.RigidBodyB == CubeGrid.Physics.RigidBody));
-                if(!matchingBodies)
+                if (!matchingBodies)
+                {
                     m_needReattach = true;
+                    return;
+                }
             }
-            else if (!m_welded)
+            
+            if (!m_welded)
             {
                 m_needReattach = TopGrid.Physics.RigidBody != CubeGrid.Physics.RigidBody;
+                return;
             }
         }
 
@@ -472,7 +477,9 @@ namespace Sandbox.Game.Entities.Blocks
         protected virtual bool CreateConstraint(MyAttachableTopBlockBase top)
         {
             if (CanAttach(top))
+            {
                 return !m_welded && CubeGrid.Physics.RigidBody != top.CubeGrid.Physics.RigidBody;
+            }
             else
                 return false;
         }
@@ -846,14 +853,26 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void RefreshConstraint()
         {
+            if (m_welded)
+            {
+                if(m_constraint != null)
+                {
+                    Debug.Fail("Constraint still present on welded block");
+                    DisposeConstraint();
+                }
+                return;
+            }
+            bool createconstraint = m_constraint == null;
+                
             if (m_constraint != null && !m_constraint.InWorld)
             {
                 DisposeConstraint();
+                createconstraint = true;
+            }
 
-                if (TopBlock != null)
-                {
-                    CreateConstraint(TopBlock);
-                }
+            if (createconstraint && TopBlock != null)
+            {
+                CreateConstraint(TopBlock);
             }
         }
 

@@ -88,6 +88,7 @@ namespace VRageRender
                 RC.PixelShader.SetSrv(0, depthSrv);
                 var viewProj = viewMatrix * projMatrix;
                 MyAtmosphereRenderer.RenderEnvProbe(MyRender11.Environment.Matrices.CameraPosition, ref viewProj, nearestAtmosphereId.Value);
+
                 MyGpuProfiler.IC_EndBlock();
             }
 

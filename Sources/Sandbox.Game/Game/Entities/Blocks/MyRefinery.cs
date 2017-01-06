@@ -302,6 +302,7 @@ namespace Sandbox.Game.Entities.Cube
             if (m_refineryDef == null)
             {
                 MyLog.Default.WriteLine("m_refineryDef shouldn't be null!!!" + this);
+                return;
             }
 
             if(Sync.IsServer == false)

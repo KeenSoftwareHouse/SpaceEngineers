@@ -7,6 +7,7 @@ namespace VRage.Render11.GeometryStage2.Common
         GBuffer, // instanced
         Depth, // instanced
         Highlight, // this type does not use instancing
+        Glass, // instanced
     }
 
     enum MyInstanceLodState

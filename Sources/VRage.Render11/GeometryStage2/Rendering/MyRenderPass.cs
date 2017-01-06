@@ -22,10 +22,11 @@ namespace VRage.Render11.GeometryStage2.Rendering
     {
         MyRenderContext m_RC;
 
-        private string m_debugName;
-        private int m_frustumIndex;
-        private MyFrustumEnum m_frustumType;
-        protected MyPassStats Stats;
+        string m_debugName;
+        int m_frustumIndex;
+        MyFrustumEnum m_frustumType;
+        protected MyPassStats m_stats;
+        protected IGeometrySrvStrategy SrvStrategy { get; private set; }
 
         public int PassId { get; private set; }
 
@@ -39,16 +40,17 @@ namespace VRage.Render11.GeometryStage2.Rendering
             m_debugName = debugName + "N";
             m_frustumType = frustumType;
             m_frustumIndex = frustumIndex;
-            Stats = new MyPassStats();
+            m_stats = new MyPassStats();
         }
 
         // complex implemtation because of the IPrioritizedWork, the simple way is to call Draw directly...
-        public void InitWork(List<MyInstanceComponent> visibleInstances)
+        public void InitWork(List<MyInstanceComponent> visibleInstances, IGeometrySrvStrategy srvStrategy)
         {
             MyRenderProxy.Assert(m_visibleInstancesForDoWork == null, "It is needed to call DoWork() after InitWork()");
             m_visibleInstancesForDoWork = visibleInstances;
             m_RC = MyManagers.DeferredRCs.AcquireRC();
-            Stats.Clear();
+            m_stats.Clear();
+            SrvStrategy = srvStrategy;
         }
 
         // complex implemtation because of the IPrioritizedWork
@@ -71,12 +73,12 @@ namespace VRage.Render11.GeometryStage2.Rendering
             MyManagers.DeferredRCs.FreeRC(m_RC);
             
             int passHash = ((int)m_frustumType) << 10 | m_frustumIndex;
-            MyRender11.GatherPassStats(passHash, m_debugName, Stats);
+            MyRender11.GatherPassStats(passHash, m_debugName, m_stats);
         }
 
         public WorkPriority Priority
         {
-            get { return WorkPriority.Normal; }
+            get { return WorkPriority.VeryHigh; }
         }
 
         public WorkOptions Options
@@ -480,7 +482,7 @@ namespace VRage.Render11.GeometryStage2.Rendering
         public void Compute(IDrawableGroupStrategy drawableGroupStrategy, List<MyInstanceComponent> visibleInstances, int passId, int maxLodId)
         {
             int drawnLodsCount, sumInstanceMaterials;
-            PrecomputeCounts(out drawnLodsCount, out sumInstanceMaterials, ref m_tmpInstancesCounts, visibleInstances, passId, maxLodId);
+            PrecomputeCounts(out sumInstanceMaterials, out drawnLodsCount, ref m_tmpInstancesCounts, visibleInstances, passId, maxLodId);
             drawableGroupStrategy.Init(drawnLodsCount + sumInstanceMaterials);
             PrepareDrawableContainers(ref m_rawDrawableGroups, ref m_tmpInstancesOffsets, drawableGroupStrategy,
                     m_tmpInstancesCounts, visibleInstances, passId, maxLodId);
@@ -498,8 +500,8 @@ namespace VRage.Render11.GeometryStage2.Rendering
         Matrix m_viewProjMatrix;
         MyViewport m_viewport;
         MyGBuffer m_gbuffer;
-        IVertexBuffer m_vbInstances;
 
+        IVertexBuffer m_vbInstances;
         readonly MyDrawableGroupGBufferStrategy m_drawableGroupGBufferStrategy = new MyDrawableGroupGBufferStrategy();
         readonly MyDrawableGroupFactory m_drawableGroupFactory = new MyDrawableGroupFactory();
 
@@ -535,13 +537,9 @@ namespace VRage.Render11.GeometryStage2.Rendering
                 RC.PixelShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
                 RC.PixelShader.SetSrv(MyCommon.DITHER_8X8_SLOT, MyGeneratedTextureManager.Dithering8x8Tex);
 
-                // Ugly hotfix to enable rendering. If shaders will be modified, it will be good to remove this completly
-                if (!MyRender11.Settings.DisplayGbufferLOD)
-                {
-                    IConstantBuffer cbObjectData = GetPlaceholderObjectCB(RC, 0); // <- the lod value does not matter in this case
-                    RC.VertexShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, cbObjectData);
-                    RC.PixelShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, cbObjectData);
-                }
+                IConstantBuffer cbObjectData = GetPlaceholderObjectCB(RC, 255); // <- the lod value does not matter in this case
+                RC.VertexShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, cbObjectData);
+                RC.PixelShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, cbObjectData);
 
                 ProfilerShort.BeginNextBlock("Recording commands");
 
@@ -551,16 +549,7 @@ namespace VRage.Render11.GeometryStage2.Rendering
                     MyRenderProxy.Assert(itGroup.InstancesCount == itGroup.InstancesIncrement);
                     foreach (var part in itGroup.Lod.Parts)
                     {
-                        // Ugly hotfix to enable displaying lods. If there will be proper solution for displaying lods, this part can be removed completly
-                        if (MyRender11.Settings.DisplayGbufferLOD)
-                        {
-                            IConstantBuffer cbObjectData = GetPlaceholderObjectCB(RC, (uint)part.Parent.LodNum);
-                            RC.VertexShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, cbObjectData);
-                            RC.PixelShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, cbObjectData);
-                        }
-                        // End of temporary solution
-
-                        IMaterial material = part.Material;
+                        MyStandardMaterial material = part.StandardMaterial;
                         RC.SetVertexBuffer(0, part.Parent.VB0);
                         RC.SetVertexBuffer(1, part.Parent.VB1);
                         RC.SetVertexBuffer(2, m_vbInstances);
@@ -573,30 +562,93 @@ namespace VRage.Render11.GeometryStage2.Rendering
                         }
                         else
                         {
-                            RC.SetDepthStencilState(part.Material.DepthStencilState);
+                            RC.SetDepthStencilState(part.StandardMaterial.DepthStencilState);
                             RC.SetRasterizerState(material.RasterizerState);
-                            RC.SetBlendState(part.Material.BlendState);
+                            RC.SetBlendState(part.StandardMaterial.BlendState);
                         }
 
                         MyShaderBundle shaderBundle = part.GetShaderBundle(itGroup.State);
                         RC.SetInputLayout(shaderBundle.InputLayout);
                         RC.VertexShader.Set(shaderBundle.VertexShader);
                         RC.PixelShader.Set(shaderBundle.PixelShader);
-                        RC.PixelShader.SetSrvs(0, part.Material.Srvs);
+                        RC.PixelShader.SetSrvs(0, SrvStrategy.GetSrvs(part));
 
                         int numInstances = itGroup.InstancesCount;
                         int ibOffset = itGroup.OffsetInInstanceBuffer + (part.InstanceMaterialOffsetInLod+1)* itGroup.InstancesCount;
                         RC.DrawIndexedInstanced(part.IndicesCount, numInstances, part.StartIndex,
                             part.StartVertex, ibOffset);
 
-                        Stats.Triangles += (part.IndicesCount / 3) * numInstances;
-                        Stats.Instances += numInstances;
-                        Stats.Draws++;
+                        m_stats.Triangles += (part.IndicesCount / 3) * numInstances;
+                        m_stats.Instances += numInstances;
+                        m_stats.Draws++;
                     }
                 }
             }
 
             ProfilerShort.End();
+        }
+
+        unsafe IConstantBuffer GetGlassCB(MyRenderContext RC, MyGlassMaterial material)
+        {
+            StaticGlassConstants glassConstants = new StaticGlassConstants();
+            glassConstants.Color = material.Color;
+            glassConstants.Reflective = material.Refraction;
+
+            var glassCB = MyCommon.GetMaterialCB(sizeof(StaticGlassConstants));
+            var mapping = MyMapping.MapDiscard(RC, glassCB);
+            mapping.WriteAndPosition(ref glassConstants);
+            mapping.Unmap();
+            return glassCB;
+        }
+
+        // this is tricky call. The method assumes that Draw() has been called in this frame
+        public void DrawGlass(MyRenderContext RC)
+        {
+            RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
+
+            RC.SetViewport(m_viewport.OffsetX, m_viewport.OffsetY, m_viewport.Width, m_viewport.Height);
+            //RC.SetRtvs(m_gbuffer, MyDepthStencilAccess.ReadWrite); <- the rtv is set out of the pass...
+
+            FillConstantBuffer(RC, MyCommon.ProjectionConstants, Matrix.Transpose(m_viewProjMatrix));
+
+            RC.VertexShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+            RC.VertexShader.SetConstantBuffer(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
+
+            RC.PixelShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
+            RC.PixelShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+            RC.PixelShader.SetSrv(MyCommon.DITHER_8X8_SLOT, MyGeneratedTextureManager.Dithering8x8Tex);
+
+            IConstantBuffer cbObjectData = GetPlaceholderObjectCB(RC, 255); // <- the lod value does not matter in this case
+            RC.VertexShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, cbObjectData);
+            //RC.PixelShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, cbObjectData);
+
+            foreach (var itGroup in m_drawableGroupFactory.GetRawDrawableGroups())
+            {
+                MyRenderProxy.Assert(itGroup.InstancesCount != 0);
+                MyRenderProxy.Assert(itGroup.InstancesCount == itGroup.InstancesIncrement);
+                if (itGroup.Lod.GlassParts == null)
+                    continue;
+                foreach (var part in itGroup.Lod.GlassParts)
+                {
+                    MyGlassMaterial material = part.GlassMaterial;
+                    RC.SetVertexBuffer(0, part.Parent.VB0);
+                    RC.SetVertexBuffer(1, part.Parent.VB1);
+                    RC.SetVertexBuffer(2, m_vbInstances);
+                    RC.SetIndexBuffer(part.Parent.IB);
+
+                    MyShaderBundle shaderBundle = part.GetShaderBundle(itGroup.State);
+                    RC.SetInputLayout(shaderBundle.InputLayout);
+                    RC.VertexShader.Set(shaderBundle.VertexShader);
+                    RC.PixelShader.Set(shaderBundle.PixelShader);
+                    RC.PixelShader.SetSrvs(0, material.Srvs);
+                    RC.PixelShader.SetConstantBuffer(MyCommon.OBJECT_SLOT, GetGlassCB(RC, material));
+
+                    int numInstances = itGroup.InstancesCount;
+                    int ibOffset = itGroup.OffsetInInstanceBuffer + (part.InstanceMaterialOffsetInLod + 1) * itGroup.InstancesCount;
+                    RC.DrawIndexedInstanced(part.IndicesCount, numInstances, part.StartIndex,
+                        part.StartVertex, ibOffset);
+                }
+            }
         }
     }
 
@@ -698,9 +750,9 @@ namespace VRage.Render11.GeometryStage2.Rendering
                         RC.DrawIndexedInstanced(part.IndicesCount, numInstances, part.StartIndex,
                             part.StartVertex, ibOffset);
 
-                        Stats.Triangles += (part.IndicesCount / 3) * numInstances;
-                        Stats.Instances += numInstances;
-                        Stats.Draws++;
+                        m_stats.Triangles += (part.IndicesCount / 3) * numInstances;
+                        m_stats.Instances += numInstances;
+                        m_stats.Draws++;
                     }
                 }
             }

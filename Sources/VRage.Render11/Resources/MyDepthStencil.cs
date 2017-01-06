@@ -41,8 +41,11 @@ namespace VRage.Render11.Resources
 
             public void OnDeviceEnd()
             {
-                m_srv.Dispose();
-                m_srv = null;
+                if (m_srv != null)
+                {
+                    m_srv.Dispose();
+                    m_srv = null;
+                }
             }
 
             public string Name
@@ -268,13 +271,23 @@ namespace VRage.Render11.Resources
 
             public void OnDeviceEnd()
             {
-                m_resource.Dispose();
-                m_resource = null;
+                if (m_resource != null)
+                {
+                    m_resource.Dispose();
+                    m_resource = null;
+                }
 
-                m_dsv.Dispose();
-                m_dsv_roDepth.Dispose();
-                m_dsv_roStencil.Dispose();
-                m_dsv_ro.Dispose();
+                if (m_dsv != null)
+                    m_dsv.Dispose();
+
+                if (m_dsv_roDepth != null)                    
+                    m_dsv_roDepth.Dispose();
+
+                if (m_dsv_roStencil != null)
+                    m_dsv_roStencil.Dispose();
+
+                if (m_dsv_ro != null)
+                    m_dsv_ro.Dispose();
 
                 m_srvDepth.OnDeviceEnd();
                 m_srvStencil.OnDeviceEnd();
@@ -295,12 +308,26 @@ namespace VRage.Render11.Resources
             int samplesCount = 1, 
             int samplesQuality = 0)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+
             MyDepthStencil tex = m_objectsPool.Allocate();
             tex.Init(debugName, width, height, resourceFormat, dsvFormat, srvDepthFormat, srvStencilFormat, 
                 samplesCount, samplesQuality);
 
             if (m_isDeviceInit)
-                tex.OnDeviceInit();
+            {
+                try
+                {
+                    tex.OnDeviceInit();
+                }
+                catch (System.Exception ex)
+                {
+                    IDepthStencil t = tex;
+                    DisposeTex(ref t);
+                    throw;
+                }
+            }
 
             return tex;
         }

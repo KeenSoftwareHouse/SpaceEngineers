@@ -139,7 +139,7 @@ namespace VRage.Render11.Resources
             description.AddressW = addressMode;
             description.MaximumLod = Single.MaxValue;
 
-            if (MyRender11.RenderSettings.AnisotropicFiltering == MyTextureAnisoFiltering.NONE)
+            if (MyRender11.Settings.User.AnisotropicFiltering == MyTextureAnisoFiltering.NONE)
             {
                 description.Filter = Filter.MinMagMipLinear;
             }
@@ -147,7 +147,7 @@ namespace VRage.Render11.Resources
             {
                 description.Filter = Filter.Anisotropic;
 
-                switch (MyRender11.RenderSettings.AnisotropicFiltering)
+                switch (MyRender11.Settings.User.AnisotropicFiltering)
                 {
                     case MyTextureAnisoFiltering.ANISO_1:
                         description.MaximumAnisotropy = 1;

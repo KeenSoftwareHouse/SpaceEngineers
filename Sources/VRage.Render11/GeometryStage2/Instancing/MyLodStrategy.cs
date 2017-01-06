@@ -334,7 +334,23 @@ namespace VRage.Render11.GeometryStage2.Instancing
             m_cachedResults = null;
         }
 
-        public void SkippingResolve(MyLodStrategyInfo strategyInfo, ulong currentFrameId, Vector3D cameraPos, Vector3D instancePos, List<int> activePassIds, MyLodStrategyPreprocessor preprocessor)
+        public void ResolveExplicit(MyLodStrategyInfo strategyInfo, ulong currentFrameId, int lodNum, List<int> activePassIds)
+        {
+            if (strategyInfo.IsEmpty)
+                return;
+
+            if (currentFrameId == m_updatedAtFrameId)
+                return;
+
+            int maxLod = strategyInfo.GetLodsCount() - 1;
+            m_currentLod = Math.Min(lodNum, maxLod);
+            m_transitionLod = -1;
+            m_transition = 0;
+
+            UpdateCachedResults(maxLod, activePassIds);
+        }
+
+        public void ResolveNoTransition(MyLodStrategyInfo strategyInfo, ulong currentFrameId, Vector3D cameraPos, Vector3D instancePos, List<int> activePassIds, MyLodStrategyPreprocessor preprocessor)
         {
             if (strategyInfo.IsEmpty)
                 return;
@@ -354,7 +370,7 @@ namespace VRage.Render11.GeometryStage2.Instancing
             UpdateCachedResults(maxLod, activePassIds);
         }
 
-        public void SmoothResolve(MyLodStrategyInfo strategyInfo, ulong currentFrameId, float timeDeltaSeconds, Vector3D cameraPos, Vector3D instancePos, List<int> activePassIds, MyLodStrategyPreprocessor preprocessor)
+        public void ResolveSmoothly(MyLodStrategyInfo strategyInfo, ulong currentFrameId, float timeDeltaSeconds, Vector3D cameraPos, Vector3D instancePos, List<int> activePassIds, MyLodStrategyPreprocessor preprocessor)
         {
             if (strategyInfo.IsEmpty)
                 return;

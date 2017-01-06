@@ -13,6 +13,7 @@ using VRage.OpenVRWrapper;
 using VRage.Profiler;
 using VRage.Render11.Common;
 using VRage.Render11.GeometryStage2;
+using VRage.Render11.GeometryStage2.Rendering;
 using VRage.Render11.LightingStage;
 using VRage.Render11.Profiler;
 using VRage.Render11.Resources;
@@ -385,8 +386,9 @@ namespace VRageRender
 
             MyGpuProfiler.IC_BeginBlock("NewGeometryRenderer");
             ProfilerShort.Begin("NewGeometryRenderer");
+            IGeometrySrvStrategy geometrySrvStrategy = MyManagers.GeometrySrvResolver.GetGeometrySrvStrategy();
             if (MyDebugGeometryStage2.EnableNewGeometryPipeline)
-                MyManagers.GeometryRenderer.Render(cullQuery);
+                MyManagers.GeometryRenderer.Render(cullQuery, geometrySrvStrategy);
             ProfilerShort.End();
             MyGpuProfiler.IC_EndBlock();
             
@@ -473,7 +475,7 @@ namespace VRageRender
                 }
                 MyGpuProfiler.IC_EndBlockAlways();
 
-                if (MySSAO.Params.Enabled && RenderSettings.AmbientOcclusionEnabled
+                if (MySSAO.Params.Enabled && Settings.User.AmbientOcclusionEnabled
                     && m_debugOverrides.Postprocessing && m_debugOverrides.SSAO)
                 {
                     ProfilerShort.BeginNextBlock("SSAO");
@@ -490,7 +492,7 @@ namespace VRageRender
                     }
                     MyGpuProfiler.IC_EndBlockAlways();
                 }
-                else if (MyHBAO.Params.Enabled && RenderSettings.AmbientOcclusionEnabled
+                else if (MyHBAO.Params.Enabled && Settings.User.AmbientOcclusionEnabled
                          && m_debugOverrides.Postprocessing && m_debugOverrides.SSAO)
                 {
                     ProfilerShort.BeginNextBlock("HBAO");
@@ -597,7 +599,7 @@ namespace VRageRender
             }
 
 
-            ProfilerShort.Begin("Outline");
+            ProfilerShort.Begin("MyHighlight.Run");
             MyHighlight.Run(renderedImage, fxaaTarget, depthStencilCopy);
             ProfilerShort.End();
 

@@ -118,8 +118,9 @@ namespace VRageRender
 
         public static MyStringId DEFAULT_MATERIAL_TAG = X.TEXT_("Standard");
         public static MyStringId ALPHA_MASKED_MATERIAL_TAG = X.TEXT_("AlphaMasked");
-        public static MyStringId SINGLE_MATERIAL_TAG = X.TEXT_("TriplanarSingle");
-        public static MyStringId MULTI_MATERIAL_TAG = X.TEXT_("TriplanarMulti");
+        public static MyStringId TRIPLANAR_SINGLE_MATERIAL_TAG = X.TEXT_("TriplanarSingle");
+        public static MyStringId TRIPLANAR_MULTI_MATERIAL_TAG = X.TEXT_("TriplanarMulti");
+        public static MyStringId TRIPLANAR_DEBRIS_MATERIAL_TAG = X.TEXT_("TriplanarDebris");
 
         internal static void AddMaterialShaderFlagMacrosTo(List<ShaderMacro> list, MyShaderUnifiedFlags flags, MyFileTextureEnum textureTypes = MyFileTextureEnum.UNSPECIFIED)
         {
@@ -379,9 +380,11 @@ namespace VRageRender
             switch (technique)
             {
                 case MyMeshDrawTechnique.VOXEL_MAP_SINGLE:
-                    return SINGLE_MATERIAL_TAG;
+                    return TRIPLANAR_SINGLE_MATERIAL_TAG;
                 case MyMeshDrawTechnique.VOXEL_MAP_MULTI:
-                    return MULTI_MATERIAL_TAG;
+                    return TRIPLANAR_MULTI_MATERIAL_TAG;
+                case MyMeshDrawTechnique.VOXELS_DEBRIS:
+                    return TRIPLANAR_DEBRIS_MATERIAL_TAG;
                 case MyMeshDrawTechnique.ALPHA_MASKED:
                 case MyMeshDrawTechnique.FOLIAGE:
                     return ALPHA_MASKED_MATERIAL_TAG;

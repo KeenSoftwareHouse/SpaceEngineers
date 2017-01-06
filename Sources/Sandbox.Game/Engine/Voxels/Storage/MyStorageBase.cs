@@ -57,7 +57,7 @@ namespace Sandbox.Engine.Voxels
 
         protected byte[] m_compressedData;
         private readonly MyVoxelGeometry m_geometry = new MyVoxelGeometry();
-        private readonly FastResourceLock m_storageLock = new FastResourceLock();
+        protected readonly FastResourceLock m_storageLock = new FastResourceLock();
         protected byte m_defaultMaterial = MyDefinitionManager.Static.GetDefaultVoxelMaterialDefinition().Index;
 
         public abstract IMyStorageDataProvider DataProvider { get; set; }
@@ -233,6 +233,7 @@ namespace Sandbox.Engine.Voxels
                 {
                     Debug.Fail("Missing voxel map data! : " + name);
                     Sandbox.Engine.Networking.MyAnalyticsHelper.ReportActivityStart(null, "Missing voxel map data!", name, "DevNote", "", false);
+                    throw  new Exception(string.Format("Missing voxel map data! : {0}",name));
                 }
             }
             return result;

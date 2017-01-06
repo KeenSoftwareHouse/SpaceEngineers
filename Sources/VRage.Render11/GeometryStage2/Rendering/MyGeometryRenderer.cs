@@ -14,7 +14,7 @@ namespace VRage.Render11.GeometryStage2.Rendering
 {
     class MyGeometryRenderer: IManager, IManagerUnloadData
     {
-        MyObjectsPool<MyGBufferPass> m_gbufferPassesPool;
+        MyGBufferPass m_gbufferPass;
         MyObjectsPool<MyDepthPass> m_depthPassesPool;
 
         List<Task> m_tmpParallelTasks = new List<Task>();
@@ -26,7 +26,7 @@ namespace VRage.Render11.GeometryStage2.Rendering
 
         void AllocateInternal()
         {
-            m_gbufferPassesPool = new MyObjectsPool<MyGBufferPass>(1);
+            m_gbufferPass = new MyGBufferPass();
             m_depthPassesPool = new MyObjectsPool<MyDepthPass>(1);
 
             m_tmpCullingWork = new List<MyCpuFrustumCullingWork>();
@@ -158,9 +158,8 @@ namespace VRage.Render11.GeometryStage2.Rendering
                     MyGBuffer gbuffer = oldGBufferPass.GBuffer;
                     MyGBufferPass gbufferPass;
                     int passId = GetPassId(oldGBufferPass);
-                    m_gbufferPassesPool.AllocateOrCreate(out gbufferPass);
-                    gbufferPass.Init(passId, matrix, viewport, gbuffer);
-                    renderPasses.Add(gbufferPass);
+                    m_gbufferPass.Init(passId, matrix, viewport, gbuffer);
+                    renderPasses.Add(m_gbufferPass);
                 }
 
                 if (query is VRageRender.MyDepthPass)
@@ -177,11 +176,11 @@ namespace VRage.Render11.GeometryStage2.Rendering
             }
         }
 
-        void Draw(List<MyRenderPass> renderPasses, List<MyInstanceComponent>[] visibleInstances)
+        void Draw(List<MyRenderPass> renderPasses, List<MyInstanceComponent>[] visibleInstances, IGeometrySrvStrategy srvStrategy)
         {
             ProfilerShort.Begin("Preparing");
             foreach (var pass in renderPasses)
-                pass.InitWork(visibleInstances[pass.PassId]);
+                pass.InitWork(visibleInstances[pass.PassId], srvStrategy);
 
             if (MyRender11.MultithreadedRenderingEnabled && MyDebugGeometryStage2.EnableParallelRendering)
             {
@@ -219,11 +218,10 @@ namespace VRage.Render11.GeometryStage2.Rendering
         void ClearRenderPasses(List<MyRenderPass> renderPasses)
         {
             m_depthPassesPool.DeallocateAll();
-            m_gbufferPassesPool.DeallocateAll();
             renderPasses.Clear();
         }
         
-        public void Render(MyCullQuery cullQuery)
+        public void Render(MyCullQuery cullQuery, IGeometrySrvStrategy srvStrategy)
         {
             ProfilerShort.Begin("Preculling");
             InitFrustumCullPasses(cullQuery, m_tmpCullPasses);
@@ -242,11 +240,16 @@ namespace VRage.Render11.GeometryStage2.Rendering
                 MyManagers.Instances.UpdateLods(m_tmpRenderPasses, m_tmpVisibleInstances);
    
             ProfilerShort.BeginNextBlock("Rendering");
-            Draw(m_tmpRenderPasses, m_tmpVisibleInstances);
+            Draw(m_tmpRenderPasses, m_tmpVisibleInstances, srvStrategy);
 
             ProfilerShort.BeginNextBlock("Clearing");
             ClearRenderPasses(m_tmpRenderPasses);
             ProfilerShort.End();
+        }
+
+        public void RenderGlass()
+        {
+            m_gbufferPass.DrawGlass(MyRender11.RC);
         }
     }
 }

@@ -107,8 +107,8 @@ namespace VRage.Render11.Resources
 
             {
                 DepthStencilStateDescription desc = new DepthStencilStateDescription();
-                desc.IsDepthEnabled = true;
-                desc.DepthComparison = Comparison.Equal;
+                desc.IsDepthEnabled = false;
+                desc.DepthComparison = Comparison.Always;
                 desc.DepthWriteMask = DepthWriteMask.Zero;
                 desc.IsStencilEnabled = true;
                 desc.StencilReadMask = 0x00;

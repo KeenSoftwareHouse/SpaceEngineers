@@ -195,7 +195,7 @@ namespace VRage.Render11.Resources
                 {
                     int skipMipmaps = 0;
                     if (m_type != MyFileTextureEnum.GUI && m_type != MyFileTextureEnum.GPUPARTICLES && img.Description.MipLevels > 1)
-                        skipMipmaps = MyRender11.RenderSettings.TextureQuality.MipmapsToSkip(img.Description.Width, img.Description.Height);
+                        skipMipmaps = MyRender11.Settings.User.TextureQuality.MipmapsToSkip(img.Description.Width, img.Description.Height);
 
                     if (m_skipQualityReduction)
                         skipMipmaps = 0;
@@ -366,7 +366,7 @@ namespace VRage.Render11.Resources
 
         Stopwatch m_sw = new Stopwatch();
 
-        Dictionary<string, IGeneratedTexture> m_generatedTextures;
+        Dictionary<string, IGeneratedTexture> m_generatedTextures = new Dictionary<string, IGeneratedTexture>();
 
         bool m_temporaryTextureRequested;
         readonly Dictionary<string, MyFileTexture> m_textures = new Dictionary<string, MyFileTexture>();
@@ -375,12 +375,9 @@ namespace VRage.Render11.Resources
 
         readonly MyObjectsPool<MyFileTexture> m_texturesPool = new MyObjectsPool<MyFileTexture>(1024);
 
-        public MyFileTextureManager() { }
-
         void RegisterDefaultTextures()
         {
-            if (m_generatedTextures == null)
-                m_generatedTextures = new Dictionary<string, IGeneratedTexture>();
+            m_generatedTextures = new Dictionary<string, IGeneratedTexture>();
 
             m_generatedTextures[MyGeneratedTextureManager.ZeroTex.Name] = MyGeneratedTextureManager.ZeroTex;
             m_generatedTextures[MyGeneratedTextureManager.MissingNormalGlossTex.Name] = MyGeneratedTextureManager.MissingNormalGlossTex;

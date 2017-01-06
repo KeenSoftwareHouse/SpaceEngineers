@@ -56,7 +56,7 @@ namespace Sandbox.Game.EntityComponents.Renders
 			m_lastGlobalEffectCreationTime = m_lastEffectCreationTime;
 
             drivingEffect.WorldMatrix = MatrixD.CreateWorld(position, normal, Vector3.CalculatePerpendicularVector(normal));
-            var speedScaleMultiplier = 1.0f + speedMultiplier * 6.0f;
+            var speedScaleMultiplier = 1.0f + speedMultiplier * 3.0f;
             drivingEffect.UserScale = speedScaleMultiplier;
 
 			return true;

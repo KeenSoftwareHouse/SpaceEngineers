@@ -112,7 +112,7 @@ namespace VRageRender.Voxels
         {
             ++m_currentFrameIdx;
 
-            UpdateLodRanges(DebugRanges == null ? MyRenderConstants.m_renderQualityProfiles[(int)MyRenderProxy.Settings.VoxelQuality].LodClipmapRanges : DebugRanges);
+            UpdateLodRanges(DebugRanges == null ? MyRenderConstants.m_renderQualityProfiles[(int)MyRenderProxy.Settings.User.VoxelQuality].LodClipmapRanges : DebugRanges);
 
             var oldNotReadyCount = m_notReady.Count;
 
@@ -139,7 +139,6 @@ namespace VRageRender.Voxels
                 item.Clipmap.UpdateWorldAABB(out tmp);
                 float clipmapFarPlane = (item.Clipmap.m_scaleGroup == MyClipmapScaleEnum.Massive) ? largeDistanceFarPlane : farPlaneDistance;                
                 item.Clipmap.Update(ref cameraPos, ref cameraForward, clipmapFarPlane);
-                item.Clipmap.m_cellHandler.UpdateMerging();
                 nextFrame = ComputeNextUpdateFrame(ref cameraPos, item.Clipmap);
                 m_updateQueue.ModifyDown(item, nextFrame);
                 if (updatedCount > maxUpdates)
@@ -170,18 +169,6 @@ namespace VRageRender.Voxels
             foreach (var item in m_tmpDebugDraw)
             {
                 item.Clipmap.DebugDraw();
-            }
-
-            m_tmpDebugDraw.Clear();
-        }
-
-        public static void DebugDrawMergedCells()
-        {
-            m_updateQueue.QueryAll(m_tmpDebugDraw);
-
-            foreach (var item in m_tmpDebugDraw)
-            {
-                item.Clipmap.DebugDrawMergedMeshCells();
             }
 
             m_tmpDebugDraw.Clear();

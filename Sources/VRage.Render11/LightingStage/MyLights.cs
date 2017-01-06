@@ -235,7 +235,7 @@ namespace VRage.Render11.LightingStage
             info.LocalPointPosition = info.PointPosition;
             info.LocalDirection = info.Direction;
             info.LocalUp = info.Up; 
-            if (light.ParentGID != -1)
+            if (info.ParentGID != -1)
             {
                 info.SpotPosition = m_lights.Data[light.Index].SpotPosition;
                 info.PointPosition = m_lights.Data[light.Index].PointPosition;

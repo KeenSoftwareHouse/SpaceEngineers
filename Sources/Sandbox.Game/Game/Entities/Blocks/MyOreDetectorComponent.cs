@@ -84,7 +84,9 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(m_issuedQueries.Contains(depositCell));
             m_issuedQueries.Remove(depositCell);
             m_depositsByCellCoord[depositCell] = deposit;
+            ProfilerShort.Begin("IssueQueries");
             IssueQueries();
+            ProfilerShort.End();
         }
 
         public DictionaryValuesReader<Vector3I, MyEntityOreDeposit> Deposits
@@ -333,10 +335,12 @@ namespace Sandbox.Game.Entities.Cube
 
         private void OnComplete()
         {
+            ProfilerShort.Begin("MyOreDetectorComponent - OnComplete");
             m_args.CompletionCallback(m_args.Cell, m_result);
             m_args = default(Args);
             m_result = null;
             m_instancePool.Deallocate(this);
+            ProfilerShort.End();
         }
 
         WorkPriority IPrioritizedWork.Priority

@@ -1097,7 +1097,7 @@ namespace Sandbox.Game.Weapons
                 return;
             }
 
-            if (IsPlayerControlled)
+            if (IsControlledByLocalPlayer)
             {
                 m_fov = VRageMath.MathHelper.Lerp(m_fov, m_targetFov, 0.5f);
                 SetFov(m_fov);

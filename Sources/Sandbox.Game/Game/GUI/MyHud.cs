@@ -131,6 +131,7 @@ namespace Sandbox.Game.Gui
             ObjectiveLine.Clear();
             ChangedInventoryItems.Clear();
             Chat.MessagesQueue.Clear();
+            MyGuiScreenToolbarConfigBase.Reset();
             if (MyFakes.ENABLE_NETGRAPH)
             {
                 Netgraph.ClearNetgraph();

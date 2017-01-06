@@ -348,13 +348,13 @@ namespace VRageRender.Voxels
                 int lodClipmapCut = (int)Math.Ceiling(m_clipmap.m_massiveRadius / 14000.0f + 3.7f);
 
                 float heightMultiplier = 1.1f;
-                if (MyRenderProxy.Settings.VoxelQuality == MyRenderQualityEnum.NORMAL)
+                if (MyRenderProxy.Settings.User.VoxelQuality == MyRenderQualityEnum.NORMAL)
                 {
                     lodClipmapCut--;
                     heightMultiplier = 1.05f;
                 }
 
-                if (MyRenderProxy.Settings.VoxelQuality == MyRenderQualityEnum.LOW)
+                if (MyRenderProxy.Settings.User.VoxelQuality == MyRenderQualityEnum.LOW)
                 {
                     lodClipmapCut -= 1;
                     heightMultiplier = 1.05f;
@@ -1041,15 +1041,6 @@ namespace VRageRender.Voxels
                             collector.AddRequest(cellId, data, false);
                         }
                     }
-                }
-            }
-
-            internal void RequestMergeAll()
-            {
-                foreach (var cellData in m_nonEmptyCells.Values)
-                {
-                    if(cellData.InScene)
-                        cellData.CellHandler.AddToMergeBatch(cellData.Cell);
                 }
             }
         }

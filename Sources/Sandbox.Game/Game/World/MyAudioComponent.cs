@@ -179,8 +179,7 @@ namespace Sandbox.Game.World
             ProfilerShort.Begin("GetCue");
 
             MyEntity firstEntity = null;
-            MyEntities.TryGetEntityById(entityId, out firstEntity);
-            if (firstEntity == null)
+            if (!MyEntities.TryGetEntityById(entityId, out firstEntity) || MyMaterialPropertiesHelper.Static == null || MySession.Static == null)
             {
                 ProfilerShort.End();
                 return false;
@@ -225,7 +224,7 @@ namespace Sandbox.Game.World
                     emitter.StoppedPlaying += remove;
                 }
                 ProfilerShort.BeginNextBlock("PlaySound");
-                bool inSpace = MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.AtmosphereDetectorComp.InVoid;
+                bool inSpace = MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.AtmosphereDetectorComp != null && MySession.Static.LocalCharacter.AtmosphereDetectorComp.InVoid;
                 if (surfaceEntity != null && !inSpace)
                     emitter.Entity = surfaceEntity;
                 else

@@ -89,7 +89,7 @@ PS_INPUT __vertex_shader(uint VertexId : SV_VertexID)
         // PARTICLE THICKNESS
         int keyIndex;
         float keyFactor = Interpolate(lifetimeFactor, emitter.ParticleThicknessKeys, keyIndex);
-        float thickness = lerp(emitter.ParticleThickness[keyIndex], emitter.ParticleThickness[keyIndex + 1], keyFactor);
+		float thickness = lerp(emitter.ParticleThickness[keyIndex], emitter.ParticleThickness[keyIndex + 1], keyFactor);
 
         float s, c;
         sincos(lifetimeFactor * pa.RotationVelocity + ((g_Emitters[pa.EmitterIndex].Flags & EMITTERFLAG_RANDOM_ROTATION_ENABLED) != 0 ? 

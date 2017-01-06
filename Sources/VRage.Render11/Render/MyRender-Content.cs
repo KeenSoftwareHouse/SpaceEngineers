@@ -19,7 +19,7 @@ namespace VRageRender
         private static unsafe void InitSubsystems()
         {
             MyManagers.OnDeviceInit();
-            ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
+            ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, Settings.User.ShadowQuality.ShadowCascadeResolution());
             MyRender11.Init();
             MyCommon.Init();
             MyVertexLayouts.Init();
@@ -30,7 +30,6 @@ namespace VRageRender
             MyLinesRenderer.Init();
             MySpritesRenderer.Init();
             MyPrimitivesRenderer.Init();
-            MyHighlight.Init();
             MyBlur.Init();
             MyTransparentRendering.Init();
 
@@ -90,7 +89,7 @@ namespace VRageRender
 
             MyTransparentRendering.OnDeviceReset();
 
-            ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
+            ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, Settings.User.ShadowQuality.ShadowCascadeResolution());
 
             MyBillboardRenderer.OnDeviceReset();
             MyScreenDecals.OnDeviceReset();
@@ -250,7 +249,7 @@ namespace VRageRender
         {
             var width = m_resolution.X;
             var height = m_resolution.Y;
-            var samples = RenderSettings.AntialiasingMode.SamplesCount();
+            var samples = Settings.User.AntialiasingMode.SamplesCount();
 
             MyUtils.Init(ref MyGBuffer.Main);
             MyGBuffer.Main.Resize(width, height, samples, 0);

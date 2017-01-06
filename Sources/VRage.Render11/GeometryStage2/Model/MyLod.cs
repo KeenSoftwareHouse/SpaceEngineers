@@ -47,7 +47,8 @@ namespace VRage.Render11.GeometryStage2.Model
 
         // this member is standardly used for rendering
         public List<MyPart> Parts { get; private set; }
-        public Dictionary<string, MySection> Sections { get; private set; }
+        public List<MyPart> GlassParts { get; private set; }
+        public Dictionary<string, MySection> HighlightSections { get; private set; }
         
         public IVertexBuffer VB0 { get; private set; }
         public IVertexBuffer VB1 { get; private set; }
@@ -81,25 +82,39 @@ namespace VRage.Render11.GeometryStage2.Model
 
             BoundingBox = mwmData.BoundindBox;
 
-            Sections = null;
+            HighlightSections = null;
             Parts = new List<MyPart>();
+            GlassParts = null;
             
             int offset = 0;
             foreach (var mwmPartInfo in mwmData.PartInfos)
             {
-                string materialName = mwmPartInfo.GetMaterialName();
-                MyMeshDrawTechnique technique = mwmPartInfo.Technique;
-                string cmFilepath = MyMwmUtils.GetColorMetalTexture(mwmPartInfo, mwmData.MwmContentPath);
-                string ngFilepath = MyMwmUtils.GetNormalGlossTexture(mwmPartInfo, mwmData.MwmContentPath);
-                string extFilepath = MyMwmUtils.GetExtensionTexture(mwmPartInfo, mwmData.MwmContentPath);
-                string alphamaskFilepath = MyMwmUtils.GetAlphamaskTexture(mwmPartInfo, mwmData.MwmContentPath);
-                IMaterial material = MyManagers.Materials.GetOrCreateMaterial(materialName, technique, cmFilepath, ngFilepath, extFilepath, alphamaskFilepath);
-
                 // Making of parts is connected to the creating index buffer. It will worth to do it much more connected in future
                 int indicesCount = mwmPartInfo.m_indices.Count;
-                MyPart part = new MyPart();
-                part.InitForGBuffer(this, materialName, mwmData.MwmContentPath, mwmPartInfo, material, offset, indicesCount, 0);
-                Parts.Add(part);
+                string materialName = mwmPartInfo.GetMaterialName();
+                if (mwmPartInfo.Technique != MyMeshDrawTechnique.GLASS)
+                {
+                    MyMeshDrawTechnique technique = mwmPartInfo.Technique;
+                    string cmFilepath = MyMwmUtils.GetColorMetalTexture(mwmPartInfo, mwmData.MwmContentPath);
+                    string ngFilepath = MyMwmUtils.GetNormalGlossTexture(mwmPartInfo, mwmData.MwmContentPath);
+                    string extFilepath = MyMwmUtils.GetExtensionTexture(mwmPartInfo, mwmData.MwmContentPath);
+                    string alphamaskFilepath = MyMwmUtils.GetAlphamaskTexture(mwmPartInfo, mwmData.MwmContentPath);
+                    MyStandardMaterial material = MyManagers.Materials.GetOrCreateStandardMaterial(materialName, technique, cmFilepath, ngFilepath, extFilepath, alphamaskFilepath);
+
+                    MyPart part = new MyPart();
+                    part.InitForGBuffer(this, materialName, mwmData.MwmContentPath, mwmPartInfo, material, offset, indicesCount, 0);
+                    Parts.Add(part);
+                }
+                else
+                {
+                    MyGlassMaterial glassMaterial = MyManagers.Materials.GetGlassMaterial(materialName);
+
+                    MyPart part = new MyPart();
+                    part.InitForGlass(this, mwmPartInfo.GetMaterialName(), glassMaterial, mwmPartInfo.Technique, offset, indicesCount, 0);
+                    if (GlassParts == null)
+                        GlassParts = new List<MyPart>();
+                    GlassParts.Add(part); // glass parts are rendered by different pipeline than the regular "solid" geometry
+                }
                 offset += indicesCount;
 
                 setMaterialNames.Add(materialName);
@@ -120,15 +135,17 @@ namespace VRage.Render11.GeometryStage2.Model
             VertexInputComponents = MyManagers.ModelBuffers.CreateShadowVertexInputComponents(mwmData);
             m_instanceMaterialsStrategy.Init();
 
-            Sections = null;
+            HighlightSections = null;
             Parts = new List<MyPart>();
+            GlassParts = null;
             int indicesStart = 0;
             int indicesCount = 0;
             foreach (var mwmPartInfo in mwmData.PartInfos)
-            {
+            {                
                 string materialName = mwmPartInfo.GetMaterialName();
                 int partIndicesCount = mwmPartInfo.m_indices.Count;
-                if (MyMwmUtils.NoShadowCasterMaterials.Contains(materialName))
+                if (MyMwmUtils.NoShadowCasterMaterials.Contains(materialName) 
+                    && mwmPartInfo.Technique != MyMeshDrawTechnique.GLASS) // glass is not loaded and rendered for GBuffer rendering
                 { // if the current part should be skipped, we will check, whether the previous parts will create a merged part
                     if (indicesCount != 0)
                     {
@@ -168,7 +185,9 @@ namespace VRage.Render11.GeometryStage2.Model
 
             BoundingBox = mwmData.BoundindBox;
             int offset = 0;
-            Parts = new List<MyPart>();
+            // a little bit confusion, but for highlights, there is no difference between solid geometry and glass geometry, therefore glass parts are not filled and everything is in the parts
+            Parts = new List<MyPart>(); 
+            GlassParts = null;
             foreach (var mwmPartInfo in mwmData.PartInfos)
             {
                 string materialName = mwmPartInfo.GetMaterialName();
@@ -180,16 +199,16 @@ namespace VRage.Render11.GeometryStage2.Model
 
                 setMaterialNames.Add(materialName);
             }
-            Sections = null;
+            HighlightSections = null;
             if (mwmData.SectionInfos != null && mwmData.SectionInfos.Count > 0)
             {
-                Sections = new Dictionary<string, MySection>(mwmData.SectionInfos.Count);
+                HighlightSections = new Dictionary<string, MySection>(mwmData.SectionInfos.Count);
                 for (int i = 0; i < mwmData.SectionInfos.Count; i++)
                 {
                     MyMeshSectionInfo sectionInfo = mwmData.SectionInfos[i];
                     MySection section = new MySection();
                     section.Init(this, sectionInfo, Parts);
-                    Sections.Add(sectionInfo.Name, section);
+                    HighlightSections.Add(sectionInfo.Name, section);
                 }
             }
 

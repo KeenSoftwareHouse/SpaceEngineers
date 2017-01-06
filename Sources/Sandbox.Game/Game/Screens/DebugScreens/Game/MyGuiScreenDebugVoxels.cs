@@ -130,7 +130,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             //AddCheckBox("Geometry cell debug draw", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_VOXEL_GEOMETRY_CELL));
             AddCheckBox("Freeze terrain queries", MyRenderProxy.Settings.FreezeTerrainQueries, (x) => MyRenderProxy.Settings.FreezeTerrainQueries = x.IsChecked);
             AddCheckBox("Debug render clipmap cells", MyRenderProxy.Settings.DebugRenderClipmapCells, (x) => MyRenderProxy.Settings.DebugRenderClipmapCells = x.IsChecked);
-            AddCheckBox("Debug render merged cells", MyRenderProxy.Settings.DebugRenderMergedCells, (x) => MyRenderProxy.Settings.DebugRenderMergedCells = x.IsChecked);
             AddCheckBox("Wireframe", MyRenderProxy.Settings.Wireframe, (x) => MyRenderProxy.Settings.Wireframe = x.IsChecked);
             AddCheckBox("Debug clipmap lod colors", MyRenderProxy.Settings.DebugClipmapLodColor, (x) => MyRenderProxy.Settings.DebugClipmapLodColor = x.IsChecked);
             AddCheckBox("Enable physics shape discard", null, MemberHelper.GetMember(() => MyFakes.ENABLE_VOXEL_PHYSICS_SHAPE_DISCARDING));
@@ -139,7 +138,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Use lod cutting", null, MemberHelper.GetMember(() => MyClipmap.UseLodCut));
             AddCheckBox("Use storage cache", null, MemberHelper.GetMember(() => MyStorageBase.UseStorageCache));
             AddCheckBox("Use dithering", null, MemberHelper.GetMember(() => MyClipmap.UseDithering));
-            AddCheckBox("Use voxel merging", () => MyRenderProxy.Settings.EnableVoxelMerging, (x) => { VoxelMergeChanged(x); });
             AddCheckBox("Use queries", null, MemberHelper.GetMember(() => MyClipmap.UseQueries));
             AddCheckBox("Voxel AO", null, MemberHelper.GetMember(() => MyFakes.ENABLE_VOXEL_COMPUTED_OCCLUSION));
             
@@ -235,12 +233,6 @@ namespace Sandbox.Game.Screens.DebugScreens
                 if (octree != null)
                     octree.Voxelize(MyStorageDataTypeFlags.Content);
             }
-        }
-
-        private void VoxelMergeChanged(bool newValue)
-        {
-            MyRenderProxy.Settings.EnableVoxelMerging = newValue;
-            MyRenderProxy.ResetMergedVoxels();
         }
 
         private void ResetAll(MyGuiControlBase sender)

@@ -278,6 +278,11 @@ namespace VRageRender
                 RC.PixelShader.Set(m_LODShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
+            else if (MyRender11.Settings.DisplayMipmap)
+            {
+                RC.PixelShader.Set(m_baseColorShader);
+                MyScreenPass.DrawFullscreenQuad();
+            }
             else if (MyRender11.Settings.DisplayDepth)
             {
                 RC.PixelShader.Set(m_depthShader);
@@ -380,9 +385,6 @@ namespace VRageRender
 
                 MyClipmap.DebugDrawClipmaps();
             }
-
-            if (MyRender11.Settings.EnableVoxelMerging && MyRender11.Settings.DebugRenderMergedCells)
-                MyClipmap.DebugDrawMergedCells();
 
             //if(true)
             //{

@@ -149,7 +149,7 @@ namespace Sandbox.Game.Entities
             byte[] compressedData;
             foreach (var voxelMap in m_voxelMapsByEntityId.Values)
             {
-                if(includeChanged == false && voxelMap.ContentChanged)
+                if (includeChanged == false && (voxelMap.ContentChanged || voxelMap.BeforeContentChanged))
                 {
                     continue;
                 }

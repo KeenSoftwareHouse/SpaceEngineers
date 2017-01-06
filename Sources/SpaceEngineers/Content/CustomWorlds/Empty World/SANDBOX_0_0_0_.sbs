@@ -31,14 +31,14 @@
       <EntityId>124168712738897777</EntityId>
       <PersistentFlags>CastShadows InScene</PersistentFlags>
       <PositionAndOrientation>
-        <Position x="-0.33541418054789068" y="0.47338740925834627" z="-0.72635823040599057" />
-        <Forward x="0.308257729" y="0.74422425" z="-0.592543244" />
-        <Up x="0.3674646" y="0.481377363" z="0.7957673" />
+        <Position x="-6.0488120560982175" y="-3.6210254084516516" z="6.22544597487423" />
+        <Forward x="0.273779154" y="0.7332352" z="-0.6224236" />
+        <Up x="0.581567645" y="0.389232546" z="0.7143368" />
         <Orientation>
-          <X>0.448203534</X>
-          <Y>-0.0533103049</Y>
-          <Z>-0.241712436</Z>
-          <W>0.85898006</W>
+          <X>0.434277654</X>
+          <Y>0.0138250757</Y>
+          <Z>-0.341740668</Z>
+          <W>0.83332175</W>
         </Orientation>
       </PositionAndOrientation>
       <ComponentContainer>
@@ -97,8 +97,33 @@
                   </PhysicalContent>
                   <ItemId>3</ItemId>
                 </MyObjectBuilder_InventoryItem>
+                <MyObjectBuilder_InventoryItem>
+                  <Amount>10</Amount>
+                  <PhysicalContent xsi:type="MyObjectBuilder_AmmoMagazine">
+                    <SubtypeName>NATO_5p56x45mm</SubtypeName>
+                    <ProjectilesCount>0</ProjectilesCount>
+                  </PhysicalContent>
+                  <ItemId>4</ItemId>
+                </MyObjectBuilder_InventoryItem>
+                <MyObjectBuilder_InventoryItem>
+                  <Amount>1</Amount>
+                  <PhysicalContent xsi:type="MyObjectBuilder_GasContainerObject">
+                    <SubtypeName>HydrogenBottle</SubtypeName>
+                    <GasLevel>1</GasLevel>
+                  </PhysicalContent>
+                  <ItemId>5</ItemId>
+                </MyObjectBuilder_InventoryItem>
+                <MyObjectBuilder_InventoryItem>
+                  <Amount>1</Amount>
+                  <PhysicalContent xsi:type="MyObjectBuilder_OxygenContainerObject">
+                    <SubtypeName>OxygenBottle</SubtypeName>
+                    <GasLevel>1</GasLevel>
+                    <OxygenLevel>0</OxygenLevel>
+                  </PhysicalContent>
+                  <ItemId>6</ItemId>
+                </MyObjectBuilder_InventoryItem>
               </Items>
-              <nextItemId>4</nextItemId>
+              <nextItemId>7</nextItemId>
               <Volume>0.4</Volume>
               <Mass>9223372036854.775807</Mass>
               <MaxItemCount>2147483647</MaxItemCount>
@@ -145,8 +170,33 @@
             </PhysicalContent>
             <ItemId>3</ItemId>
           </MyObjectBuilder_InventoryItem>
+          <MyObjectBuilder_InventoryItem>
+            <Amount>10</Amount>
+            <PhysicalContent xsi:type="MyObjectBuilder_AmmoMagazine">
+              <SubtypeName>NATO_5p56x45mm</SubtypeName>
+              <ProjectilesCount>0</ProjectilesCount>
+            </PhysicalContent>
+            <ItemId>4</ItemId>
+          </MyObjectBuilder_InventoryItem>
+          <MyObjectBuilder_InventoryItem>
+            <Amount>1</Amount>
+            <PhysicalContent xsi:type="MyObjectBuilder_GasContainerObject">
+              <SubtypeName>HydrogenBottle</SubtypeName>
+              <GasLevel>1</GasLevel>
+            </PhysicalContent>
+            <ItemId>5</ItemId>
+          </MyObjectBuilder_InventoryItem>
+          <MyObjectBuilder_InventoryItem>
+            <Amount>1</Amount>
+            <PhysicalContent xsi:type="MyObjectBuilder_OxygenContainerObject">
+              <SubtypeName>OxygenBottle</SubtypeName>
+              <GasLevel>1</GasLevel>
+              <OxygenLevel>0</OxygenLevel>
+            </PhysicalContent>
+            <ItemId>6</ItemId>
+          </MyObjectBuilder_InventoryItem>
         </Items>
-        <nextItemId>4</nextItemId>
+        <nextItemId>7</nextItemId>
         <Volume>0.4</Volume>
         <Mass>9223372036854.775807</Mass>
         <MaxItemCount>2147483647</MaxItemCount>
@@ -161,7 +211,7 @@
       <UsingLadder xsi:nil="true" />
       <HeadAngle x="0" y="0" />
       <LinearVelocity x="0" y="0" z="0" />
-      <AutoenableJetpackDelay>0</AutoenableJetpackDelay>
+      <AutoenableJetpackDelay>-1</AutoenableJetpackDelay>
       <JetpackEnabled>true</JetpackEnabled>
       <ColorMaskHSV x="0" y="0" z="0.05" />
       <LootingCounter>0</LootingCounter>

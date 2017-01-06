@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <MyObjectBuilder_Checkpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <CurrentSector x="0" y="0" z="0" />
-  <ElapsedGameTime>42653120000</ElapsedGameTime>
+  <ElapsedGameTime>43225440000</ElapsedGameTime>
   <SessionName>Crashed Red Ship</SessionName>
   <SpectatorPosition>
-    <Position x="61.20133" y="1.567439439999998" z="-65.2679749" />
-    <Forward x="0.286699116" y="-0.0901593938" z="-0.9537688" />
-    <Up x="0.660149" y="0.7400649" z="0.128480136" />
+    <Position x="61.201330000000006" y="1.5674394399999949" z="-65.267974900000027" />
+    <Forward x="0.286699116" y="-0.09015941" z="-0.9537688" />
+    <Up x="0.660149038" y="0.7400649" z="0.128480136" />
     <Orientation>
-      <X>0.010409398</X>
+      <X>0.0104093943</X>
       <Y>-0.151681423</Y>
       <Z>-0.3603598</Z>
       <W>0.9203397</W>
@@ -20,8 +20,8 @@
   <ControlledObject>86208313046784751</ControlledObject>
   <Password />
   <Description />
-  <LastSaveTime>2016-12-14T12:28:55.7902347+01:00</LastSaveTime>
-  <SpectatorDistance>89.71641</SpectatorDistance>
+  <LastSaveTime>2016-12-19T15:03:40.6841101+01:00</LastSaveTime>
+  <SpectatorDistance>2.6</SpectatorDistance>
   <CharacterToolbar>
     <ToolbarType>Character</ToolbarType>
     <SelectedSlot xsi:nil="true" />
@@ -96,14 +96,14 @@
       <item>
         <Key xsi:type="xsd:long">86208313046784751</Key>
         <Value xsi:type="PlayerId">
-          <ClientId>76561197962586839</ClientId>
+          <ClientId>76561197967630685</ClientId>
           <SerialId>0</SerialId>
         </Value>
       </item>
     </dictionary>
   </ControlledEntities>
   <Settings xsi:type="MyObjectBuilder_SessionSettings">
-    <GameMode>Survival</GameMode>
+    <GameMode>Creative</GameMode>
     <InventorySizeMultiplier>10</InventorySizeMultiplier>
     <AssemblerSpeedMultiplier>3</AssemblerSpeedMultiplier>
     <AssemblerEfficiencyMultiplier>3</AssemblerEfficiencyMultiplier>
@@ -116,9 +116,9 @@
     <MaxBlocksPerPlayer>100000</MaxBlocksPerPlayer>
     <EnableBlockLimits>true</EnableBlockLimits>
     <EnableRemoteBlockRemoval>true</EnableRemoteBlockRemoval>
-    <EnvironmentHostility>NORMAL</EnvironmentHostility>
+    <EnvironmentHostility>SAFE</EnvironmentHostility>
     <AutoHealing>true</AutoHealing>
-    <EnableCopyPaste>false</EnableCopyPaste>
+    <EnableCopyPaste>true</EnableCopyPaste>
     <WeaponsEnabled>true</WeaponsEnabled>
     <ShowPlayerNamesOnHud>true</ShowPlayerNamesOnHud>
     <ThrusterDamage>true</ThrusterDamage>
@@ -135,7 +135,7 @@
     <AutoSaveInMinutes>5</AutoSaveInMinutes>
     <SpawnShipTimeMultiplier>0.5</SpawnShipTimeMultiplier>
     <ProceduralDensity>0.25</ProceduralDensity>
-    <ProceduralSeed>644880721</ProceduralSeed>
+    <ProceduralSeed>0</ProceduralSeed>
     <DestructibleBlocks>true</DestructibleBlocks>
     <EnableIngameScripts>true</EnableIngameScripts>
     <ViewDistance>15000</ViewDistance>
@@ -143,14 +143,14 @@
     <EnableToolShake>true</EnableToolShake>
     <VoxelGeneratorVersion>2</VoxelGeneratorVersion>
     <EnableOxygen>true</EnableOxygen>
-    <EnableOxygenPressurization>true</EnableOxygenPressurization>
+    <EnableOxygenPressurization>false</EnableOxygenPressurization>
     <Enable3rdPersonView>true</Enable3rdPersonView>
     <EnableEncounters>true</EnableEncounters>
     <EnableFlora>true</EnableFlora>
     <EnableConvertToStation>true</EnableConvertToStation>
     <StationVoxelSupport>false</StationVoxelSupport>
     <EnableSunRotation>true</EnableSunRotation>
-    <EnableRespawnShips>false</EnableRespawnShips>
+    <EnableRespawnShips>true</EnableRespawnShips>
     <ScenarioEditMode>false</ScenarioEditMode>
     <Scenario>false</Scenario>
     <CanJoinRunning>false</CanJoinRunning>
@@ -230,7 +230,7 @@
       <dictionary />
     </variables>
   </ScriptManagerData>
-  <AppVersion>1165011</AppVersion>
+  <AppVersion>1166003</AppVersion>
   <Factions>
     <Factions>
       <MyObjectBuilder_Faction>
@@ -272,31 +272,31 @@
   <Identities>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855971</IdentityId>
-      <DisplayName>Steinmarder</DisplayName>
+      <DisplayName>Skinface</DisplayName>
       <CharacterEntityId>86208313046784751</CharacterEntityId>
       <Model>Default_Astronaut</Model>
       <ColorMask x="0" y="-0.8" z="0.6" />
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T11:14:26.2457914+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T15:02:39.2929716+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855972</IdentityId>
       <DisplayName>Space Pirates</DisplayName>
       <CharacterEntityId>0</CharacterEntityId>
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T11:14:26.2572993+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T15:02:39.2999723+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
   </Identities>
-  <PreviousEnvironmentHostility>NORMAL</PreviousEnvironmentHostility>
+  <PreviousEnvironmentHostility>SAFE</PreviousEnvironmentHostility>
   <AllPlayersData>
     <dictionary>
       <item>
         <Key xsi:type="PlayerId">
-          <ClientId>76561197962586839</ClientId>
+          <ClientId>76561197967630685</ClientId>
           <SerialId>0</SerialId>
         </Key>
         <Value xsi:type="MyObjectBuilder_Player">
-          <DisplayName>Steinmarder</DisplayName>
+          <DisplayName>Skinface</DisplayName>
           <IdentityId>144115188075855971</IdentityId>
           <Connected>true</Connected>
           <Toolbar>
@@ -368,18 +368,7 @@
               </Slot>
             </Slots>
           </Toolbar>
-          <CharacterCameraData EntityId="0">
-            <IsFirstPerson>true</IsFirstPerson>
-            <Distance>0</Distance>
-            <HeadAngle xsi:nil="true" />
-          </CharacterCameraData>
-          <EntityCameraData>
-            <CameraControllerSettings EntityId="96309949288400968">
-              <IsFirstPerson>false</IsFirstPerson>
-              <Distance>109.38537885094877</Distance>
-              <HeadAngle x="0" y="0" />
-            </CameraControllerSettings>
-          </EntityCameraData>
+          <EntityCameraData />
           <BuildColorSlots>
             <Vector3>
               <X>0</X>
@@ -449,13 +438,95 @@
             <Vector3>
               <X>0</X>
               <Y>-0.81</Y>
-              <Z>-0.3</Z>
+              <Z>-0.13</Z>
             </Vector3>
           </BuildColorSlots>
         </Value>
       </item>
     </dictionary>
   </AllPlayersData>
+  <AllPlayersColors>
+    <dictionary>
+      <item>
+        <Key xsi:type="PlayerId">
+          <ClientId>76561197996829390</ClientId>
+          <SerialId>0</SerialId>
+        </Key>
+        <Value xsi:type="ArrayOfVector3">
+          <Vector3>
+            <X>0</X>
+            <Y>-1</Y>
+            <Z>0</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>0.05</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.333333343</X>
+            <Y>-0.48</Y>
+            <Z>-0.25</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.575</X>
+            <Y>0</Y>
+            <Z>0</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.122222222</X>
+            <Y>-0.1</Y>
+            <Z>0.26</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.95</Y>
+            <Z>0.4</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.96</Y>
+            <Z>-0.5</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.85</Y>
+            <Z>0.2</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>0.15</Y>
+            <Z>0.25</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.333333343</X>
+            <Y>-0.329999983</Y>
+            <Z>-0.049999997</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.575</X>
+            <Y>0.15</Y>
+            <Z>0.2</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.122222222</X>
+            <Y>0.0500000045</Y>
+            <Z>0.459999979</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.799999952</Y>
+            <Z>0.6</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.809999943</Y>
+            <Z>-0.3</Z>
+          </Vector3>
+        </Value>
+      </item>
+    </dictionary>
+  </AllPlayersColors>
   <ChatHistory />
   <FactionChatHistory />
   <NonPlayerIdentities>
@@ -513,11 +584,11 @@
       <Mod />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_EnvironmentBotSpawningSystem">
-      <TimeSinceLastEventInMs>32636</TimeSinceLastEventInMs>
+      <TimeSinceLastEventInMs>99593</TimeSinceLastEventInMs>
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_CoordinateSystem">
       <Definition Type="MyObjectBuilder_CoordinateSystemDefinition" Subtype="CoordinateSystem" />
-      <LastCoordSysId>1</LastCoordSysId>
+      <LastCoordSysId>2</LastCoordSysId>
       <CoordSystems />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SectorWeatherComponent">

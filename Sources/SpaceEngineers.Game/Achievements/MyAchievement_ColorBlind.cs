@@ -1,4 +1,5 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Game;
+using Sandbox.Game.Entities;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
 using System.Collections.Generic;
@@ -61,6 +62,9 @@ namespace SpaceEngineers.Game.Achievements
         private void Controller_ControlledEntityChanged(IMyControllableEntity oldEnt, IMyControllableEntity newEnt)
         {
             if (newEnt == null)
+                return;
+
+            if (MyCampaignManager.Static.IsCampaignRunning)
                 return;
 
             var grid = newEnt.Entity.Parent as MyCubeGrid;

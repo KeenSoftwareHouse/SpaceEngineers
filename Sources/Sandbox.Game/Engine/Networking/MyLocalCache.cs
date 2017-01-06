@@ -75,6 +75,8 @@ namespace Sandbox.Engine.Networking
                 if (!File.Exists(checkpointFile))
                     return null;
 
+                worldInfo = new MyWorldInfo();
+
                 using (var stream = MyFileSystem.OpenRead(checkpointFile).UnwrapGZip())
                 {
                     doc = XDocument.Load(stream);
@@ -92,8 +94,6 @@ namespace Sandbox.Engine.Networking
                 var briefing = root.Element("Briefing");
                 var settings = root.Element("Settings");
                 var scenarioEdit = settings != null ? root.Element("Settings").Element("ScenarioEditMode") : null;
-
-                worldInfo = new MyWorldInfo();
 
                 if (session      != null) worldInfo.SessionName = session.Value;
                 if (description  != null) worldInfo.Description = description.Value;
@@ -114,6 +114,7 @@ namespace Sandbox.Engine.Networking
             catch (Exception ex)
             {
                 MySandboxGame.Log.WriteLine(ex);
+                worldInfo.IsCorrupted = true;
             }
             return worldInfo;
         }
@@ -203,12 +204,6 @@ namespace Sandbox.Engine.Networking
             var result = new List<Tuple<string, MyWorldInfo>>();
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.ALL))
             {
-                //if (MyFakes.ENABLE_LOADING_CONTENT_WORLDS)
-                //{
-                //    // Search in Content/Sessions as well as App Data folder
-                //    GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, ContentSessionsPath), result);
-                //}
-
                 GetWorldInfoFromDirectory(customPath ?? MyFileSystem.SavesPath, result);
 
                 LoadLastLoadedTimes(result);

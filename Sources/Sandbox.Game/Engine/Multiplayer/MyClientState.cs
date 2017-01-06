@@ -257,5 +257,16 @@ namespace Sandbox.Engine.Multiplayer
                 }
             }
         }
+
+        public override IMyReplicable ControlledReplicable
+        {
+            get 
+            {
+                MyPlayer player = this.GetPlayer();
+                if (player == null) return null;
+                MyCharacter controlledCharacter = player.Character;
+                return controlledCharacter != null ? MyExternalReplicable.FindByObject(controlledCharacter) : null; 
+            }
+        }
     }
 }

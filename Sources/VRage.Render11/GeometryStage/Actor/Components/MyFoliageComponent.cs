@@ -57,7 +57,7 @@ namespace VRageRender
             }
             m_pendingComponentsToInit.Clear();
 
-            BoundingSphereD sphere = new BoundingSphereD(MyRender11.Environment.Matrices.CameraPosition, MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance());
+            BoundingSphereD sphere = new BoundingSphereD(MyRender11.Environment.Matrices.CameraPosition, MyRender11.Settings.User.FoliageDetails.GrassDrawDistance());
             MyScene.FoliageDBVH.OverlapAllBoundingSphere(ref sphere, m_componentsInRadius);
 
             foreach (var foliageComponent in m_activeComponents)
@@ -157,7 +157,8 @@ namespace VRageRender
 
         void PrepareStream(int materialId, int triangles, int voxelLod)
         {
-            float densityFactor = MyRender11.Settings.GrassDensityFactor * (float)MathHelper.Lerp(2 * AllocationFactor, 1.0, MyRender11.Settings.GrassDensityFactor / 10.0);
+            float densityFactor = MyRender11.Settings.User.GrassDensityFactor * 
+                (float)MathHelper.Lerp(2 * AllocationFactor, 1.0, MyRender11.Settings.User.GrassDensityFactor / 10.0);
             if (densityFactor < 0.1f)
             {
                 densityFactor = 0.1f;
@@ -197,11 +198,7 @@ namespace VRageRender
             if (voxelMeshNotReady)
                 return false;
 
-            int partsNum;
-            if (MyMeshes.IsMergedVoxelMesh(mesh))
-                partsNum = MyMeshes.GetMergedLodMesh(mesh, 0).Info.PartsNum;
-            else
-                partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
+            int partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
 
             // only stream stones for lod0
             if (voxelLod > 0)
@@ -250,11 +247,7 @@ namespace VRageRender
             if (!Owner.IsVisible)
                 return;
 
-            int partsNum;
-            if (MyMeshes.IsMergedVoxelMesh(mesh))
-                partsNum = MyMeshes.GetMergedLodMesh(mesh, 0).Info.PartsNum;
-            else
-                partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
+            int partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
 
             if(m_streams == null)
                 m_streams = new Dictionary<int, MyFoliageStream>();
@@ -318,7 +311,7 @@ namespace VRageRender
             
             // get shader for streaming
             MyFileTextureEnum textureTypes = proxy.Material == MyMeshMaterialId.NULL ? MyFileTextureEnum.UNSPECIFIED : proxy.Material.Info.TextureTypes;
-            var bundle = MyMaterialShaders.Get(MyMaterialShaders.MULTI_MATERIAL_TAG,
+            var bundle = MyMaterialShaders.Get(MyMaterialShaders.TRIPLANAR_MULTI_MATERIAL_TAG,
                 MyMaterialShaders.FOLIAGE_STREAMING_PASS_ID, MyMeshes.VoxelLayout,
                 renderable.Lods[0].VertexShaderFlags &~ MyShaderUnifiedFlags.USE_VOXEL_MORPHING, textureTypes);
 

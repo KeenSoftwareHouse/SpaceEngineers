@@ -134,6 +134,7 @@ namespace Sandbox.Game.Entities
             protected set
             {
                 m_contentChanged = value;
+                //TODO: alwawys set false?
                 BeforeContentChanged = false;
             }
 
@@ -209,6 +210,7 @@ namespace Sandbox.Game.Entities
         }
 
         abstract public void Init(MyObjectBuilder_EntityBase builder, Sandbox.Engine.Voxels.IMyStorage storage);
+
         public void Init(string storageName, Sandbox.Engine.Voxels.IMyStorage storage, Vector3D positionMinCorner)
         {
             MatrixD worldMatrix = MatrixD.CreateTranslation(positionMinCorner + storage.Size / 2);
@@ -1088,6 +1090,7 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Broadcast]
         private void CreateVoxelMeteorCrater_Implementation(Vector3D center, float radius, Vector3 normal, byte material)
         {
+            BeforeContentChanged = true;
             MyVoxelGenerator.MakeCrater(this, new BoundingSphere(center, radius), normal, MyDefinitionManager.Static.GetVoxelMaterialDefinition(material));
         }
 

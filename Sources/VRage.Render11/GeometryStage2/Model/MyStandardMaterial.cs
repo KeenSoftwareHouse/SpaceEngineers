@@ -6,16 +6,7 @@ using VRageRender.Import;
 
 namespace VRage.Render11.GeometryStage2.Model
 {
-    interface IMaterial
-    {
-        ISrvBindable[] Srvs { get; }
-        IDepthStencilState DepthStencilState { get; }
-        IBlendState BlendState { get; }
-        IRasterizerState RasterizerState { get; }
-        bool IsFaceCullingEnabled { get; }
-    }
-
-    struct MyMaterialKey : IEquatable<MyMaterialKey>
+    struct MyStandardMaterialKey : IEquatable<MyStandardMaterialKey>
     {
         public MyMeshDrawTechnique Technique;
         public string CmFilepath;
@@ -25,13 +16,13 @@ namespace VRage.Render11.GeometryStage2.Model
 
         public override bool Equals(object key)
         {
-            if (!(key is MyMaterialKey))
+            if (!(key is MyStandardMaterialKey))
                 return false;
 
-            return Equals((MyMaterialKey)key);
+            return Equals((MyStandardMaterialKey)key);
         }
 
-        public bool Equals(MyMaterialKey key)
+        public bool Equals(MyStandardMaterialKey key)
         {
             if (Technique != key.Technique)
                 return false;
@@ -52,7 +43,7 @@ namespace VRage.Render11.GeometryStage2.Model
         }
     }
 
-    class MyMaterial : IMaterial
+    class MyStandardMaterial
     {
         ISrvBindable[] m_srvs;
         IDepthStencilState m_depthStencilState;
@@ -143,8 +134,7 @@ namespace VRage.Render11.GeometryStage2.Model
             m_isFaceCullingEnabled = true;
         }
 
-
-        public void Init(MyMaterialKey key)
+        public void Init(MyStandardMaterialKey key)
         {
             if (key.Technique == MyMeshDrawTechnique.MESH)
                 InitStandard(key.CmFilepath, key.NgFilepath, key.ExtFilepath);
@@ -156,6 +146,8 @@ namespace VRage.Render11.GeometryStage2.Model
                 InitDecal(key.CmFilepath, key.NgFilepath, key.ExtFilepath, key.AlphamaskFilepath, true, true);
             else if (key.Technique == MyMeshDrawTechnique.ALPHA_MASKED)
                 InitAlphamask(key.CmFilepath, key.NgFilepath, key.ExtFilepath, key.AlphamaskFilepath);
+            else if (key.Technique == MyMeshDrawTechnique.GLASS)
+                MyRenderProxy.Error("Glass material cannot be processed by this object");
             else
                 MyRenderProxy.Error("Material is not resolved, please extend the functionality of the new pipeline or move object to the old pipeline");
         }

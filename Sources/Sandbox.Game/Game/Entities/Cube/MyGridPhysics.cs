@@ -312,6 +312,10 @@ namespace Sandbox.Game.Entities.Cube
                 //highly improves performance (2.5* + earlier going to sleep)
                 return HkBreakOffLogicResult.DoNotBreakOff;
             }
+
+            //TODO: hotfix, fixes unbreakable welded ships but it should be enough to set it once in a proper place
+            if(WeldInfo.Children.Count > 0)
+                HavokWorld.BreakOffPartsUtil.MarkEntityBreakable(RigidBody, Shape.BreakImpulse);
             return HkBreakOffLogicResult.UseLimit;
         }
 

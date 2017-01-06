@@ -36,7 +36,7 @@ namespace VRageRender
         /// <param name="position">Direction on the baseline. Text will advance from this position.</param>
         /// <param name="maxTextWidth">Maximum width of the text. Texts wider than this will be truncated and they will end with an ellipsis.</param>
         /// <returns>Width of the text (in pixels).</returns>
-        internal float DrawString(Vector2 position, Color colorMask, StringBuilder text, float scale, float maxTextWidth = float.PositiveInfinity)
+        internal float DrawString(Vector2 position, Color colorMask, string text, float scale, float maxTextWidth = float.PositiveInfinity)
         {
             scale *= MyRenderGuiConstants.FONT_SCALE;
             Vector2 vOrigin = new Vector2(0, 0);

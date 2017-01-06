@@ -135,13 +135,19 @@ namespace Sandbox.Engine.Physics
                     {
                         m_rigidBody.ContactSoundCallback -= MyPhysicsBody_ContactSoundCallback;
                         m_rigidBody.ContactPointCallback -= OnContactPointCallback;
+
+                        m_rigidBody.Activated -= OnDynamicRigidBodyActivated;
+                        m_rigidBody.Deactivated -= OnDynamicRigidBodyDeactivated;
                     }
                     m_rigidBody = value;
                     if (m_rigidBody != null)
                     {
                         m_rigidBody.ContactPointCallback += OnContactPointCallback;
                         m_rigidBody.ContactSoundCallback += MyPhysicsBody_ContactSoundCallback;
-                    }
+
+                        m_rigidBody.Activated += OnDynamicRigidBodyActivated;
+                        m_rigidBody.Deactivated += OnDynamicRigidBodyDeactivated;
+                    }                 
                 }
             }
         }
@@ -225,6 +231,9 @@ namespace Sandbox.Engine.Physics
                 return false;
             }
         }
+
+        // True for piston subparts only
+        public bool IsSubpart { get; set; }
 
         protected override void CloseRigidBody()
         {
@@ -452,6 +461,7 @@ namespace Sandbox.Engine.Physics
             this.m_enabled = false;
             this.Entity = entity;
             this.Flags = flags;
+            this.IsSubpart = false;
         }
 
         void MyPhysicsBody_ContactSoundCallback(ref HkContactPointEvent e)
@@ -1121,6 +1131,15 @@ false,
             }
             m_constraintsAddBatch.Clear();
 
+            if (CharacterProxy != null)
+            {
+                //has to be called after all entities are in world
+                //otherwise character will fly(jetpack on) through obstacles after reorder clusters
+                var characterBody = CharacterProxy.GetRigidBody();
+                if(characterBody != null)
+                    m_world.RefreshCollisionFilterOnEntity(characterBody); 
+            }
+
             if (ReactivateRagdoll)
             {
                 GetRigidBodyMatrix(out m_bodyMatrix);
@@ -1209,6 +1228,9 @@ false,
             if (Entity == null)
                 return;
 
+            if (!IsSubpart && (Entity.Parent != null)) //Parent should take care of moving children but now for piston subpart
+                return;
+
             if (this.Flags == RigidBodyFlag.RBF_DISABLE_COLLISION_RESPONSE)
             {
                 return;
@@ -1231,17 +1253,24 @@ false,
                 // To prevent disconnect movement between dynamic and kinematic
                 // Setting motion to prevent body activation (we don't want to activate kinematic body)
                 ProfilerShort.Begin("Set doubled body");
-                RigidBody2.Motion.SetWorldMatrix(rbo.GetRigidBodyMatrix());
+                //RigidBody2.Motion.SetWorldMatrix(rbo.GetRigidBodyMatrix());
+                                  
+                Matrix mt = rbo.PredictRigidBodyMatrix(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, HavokWorld);
+                Quaternion nextOrientation = Quaternion.CreateFromRotationMatrix(mt);
+                Vector4 nextPosition = new Vector4(mt.Translation.X, mt.Translation.Y, mt.Translation.Z, 0);
+                HkKeyFrameUtility.ApplyHardKeyFrame(ref nextPosition, ref nextOrientation, 1.0f/MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, RigidBody2);
+              
+                //Console.WriteLine("Rb Omg:{0} {1} {2} Omg2:{3} {4} {5}\n", rbo.AngularVelocity.X, rbo.AngularVelocity.Y, rbo.AngularVelocity.Z, RigidBody2.AngularVelocity.X, RigidBody2.AngularVelocity.Y, RigidBody2.AngularVelocity.Z);
+                //Console.WriteLine("LV:{0} {1} {2} LV2:{3} {4} {5}\n", rbo.LinearVelocity.X, rbo.LinearVelocity.Y, rbo.LinearVelocity.Z, RigidBody2.LinearVelocity.X, RigidBody2.LinearVelocity.Y, RigidBody2.LinearVelocity.Z); 
+
+                // Add mixed balanced angular velocity
+                const float w = 0.1f;
+                RigidBody2.AngularVelocity = RigidBody2.AngularVelocity * w + rbo.AngularVelocity * (1 - w);
+                             
                 ProfilerShort.End();
             }
-
-            if (Entity.Parent != null) //Parent should take care of moving children
-            {
-                ProfilerShort.End();
-                return;
-            }
-
-            const int MaxIgnoredMovements = 5;
+                       
+            const int MaxIgnoredMovements = -1; // Default 5
             const float MinVelocitySq = 0.00000001f;
             m_motionCounter++;
             if (m_motionCounter > MaxIgnoredMovements ||
@@ -1274,6 +1303,40 @@ false,
             ProfilerShort.End();
         }
 
+        public void SynchronizeKeyframedRigidBody()
+        {
+            if ( (RigidBody != null) && (RigidBody2 != null) )
+            {
+                if(RigidBody.IsActive != RigidBody2.IsActive)
+                {
+                    Console.WriteLine(" RigidBody:{0} RigidBody2:{1} ", RigidBody.IsActive, RigidBody2.IsActive);
+
+                    if (RigidBody.IsActive)
+                    {
+                        RigidBody2.IsActive = true;
+                    }
+                    else
+                    {
+                        // Reset velocities
+                        RigidBody2.LinearVelocity = Vector3.Zero;
+                        RigidBody2.AngularVelocity = Vector3.Zero;
+
+                        RigidBody2.IsActive = false;
+                    }
+                }               
+            }            
+        }
+
+        void OnDynamicRigidBodyActivated(HkEntity entity)
+        {
+            SynchronizeKeyframedRigidBody();
+        }
+
+        void OnDynamicRigidBodyDeactivated(HkEntity entity)
+        {
+            SynchronizeKeyframedRigidBody();
+        }
+
         public override MatrixD GetWorldMatrix()
         {
             if (WeldInfo.Parent != null)
@@ -1281,14 +1344,14 @@ false,
 
             MatrixD entityMatrix;
 
-            if (RigidBody2 != null)
-            {
-                entityMatrix = RigidBody2.GetRigidBodyMatrix();
-                entityMatrix.Translation += Offset;
-            }
-            else if (RigidBody != null)
+            if (RigidBody != null)
             {
                 entityMatrix = RigidBody.GetRigidBodyMatrix();
+                entityMatrix.Translation += Offset;
+            }
+            else if (RigidBody2 != null)
+            {
+                entityMatrix = RigidBody2.GetRigidBodyMatrix();
                 entityMatrix.Translation += Offset;
             }
             else if (CharacterProxy != null)
@@ -1372,7 +1435,8 @@ false,
 
             if (CharacterProxy != null)
             {
-                CharacterProxy.Position = m_bodyMatrix.Translation;
+
+                //CharacterProxy.Position = m_bodyMatrix.Translation; // Position is set later by SetRigidBodyTransform
                 CharacterProxy.Forward = m_bodyMatrix.Forward;
                 CharacterProxy.Up = m_bodyMatrix.Up;
                 CharacterProxy.Speed = 0;
@@ -1654,9 +1718,23 @@ false,
 
             if (CharacterProxy != null)
             {
+                // obtain this character new system group id for collision filtering
+                CharacterSystemGroupCollisionFilterID = m_world.GetCollisionFilter().GetNewSystemGroup();
+                // Calculate filter info for this character
+                CharacterCollisionFilter = HkGroupFilter.CalcFilterInfo(MyPhysics.CollisionLayers.CharacterCollisionLayer, CharacterSystemGroupCollisionFilterID, 1, 1);
+                CharacterProxy.SetCollisionFilterInfo(CharacterCollisionFilter);
+
                 CharacterProxy.SetRigidBodyTransform(m_bodyMatrix);
                 CharacterProxy.Activate(m_world);
             }
+
+            if (SwitchToRagdollModeOnActivate)
+            {
+                if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.Activate.SwitchToRagdollModeOnActivate");
+                SwitchToRagdollModeOnActivate = false;
+                SwitchToRagdollMode(m_ragdollDeadMode);
+            }
+
 
             foreach (var constraint in m_constraints)
             {
@@ -1665,12 +1743,12 @@ false,
                 m_constraintsAddBatch.Add(constraint);
             }
 
-            if (ReactivateRagdoll)
-            {
-                if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.ActivateBatch.ReactivateRagdoll");
-                ActivateRagdoll(m_bodyMatrix);
-                ReactivateRagdoll = false;
-            }
+            //if (ReactivateRagdoll)
+            //{
+            //    if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.ActivateBatch.ReactivateRagdoll");
+            //    ActivateRagdoll(m_bodyMatrix);
+            //    ReactivateRagdoll = false;
+            //}
 
         }
         public void UpdateCluster()

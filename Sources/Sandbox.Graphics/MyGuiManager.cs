@@ -186,6 +186,11 @@ namespace Sandbox.Graphics
 
         }
 
+        public static bool FontExists(string font)
+        {
+            return m_fontsById.ContainsKey(MyStringHash.GetOrCompute(font));
+        }
+
         public static void LoadContent(MyFontDescription[] fonts)
         {
             VRageRender.MyRenderProxy.Log.WriteLine("MyGuiManager2.LoadContent() - START");
@@ -312,7 +317,7 @@ namespace Sandbox.Graphics
                 (int)MyStringHash.Get(font),
                 screenCoord,
                 colorMask ?? new Color(MyGuiConstants.LABEL_TEXT_COLOR),
-                text,
+                text.ToString(),
                 screenScale,
                 screenMaxWidth);
         }

@@ -297,18 +297,23 @@ namespace Sandbox.Game.Entities.Blocks
             var subpart = m_subpart1;
             if (subpart == null || CubeGrid.Physics == null)
                 return;
-            m_subpartPhysics = new MyPhysicsBody(this, CubeGrid.IsStatic ? RigidBodyFlag.RBF_STATIC : (CubeGrid.GridSizeEnum == MyCubeSize.Large ? RigidBodyFlag.RBF_DOUBLED_KINEMATIC : RigidBodyFlag.RBF_DEFAULT));
+            //m_subpartPhysics = new MyPhysicsBody(this, CubeGrid.IsStatic ? RigidBodyFlag.RBF_STATIC : (CubeGrid.GridSizeEnum == MyCubeSize.Large ? RigidBodyFlag.RBF_DOUBLED_KINEMATIC : RigidBodyFlag.RBF_DEFAULT));
+            m_subpartPhysics = new MyPhysicsBody(this, CubeGrid.IsStatic ? RigidBodyFlag.RBF_DEFAULT : (CubeGrid.GridSizeEnum == MyCubeSize.Large ? RigidBodyFlag.RBF_DOUBLED_KINEMATIC : RigidBodyFlag.RBF_DEFAULT));
             const float threshold = 0.11f; // Must be bigger than 2x convex radius
             HkCylinderShape shape = new HkCylinderShape(new Vector3(0, -2, 0), new Vector3(0, 2, 0), CubeGrid.GridSize / 2 - threshold, 0.05f);
             var mass = HkInertiaTensorComputer.ComputeCylinderVolumeMassProperties(new Vector3(0, -2, 0), new Vector3(0, 2, 0), CubeGrid.GridSize / 2, 40.0f * CubeGrid.GridSize);
             mass.Mass = BlockDefinition.Mass;
             m_subpartPhysics.CreateFromCollisionObject(shape, Vector3.Zero, subpart.WorldMatrix, mass);
-            var info = HkGroupFilter.CalcFilterInfo(CubeGrid.Physics.RigidBody.Layer, CubeGrid.Physics.HavokCollisionSystemID, 1, 1);
+            m_subpartPhysics.RigidBody.Layer = CubeGrid.Physics.RigidBody.Layer;
+            var info = HkGroupFilter.CalcFilterInfo(m_subpartPhysics.RigidBody.Layer, CubeGrid.Physics.HavokCollisionSystemID, 1, 1);
             m_subpartPhysics.RigidBody.SetCollisionFilterInfo(info);
             shape.Base.RemoveReference();
             if (m_subpartPhysics.RigidBody2 != null)
                 m_subpartPhysics.RigidBody2.Layer = MyPhysics.CollisionLayers.KinematicDoubledCollisionLayer;
             CubeGrid.OnHavokSystemIDChanged += CubeGrid_OnHavokSystemIDChanged;
+
+            m_subpartPhysics.IsSubpart = true;
+
             CreateSubpartsConstraint(subpart);
 
             m_posChanged = true;
@@ -424,9 +429,10 @@ namespace Sandbox.Game.Entities.Blocks
             m_posChanged = false;
             //We are updating once 10 frames so we need to account for velocity when retracting
             var speedCorrection = Math.Abs(Velocity < 0 ? Velocity / 6 : 0);
-            Vector3 vertexA = new Vector3(0, -m_currentPos * 0.5f + speedCorrection - 0.1f, 0);
-            Vector3 vertexB = new Vector3(0, m_currentPos * 0.5f - speedCorrection , 0);
-
+            float subpartOffset = 0.5f; //<ib.clang> Magic offset to move piston body out of base
+            Vector3 vertexA = new Vector3(0, subpartOffset - m_currentPos * 0.5f + speedCorrection - 0.1f, 0);
+            Vector3 vertexB = new Vector3(0, subpartOffset + m_currentPos * 0.5f - speedCorrection, 0);
+            
             if (vertexB.Y - vertexA.Y > 0.1f) //larger than convex radius
             {
                 var existingShape = m_subpartPhysics.RigidBody.GetShape();
@@ -440,6 +446,9 @@ namespace Sandbox.Game.Entities.Blocks
                     cyl.VertexA = vertexA;
                     cyl.VertexB = vertexB;
                     m_subpartPhysics.RigidBody.UpdateShape();
+
+                    if(m_subpartPhysics.RigidBody2 != null)
+                        m_subpartPhysics.RigidBody2.UpdateShape();
                 }
                 else
                 {
@@ -539,7 +548,7 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     if (m_currentPos > MinLimit)
                     {
-                        m_currentPos.Value = Math.Max(m_currentPos + compensatedDelta, MinLimit);
+                        m_currentPos.Value = Math.Max(m_currentPos.Value + compensatedDelta, MinLimit);
                         changed = true;
                         if (m_currentPos.Value <= MinLimit)
                         {
@@ -550,7 +559,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 else if (m_currentPos < MaxLimit)
                 {
-                    m_currentPos.Value = Math.Min(m_currentPos + compensatedDelta, MaxLimit);
+                    m_currentPos.Value = Math.Min(m_currentPos.Value + compensatedDelta, MaxLimit);
                     changed = true;
                     if (m_currentPos.Value >= MaxLimit)
                     {
@@ -701,12 +710,12 @@ namespace Sandbox.Game.Entities.Blocks
             m_fixedData = new HkFixedConstraintData();
             m_fixedData.SetInertiaStabilizationFactor(10);
             m_fixedData.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
+
             m_fixedData.SetInBodySpace(matA, matB, CubeGrid.Physics, TopGrid.Physics);
 
             //Dont dispose the fixed data or we wont have access to them
 
-            m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, topBlock.CubeGrid.Physics.RigidBody,
-                m_fixedData);
+            m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, topBlock.CubeGrid.Physics.RigidBody, m_fixedData);
             m_constraint.WantRuntime = true;
 
             CubeGrid.Physics.AddConstraint(m_constraint);

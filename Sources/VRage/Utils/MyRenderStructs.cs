@@ -74,6 +74,7 @@ namespace VRage
         public MyShort4 PackedPositionAndAmbientMaterialMorph;
         public Byte4 PackedNormal;
         public Byte4 PackedNormalMorph;
+        public Byte4 MaterialInfo; // New material related data added to support rendering of entire voxel block in single drawcall. XYZ components defines materials for whole triangle, W is material for current vertex 
 
         public Vector3 Position
         {

@@ -518,7 +518,7 @@ namespace VRageRender
 
                     MyRenderProxy.Assert(rMessage.ID != MyRenderProxy.RENDER_ID_UNASSIGNED);
 
-                    MyHighlight.HandleHighlight(rMessage.ID, null, null, 0, 0, -1);
+                    MyHighlight.RemoveObjects(rMessage.ID, null);
 
                     MyRenderProxy.ObjectType objectType;
                     if (MyRenderProxy.ObjectTypes.TryGetValue(rMessage.ID, out objectType))
@@ -843,7 +843,7 @@ namespace VRageRender
                         //ProfilerShort.End();
 
                     MyRenderProxy.Assert(!MyMeshes.Exists(rMessage.Name), "It is added already added mesh!");
-                    MyRenderProxy.Assert(!MyRenderProxy.Settings.UseGeometryArrayTextures, "Geometry array textures do not fully support runtimer models, please add support");
+                    MyRenderProxy.Assert(!MyRender11.Settings.UseGeometryArrayTextures, "Geometry array textures do not fully support runtimer models, please add support");
                     if(!MyMeshes.Exists(rMessage.Name))
                     {
                         {
@@ -953,16 +953,29 @@ namespace VRageRender
                     {
                         if (MyDebugGeometryStage2.EnableNonstandardModels && MyDebugGeometryStage2.EnableVoxels)
                             MyRenderProxy.Fail(String.Format("Invalid actor id '{0}'", rMessage.ID));
+                        break;
                     }
-                    else
+
+                    if (rMessage.Thickness > 0) // the object will be added
+                    { 
+                        MyHighlight.AddObjects(rMessage.ID, rMessage.SectionNames, rMessage.OutlineColor, rMessage.Thickness, rMessage.PulseTimeInSeconds, rMessage.InstanceIndex);
+                        if (rMessage.SubpartIndices != null)
+                            foreach (uint index in rMessage.SubpartIndices)
+                            { 
+                                MyRenderProxy.Assert(index != -1, "The renderer received a UpdatemodelHighlight message with the invalid SubpartIndex");
+                                if (index != -1)
+                                    MyHighlight.AddObjects(index, null, rMessage.OutlineColor, rMessage.Thickness, rMessage.PulseTimeInSeconds, -1);
+                            }
+                    }
+                    else // the object will be removed
                     {
-                        MyHighlight.HandleHighlight(rMessage.ID, rMessage.SectionNames, rMessage.OutlineColor, rMessage.Thickness, rMessage.PulseTimeInFrames, rMessage.InstanceIndex);
+                        MyHighlight.RemoveObjects(rMessage.ID, rMessage.SectionNames);
                         if (rMessage.SubpartIndices != null)
                             foreach (uint index in rMessage.SubpartIndices)
                                 if (index != -1)
                                 {
-                                    MyHighlight.HandleHighlight(index, null, rMessage.OutlineColor, rMessage.Thickness,
-                                        rMessage.PulseTimeInFrames, -1);
+                                    MyRenderProxy.Assert(index != -1, "The renderer received a UpdatemodelHighlight message with the invalid SubpartIndex");
+                                    MyHighlight.RemoveObjects(index, null);
                                 }
                     }
 
@@ -1165,34 +1178,6 @@ namespace VRageRender
                     break;
                 }
 
-                case MyRenderMessageEnum.UpdateMergedVoxelMesh:
-                {
-                    var rMessage = (MyRenderMessageUpdateMergedVoxelMesh)message;
-                    if (!MyDebugGeometryStage2.EnableVoxels)
-                        break;
-
-                    MyClipmapHandler clipmap = MyClipmapFactory.ClipmapByID.Get(rMessage.ClipmapId);
-                    if (clipmap == null)
-                        MyRenderProxy.Fail(String.Format("Invalid clipmap id '{0}'", rMessage.ClipmapId));
-                    else
-                        clipmap.UpdateMergedMesh(rMessage);
-                    break;
-                }
-
-                case MyRenderMessageEnum.ResetMergedVoxels:
-                    {
-                        var rMessage = (MyRenderMessageResetMergedVoxels)message;
-                        if (!MyDebugGeometryStage2.EnableVoxels)
-                            break;
-
-                        foreach(var clipmapHandler in MyClipmapFactory.ClipmapByID.Values)
-                        {
-                            if (clipmapHandler != null)
-                                clipmapHandler.ResetMergedMeshes();
-                        }
-                        break;
-                    }
-
                 case MyRenderMessageEnum.InvalidateClipmapRange:
                 {
                     var rMessage = (MyRenderMessageInvalidateClipmapRange)message;
@@ -1250,12 +1235,13 @@ namespace VRageRender
                 case MyRenderMessageEnum.UpdateRenderLight:
                 {
                     var rMessage = (MyRenderMessageUpdateRenderLight)message;
+                    MyRenderProxy.Assert(rMessage.Data.ID != MyRenderProxy.RENDER_ID_UNASSIGNED, "Light id is not assigned");
 
                     var light = MyLights.Get(rMessage.Data.ID);
 
                     if (light == LightId.NULL)
                     {
-                        MyRenderProxy.Fail(String.Format("Invalid light id '{0}'", rMessage.Data.ID));
+                        MyRenderProxy.Fail(String.Format("Non-existent light with id '{0}'", rMessage.Data.ID));
                     }
                     else
                     {
@@ -1322,16 +1308,24 @@ namespace VRageRender
                     break;
                 }
 
+                case MyRenderMessageEnum.UpdateNewLoddingSettings:
+                {
+                    var rMessage = (MyRenderMessageUpdateNewLoddingSettings)message;
+                    var settings = rMessage.Settings;
+                    MyManagers.GeometryRenderer.IsLodUpdateEnabled = settings.Global.IsUpdateEnabled;
+                    MyManagers.Instances.SetLoddingSetting(settings.Global);
+                    MyLodStrategy.SetSettings(settings.Global,
+                        settings.GBuffer,
+                        settings.CascadeDepths,
+                        settings.SingleDepth);
+                    break;
+                }
+
                 case MyRenderMessageEnum.UpdateNewPipelineSettings:
                 {
                     var rMessage = (MyRenderMessageUpdateNewPipelineSettings) message;
                     var settings = rMessage.Settings;
                     MyManagers.ModelFactory.SetBlackListMaterialList(settings.BlackListMaterials);
-                    MyManagers.GeometryRenderer.IsLodUpdateEnabled = settings.GlobalLodding.IsUpdateEnabled;
-                    MyLodStrategy.SetSettings(settings.GlobalLodding, 
-                        settings.GBufferLodding, 
-                        settings.CascadeDepthLoddings,
-                        settings.SingleDepthLodding);
                     MyMwmUtils.NoShadowCasterMaterials.Clear();
                     foreach(var material in settings.NoShadowCasterMaterials)
                         MyMwmUtils.NoShadowCasterMaterials.Add(material);
@@ -1431,7 +1425,7 @@ namespace VRageRender
                     bool newFXAA = FxaaEnabled;
 
                     if (oldFXAA != newFXAA)
-                        UpdateAntialiasingMode(m_renderSettings.AntialiasingMode, m_renderSettings.AntialiasingMode);
+                        UpdateAntialiasingMode(Settings.User.AntialiasingMode, Settings.User.AntialiasingMode);
                     break;
                 }
                 case MyRenderMessageEnum.UpdatePostprocessSettings:
@@ -1585,17 +1579,7 @@ namespace VRageRender
 
                     MyRenderableComponent.MarkAllDirty();
 
-                    foreach (var f in MyComponentFactory<MyFoliageComponent>.GetAll())
-                    {
-                        f.Dispose();
-                    }
-
-                    break;
-                }
-
-                case MyRenderMessageEnum.ReloadGrass:
-                {
-                    MyRenderProxy.ReloadEffects();  // Need some delay
+                    MyRender11.DisposeGrass();
                     break;
                 }
 
@@ -1684,12 +1668,7 @@ namespace VRageRender
                 case MyRenderMessageEnum.SwitchRenderSettings:
                 {
                     var rMessage = (MyRenderMessageSwitchRenderSettings)message;
-                    if (rMessage.Settings.HasValue)
-                        UpdateRenderSettings(rMessage.Settings.Value);
-
-                    if (rMessage.SettingsOld.HasValue)
-                        MyRender11.Settings = rMessage.SettingsOld.Value;
-
+                    UpdateRenderSettings(rMessage.Settings);
                     break;
                 }
 

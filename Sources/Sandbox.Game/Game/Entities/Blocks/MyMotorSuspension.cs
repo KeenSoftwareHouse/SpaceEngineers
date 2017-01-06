@@ -679,6 +679,7 @@ namespace Sandbox.Game.Entities.Cube
             var info = HkGroupFilter.CalcFilterInfo(rotorBody.Layer,
                 CubeGrid.GetPhysicsBody().HavokCollisionSystemID, 1, 1);
             rotorBody.SetCollisionFilterInfo(info);
+            CubeGrid.GetPhysicsBody().HavokWorld.RefreshCollisionFilterOnEntity(rotorBody);
             HkWheelConstraintData data = new HkWheelConstraintData();
             var suspensionAx = PositionComp.LocalMatrix.Forward;
             var posA = DummyPosition + (suspensionAx*m_height);

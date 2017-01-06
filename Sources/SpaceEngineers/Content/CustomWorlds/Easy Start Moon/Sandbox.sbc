@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <MyObjectBuilder_Checkpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <CurrentSector x="0" y="0" z="0" />
-  <ElapsedGameTime>4452800000</ElapsedGameTime>
+  <ElapsedGameTime>5424160000</ElapsedGameTime>
   <SessionName>Easy Start Moon</SessionName>
   <SpectatorPosition>
-    <Position x="13316.513142883656" y="143936.71923123594" z="-108892.06774150334" />
+    <Position x="13316.51314288367" y="143936.71923123588" z="-108892.06774150336" />
     <Forward x="-0.0293941461" y="0.05425664" z="-0.998094261" />
-    <Up x="-0.3786874" y="0.9234888" z="0.06135352" />
+    <Up x="-0.378687471" y="0.9234888" z="0.06135352" />
     <Orientation>
-      <X>0.029473057</X>
+      <X>0.0294730589</X>
       <Y>0.009175871</Y>
-      <Z>0.193357021</Z>
+      <Z>0.19335705</Z>
       <W>0.980642736</W>
     </Orientation>
   </SpectatorPosition>
@@ -20,8 +20,8 @@
   <ControlledObject>98329172051118531</ControlledObject>
   <Password />
   <Description />
-  <LastSaveTime>2016-12-14T15:52:44.1450949+01:00</LastSaveTime>
-  <SpectatorDistance>13.9649572</SpectatorDistance>
+  <LastSaveTime>2016-12-19T14:50:51.346184+01:00</LastSaveTime>
+  <SpectatorDistance>2.6</SpectatorDistance>
   <CharacterToolbar>
     <ToolbarType>Character</ToolbarType>
     <SelectedSlot xsi:nil="true" />
@@ -103,7 +103,7 @@
     </dictionary>
   </ControlledEntities>
   <Settings xsi:type="MyObjectBuilder_SessionSettings">
-    <GameMode>Creative</GameMode>
+    <GameMode>Survival</GameMode>
     <InventorySizeMultiplier>10</InventorySizeMultiplier>
     <AssemblerSpeedMultiplier>3</AssemblerSpeedMultiplier>
     <AssemblerEfficiencyMultiplier>3</AssemblerEfficiencyMultiplier>
@@ -116,7 +116,7 @@
     <MaxBlocksPerPlayer>100000</MaxBlocksPerPlayer>
     <EnableBlockLimits>true</EnableBlockLimits>
     <EnableRemoteBlockRemoval>true</EnableRemoteBlockRemoval>
-    <EnvironmentHostility>NORMAL</EnvironmentHostility>
+    <EnvironmentHostility>SAFE</EnvironmentHostility>
     <AutoHealing>true</AutoHealing>
     <EnableCopyPaste>true</EnableCopyPaste>
     <WeaponsEnabled>true</WeaponsEnabled>
@@ -135,7 +135,7 @@
     <AutoSaveInMinutes>5</AutoSaveInMinutes>
     <SpawnShipTimeMultiplier>0.5</SpawnShipTimeMultiplier>
     <ProceduralDensity>0.25</ProceduralDensity>
-    <ProceduralSeed>1032720588</ProceduralSeed>
+    <ProceduralSeed>0</ProceduralSeed>
     <DestructibleBlocks>true</DestructibleBlocks>
     <EnableIngameScripts>true</EnableIngameScripts>
     <ViewDistance>15000</ViewDistance>
@@ -163,7 +163,7 @@
     <MaxDrones>5</MaxDrones>
     <EnableDrones>true</EnableDrones>
     <EnableWolfs>true</EnableWolfs>
-    <EnableSpiders>true</EnableSpiders>
+    <EnableSpiders>false</EnableSpiders>
     <FloraDensityMultiplier>1</FloraDensityMultiplier>
     <EnableStructuralSimulation>false</EnableStructuralSimulation>
     <MaxActiveFracturePieces>50</MaxActiveFracturePieces>
@@ -312,14 +312,14 @@
       <DisplayName>First Colonist</DisplayName>
       <CharacterEntityId>0</CharacterEntityId>
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:44:21.7998654+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T14:48:47.573808+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855891</IdentityId>
       <DisplayName>Space Pirates</DisplayName>
       <CharacterEntityId>0</CharacterEntityId>
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:44:21.8008655+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T14:49:00.6791184+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855892</IdentityId>
@@ -328,10 +328,10 @@
       <Model>Default_Astronaut</Model>
       <ColorMask x="0.122" y="0.05" z="0.46" />
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:44:21.8008655+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T14:49:00.6691174+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
   </Identities>
-  <PreviousEnvironmentHostility>NORMAL</PreviousEnvironmentHostility>
+  <PreviousEnvironmentHostility>SAFE</PreviousEnvironmentHostility>
   <AllPlayersData>
     <dictionary>
       <item>
@@ -432,13 +432,13 @@
           <BuildColorSlots>
             <Vector3>
               <X>0</X>
-              <Y>-0.81</Y>
-              <Z>-0.3</Z>
+              <Y>-1</Y>
+              <Z>0</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
-              <Y>-1</Y>
-              <Z>0</Z>
+              <Y>0</Y>
+              <Z>0.05</Z>
             </Vector3>
             <Vector3>
               <X>0.333333343</X>
@@ -463,7 +463,7 @@
             <Vector3>
               <X>0</X>
               <Y>-0.96</Y>
-              <Z>-1</Z>
+              <Z>-0.5</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
@@ -487,8 +487,8 @@
             </Vector3>
             <Vector3>
               <X>0.122222222</X>
-              <Y>0.05</Y>
-              <Z>0.46</Z>
+              <Y>0.0500000045</Y>
+              <Z>0.459999979</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
@@ -497,8 +497,8 @@
             </Vector3>
             <Vector3>
               <X>0</X>
-              <Y>-0.809999943</Y>
-              <Z>-0.3</Z>
+              <Y>-0.81</Y>
+              <Z>-0.13</Z>
             </Vector3>
           </BuildColorSlots>
         </Value>
@@ -645,11 +645,11 @@
       <Mod />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_EnvironmentBotSpawningSystem">
-      <TimeSinceLastEventInMs>35914</TimeSinceLastEventInMs>
+      <TimeSinceLastEventInMs>62564</TimeSinceLastEventInMs>
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_CoordinateSystem">
       <Definition Type="MyObjectBuilder_CoordinateSystemDefinition" Subtype="CoordinateSystem" />
-      <LastCoordSysId>1</LastCoordSysId>
+      <LastCoordSysId>2</LastCoordSysId>
       <CoordSystems />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SectorWeatherComponent">

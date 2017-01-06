@@ -57,7 +57,6 @@ namespace Sandbox.Game.Entities.Character
 {
     public class MyCharacterRaycastDetectorComponent : MyCharacterDetectorComponent
     {
-        private readonly List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
         private readonly List<MyUseObjectsComponentBase> m_hitUseComponents = new List<MyUseObjectsComponentBase>();
 
         protected override void DoDetection(bool useHead)
@@ -88,35 +87,21 @@ namespace Sandbox.Game.Entities.Character
 
             Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
             StartPosition = from;
+            LineD intersectionLine = new LineD(from, to);
 
             // Processing of hit entities 
-            MyPhysics.CastRay(from, to, m_hits, MyPhysics.CollisionLayers.FloatingObjectCollisionLayer);
+            var geometryHit = MyEntities.GetIntersectionWithLine(ref intersectionLine, null, null, ignoreFloatingObjects: false);
             bool hasUseObject = false;
-            int index = 0;
-            while (index < m_hits.Count)
+            if (geometryHit.HasValue)
             {
-                var hitEntity = m_hits[index].HkHitInfo.GetHitEntity();
-
-                // Skip invalid hits
-                if (m_hits[index].HkHitInfo.Body == null
-                    || hitEntity == null 
-                    || hitEntity == Character
-                    || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT)
-                    || m_hits[index].HkHitInfo.Body.Layer == MyPhysics.CollisionLayers.VoxelLod1CollisionLayer)
-                {
-                    index++;
-                    continue;
-                }
+                var hitEntity = geometryHit.Value.Entity;
 
                 // Cube Grids are special case
                 var cubeGrid = hitEntity as MyCubeGrid;
                 if (cubeGrid != null)
                 {
-                    // Correct the hit position (Physics offset)
-                    var correctedPosition = m_hits[index].Position 
-                        - m_hits[index].HkHitInfo.Normal * m_hits[index].HkHitInfo.GetConvexRadius();
                     // For hit cube grids get the fat hit fatblock instead.
-                    var slimBlock = cubeGrid.GetTargetedBlock(correctedPosition);
+                    var slimBlock = cubeGrid.GetTargetedBlock(geometryHit.Value.IntersectionPointInWorldSpace);
                     if (slimBlock != null && slimBlock.FatBlock != null)
                     {
                         hitEntity = slimBlock.FatBlock;
@@ -136,7 +121,7 @@ namespace Sandbox.Game.Entities.Character
                     {
                         // Process the valid hit entity
                         var closestDetectorDistance = float.MaxValue;
-                        double physicalHitDistance = Vector3D.Distance(from, m_hits[index].Position);
+                        double physicalHitDistance = Vector3D.Distance(from, geometryHit.Value.IntersectionPointInWorldSpace);
                         MyUseObjectsComponentBase hitUseComp = null;
                         // Evaluate the set of found detectors and try to find the closest one
                         foreach (var hitUseComponent in m_hitUseComponents)
@@ -145,8 +130,7 @@ namespace Sandbox.Game.Entities.Character
                             var interactive = hitUseComponent.RaycastDetectors(from, to, out detectorDistance);
                             detectorDistance *= MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
                             if (Math.Abs(detectorDistance) < Math.Abs(closestDetectorDistance) 
-                                && (detectorDistance < physicalHitDistance 
-                                || hitUseComponent.Entity == hitEntity)) // Remove to fix the problem with picking through physic bodies,
+                                && (detectorDistance < physicalHitDistance)) // Remove to fix the problem with picking through physic bodies,
                             {                                           // but will introduce new problem with detectors inside physic bodies.
                                 closestDetectorDistance = detectorDistance;
                                 hitUseComp = hitUseComponent;
@@ -161,8 +145,8 @@ namespace Sandbox.Game.Entities.Character
                             // Process successful hit with results
                             var detectorPhysics = hitUseComp.DetectorPhysics;
                             HitMaterial = detectorPhysics.GetMaterialAt(HitPosition);
-                            HitBody = m_hits[index].HkHitInfo.Body;
-                            HitPosition = m_hits[index].Position;
+                            HitBody = geometryHit.Value.Entity.Physics.RigidBody;
+                            HitPosition = geometryHit.Value.IntersectionPointInWorldSpace;
                             DetectedEntity = hitEntity;
                         }
                     } 
@@ -171,13 +155,13 @@ namespace Sandbox.Game.Entities.Character
                         // Case for hitting IMyUseObject already before even looking for UseComponent.
                         // Floating object case.
                         HitMaterial = hitEntity.Physics.GetMaterialAt(HitPosition);
-                        HitBody = m_hits[index].HkHitInfo.Body;
+                        HitBody = hitEntity.Physics.RigidBody;
                     }
 
                     // General logic for processing both cases.
                     if (hitUseObject != null)
                     {
-                        HitPosition = m_hits[index].Position;
+                        HitPosition = geometryHit.Value.IntersectionPointInWorldSpace;
                         DetectedEntity = hitEntity;
 
                         if (UseObject != null && UseObject != hitEntity && UseObject != hitUseObject)
@@ -193,10 +177,7 @@ namespace Sandbox.Game.Entities.Character
                             hasUseObject = true;
                         }
                     }
-                    break;
                 }
-
-                index++;
             }
 
             if (!hasUseObject)

@@ -313,9 +313,14 @@ namespace SpaceEngineers.Game.Entities.Blocks
             {
                 return;
             }
-
+            
+            // Check which port of the upgrade module is connected to something
+            // and display red emissivity if it's disconnected...
+            // and display green emissivity if it's connected.
             for (int i = 0; i < m_connectionPositions.Length; i++)
             {
+                // in our case upgrade port 1 and 2 are tied to emissive material names Emissive0 and Emissive1
+                // seems like it is possible to add more upgrade ports by this implementation
                 string emissiveName = "Emissive" + i.ToString();
                 Color color = Color.Green;
 

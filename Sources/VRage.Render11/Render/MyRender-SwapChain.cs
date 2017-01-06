@@ -151,8 +151,8 @@ namespace VRageRender
 
     internal partial class MyRender11
     {
-        internal static MyRenderSettings1 m_renderSettings;
-        internal static MyRenderSettings1 RenderSettings { get { return m_renderSettings; } }
+        /*internal static MyRenderSettings1 m_renderSettings;
+        internal static MyRenderSettings1 Settings.User { get { return m_renderSettings; } }*/
 
         internal static ShaderMacro? ShaderMultisamplingDefine()
         {
@@ -183,17 +183,16 @@ namespace VRageRender
             }
         }
 
-        internal static void LogUpdateRenderSettings(ref MyRenderSettings1 v)
+        internal static void LogUpdateRenderSettings()
         {
             Log.WriteLine("MyRenderSettings1 = {");
             Log.IncreaseIndent();
-            Log.WriteLine("AntialiasingMode = " + v.AntialiasingMode);
-            Log.WriteLine("FoliageDetails = " + v.FoliageDetails);
-            //Log.WriteLine("TonemappingEnabled = " + v.TonemappingEnabled);
-            Log.WriteLine("ShadowQuality = " + v.ShadowQuality);
-            Log.WriteLine("TextureQuality = " + v.TextureQuality);
-            Log.WriteLine("AnisotropicFiltering = " + v.AnisotropicFiltering);
-            Log.WriteLine("InterpolationEnabled = " + v.InterpolationEnabled);
+            Log.WriteLine("AntialiasingMode = " + Settings.User.AntialiasingMode);
+            Log.WriteLine("FoliageDetails = " + Settings.User.FoliageDetails);
+            Log.WriteLine("ShadowQuality = " + Settings.User.ShadowQuality);
+            Log.WriteLine("TextureQuality = " + Settings.User.TextureQuality);
+            Log.WriteLine("AnisotropicFiltering = " + Settings.User.AnisotropicFiltering);
+            Log.WriteLine("InterpolationEnabled = " + Settings.User.InterpolationEnabled);
             Log.DecreaseIndent();
             Log.WriteLine("}");
         }
@@ -217,44 +216,43 @@ namespace VRageRender
             }
         }
 
-        internal static void UpdateRenderSettings(MyRenderSettings1 settings)
+        internal static void DisposeGrass()
+        {
+            foreach (var f in MyComponentFactory<MyFoliageComponent>.GetAll())
+            {
+                f.Dispose();
+            }
+        }
+
+        internal static void UpdateRenderSettings(MyRenderSettings settings)
         {
             Log.WriteLine("UpdateRenderSettings");
             Log.IncreaseIndent();
 
-            var prevSettings = m_renderSettings;
-            m_renderSettings = settings;
+            var prevSettings = Settings;
+            Settings = settings;
 
-            LogUpdateRenderSettings(ref settings);
+            LogUpdateRenderSettings();
 
-            MyRenderConstants.SwitchRenderQuality(settings.Dx9Quality); //because of lod ranges
+            if (settings.User.GrassDensityFactor != prevSettings.User.GrassDensityFactor)
+                DisposeGrass();
 
-            // THIS IS SHIT! MOVE TO USE JUST ONE STRUCT FOR RENDER SETTINGS!!!!!
-            MyRender11.Settings.EnableCameraInterpolation = settings.InterpolationEnabled;
-            MyRender11.Settings.EnableObjectInterpolation = settings.InterpolationEnabled;
+            MyRenderConstants.SwitchRenderQuality(settings.User.Dx9Quality); //because of lod ranges
 
-            MyRender11.Settings.GrassDensityFactor = settings.GrassDensityFactor;
-            if (settings.GrassDensityFactor == 0.0f) m_renderSettings.FoliageDetails = MyFoliageDetails.DISABLED;
-            MyRender11.Settings.ModelQuality = settings.ModelQuality;
-            MyRender11.Settings.VoxelQuality = settings.VoxelQuality;
-
-            //       if(settings.GrassDensityFactor != prevSettings.GrassDensityFactor)
-            //           MyRenderProxy.ReloadGrass();
-
-            if (settings.ShadowQuality != prevSettings.ShadowQuality)
+            if (settings.User.ShadowQuality != prevSettings.User.ShadowQuality)
             {
-                ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, settings.ShadowQuality.ShadowCascadeResolution());
+                ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, settings.User.ShadowQuality.ShadowCascadeResolution());
             }
 
-            if (settings.AntialiasingMode != prevSettings.AntialiasingMode)
-                UpdateAntialiasingMode(settings.AntialiasingMode, prevSettings.AntialiasingMode);
+            if (settings.User.AntialiasingMode != prevSettings.User.AntialiasingMode)
+                UpdateAntialiasingMode(settings.User.AntialiasingMode, prevSettings.User.AntialiasingMode);
 
-            if (settings.AnisotropicFiltering != prevSettings.AnisotropicFiltering)
+            if (settings.User.AnisotropicFiltering != prevSettings.User.AnisotropicFiltering)
             {
                 MySamplerStateManager.UpdateFiltering();
             }
-            
-            if(settings.TextureQuality != prevSettings.TextureQuality)
+
+            if (settings.User.TextureQuality != prevSettings.User.TextureQuality)
             {
                 MyVoxelMaterials1.InvalidateMaterials();
                 MyMeshMaterials1.InvalidateMaterials();
@@ -271,9 +269,9 @@ namespace VRageRender
         }
 
         // helpers
-        internal static bool MultisamplingEnabled { get { return RenderSettings.AntialiasingMode.IsMultisampled(); } }
-        internal static int MultisamplingSampleCount { get { return RenderSettings.AntialiasingMode.SamplesCount(); } }
-        internal static bool FxaaEnabled { get { return RenderSettings.AntialiasingMode == MyAntialiasingMode.FXAA && m_debugOverrides.Postprocessing && m_debugOverrides.Fxaa; } }
+        internal static bool MultisamplingEnabled { get { return Settings.User.AntialiasingMode.IsMultisampled(); } }
+        internal static int MultisamplingSampleCount { get { return Settings.User.AntialiasingMode.SamplesCount(); } }
+        internal static bool FxaaEnabled { get { return Settings.User.AntialiasingMode == MyAntialiasingMode.FXAA && m_debugOverrides.Postprocessing && m_debugOverrides.Fxaa; } }
 
         internal static bool CommandsListsSupported { get; set; }
         internal static bool IsIntelBrokenCubemapsWorkaround { get; set; }
@@ -299,7 +297,7 @@ namespace VRageRender
        
             m_resolution = new Vector2I(width, height);
             CreateScreenResources();
-            ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
+            ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, Settings.User.ShadowQuality.ShadowCascadeResolution());
         }
 
         internal static void Present()
@@ -373,7 +371,7 @@ namespace VRageRender
                     MyStatsDisplay.WriteTo(sb);
                     Log.WriteLine(sb.ToString());
                     
-                    throw new MyDeviceErrorException("The graphics device encountered a problem.\nSee the log for more details.");
+                    throw;
                 }
 
                 GetRenderProfiler().StartProfilingBlock("GPU profiler");
@@ -530,7 +528,7 @@ namespace VRageRender
             md.Width = settings.BackBufferWidth;
             md.Scaling = DisplayModeScaling.Unspecified;
             md.ScanlineOrdering = DisplayModeScanlineOrder.Progressive;
-            md.RefreshRate.Numerator = 60000;
+            md.RefreshRate.Numerator = settings.RefreshRate;
             md.RefreshRate.Denominator = 1000;
 
             FixModeDescriptionForFullscreen(ref md);

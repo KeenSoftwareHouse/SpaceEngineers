@@ -222,7 +222,8 @@ namespace VRage.Game.SessionComponents
                     }
                     else
                     {
-                        MyLog.Default.WriteLine(e);
+                        if (MyLog.Default != null && MyLog.Default.LogEnabled)
+                            MyLog.Default.WriteLine(e);
                         break;
                     }
                 }

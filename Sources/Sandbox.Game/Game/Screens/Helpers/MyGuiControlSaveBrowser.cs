@@ -8,6 +8,7 @@ using Sandbox.Graphics.GUI;
 using Sandbox.Gui.DirectoryBrowser;
 using VRage;
 using VRage.FileSystem;
+using VRageMath;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -148,12 +149,15 @@ namespace Sandbox.Game.Screens.Helpers
             // Create row
             var row = new Row(fileInfo);
             // Add single cell
-            row.AddCell(new Cell(
+            var newSaveCell = new Cell(
                 text: m_loadedWorldsByFilePaths[fileInfo.DirectoryName].SessionName,
                 userData: fileInfo,
                 icon: FileCellIconTexture,
                 iconOriginAlign: FileCellIconAlign
-                ));
+                );
+            // Corrupted worlds should be red
+            if (m_loadedWorldsByFilePaths[fileInfo.DirectoryName].IsCorrupted) newSaveCell.TextColor = Color.Red;
+            row.AddCell(newSaveCell);
 
             // Add creation time
             row.AddCell(new Cell(
@@ -193,16 +197,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_loadedDirectories.Add(CurrentDirectory);
             foreach (var saveTuple in loadListRes.AvailableSaves)
             {
-                if(!m_loadedWorldsByFilePaths.ContainsKey(saveTuple.Item1))
-                {
-                    // add if new
-                    m_loadedWorldsByFilePaths.Add(saveTuple.Item1, saveTuple.Item2);
-                }
-                else
-                {
-                    // Rewrite if forced
-                    m_loadedWorldsByFilePaths[saveTuple.Item1] = saveTuple.Item2;
-                }
+                m_loadedWorldsByFilePaths[saveTuple.Item1] = saveTuple.Item2;
             }
 
             if (loadListRes.ContainsCorruptedWorlds)

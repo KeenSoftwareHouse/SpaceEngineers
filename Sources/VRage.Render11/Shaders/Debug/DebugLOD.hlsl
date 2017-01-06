@@ -9,6 +9,14 @@ void __pixel_shader(PostprocessVertex vertex, out float4 output : SV_Target0)
 
     float3 color;
 
+	if (input.LOD == 255) // the lod is used with new pipeline
+	{
+		output.xyz = input.base_color.xyz;
+		//output.xyz = float3(1, 1, 1) / 2;
+		output.w = 1;
+		return;
+	}
+
     // MyClipmap.cs colors
     switch (input.LOD)
     {
@@ -28,7 +36,7 @@ void __pixel_shader(PostprocessVertex vertex, out float4 output : SV_Target0)
         color = float3(0, 1, 1);
         break;
     case 5:
-        color = float3(1, 0, 0);
+        color = float3(1, 0, 1);
         break;
     case 6:
         color = float3(0.5, 0, 1);

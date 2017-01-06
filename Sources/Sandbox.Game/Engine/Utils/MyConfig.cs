@@ -42,6 +42,7 @@ namespace Sandbox.Engine.Utils
     {
         //  Constants for mapping between our get/set properties and parameters inside the config file
         readonly string DX9_RENDER_QUALITY = "RenderQuality";
+        readonly string MODEL_QUALITY = "ModelQuality";
         readonly string VOXEL_QUALITY = "VoxelQuality";
         readonly string FIELD_OF_VIEW = "FieldOfView";
         readonly string ENABLE_DAMAGE_EFFECTS = "EnableDamageEffects";
@@ -184,6 +185,12 @@ namespace Sandbox.Engine.Utils
             }
         }
 
+        public MyRenderQualityEnum? ModelQuality
+        {
+            get { return GetOptionalEnum<MyRenderQualityEnum>(MODEL_QUALITY); }
+            set { SetOptionalEnum(MODEL_QUALITY, value); }
+        }
+        
         public MyRenderQualityEnum? VoxelQuality
         {
             get { return GetOptionalEnum<MyRenderQualityEnum>(VOXEL_QUALITY); }
@@ -1029,6 +1036,7 @@ namespace Sandbox.Engine.Utils
                 ShadowQuality == MyShadowsQuality.LOW &&
                 TextureQuality == MyTextureQuality.LOW &&
                 Dx9RenderQuality == MyRenderQualityEnum.LOW &&
+                ModelQuality == MyRenderQualityEnum.LOW &&
                 VoxelQuality == MyRenderQualityEnum.LOW)
                 return true;
             return false;
@@ -1041,6 +1049,7 @@ namespace Sandbox.Engine.Utils
             ShadowQuality = MyShadowsQuality.LOW;
             TextureQuality = MyTextureQuality.LOW;
             Dx9RenderQuality = MyRenderQualityEnum.LOW;
+            ModelQuality = MyRenderQualityEnum.LOW;
             VoxelQuality = MyRenderQualityEnum.LOW;
         }
 

@@ -138,6 +138,9 @@ namespace VRage.Render11.Resources.Buffers
 
         void LogStuff(SharpDXException e)
         {
+            if (MyRenderProxy.Log == null)
+                return;
+
             MyRenderProxy.Log.WriteLine("Reason: " + e.Message.Trim());
 
             if (e.Descriptor == SharpDX.DXGI.ResultCode.DeviceRemoved)

@@ -283,11 +283,11 @@ namespace VRage.Audio
                 if (time <= 0f)
                 {
                     m_globalVolumeLevel = level;
-                    if (m_musicAudioVoice != null)
+                    if (m_musicAudioVoice != null && !m_musicAudioVoice.IsDisposed)
                         m_musicAudioVoice.SetVolume(m_volumeMusic * level);
-                    if (m_hudAudioVoice != null)
+                    if (m_hudAudioVoice != null && !m_hudAudioVoice.IsDisposed)
                         m_hudAudioVoice.SetVolume(m_volumeHud * level);
-                    if (m_gameAudioVoice != null)
+                    if (m_gameAudioVoice != null && !m_gameAudioVoice.IsDisposed)
                         m_gameAudioVoice.SetVolume(m_volumeDefault * level);
                 }
                 else
@@ -1131,6 +1131,9 @@ namespace VRage.Audio
         private void Update3DCuesState(bool updatePosition = false)
         {
             if (!m_canUpdate3dSounds)
+                return;
+
+            if (m_3Dsounds == null)
                 return;
 
             int counter = 0;

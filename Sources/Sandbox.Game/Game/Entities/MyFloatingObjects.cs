@@ -153,8 +153,15 @@ namespace Sandbox.Game.Entities
                 OptimizeFloatingObjects();
             }
             else
+            {
                 if (m_needReupdateNewObjects)
+                {
                     OptimizeCloseDistances();
+                }
+
+                // Change quality type to critical, it can be debris after contact with character controller
+                OptimizeQualityType();
+            }
 
             if (VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS)
             {
@@ -450,14 +457,7 @@ namespace Sandbox.Game.Entities
             for (int i = 0; i < m_synchronizedFloatingObjects.Count; i++)
             {
                 var floatingObject = m_synchronizedFloatingObjects[i];
-                if (floatingObject.Physics.LinearVelocity.Length() > 5)
-                {
-                    floatingObject.Physics.ChangeQualityType(Havok.HkCollidableQualityType.Bullet);
-                }
-                else
-                {
-                    floatingObject.Physics.ChangeQualityType(Havok.HkCollidableQualityType.Debris);
-                }
+                floatingObject.Physics.ChangeQualityType(Havok.HkCollidableQualityType.Critical); //Default was .Debris                 
             }
         }
 

@@ -141,6 +141,7 @@ namespace Sandbox.Game.Entities.Blocks
                 Components.Add<MyInventoryBase>(inventory);
                 inventory.Init(builder.Inventory);
             }
+            this.GetInventory().ContentsChanged += MyGasTank_ContentsChanged;
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
             
 			m_autoRefill = builder.AutoRefill;
@@ -177,6 +178,12 @@ namespace Sandbox.Game.Entities.Blocks
 			SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 			IsWorkingChanged += MyOxygenTank_IsWorkingChanged;
 		}
+
+        void MyGasTank_ContentsChanged(MyInventoryBase obj)
+        {
+            if (m_autoRefill && CanRefill())
+                RefillBottles();
+        }
 
 		public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
 		{
@@ -578,6 +585,8 @@ namespace Sandbox.Game.Entities.Blocks
         private void OnAutoRefillCallback(bool newAutoRefill)
         {
             this.m_autoRefill = newAutoRefill;
+            if (m_autoRefill && CanRefill())
+                RefillBottles();
         }
 
         public void ChangeFillRatioAmount(float newFilledRatio)

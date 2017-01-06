@@ -33,6 +33,10 @@ namespace VRage.Game
 
         public MyShadowsSettings ShadowSettings = new MyShadowsSettings();
         public MyNewPipelineSettings NewPipelineSettings = new MyNewPipelineSettings();
+        public MyNewLoddingSettings UserLoddingSettings = new MyNewLoddingSettings();
+        public MyNewLoddingSettings LowLoddingSettings = new MyNewLoddingSettings();
+        public MyNewLoddingSettings MediumLoddingSettings = new MyNewLoddingSettings();
+        public MyNewLoddingSettings HighLoddingSettings = new MyNewLoddingSettings();
         public MyMaterialsSettings MaterialsSettings = new MyMaterialsSettings();
 
         [ProtoContract]

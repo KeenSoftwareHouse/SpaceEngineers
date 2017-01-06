@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <MyObjectBuilder_Checkpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <CurrentSector x="0" y="0" z="0" />
-  <ElapsedGameTime>868320000</ElapsedGameTime>
+  <ElapsedGameTime>2188320000</ElapsedGameTime>
   <SessionName>Star System</SessionName>
   <SpectatorPosition>
-    <Position x="13758.227747027948" y="52696.822327090995" z="-27797.617602826263" />
-    <Forward x="0.4426694" y="-0.7018631" z="-0.5580609" />
-    <Up x="0.402376473" y="0.71166414" z="-0.575870931" />
+    <Position x="57074.621628522182" y="54631.552364062372" z="79598.951669948132" />
+    <Forward x="-0.5272088" y="-0.5043053" z="-0.683905661" />
+    <Up x="0.8389715" y="-0.181225538" z="-0.513112" />
     <Orientation>
-      <X>-0.364557773</X>
-      <Y>-0.296761155</Y>
-      <Z>-0.106139377</Z>
-      <W>0.876221955</W>
+      <X>-0.397537351</X>
+      <Y>0.00334750651</Y>
+      <Z>-0.6577057</Z>
+      <W>0.639825</W>
     </Orientation>
   </SpectatorPosition>
   <SpectatorIsLightOn>false</SpectatorIsLightOn>
@@ -20,7 +20,7 @@
   <ControlledObject>137658261568108514</ControlledObject>
   <Password />
   <Description />
-  <LastSaveTime>2016-12-14T15:55:14.771156+01:00</LastSaveTime>
+  <LastSaveTime>2016-12-19T15:07:23.1983593+01:00</LastSaveTime>
   <SpectatorDistance>2.6</SpectatorDistance>
   <CharacterToolbar>
     <ToolbarType>Character</ToolbarType>
@@ -103,7 +103,7 @@
     </dictionary>
   </ControlledEntities>
   <Settings xsi:type="MyObjectBuilder_SessionSettings">
-    <GameMode>Creative</GameMode>
+    <GameMode>Survival</GameMode>
     <InventorySizeMultiplier>10</InventorySizeMultiplier>
     <AssemblerSpeedMultiplier>3</AssemblerSpeedMultiplier>
     <AssemblerEfficiencyMultiplier>3</AssemblerEfficiencyMultiplier>
@@ -116,7 +116,7 @@
     <MaxBlocksPerPlayer>100000</MaxBlocksPerPlayer>
     <EnableBlockLimits>true</EnableBlockLimits>
     <EnableRemoteBlockRemoval>true</EnableRemoteBlockRemoval>
-    <EnvironmentHostility>NORMAL</EnvironmentHostility>
+    <EnvironmentHostility>SAFE</EnvironmentHostility>
     <AutoHealing>true</AutoHealing>
     <EnableCopyPaste>true</EnableCopyPaste>
     <WeaponsEnabled>true</WeaponsEnabled>
@@ -135,7 +135,7 @@
     <AutoSaveInMinutes>5</AutoSaveInMinutes>
     <SpawnShipTimeMultiplier>0.5</SpawnShipTimeMultiplier>
     <ProceduralDensity>0.25</ProceduralDensity>
-    <ProceduralSeed>381612784</ProceduralSeed>
+    <ProceduralSeed>0</ProceduralSeed>
     <DestructibleBlocks>true</DestructibleBlocks>
     <EnableIngameScripts>true</EnableIngameScripts>
     <ViewDistance>15000</ViewDistance>
@@ -158,7 +158,7 @@
     <SunRotationIntervalMinutes>119.999992</SunRotationIntervalMinutes>
     <EnableJetpack>true</EnableJetpack>
     <SpawnWithTools>true</SpawnWithTools>
-    <StartInRespawnScreen>false</StartInRespawnScreen>
+    <StartInRespawnScreen>true</StartInRespawnScreen>
     <EnableVoxelDestruction>true</EnableVoxelDestruction>
     <MaxDrones>5</MaxDrones>
     <EnableDrones>true</EnableDrones>
@@ -251,6 +251,39 @@
         <AcceptHumans>true</AcceptHumans>
         <EnableFriendlyFire>false</EnableFriendlyFire>
       </MyObjectBuilder_Faction>
+      <MyObjectBuilder_Faction>
+        <FactionId>270184222006364636</FactionId>
+        <Tag>SPID</Tag>
+        <Name>Space spiders</Name>
+        <PrivateInfo />
+        <Members>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855896</PlayerId>
+            <IsLeader>true</IsLeader>
+            <IsFounder>true</IsFounder>
+          </MyObjectBuilder_FactionMember>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855895</PlayerId>
+            <IsLeader>true</IsLeader>
+            <IsFounder>false</IsFounder>
+          </MyObjectBuilder_FactionMember>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855897</PlayerId>
+            <IsLeader>false</IsLeader>
+            <IsFounder>false</IsFounder>
+          </MyObjectBuilder_FactionMember>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855898</PlayerId>
+            <IsLeader>false</IsLeader>
+            <IsFounder>false</IsFounder>
+          </MyObjectBuilder_FactionMember>
+        </Members>
+        <JoinRequests />
+        <AutoAcceptMember>true</AutoAcceptMember>
+        <AutoAcceptPeace>false</AutoAcceptPeace>
+        <AcceptHumans>true</AcceptHumans>
+        <EnableFriendlyFire>false</EnableFriendlyFire>
+      </MyObjectBuilder_Faction>
     </Factions>
     <Players>
       <dictionary>
@@ -258,9 +291,31 @@
           <Key xsi:type="xsd:long">144115188075855894</Key>
           <Value xsi:type="xsd:long">273060811546874192</Value>
         </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855896</Key>
+          <Value xsi:type="xsd:long">270184222006364636</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855895</Key>
+          <Value xsi:type="xsd:long">270184222006364636</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855897</Key>
+          <Value xsi:type="xsd:long">270184222006364636</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855898</Key>
+          <Value xsi:type="xsd:long">270184222006364636</Value>
+        </item>
       </dictionary>
     </Players>
-    <Relations />
+    <Relations>
+      <MyObjectBuilder_FactionRelation>
+        <FactionId1>270184222006364636</FactionId1>
+        <FactionId2>273060811546874192</FactionId2>
+        <Relation>Enemies</Relation>
+      </MyObjectBuilder_FactionRelation>
+    </Relations>
     <Requests />
   </Factions>
   <Mods />
@@ -273,49 +328,37 @@
       <PlayerSteamId>76561197967630685</PlayerSteamId>
       <PlayerSerialId>0</PlayerSerialId>
       <RespawnShipId>PlanetaryLander</RespawnShipId>
-      <Cooldown>384042</Cooldown>
+      <Cooldown>262998</Cooldown>
     </RespawnCooldownItem>
     <RespawnCooldownItem>
       <PlayerSteamId>76561197967630685</PlayerSteamId>
       <PlayerSerialId>0</PlayerSerialId>
       <RespawnShipId>MarsLander</RespawnShipId>
-      <Cooldown>384042</Cooldown>
+      <Cooldown>262998</Cooldown>
     </RespawnCooldownItem>
     <RespawnCooldownItem>
       <PlayerSteamId>76561197967630685</PlayerSteamId>
       <PlayerSerialId>0</PlayerSerialId>
       <RespawnShipId>AlienLander</RespawnShipId>
-      <Cooldown>384042</Cooldown>
+      <Cooldown>262998</Cooldown>
     </RespawnCooldownItem>
     <RespawnCooldownItem>
       <PlayerSteamId>76561197967630685</PlayerSteamId>
       <PlayerSerialId>0</PlayerSerialId>
       <RespawnShipId>RespawnShip</RespawnShipId>
-      <Cooldown>384042</Cooldown>
+      <Cooldown>262998</Cooldown>
     </RespawnCooldownItem>
     <RespawnCooldownItem>
       <PlayerSteamId>76561197967630685</PlayerSteamId>
       <PlayerSerialId>0</PlayerSerialId>
       <RespawnShipId>Assembler</RespawnShipId>
-      <Cooldown>204042</Cooldown>
-    </RespawnCooldownItem>
-    <RespawnCooldownItem>
-      <PlayerSteamId>76561197967630685</PlayerSteamId>
-      <PlayerSerialId>0</PlayerSerialId>
-      <RespawnShipId>Drill</RespawnShipId>
-      <Cooldown>84042</Cooldown>
-    </RespawnCooldownItem>
-    <RespawnCooldownItem>
-      <PlayerSteamId>76561197967630685</PlayerSteamId>
-      <PlayerSerialId>0</PlayerSerialId>
-      <RespawnShipId>EscapePod</RespawnShipId>
-      <Cooldown>54042</Cooldown>
+      <Cooldown>82998</Cooldown>
     </RespawnCooldownItem>
     <RespawnCooldownItem>
       <PlayerSteamId>76561197967630685</PlayerSteamId>
       <PlayerSerialId>0</PlayerSerialId>
       <RespawnShipId>RefineryAssembler</RespawnShipId>
-      <Cooldown>264042</Cooldown>
+      <Cooldown>142998</Cooldown>
     </RespawnCooldownItem>
   </RespawnCooldowns>
   <Identities>
@@ -326,14 +369,21 @@
       <Model>Default_Astronaut</Model>
       <ColorMask x="0" y="-1" z="0" />
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:53:43.0329831+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T15:05:03.4853894+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855894</IdentityId>
       <DisplayName>Space Pirates</DisplayName>
       <CharacterEntityId>0</CharacterEntityId>
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:53:43.1629961+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T15:05:03.4943903+01:00</LastLoginTime>
+    </MyObjectBuilder_Identity>
+    <MyObjectBuilder_Identity>
+      <IdentityId>144115188075855896</IdentityId>
+      <DisplayName>The Great Tarantula</DisplayName>
+      <CharacterEntityId>0</CharacterEntityId>
+      <BlockLimitModifier>0</BlockLimitModifier>
+      <LastLoginTime>2016-12-19T15:05:33.984439+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
   </Identities>
   <PreviousEnvironmentHostility>SAFE</PreviousEnvironmentHostility>
@@ -426,13 +476,13 @@
           <BuildColorSlots>
             <Vector3>
               <X>0</X>
-              <Y>-0.81</Y>
-              <Z>-0.3</Z>
+              <Y>-1</Y>
+              <Z>0</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
-              <Y>-1</Y>
-              <Z>0</Z>
+              <Y>0</Y>
+              <Z>0.05</Z>
             </Vector3>
             <Vector3>
               <X>0.333333343</X>
@@ -457,7 +507,7 @@
             <Vector3>
               <X>0</X>
               <Y>-0.96</Y>
-              <Z>-1</Z>
+              <Z>-0.5</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
@@ -481,8 +531,8 @@
             </Vector3>
             <Vector3>
               <X>0.122222222</X>
-              <Y>0.05</Y>
-              <Z>0.46</Z>
+              <Y>0.0500000045</Y>
+              <Z>0.459999979</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
@@ -491,8 +541,8 @@
             </Vector3>
             <Vector3>
               <X>0</X>
-              <Y>-0.809999943</Y>
-              <Z>-0.3</Z>
+              <Y>-0.81</Y>
+              <Z>-0.13</Z>
             </Vector3>
           </BuildColorSlots>
         </Value>
@@ -585,6 +635,7 @@
   <FactionChatHistory />
   <NonPlayerIdentities>
     <long>144115188075855894</long>
+    <long>144115188075855896</long>
   </NonPlayerIdentities>
   <Gps>
     <dictionary />
@@ -630,7 +681,7 @@
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SpaceFaunaComponent">
       <SpawnInfos>
-        <Info X="13759.235862968973" Y="52673.482068535908" Z="-27785.250172661854" S="45406" A="43277" />
+        <Info X="13814.359942176436" Y="52686.894428748907" Z="-27721.172216366096" S="414" A="4967" />
       </SpawnInfos>
       <TimeoutInfos />
     </MyObjectBuilder_SessionComponent>
@@ -640,11 +691,11 @@
       <Mod />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_EnvironmentBotSpawningSystem">
-      <TimeSinceLastEventInMs>105573</TimeSinceLastEventInMs>
+      <TimeSinceLastEventInMs>1038</TimeSinceLastEventInMs>
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_CoordinateSystem">
       <Definition Type="MyObjectBuilder_CoordinateSystemDefinition" Subtype="CoordinateSystem" />
-      <LastCoordSysId>1</LastCoordSysId>
+      <LastCoordSysId>2</LastCoordSysId>
       <CoordSystems />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SectorWeatherComponent">
@@ -743,6 +794,42 @@
           <Key xsi:type="pair">
             <stm>0</stm>
             <ser>0</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers />
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
+        <item>
+          <Key xsi:type="pair">
+            <stm>76561197967630685</stm>
+            <ser>1</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers />
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
+        <item>
+          <Key xsi:type="pair">
+            <stm>76561197967630685</stm>
+            <ser>2</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers />
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
+        <item>
+          <Key xsi:type="pair">
+            <stm>76561197967630685</stm>
+            <ser>3</ser>
           </Key>
           <Value xsi:type="MyObjectBuilder_MissionTriggers">
             <WinTriggers />

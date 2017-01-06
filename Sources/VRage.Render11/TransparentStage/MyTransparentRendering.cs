@@ -4,6 +4,7 @@ using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using VRage.Profiler;
 using VRage.Render11.Common;
+using VRage.Render11.GeometryStage2.Rendering;
 using VRage.Render11.Profiler;
 using VRage.Render11.RenderContext;
 using VRage.Render11.Resources;
@@ -169,7 +170,7 @@ namespace VRageRender
                     // Anyway, it is italian code and it doesnt work. Solve after Beta
                     bool glassFound = MyStaticGlassRenderer.RenderGlassDepthOnly(depthResource, gbuffer1Copy, intervalMin, intervalMax);
 
-                   // if (glassFound)
+                    // if (glassFound)
                     {
                         SetupTargets(accumTarget, coverageTarget, false);
 
@@ -180,6 +181,10 @@ namespace VRageRender
 
                     intervalMax = intervalMin;
                 }
+
+                ProfilerShort.BeginNextBlock("New static glass");
+                //MyManagers.GeometryRenderer.RenderGlass();
+
             }
 
             if (IsUsedOverlappingHeatMap())

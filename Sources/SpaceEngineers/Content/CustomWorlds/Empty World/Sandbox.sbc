@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <MyObjectBuilder_Checkpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <CurrentSector x="0" y="0" z="0" />
-  <ElapsedGameTime>922560000</ElapsedGameTime>
+  <ElapsedGameTime>1342560000</ElapsedGameTime>
   <SessionName>Empty World</SessionName>
   <SpectatorPosition>
-    <Position x="-0.32934382554148811" y="-0.074394008015407687" z="1.5750704078872864" />
-    <Forward x="0.145073742" y="0.6612421" z="-0.7360112" />
-    <Up x="0.668944657" y="0.4825499" z="0.565383554" />
+    <Position x="-0.32934382554148806" y="-0.074394008015407867" z="1.5750704078872861" />
+    <Forward x="0.145073712" y="0.6612421" z="-0.7360112" />
+    <Up x="0.668944657" y="0.482549965" z="0.565383554" />
     <Orientation>
       <X>0.35723117</X>
       <Y>0.06618375</Y>
       <Z>-0.3620924</Z>
-      <W>0.8584257</W>
+      <W>0.858425736</W>
     </Orientation>
   </SpectatorPosition>
   <SpectatorIsLightOn>false</SpectatorIsLightOn>
@@ -20,8 +20,8 @@
   <ControlledObject>124168712738897777</ControlledObject>
   <Password />
   <Description />
-  <LastSaveTime>2016-12-14T15:59:06.3863152+01:00</LastSaveTime>
-  <SpectatorDistance>4.846958</SpectatorDistance>
+  <LastSaveTime>2016-12-19T15:10:26.7717148+01:00</LastSaveTime>
+  <SpectatorDistance>2.6</SpectatorDistance>
   <CharacterToolbar>
     <ToolbarType>Character</ToolbarType>
     <SelectedSlot xsi:nil="true" />
@@ -134,6 +134,8 @@
     <PermanentDeath>false</PermanentDeath>
     <AutoSaveInMinutes>5</AutoSaveInMinutes>
     <SpawnShipTimeMultiplier>0.5</SpawnShipTimeMultiplier>
+    <ProceduralDensity>0.25</ProceduralDensity>
+    <ProceduralSeed>0</ProceduralSeed>
     <DestructibleBlocks>true</DestructibleBlocks>
     <EnableIngameScripts>true</EnableIngameScripts>
     <ViewDistance>15000</ViewDistance>
@@ -146,7 +148,7 @@
     <EnableEncounters>false</EnableEncounters>
     <EnableFlora>true</EnableFlora>
     <EnableConvertToStation>true</EnableConvertToStation>
-    <StationVoxelSupport>true</StationVoxelSupport>
+    <StationVoxelSupport>false</StationVoxelSupport>
     <EnableSunRotation>true</EnableSunRotation>
     <EnableRespawnShips>true</EnableRespawnShips>
     <ScenarioEditMode>false</ScenarioEditMode>
@@ -275,14 +277,14 @@
       <Model>Default_Astronaut</Model>
       <ColorMask x="0" y="0" z="0.05" />
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:57:29.0615837+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T15:09:41.8652246+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
     <MyObjectBuilder_Identity>
       <IdentityId>144115188075855896</IdentityId>
       <DisplayName>Space Pirates</DisplayName>
       <CharacterEntityId>0</CharacterEntityId>
       <BlockLimitModifier>0</BlockLimitModifier>
-      <LastLoginTime>2016-12-14T15:57:29.0765852+01:00</LastLoginTime>
+      <LastLoginTime>2016-12-19T15:09:41.8772258+01:00</LastLoginTime>
     </MyObjectBuilder_Identity>
   </Identities>
   <PreviousEnvironmentHostility>SAFE</PreviousEnvironmentHostility>
@@ -375,13 +377,13 @@
           <BuildColorSlots>
             <Vector3>
               <X>0</X>
-              <Y>-0.81</Y>
-              <Z>-0.3</Z>
+              <Y>-1</Y>
+              <Z>0</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
-              <Y>-1</Y>
-              <Z>0</Z>
+              <Y>0</Y>
+              <Z>0.05</Z>
             </Vector3>
             <Vector3>
               <X>0.333333343</X>
@@ -406,7 +408,7 @@
             <Vector3>
               <X>0</X>
               <Y>-0.96</Y>
-              <Z>-1</Z>
+              <Z>-0.5</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
@@ -430,8 +432,8 @@
             </Vector3>
             <Vector3>
               <X>0.122222222</X>
-              <Y>0.05</Y>
-              <Z>0.46</Z>
+              <Y>0.0500000045</Y>
+              <Z>0.459999979</Z>
             </Vector3>
             <Vector3>
               <X>0</X>
@@ -440,8 +442,8 @@
             </Vector3>
             <Vector3>
               <X>0</X>
-              <Y>-0.809999943</Y>
-              <Z>-0.3</Z>
+              <Y>-0.81</Y>
+              <Z>-0.13</Z>
             </Vector3>
           </BuildColorSlots>
         </Value>
@@ -587,11 +589,11 @@
       <Mod />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_EnvironmentBotSpawningSystem">
-      <TimeSinceLastEventInMs>101852</TimeSinceLastEventInMs>
+      <TimeSinceLastEventInMs>30963</TimeSinceLastEventInMs>
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_CoordinateSystem">
       <Definition Type="MyObjectBuilder_CoordinateSystemDefinition" Subtype="CoordinateSystem" />
-      <LastCoordSysId>1</LastCoordSysId>
+      <LastCoordSysId>2</LastCoordSysId>
       <CoordSystems />
     </MyObjectBuilder_SessionComponent>
     <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SectorWeatherComponent">

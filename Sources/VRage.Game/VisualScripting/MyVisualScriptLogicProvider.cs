@@ -65,6 +65,14 @@ namespace VRage.Game.VisualScripting
 
         [VisualScriptingMiscData("Shared Storage")]
         [VisualScriptingMember(true)]
+        public static void StoreLong(string key, long value)
+        {
+            if (MySessionComponentScriptSharedStorage.Instance != null)
+                MySessionComponentScriptSharedStorage.Instance.Write(key, value);
+        }
+
+        [VisualScriptingMiscData("Shared Storage")]
+        [VisualScriptingMember(true)]
         public static void StoreFloat(string key, float value)
         {
             if (MySessionComponentScriptSharedStorage.Instance != null)
@@ -105,6 +113,16 @@ namespace VRage.Game.VisualScripting
         {
             if (MySessionComponentScriptSharedStorage.Instance != null)
                 return MySessionComponentScriptSharedStorage.Instance.ReadInt(key);
+
+            return 0;
+        }
+
+        [VisualScriptingMiscData("Shared Storage")]
+        [VisualScriptingMember]
+        public static long LoadLong(string key)
+        {
+            if (MySessionComponentScriptSharedStorage.Instance != null)
+                return MySessionComponentScriptSharedStorage.Instance.ReadLong(key);
 
             return 0;
         }

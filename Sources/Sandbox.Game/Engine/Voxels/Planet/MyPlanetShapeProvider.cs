@@ -677,6 +677,12 @@ namespace Sandbox.Engine.Voxels
                 return 0;
             }
 
+            if (!length.IsValid())
+            {
+                Debug.Fail("Cannot project from such number!");
+                return 0;
+            }
+
             int face;
             Vector2 tex;
             MyCubemapHelpers.CalculateSampleTexcoord(ref localPos, out face, out tex);

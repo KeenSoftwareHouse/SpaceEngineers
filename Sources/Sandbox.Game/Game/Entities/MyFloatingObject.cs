@@ -41,6 +41,7 @@ using Sandbox.Engine.Multiplayer;
 using VRage.Audio;
 using VRage.Sync;
 using VRageRender.Import;
+using System.Collections.Generic;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 
 #endregion
@@ -79,6 +80,10 @@ namespace Sandbox.Game.Entities
 
         private DateTime lastTimeSound = DateTime.MinValue;
 
+        private Vector3 m_smoothGravity;
+        private Vector3 m_smoothGravityDir;
+        private List<Vector3> m_supportNormals;
+        
         public new MyPhysicsBody Physics
         {
             get { return base.Physics as MyPhysicsBody; }
@@ -137,13 +142,68 @@ namespace Sandbox.Game.Entities
             else
                 ItemDefinition = itemDefinition;
             m_timeFromSpawn = MySession.Static.ElapsedPlayTime;
+
+
+            m_smoothGravity = Physics.RigidBody.Gravity;
+            m_smoothGravityDir = m_smoothGravity;
+            m_smoothGravityDir.Normalize();
+            m_supportNormals = new List<Vector3>();
+            m_supportNormals.Capacity = 3;
+
+            Physics.RigidBody.ContactPointCallbackEnabled = true;
+            Physics.RigidBody.ContactPointCallbackDelay = 0;
+            Physics.RigidBody.ContactPointCallback += RigidBody_ContactPointCallback;
+          
         }
 
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
             // DA: Consider using havok fields (buoyancy demo) for gravity of planets.
-            Physics.RigidBody.Gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(PositionComp.GetPosition());
+            //<ib.floating>
+            //Physics.RigidBody.Gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(PositionComp.GetPosition());
+            Vector3 gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(PositionComp.GetPosition());
+                        
+
+            if (Physics.RigidBody.GetShape().ShapeType == HkShapeType.Sphere)
+            {
+                const float w = 0.5f;
+                m_smoothGravity = m_smoothGravity * w + gravity * (1 - w);
+                m_smoothGravityDir = m_smoothGravity;
+                m_smoothGravityDir.Normalize();
+                
+                bool anySupport = false;
+                foreach (var supportNormal in m_supportNormals)
+                {
+                    float cosalpha = supportNormal.Dot(m_smoothGravityDir);
+                    const float cosalphaLimit = 0.8f; // +/- 12 Degrees
+                    if (cosalpha > cosalphaLimit)
+                    {
+                        anySupport = true;
+                        break;
+                    }
+                }
+                m_supportNormals.Clear();
+               
+                if (anySupport)
+                {
+                    //Physics.RigidBody.Gravity = Vector3.Zero;
+                    const float limitGravity = 0.01f;
+                    if ((Physics.RigidBody.Gravity.Length() > limitGravity))
+                    {
+                        Physics.RigidBody.Gravity *= 0.99f; // Decay gravity
+                    }
+                }
+                else
+                {
+                    Physics.RigidBody.Gravity = m_smoothGravity;
+                }
+            }
+            else 
+            {
+                Physics.RigidBody.Gravity = gravity;
+            }
+            
 
             if (m_massChangeForCollisions < 1f)
             {
@@ -152,6 +212,21 @@ namespace Sandbox.Game.Entities
                     m_massChangeForCollisions = 1f;
                 }
             }
+
+       }
+
+        void RigidBody_ContactPointCallback(ref HkContactPointEvent e)
+        {
+            //if (e.Base.BodyA.IsFixed || e.Base.BodyB.IsFixed)
+            {
+                Vector3 supportNormal = e.ContactPoint.Position - Physics.RigidBody.Position;
+                float normalLen = supportNormal.Normalize();
+
+                if (normalLen > 0.001f)
+                {
+                    m_supportNormals.Add(supportNormal);
+                }
+            }            
         }
 
         public override void OnAddedToScene(object source)
@@ -167,6 +242,11 @@ namespace Sandbox.Game.Entities
             builder.Item = Item.GetObjectBuilder();
             builder.ModelVariant = m_modelVariant;
             return builder;
+        }
+
+        public bool HasConstraints()
+        {
+            return Physics.RigidBody.HasConstraints();
         }
 
         private void InitInternal()
@@ -246,11 +326,13 @@ namespace Sandbox.Game.Entities
 
             if (Physics != null)
                 Physics.Close();
-            Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEBRIS);
+           
+            Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEFAULT); // Default wasRigidBodyFlag.RBF_DEBRIS
 
             int layer = mass > MyPerGameSettings.MinimumLargeShipCollidableMass ? MyPhysics.CollisionLayers.FloatingObjectCollisionLayer : MyPhysics.CollisionLayers.LightFloatingObjectCollisionLayer;
 
-            if (VoxelMaterial != null || (shape.IsConvex && scale != 1f))
+
+            if ((VoxelMaterial != null || (shape.IsConvex && scale != 1f)) && (shape.ShapeType != HkShapeType.Sphere))
             {
                 HkConvexTransformShape transform = new HkConvexTransformShape((HkConvexShape)shape, ref scaleMatrix, HkReferencePolicy.None);
 
@@ -268,10 +350,23 @@ namespace Sandbox.Game.Entities
             Physics.MaterialType = this.EvaluatePhysicsMaterial(itemDefinition.PhysicalMaterial);
             Physics.PlayCollisionCueEnabled = true;
             Physics.RigidBody.ContactSoundCallbackEnabled = true;
-            m_easeCollisionForce = new HkEasePenetrationAction(Physics.RigidBody, 2f);
+            
+            //m_easeCollisionForce = new HkEasePenetrationAction(Physics.RigidBody, 2f);
             m_massChangeForCollisions = 0.010f;
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
+
+            Physics.RigidBody.SetProperty(HkCharacterRigidBody.FLOATING_OBJECT,0);
+
+            //Some physical parameters modifications for stones and ore (sphere objects)
+            if (shape.ShapeType == HkShapeType.Sphere)
+            {
+                //Physics.RigidBody.Friction = 1.0f;
+                //Physics.RigidBody.Restitution = 0.05f;
+                Physics.RigidBody.LinearDamping = 0.9f;
+                Physics.RigidBody.AngularDamping = 2.0f;
+                Physics.RigidBody.AllowedPenetrationDepth = 0.05f;
+            }
         }
 
         /// <summary>
@@ -314,13 +409,13 @@ namespace Sandbox.Game.Entities
         // Don't call remove reference on this, this shape is pooled
         protected virtual HkShape GetPhysicsShape(float mass, float scale, out HkMassProperties massProperties)
         {
-            const bool SimpleShape = false;
-
+            const bool SimpleShape = true;
+            const float halfExtentsScale = 2.0f;
+           
             Debug.Assert(Model != null, "Invalid floating object model: " + Item.GetDefinitionId());
             if (Model == null)
                 MyLog.Default.WriteLine("Invalid floating object model: " + Item.GetDefinitionId());
 
-            Vector3 halfExtents = (Model.BoundingBox.Max - Model.BoundingBox.Min) / 2;
             HkShapeType shapeType;
 
             if (VoxelMaterial != null)
@@ -331,7 +426,9 @@ namespace Sandbox.Game.Entities
             else
             {
                 shapeType = HkShapeType.Box;
+                Vector3 halfExtents = halfExtentsScale * (Model.BoundingBox.Max - Model.BoundingBox.Min) / 2;
                 massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(halfExtents, mass);
+                massProperties.Mass = mass;
                 massProperties.CenterOfMass = Model.BoundingBox.Center;
             }
 

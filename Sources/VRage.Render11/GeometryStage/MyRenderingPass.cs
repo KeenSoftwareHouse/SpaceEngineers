@@ -165,6 +165,7 @@ namespace VRageRender
 
             RC.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             RC.AllShaderStages.SetConstantBuffer(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.VOXELS_MATERIALS_LUT_SLOT, MyCommon.VoxelMaterialsConstants.Cb);
             RC.AllShaderStages.SetConstantBuffer(MyCommon.ALPHAMASK_VIEWS_SLOT, MyCommon.AlphamaskViewsConstants);
 
             RC.PixelShader.SetSrv(MyCommon.DITHER_8X8_SLOT, MyGeneratedTextureManager.Dithering8x8Tex);
@@ -346,12 +347,7 @@ namespace VRageRender
 
         internal static void BindProxyGeometry(MyRenderableProxy proxy, MyRenderContext rc)
         {
-            MyMeshBuffers buffers;
-            
-            if(proxy.Mesh != LodMeshId.NULL)
-                buffers = proxy.Mesh.Buffers;
-            else
-                buffers = proxy.MergedMesh.Buffers;
+            MyMeshBuffers buffers = proxy.Mesh.Buffers;
 
             rc.SetVertexBuffer(0, buffers.VB0);
             rc.SetVertexBuffer(1, buffers.VB1);

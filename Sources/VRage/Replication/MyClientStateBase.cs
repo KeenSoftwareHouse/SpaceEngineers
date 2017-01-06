@@ -40,5 +40,7 @@ namespace VRage.Network
         }
 
         public abstract void Update();
+
+        public abstract IMyReplicable ControlledReplicable { get; }
     }
 }

@@ -13,11 +13,16 @@ namespace VRageRender
         internal float Size;
         internal Vector3D Position;
         internal bool Running;
-        internal float LastResult;
-        internal float NextQueryTime;
         internal bool Visible;
         internal float FreqMinMs;
         internal float FreqRndMs;
+
+        internal float Result;
+        internal float LastResult;
+        internal float NextResult;
+
+        internal float QueryTime;
+        internal float LastQueryTime;
     }
 
     internal static class MyOcclusionQueryRenderer
@@ -44,7 +49,7 @@ namespace VRageRender
             {
                 Query = MyQueryFactory.CreateOcclusionQuery(debugName),
                 Size = 1.0f,
-                NextQueryTime = 0
+                QueryTime = 0
             };
             m_queries.Add(query);
             return query;
@@ -69,7 +74,6 @@ namespace VRageRender
             if (m_vb == null || m_tempBuffer2.Length < m_queries.Count)
             {
                 int allocCount = System.Math.Max(m_queries.Count * 3 / 2, 32);
-                System.Diagnostics.Debug.Assert(allocCount < 256);
 
                 if (m_vb == null)
                 {
@@ -92,7 +96,7 @@ namespace VRageRender
                 Vector3 cameraPos = item.Position - MyRender11.Environment.Matrices.CameraPosition;
                 if (debugDraw)
                 {
-                    item.LastResult = 0;
+                    item.Result = item.LastResult = item.NextResult = 0;
                 }
                 else 
                 {
@@ -106,17 +110,25 @@ namespace VRageRender
                             var projPos = Vector3.Transform(viewPos, MyRender11.Environment.Matrices.Projection);
                             var pixels = new Vector2(projPos.X, projPos.Y) * MyRender11.ResolutionF / 2;
                             var squared = System.Math.Abs(pixels.X * pixels.Y);
-                            item.LastResult = System.Math.Min(result / squared, 1.0f);
-                            item.NextQueryTime = currentTime + item.FreqMinMs + m_random.NextFloat() * item.FreqRndMs;
+                            item.LastResult = item.Result;
+                            item.NextResult = System.Math.Min(result / squared, 1.0f);
+                            item.LastQueryTime = currentTime;
+                            item.QueryTime = currentTime + item.FreqMinMs + m_random.NextFloat() * item.FreqRndMs;
                             item.Running = false;
                         }
                         else continue;
                     }
                 }
 
-                if (!item.Visible || currentTime < item.NextQueryTime)
+                if (System.Math.Abs(item.QueryTime - item.LastQueryTime) < 0.1f)
+                    item.Result = item.NextResult;
+                else
+                {
+                    float factor = (currentTime - item.LastQueryTime) / (item.QueryTime - item.LastQueryTime);
+                    item.Result = MathHelper.Lerp(item.LastResult, item.NextResult, factor);
+                }
+                if (!item.Visible || currentTime < item.QueryTime)
                     continue;
-
                 item.Running = true;
 
                 var data = new MyVbConstantElement

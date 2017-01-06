@@ -289,12 +289,23 @@ namespace SpaceEngineers.Game.GUI
             }
 
             this.CanBeHidden = false;
-
-            var messageBox = MyGuiSandbox.CreateMessageBox(
-                buttonType: MyMessageBoxButtonsType.YES_NO_CANCEL,
-                messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextSaveChangesBeforeExit),
-                messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionExit),
-                callback: OnExitToMainMenuMessageBoxCallback);
+            MyGuiScreenMessageBox messageBox;
+            if (MyCampaignManager.Static.IsCampaignRunning)
+            {
+                messageBox = MyGuiSandbox.CreateMessageBox(
+                    buttonType: MyMessageBoxButtonsType.YES_NO,
+                    messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextCampaignBeforeExit),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionExit),
+                    callback: OnExitToMainMenuFromCampaignMessageBoxCallback);
+            }
+            else
+            {
+                messageBox = MyGuiSandbox.CreateMessageBox(
+                    buttonType: MyMessageBoxButtonsType.YES_NO_CANCEL,
+                    messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextSaveChangesBeforeExit),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionExit),
+                    callback: OnExitToMainMenuMessageBoxCallback);
+            }
             messageBox.SkipTransition = true;
             messageBox.InstantClose = false;
             MyGuiSandbox.AddScreen(messageBox);
@@ -317,6 +328,22 @@ namespace SpaceEngineers.Game.GUI
                     break;
 
                 case MyGuiScreenMessageBox.ResultEnum.CANCEL:
+                    this.CanBeHidden = true;
+                    break;
+            }
+        }
+
+        private void OnExitToMainMenuFromCampaignMessageBoxCallback(MyGuiScreenMessageBox.ResultEnum callbackReturn)
+        {
+            switch (callbackReturn)
+            {
+                case MyGuiScreenMessageBox.ResultEnum.YES:
+                    MyAudio.Static.Mute = true;
+                    MyAudio.Static.StopMusic();
+                    MySessionLoader.UnloadAndExitToMenu();
+                    break;
+
+                default:
                     this.CanBeHidden = true;
                     break;
             }

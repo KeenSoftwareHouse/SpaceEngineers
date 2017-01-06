@@ -110,7 +110,7 @@ namespace VRageRender
                 MyRenderProxy.RenderThread.SystemThread == System.Threading.Thread.CurrentThread)
             {
                 stringBuilder.Clear();
-                for (int i = 0; i < DebugInfoQueue.NumStoredMessages; i++)
+                for (int i = 0; i < DebugInfoQueue.NumStoredMessagesAllowedByRetrievalFilter; i++)
                 {
                     var msg = DebugInfoQueue.GetMessage(i);
                     string text = String.Format("D3D11 {0}: {1} [ {2} #{3}: {4} ] {5}/{6}\n", msg.Severity.ToString(), msg.Description.Replace("\0", ""), msg.Category.ToString(), (int) msg.Id, msg.Id.ToString(), i, DebugInfoQueue.NumStoredMessages);
@@ -158,7 +158,7 @@ namespace VRageRender
                 || adapters.Length <= adapterIndex
                 || !adapters[adapterIndex].IsDx11Supported;
             if (adapterIndexNotValid)
-                return GetPriorityAdapter();
+                return 0; // 0 should be attached to primary output; user can later decide to use better adapter; GetPriorityAdapter();
             return adapterIndex;
         }
 
@@ -218,30 +218,39 @@ namespace VRageRender
                                         AdapterOrdinal = i,
                                         BackBufferHeight = displayMode.Height,
                                         BackBufferWidth = displayMode.Width,
-                                        WindowMode = MyWindowModeEnum.Fullscreen,
+                                        WindowMode = MyWindowModeEnum.FullscreenWindow,
                                         RefreshRate = displayMode.RefreshRate,
                                         VSync = true
                                     };
 
                                     deviceCreated = CreateDeviceInternalSafe(windowHandle, newSettings, false, out exceptionEnum);
-                                    break;
+                                    if (deviceCreated)
+                                        break;
                                 }
                             }
                         }
+                        if (deviceCreated)
+                            break;
                     }
                 }
                 if (!deviceCreated)
-                {
+                {                   
                     Log.WriteLine("Lowest res fallback.");
-                    var simpleSettings = new MyRenderDeviceSettings()
+                    var adapters = GetAdaptersList();
+                    for (int i = 0; i < adapters.Length; i++)
                     {
-                        AdapterOrdinal = 0,
-                        BackBufferHeight = 480,
-                        BackBufferWidth = 640,
-                        WindowMode = MyWindowModeEnum.Window,
-                        VSync = true,
-                    };
-                    deviceCreated = CreateDeviceInternalSafe(windowHandle, simpleSettings, false, out exceptionEnum);
+                        var simpleSettings = new MyRenderDeviceSettings()
+                        {
+                            AdapterOrdinal = i,
+                            BackBufferHeight = 480,
+                            BackBufferWidth = 640,
+                            WindowMode = MyWindowModeEnum.Window,
+                            VSync = true,
+                        };
+                        deviceCreated = CreateDeviceInternalSafe(windowHandle, simpleSettings, false, out exceptionEnum);
+                        if (deviceCreated)
+                            break;
+                    }
                 }
 
                 if (!deviceCreated)
@@ -258,12 +267,11 @@ namespace VRageRender
             var simpleSettings = CreateXB1Settings();
 #endif
 
-
             if (!deviceCreated)
             {
                 // always display user friendly text to update drivers
-                string message = string.Format("Graphics card could not be initialized. Please, apply windows updates and update to the latest graphics drivers.");
-                VRage.Utils.MyMessageBox.Show("Unable to initialize the graphics system",
+                string message = string.Format("Graphics card could not be initialized.\n\nThis problem may be caused by your graphics card, because it does not meet minimum requirements. Please, check the minimum requirents for the game.\n\nIf the requirements are met, please apply windows updates and update to the latest graphics drivers.");
+                VRage.Utils.MyMessageBox.Show("Unable to initialize Direct3D11",
                     message);
                 throw new MyRenderException("No supported device detected!\nPlease apply windows updates and update to latest graphics drivers.", MyRenderExceptionEnum.GpuNotSupported);
             }
@@ -333,20 +341,19 @@ namespace VRageRender
             FeatureLevel[] featureLevels = { FeatureLevel.Level_11_0 };
             DeviceCreationFlags flags = DeviceCreationFlags.None;
 
-            //forceDebugDevice |= MyCompilationSymbols.IsDebugBuild;
-            if (forceDebugDevice)
+            bool isEnabledDebugOutput = forceDebugDevice | MyCompilationSymbols.DX11Debug;
+            if (isEnabledDebugOutput)
             {
                 flags |= DeviceCreationFlags.Debug;
             }
 #if !XB1
-            WinApi.DEVMODE mode = new WinApi.DEVMODE();
-            WinApi.EnumDisplaySettings(null, WinApi.ENUM_REGISTRY_SETTINGS, ref mode);
-
+            var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+            //var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
             var settings = settingsToTry ?? new MyRenderDeviceSettings()
             {
                 AdapterOrdinal = -1,
-                BackBufferHeight = mode.dmPelsHeight,
-                BackBufferWidth = mode.dmPelsWidth,
+                BackBufferHeight = bounds.Width,
+                BackBufferWidth = bounds.Height,
                 WindowMode = MyWindowModeEnum.FullscreenWindow,
                 RefreshRate = 60000,
                 VSync = false,
@@ -364,8 +371,6 @@ namespace VRageRender
             m_settings = settings;
 
             Log.WriteLine("CreateDeviceInteral settings");
-            Log.IncreaseIndent();
-            LogSettings(ref m_settings);
 
             // If this line crashes cmd this: Dism /online /add-capability /capabilityname:Tools.Graphics.DirectX~~~~0.0.1.0
             var factory = GetFactory();
@@ -381,8 +386,16 @@ namespace VRageRender
             Log.WriteLine("CreateDeviceInteral TweakSettingsAdapterAdHoc");
             TweakSettingsAdapterAdHoc(adapter);
 
+            if (m_settings.WindowMode == MyWindowModeEnum.Fullscreen && adapter.Outputs.Length == 0)
+                m_settings.WindowMode = MyWindowModeEnum.FullscreenWindow;
+            Log.IncreaseIndent();
+            LogSettings(ref m_settings);
+
             Log.WriteLine("CreateDeviceInteral create device");
-            Device = new Device(adapter, flags, FeatureLevel.Level_11_0);
+            if (MyCompilationSymbols.CreateRefenceDevice)
+                Device = new Device(DriverType.Reference, flags, FeatureLevel.Level_11_0);
+            else
+                Device = new Device(adapter, flags, FeatureLevel.Level_11_0);
 
             Log.WriteLine("CreateDeviceInteral create ImagingFactory");
             WIC = new ImagingFactory();
@@ -400,7 +413,7 @@ namespace VRageRender
             }
 
             Log.WriteLine("CreateDeviceInteral InitDebugOutput");
-            InitDebugOutput(forceDebugDevice);
+            InitDebugOutput(isEnabledDebugOutput);
 
             Log.WriteLine("CreateDeviceInteral RC Dispose");
             if(RC != null)

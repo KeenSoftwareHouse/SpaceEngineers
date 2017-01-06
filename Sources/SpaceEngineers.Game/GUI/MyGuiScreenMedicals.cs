@@ -244,10 +244,10 @@ namespace SpaceEngineers.Game.GUI
 
         private void RefreshSpawnShips()
         {
-            if (MySession.Static.CreativeMode)
-            {
-                return;
-            }
+            //if (MySession.Static.CreativeMode)
+            //{
+            //    return;
+            //}
             var respawnShips = MyDefinitionManager.Static.GetRespawnShipDefinitions();
             foreach (var pair in respawnShips)
             {
@@ -353,7 +353,7 @@ namespace SpaceEngineers.Game.GUI
                             {
                                 MyMedicalRoomInfo info = new MyMedicalRoomInfo();
                                 info.MedicalRoomId = medicalRoom.EntityId;
-                                info.MedicalRoomName = medicalRoom.CustomName.ToString();
+                                info.MedicalRoomName = medicalRoom.CustomName != null ? medicalRoom.CustomName.ToString() : (medicalRoom.Name != null ? medicalRoom.Name : medicalRoom.ToString());
                                 info.OxygenLevel = medicalRoom.GetOxygenLevel();
                                 info.OwnerId = medicalRoom.IDModule.Owner;
 
@@ -367,7 +367,8 @@ namespace SpaceEngineers.Game.GUI
                                 info.PrefferedCameraPosition = cameraPosition.Value;
                                 info.MedicalRoomPosition = medRoomPosition;
                                 info.MedicalRoomUp = medicalRoom.PositionComp.WorldMatrix.Up;
-                                info.MedicalRoomVelocity = medicalRoom.CubeGrid.Physics.LinearVelocity;
+                                if (medicalRoom.CubeGrid.Physics != null)
+                                    info.MedicalRoomVelocity = medicalRoom.CubeGrid.Physics.LinearVelocity;
 
                                 medicalRooms.Add(info);
                             }
@@ -407,16 +408,17 @@ namespace SpaceEngineers.Game.GUI
                 m_respawnsTable.Add(row);
             }
 
+            
+            if (MySession.Static.CreativeMode)
+            {
+                AddRespawnInSuit();
+            }
+            else
             if ((MySession.Static.Settings.EnableRespawnShips && !MySession.Static.Settings.Scenario))
             {
                 RefreshSpawnShips();
                 AddRespawnInSuit();
-            }
-            else
-                if (MySession.Static.CreativeMode)
-                {
-                    AddRespawnInSuit();
-                }
+            }               
 
             if (m_respawnsTable.RowsCount > 0)
             {

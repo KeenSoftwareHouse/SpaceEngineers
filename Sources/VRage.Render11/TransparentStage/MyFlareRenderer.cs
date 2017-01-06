@@ -146,7 +146,7 @@ namespace VRageRender
             var intensity = flare.Desc.Intensity;
             var maxDistance = flare.Desc.MaxDistance;
 
-            float alpha = flare.Query.LastResult * flare.Query.LastResult * intensity;
+            float alpha = flare.Query.Result * flare.Query.Result * intensity;
 
 
             const float minFlareRadius = 0.2f;
@@ -197,7 +197,7 @@ namespace VRageRender
             flare.Query.Visible = true;
 
             const float RESULT_FLOOR = 0.01f;
-            float result = (flare.Query.LastResult - RESULT_FLOOR) * (1 / (1 - RESULT_FLOOR));
+            float result = (flare.Query.Result - RESULT_FLOOR) * (1 / (1 - RESULT_FLOOR));
             float alpha = result * result * flare.Desc.Intensity;
 
             if (alpha < MyMathConstants.EPSILON)

@@ -2117,13 +2117,15 @@ namespace Sandbox.Game.Entities
             Action m_completionCallback;
             MyEntity m_entity;
             List<IMyEntity> m_resultIDs;
+            bool m_callbackNeedsReplicable;
 
-            public InitEntityData(MyObjectBuilder_EntityBase objectBuilder, bool addToScene, Action completionCallback, MyEntity entity)
+            public InitEntityData(MyObjectBuilder_EntityBase objectBuilder, bool addToScene, Action completionCallback, MyEntity entity, bool callbackNeedsReplicable)
             {
                 m_objectBuilder = objectBuilder;
                 m_addToScene = addToScene;
                 m_completionCallback = completionCallback;
                 m_entity = entity;
+                m_callbackNeedsReplicable = callbackNeedsReplicable;
             }
 
             public void CallInitEntity()
@@ -2162,10 +2164,14 @@ namespace Sandbox.Game.Entities
                     {
                         Add(m_entity, insertIntoScene);
 
+                        if (m_callbackNeedsReplicable)
+                            SetReadyForReplication(m_entity);
+
                         if (m_completionCallback != null)
                             m_completionCallback();
 
-                        SetReadyForReplication(m_entity);
+                        if (!m_callbackNeedsReplicable)
+                            SetReadyForReplication(m_entity);
                     }
                 }
             }
@@ -2188,7 +2194,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         /// <param name="completionCallback">Callback when the entity is initialized</param>
         /// <param name="entity">Already created entity you only want to init</param>
-        public static MyEntity CreateFromObjectBuilderParallel(MyObjectBuilder_EntityBase objectBuilder, bool addToScene = false, Action completionCallback = null, MyEntity entity = null)
+        public static MyEntity CreateFromObjectBuilderParallel(MyObjectBuilder_EntityBase objectBuilder, bool addToScene = false, Action completionCallback = null, MyEntity entity = null, bool callbackNeedsReplicable = false)
         {
             if (entity == null)
             {
@@ -2197,7 +2203,7 @@ namespace Sandbox.Game.Entities
                     return null;
             }
 
-            InitEntityData initData = new InitEntityData(objectBuilder, addToScene, completionCallback, entity);
+            InitEntityData initData = new InitEntityData(objectBuilder, addToScene, completionCallback, entity, callbackNeedsReplicable);
             Interlocked.Increment(ref PendingInits);
             Parallel.Start(CallInitEntity, OnEntityInitialized, initData);
             return entity;

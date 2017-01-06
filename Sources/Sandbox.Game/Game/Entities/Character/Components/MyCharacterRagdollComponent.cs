@@ -165,6 +165,8 @@ namespace Sandbox.Game.Entities.Character.Components
             
             RagdollMapper.SetVelocities();
 
+            RagdollMapper.SetLimitedVelocities();
+
             RagdollMapper.DebugDraw(Character.WorldMatrix);
         }
 
@@ -386,7 +388,7 @@ namespace Sandbox.Game.Entities.Character.Components
             
             if (RagdollMapper != null && RagdollMapper.Ragdoll != null && RagdollMapper.Ragdoll.InWorld)
             {
-                RagdollMapper.UpdateCharacterPose(Character.IsDead ? 1.0f : 0.1f, Character.IsDead ? 1.0f : 0.0f);
+                RagdollMapper.UpdateCharacterPose(Character.IsDead ? 1.0f : 0.2f, Character.IsDead ? 1.0f : 0.0f);
                 RagdollMapper.DebugDraw(Character.WorldMatrix);
 
                 var characterBones = Character.AnimationController.CharacterBones;

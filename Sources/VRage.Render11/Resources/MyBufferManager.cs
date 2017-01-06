@@ -213,6 +213,9 @@ namespace VRage.Render11.Resources
 
         public ISrvBuffer CreateSrv(string name, int elements, int byteStride, IntPtr? initData = null, ResourceUsage usage = ResourceUsage.Default)
         {
+            MyRenderProxy.Assert(elements > 0);
+            MyRenderProxy.Assert(byteStride > 0);
+
             Debug.Assert(usage != ResourceUsage.Staging, "Conspicuous ResourceUsage setup: should an Srv buffer be a staging resource?");
 
             BufferDescription description = new BufferDescription(elements * byteStride,
@@ -227,6 +230,9 @@ namespace VRage.Render11.Resources
 
         public IUavBuffer CreateUav(string name, int elements, int byteStride, IntPtr? initData = null, MyUavType uavType = MyUavType.Default, ResourceUsage usage = ResourceUsage.Default)
         {
+            MyRenderProxy.Assert(elements > 0);
+            MyRenderProxy.Assert(byteStride > 0);
+
             Debug.Assert(usage != ResourceUsage.Staging, "Conspicuous ResourceUsage setup: should an Uav buffer be a staging resource?");
 
             BufferDescription description = new BufferDescription(elements * byteStride,
@@ -241,6 +247,9 @@ namespace VRage.Render11.Resources
 
         public ISrvUavBuffer CreateSrvUav(string name, int elements, int byteStride, IntPtr? initData = null, MyUavType uavType = MyUavType.Default, ResourceUsage usage = ResourceUsage.Default)
         {
+            MyRenderProxy.Assert(elements > 0);
+            MyRenderProxy.Assert(byteStride > 0);
+
             //Debug.Assert(usage != ResourceUsage.Staging, "Conspicuous ResourceUsage setup: should an SrvUav buffer be a staging resource?");
 
             BufferDescription description = new BufferDescription(elements * byteStride,
@@ -255,6 +264,9 @@ namespace VRage.Render11.Resources
 
         public IIndirectResourcesBuffer CreateIndirectArgsBuffer(string name, int elements, int byteStride, Format format = Format.R32_UInt)
         {
+            MyRenderProxy.Assert(elements > 0);
+            MyRenderProxy.Assert(byteStride > 0);
+            
             BufferDescription description = new BufferDescription(elements * byteStride,
                 ResourceUsage.Default,
                 BindFlags.UnorderedAccess,
@@ -267,6 +279,9 @@ namespace VRage.Render11.Resources
 
         public IReadBuffer CreateRead(string name, int elements, int byteStride)
         {
+            MyRenderProxy.Assert(elements > 0);
+            MyRenderProxy.Assert(byteStride > 0);
+
             BufferDescription description = new BufferDescription(elements * byteStride,
                 ResourceUsage.Staging,
                 BindFlags.None,
@@ -279,6 +294,8 @@ namespace VRage.Render11.Resources
 
         public IIndexBuffer CreateIndexBuffer(string name, int elements, IntPtr? initData = null, MyIndexBufferFormat format = MyIndexBufferFormat.UShort, ResourceUsage usage = ResourceUsage.Default)
         {
+            MyRenderProxy.Assert(elements > 0);
+
             Debug.Assert(usage != ResourceUsage.Staging, "Conspicuous ResourceUsage setup: should an index buffer be a staging resource?");
 
             int stride;
@@ -307,6 +324,9 @@ namespace VRage.Render11.Resources
 
         public IVertexBuffer CreateVertexBuffer(string name, int elements, int byteStride, IntPtr? initData = null, ResourceUsage usage = ResourceUsage.Default, bool isStreamOutput = false)
         {
+            MyRenderProxy.Assert(elements > 0);
+            MyRenderProxy.Assert(byteStride > 0);
+
             Debug.Assert(usage != ResourceUsage.Staging, "Conspicuous ResourceUsage setup: should a vertex buffer be a staging resource?");
 
             BufferDescription description = new BufferDescription(elements * byteStride,
@@ -321,6 +341,8 @@ namespace VRage.Render11.Resources
 
         public IConstantBuffer CreateConstantBuffer(string name, int byteSize, IntPtr? initData = null, ResourceUsage usage = ResourceUsage.Default)
         {
+            MyRenderProxy.Assert(byteSize > 0);
+
             Debug.Assert(byteSize == ((byteSize + 15) / 16) * 16, "CB size not padded");
 
             Debug.Assert(usage != ResourceUsage.Staging, "Conspicuous ResourceUsage setup: should a constant buffer be a staging resource?");
@@ -374,45 +396,69 @@ namespace VRage.Render11.Resources
 
         public void Resize(ISrvBuffer buffer, int newElements, int newByteStride = -1, IntPtr? newData = null)
         {
+            MyRenderProxy.Assert(newElements > 0);
+            MyRenderProxy.Assert(newByteStride > 0 || newByteStride == -1);
+
             ResizeInternal(buffer as MySrvBuffer, newElements, newByteStride, newData);
         }
 
         public void Resize(IUavBindable buffer, int newElements, int newByteStride = -1, IntPtr? newData = null)
         {
+            MyRenderProxy.Assert(newElements > 0);
+            MyRenderProxy.Assert(newByteStride > 0 || newByteStride == -1);
+
             var uavBuffer = buffer as MyUavBuffer;
             ResizeInternal(uavBuffer, newElements, newByteStride, newData, b => b.UavType = uavBuffer.UavType);
         }
 
         public void Resize(ISrvUavBindable buffer, int newElements, int newByteStride = -1, IntPtr? newData = null)
         {
+            MyRenderProxy.Assert(newElements > 0);
+            MyRenderProxy.Assert(newByteStride > 0 || newByteStride == -1);
+
             var srvUavBuffer = buffer as MySrvUavBuffer;
             ResizeInternal(srvUavBuffer, newElements, newByteStride, newData, b => b.UavType = srvUavBuffer.UavType);
         }
 
         public void Resize(IIndirectResourcesBuffer buffer, int newElements, int newByteStride = -1, IntPtr? newData = null)
         {
+            MyRenderProxy.Assert(newElements > 0);
+            MyRenderProxy.Assert(newByteStride > 0 || newByteStride == -1);
+
             var indirectBuffer = buffer as MyIndirectArgsBuffer;
             ResizeInternal(indirectBuffer, newElements, newByteStride, newData, b => b.Format = indirectBuffer.Format);
         }
 
         public void Resize(IReadBuffer buffer, int newElements, int newByteStride = -1, IntPtr? newData = null)
         {
+            MyRenderProxy.Assert(newElements > 0);
+            MyRenderProxy.Assert(newByteStride > 0 || newByteStride == -1);
+
             ResizeInternal(buffer as MyReadBuffer, newElements, newByteStride, newData);
         }
 
         public void Resize(IIndexBuffer buffer, int newElements, int newByteStride = -1, IntPtr? newData = null)
         {
+            MyRenderProxy.Assert(newElements > 0);
+            MyRenderProxy.Assert(newByteStride > 0 || newByteStride == -1);
+
             var indexBuffer = buffer as MyIndexBuffer;
             ResizeInternal(indexBuffer, newElements, newByteStride, newData, b => b.Format = indexBuffer.Format);
         }
 
         public void Resize(IVertexBuffer buffer, int newElements, int newByteStride = -1, IntPtr? newData = null)
         {
+            MyRenderProxy.Assert(newElements > 0);
+            MyRenderProxy.Assert(newByteStride > 0 || newByteStride == -1);
+
             ResizeInternal(buffer as MyVertexBuffer, newElements, newByteStride, newData);
         }
 
         public void Resize(IConstantBuffer buffer, int newElements, int newByteStride = -1, IntPtr? newData = null)
         {
+            MyRenderProxy.Assert(newElements > 0);
+            MyRenderProxy.Assert(newByteStride > 0 || newByteStride == -1);
+
             ResizeInternal(buffer as MyConstantBuffer, newElements, newByteStride, newData);
         }
 

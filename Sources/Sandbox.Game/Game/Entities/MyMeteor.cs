@@ -168,7 +168,7 @@ namespace Sandbox.Game.Entities
 
             public MyPhysicalInventoryItem Item;
             public MyVoxelMaterialDefinition VoxelMaterial { get; set; }
-            private bool InParticleVisibleRange { get { return (MySector.MainCamera.Position - Entity.WorldMatrix.Translation).LengthSquared() < (3000 * 3000); } }
+            private bool InParticleVisibleRange { get { return Entity != null? (MySector.MainCamera.Position - Entity.WorldMatrix.Translation).LengthSquared() < (3000 * 3000) : false; } }
             private StringBuilder m_textCache;
             private float m_integrity = 100f;
             private string[] m_particleEffectNames = new string[2];

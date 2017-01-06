@@ -463,7 +463,7 @@ namespace Sandbox.Engine.Utils
         // Ragdoll
         public static bool ENABLE_RAGDOLL_ANIMATION = false;
         public static bool ENABLE_RAGDOLL_COLLISION_WITH_CHARACTER_BODY = true;
-        public static bool ENABLE_RAGDOLL_BONES_TRANSLATION = false;
+        public static bool ENABLE_RAGDOLL_BONES_TRANSLATION = true;
         public static bool ENABLE_COLLISONS_ON_RAGDOLL = true;
         public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
         public static bool ENABLE_RAGDOLL_CLIENT_SYNC = false;
@@ -586,7 +586,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_JOIN_STARTED_BATTLE = false;
         public static bool ENABLE_JOIN_SCREEN_REMAINING_TIME = false;
         public static bool ENABLE_INVENTORY_FIX = true;
-        public static bool ENABLE_VOXEL_LOD_MORPHING = true;
+        public static bool ENABLE_VOXEL_LOD_MORPHING = false;
         public static bool ENABLE_LAZY_VOXEL_PHYSICS = true;
         public static bool ENABLE_PLANET_HIERARCHY = true;
 

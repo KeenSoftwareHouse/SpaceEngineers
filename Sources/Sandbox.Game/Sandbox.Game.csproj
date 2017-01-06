@@ -429,7 +429,6 @@
     <Compile Include="Engine\Voxels\MyMarchingCubesMesher.cs" />
     <Compile Include="Engine\Voxels\Planet\MyPlanetMaterialProvider.cs" />
     <Compile Include="Engine\Voxels\Planet\MyPlanetStorageProvider.cs" />
-    <Compile Include="Engine\Voxels\MyPrecalcJobMerge.cs" />
     <Compile Include="Engine\Voxels\MyPrecalcJobPhysicsBatch.cs" />
     <Compile Include="Engine\Voxels\Storage\IMyOctreeLeafNode.cs" />
     <Compile Include="Engine\Voxels\Storage\IMyStorageDataProvider.cs" />

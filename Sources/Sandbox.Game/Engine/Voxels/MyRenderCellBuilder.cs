@@ -232,9 +232,11 @@ namespace Sandbox.Engine.Voxels
                         SM_BatchLookups.Add(matIdx, batchLookup);
                     }
 
-                    AddVertexToBuffer(materialHelper, ref vertex0, batchLookup, srcTriangle.VertexIndex0);
-                    AddVertexToBuffer(materialHelper, ref vertex1, batchLookup, srcTriangle.VertexIndex1);
-                    AddVertexToBuffer(materialHelper, ref vertex2, batchLookup, srcTriangle.VertexIndex2);
+                    uint matInfo = (uint)matIdx | ((uint)matIdx << 8) | ((uint)matIdx << 16) | ((uint)matIdx << 24);
+
+                    AddVertexToBuffer(materialHelper, ref vertex0, batchLookup, srcTriangle.VertexIndex0, matInfo);
+                    AddVertexToBuffer(materialHelper, ref vertex1, batchLookup, srcTriangle.VertexIndex1, matInfo);
+                    AddVertexToBuffer(materialHelper, ref vertex2, batchLookup, srcTriangle.VertexIndex2, matInfo);
 
                     //  Add indices
                     int nextTriangleIndex = materialHelper.IndexCount;
@@ -253,9 +255,22 @@ namespace Sandbox.Engine.Voxels
                 else
                 {
                     Vector3I materials = GetMaterials(ref vertex0, ref vertex1, ref vertex2);
+
+#if false
                     Debug.Assert(materials.X < 1 << 10, "Too many materials");
                     Debug.Assert(materials.Y < 1 << 10, "Too many materials");
                     Debug.Assert(materials.Z < 1 << 10, "Too many materials");
+#else
+                    //
+                    // Right now, we are encoding material indices into per-vertex Byte4 structure, so max
+                    // number of materials is 256. If this is not sufficient, than vertex data structure
+                    // holding materials indices must be changed to something like UShort4.
+                    //
+                    Debug.Assert(materials.X < 256, "Too many materials");
+                    Debug.Assert(materials.Y < 256, "Too many materials");
+                    Debug.Assert(materials.Z < 256, "Too many materials");
+#endif
+
                     int id = materials.X + (materials.Y + (materials.Z << 10) << 10);
 
                     // Assign current material
@@ -270,9 +285,15 @@ namespace Sandbox.Engine.Voxels
                         MM_Helpers.Add(id, helper);
                     }
 
-                    helper.AddVertex(ref vertex0);
-                    helper.AddVertex(ref vertex1);
-                    helper.AddVertex(ref vertex2);
+                    uint V0MatIdx = (uint)vertex0.Material;
+                    uint V1MatIdx = (uint)vertex1.Material;
+                    uint V2MatIdx = (uint)vertex2.Material;
+
+                    uint matInfoBase = V0MatIdx | (V1MatIdx << 8) | (V2MatIdx << 16);
+
+                    helper.AddVertex(ref vertex0, matInfoBase | (V0MatIdx << 24));
+                    helper.AddVertex(ref vertex1, matInfoBase | (V1MatIdx << 24));
+                    helper.AddVertex(ref vertex2, matInfoBase | (V2MatIdx << 24));
 
                     if (helper.Vertices.Count >= MAX_VERTICES_COUNT_STOP)
                     {
@@ -472,7 +493,7 @@ namespace Sandbox.Engine.Voxels
         }
 
         private void AddVertexToBuffer(SingleMaterialHelper materialHelper, ref MyVoxelVertex vertex,
-            VertexInBatchLookup inBatchLookup, ushort srcVertexIdx)
+            VertexInBatchLookup inBatchLookup, ushort srcVertexIdx, uint matInfo)
         {
             if (!inBatchLookup.IsInBatch(srcVertexIdx))
             {
@@ -487,6 +508,10 @@ namespace Sandbox.Engine.Voxels
                 materialHelper.Vertices[tgtVertexIdx].AmbientMorph = vertex.AmbientMorph;
                 materialHelper.Vertices[tgtVertexIdx].Normal = vertex.Normal;
                 materialHelper.Vertices[tgtVertexIdx].NormalMorph = vertex.NormalMorph;
+
+                // NOTE: I don't know C#, so I am not sure if this is OK performance wise
+                materialHelper.Vertices[tgtVertexIdx].MaterialInfo = new VRageMath.PackedVector.Byte4(matInfo);
+
 
                 inBatchLookup.PutToBatch(srcVertexIdx, (ushort)tgtVertexIdx);
 
@@ -555,7 +580,7 @@ namespace Sandbox.Engine.Voxels
             public int Material1;
             public int Material2;
 
-            public void AddVertex(ref MyVoxelVertex vertex)
+            public void AddVertex(ref MyVoxelVertex vertex, uint matInfo)
             {
                 Debug.Assert(Material0 != Material1 || Material0 != Material2 || Material1 != Material2);
 
@@ -585,6 +610,7 @@ namespace Sandbox.Engine.Voxels
                     NormalMorph = vertex.NormalMorph,
                     Material = alphaIndex,
                     MaterialMorph = materialMorph,
+                    MaterialInfo = new VRageMath.PackedVector.Byte4(matInfo),
                 });
             }
         }

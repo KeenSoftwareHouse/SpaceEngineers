@@ -10,11 +10,13 @@ using Sandbox.Game.World.Generator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.ModAPI;
+using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Profiler;
 using VRage.Utils;
@@ -329,6 +331,8 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
+            MyLog.Default.WriteLine("Planet init info - MutableStorage:" + ob.MutableStorage + " StorageName:" + ob.StorageName + " storage?:" + (storage != null).ToString());
+
             if (ob.MutableStorage)
             {
                 StorageName = ob.StorageName;
@@ -356,7 +360,7 @@ namespace Sandbox.Game.Entities
             {
                 string message = string.Format("No definition found for planet generator {0}.", ob.PlanetGenerator);
                 MyLog.Default.WriteLine(message);
-                throw new Exception(message);
+                throw new MyIncompatibleDataException(message);
             }
 
             m_planetInitValues.AtmosphereSettings = m_planetInitValues.Generator.AtmosphereSettings.HasValue
@@ -377,7 +381,7 @@ namespace Sandbox.Game.Entities
                 {
                     string message = string.Format("No storage loaded for planet {0}.", ob.StorageName);
                     MyLog.Default.WriteLine(message);
-                    throw new Exception(message);
+                    throw new MyIncompatibleDataException(message);
                 }
             }
 

@@ -251,7 +251,7 @@ namespace VRage.Render11.Resources
             #endregion
         }
 
-        public static long GetTextureSize(this ITexture texture)
+        public static long GetTextureByteSize(this ITexture texture)
         {
             // CHECK-ME Is this correct?
             Vector3I size = texture.Size3;
@@ -260,8 +260,8 @@ namespace VRage.Render11.Resources
             for (int it = 0; it < mipmapCount; it++)
             {
                 textureSize += (long)(size.X * size.Y * size.Z * GetTexelBitSize(texture.Format) / (double)8);
-                size.X = size.X / 2;
-                size.Y = size.Y / 2;
+                size.X = size.X / 2 + size.X % 2;
+                size.Y = size.Y / 2 + size.X % 2;
             }
 
             return textureSize;

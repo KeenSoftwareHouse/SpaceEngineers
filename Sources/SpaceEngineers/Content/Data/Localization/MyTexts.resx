@@ -5835,4 +5835,7 @@ When this is 0 then the backup feature is disabled and all backups are deleted u
   <data name="Notification_BlueprintScriptRemoved" xml:space="preserve">
     <value>Some scripts were removed from this blueprint because you do not have Scripter permissions</value>
   </data>
+  <data name="WorldSettings_AsteroidAmountProceduralNone" xml:space="preserve">
+    <value>Infinite: None</value>
+  </data>
 </root>

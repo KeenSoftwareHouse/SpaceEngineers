@@ -16,6 +16,69 @@ using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.World
 {
+    public class MySectorLodding
+    {
+        public MyNewLoddingSettings UserSettings = new MyNewLoddingSettings();
+        MyNewLoddingSettings m_lowSettings = new MyNewLoddingSettings();
+        MyNewLoddingSettings m_mediumSettings = new MyNewLoddingSettings();
+        MyNewLoddingSettings m_highSettings = new MyNewLoddingSettings();
+
+        bool m_isActiveUserSettings = false;
+        MyRenderQualityEnum m_selectedModelQuality = MyRenderQualityEnum.HIGH;
+        public MyNewLoddingSettings LowSettings { get { return m_lowSettings; } }
+        public MyNewLoddingSettings MediumSettings { get { return m_mediumSettings; } }
+        public MyNewLoddingSettings HighSettings { get { return m_highSettings; } }
+
+        void Apply()
+        {
+            if (m_isActiveUserSettings)
+                MyRenderProxy.UpdateNewLoddingSettings(UserSettings);
+            else
+            {
+                MyNewLoddingSettings sel;
+                switch (m_selectedModelQuality)
+                {
+                    case MyRenderQualityEnum.LOW:
+                        sel = LowSettings;
+                        break;
+                    case MyRenderQualityEnum.NORMAL:
+                        sel = MediumSettings;
+                        break;
+                    case MyRenderQualityEnum.HIGH:
+                        sel = HighSettings;
+                        break;
+                    default:
+                        Debug.Fail("Unresolved condition");
+                        return;
+                }
+                MyRenderProxy.UpdateNewLoddingSettings(sel);
+            }
+        }
+
+        public void ApplyUserSettings()
+        {
+            m_isActiveUserSettings = true;
+            Apply();
+        }
+
+        public void UpdatePreset(MyNewLoddingSettings userSettings, MyNewLoddingSettings lowLoddingSettings, MyNewLoddingSettings mediumLoddingSettings,
+            MyNewLoddingSettings highLoddingSettings)
+        {
+            UserSettings.CopyFrom(userSettings);
+            m_lowSettings.CopyFrom(lowLoddingSettings);
+            m_mediumSettings.CopyFrom(mediumLoddingSettings);
+            m_highSettings.CopyFrom(highLoddingSettings);
+            if (!m_isActiveUserSettings)
+                Apply();
+        }
+
+        public void SelectQuality(MyRenderQualityEnum quality)
+        {
+            m_isActiveUserSettings = false;
+            m_selectedModelQuality = quality;
+            Apply();
+        }
+    }
 
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation | MyUpdateOrder.AfterSimulation, 800)]
     public class MySector : MySessionComponentBase
@@ -33,6 +96,7 @@ namespace Sandbox.Game.World
         public static MyHBAOData HBAOSettings;
         public static MyShadowsSettings ShadowSettings = new MyShadowsSettings();
         public static MyNewPipelineSettings NewPipelineSettings = new MyNewPipelineSettings();
+        public static MySectorLodding Lodding = new MySectorLodding();
         
         internal static MyParticleDustProperties ParticleDustProperties;
         public static VRageRender.MyImpostorProperties[] ImpostorProperties;
@@ -95,6 +159,7 @@ namespace Sandbox.Game.World
 
             MyRenderProxy.UpdateShadowsSettings(ShadowSettings);
             MyRenderProxy.UpdateNewPipelineSettings(NewPipelineSettings);
+            MySector.Lodding.UpdatePreset(environment.UserLoddingSettings, environment.LowLoddingSettings, environment.MediumLoddingSettings, environment.HighLoddingSettings);
 
             MyMaterialsSettings materialsSettings = new MyMaterialsSettings();
             materialsSettings.CopyFrom(environment.MaterialsSettings);
@@ -129,6 +194,10 @@ namespace Sandbox.Game.World
             EnvironmentDefinition.PostProcessSettings = MyPostprocessSettingsWrapper.Settings;
             EnvironmentDefinition.ShadowSettings.CopyFrom(ShadowSettings);
             EnvironmentDefinition.NewPipelineSettings.CopyFrom(NewPipelineSettings);
+            EnvironmentDefinition.UserLoddingSettings.CopyFrom(Lodding.UserSettings);
+            EnvironmentDefinition.LowLoddingSettings.CopyFrom(Lodding.LowSettings);
+            EnvironmentDefinition.MediumLoddingSettings.CopyFrom(Lodding.MediumSettings);
+            EnvironmentDefinition.HighLoddingSettings.CopyFrom(Lodding.HighSettings);
 
             var save = new MyObjectBuilder_Definitions();
             save.Environments = new MyObjectBuilder_EnvironmentDefinition[] { (MyObjectBuilder_EnvironmentDefinition)EnvironmentDefinition.GetObjectBuilder() };

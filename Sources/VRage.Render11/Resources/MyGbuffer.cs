@@ -48,7 +48,7 @@ namespace VRage.Render11.Resources
         {
             int width = MyRender11.ResolutionI.X;
             int height = MyRender11.ResolutionI.Y;
-            int samples = MyRender11.RenderSettings.AntialiasingMode.SamplesCount();
+            int samples = MyRender11.Settings.User.AntialiasingMode.SamplesCount();
 
             var gbuffer1Copy = MyManagers.RwTexturesPool.BorrowRtv("MyGlobalResources.Gbuffer1Copy", width, height, Format.R10G10B10A2_UNorm, samples, SamplesQuality);
             RC.CopyResource(GBuffer1, gbuffer1Copy);
@@ -59,7 +59,7 @@ namespace VRage.Render11.Resources
         {
             int width = MyRender11.ResolutionI.X;
             int height = MyRender11.ResolutionI.Y;
-            int samples = MyRender11.RenderSettings.AntialiasingMode.SamplesCount();
+            int samples = MyRender11.Settings.User.AntialiasingMode.SamplesCount();
 
             var depthStencilCopy = MyManagers.RwTexturesPool.BorrowDepthStencil("DepthStencilCopy", width, height, samples, SamplesQuality);
             RC.CopyResource(DepthStencil, depthStencilCopy);

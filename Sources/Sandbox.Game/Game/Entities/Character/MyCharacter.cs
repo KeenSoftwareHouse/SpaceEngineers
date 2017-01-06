@@ -1916,7 +1916,10 @@ namespace Sandbox.Game.Entities.Character
                 else
                 {
                     Physics.CharacterProxy.UpdateSupport(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
-                    Physics.LinearVelocity += Physics.Gravity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                    //<ib.jetpack> SE-1247: Call  ing MyPhysicsBody.LinearVelocity += resets to all rigid bodies in ragdoll linear velocity same as character linear velocity
+                    //Physics.LinearVelocity += Physics.Gravity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; // why to add gravity as linear velocity in jetpack mode ???
+                    Physics.CharacterProxy.ApplyGravity(Physics.Gravity);
+
                 }
 
                 if (!Sync.IsServer && Sandbox.Engine.Utils.MyFakes.MULTIPLAYER_CLIENT_PHYSICS && !ControllerInfo.IsLocallyControlled())
@@ -2835,7 +2838,6 @@ namespace Sandbox.Game.Entities.Character
                 roll = 0;
             }
 
-            var jetpack = JetpackComp;
             bool sprint = moveIndicator.Z != 0 && WantsSprint;
             bool walk = WantsWalk;
             bool jump = WantsJump;
@@ -2846,7 +2848,7 @@ namespace Sandbox.Game.Entities.Character
             float lastSpeed = m_currentSpeed;
             if (JetpackRunning)
             {
-                jetpack.MoveAndRotate(ref moveIndicator, ref rotationIndicator, roll, canRotate);
+                JetpackComp.MoveAndRotate(ref moveIndicator, ref rotationIndicator, roll, canRotate);
             }
             else if (canMove || m_movementsFlagsChanged)
             {
@@ -2892,9 +2894,10 @@ namespace Sandbox.Game.Entities.Character
                 if (Physics.CharacterProxy != null)
                     Physics.CharacterProxy.Speed = m_currentMovementState != MyCharacterMovementEnum.Died ? m_currentSpeed : 0;
 
-                if ((jump && m_currentMovementState != MyCharacterMovementEnum.Jump))
+                if (Physics.CharacterProxy != null && Physics.CharacterProxy.GetHitRigidBody() != null)
                 {
-                    if (Physics.CharacterProxy != null && Physics.CharacterProxy.GetHitRigidBody() != null)
+
+                    if ((jump && m_currentMovementState != MyCharacterMovementEnum.Jump))
                     {
                         PlayCharacterAnimation("Jump", MyBlendOption.Immediate, MyFrameOption.StayOnLastFrame, 0.0f, 1.3f);
 
@@ -2912,27 +2915,25 @@ namespace Sandbox.Game.Entities.Character
                         m_canJump = false;
 
                         m_frictionBeforeJump = Physics.CharacterProxy.GetHitRigidBody().Friction;
-                        Physics.CharacterProxy.GetHitRigidBody().ApplyForce(1, WorldMatrix.Up * Definition.JumpForce * MyPerGameSettings.CharacterGravityMultiplier * Physics.Mass);
+                        // Modified jumping velocity, no need to apply force
+                        //Physics.CharacterProxy.GetHitRigidBody().ApplyForce(1, WorldMatrix.Up * Definition.JumpForce * MyPerGameSettings.CharacterGravityMultiplier * Physics.Mass);
                         Physics.CharacterProxy.Jump = true;
                     }
 
                     //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Default, "jump");
-                }
 
-                if (m_currentJumpTime > 0)
-                {
-                    m_currentJumpTime -= VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                    
 
-                    // If still jumping, allow minor aerial control
                     if (m_currentJumpTime > 0)
                     {
+                        m_currentJumpTime -= VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+
                         Physics.CharacterProxy.GetHitRigidBody().Friction = 0;
                         Vector3 rotatedVector = WorldMatrix.Forward * -moveIndicator.Z + WorldMatrix.Right * moveIndicator.X;
-                        Physics.CharacterProxy.GetHitRigidBody().ApplyForce(1, rotatedVector * AERIAL_CONTROL_FORCE_MULTIPLIER * Physics.Mass);
+                        // Modified jumping velocity, no need to apply velocity
+                        //Physics.CharacterProxy.GetHitRigidBody().ApplyForce(1, rotatedVector * AERIAL_CONTROL_FORCE_MULTIPLIER * Physics.Mass);
                     }
-
-                    // If still falling, check if finished.
-                    else
+                    else // If still falling, check if finished.
                     {
                         MyCharacterMovementEnum afterJumpState = MyCharacterMovementEnum.Standing;
 
@@ -2990,7 +2991,8 @@ namespace Sandbox.Game.Entities.Character
                                 PlayCharacterAnimation("Idle", MyBlendOption.WaitForPreviousEnd, MyFrameOption.Loop, 0.2f);
                             }
 
-                            SoundComp.PlayFallSound();
+                            if (!m_canJump)
+                                SoundComp.PlayFallSound();
                             m_canJump = true;
                             SetCurrentMovementState(afterJumpState);
                         }
@@ -3006,7 +3008,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (!JetpackRunning)
             {
-                if (rotationIndicator.Y != 0 && (canRotate || m_isFalling || m_currentJumpTime > 0))
+                if (rotationIndicator.Y != 0 && (canRotate || m_isFalling || m_currentJumpTime > 0) && Physics.CharacterProxy != null)
                 {
                     MatrixD rotationMatrix = MatrixD.CreateRotationY((-rotationIndicator.Y * RotationSpeed * CHARACTER_Y_ROTATION_FACTOR));
                     MatrixD characterMatrix = MatrixD.CreateWorld(Physics.CharacterProxy.Position, Physics.CharacterProxy.Forward, Physics.CharacterProxy.Up);
@@ -5786,7 +5788,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (!JetpackRunning)
                 {
-                    if (m_currentJumpTime == 0 && (newState == HkCharacterStateType.HK_CHARACTER_IN_AIR) || ((int)newState == MyCharacter.HK_CHARACTER_FLYING))
+                    if (m_currentJumpTime <= 0 && (newState == HkCharacterStateType.HK_CHARACTER_IN_AIR) || ((int)newState == MyCharacter.HK_CHARACTER_FLYING))
                     {
                         StartFalling();
                     }
@@ -5797,6 +5799,12 @@ namespace Sandbox.Game.Entities.Character
                             StopFalling();
                         }
                     }
+                }
+
+                // Reset jump time in flying mode
+                if (JetpackRunning)
+                {
+                    m_currentJumpTime = 0.0f;
                 }
             }
 
@@ -6352,6 +6360,8 @@ namespace Sandbox.Game.Entities.Character
             MyPlayer localPlayer = MyPlayer.GetPlayerFromCharacter(this);
             if (localPlayer != null)
                 return localPlayer.Identity.IdentityId;
+            if (this == MySession.Static.LocalCharacter)
+                return MySession.Static.LocalHumanPlayer.Identity.IdentityId;
             return -1;
         }
 
@@ -6831,7 +6841,9 @@ namespace Sandbox.Game.Entities.Character
                     shape = bshape;
 
                     Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEFAULT);
-                    Physics.CreateFromCollisionObject(shape, PositionComp.LocalVolume.Center, MatrixD.Identity, massProperties, MyPhysics.CollisionLayers.FloatingObjectCollisionLayer);
+                    //<ib.ragdoll> VRAG-106 Fix ragdoll bone transformations, Center must be zero for ragdoll
+                    //Physics.CreateFromCollisionObject(shape, PositionComp.LocalVolume.Center, MatrixD.Identity, massProperties, MyPhysics.CollisionLayers.FloatingObjectCollisionLayer);
+                    Physics.CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.CollisionLayers.FloatingObjectCollisionLayer);
                     Physics.Friction = 0.5f;
                     Physics.RigidBody.MaxAngularVelocity = MathHelper.PiOver2;
                     Physics.LinearVelocity = velocity;
@@ -8959,7 +8971,7 @@ namespace Sandbox.Game.Entities.Character
 
         private void ToolHeadTransformChanged()
         {
-            MyEngineerToolBase tool = m_currentWeapon as MyEngineerToolBase;
+            MyEngineerToolBase tool =  m_currentWeapon as MyEngineerToolBase;
             if (tool != null && ControllerInfo.IsLocallyControlled() == false)
             {
                 tool.UpdateSensorPosition();

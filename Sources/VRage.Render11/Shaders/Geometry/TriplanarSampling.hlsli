@@ -1,19 +1,130 @@
+#ifndef INCLUDE_TRIPLANAR_SAMPLING_HLSLI
+#define INCLUDE_TRIPLANAR_SAMPLING_HLSLI
+
 #include <Geometry/Materials/TriplanarMaterialConstants.hlsli>
 
-#define INVERT_NM_Y
 #define DEBUG_TEX_COORDS 0
+#define DEBUG_ENABLE_LOOPS_WATCHDOG
 
-float4 sample_color_triplanar_grad(Texture2DArray<float4> tex, int sliceIndexXZnY, int sliceIndexY,
-	float3 texcoords, float3 weights, float2 texcoords_ddx[3], float2 texcoords_ddy[3], float f)
+struct TriplanarInterface
 {
-	float2 texcoords_x = texcoords.zy * f;
-	float2 texcoords_y = texcoords.xz * f;
-	float2 texcoords_z = texcoords.xy * f;
+    float3 N;
+    float3 weights;
+    float3 dpxperp;
+    float3 dpyperp;
+    float2 ddxTexcoords[3];
+    float2 ddyTexcoords[3];
+    float3 texcoords;
+    float d;
+};
 
-	float4 result =
-		tex.SampleGrad(TextureSampler, float3(texcoords_x, sliceIndexXZnY), texcoords_ddx[0] * f, texcoords_ddy[0] * f) * weights.x +
-		tex.SampleGrad(TextureSampler, float3(texcoords_y, sliceIndexY), texcoords_ddx[1] * f, texcoords_ddy[1] * f) * weights.y +
-		tex.SampleGrad(TextureSampler, float3(texcoords_z, sliceIndexXZnY), texcoords_ddx[2] * f, texcoords_ddy[2] * f) * weights.z;
+struct TriplanarOutput
+{
+    float4 ext;
+    float4 cm;
+    float4 ng;
+};
+
+float3 GetTriplanarWeights(float3 n)
+{
+    float3 w = saturate(abs(n) - 0.55);
+
+#if 1
+    // This speeds up rendering when dynamic branching optimizations withing tri-planar shader are enabled
+    w *= w;
+    w *= w;
+#endif
+
+    // normalize
+    return w / dot(w, 1);
+}
+
+void ProcessDithering(PixelInterface pixel, inout MaterialOutputInterface output)
+{
+#ifdef DITHERED
+    float3 lightDir = normalize(frame_.Light.directionalLightVec);
+        float3 nrm = normalize(pixel.custom.normal.xyz);
+        float shadowTreshold = -0.2f;
+
+    // < 0 dark side; >0 light side
+    float voxelSide = shadowTreshold - dot(lightDir, nrm);
+
+    float tex_dither = Dither8x8[(uint2)pixel.screen_position.xy % 8];
+    float object_dither = abs(pixel.custom_alpha);
+    if (object_dither > 2)
+    {
+        object_dither -= 2.0f;
+        object_dither = 2.0f - object_dither;
+
+        if (object_dither > 1)
+        {
+#ifdef DEPTH_ONLY
+            object_dither -= 1;
+
+            if (voxelSide > 0)
+                clip(object_dither - tex_dither);
+
+#endif
+        }
+        else
+        { //0 - 1
+#ifdef DEPTH_ONLY
+            clip(-voxelSide);
+#else
+            clip(object_dither - tex_dither);
+#endif
+        }
+    }
+    else
+    {
+        if (object_dither > 1)
+        {
+#ifdef DEPTH_ONLY
+            clip(-voxelSide);
+#else
+
+            object_dither -= 1;
+            clip(tex_dither - object_dither);
+#endif
+        }
+        else // 1 - 2
+        {
+#ifdef DEPTH_ONLY
+            if (voxelSide > 0)
+            {
+                clip(tex_dither - object_dither);
+            }
+#endif
+        }
+    }
+#endif
+}
+
+float4 SampleColorTriplanarGrad(Texture2DArray<float4> tex, int sliceIndexXZnY, int sliceIndexY,
+    float3 texcoords, TriplanarInterface triplanarInput, float f, uniform int forcedAxis = -1)
+{
+	float2 texcoordsX = texcoords.zy * f;
+    float2 texcoordsY = texcoords.xz * f;
+    float2 texcoordsZ = texcoords.xy * f;
+
+    float4 res0 = tex.SampleGrad(TextureSampler, float3(texcoordsX, sliceIndexXZnY), triplanarInput.ddxTexcoords[0] * f, triplanarInput.ddyTexcoords[0] * f);
+    float4 res1 = tex.SampleGrad(TextureSampler, float3(texcoordsY, sliceIndexY), triplanarInput.ddxTexcoords[1] * f, triplanarInput.ddyTexcoords[1] * f);
+    float4 res2 = tex.SampleGrad(TextureSampler, float3(texcoordsZ, sliceIndexXZnY), triplanarInput.ddxTexcoords[2] * f, triplanarInput.ddyTexcoords[2] * f);
+
+    float4 result = res0 * triplanarInput.weights.x + res1 * triplanarInput.weights.y + res2 * triplanarInput.weights.z;
+	
+	if (forcedAxis == 0)
+	{
+		result = res0;
+	}
+	else if (forcedAxis == 1)
+	{
+		result = res1;
+	}
+	else if (forcedAxis == 2)
+	{
+		result = res2;
+	}
 
 #ifdef DEBUG
 #if DEBUG_TEX_COORDS
@@ -24,73 +135,50 @@ float4 sample_color_triplanar_grad(Texture2DArray<float4> tex, int sliceIndexXZn
 	return result;
 }
 
-float3x3 PixelTangentSpaceX(float3 N, float3 dpxperp, float3 dpyperp, float2 uv_ddx, float2 uv_ddy)
+float4 AdjustGloss(float4 ng)
 {
-    float3 T = dpyperp * uv_ddx.x + dpxperp * uv_ddy.x;
-    float3 B = dpyperp * uv_ddx.y + dpxperp * uv_ddy.y;
-
-    float invmax = rsqrt(max(dot(T, T), dot(B, B)));
-    return float3x3(T * invmax, B * invmax, N);
+    //ng.w = srgb_to_rgb(ng.w);
+    //ng.w = ToksvigGloss(ng.w, min(length(ng.xyz * 2 - 1), 1));
+    return ng;
 }
 
-//#define SIMPLE_NORMALMAPPING 1
-
-float4 sample_normal_gloss_triplanar(Texture2DArray<float4> tex, int sliceIndexXZnY, int sliceIndexY,
-	float3 texcoords, float3 weights, float3 N, float2 texcoords_ddx[3], float2 texcoords_ddy[3], float f, float3 dpxperp, float3 dpyperp)
+float4 SampleNormalTriplanarGrad(Texture2DArray<float4> tex, int sliceIndexXZnY, int sliceIndexY,
+    float3 texcoords, TriplanarInterface triplanarInput, float f, uniform int forcedAxis = -1)
 {
-	float2 texcoords_x = texcoords.zy * f;
-	float2 texcoords_y = texcoords.xz * f;
-	float2 texcoords_z = texcoords.xy * f;
+    float2 texcoordsX = texcoords.zy * f;
+    float2 texcoordsY = texcoords.xz * f;
+    float2 texcoordsZ = texcoords.xy * f;
 
-    float4 nm_gloss_x = tex.SampleGrad(TextureSampler, float3(texcoords_x, sliceIndexXZnY), texcoords_ddx[0] * f, texcoords_ddy[0] * f);
-    float4 nm_gloss_y = tex.SampleGrad(TextureSampler, float3(texcoords_y, sliceIndexY), texcoords_ddx[1] * f, texcoords_ddy[1] * f);
-    float4 nm_gloss_z = tex.SampleGrad(TextureSampler, float3(texcoords_z, sliceIndexXZnY), texcoords_ddx[2] * f, texcoords_ddy[2] * f);
+    float4 ngX = tex.SampleGrad(TextureSampler, float3(texcoordsX, sliceIndexXZnY), 
+        triplanarInput.ddxTexcoords[0] * f, triplanarInput.ddyTexcoords[0] * f);
+    float4 ngY = tex.SampleGrad(TextureSampler, float3(texcoordsY, sliceIndexY), 
+        triplanarInput.ddxTexcoords[1] * f, triplanarInput.ddyTexcoords[1] * f);
+    float4 ngZ = tex.SampleGrad(TextureSampler, float3(texcoordsZ, sliceIndexXZnY), 
+        triplanarInput.ddxTexcoords[2] * f, triplanarInput.ddyTexcoords[2] * f);
 
-	float gloss = dot(float3(nm_gloss_x.w, nm_gloss_y.w, nm_gloss_z.w), weights);
+    //float3 glossV = float3(ngX.w, ngY.w, ngZ.w);
+    ngX = AdjustGloss(ngX);
+    ngY = AdjustGloss(ngY);
+    ngZ = AdjustGloss(ngZ);
+    float3 glossV = float3(ngX.w, ngY.w, ngZ.w);
+    float gloss = dot(glossV, triplanarInput.weights);
 
-	float3 nx = nm_gloss_x.xyz * 2 - 1;
-	float3 ny = nm_gloss_y.xyz * 2 - 1;
-	float3 nz = nm_gloss_z.xyz * 2 - 1;
-    nx.x = -nx.x;
-    ny.x = -ny.x;
-    nz.x = -nz.x;
+    float3 nx = ngX.xyz;
+    float3 ny = ngY.xyz;
+    float3 nz = ngZ.xyz;
+    float3 Nt = nx * triplanarInput.weights.x + ny * triplanarInput.weights.y + nz * triplanarInput.weights.z;
+	
+	if (forcedAxis == 0)
+        return ngX;
+	
+	if (forcedAxis == 1)
+        return ngY;
 
-#ifdef SIMPLE_NORMALMAPPING
-    nx = float3(nx.z, nx.y, nx.x);
-    nx.x *= sign(N.x);
-    ny = float3(ny.x, ny.z, ny.y); 
-    ny.y *= sign(N.y);
-    nz.z *= sign(N.z);
-#else
-    nx = mul(nx, PixelTangentSpaceX(N, dpxperp, dpyperp, texcoords_ddx[0] * f, texcoords_ddy[0] * f));
-    ny = mul(ny, PixelTangentSpaceX(N, dpxperp, dpyperp, texcoords_ddx[1] * f, texcoords_ddy[1] * f));
-    nz = mul(nz, PixelTangentSpaceX(N, dpxperp, dpyperp, texcoords_ddx[2] * f, texcoords_ddy[2] * f));
-#endif
-	float3 Nt = nx * weights.x + ny * weights.y + nz * weights.z;
+	if (forcedAxis == 2)
+        return ngZ;
 
 	return float4(Nt, gloss);
 }
-
-void calc_derivatives(float3 texcoords, out float2 t_dx[3], out float2 t_dy[3])
-{
-	float2 texcoords_x = texcoords.zy;
-	float2 texcoords_y = texcoords.xz;
-	float2 texcoords_z = texcoords.xy;
-
-	t_dx[0] = ddx(texcoords_x);
-	t_dy[0] = ddy(texcoords_x);
-	t_dx[1] = ddx(texcoords_y);
-	t_dy[1] = ddy(texcoords_y);
-	t_dx[2] = ddx(texcoords_z);
-	t_dy[2] = ddy(texcoords_z);
-}
-
-struct TriplanarOutput
-{
-	float4 ext;
-	float4 color_metal;
-	float4 normal_gloss;
-};
 
 float4 GetNearestDistanceAndScale(float distance, float4 materialSettings)
 {
@@ -115,6 +203,10 @@ float4 GetNearestDistanceAndScale(float distance, float4 materialSettings)
 
 	float nextDistance = materialSettings.y;
 	float nextScale = materialSettings.z;
+
+#if defined(DEBUG_ENABLE_LOOPS_WATCHDOG)
+	float dbgWatchDogCnt = 0;
+#endif
 	
 	while (nextDistance < distance)
 	{
@@ -123,6 +215,13 @@ float4 GetNearestDistanceAndScale(float distance, float4 materialSettings)
 
 		nextDistance *= materialSettings.w;
 		nextScale *= materialSettings.z;
+
+#if defined(DEBUG_ENABLE_LOOPS_WATCHDOG)
+		if (++dbgWatchDogCnt > 16)
+		{
+			break;
+		}
+#endif
 	}
 	return float4(curDistance, nextDistance, curScale, nextScale);
 }
@@ -149,139 +248,261 @@ SlicesNum GetSlices(TriplanarMaterialConstants material, int nDistance)
 	return slices;
 }
 
-void SampleTriplanar(int startIndex, TriplanarMaterialConstants material, float d, float3 N, float3 weights, float3 voxelOffset,
-	float3 dpxperp, float3 dpyperp, float3 texcoords, float2 texcoords_ddx[3], float2 texcoords_ddy[3], out TriplanarOutput output)
+void SampleTriplanar(int startIndex, TriplanarMaterialConstants material, TriplanarInterface triplanarInput, 
+    out TriplanarOutput output, uniform int forcedAxis = -1)
 {
-	float4 das = GetNearestDistanceAndScale(d, material.distance_and_scale);
+    float4 das = GetNearestDistanceAndScale(triplanarInput.d, material.distance_and_scale);
 
-	float distance_near = das.x;
-	float distance_far = das.y;
+	float distanceNear = das.x;
+	float distanceFar = das.y;
 
-	float scale_near = das.z;
-	float scale_far = das.w;
+	float scaleNear = das.z;
+    float scaleFar = das.w;
 
-	float texture_near = 0;
-	float texture_far = 0;
+	float textureNear = 0;
+    float textureFar = 0;
 	
 	float pixelizationDistance = 10;
 
 	// applies offset and .. when texture threshold distance is further then 10 meters
-	float pixelizationMultiplier_near = step(pixelizationDistance, distance_near);
-	float pixelizationMultiplier_far = step(pixelizationDistance, distance_far);
+    float pixelizationMultiplierNear = step(pixelizationDistance, distanceNear);
+    float pixelizationMultiplierFar = step(pixelizationDistance, distanceFar);
 	
 	if (material.distance_and_scale_far.y > 0)
 	{
-		if (distance_near >= material.distance_and_scale_far.y)
+        if (distanceNear >= material.distance_and_scale_far.y)
 		{
-			scale_near = material.distance_and_scale_far.x;
-			texture_near = material.distance_and_scale_far.z;
+            scaleNear = material.distance_and_scale_far.x;
+            textureNear = material.distance_and_scale_far.z;
 		}
-		if (distance_far >= material.distance_and_scale_far.y)
+        if (distanceFar >= material.distance_and_scale_far.y)
 		{
-			scale_far = material.distance_and_scale_far.x;
-			texture_far = material.distance_and_scale_far.z;
+            scaleFar = material.distance_and_scale_far.x;
+			textureFar = material.distance_and_scale_far.z;
 		}
 	}
 
 	if (material.distance_and_scale_far2.y > 0)
 	{
-		if (distance_near >= material.distance_and_scale_far2.y)
+        if (distanceNear >= material.distance_and_scale_far2.y)
 		{
-			scale_near = material.distance_and_scale_far2.x;
-			texture_near = material.distance_and_scale_far2.z;
+            scaleNear = material.distance_and_scale_far2.x;
+            textureNear = material.distance_and_scale_far2.z;
 		}
-		if (distance_far >= material.distance_and_scale_far2.y)
+        if (distanceFar >= material.distance_and_scale_far2.y)
 		{
-			scale_far = material.distance_and_scale_far2.x;
-			texture_far = material.distance_and_scale_far2.z;
+            scaleFar = material.distance_and_scale_far2.x;
+            textureFar = material.distance_and_scale_far2.z;
 		}
 	}
 
 	if (material.distance_and_scale_far3.y > 0)
 	{
-		if (distance_near >= material.distance_and_scale_far3.y)
+        if (distanceNear >= material.distance_and_scale_far3.y)
 		{
-			scale_near = material.distance_and_scale_far3.x;
-			texture_near = material.distance_and_scale_far3.z;
+            scaleNear = material.distance_and_scale_far3.x;
+            textureNear = material.distance_and_scale_far3.z;
 		}
-		if (distance_far >= material.distance_and_scale_far3.y)
+        if (distanceFar >= material.distance_and_scale_far3.y)
 		{
-			scale_far = material.distance_and_scale_far3.x;
-			texture_far = material.distance_and_scale_far3.z;
+            scaleFar = material.distance_and_scale_far3.x;
+            textureFar = material.distance_and_scale_far3.z;
 		}
 	}
 
-	float scale_weight = saturate(((d - distance_near) / (distance_far - distance_near) - 0.5f) * 2.0f);
+    float scaleWeight = saturate(((triplanarInput.d - distanceNear) / (distanceFar - distanceNear) - 0.5f) * 2.0f);
 
-	SlicesNum slices_near = GetSlices(material, min(2, texture_near));
-	SlicesNum slices_far = GetSlices(material, min(2, texture_far));
+    SlicesNum slicesNear = GetSlices(material, min(2, textureNear));
+    SlicesNum slicesFar = GetSlices(material, min(2, textureFar));
 
-	scale_near = 1.0f / scale_near;
-	scale_far = 1.0f / scale_far;
+    scaleNear = 1.0f / scaleNear;
+    scaleFar = 1.0f / scaleFar;
 
-	float3 offset_near = pixelizationMultiplier_near * voxelOffset;
-	float3 offset_far = pixelizationMultiplier_far * voxelOffset;
+    float3 voxelOffset = 0;
+#ifdef USE_VOXEL_DATA
+        voxelOffset = object_.voxel_offset;
+#endif
+    float3 offsetNear = pixelizationMultiplierNear * voxelOffset;
+	float3 offsetFar = pixelizationMultiplierFar * voxelOffset;
 
-	float3 texcoords_near = (texcoords + offset_near);
-	float3 texcoords_far = (texcoords + offset_far);
+    float3 texcoordsNear = (triplanarInput.texcoords + offsetNear);
+    float3 texcoordsFar = (triplanarInput.texcoords + offsetFar);
 
-	float4 color_near = float4(0, 0, 0, 0);
-	float4 normal_gloss_near = float4(0, 0, 0, 0);
-	float4 ext_near = float4(0, 0, 0, 0);
+	float4 cmNear = float4(0, 0, 0, 0);
+    float4 ngNear = float4(0, 0, 0, 0);
+	float4 extNear = float4(0, 0, 0, 0);
 
-	float4 color_far = float4(0, 0, 0, 0);
-	float4 normal_gloss_far = float4(0, 0, 0, 0);
-	float4 ext_far = float4(0, 0, 0, 0);
+    float4 cmFar = float4(0, 0, 0, 0);
+    float4 ngFar = float4(0, 0, 0, 0);
+	float4 extFar = float4(0, 0, 0, 0);
 
-	color_near = sample_color_triplanar_grad(ColorMetal, slices_near.sliceColorMetalXZnY, slices_near.sliceColorMetalY,
-		texcoords_near, weights, texcoords_ddx, texcoords_ddy, scale_near);
-	normal_gloss_near = sample_normal_gloss_triplanar(NormalGloss, slices_near.sliceNormalGlossXZnY, slices_near.sliceNormalGlossY,
-		texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near, dpxperp, dpyperp);
-	ext_near = sample_color_triplanar_grad(Ext, slices_near.sliceExtXZnY, slices_near.sliceExtY,
-		texcoords_near, weights, texcoords_ddx, texcoords_ddy, scale_near);
-	if (texture_near == 3)
-		color_near = float4(material.color_far3.xyz, 0);
+	[branch]
+	if (scaleWeight <= 0.995f)
+	{
+        cmNear = SampleColorTriplanarGrad(ColorMetal, slicesNear.sliceColorMetalXZnY, slicesNear.sliceColorMetalY,
+            texcoordsNear, triplanarInput, scaleNear, forcedAxis);
 
-	color_far = sample_color_triplanar_grad(ColorMetal, slices_far.sliceColorMetalXZnY, slices_far.sliceColorMetalY,
-		texcoords_far, weights, texcoords_ddx, texcoords_ddy, scale_far);
-	normal_gloss_far = sample_normal_gloss_triplanar(NormalGloss, slices_far.sliceNormalGlossXZnY, slices_far.sliceNormalGlossY,
-		texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, scale_far, dpxperp, dpyperp);
-	ext_far = sample_color_triplanar_grad(Ext, slices_far.sliceExtXZnY, slices_far.sliceExtY,
-		texcoords_far, weights, texcoords_ddx, texcoords_ddy, scale_far);
-	if (texture_far == 3)
-		color_far = float4(material.color_far3.xyz, 0);
+        ngNear = SampleNormalTriplanarGrad(NormalGloss, slicesNear.sliceNormalGlossXZnY, slicesNear.sliceNormalGlossY,
+            texcoordsNear, triplanarInput, scaleNear, forcedAxis);
+
+        extNear = SampleColorTriplanarGrad(Ext, slicesNear.sliceExtXZnY, slicesNear.sliceExtY,
+            texcoordsNear, triplanarInput, scaleNear, forcedAxis);
+	}
+
+    if (textureNear == 3)
+        cmNear = float4(material.color_far3.xyz, 0);
+
+
+	[branch]
+	if (scaleWeight >= 0.005f)
+	{
+        cmFar = SampleColorTriplanarGrad(ColorMetal, slicesFar.sliceColorMetalXZnY, slicesFar.sliceColorMetalY,
+            texcoordsFar, triplanarInput, scaleFar, forcedAxis);
+
+        ngFar = SampleNormalTriplanarGrad(NormalGloss, slicesFar.sliceNormalGlossXZnY, slicesFar.sliceNormalGlossY,
+            texcoordsFar, triplanarInput, scaleFar, forcedAxis);
+
+        extFar = SampleColorTriplanarGrad(Ext, slicesFar.sliceExtXZnY, slicesFar.sliceExtY,
+            texcoordsFar, triplanarInput, scaleFar, forcedAxis);
+	}
+
+    if (textureFar == 3)
+        cmFar = float4(material.color_far3.xyz, 0);
 
 	float highPass = 1;
 
 	if (material.extension_detail_scale > 0)
 	{
 		float4 highPass1 = 1;
-			float4 highPass2 = 1;
+		float4 highPass2 = 1;
 
-			if (pixelizationMultiplier_near > 0)
-			{
-				highPass1 = sample_color_triplanar_grad(Ext, slices_near.sliceExtXZnY, slices_near.sliceExtY,
-					texcoords_near, weights, texcoords_ddx, texcoords_ddy, material.extension_detail_scale);
-				if (texture_near >= 3)
-					highPass1 = 1; // use default value;
-			}
-
-		if (pixelizationMultiplier_far > 0)
+		if (pixelizationMultiplierNear > 0)
 		{
-			highPass2 = sample_color_triplanar_grad(Ext, slices_far.sliceExtXZnY, slices_far.sliceExtY,
-				texcoords_far, weights, texcoords_ddx, texcoords_ddy, material.extension_detail_scale);
-			if (texture_far >= 3)
+            highPass1 = SampleColorTriplanarGrad(Ext, slicesNear.sliceExtXZnY, slicesNear.sliceExtY,
+                texcoordsNear, triplanarInput, material.extension_detail_scale, forcedAxis);
+
+            if (textureNear >= 3)
+				highPass1 = 1; // use default value;
+		}
+
+		if (pixelizationMultiplierFar > 0)
+		{
+            highPass2 = SampleColorTriplanarGrad(Ext, slicesFar.sliceExtXZnY, slicesFar.sliceExtY,
+                texcoordsFar, triplanarInput, material.extension_detail_scale, forcedAxis);
+
+            if (textureFar >= 3)
 				highPass2 = 1; // use default value;
 		}
 
-		highPass = lerp(highPass1.z, highPass2.z, scale_weight);
+		highPass = lerp(highPass1.z, highPass2.z, scaleWeight);
 	}
 
 	//x = AO
 	//y = emissivity
 	//z = lowFreq noise
 	//a = alpha mask
-	output.ext = lerp(ext_near, ext_far, scale_weight);
-	output.color_metal = lerp(color_near, color_far, scale_weight) * float4(highPass.xxx, 1);
-	output.normal_gloss = lerp(normal_gloss_near, normal_gloss_far, scale_weight);
+
+	output.ext = lerp(extNear, extFar, scaleWeight);
+    output.cm = lerp(cmNear, cmFar, scaleWeight) * float4(highPass.xxx, 1);
+    output.ng = lerp(ngNear, ngFar, scaleWeight);
 }
+
+void SampleTriplanarBranched(int startIndex, TriplanarMaterialConstants material, TriplanarInterface triplanarInput, out TriplanarOutput triplanarOutput)
+{
+    const float threshold = 0.995f;
+
+    [branch]
+    if (triplanarInput.weights.x >= threshold)
+    {
+        SampleTriplanar(startIndex, material, triplanarInput, triplanarOutput, 0);
+    }
+    else
+    {
+        [branch]
+        if (triplanarInput.weights.y >= threshold)
+        {
+            SampleTriplanar(startIndex, material, triplanarInput, triplanarOutput, 1);
+        }
+        else
+        {
+            [branch]
+            if (triplanarInput.weights.z >= threshold)
+            {
+                SampleTriplanar(startIndex, material, triplanarInput, triplanarOutput, 2);
+            }
+            else
+            {
+                SampleTriplanar(startIndex, material, triplanarInput, triplanarOutput);
+            }
+        }
+    }
+}
+
+float3x3 TriplanarTangentSpace(TriplanarInterface triplanarInput, int index)
+{
+    float3 T = triplanarInput.dpyperp * triplanarInput.ddxTexcoords[index].x + triplanarInput.dpxperp * triplanarInput.ddyTexcoords[index].x;
+        float3 B = triplanarInput.dpyperp * triplanarInput.ddxTexcoords[index].y + triplanarInput.dpxperp * triplanarInput.ddyTexcoords[index].y;
+
+    float invmax = rsqrt(max(dot(T, T), dot(B, B)));
+    return float3x3(T * invmax, B * invmax, triplanarInput.N);
+}
+
+void FeedOutputTriplanar(PixelInterface pixel, TriplanarInterface triplanarInput, TriplanarOutput triplanar, inout MaterialOutputInterface output)
+{
+    float3 tgN = triplanar.ng.xyz * 2 - 1;
+
+    tgN.x = -tgN.x;
+
+    float3 nx = mul(tgN, TriplanarTangentSpace(triplanarInput, 0));
+    float3 ny = mul(tgN, TriplanarTangentSpace(triplanarInput, 1));
+    float3 nz = mul(tgN, TriplanarTangentSpace(triplanarInput, 2));
+
+    triplanar.ng.xyz = nx * triplanarInput.weights.x + ny * triplanarInput.weights.y + nz * triplanarInput.weights.z;
+
+    output.base_color = triplanar.cm.xyz;
+    if (frame_.Voxels.DebugVoxelLod == 1.0f)
+    {
+        float voxelLodSize = 0;
+#ifdef USE_VOXEL_DATA
+        voxelLodSize = object_.voxelLodSize;
+#endif
+        float3 debugColor = DEBUG_COLORS[clamp(voxelLodSize, 0, 15)];
+        output.base_color.xyz = debugColor;
+    }
+
+    output.metalness = triplanar.cm.w;
+    output.normal = normalize(mul(triplanar.ng.xyz, pixel.custom.world_matrix));
+    output.gloss = triplanar.ng.w;
+    output.emissive = triplanar.ext.y;
+
+    output.ao = triplanar.ext.x;
+
+    float hardAmbient = 1 - pixel.custom.colorBrightnessFactor;
+    output.base_color *= hardAmbient;
+}
+
+void InitilizeTriplanarInterface(PixelInterface pixel, out TriplanarInterface input)
+{
+    input.N = normalize(pixel.custom.normal);
+    input.weights = saturate(GetTriplanarWeights(input.N));
+    input.d = pixel.custom.distance;
+
+    float3 pos_ddx = ddx(pixel.position_ws);
+    float3 pos_ddy = ddy(pixel.position_ws);
+    input.dpxperp = cross(input.N, pos_ddx);
+    input.dpyperp = cross(pos_ddy, input.N);
+
+    float2 texcoordsX = pixel.custom.texcoords.zy;
+    float2 texcoordsY = pixel.custom.texcoords.xz;
+    float2 texcoordsZ = pixel.custom.texcoords.xy;
+
+    input.ddxTexcoords[0] = ddx(texcoordsX);
+    input.ddyTexcoords[0] = ddy(texcoordsX);
+    input.ddxTexcoords[1] = ddx(texcoordsY);
+    input.ddyTexcoords[1] = ddy(texcoordsY);
+    input.ddxTexcoords[2] = ddx(texcoordsZ);
+    input.ddyTexcoords[2] = ddy(texcoordsZ);
+    input.texcoords = pixel.custom.texcoords;
+}
+
+#endif

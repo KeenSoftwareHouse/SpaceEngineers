@@ -381,8 +381,8 @@
       <!-- <NormalGlossY>Textures\Voxels\Silicon_01_ForAxisY_ng.dds</NormalGlossY> -->
       <ExtXZnY>Textures\Voxels\Silicon_01_ForAxisY_add.dds</ExtXZnY>
 
-      <InitialScale>2.1</InitialScale>
-      <ScaleMultiplier>5</ScaleMultiplier>
+      <!--<InitialScale>2.1</InitialScale>
+      <ScaleMultiplier>4.6</ScaleMultiplier>-->
 
       
     </VoxelMaterial>

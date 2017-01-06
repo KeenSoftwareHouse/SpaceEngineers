@@ -84,8 +84,8 @@ namespace VRage.Render11.LightingStage.Shadows
             float shadowChangeDelayMultiplier = 180;
             const float directionDifferenceThreshold = 0.0175f;
 
-            float backOffset = MyRender11.RenderSettings.ShadowQuality.BackOffset();
-            float shadowmapSize = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeResolution();
+            float backOffset = MyRender11.Settings.User.ShadowQuality.BackOffset();
+            float shadowmapSize = MyRender11.Settings.User.ShadowQuality.ShadowCascadeResolution();
 
             Array.Resize(ref m_shadowCascadeSplitDepths, volumes.Length + 1);
             Array.Resize(ref m_shadowCascadeUpdatePositions, volumes.Length);
@@ -93,7 +93,7 @@ namespace VRage.Render11.LightingStage.Shadows
             Array.Resize(ref m_shadowCascadeLightDirections, volumes.Length);
 
             for (int cascadeIndex = 0; cascadeIndex < volumes.Length; ++cascadeIndex)
-                m_shadowCascadeSplitDepths[cascadeIndex] = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeSplit(cascadeIndex);
+                m_shadowCascadeSplitDepths[cascadeIndex] = MyRender11.Settings.User.ShadowQuality.ShadowCascadeSplit(cascadeIndex);
 
             double unitWidth = 1.0 / MyRender11.Environment.Matrices.Projection.M11;
             double unitHeight = 1.0 / MyRender11.Environment.Matrices.Projection.M22;

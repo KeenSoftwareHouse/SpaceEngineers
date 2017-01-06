@@ -4397,4 +4397,14 @@ using VRage.Utils;
         ///Model quality
         ///</summary>
         public static readonly MyStringId ScreenGraphicsOptions_ModelQuality = MyStringId.GetOrCompute("ScreenGraphicsOptions_ModelQuality");
+
+        ///<summary>
+        ///Server has incompatible game data.
+        ///</summary>
+        public static readonly MyStringId IncompatibleDataNotification = MyStringId.GetOrCompute("IncompatibleDataNotification");
+
+        ///<summary>
+        ///Are you sure you want to quit? All progress from the last checkpoint will be lost.
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextCampaignBeforeExit = MyStringId.GetOrCompute("MessageBoxTextCampaignBeforeExit");
     }

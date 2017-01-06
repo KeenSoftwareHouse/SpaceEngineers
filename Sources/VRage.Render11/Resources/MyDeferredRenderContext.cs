@@ -58,19 +58,22 @@ namespace VRage.Render11.Resources
 
         public void OnDeviceEnd()
         {
-            m_isDeviceInit = false;
-
-            // Initialize all RCs
-            m_tmpList.Clear();
-            for (int i = 0; i < m_pool.Count; i++)
+            if (m_isDeviceInit)
             {
-                MyRenderContext rc = m_pool.Get();
-                m_tmpList.Add(rc);
-                rc.Dispose();
+                m_isDeviceInit = false;
+
+                // Initialize all RCs
+                m_tmpList.Clear();
+                for (int i = 0; i < m_pool.Count; i++)
+                {
+                    MyRenderContext rc = m_pool.Get();
+                    m_tmpList.Add(rc);
+                    rc.Dispose();
+                }
+                foreach (var RC in m_tmpList)
+                    m_pool.Return(RC);
+                m_tmpList.Clear();
             }
-            foreach (var RC in m_tmpList)
-                m_pool.Return(RC);
-            m_tmpList.Clear();
         }
 
         public void OnDeviceReset()

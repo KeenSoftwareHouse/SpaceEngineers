@@ -216,6 +216,9 @@ namespace VRage.Render11.Resources
         public ICustomTexture CreateTexture(string debugName, int width, int height, int samplesCount = 1,
             int samplesQuality = 0)
         {
+            MyRenderProxy.Assert(width > 0);
+            MyRenderProxy.Assert(height > 0);
+
             MyCustomTexture tex;
             m_objectsPool.AllocateOrCreate(out tex);
             tex.Init(debugName, width, height, samplesCount, samplesQuality);

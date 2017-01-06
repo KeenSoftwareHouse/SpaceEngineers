@@ -46,7 +46,7 @@ namespace Sandbox.Game.Replication
 
             float relativeDistance = (float)Math.Sqrt(distSq / planeArea); // How far the object would be when recalculated to 1m size
             float ratio = relativeDistance / BaseVisibility; // 0 very close; 1 at the edge of visibility; >1 too far
-            return MathHelper.Clamp(1 - ratio, 0, 1);
+            return MathHelper.Clamp(1 - ratio, 0.1f, 1);
         }
         
         protected override void OnLoad(BitStream stream, Action<T> loadingDoneHandler)

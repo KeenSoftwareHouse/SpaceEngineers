@@ -142,7 +142,7 @@ namespace VRage.Render11.Resources
 
                         int skipMipmaps = 0;
                         if (m_type != MyFileTextureEnum.GUI && m_type != MyFileTextureEnum.GPUPARTICLES)
-                            skipMipmaps = MyRender11.RenderSettings.TextureQuality.MipmapsToSkip(parameters.Resolution.X, parameters.Resolution.Y);
+                            skipMipmaps = MyRender11.Settings.User.TextureQuality.MipmapsToSkip(parameters.Resolution.X, parameters.Resolution.Y);
 
                         if (parameters.Mipmaps > 1)
                         {

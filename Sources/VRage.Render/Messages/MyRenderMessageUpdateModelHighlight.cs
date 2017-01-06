@@ -11,7 +11,7 @@ namespace VRageRender.Messages
         public uint[] SubpartIndices;
         public Color? OutlineColor;
         public float Thickness;
-        public ulong PulseTimeInFrames;
+        public float PulseTimeInSeconds;
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateModelHighlight; } }

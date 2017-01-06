@@ -21,6 +21,7 @@ using VRage.Library.Utils;
 using Sandbox.Game;
 using VRage.Game;
 using VRage.Profiler;
+using VRage.Utils;
 
 #endregion
 
@@ -582,6 +583,13 @@ namespace Sandbox.Engine.Multiplayer
         {
             MyTrace.Send(TraceWindow.Multiplayer, "World data processed");
             m_voxelMapData = result.WorldData.VoxelMaps.Dictionary;
+
+            MyLog.Default.WriteLine("ProcessWorldDownloadResult voxel maps:");
+            foreach (var voxelmap in m_voxelMapData)
+            {
+                MyLog.Default.WriteLine(voxelmap.Key);
+            }
+
             return result.WorldData;
         }
 

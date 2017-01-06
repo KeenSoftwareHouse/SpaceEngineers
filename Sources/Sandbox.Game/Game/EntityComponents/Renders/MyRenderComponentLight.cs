@@ -74,6 +74,14 @@ namespace Sandbox.Game.Components
                   null,
                   BulbColor,
                   CurrentLightPower);
+                VRageRender.MyRenderProxy.UpdateModelProperties(
+                  RenderObjectIDs[0],
+                  0,
+                  -1,
+                  "EmissiveSpotlight",
+                  null,
+                  BulbColor,
+                  CurrentLightPower);
                 m_emissiveMaterialDirty = false;
             }
         }

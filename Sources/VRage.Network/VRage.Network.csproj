@@ -115,6 +115,7 @@
     <Compile Include="IMyServerCallback.cs" />
     <Compile Include="MyChannelEnum.cs" />
     <Compile Include="MyClientEntry.cs" />
+    <Compile Include="MyIncompatibleDataException.cs" />
     <Compile Include="MyRakNetConnectionException.cs" />
     <Compile Include="MyRakNetStartupException.cs" />
     <Compile Include="MyRakNetClient.cs" />

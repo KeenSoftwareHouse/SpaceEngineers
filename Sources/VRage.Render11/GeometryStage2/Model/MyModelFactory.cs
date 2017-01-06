@@ -23,8 +23,13 @@ namespace VRage.Render11.GeometryStage2.Model
         public bool GetOrCreateModels(string filepath, out MyModels models)
         {
             filepath = MyMwmUtils.GetFullMwmFilepath(filepath);
-            if (m_models.TryGetValue(filepath, out models))
+            if (m_models.TryGetValue(filepath, out models)) // if the model is loaded, return true
                 return true;
+
+            // if the model has been loaded, but it did not been suitable, return false:
+            if (m_resultsForIsModelSuitable.ContainsKey(filepath)) 
+                if (m_resultsForIsModelSuitable[filepath] == false)
+                    return false;
 
             // Load mwm as first lod
             MyMwmData firstLodMwmData = new MyMwmData();
@@ -35,7 +40,10 @@ namespace VRage.Render11.GeometryStage2.Model
             }
 
             if (!IsModelSuitable(firstLodMwmData))
+            {
+                m_resultsForIsModelSuitable.Add(filepath, false);
                 return false;
+            }
 
             MyRenderProxy.Assert(!m_models.ContainsKey(firstLodMwmData.MwmFilepath));
             models = CreateModels(firstLodMwmData);
@@ -90,7 +98,11 @@ namespace VRage.Render11.GeometryStage2.Model
                     MyRenderProxy.Log.WriteLine(errMsg);
                     return false;
                 }
-
+                if (filepath.ToLowerInvariant().Equals(mwmData.MwmFilepath))
+                {
+                    MyRenderProxy.Fail("Model is trying to load itself as LOD. Cause recursion!!!");
+                    continue;
+                }
                 MyMwmData lodMwmData = new MyMwmData();
                 if (lodMwmData.LoadFromFile(filepath))
                 {
@@ -131,6 +143,7 @@ namespace VRage.Render11.GeometryStage2.Model
         void IManagerUnloadData.OnUnloadData()
         {
             m_models.Clear();
+            m_resultsForIsModelSuitable.Clear();
         }
     }
 

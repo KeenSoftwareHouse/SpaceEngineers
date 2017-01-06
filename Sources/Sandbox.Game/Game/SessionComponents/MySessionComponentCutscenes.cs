@@ -527,6 +527,7 @@ namespace Sandbox.Game.SessionComponents
             else
             {
                 Debug.Fail("There is no cutscene named \"" + cutsceneName + "\".");
+                CutsceneEnd();
                 return false;
             }
         }

@@ -36,12 +36,6 @@
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ReloadTextures; } }
     }
 
-    public class MyRenderMessageReloadGrass : MyRenderMessageBase
-    {
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ReloadGrass; } }
-    }
-
     public class MyRenderMessageUpdateEnvironmentMap : MyRenderMessageBase
     {
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }

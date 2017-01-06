@@ -40,7 +40,6 @@ namespace Sandbox.Game.Gui
         {
             EnabledBackgroundFade = true;
             Size = new Vector2(1000f, 650f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
-            LoadResolutions();
             RecreateControls(true);
         }
 
@@ -155,15 +154,12 @@ namespace Sandbox.Game.Gui
             CloseButtonOffset = new Vector2(-50f, 50f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
         }
 
-        private void LoadResolutions()
+        private void LoadResolutions(MyAdapterInfo adapter)
         {
             var duplicateFilter = new HashSet<Vector2I>(Vector2I.Comparer);
-            foreach (var adapter in MyVideoSettingsManager.Adapters)
+            foreach (var displayMode in adapter.SupportedDisplayModes)
             {
-                foreach (var displayMode in adapter.SupportedDisplayModes)
-                {
-                    duplicateFilter.Add(new Vector2I(displayMode.Width, displayMode.Height));
-                }
+                duplicateFilter.Add(new Vector2I(displayMode.Width, displayMode.Height));
             }
 
             m_resolutions.Clear();
@@ -186,6 +182,8 @@ namespace Sandbox.Game.Gui
         {
             int adapterIndex = (int)m_comboVideoAdapter.GetSelectedKey();
             { // AddDisplayModesToComboBox
+                LoadResolutions(MyVideoSettingsManager.Adapters[adapterIndex]);
+
                 m_comboResolution.ClearItems();
 
                 var displayAspectRatio = MyVideoSettingsManager.GetRecommendedAspectRatio(adapterIndex);

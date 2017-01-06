@@ -508,7 +508,7 @@ namespace Sandbox.Game.Entities
 
                         if (ent is IMyDestroyableObject)
                             (ent as IMyDestroyableObject).DoDamage(flameInfo.Radius * BlockDefinition.FlameDamage * 10, MyDamageType.Environment, true, attackerId: EntityId);
-                        else if (ent is MyCubeGrid)
+                        else if (ent is MyCubeGrid)  
                         {
                             var grid = ent as MyCubeGrid;
                             if (grid.BlocksDestructionEnabled)
@@ -535,7 +535,7 @@ namespace Sandbox.Game.Entities
             {
                 //MyRenderProxy.DebugDrawSphere(hit.Value, 0.1f, Color.Green.ToVector3(), 1, true);
                 MyPhysics.CastRay(hit.Value - l.Direction * 0.1f, hit.Value + l.Direction * 0.1f, m_gridRayCastLst, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
-                if ((m_gridRayCastLst.Count == 0 || m_gridRayCastLst[0].HkHitInfo.GetHitEntity() != grid) && grid == CubeGrid)
+                if (m_gridRayCastLst.Count == 0 || m_gridRayCastLst[0].HkHitInfo.GetHitEntity() != grid)    //If you found something other than the targeted grid do nothing
                 {
                     m_gridRayCastLst.Clear();
                     return;
@@ -552,15 +552,21 @@ namespace Sandbox.Game.Entities
                     var gridDir = Vector3D.TransformNormal(l.Direction, invWorld);
                     if (block != null)
                     {
+                        //We dont want to damage thruster itself
+                        //We dont want smallship thruster to damage heavy armors because of landing
                         if (block.FatBlock != this && (CubeGrid.GridSizeEnum == MyCubeSize.Large || block.BlockDefinition.DeformationRatio > 0.25))
                         {
                             block.DoDamage(30 * BlockDefinition.FlameDamage, MyDamageType.Environment, attackerId: EntityId);
                         }
                     }
-                    var areaPlanar = 0.5f * flameInfo.Radius * CubeGrid.GridSize;
-                    var areaVertical = 0.5f * CubeGrid.GridSize;
 
-                    grid.Physics.ApplyDeformation(BlockDefinition.FlameDamage, areaPlanar, areaVertical, gridPos, gridDir, MyDamageType.Environment, CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.1f : 0, attackerId: EntityId);
+                    if (block == null || block.FatBlock != this)
+                    {
+                        var areaPlanar = 0.5f * flameInfo.Radius * CubeGrid.GridSize;
+                        var areaVertical = 0.5f * CubeGrid.GridSize;
+
+                        grid.Physics.ApplyDeformation(BlockDefinition.FlameDamage, areaPlanar, areaVertical, gridPos, gridDir, MyDamageType.Environment, CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.1f : 0, attackerId: EntityId);
+                    }
                 }
             }
         }
