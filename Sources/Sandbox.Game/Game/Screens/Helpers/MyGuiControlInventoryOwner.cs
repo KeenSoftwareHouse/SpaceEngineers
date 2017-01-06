@@ -251,8 +251,19 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 var inventory = (MyInventory)inventoryGrid.UserData;
                 int itemsCount = inventory.GetItems().Count;
+                int oldRowsCount = inventoryGrid.RowsCount;
+
                 inventoryGrid.ColumnsCount = Math.Max(1, (int)((Size.X - m_internalPadding.X * 2f) / (inventoryGrid.ItemSize.X * 1.01f)));
                 inventoryGrid.RowsCount = Math.Max(1, (int)Math.Ceiling((itemsCount + 1) / (float)inventoryGrid.ColumnsCount));
+
+                if ((itemsCount % inventoryGrid.ColumnsCount) > (inventoryGrid.ColumnsCount - 2))
+                {
+                    if (inventoryGrid.RowsCount < oldRowsCount)
+                    {                       
+                        inventoryGrid.RowsCount++;
+                    }
+                }
+
                 inventoryGrid.TrimEmptyItems();
             }
         }
