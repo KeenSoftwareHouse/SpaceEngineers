@@ -100,14 +100,12 @@ namespace Sandbox.Game
             return false;
         }
 
-        List<IMyConveyorEndpoint> reachableVertices = new List<IMyConveyorEndpoint>();
-
         private bool IsConnected(MyInventory dstInventory)
         {
             var srcConveyor = (this.Owner as IMyConveyorEndpointBlock);
             if (srcConveyor != null)
             {
-                reachableVertices.Clear();
+                var reachableVertices = new List<IMyConveyorEndpoint>();
                 MyGridConveyorSystem.FindReachable(srcConveyor.ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null);
                 foreach (var vertex in reachableVertices)
                 {
