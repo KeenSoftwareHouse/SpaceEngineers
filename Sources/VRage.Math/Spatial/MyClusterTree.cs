@@ -792,10 +792,16 @@ namespace VRageMath.Spatial
                         {
 
                             System.Diagnostics.Debug.Assert(aabb0.Max.GetDim(longestAxis) - minimumCluster.Min.GetDim(longestAxis) > 0, "Invalid minimal cluster");
-                            isClusterSplittable = true;
-
-                            currentMax.SetDim(longestAxis, aabb0.Max.GetDim(longestAxis));
-
+                            if (aabb0.Max.GetDim(longestAxis) - minimumCluster.Min.GetDim(longestAxis) > IdealClusterSize.GetDim(longestAxis))
+                            {
+                                // Distance is further than a cluster size, IOW object was teleported (eg jump drive)
+                                isClusterSplittable = false;
+                            }
+                            else
+                            {
+                                isClusterSplittable = true;
+                                currentMax.SetDim(longestAxis, aabb0.Max.GetDim(longestAxis));
+                            }
                             break;
                         }
                     }
