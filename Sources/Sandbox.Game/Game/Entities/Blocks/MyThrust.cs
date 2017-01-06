@@ -715,6 +715,14 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        float Sandbox.ModAPI.Ingame.IMyThrust.MaxEffectiveThrust
+        {
+            get
+            {
+                return BlockDefinition.ForceMagnitude * m_thrustMultiplier * m_thrustComponent.GetLastThrustMultiplier(this);
+            }
+        }
+
         float Sandbox.ModAPI.Ingame.IMyThrust.CurrentThrust
         {
             get
