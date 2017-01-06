@@ -117,6 +117,46 @@ namespace VRage.Scripting.Rewriters
         }
 
         /// <summary>
+        ///     Injects guard to yield expression to prevent it from leaking method-chain counter
+        /// </summary>
+        /// <param name="expression">Original yield expression</param>
+        /// <param name="genericAttribute">Explicit guard type. Default is null</param>
+        /// <returns></returns>
+        ExpressionSyntax YieldGuard(ExpressionSyntax expression, TypeSyntax genericAttribute)
+        {
+            var guardIdentifier = SyntaxFactory.Identifier("YieldGuard");
+
+            SimpleNameSyntax guardMethod;
+            if(genericAttribute == null)
+                guardMethod = SyntaxFactory.IdentifierName(guardIdentifier);
+            else
+                guardMethod = SyntaxFactory.GenericName(
+                                guardIdentifier,
+                                SyntaxFactory.TypeArgumentList(
+                                    SyntaxFactory.SingletonSeparatedList(
+                                        genericAttribute
+                                    )
+                                )
+                              );
+
+            return SyntaxFactory.InvocationExpression(
+                    SyntaxFactory.MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        AnnotatedIdentifier(typeof(IlInjector).FullName),
+                        Annotated(guardMethod)
+                    )
+                    ).WithArgumentList(
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SingletonSeparatedList(
+                                SyntaxFactory.Argument(
+                                    expression.WithoutTrivia()
+                                )
+                            )
+                        )
+                    ).WithTriviaFrom(expression);
+        }
+
+        /// <summary>
         ///     Creates a code block which is barricaded behind line directives, so they will for all intents and purposes
         ///     be invisible for the compiler when reporting errors.
         /// </summary>
@@ -845,6 +885,63 @@ namespace VRage.Scripting.Rewriters
                                 )
                             )
                         );
+        }
+
+        public override SyntaxNode VisitYieldStatement(YieldStatementSyntax node)
+        {
+            node = (YieldStatementSyntax)base.VisitYieldStatement(node);
+
+            if(node.ReturnOrBreakKeyword.IsKind(SyntaxKind.BreakKeyword))
+                return node;
+
+            if(node.Expression == null)
+                return node; //Compile error
+
+            var parent = node.Parent;
+            BlockSyntax parentBlock = null;
+            MethodDeclarationSyntax parentMethod = null;
+            while(parent != null)
+            {
+                if(parentBlock == null)
+                    parentBlock = parent as BlockSyntax;
+
+                parentMethod = parent as MethodDeclarationSyntax;
+                if(parentMethod != null)
+                    break; //Parent block have to be set at this point. Otherwise it's syntax error
+
+                parent = parent.Parent;
+            }
+
+            if(parentMethod == null)
+                return node; //yield not inside method => Syntax error
+
+            if(parentBlock == null)
+                return node; //yield have to be at least in method block
+
+            TypeSyntax genericAttribute = null;
+            if(node.Expression.IsKind(SyntaxKind.NullLiteralExpression))
+            {
+                var returnType = parentMethod.ReturnType as NameSyntax;
+                if(returnType == null)
+                    return node; //It's predefined type (!= IEnumerable or IEnumerator) => Compiler error!
+
+                if(returnType.Arity == 0)
+                    genericAttribute = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ObjectKeyword));
+                else
+                {
+                    var genericReturnType = (GenericNameSyntax)returnType;
+                    genericAttribute = genericReturnType.TypeArgumentList.Arguments[0];
+                }
+            }
+
+            var resumeLocation = node.Expression.GetLocation().GetMappedLineSpan();
+            var resumeLine = new LinePosition(resumeLocation.EndLinePosition.Line + 1, 0);
+            return Barricaded(resumeLocation.Path, resumeLine,
+                    SyntaxFactory.Block(
+                        node.WithExpression(YieldGuard(node.Expression, genericAttribute)),
+                        EnterMethodCall()
+                    )
+                  );
         }
 
         /// <summary>

@@ -164,6 +164,7 @@ namespace VRage.Compiler
             if (m_callChainDepth > m_maxCallChainDepth)
             {
                 m_isDead = true;
+	    	m_callChainDepth--;
                 throw new ScriptOutOfRangeException();
             }
         }
@@ -178,6 +179,13 @@ namespace VRage.Compiler
         public static bool IsDead()
         {
             return m_isDead;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T YieldGuard<T>(T value)
+        {
+            m_callChainDepth--;
+            return value;
         }
 
         private static IlReader m_reader = new IlReader();
