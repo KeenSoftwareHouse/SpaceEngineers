@@ -552,54 +552,27 @@ namespace VRage.Compiler
 
         private static System.Reflection.Emit.OpCode SwitchShortOpCodes(System.Reflection.Emit.OpCode code)
         {
-            if (code == OpCodes.Bge_Un_S)
-            {
-                code = OpCodes.Bge_Un;
-            }
-            if (code == OpCodes.Bne_Un_S)
-            {
-                code = OpCodes.Bne_Un;
-            }
-            if (code == OpCodes.Ble_Un_S)
-            {
-                code = OpCodes.Ble_Un;
-            }
-            if (code == OpCodes.Ble_S)
-            {
-                code = OpCodes.Ble;
-            }
-            if (code == OpCodes.Blt_S)
-            {
-                code = OpCodes.Blt;
-            }
-            if (code == OpCodes.Blt_Un_S)
-            {
-                code = OpCodes.Blt_Un;
-            }
-            if (code == OpCodes.Beq_S)
-            {
-                code = OpCodes.Beq;
-            }
-            if (code == OpCodes.Br_S)
-            {
-                code = OpCodes.Br;
-            }
-            if (code == OpCodes.Brtrue_S)
-            {
-                code = OpCodes.Brtrue;
-            }
-            if (code == OpCodes.Brfalse_S)
-            {
-                code = OpCodes.Brfalse;
-            }
-            if (code == OpCodes.Leave_S)
-            {
-                code = OpCodes.Leave;
-            }
-            if (code == OpCodes.Bge_S)
-            {
-                code = OpCodes.Bge;
-            }
+            if (code == OpCodes.Bge_Un_S) return OpCodes.Bge_Un;
+            if (code == OpCodes.Bge_S) return OpCodes.Bge;
+            if (code == OpCodes.Bgt_Un_S) return OpCodes.Bgt_Un;
+            if (code == OpCodes.Bgt_S) return OpCodes.Bgt;
+
+            if (code == OpCodes.Ble_Un_S) return OpCodes.Ble_Un;
+            if (code == OpCodes.Ble_S) return OpCodes.Ble;
+            if (code == OpCodes.Blt_Un_S) return OpCodes.Blt_Un;
+            if (code == OpCodes.Blt_S) return OpCodes.Blt;
+
+            if (code == OpCodes.Bne_Un_S) return OpCodes.Bne_Un;
+
+            if (code == OpCodes.Beq_S) return OpCodes.Beq;
+
+            if (code == OpCodes.Br_S) return OpCodes.Br;
+
+            if (code == OpCodes.Brtrue_S) return OpCodes.Brtrue;
+            if (code == OpCodes.Brfalse_S) return OpCodes.Brfalse;
+
+            if (code == OpCodes.Leave_S) return OpCodes.Leave;
+            
             return code;
         }
 
