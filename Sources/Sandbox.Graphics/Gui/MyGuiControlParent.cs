@@ -6,6 +6,7 @@ using System.Text;
 using VRage.Game;
 using VRage.Utils;
 using VRageMath;
+using VRage.Input;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -82,8 +83,15 @@ namespace Sandbox.Graphics.GUI
         public override MyGuiControlBase HandleInput()
         {
             MyGuiControlBase captured = null;
-            
+
             captured = base.HandleInput();
+
+            // if mouse is outside of parent, childs should not handle it
+            // keyboard still should be handled for possible text inputs or tabing switching controls
+            if ((MyInput.Static.IsAnyMousePressed() || MyControllerHelper.IsControl(MyControllerHelper.CX_GUI, MyControlsGUI.ACCEPT) && !IsMouseOver))
+            {
+                return null;
+            }
 
             foreach (var control in Controls.GetVisibleControls())
             {
