@@ -246,7 +246,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private float NormalizeDistance(float value)
         {
-            return (value + BlockDefinition.Minimum) / Range;
+            return (value - BlockDefinition.Minimum) / Range;
         }
 
         private float DenormalizeDistance(float value)
