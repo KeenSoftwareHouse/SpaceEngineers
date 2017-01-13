@@ -14,6 +14,9 @@ namespace VRageMath
         /// Specifies the total number of corners (8) in the BoundingBox.
         /// </summary>
         public const int CornerCount = 8;
+
+        private const double IntersectThreshold = 9.99999997475243E-07;
+
         /// <summary>
         /// The minimum point the BoundingBox contains.
         /// </summary>
@@ -556,7 +559,7 @@ namespace VRageMath
         {
             float num1 = 0.0f;
             float num2 = float.MaxValue;
-            if ((double)Math.Abs(ray.Direction.X) < 9.99999997475243E-07)
+            if ((double)Math.Abs(ray.Direction.X) < IntersectThreshold)
             {
                 if ((double)ray.Position.X < (double)this.Min.X || (double)ray.Position.X > (double)this.Max.X)
                     return new float?();
@@ -577,7 +580,7 @@ namespace VRageMath
                 if ((double)num1 > (double)num2)
                     return new float?();
             }
-            if ((double)Math.Abs(ray.Direction.Y) < 9.99999997475243E-07)
+            if ((double)Math.Abs(ray.Direction.Y) < IntersectThreshold)
             {
                 if ((double)ray.Position.Y < (double)this.Min.Y || (double)ray.Position.Y > (double)this.Max.Y)
                     return new float?();
@@ -598,7 +601,7 @@ namespace VRageMath
                 if ((double)num1 > (double)num2)
                     return new float?();
             }
-            if ((double)Math.Abs(ray.Direction.Z) < 9.99999997475243E-07)
+            if ((double)Math.Abs(ray.Direction.Z) < IntersectThreshold)
             {
                 if ((double)ray.Position.Z < (double)this.Min.Z || (double)ray.Position.Z > (double)this.Max.Z)
                     return new float?();
@@ -631,7 +634,7 @@ namespace VRageMath
             result = new float?();
             float num1 = 0.0f;
             float num2 = float.MaxValue;
-            if ((double)Math.Abs(ray.Direction.X) < 9.99999997475243E-07)
+            if ((double)Math.Abs(ray.Direction.X) < IntersectThreshold)
             {
                 if ((double)ray.Position.X < (double)this.Min.X || (double)ray.Position.X > (double)this.Max.X)
                     return;
@@ -652,7 +655,7 @@ namespace VRageMath
                 if ((double)num1 > (double)num2)
                     return;
             }
-            if ((double)Math.Abs(ray.Direction.Y) < 9.99999997475243E-07)
+            if ((double)Math.Abs(ray.Direction.Y) < IntersectThreshold)
             {
                 if ((double)ray.Position.Y < (double)this.Min.Y || (double)ray.Position.Y > (double)this.Max.Y)
                     return;
@@ -673,7 +676,7 @@ namespace VRageMath
                 if ((double)num1 > (double)num2)
                     return;
             }
-            if ((double)Math.Abs(ray.Direction.Z) < 9.99999997475243E-07)
+            if ((double)Math.Abs(ray.Direction.Z) < IntersectThreshold)
             {
                 if ((double)ray.Position.Z < (double)this.Min.Z || (double)ray.Position.Z > (double)this.Max.Z)
                     return;
