@@ -18,18 +18,16 @@ namespace Sandbox.Definitions
         public class MyWeaponAmmoData
         {
             public int RateOfFire; // rounds per minute (round == 1 bullet)
-            public int BurstFireRate;
             public MySoundPair ShootSound;
             public int ShootIntervalInMiliseconds; // derivative of Rate of fire
 
-            public MyWeaponAmmoData(MyObjectBuilder_WeaponDefinition.WeaponAmmoData data) : this(data.RateOfFire, data.ShootSoundName, data.BurstFireRate)
+            public MyWeaponAmmoData(MyObjectBuilder_WeaponDefinition.WeaponAmmoData data) : this(data.RateOfFire, data.ShootSoundName)
             {
             }
 
-            public MyWeaponAmmoData(int rateOfFire, string soundName, int burstFireRate)
+            public MyWeaponAmmoData(int rateOfFire, string soundName)
             {
                 this.RateOfFire = rateOfFire;
-                this.BurstFireRate = burstFireRate;
                 this.ShootSound = new MySoundPair(soundName);
                 this.ShootIntervalInMiliseconds = (int)(1000 / (RateOfFire * oneSixtieth));
             }
