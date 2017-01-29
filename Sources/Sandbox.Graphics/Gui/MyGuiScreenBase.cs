@@ -143,7 +143,7 @@ namespace Sandbox.Graphics.GUI
             get
             {
                 var tmp = m_backgroundFadeColor;
-                tmp.A = (byte)(tmp.A * m_transitionAlpha);
+                tmp.A = (byte)(tmp.A * (m_backgroundTransition != 1 ? m_backgroundTransition : m_transitionAlpha));
                 return tmp;
             }
         }
