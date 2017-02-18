@@ -71,10 +71,7 @@ namespace VRageMath
         /// <param name="a">The object to the left of the inequality operator.</param><param name="b">The object to the right of the inequality operator.</param>
         public static bool operator !=(BoundingBox a, BoundingBox b)
         {
-            if (!(a.Min != b.Min))
-                return a.Max != b.Max;
-            else
-                return true;
+            return !(a == b);
         }
 
         /// <summary>
