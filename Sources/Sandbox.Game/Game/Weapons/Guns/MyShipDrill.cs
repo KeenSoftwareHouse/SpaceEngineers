@@ -235,7 +235,7 @@ namespace Sandbox.Game.Weapons
         private void SetupDrillFrameCountdown()
         {
             m_countdownDistributor += 10;
-            if (m_countdownDistributor > MyDrillConstants.DRILL_UPDATE_DISTRIBUTION_IN_FRAMES)
+            if (m_countdownDistributor >= MyDrillConstants.DRILL_UPDATE_DISTRIBUTION_IN_FRAMES)
                 m_countdownDistributor = -MyDrillConstants.DRILL_UPDATE_DISTRIBUTION_IN_FRAMES;
             m_drillFrameCountdown = MyDrillConstants.DRILL_UPDATE_INTERVAL_IN_FRAMES + m_countdownDistributor;
         }
