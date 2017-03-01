@@ -213,12 +213,12 @@ namespace Sandbox.Game.Entities.Cube
         bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
 
-        public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
+        public void GetOreMarkers (List <ModAPI.Ingame.MyOreMarker> userList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
         {                 
             if (getOreRateLimited)
             {
                 getOreRateLimited = false;
-                usersList.Clear();
+                userList.Clear();
                 Vector3D blockCoordinates = new Vector3D (base.PositionComp.GetPosition());
                 m_oreDetectorComponent.Update (blockCoordinates, false);
 
@@ -253,7 +253,7 @@ namespace Sandbox.Game.Entities.Cube
                        
                 foreach (KeyValuePair <string, Vector3D> marker in m_closestEachElement)
                 {
-                    usersList.Add (new ModAPI.Ingame.MyOreMarker (marker.Key, marker.Value));
+                    userList.Add (new ModAPI.Ingame.MyOreMarker (marker.Key, marker.Value));
                 }
                 m_closestEachElement.Clear();
             }
