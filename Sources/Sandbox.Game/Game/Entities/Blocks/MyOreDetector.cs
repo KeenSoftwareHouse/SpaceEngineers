@@ -1,10 +1,13 @@
 ﻿#region Using
 
+using System.Collections.Generic;
+
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using System.Text;
+using System.Diagnostics;
 using Sandbox.Game.EntityComponents;
 using VRageMath;
 using Sandbox.ModAPI;
@@ -24,13 +27,17 @@ namespace Sandbox.Game.Entities.Cube
     public class MyOreDetector : MyFunctionalBlock, IMyComponentOwner<MyOreDetectorComponent>, IMyOreDetector
     {
         private MyOreDetectorDefinition m_definition;
+        private Dictionary <string, Vector3D> m_closestEachElement = new Dictionary <string, Vector3D>(); //I use the same collection to reduce heap allocations.
 
-        MyOreDetectorComponent m_oreDetectorComponent = new MyOreDetectorComponent();
+        private MyOreDetectorComponent m_oreDetectorComponent = new MyOreDetectorComponent();  
+        bool getOreRateLimited; 
 
         Sync<bool> m_broadcastUsingAntennas;
 
         public MyOreDetector()
         {
+ 	    getOreRateLimited = true;
+	
 #if XB1 // XB1_SYNC_NOREFLECTION
             m_broadcastUsingAntennas = SyncType.CreateAndAddProp<bool>();
 #endif // XB1
@@ -151,11 +158,14 @@ namespace Sandbox.Game.Entities.Cube
 
         public override void UpdateBeforeSimulation100()
         {
+	    getOreRateLimited = true;
+	    
             base.UpdateBeforeSimulation100();
             if (HasLocalPlayerAccess())
             {
-                m_oreDetectorComponent.Update(PositionComp.GetPosition());
+                m_oreDetectorComponent.Update (PositionComp.GetPosition());
             }
+
             else
             {
                 m_oreDetectorComponent.Clear();
@@ -180,8 +190,7 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     m_oreDetectorComponent.DetectionRadius = (value / 100f) * m_definition.MaximumRange;
                     RaisePropertiesChanged();
-                }
-                
+                }                
             }
         }
 
@@ -203,5 +212,51 @@ namespace Sandbox.Game.Entities.Cube
 
         bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
+
+        public void GetOreMarkers (List <ModAPI.Ingame.MyOreMarker> userList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
+        {                 
+            if (getOreRateLimited)
+            {
+                getOreRateLimited = false;
+                userList.Clear();
+                Vector3D blockCoordinates = new Vector3D (base.PositionComp.GetPosition());
+                m_oreDetectorComponent.Update (blockCoordinates, false);
+
+                foreach (MyEntityOreDeposit deposit in m_oreDetectorComponent.DetectedDeposits)
+                {
+                    for (int i = 0; i < deposit.Materials.Count; i++)
+                    {                                                 
+                        MyEntityOreDeposit.Data depositData = deposit.Materials[i];
+                        Vector3D cachesPosition = new Vector3D();
+                        depositData.ComputeWorldPosition (deposit.VoxelMap, out cachesPosition);                    
+                        string cachesElement = deposit.Materials[i].Material.MinedOre;
+
+                        if (m_closestEachElement.ContainsKey (cachesElement) == false)
+                        {
+                            m_closestEachElement.Add (cachesElement, cachesPosition); //I decided Dictionary was the best way to group nearest markers since all I need is two variables.                            
+                        }
+
+                        else
+                        {      
+                            Vector3D difference = blockCoordinates - cachesPosition;                        
+                            Vector3D previousDifference = m_closestEachElement[cachesElement] - cachesPosition; 
+                            float distanceToCache = (float) difference.LengthSquared(); //explicitly converted in order to estimate the actual hud markers as close as possible.                   
+                            float previousDistance = (float) previousDifference.LengthSquared();
+                                                                           
+                            if (distanceToCache < previousDistance)    
+                            {                                                                             
+                                m_closestEachElement[cachesElement] = cachesPosition; //I only want the nearest of each element. 
+                            }                                                       
+                        }
+                    }
+                }
+                       
+                foreach (KeyValuePair <string, Vector3D> marker in m_closestEachElement)
+                {
+                    userList.Add (new ModAPI.Ingame.MyOreMarker (marker.Key, marker.Value));
+                }
+                m_closestEachElement.Clear();
+            }
+        }       
     }
 }

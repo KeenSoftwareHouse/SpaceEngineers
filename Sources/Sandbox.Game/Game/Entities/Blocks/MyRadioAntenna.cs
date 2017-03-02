@@ -350,7 +350,7 @@ namespace Sandbox.Game.Entities.Cube
                                 MyOreDetectorComponent oreDetector;
                                 if (oreDetectorOwner.GetComponent(out oreDetector) && oreDetector.BroadcastUsingAntennas)
                                 {
-                                    oreDetector.Update(terminalBlock.PositionComp.GetPosition(), false);
+                                    oreDetector.Update (terminalBlock.PositionComp.GetPosition(), false);
                                     oreDetector.SetRelayedRequest = true;
                                 }
                             }
