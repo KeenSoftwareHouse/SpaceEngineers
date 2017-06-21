@@ -6,13 +6,17 @@ using System.Text;
 
 namespace VRage
 {
+	public abstract class MyCommandArgs
+	{
+	}
+
+	public delegate MyCommandArgs ParserDelegate(List<string> args);
+	public delegate StringBuilder ActionDelegate(MyCommandArgs commandArgs);
+
 
     public abstract class MyCommand
     {
         
-        protected delegate MyCommandArgs ParserDelegate(List<string> args); 
-        protected delegate StringBuilder ActionDelegate(MyCommandArgs commandArgs);
-
         protected class MyCommandAction
         {
             public StringBuilder AutocompleteHint = new StringBuilder("");
@@ -20,9 +24,6 @@ namespace VRage
             public ActionDelegate CallAction;
         }
 
-        protected abstract class MyCommandArgs
-        {
-        }
 
         protected Dictionary<string, MyCommandAction> m_methods;
         

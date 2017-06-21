@@ -64,7 +64,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (m_block == null) return ListReader<ITerminalAction>.Empty;
 
             m_tmpEnabledActions.Clear();
-            foreach (var action in MyTerminalControlFactory.GetActions(m_block.GetType()))
+            foreach (var action in MyTerminalControls.Static.GetActions(m_block))
             {
                 if (action.IsEnabled(m_block))
                 {
@@ -104,17 +104,17 @@ namespace Sandbox.Game.Screens.Helpers
 
             var action = GetCurrentAction();
 
-            bool isValid = m_block != null && action != null && MyCubeGridGroups.Static.Logical.HasSameGroup((owner as MyTerminalBlock).CubeGrid, m_block.CubeGrid);
+            bool isValid = m_block != null && action != null && MyCubeGridGroups.Static.Physical.HasSameGroup((owner as MyTerminalBlock).CubeGrid, m_block.CubeGrid);
             changed |= SetEnabled(isValid && m_block.IsFunctional && (m_block.HasPlayerAccess(playerID) || m_block.HasPlayerAccess((owner as MyTerminalBlock).OwnerId)));
             if (m_block != null)
             {
-                changed |= SetIcon(m_block.BlockDefinition.Icon);
+                changed |= SetIcons(m_block.BlockDefinition.Icons);
             }
             if (isValid)
             {
                 if (!m_wasValid || ActionChanged)
                 {
-                    changed |= SetIcon(m_block.BlockDefinition.Icon);
+                    changed |= SetIcons(m_block.BlockDefinition.Icons);
                     changed |= SetSubIcon(action.Icon);
                     changed |= UpdateCustomName(action);
                 }
@@ -209,7 +209,7 @@ namespace Sandbox.Game.Screens.Helpers
                 return false;
             }
             TryGetBlock();
-            SetAction(builder.Action);
+            SetAction(builder._Action);
 
             if (builder.Parameters != null && builder.Parameters.Count > 0)
             {
@@ -247,18 +247,18 @@ namespace Sandbox.Game.Screens.Helpers
             m_block = null;
         }
 
-        public override void OnClose()
+        public override void OnRemovedFromToolbar(MyToolbar toolbar)
         {
             if (m_block != null) UnregisterEvents();
 
-            base.OnClose();
+            base.OnRemovedFromToolbar(toolbar);
         }
 
         public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
         {
             MyObjectBuilder_ToolbarItemTerminalBlock output = (MyObjectBuilder_ToolbarItemTerminalBlock)MyToolbarItemFactory.CreateObjectBuilder(this);
             output.BlockEntityId = this.m_blockEntityId;
-            output.Action = this.ActionId;
+            output._Action = this.ActionId;
             
             output.Parameters.Clear();
             foreach (var item in m_parameters)

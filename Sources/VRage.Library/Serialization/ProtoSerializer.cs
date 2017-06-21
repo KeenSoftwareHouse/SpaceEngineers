@@ -1,4 +1,5 @@
-﻿using ProtoBuf.Meta;
+﻿#if !XB1 // XB1_NOPROTOBUF
+using ProtoBuf.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,3 +30,4 @@ namespace VRage.Serialization
         }
     }
 }
+#endif // !XB1

@@ -1,0 +1,596 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Localization xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Id>6063187953620877312</Id>
+  <Language>English</Language>
+  <Context>Mission03</Context>
+  <ResourceName>OfficialCampaign01M3</ResourceName>
+  <Default>true</Default>
+  <Entries>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_AboutPower2</Key>
+        <Value xsi:type="xsd:string">Those solar panels need a power kickstart so they can realign and begin supplying energy.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_AboutPower3</Key>
+        <Value xsi:type="xsd:string">There are some components in this container. Sending coordinates.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Intro1</Key>
+        <Value xsi:type="xsd:string">Welcome to our former settlement, there used to be over a hundred of us living here, working and trying to build a new colony, we thought the R.O.S. contract would be the start of a new era, growing into something even bigger.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Intro2</Key>
+        <Value xsi:type="xsd:string">Shortly after the artefact was excavated they sent their gunships, mercilessly slaughtered almost all of us and left the colony in ruins as you see before you.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Intro3</Key>
+        <Value xsi:type="xsd:string">The reason we have brought you here is to ask for your help, we cannot strike at the corporation alone but with your engineering skills we might have a chance, there is an old frigate in the hangar here, it was damaged in the attack but with your abilities I'm sure you will be able to get it flying again.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Intro4</Key>
+        <Value xsi:type="xsd:string">We are planning an assault on the corporation fleet and need every ship we can get.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Intro5</Key>
+        <Value xsi:type="xsd:string">Good luck engineer!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Outro1</Key>
+        <Value xsi:type="xsd:string">We did it! They are retreating!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Outro2</Key>
+        <Value xsi:type="xsd:string">Finally those bastards have a taste of the suffering they inflicted on us!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Outro3</Key>
+        <Value xsi:type="xsd:string">We couldn't have done it without you but it's not over yet, we still need to take the artefact from them, it mustn't be allowed to remain in the hands of people who would use its secrets for their own egomaniacal ends.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AboutPower1</Key>
+        <Value xsi:type="xsd:string">I'm not detecting any power signatures from the base.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_ActivateTorpedo</Key>
+        <Value xsi:type="xsd:string">Torpedo door opening. Activate the torpedo systems from the same panel.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AmmoHaveEnough</Key>
+        <Value xsi:type="xsd:string">You now have enough boxes. Please bring them to the ship.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AmmoQuest</Key>
+        <Value xsi:type="xsd:string">Ship is currently without ammo. Please bring atleast 80 gatling ammunition boxes to the ship.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AmmoReady</Key>
+        <Value xsi:type="xsd:string">Ammunition is loaded and ready to be distributed on demand.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BatteryWrongPlace</Key>
+        <Value xsi:type="xsd:string">The battery needs to be in direct contact with the red platform, try flying up and looking down at it when placing.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_EnemyShips</Key>
+        <Value xsi:type="xsd:string">Enemy ships are in torpedo range. Open torpedo door from panel nearby torpedo.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_FuelDone</Key>
+        <Value xsi:type="xsd:string">Reactors are coming online. Good job.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_FuelLocation</Key>
+        <Value xsi:type="xsd:string">Fuel storage container located at the following coordinates.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_FuelPlaced</Key>
+        <Value xsi:type="xsd:string">Fuel is ready but the conveyor system is off-line. Please turn on the battery.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GearsUnlocked</Key>
+        <Value xsi:type="xsd:string">Hangar landing gears unlocked. You are free to lift off.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GoToShip</Key>
+        <Value xsi:type="xsd:string">Hangar coordinates uploaded to NavComp.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GoToShipStatus</Key>
+        <Value xsi:type="xsd:string">Activate hangar control station to receive current ship status.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GotFuel</Key>
+        <Value xsi:type="xsd:string">Uranium ingots will power the reactors of your ship. Bring it to the backup reactor of your ship. </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GrindBlock</Key>
+        <Value xsi:type="xsd:string">Try out your new grinder tool on the old thruster behind you.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GrindDone1</Key>
+        <Value xsi:type="xsd:string">You now have the necessary components required for repairs.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GrindDone2</Key>
+        <Value xsi:type="xsd:string">The damaged thruster is now highlighted for easier repair.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GrindDone3</Key>
+        <Value xsi:type="xsd:string">Explore the base site to find more old parts to grind down. </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_LaunchTorpedo</Key>
+        <Value xsi:type="xsd:string">Torpedo is ready for launch from flight seat nearby.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_OpenRoofNoStatus</Key>
+        <Value xsi:type="xsd:string">Roof mechanism is disabled until you turn on the control station.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_OpenRoofNotReady</Key>
+        <Value xsi:type="xsd:string">Roof mechanism is disabled until the ship is ready.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_RepairsDone</Key>
+        <Value xsi:type="xsd:string">Thrusters repaired. Good job.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_RepairsDoneCompletely</Key>
+        <Value xsi:type="xsd:string">Repairs are complete.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_RepairsDonePart2</Key>
+        <Value xsi:type="xsd:string">Activating highlight for missing thrusters.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_RoofReady</Key>
+        <Value xsi:type="xsd:string">Hangar roof is opening.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_TankingConnectorSwitch</Key>
+        <Value xsi:type="xsd:string">Connectors cannot be unlocked during tanking procedure.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_TankingInProgress</Key>
+        <Value xsi:type="xsd:string">Tanking is in progress. Please wait until it is completed.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_TankingPumpsSwitch</Key>
+        <Value xsi:type="xsd:string">Piston cannot be activated when connectod to the ship.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_ToolsLocation</Key>
+        <Value xsi:type="xsd:string">You need a grinder tool to get the required materials for repairing your ship. Find them at the storage. </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_TorpedoDoorNotReady</Key>
+        <Value xsi:type="xsd:string">Torpedo cannot be activated before door is opened.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_AmmoCargo</Key>
+        <Value xsi:type="xsd:string">Ship Ammo Cargo</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_BackupReactor</Key>
+        <Value xsi:type="xsd:string">Backup Reactor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Battery</Key>
+        <Value xsi:type="xsd:string">Ship battery</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_BatterySpareParts</Key>
+        <Value xsi:type="xsd:string">Spare parts for battery</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Cargo</Key>
+        <Value xsi:type="xsd:string">Main cargo container</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Cockpit</Key>
+        <Value xsi:type="xsd:string">Flight Seat</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ControlStation</Key>
+        <Value xsi:type="xsd:string">Control Room</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_DamagedBlock</Key>
+        <Value xsi:type="xsd:string">WELD: Damaged thruster </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Enemy</Key>
+        <Value xsi:type="xsd:string">Enemy Ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_FuelBox</Key>
+        <Value xsi:type="xsd:string">Uranium Storage</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_GrindThis</Key>
+        <Value xsi:type="xsd:string">GRIND: Old Thruster</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Hangar</Key>
+        <Value xsi:type="xsd:string">Hangar entrance</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Location</Key>
+        <Value xsi:type="xsd:string">Rendevous Coordinates</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_TankingPanel</Key>
+        <Value xsi:type="xsd:string">Tanking Control Panel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ToolBox</Key>
+        <Value xsi:type="xsd:string">Tool Storage</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_TorpedoCockpit</Key>
+        <Value xsi:type="xsd:string">Launch Seat</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_TorpedoPanel</Key>
+        <Value xsi:type="xsd:string">Torpedo Control Panel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Weakpoint</Key>
+        <Value xsi:type="xsd:string">Wp </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_WeldThis</Key>
+        <Value xsi:type="xsd:string">Thruster Under Construction</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">HowToHint_EquipAWelder</Key>
+        <Value xsi:type="xsd:string">Drag the welder from the selection and drop it to your toolbar.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">HowToHint_HowToTransferItems</Key>
+        <Value xsi:type="xsd:string">Double click the items from the right inventory to transfer them to yours.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">HowToHint_SelectABattery</Key>
+        <Value xsi:type="xsd:string">Drag and drop the battery block to your toolbar. Or use a double click.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">HowToHint_SelectAToolSection</Key>
+        <Value xsi:type="xsd:string">Switch to the character tools section.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Panel_Working</Key>
+        <Value xsi:type="xsd:string">           Working</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_BatteryItems</Key>
+        <Value xsi:type="xsd:string">Get spare parts for new battery</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_BatteryItems_AccessItems</Key>
+        <Value xsi:type="xsd:string">Aim at the access port and press [ {0} ] or [ {1} ] to open inventory screen</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_BatteryItems_Approach</Key>
+        <Value xsi:type="xsd:string">Approach the marked container</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_BatteryItems_DragItems</Key>
+        <Value xsi:type="xsd:string">Drag items from cargo inventory to your inventory.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_BatteryItems_LeaveShip</Key>
+        <Value xsi:type="xsd:string">Exit the transport ship.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_BatteryPlace</Key>
+        <Value xsi:type="xsd:string">Build a battery block</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_BatteryPlace_Close</Key>
+        <Value xsi:type="xsd:string">Click the X or press Escape to exit.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_BatteryPlace_Drag</Key>
+        <Value xsi:type="xsd:string">Add the battery to your toolbar.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_BatteryPlace_GScreen</Key>
+        <Value xsi:type="xsd:string">Open the Toolbar Screen by pressing [ {0} ]</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_BatteryPlace_Place</Key>
+        <Value xsi:type="xsd:string">Place a battery on the red platform by pressing left mouse button.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_BatteryWeld</Key>
+        <Value xsi:type="xsd:string">Weld the battery</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_BatteryWeld_Drag</Key>
+        <Value xsi:type="xsd:string">Switch to the tab "Character Tools" and add welder to your toolbar. Close the screen afterwards.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_BatteryWeld_GScreen</Key>
+        <Value xsi:type="xsd:string">Open Toolbar Screen by pressing [ {0} ]</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_BatteryWeld_Weld</Key>
+        <Value xsi:type="xsd:string">Aim at the block and hold left mouse button until the battery is fully built.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_ControlTower</Key>
+        <Value xsi:type="xsd:string">Activate control room</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_ControlTower_Activate</Key>
+        <Value xsi:type="xsd:string">Use the marked button panel.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_ControlTower_Elevator</Key>
+        <Value xsi:type="xsd:string">Enter the hangar by using the elevator.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_PowerUpTheShip</Key>
+        <Value xsi:type="xsd:string">Restore power to the ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_PowerUpTheShip_Inventory</Key>
+        <Value xsi:type="xsd:string">Transfer uranium ingots from cargo container to your inventory, access with [ {0} ] or [ {1} ]  keys.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_PowerUpTheShip_Place</Key>
+        <Value xsi:type="xsd:string">Place the uranium into the ships reactor.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_PowerUpTheShip_Uranium</Key>
+        <Value xsi:type="xsd:string">Acquire uranium from storage.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_GrinderTool</Key>
+        <Value xsi:type="xsd:string">Acquire grinder tool</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_GrinderTool_GetGrinder</Key>
+        <Value xsi:type="xsd:string">There is a spare grinder tool in the marked cargo container.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_GrinderTool_Purpose</Key>
+        <Value xsi:type="xsd:string">A grinder can be used to disassemble blocks and salvage components.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_GrindThruster</Key>
+        <Value xsi:type="xsd:string">Get components for repairs</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_GrindThruster_Drag</Key>
+        <Value xsi:type="xsd:string">Switch to the tab "Character Tools" and add proficient grinder tool to your toolbar.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_GrindThruster_Equip</Key>
+        <Value xsi:type="xsd:string">Open Toolbar Screen by pressing [ {0} ]</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_GrindThruster_Grind</Key>
+        <Value xsi:type="xsd:string">Approach highlighted thruster and grind it by holding left mouse button.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_RepairThrusters</Key>
+        <Value xsi:type="xsd:string">Repair highlighted thruster</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_RepairThrusters_ActualCount</Key>
+        <Value xsi:type="xsd:string">Thrusters repaired: {0} / 3</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_RepairThrusters_LookAround</Key>
+        <Value xsi:type="xsd:string">There are</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_RepairThrusters_UseGrinder</Key>
+        <Value xsi:type="xsd:string">Extra components can be found by grinding other unused thrusters.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_RepairThrusters_UseWelder</Key>
+        <Value xsi:type="xsd:string">Switch to your welder and repair the damaged thruster.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_Tanking</Key>
+        <Value xsi:type="xsd:string">Fill the ships hydrogen tanks</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_Tanking_Control</Key>
+        <Value xsi:type="xsd:string">Use button 1 to extend the connector, then use button 2 to lock it.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_Tanking_Disconnect</Key>
+        <Value xsi:type="xsd:string">Press button 2 to unlock and disconnect.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_Tanking_Fill</Key>
+        <Value xsi:type="xsd:string">Hydrogen levels: {0}%</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_Tanking_Wait</Key>
+        <Value xsi:type="xsd:string">Wait for the process to complete.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_Ammo</Key>
+        <Value xsi:type="xsd:string">Load ammunition into the ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_Ammo_Hint</Key>
+        <Value xsi:type="xsd:string">There are spare boxes around base defenses</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_Ammo_PlayerCount</Key>
+        <Value xsi:type="xsd:string">You have {0} boxes</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_Ammo_Quest</Key>
+        <Value xsi:type="xsd:string">Bring 80 gatling ammunition boxes into highlighted ship containers</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_Ammo_ShipCount</Key>
+        <Value xsi:type="xsd:string">Ship cargo: {0} / 80</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest11_Roof</Key>
+        <Value xsi:type="xsd:string">Open the hangar roof</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest11_Roof_Hint</Key>
+        <Value xsi:type="xsd:string">Use the button panel in the control room.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Combat</Key>
+        <Value xsi:type="xsd:string">Destroy enemy capital ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Combat_Cancel</Key>
+        <Value xsi:type="xsd:string">Exit turret control by pressing [ {0} ]</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Combat_Turrets</Key>
+        <Value xsi:type="xsd:string">Use missile turrets accessible from flight seat by using [ {0} ], [ {1} ], [ {2} ] and [ {3} ] keys</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Combat_Weakpoint</Key>
+        <Value xsi:type="xsd:string">Target marked weak parts of the ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Combat_WeakpointCount</Key>
+        <Value xsi:type="xsd:string">Weakpoints destroyed: {0}/{1}</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Flying</Key>
+        <Value xsi:type="xsd:string">Pilot the ship out of the hangar</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Flying_Cockpit</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] to enter the highlighted flight seat.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Flying_Coordinates</Key>
+        <Value xsi:type="xsd:string">Fly to the rendevous coordinates</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Flying_Start</Key>
+        <Value xsi:type="xsd:string">Press and hold [ {0} ] key to thrust up and get safely clear of the hangar.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Flying_VHint</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] key to toggle third person view</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_Closed</Key>
+        <Value xsi:type="xsd:string">closed</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_Empty</Key>
+        <Value xsi:type="xsd:string">Empty</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_FuelInCargo</Key>
+        <Value xsi:type="xsd:string">fuel not distributed</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_Full</Key>
+        <Value xsi:type="xsd:string">{0}%</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_Missing</Key>
+        <Value xsi:type="xsd:string">missing</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_NoFuel</Key>
+        <Value xsi:type="xsd:string">no fuel in system</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_OffLine</Key>
+        <Value xsi:type="xsd:string">off-line</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_OnLine</Key>
+        <Value xsi:type="xsd:string">on-line</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_Open</Key>
+        <Value xsi:type="xsd:string">open</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_Ready</Key>
+        <Value xsi:type="xsd:string">ready</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_Repairs1</Key>
+        <Value xsi:type="xsd:string">repairs required</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Status_Repairs2</Key>
+        <Value xsi:type="xsd:string">thrusters missing</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Title_Ammo</Key>
+        <Value xsi:type="xsd:string">AMMUNITION: </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Title_Hydrogen</Key>
+        <Value xsi:type="xsd:string">HYDROGEN TANK: </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Title_Main</Key>
+        <Value xsi:type="xsd:string">                 SHIP STATUS</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Title_Reactors</Key>
+        <Value xsi:type="xsd:string">REACTORS: </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Title_Repair</Key>
+        <Value xsi:type="xsd:string">STATUS: </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipStatus_Title_Roof</Key>
+        <Value xsi:type="xsd:string">HANGAR ROOF: </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">TankingStatus_Status_Idle</Key>
+        <Value xsi:type="xsd:string">inactive</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">TankingStatus_Status_Locked</Key>
+        <Value xsi:type="xsd:string">locked</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">TankingStatus_Status_PumpingDone</Key>
+        <Value xsi:type="xsd:string">tank is full</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">TankingStatus_Status_Unlocked</Key>
+        <Value xsi:type="xsd:string">unlocked</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">TankingStatus_Status_Working</Key>
+        <Value xsi:type="xsd:string">pumping</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">TankingStatus_Title_Connector</Key>
+        <Value xsi:type="xsd:string">Connector: </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">TankingStatus_Title_Fuel</Key>
+        <Value xsi:type="xsd:string">Tank Level: {0}%</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">TankingStatus_Title_Pumps</Key>
+        <Value xsi:type="xsd:string">Pumps: </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_RedPlatform</Key>
+        <Value xsi:type="xsd:string">Place Battery Here</Value>
+      </item>
+    </dictionary>
+  </Entries>
+</MyObjectBuilder_Localization>

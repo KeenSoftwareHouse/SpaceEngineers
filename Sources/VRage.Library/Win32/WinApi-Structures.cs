@@ -8,9 +8,11 @@ namespace VRage.Win32
 {
     public static partial class WinApi
     {
+#if !XB1
         public delegate bool ConsoleEventHandler(CtrlType sig);
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
+        // See MSDN, COPYDATASTRUCT structure
         [StructLayout(LayoutKind.Sequential)]
         public struct MyCopyData
         {
@@ -152,6 +154,6 @@ namespace VRage.Win32
             public int time;
             public int dwExtraInfo;
         }
-
+#endif
     }
 }

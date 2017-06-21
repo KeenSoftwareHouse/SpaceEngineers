@@ -36,13 +36,14 @@ namespace Sandbox.Engine.Multiplayer
         {
             Debug.Assert(MyEntities.GetEntities().Count == 0, "Multiplayer server must be created before any entities are loaded!");
 
-            var replication = new MyReplicationServer(this, () => MySandboxGame.Static.UpdateTime, localClientEndpoint);
+            var replication = new MyReplicationServer(this, localClientEndpoint, MyFakes.MULTIPLAYER_USE_PLAYOUT_DELAY_BUFFER);
             if (MyFakes.MULTIPLAYER_REPLICATION_TEST)
             {
                 replication.MaxSleepTime = MyTimeSpan.FromSeconds(30);
             }
             SetReplicationLayer(replication);
             ClientLeft += (steamId, e) => ReplicationLayer.OnClientLeft(new EndpointId(steamId));
+            ClientJoined += (steamId) => ReplicationLayer.OnClientJoined(new EndpointId(steamId), CreateClientState());
 
             MyEntities.OnEntityCreate += CreateReplicableForObject;
             MyEntityComponentBase.OnAfterAddedToContainer += CreateReplicableForObject;
@@ -62,7 +63,14 @@ namespace Sandbox.Engine.Multiplayer
             syncLayer.TransportLayer.Register(MyMessageId.RPC, ReplicationLayer.ProcessEvent);
             syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_READY, ReplicationLayer.ReplicableReady);
             syncLayer.TransportLayer.Register(MyMessageId.CLIENT_UPDATE, ReplicationLayer.OnClientUpdate);
-            syncLayer.TransportLayer.Register(MyMessageId.CLIENT_READY, (p) => ClientReady(p));
+            syncLayer.TransportLayer.Register(MyMessageId.CLIENT_ACKS, ReplicationLayer.OnClientAcks);
+            syncLayer.TransportLayer.Register(MyMessageId.CLIENT_READY, ClientReady);
+        }
+
+        public void RaiseReplicableCreated(object obj)
+        {
+            Debug.Assert(Sync.IsServer);
+            CreateReplicableForObject(obj);
         }
 
         void CreateReplicableForObject(object obj)
@@ -75,9 +83,17 @@ namespace Sandbox.Engine.Multiplayer
             if (obj is MyInventoryAggregate)
                 return;
 
+            MyEntity entity = obj as MyEntity;
+            if(entity != null && entity.IsPreview)
+            {
+                return;
+            }
+
             var type = m_factory.FindTypeFor(obj);
             if (type != null && ReplicationLayer.IsTypeReplicated(type))
             {
+                Debug.Assert(MyExternalReplicable.FindByObject(obj) == null, "Object is already replicated!");
+
                 var replicable = (MyExternalReplicable)Activator.CreateInstance(type);
                 replicable.Hook(obj);
                 ReplicationLayer.Replicate(replicable);
@@ -93,14 +109,14 @@ namespace Sandbox.Engine.Multiplayer
         public override void Dispose()
         {
             MyEntities.OnEntityCreate -= CreateReplicableForObject;
-            MyInventoryBase.OnAfterAddedToContainer -= CreateReplicableForObject;
+            MyEntityComponentBase.OnAfterAddedToContainer -= CreateReplicableForObject;
             MyExternalReplicable.Destroyed -= DestroyReplicable;
             base.Dispose();
         }
 
         void ClientReady(VRage.MyPacket packet)
         {
-            ReplicationLayer.OnClientReady(packet.Sender, CreateClientState());
+            ReplicationLayer.OnClientReady(packet.Sender);
             if (MyPerGameSettings.BlockForVoxels)
             {
                 foreach (var voxelMap in MySession.Static.VoxelMaps.Instances)
@@ -137,10 +153,33 @@ namespace Sandbox.Engine.Multiplayer
             SyncLayer.TransportLayer.SendMessage(MyMessageId.SERVER_STATE_SYNC, stream, reliable, endpoint);
         }
 
+        void IReplicationServerCallback.SendWorldData(BitStream stream, EndpointId endpoint)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.WORLD_DATA, stream, true, endpoint);
+        }
+
+        void IReplicationServerCallback.SendJoinResult(BitStream stream, EndpointId endpoint)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.JOIN_RESULT, stream, true, endpoint);
+        }
+
         void IReplicationServerCallback.SendEvent(BitStream stream, bool reliable, EndpointId endpoint)
         {
             SyncLayer.TransportLayer.SendMessage(MyMessageId.RPC, stream, reliable, endpoint);
         }
+
+
+        void IReplicationServerCallback.SentClientJoined(BitStream stream, EndpointId endpoint)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.CLIENT_CONNNECTED, stream, true, endpoint);
+        }
+
+        void IReplicationServerCallback.SendCustomState(BitStream stream, EndpointId endpoint)
+        {
+            stream.WriteFloat(Sandbox.Engine.Physics.MyPhysics.SimulationRatio);
+        }            
+
+
 
         int IReplicationServerCallback.GetMTUSize(EndpointId clientId)
         {
@@ -153,6 +192,12 @@ namespace Sandbox.Engine.Multiplayer
             // Steam has MTU 1200, one byte is used by transport layer to write message id
             return 1024*1024 - 1;
         }
+
+        public MyTimeSpan GetUpdateTime()
+        {
+            return MySandboxGame.Static.SimulationTime;
+        }
+
         #endregion
     }
 }

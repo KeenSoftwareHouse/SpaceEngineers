@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Sandbox.Definitions;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -17,7 +15,6 @@ using VRage.Input;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 
 namespace Sandbox.Game.GUI.DebugInputComponents
 {

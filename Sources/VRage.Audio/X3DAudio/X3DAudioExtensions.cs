@@ -3,6 +3,7 @@ using System;
 using VRage.Data.Audio;
 using VRage.Native;
 using VRageMath;
+using System.Diagnostics;
 
 namespace VRage.Audio.X3DAudio
 {
@@ -78,12 +79,19 @@ namespace VRage.Audio.X3DAudio
             emitter.InnerRadiusAngle = (channelsCount > 2) ? 0.5f * SharpDX.AngleSingle.RightAngle.Radians : 0f;
         }
 
+#if !XB1
         internal static unsafe void SetOutputMatrix(this SourceVoice sourceVoice, Voice destionationVoice, int sourceChannels, int destinationChannels, float* matrix, int operationSet = 0)
         {
+#if UNSHARPER
+			Debug.Assert(false);
+			return;
+#else
             IntPtr destPtr = destionationVoice != null ? destionationVoice.NativePointer : IntPtr.Zero;
             int result = NativeCall<int>.Method<IntPtr, uint, uint, IntPtr, uint>(sourceVoice.NativePointer, 16, destPtr, (uint)sourceChannels, (uint)destinationChannels, new IntPtr(matrix), (uint)operationSet);
             ((SharpDX.Result)result).CheckError();
+#endif
         }
+#endif // !XB1
 
     }
 }

@@ -1,23 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageMath;
+﻿using VRageMath;
 using VRageRender;
-using Sandbox.ModAPI;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using System.Diagnostics;
-using System.Threading;
-
 using Sandbox.Game.Entities;
-using Sandbox.Common.Components;
+
+using Sandbox.Game.Entities.Planet;
 using VRage.Voxels;
 
 namespace Sandbox.Game.Components
@@ -32,13 +20,12 @@ namespace Sandbox.Game.Components
             m_planet = voxelMap;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             var minCorner = m_planet.PositionLeftBottomCorner;
-            if (MyDebugDrawSettings.DEBUG_DRAW_PLANET_SECTORS)
-            {
-                m_planet.DebugDrawEnviromentSectors();
-            }
+
+            m_planet.Components.Get<MyPlanetEnvironmentComponent>().DebugDraw();
+
             m_planet.DebugDrawPhysics();
 
             if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_MAP_AABB)
@@ -111,7 +98,6 @@ namespace Sandbox.Game.Components
                     }
                 }
             }
-            return true;
         }
     }
 }

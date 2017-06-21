@@ -1,5 +1,6 @@
 ﻿using ParallelTasks;
 using System.Collections.Generic;
+using VRage.Render11.RenderContext;
 
 namespace VRageRender
 {
@@ -14,17 +15,17 @@ namespace VRageRender
 
     abstract class MyRenderingWork : IPrioritizedWork
     {
-        internal readonly List<MyRenderContext> Contexts = new List<MyRenderContext>();
+        internal readonly List<MyRenderContext> RCs = new List<MyRenderContext>();
         internal readonly List<MyRenderingPass> Passes = new List<MyRenderingPass>();
 
-        public WorkPriority Priority { get { return WorkPriority.Normal; } }
+        public WorkPriority Priority { get { return WorkPriority.VeryHigh; } }
         public WorkOptions Options { get { return Parallel.DefaultOptions; } }
 
-        public abstract void DoWork();
+        public abstract void DoWork(WorkData workData = null);
 
         protected void AddDeferredContext(MyRenderContext rc)
         {
-            Contexts.Add(rc);
+            RCs.Add(rc);
         }
 
         protected void AddPass(MyRenderingPass pass)
@@ -34,7 +35,7 @@ namespace VRageRender
 
         internal virtual void Cleanup()
         {
-            Contexts.Clear();
+            RCs.Clear();
 
             foreach (var pass in Passes)
                 MyObjectPoolManager.Deallocate(pass);

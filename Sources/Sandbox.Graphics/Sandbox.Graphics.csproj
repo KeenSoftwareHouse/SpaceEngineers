@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Sandbox</RootNamespace>
     <AssemblyName>Sandbox.Graphics</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -53,6 +53,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -62,6 +63,46 @@
     <NoWarn>162,612,618,429,414,169,649</NoWarn>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -79,12 +120,19 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Gui\MyGuiControlContextMenu.cs" />
+    <Compile Include="Gui\MyGuiControlCountdownWheel.cs" />
+    <Compile Include="Gui\MyGuiControlDirectoryBrowser.cs" />
+    <Compile Include="Gui\MyGuiControlImage.cs" />
+    <Compile Include="Gui\MyGuiControlImageButton.cs" />
     <Compile Include="Gui\MyGuiControlLabeledGrid.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
+    <Compile Include="Gui\MyGuiControlProgressBarHud.cs" />
+    <Compile Include="Gui\MyGuiControlSliderBase.cs" />
     <Compile Include="Gui\MyGuiScreenDialogAmount.cs" />
+    <Compile Include="Gui\MyGuiTextShadows.cs" />
     <Compile Include="Gui\MyKeyThrottler.cs" />
     <Compile Include="Gui\MyLayoutTable.cs" />
-    <Compile Include="Gui\MyLayoutVertical.cs" />
+    <Compile Include="Gui\MyListLayouts.cs" />
     <Compile Include="Gui\MyWikiMarkupParser.cs" />
     <Compile Include="Gui\RichTextLabel\MyRichLabelLink.cs" />
     <Compile Include="Gui\ThrottledKeyStatus.cs" />
@@ -143,16 +191,6 @@
     <Compile Include="MyRenderProfiler.cs" />
     <Compile Include="MyTextureAtlas.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessAntiAlias.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessChromaticAberration.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessColorMapping.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessContrast.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessGodRays.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessHDR.cs" />
-    <Compile Include="Render\PostProcesses\MyPostprocessSettingsWrapper.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessVignetting.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessVolumetricFog.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessVolumetricSSAO2.cs" />
     <Compile Include="StringBuilderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +216,10 @@
     <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>

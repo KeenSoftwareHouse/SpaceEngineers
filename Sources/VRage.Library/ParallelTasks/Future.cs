@@ -66,7 +66,7 @@ namespace ParallelTasks
         public Func<T> Function { get; set; }
         public T Result { get; set; }
 
-        public void DoWork()
+        public void DoWork(WorkData workData = null)
         {
             Result = Function();            
         }

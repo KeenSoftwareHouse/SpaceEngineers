@@ -13,6 +13,7 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
 
 //  IMPORTANT: It seems that even if my computer (Marek's) can handle 1280x720 in high bit-rate, a lot
 //  of people has problem with it, even if they have high-end computer. Looks to be XNA/DirectX/Windows
@@ -223,7 +224,7 @@ namespace Sandbox.Game.Gui
             {
                 VRageRender.MyRenderProxy.UpdateVideo(m_videoID);
                 Vector4 color = m_colorMultiplier * m_transitionAlpha;
-                VRageRender.MyRenderProxy.DrawVideo(m_videoID, MyGuiManager.GetSafeFullscreenRectangle(), new Color(color), VRageRender.MyVideoRectangleFitMode.AutoFit);
+                VRageRender.MyRenderProxy.DrawVideo(m_videoID, MyGuiManager.GetSafeFullscreenRectangle(), new Color(color), MyVideoRectangleFitMode.AutoFit);
             }
 
             if (VideoOverlayEnabled)

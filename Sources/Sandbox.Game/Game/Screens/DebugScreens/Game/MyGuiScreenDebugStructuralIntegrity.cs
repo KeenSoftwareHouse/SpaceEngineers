@@ -16,6 +16,8 @@ using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1
+
     [MyDebugScreen("Game", "Structural Integrity")]
     class MyGuiScreenDebugStructuralIntegrity : MyGuiScreenDebugBase
     {
@@ -80,4 +82,6 @@ namespace Sandbox.Game.Gui
             }
         }
     }
+
+#endif
 }

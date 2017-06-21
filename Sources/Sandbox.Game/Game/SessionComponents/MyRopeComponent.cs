@@ -1,6 +1,6 @@
 ﻿using Havok;
 using Sandbox.Common;
-using Sandbox.Common.Components;
+
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
@@ -1118,7 +1118,7 @@ namespace Sandbox.Game.Components
 
             var physicsA = blockA.CubeGrid.Physics;
             var physicsB = blockB.CubeGrid.Physics;
-            if (physicsA == null || physicsB == null || !physicsA.RigidBody.IsAddedToWorld || !physicsB.RigidBody.IsAddedToWorld)
+            if (physicsA == null || physicsB == null || !physicsA.RigidBody.InWorld || !physicsB.RigidBody.InWorld)
                 return;
 
             Vector3D posA, posB;
@@ -1471,8 +1471,12 @@ namespace Sandbox.Game.Components
         {
             if (m_hookIdFrom != 0)
             {
-                MyEntities.GetEntityById(m_hookIdFrom).OnClosing -= m_selectedHook_OnClosing;
-                m_hookIdFrom = 0;
+                MyEntity entity;
+                if (MyEntities.TryGetEntityById(m_hookIdFrom, out entity))
+                {
+                    MyEntities.GetEntityById(m_hookIdFrom).OnClosing -= m_selectedHook_OnClosing;
+                    m_hookIdFrom = 0;
+                }
             }
         }
     }

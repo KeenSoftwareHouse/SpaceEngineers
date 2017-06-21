@@ -19,101 +19,49 @@ using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 using Sandbox.Definitions;
 using VRage.Game;
 using VRage.Game.Definitions;
+using VRage.Network;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Multiplayer
 {
-    [PreloadRequired]
+    [StaticEventOwner]
     public class MyToolBarCollection
     {
-        [MessageId(14568, P2PMessageEnum.Reliable)]
-        struct PlayerToolbarCreatedMsg
-        {
-            public ulong ClientSteamId;
-            public int PlayerSerialId;
-        }
-
-        [MessageId(14567, P2PMessageEnum.Reliable)]
-        struct PlayerToolbarClearSlotMsg
-        {
-            public ulong ClientSteamId;
-            public int PlayerSerialId;
-            public int Index;
-        }
-
-        [MessageId(14569, P2PMessageEnum.Reliable)]
-        struct PlayerToolbarChangeSlotMsg
-        {
-            public ulong ClientSteamId;
-            public int PlayerSerialId;
-            public int Index;
-            public DefinitionIdBlit DefId;
-        }
-
-		[ProtoContract]
-		[MessageId(14575, P2PMessageEnum.Reliable)]
-		struct PlayerToolbarChangeSlotBuilderMsg
-		{
-			[ProtoMember]
-			public ulong ClientSteamId;
-
-			[ProtoMember]
-			public int PlayerSerialId;
-
-			[ProtoMember]
-			public int Index;
-
-			[ProtoMember]
-			public MyObjectBuilder_ToolbarItem itemBuilder;
-		}
-
-        static MyToolBarCollection()
-        {
-            MySyncLayer.RegisterMessage<PlayerToolbarCreatedMsg>(OnNewToolbarRequest, MyMessagePermissions.ToServer);
-            MySyncLayer.RegisterMessage<PlayerToolbarChangeSlotMsg>(OnChangeSlotItemRequest, MyMessagePermissions.ToServer);
-			MySyncLayer.RegisterMessage<PlayerToolbarChangeSlotBuilderMsg>(OnChangeSlotBuilderItemRequest, MyMessagePermissions.ToServer);
-            MySyncLayer.RegisterMessage<PlayerToolbarClearSlotMsg>(OnClearSlotRequest, MyMessagePermissions.ToServer);
-        }
-
         public static void RequestClearSlot(PlayerId pid, int index)
         {
-            var msg = new PlayerToolbarClearSlotMsg();
-            msg.ClientSteamId = pid.SteamId;
-            msg.PlayerSerialId = pid.SerialId;
-            msg.Index = index;
-
-            Sync.Layer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MyToolBarCollection.OnClearSlotRequest, pid.SerialId, index);
         }
 
-        static void OnClearSlotRequest(ref PlayerToolbarClearSlotMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void OnClearSlotRequest(int playerSerialId, int index)
         {
-            var playerId = new PlayerId(sender.SteamUserId, msg.PlayerSerialId);
+            ulong senderId = GetSenderIdSafe();
+            var playerId = new PlayerId(senderId, playerSerialId);
             if (!MySession.Static.Toolbars.ContainsToolbar(playerId))
                 return;
 
             var toolbar = MySession.Static.Toolbars.TryGetPlayerToolbar(playerId);
 
-            toolbar.SetItemAtIndex(msg.Index, null);
+            toolbar.SetItemAtIndex(index, null);
         }
 
         public static void RequestChangeSlotItem(PlayerId pid, int index, MyDefinitionId defId)
         {
-            var msg = new PlayerToolbarChangeSlotMsg();
-            msg.ClientSteamId = pid.SteamId;
-            msg.PlayerSerialId = pid.SerialId;
-            msg.Index = index;
-            msg.DefId = defId;
-
-            Sync.Layer.SendMessageToServer(ref msg);
+            DefinitionIdBlit defIdBlit = new DefinitionIdBlit();
+            defIdBlit = defId;
+            MyMultiplayer.RaiseStaticEvent(s => MyToolBarCollection.OnChangeSlotItemRequest, pid.SerialId, index, defIdBlit);
         }
 
-		static void OnChangeSlotItemRequest(ref PlayerToolbarChangeSlotMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void OnChangeSlotItemRequest(int playerSerialId, int index, DefinitionIdBlit defId)
 		{
-			var playerId = new PlayerId(sender.SteamUserId, msg.PlayerSerialId);
+            ulong senderId = GetSenderIdSafe();
+            var playerId = new PlayerId(senderId, playerSerialId);
 			if (!MySession.Static.Toolbars.ContainsToolbar(playerId))
 				return;
 
 			MyDefinitionBase def;
-			MyDefinitionManager.Static.TryGetDefinition(msg.DefId, out def);
+			MyDefinitionManager.Static.TryGetDefinition(defId, out def);
 			if (def == null)
 				return;
 
@@ -122,45 +70,40 @@ namespace Sandbox.Game.Multiplayer
 			var toolbar = MySession.Static.Toolbars.TryGetPlayerToolbar(playerId);
 			if (toolbar == null)
 				return;
-			toolbar.SetItemAtIndex(msg.Index, tItem);
+			toolbar.SetItemAtIndex(index, tItem);
 		}
 
 		public static void RequestChangeSlotItem(PlayerId pid, int index, MyObjectBuilder_ToolbarItem itemBuilder)
 		{
-			var msg = new PlayerToolbarChangeSlotBuilderMsg();
-			msg.ClientSteamId = pid.SteamId;
-			msg.PlayerSerialId = pid.SerialId;
-			msg.Index = index;
-			msg.itemBuilder = itemBuilder;
-
-			Sync.Layer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MyToolBarCollection.OnChangeSlotBuilderItemRequest, pid.SerialId, index, itemBuilder);
 		}
 
-		static void OnChangeSlotBuilderItemRequest(ref PlayerToolbarChangeSlotBuilderMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void OnChangeSlotBuilderItemRequest(int playerSerialId, int index,
+            [Serialize(MyObjectFlags.Dynamic, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))] MyObjectBuilder_ToolbarItem itemBuilder)
 		{
-			var playerId = new PlayerId(sender.SteamUserId, msg.PlayerSerialId);
+            ulong senderId = GetSenderIdSafe();
+            var playerId = new PlayerId(senderId, playerSerialId);
 			if (!MySession.Static.Toolbars.ContainsToolbar(playerId))
 				return;
 
-			var tItem = MyToolbarItemFactory.CreateToolbarItem(msg.itemBuilder);
+            var tItem = MyToolbarItemFactory.CreateToolbarItem(itemBuilder);
 			var toolbar = MySession.Static.Toolbars.TryGetPlayerToolbar(playerId);
 			if (toolbar == null)
 				return;
-			toolbar.SetItemAtIndex(msg.Index, tItem);
+            toolbar.SetItemAtIndex(index, tItem);
 		}
 
         public static void RequestCreateToolbar(PlayerId pid)
         {
-            var msg = new PlayerToolbarCreatedMsg();
-            msg.ClientSteamId = pid.SteamId;
-            msg.PlayerSerialId = pid.SerialId;
-
-            Sync.Layer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MyToolBarCollection.OnNewToolbarRequest, pid.SerialId);
         }
 
-        static void OnNewToolbarRequest(ref PlayerToolbarCreatedMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void OnNewToolbarRequest(int playerSerialId)
         {
-            var playerId = new MyPlayer.PlayerId(sender.SteamUserId, msg.PlayerSerialId);
+            ulong senderId = GetSenderIdSafe();
+            var playerId = new MyPlayer.PlayerId(senderId, playerSerialId);
             MySession.Static.Toolbars.CreateDefaultToolbar(playerId);
         }
 
@@ -260,6 +203,14 @@ namespace Sandbox.Game.Multiplayer
             var toolbar = new MyToolbar(MyToolbarType.Character);
             toolbar.Init(MySession.Static.Scenario.DefaultToolbar, null, true);
             AddPlayerToolbar(playerId, toolbar);
+        }
+
+        static ulong GetSenderIdSafe()
+        {
+            if (MyEventContext.Current.IsLocallyInvoked)
+                return Sync.MyId;
+            else
+                return MyEventContext.Current.Sender.Value;
         }
     }
 }

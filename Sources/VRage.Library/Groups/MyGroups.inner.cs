@@ -11,7 +11,8 @@ namespace VRage.Groups
         where TGroupData : IGroupData<TNode>, new()
         where TNode : class
     {
-        // Internal members starting with 'm_' are for internal use only, there's no friends in c#
+#if !XB1
+		// Internal members starting with 'm_' are for internal use only, there's no friends in c#
         public class Node
         {
             Group m_currentGroup;
@@ -73,5 +74,6 @@ namespace VRage.Groups
                 get { return new HashSetReader<Node>(m_members); }
             }
         }
-    }
+#endif
+	}
 }

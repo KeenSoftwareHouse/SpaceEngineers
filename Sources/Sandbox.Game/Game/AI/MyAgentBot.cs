@@ -1,29 +1,21 @@
-﻿using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
-using Sandbox.Game.AI;
+﻿using Sandbox.Definitions;
 using Sandbox.Game.AI.Actions;
-using Sandbox.Game.AI.BehaviorTree;
 using Sandbox.Game.AI.Logic;
 using Sandbox.Game.AI.Navigation;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Library.Utils;
-using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
-using System.Linq;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.AI
 {
@@ -159,7 +151,7 @@ namespace Sandbox.Game.AI
                 return m_player != null
                     && m_player.Controller.ControlledEntity != null
                     && m_player.Controller.ControlledEntity.Entity != null
-                    && !AgentEntity.IsDead;
+                    && AgentEntity != null && !AgentEntity.IsDead;
             }
         }
 
@@ -279,13 +271,13 @@ namespace Sandbox.Game.AI
         {
             if (m_player.Controller.ControlledEntity != null)
             {
-                if (AgentEntity.IsDead && !m_respawnRequestSent)
+                if (AgentEntity != null && AgentEntity.IsDead && !m_respawnRequestSent)
                 {
                     HandleDeadBot();
                 }
                 else
                 {
-                    if (!AgentEntity.IsDead && m_respawnRequestSent) EraseRespawn();
+                    if (AgentEntity != null && !AgentEntity.IsDead && m_respawnRequestSent) EraseRespawn();
                     UpdateInternal();
                 }
             }

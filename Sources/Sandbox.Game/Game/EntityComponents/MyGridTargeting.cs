@@ -11,6 +11,8 @@ using VRage.Game.Entity;
 using VRage.Library.Collections;
 using VRage.ModAPI;
 using VRageMath;
+using Sandbox.Game.Entities.Cube;
+using VRage.Profiler;
 
 namespace Sandbox.Game.EntityComponents
 {
@@ -69,14 +71,14 @@ namespace Sandbox.Game.EntityComponents
         void Scan()
         {
             m_lastScan = MySession.Static.GameplayFrameCounter;
-            VRage.ProfilerShort.Begin("QueryTargets");
+            ProfilerShort.Begin("QueryTargets");
             BoundingSphereD bs = new BoundingSphereD(Vector3D.Transform(m_queryLocal.Center, m_grid.WorldMatrix), m_queryLocal.Radius);
             m_targetRoots.Clear();
             m_targetBlocks.Clear();
 
-            VRage.ProfilerShort.Begin("MyGamePruningStructure.GetAllTop...");
+            ProfilerShort.Begin("MyGamePruningStructure.GetAllTop...");
             MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref bs, m_targetRoots);
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
 
             int targetCount = m_targetRoots.Count;
             m_ownersA.AddList(m_grid.SmallOwners);
@@ -89,7 +91,7 @@ namespace Sandbox.Game.EntityComponents
                     if (grid.Physics != null && !grid.Physics.Enabled)
                         continue;
 
-                    VRage.ProfilerShort.Begin("Friend checks");
+                    ProfilerShort.Begin("Friend checks");
                     bool enemy = false;
                     if (grid.BigOwners.Count == 0 && grid.SmallOwners.Count == 0)
                     {
@@ -121,19 +123,50 @@ namespace Sandbox.Game.EntityComponents
                         }
                         m_ownersB.Clear();
                     }
-                    VRage.ProfilerShort.End();
+                    ProfilerShort.End();
                     if (enemy)
                     {
-                        VRage.ProfilerShort.Begin("grid.Hierarchy.QuerySphere");
+                        ProfilerShort.Begin("grid.Hierarchy.QuerySphere");
                         var list = m_targetBlocks.GetOrAddList(grid);
                         grid.Hierarchy.QuerySphere(ref bs, list);
-                        VRage.ProfilerShort.End();
+                        ProfilerShort.End();
+                    }
+                    else
+                    {
+                        MyIDModule module;
+                        //performance unfriendly case when grid is not clearly neutral or enemy
+                        foreach (var block in grid.GetFatBlocks())
+                        {
+                            var moduleOwner = ((MyEntity)block) as IMyComponentOwner<MyIDModule>;
+                            if (!(moduleOwner != null && moduleOwner.GetComponent(out module)))
+                                continue;
+
+                            var myID = block.OwnerId;
+                            foreach (var owner in m_ownersA)
+                            {
+                                if (MyIDModule.GetRelation(owner, myID) == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies)
+                                {
+                                    enemy = true;
+                                    break;
+                                }
+                            }
+                            if (enemy)
+                                break;
+                        }
+
+                        if (enemy)
+                        {
+                            ProfilerShort.Begin("grid.Hierarchy.QuerySphere");
+                            var list = m_targetBlocks.GetOrAddList(grid);
+                            grid.Hierarchy.QuerySphere(ref bs, list);
+                            ProfilerShort.End();
+                        }
                     }
                 }
             }
             m_ownersA.Clear();
 
-            VRage.ProfilerShort.Begin("Filter small objects");
+            ProfilerShort.Begin("Filter small objects");
             for (int i = m_targetRoots.Count - 1; i >= 0; i--)
             {
                 var target = m_targetRoots[i];
@@ -145,10 +178,15 @@ namespace Sandbox.Game.EntityComponents
                     m_targetRoots.RemoveAtFast(i);
                 }
             }
-            VRage.ProfilerShort.End();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
+            ProfilerShort.End();
         }
 
+        private static bool IsSameOrSubclass(Type potentialBase, Type potentialDescendant)
+        {
+            return potentialDescendant.IsSubclassOf(potentialBase)
+                   || potentialDescendant == potentialBase;
+        }
 
 
         public override string ComponentTypeDebugString

@@ -20,11 +20,17 @@ namespace Sandbox.Game.Screens.Helpers
     [MyToolbarItemDescriptor(typeof(MyObjectBuilder_ToolbarItemWeapon))]
     public class MyToolbarItemWeapon : MyToolbarItemDefinition
     {
-        private int m_lastAmmoCount = -1;
-        private bool m_needsWeaponSwitching = true;
-        private string m_lastTextValue = String.Empty;
+        protected int m_lastAmmoCount = -1;
+        protected bool m_needsWeaponSwitching = true;
+        protected string m_lastTextValue = String.Empty;
 
-        public MyToolbarItemWeapon() : base()
+        public int AmmoCount
+        {
+            get { return m_lastAmmoCount; }
+        }
+
+        public MyToolbarItemWeapon()
+            : base()
         {
         }
 
@@ -32,31 +38,28 @@ namespace Sandbox.Game.Screens.Helpers
         {
             bool init = base.Init(data);
             ActivateOnClick = false;
-
-			var objectBuilder = data as MyObjectBuilder_ToolbarItemWeapon;
-			
             return init;
         }
 
-		public override bool Equals(object obj)
-		{
-			bool returnValue = base.Equals(obj);
+        public override bool Equals(object obj)
+        {
+            bool returnValue = base.Equals(obj);
 
-			if(returnValue)
-			{
-				var otherObj = obj as MyToolbarItemWeapon;
-				if (otherObj == null)
-					returnValue = false;
-			}
-			return returnValue;
-		}
+            if (returnValue)
+            {
+                var otherObj = obj as MyToolbarItemWeapon;
+                if (otherObj == null)
+                    returnValue = false;
+            }
+            return returnValue;
+        }
 
-		public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
-		{
-			var builder = (MyObjectBuilder_ToolbarItemWeapon)base.GetObjectBuilder();
+        public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
+        {
+            var builder = (MyObjectBuilder_ToolbarItemWeapon)base.GetObjectBuilder();
 
-			return builder;
-		}
+            return builder;
+        }
 
         public override bool Activate()
         {
@@ -98,7 +101,7 @@ namespace Sandbox.Game.Screens.Helpers
                 var currentWeapon = character.CurrentWeapon;
                 if (currentWeapon != null)
                     thisWeaponIsCurrent = (MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId).Id == Definition.Id);
-                if (character.LeftHandItem != null) 
+                if (character.LeftHandItem != null)
                     thisWeaponIsCurrent |= Definition == character.LeftHandItem.PhysicalItemDefinition;
                 if (thisWeaponIsCurrent && currentWeapon != null)
                 {
@@ -119,8 +122,8 @@ namespace Sandbox.Game.Screens.Helpers
             var shipControler = MySession.Static.ControlledEntity as MyShipController;
             if (shipControler != null && shipControler.GridSelectionSystem.WeaponSystem != null)
             {
-            //    var shipWeaponType = shipControler.GetWeaponType(Definition.Id.TypeId);
-            //    shipHasThisWeapon = shipWeaponType.HasValue && shipControler.GridSelectionSystem.WeaponSystem.HasGunsOfId(shipWeaponType.Value);
+                //    var shipWeaponType = shipControler.GetWeaponType(Definition.Id.TypeId);
+                //    shipHasThisWeapon = shipWeaponType.HasValue && shipControler.GridSelectionSystem.WeaponSystem.HasGunsOfId(shipWeaponType.Value);
                 shipHasThisWeapon = shipControler.GridSelectionSystem.WeaponSystem.HasGunsOfId(Definition.Id);
                 if (shipHasThisWeapon)
                 {

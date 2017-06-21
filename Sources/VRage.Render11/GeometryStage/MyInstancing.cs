@@ -4,7 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Profiler;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
 using VRageMath;
+using VRageRender.Messages;
 using VRageRender.Vertex;
 
 namespace VRageRender
@@ -17,7 +21,7 @@ namespace VRageRender
 
         internal MyInstancingInfo Info { get { return MyInstancing.Instancings.Data[Index]; } }
 
-        internal VertexBufferId VB { get { return MyInstancing.Data[Index].VB; } }
+        internal IVertexBuffer VB { get { return MyInstancing.Data[Index].VB; } }
 
         #region Equals
         public static bool operator ==(InstancingId x, InstancingId y)
@@ -54,6 +58,7 @@ namespace VRageRender
 
     struct MyInstancingInfo
     {
+        internal uint ParentID;
         internal MyRenderInstanceBufferType Type;
         internal VertexLayoutId Layout;
         internal int VisibleCapacity;
@@ -70,11 +75,13 @@ namespace VRageRender
         internal bool[] VisibilityMask;
         internal int NonVisibleInstanceCount;
 
+        internal bool PerInstanceLods;
+
         internal void SetVisibility(int index, bool value)
         {
             if (VisibilityMask == null || index >= VisibilityMask.Length)
             {
-                Debug.Fail("Setting visibility for invalid index in instance buffer! (AF)");
+                //Debug.Fail("Setting visibility for invalid index in instance buffer! (AF)");
                 return;
             }
             if (value != VisibilityMask[index])
@@ -96,11 +103,12 @@ namespace VRageRender
 
     struct MyInstancingData
     {
-        internal VertexBufferId VB;
+        internal IVertexBuffer VB;
     }
 
     static class MyInstancing
     {
+        static List<MyDecalPositionUpdate> m_tmpDecalsUpdate = new List<MyDecalPositionUpdate>();
         static readonly Dictionary<uint, InstancingId> IdIndex = new Dictionary<uint, InstancingId>();
         static MyActor m_instanceActor;
 
@@ -110,6 +118,15 @@ namespace VRageRender
         internal static InstancingId Get(uint GID)
         {
             return IdIndex.Get(GID, InstancingId.NULL);
+        }
+        internal static void Remove(uint GID)
+        {
+            var id = IdIndex.Get(GID, InstancingId.NULL);
+            if (id != InstancingId.NULL)
+            {
+                MyInstancing.Remove(GID, id);
+            }
+            else MyRenderProxy.Assert(false);
         }
 
         internal static MyActor GetInstanceActor(MyRenderableComponent original)
@@ -122,18 +139,19 @@ namespace VRageRender
             return m_instanceActor;
         }
 
-        internal unsafe static InstancingId Create(uint GID, MyRenderInstanceBufferType type, string debugName)
+        internal unsafe static InstancingId Create(uint GID, uint parentGID, MyRenderInstanceBufferType type, string debugName)
         {
             var id = new InstancingId { Index = Instancings.Allocate() };
 
             Instancings.Data[id.Index] = new MyInstancingInfo
             {
+                ParentID = parentGID,
                 Type = type,
                 DebugName = debugName
             };
 
             MyArrayHelpers.Reserve(ref Data, id.Index + 1);
-            Data[id.Index] = new MyInstancingData { VB = VertexBufferId.NULL };
+            Data[id.Index] = new MyInstancingData();
 
             if (type == MyRenderInstanceBufferType.Cube)
             {
@@ -154,11 +172,8 @@ namespace VRageRender
 
         internal static void RemoveResource(InstancingId id)
         {
-            if (Data[id.Index].VB != VertexBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(Data[id.Index].VB);
-                Data[id.Index].VB = VertexBufferId.NULL;
-            }
+            if (Data[id.Index].VB != null)
+                MyManagers.Buffers.Dispose(Data[id.Index].VB); Data[id.Index].VB = null;
         }
 
         internal static void Remove(uint GID, InstancingId id)
@@ -191,11 +206,11 @@ namespace VRageRender
             DisposeInstanceActor();
         }
 
-        internal static unsafe void UpdateGeneric(InstancingId id, List<MyInstanceData> instanceData, int capacity)
+        internal static unsafe void UpdateGeneric(InstancingId id, MyInstanceData[] instanceData, int capacity)
         {
             Debug.Assert(id.Info.Type == MyRenderInstanceBufferType.Generic, "Wrong type of instance buffer for instancing!");
 
-            capacity = instanceData.Count;
+            capacity = instanceData.Length;
 
             if (capacity != Instancings.Data[id.Index].TotalCapacity)
             {
@@ -214,7 +229,7 @@ namespace VRageRender
             }
 
             Instancings.Data[id.Index].TotalCapacity = capacity;
-            Instancings.Data[id.Index].InstanceData = instanceData.ToArray();
+            Instancings.Data[id.Index].InstanceData = instanceData;
 
             RebuildGeneric(id);
             MyInstanceLodComponent.ClearInvalidInstances(id);
@@ -223,11 +238,11 @@ namespace VRageRender
         internal static unsafe void RebuildGeneric(InstancingId instancingId)
         {
             ProfilerShort.Begin("RebuildGeneric");
-            Debug.Assert(instancingId.Info.Type == MyRenderInstanceBufferType.Generic);
+            //Debug.Assert(instancingId.Info.Type == MyRenderInstanceBufferType.Generic);
             if (Instancings.Data[instancingId.Index].InstanceData == null)
             {
                 ProfilerShort.End();
-                Debug.Fail("Instance Data is null!");
+                //Debug.Fail("Instance Data is null!");
                 return;
             }
 
@@ -265,8 +280,10 @@ namespace VRageRender
             ProfilerShort.End();
         }
 
-        internal static unsafe void UpdateCube(InstancingId id, List<MyCubeInstanceData> instanceData, int capacity)
+        internal static unsafe void UpdateCube(InstancingId id, List<MyCubeInstanceData> instanceData, List<MyCubeInstanceDecalData> decals, int capacity)
         {
+            UpdateDecalPositions(id, instanceData, decals);
+
             Debug.Assert(id.Info.Type == MyRenderInstanceBufferType.Cube);
 
             var info = id.Info;
@@ -298,6 +315,39 @@ namespace VRageRender
             UpdateVertexBuffer(id);
         }
 
+        private static void UpdateDecalPositions(InstancingId id, List<MyCubeInstanceData> instanceData, List<MyCubeInstanceDecalData> decals)
+        {
+            m_tmpDecalsUpdate.Clear();
+            for (int it1 = 0; it1 < decals.Count; it1++)
+            {
+                MyCubeInstanceDecalData decal = decals[it1];
+                MyCubeInstanceData cubeData = instanceData[decal.InstanceIndex];
+                if (!cubeData.EnableSkinning)
+                    break;
+
+                MyDecalTopoData decalTopo;
+                bool found = MyScreenDecals.GetDecalTopoData(decal.DecalId, out decalTopo);
+                if (!found)
+                    continue;
+
+                Matrix localCubeMatrix;
+                Matrix skinningMatrix = cubeData.ConstructDeformedCubeInstanceMatrix(ref decalTopo.BoneIndices, ref decalTopo.BoneWeights, out localCubeMatrix);
+
+                Matrix localCubeMatrixInv;
+                Matrix.Invert(ref localCubeMatrix, out localCubeMatrixInv);
+
+                // TODO: Optimization: it would be cool if we keep original cube coordiates local intersection
+                // and avoid matrix inversion here. Refer to MyCubeGrid.GetIntersectionWithLine(), MyCubeGridHitInfo
+
+                Matrix invBinding = decalTopo.MatrixBinding * localCubeMatrixInv;
+                Matrix transform = invBinding * skinningMatrix;
+
+                m_tmpDecalsUpdate.Add(new MyDecalPositionUpdate() { ID = decal.DecalId, Transform = transform });
+            }
+
+            MyScreenDecals.UpdateDecals(m_tmpDecalsUpdate);
+        }
+
         internal static unsafe void UpdateVertexBuffer(InstancingId id)
         {
             var info = id.Info;
@@ -306,7 +356,24 @@ namespace VRageRender
 
             fixed (byte* ptr = info.Data)
             {
-                MyHwBuffers.ResizeAndUpdateStaticVertexBuffer(ref Data[id.Index].VB, info.VisibleCapacity, info.Stride, new IntPtr(ptr), info.DebugName);
+                IVertexBuffer buffer = Data[id.Index].VB;
+                if (buffer == null)
+                {
+                    Data[id.Index].VB = MyManagers.Buffers.CreateVertexBuffer(
+                        info.DebugName, info.VisibleCapacity, info.Stride,
+                        new IntPtr(ptr), SharpDX.Direct3D11.ResourceUsage.Dynamic);
+                }
+                else if (buffer.ElementCount < info.VisibleCapacity ||
+                         buffer.Description.StructureByteStride != info.Stride)
+                {
+                    MyManagers.Buffers.Resize(Data[id.Index].VB, info.VisibleCapacity, info.Stride, new IntPtr(ptr));
+                }
+                else
+                {
+                    var mapping = MyMapping.MapDiscard(MyImmediateRC.RC, buffer);
+                    mapping.WriteAndPosition(info.Data, info.VisibleCapacity * info.Stride);
+                    mapping.Unmap();
+                }
             }
         }
 
@@ -319,6 +386,11 @@ namespace VRageRender
             }
 
             DisposeInstanceActor();
+        }
+
+        public static void UpdateGenericSettings(InstancingId handle, bool setPerInstanceLod)
+        {
+            Instancings.Data[handle.Index].PerInstanceLods = setPerInstanceLod;
         }
     }
 }

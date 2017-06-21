@@ -5,10 +5,13 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
+#if !UNSHARPER_TMP
+
 namespace System.Reflection
 {
     public static class FieldAccess
     {
+#if !XB1 // XB1_SYNC_NOREFLECTION
         public static Func<TType, TMember> CreateGetter<TType, TMember>(this FieldInfo field)
         {
             string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
@@ -53,7 +56,9 @@ namespace System.Reflection
             gen.Emit(OpCodes.Ret);
             return (Action<TType, TMember>)setterMethod.CreateDelegate(typeof(Action<TType, TMember>));
         }
+#endif // !XB1
 
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
         public static Getter<TType, TMember> CreateGetterRef<TType, TMember>(this FieldInfo field)
         {
             string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
@@ -114,7 +119,9 @@ namespace System.Reflection
             gen.Emit(OpCodes.Ret);
             return (Setter<TType, TMember>)setterMethod.CreateDelegate(typeof(Setter<TType, TMember>));
         }
+#endif // !XB1
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
         public static Action<TMember> CreateSetter<TMember>(this FieldInfo field)
         {
             if (!field.IsStatic)
@@ -128,5 +135,8 @@ namespace System.Reflection
             gen.Emit(OpCodes.Ret);
             return (Action<TMember>)setterMethod.CreateDelegate(typeof(Action<TMember>));
         }
+#endif // !XB1
     }
 }
+
+#endif

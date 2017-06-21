@@ -18,15 +18,16 @@ using Sandbox.Engine.Networking;
 using VRage.Network;
 using Sandbox.Graphics;
 using Sandbox.Engine.Utils;
+using VRage.Audio;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
     [StaticEventOwner]
     public class MyGuiScreenPlayers : MyGuiScreenBase
     {
-        protected static readonly string GAME_OWNER_MARKER = "*****";
-        protected static readonly string GAME_MASTER_MARKER = "**";
+        protected static readonly string OWNER_MARKER = "*****";
         protected int PlayerNameColumn = 0;
         protected int PlayerFactionTagColumn = 1;
         protected int PlayerFactionNameColumn = 2;
@@ -41,7 +42,10 @@ namespace Sandbox.Game.Gui
         protected MyGuiControlButton m_banButton;
         protected MyGuiControlCombobox m_lobbyTypeCombo;
         protected MyGuiControlSlider m_maxPlayersSlider;
+        protected MyGuiControlTextbox m_playerBlockLimitTextbox;
+        protected MyGuiControlButton m_confirmLimitChangeButton;
         protected HashSet<ulong> m_mutedPlayers;
+        protected ulong m_lastSelected;
 
         public MyGuiScreenPlayers() :
             base(size: MyGuiConstants.TEXTURE_SCREEN_BACKGROUND.SizeGui * 1.1f + new Vector2(0.1f, 0f),
@@ -169,6 +173,25 @@ namespace Sandbox.Game.Gui
             m_maxPlayersSlider.ValueChanged = MaxPlayersSlider_Changed;
             aboveControl = m_maxPlayersSlider;
 
+            var playerBlockLimitLabel = new MyGuiControlLabel(
+                position: aboveControl.Position + new Vector2(0f, aboveControl.Size.Y + 0.05f),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                text: MyTexts.GetString(MyCommonTexts.PlayerMaxBlocks));
+            aboveControl = playerBlockLimitLabel;
+
+            m_playerBlockLimitTextbox = new MyGuiControlTextbox(
+                position: aboveControl.Position + new Vector2(0.09f, aboveControl.Size.Y + verticalSpacing + 0.02f),
+                maxLength: 6,
+                type: MyGuiControlTextboxType.DigitsOnly);
+            aboveControl = m_playerBlockLimitTextbox;
+
+            m_playerBlockLimitTextbox.Size = new Vector2(0.18f, m_playerBlockLimitTextbox.Size.Y);
+
+            m_confirmLimitChangeButton = new MyGuiControlButton(
+                position: new Vector2(topLeft.X, aboveControl.Position.Y + aboveControl.Size.Y + verticalSpacing),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                text: MyTexts.Get(MyCommonTexts.ScreenMenuButtonSave));
+
             m_playersTable = new MyGuiControlTable()
             {
                 Position = new Vector2(-m_inviteButton.Position.X, m_inviteButton.Position.Y),
@@ -178,7 +201,7 @@ namespace Sandbox.Game.Gui
                 ColumnsCount = 5,
             };
             float PlayerNameWidth = 0.3f;
-            float FactionTagWidth = 0.1f;
+            float FactionTagWidth = 0.12f;
             float FactionNameWidth = MyPerGameSettings.EnableMutePlayer ? 0.3f : 0.34f;
             float MutedWidth = MyPerGameSettings.EnableMutePlayer ? 0.13f : 0;
             m_playersTable.SetCustomColumnWidths(new float[] { PlayerNameWidth, FactionTagWidth, FactionNameWidth, MutedWidth, 1 - PlayerNameWidth - FactionTagWidth - FactionNameWidth - MutedWidth });
@@ -211,6 +234,7 @@ namespace Sandbox.Game.Gui
             m_kickButton.ButtonClicked += kickButton_ButtonClicked;
             m_banButton.ButtonClicked += banButton_ButtonClicked;
             m_lobbyTypeCombo.ItemSelected += lobbyTypeCombo_OnSelect;
+            m_confirmLimitChangeButton.ButtonClicked += confirmLimitChange_ButtonClicked;
 
             Controls.Add(m_inviteButton);
             Controls.Add(m_promoteButton);
@@ -221,7 +245,21 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_lobbyTypeCombo);
             Controls.Add(m_maxPlayersSlider);
             Controls.Add(maxPlayersLabel);
-            
+            if (MySession.Static.MaxBlocksPerPlayer > 0)
+            {
+                Controls.Add(m_playerBlockLimitTextbox);
+                Controls.Add(m_confirmLimitChangeButton);
+                Controls.Add(playerBlockLimitLabel);
+            }
+
+            //re-select the last selected player in ci
+            if (m_lastSelected != 0)
+            {
+                var select = m_playersTable.Find(r => (ulong)r.UserData == m_lastSelected);
+                if (select != null)
+                    m_playersTable.SelectedRow = select;
+            }
+
             UpdateButtonsEnabledState();
         }
 
@@ -276,9 +314,6 @@ namespace Sandbox.Game.Gui
             if (String.IsNullOrEmpty(playerName))
                 return;
 
-            bool isAdmin = MyMultiplayer.Static.IsAdmin(userId);
-            bool hasAdminRights = MySession.Static.HasPlayerAdminRights(userId);
-
             var row = new MyGuiControlTable.Row(userData: userId);
             row.AddCell(new MyGuiControlTable.Cell(text: new StringBuilder(playerName), userData: playerName));
 
@@ -303,8 +338,13 @@ namespace Sandbox.Game.Gui
             }
 
             // cell with admin marker
-            string adminString = isAdmin ? GAME_OWNER_MARKER : (hasAdminRights ? GAME_MASTER_MARKER : String.Empty);
-            row.AddCell(new MyGuiControlTable.Cell(text: new StringBuilder(adminString)));
+            StringBuilder adminString = new StringBuilder();
+            MyPromoteLevel userLevel = MySession.Static.GetUserPromoteLevel(userId);
+
+            for (int i = 0; i < (int)userLevel; i++)
+                adminString.Append("*");
+
+            row.AddCell(new MyGuiControlTable.Cell(adminString));
             m_playersTable.Add(row);
         }
 
@@ -324,19 +364,19 @@ namespace Sandbox.Game.Gui
             ulong currentOwnerId = MyMultiplayer.Static.GetOwner();
             ulong selectedUserId = hasTarget ? (ulong)m_playersTable.SelectedRow.UserData : 0;
             bool isSelectedSelf = currentUserId == selectedUserId;
-            bool isAdmin = MyMultiplayer.Static.IsAdmin(currentUserId);
-            bool hasAdminRights = MySession.Static.HasAdminRights;
+            bool isAdmin = MySession.Static.IsUserAdmin(currentUserId);//MyMultiplayer.Static.IsAdmin(currentUserId);
             bool isOwner = (currentUserId == currentOwnerId);
-            bool isSelectedAdmin = hasTarget && MyMultiplayer.Static.IsAdmin(selectedUserId);
-            bool isSelectedPromoted = hasTarget && MySession.Static.PromotedUsers.Contains(selectedUserId);
+            bool canPromote = hasTarget && MySession.Static.CanPromoteUser(selectedUserId);
+            bool canDemote = hasTarget && MySession.Static.CanDemoteUser(selectedUserId);
             var lobbyType = (LobbyTypeEnum)m_lobbyTypeCombo.GetSelectedKey();
+            
 
-            if (hasTarget && hasAdminRights && !isSelectedSelf && !isSelectedAdmin)
+            if (hasTarget && !isSelectedSelf)
             {
-                m_promoteButton.Enabled = isAdmin && !isSelectedPromoted;
-                m_demoteButton.Enabled = isAdmin && isSelectedPromoted;
-                m_kickButton.Enabled = !isSelectedPromoted;
-                m_banButton.Enabled = !isSelectedPromoted;
+                m_promoteButton.Enabled = canPromote;
+                m_demoteButton.Enabled = canDemote;
+                m_kickButton.Enabled = canPromote && isAdmin;
+                m_banButton.Enabled = canPromote && isAdmin;
             }
             else
             {
@@ -356,8 +396,25 @@ namespace Sandbox.Game.Gui
             {
                 m_inviteButton.Enabled = (lobbyType == LobbyTypeEnum.Public);
             }
+
+            m_lobbyTypeCombo.Visible = isOwner;
+            m_maxPlayersSlider.Visible = isOwner;
             m_lobbyTypeCombo.Enabled = isOwner;
             m_maxPlayersSlider.Enabled = isOwner;
+
+            if (isAdmin)
+            {
+                var identity = MySession.Static.Players.TryGetIdentity(MySession.Static.Players.TryGetIdentityId(selectedUserId));
+                if (identity != null)
+                {
+                    m_playerBlockLimitTextbox.Text = (MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier).ToString();
+                }
+                m_confirmLimitChangeButton.Enabled = true;
+            }
+            else
+            {
+                m_confirmLimitChangeButton.Enabled = false;
+            }
         }
 
         #region Event handlers
@@ -377,13 +434,15 @@ namespace Sandbox.Game.Gui
             if (!success)
                 return;
 
+            VRage.Profiler.ProfilerShort.Begin("Matchmaking_LobbyDataUpdate");
+
             var newOwnerId = lobby.GetOwner();
-            var oldOwnerRow = m_playersTable.Find((row) => (row.GetCell(GameAdminColumn).Text.Length == GAME_OWNER_MARKER.Length));
+            var oldOwnerRow = m_playersTable.Find((row) => (row.GetCell(GameAdminColumn).Text.Length == OWNER_MARKER.Length));
             var newOwnerRow = m_playersTable.Find((row) => ((ulong)row.UserData) == newOwnerId);
             Debug.Assert(oldOwnerRow != null);
             Debug.Assert(newOwnerRow != null);
             if (oldOwnerRow != null) oldOwnerRow.GetCell(GameAdminColumn).Text.Clear();
-            if (newOwnerRow != null) newOwnerRow.GetCell(GameAdminColumn).Text.Clear().Append(GAME_OWNER_MARKER);
+            if (newOwnerRow != null) newOwnerRow.GetCell(GameAdminColumn).Text.Clear().Append(OWNER_MARKER);
 
             var lobbyType = lobby.GetLobbyType();
             m_lobbyTypeCombo.SelectItemByKey((int)lobbyType, sendEvent: false);
@@ -398,6 +457,7 @@ namespace Sandbox.Game.Gui
                 m_maxPlayersSlider.Value = MySession.Static.MaxPlayers;
                 m_maxPlayersSlider.ValueChanged = MaxPlayersSlider_Changed;
             }
+            VRage.Profiler.ProfilerShort.End();
         }
 
         protected MyOnlineModeEnum GetOnlineMode(LobbyTypeEnum lobbyType)
@@ -419,6 +479,9 @@ namespace Sandbox.Game.Gui
         {
             Debug.Assert(table == m_playersTable);
             UpdateButtonsEnabledState();
+
+            if(m_playersTable.SelectedRow != null)
+                m_lastSelected = (ulong)m_playersTable.SelectedRow.UserData;
         }
 
         protected void inviteButton_ButtonClicked(MyGuiControlButton obj)
@@ -450,39 +513,101 @@ namespace Sandbox.Game.Gui
                 MyMultiplayer.RaiseStaticEvent(x => Promote, (ulong)selectedRow.UserData, false);
         }
 
+        protected void confirmLimitChange_ButtonClicked(MyGuiControlButton obj)
+        {
+            var selectedRow = m_playersTable.SelectedRow;
+            int newAmount;
+            if (selectedRow != null && int.TryParse(m_playerBlockLimitTextbox.Text, out newAmount) && newAmount >= 0)
+            {
+                var identityID = MySession.Static.Players.TryGetIdentityId((ulong)selectedRow.UserData);
+                MyMultiplayer.RaiseStaticEvent(x => ChangePlayerBlockLimit, identityID, newAmount - MySession.Static.MaxBlocksPerPlayer);
+            }
+        }
+
         [Event, Reliable, Server, Broadcast]
         protected static void Promote(ulong playerId, bool promote)
         {
-            if (!MyEventContext.Current.IsLocallyInvoked && !MyMultiplayer.Static.IsAdmin(MyEventContext.Current.Sender.Value))
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.IsUserAdmin(MyEventContext.Current.Sender.Value))
             {
                 MyEventContext.ValidationFailed();
                 return;
             }
+            
+            MyPromoteLevel targetUserLevel = MySession.Static.GetUserPromoteLevel(playerId);
 
             if (promote)
-                MySession.Static.PromotedUsers.Add(playerId);
+            {
+                targetUserLevel++;
+                if (!MySession.Static.EnableScripterRole && targetUserLevel == MyPromoteLevel.Scripter)
+                    targetUserLevel++;
+                MySession.Static.PromotedUsers[playerId] = targetUserLevel;
+            }
             else
-                MySession.Static.PromotedUsers.Remove(playerId);
+            {
+                targetUserLevel--;
+                if (!MySession.Static.EnableScripterRole && targetUserLevel == MyPromoteLevel.Scripter)
+                    targetUserLevel--;
+                if (targetUserLevel > MyPromoteLevel.None)
+                    MySession.Static.PromotedUsers[playerId] = targetUserLevel;
+                else
+                    MySession.Static.PromotedUsers.Remove(playerId);
+            }
 
-    
             if (Sync.IsServer)
             {
-                MyPlayer player;
-                MySession.Static.Players.TryGetPlayerById(new MyPlayer.PlayerId(playerId,0), out player);
-                if (player != null && player.Character != null)
-                {
-                    player.Character.IsPromoted = promote;
-                }
-                MyMultiplayer.RaiseStaticEvent(x => ShowPromoteMessage, promote, new EndpointId(playerId));
+                MyMultiplayer.RaiseStaticEvent(x => ShowPromoteMessage, targetUserLevel, promote, new EndpointId(playerId));
             }
             Refresh();
         }
 
         [Event, Reliable, Client]
-        protected static void ShowPromoteMessage(bool promote)
+        protected static void ShowPromoteMessage(MyPromoteLevel promoteLevel, bool promote)
         {
-            MyHud.Notifications.Remove(promote ? MyNotificationSingletons.PlayerDemoted : MyNotificationSingletons.PlayerPromoted);
-            MyHud.Notifications.Add(promote ? MyNotificationSingletons.PlayerPromoted : MyNotificationSingletons.PlayerDemoted);
+            ClearPromoteNotificaions();
+            switch (promoteLevel)
+            {
+                case MyPromoteLevel.None:
+                    MyHud.Notifications.Add(MyNotificationSingletons.PlayerDemotedNone);
+                    break;
+                case MyPromoteLevel.Scripter:
+                    MyHud.Notifications.Add(promote ? MyNotificationSingletons.PlayerPromotedScripter : MyNotificationSingletons.PlayerDemotedScripter);
+                    break;
+                case MyPromoteLevel.Moderator:
+                    MyHud.Notifications.Add(promote ? MyNotificationSingletons.PlayerPromotedModerator : MyNotificationSingletons.PlayerDemotedModerator);
+                    break;
+                case MyPromoteLevel.SpaceMaster:
+                    MyHud.Notifications.Add(promote ? MyNotificationSingletons.PlayerPromotedSpaceMaster : MyNotificationSingletons.PlayerDemotedSpaceMaster);
+                    break;
+                case MyPromoteLevel.Admin:
+                    MyHud.Notifications.Add(MyNotificationSingletons.PlayerPromotedAdmin);
+                    break;
+                case MyPromoteLevel.Owner:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("promoteLevel", promoteLevel, null);
+            }
+        }
+
+        private static void ClearPromoteNotificaions()
+        {
+            MyHud.Notifications.Remove(MyNotificationSingletons.PlayerDemotedNone);
+            MyHud.Notifications.Remove(MyNotificationSingletons.PlayerDemotedScripter);
+            MyHud.Notifications.Remove(MyNotificationSingletons.PlayerDemotedModerator);
+            MyHud.Notifications.Remove(MyNotificationSingletons.PlayerDemotedSpaceMaster);
+            MyHud.Notifications.Remove(MyNotificationSingletons.PlayerPromotedScripter);
+            MyHud.Notifications.Remove(MyNotificationSingletons.PlayerPromotedModerator);
+            MyHud.Notifications.Remove(MyNotificationSingletons.PlayerPromotedSpaceMaster);
+            MyHud.Notifications.Remove(MyNotificationSingletons.PlayerPromotedAdmin);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        protected static void ChangePlayerBlockLimit(long identityID, int newAmount)
+        {
+            var identity = MySession.Static.Players.TryGetIdentity(identityID);
+            if (identity != null)
+            {
+                identity.BlockLimitModifier = newAmount;
+            }
         }
 
         protected static void Refresh()

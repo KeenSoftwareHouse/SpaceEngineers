@@ -25,7 +25,7 @@ namespace VRageRender
         {
             if(m_factory == null)
             {
-                m_factory = new Factory();
+                m_factory = new Factory1();
             }
             return m_factory;
         }
@@ -128,92 +128,6 @@ namespace VRageRender
             }
         }
 
-        unsafe static MyAdapterInfo[] GetAdapters()
-        {
-            List<MyAdapterInfo> adaptersList = new List<MyAdapterInfo>();
-
-            var factory = GetFactory();
-            FeatureLevel[] featureLevels = { FeatureLevel.Level_11_0 };
-
-            int adapterIndex = 0;
-
-            LogInfoFromWMI(Log);
-            LogInfoFromWMI(MyLog.Default);
-
-            for (int i = 0; i < factory.Adapters.Length; i++)
-            {
-                var adapter = factory.Adapters[i];
-                Device adapterTestDevice = null;
-                try
-                {
-                    adapterTestDevice = new Device(adapter, DeviceCreationFlags.None, featureLevels);
-                }
-                catch (SharpDXException)
-                {
-
-                }
-
-                bool supportedDevice = adapterTestDevice != null;
-
-                bool supportsConcurrentResources = false;
-                bool supportsCommandLists = false;
-                if (supportedDevice)
-                {
-                    adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
-                }
-
-                // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
-                // DedicatedVideoMemory = discrete graphic video memory
-                // SharedSystemMemory = aditional video memory, that can be taken from OS RAM when needed
-                void* vramptr =
-                    ((IntPtr)
-                        (adapter.Description.DedicatedSystemMemory != 0
-                            ? adapter.Description.DedicatedSystemMemory
-                            : adapter.Description.DedicatedVideoMemory)).ToPointer();
-                UInt64 vram = (UInt64) vramptr;
-                void* svramptr = ((IntPtr) adapter.Description.SharedSystemMemory).ToPointer();
-                UInt64 svram = (UInt64) svramptr;
-
-                // microsoft software renderer allocates 256MB shared memory, cpu integrated graphic on notebooks has 0 preallocated, all shared
-                supportedDevice = supportedDevice && (vram > 500000000 || svram > 500000000);
-
-                var deviceDesc =
-                    String.Format(
-                        "{0}, dev id: {1}, mem: {2}, shared mem: {3}, Luid: {4}, rev: {5}, subsys id: {6}, vendor id: {7}",
-                        adapter.Description.Description,
-                        adapter.Description.DeviceId,
-                        vram,
-                        svram,
-                        adapter.Description.Luid,
-                        adapter.Description.Revision,
-                        adapter.Description.SubsystemId,
-                        adapter.Description.VendorId
-                        );
-
-                var info = new MyAdapterInfo
-                {
-                    Name = adapter.Description.Description,
-                    DeviceName = adapter.Description.Description,
-                    VendorId = adapter.Description.VendorId,
-                    DeviceId = adapter.Description.DeviceId,
-                    Description = deviceDesc,
-                    IsDx11Supported = supportedDevice,
-                    AdapterDeviceId = i,
-                    Priority = VendorPriority(adapter.Description.VendorId),
-                    HDRSupported = true,
-                    MaxTextureSize = SharpDX.Direct3D11.Texture2D.MaximumTexture2DSize,
-                    VRAM = vram > 0 ? vram : svram,
-                    Has512MBRam = (vram > 500000000 || svram > 500000000),
-                    MultithreadedRenderingSupported = supportsCommandLists
-                };
-
-                adaptersList.Add(info);
-                adapterIndex++;
-            }
-
-            return adaptersList.ToArray();
-        }
-
         unsafe static MyAdapterInfo[] CreateAdaptersList()
         {
             List<MyAdapterInfo> adaptersList = new List<MyAdapterInfo>();
@@ -234,9 +148,9 @@ namespace VRageRender
                 {
                     adapterTestDevice = new Device(adapter, DeviceCreationFlags.None, featureLevels);
                 }
-                catch (SharpDXException)
+                catch (Exception ex)
                 {
-
+                    MyRender11.Log.WriteLine(string.Format("Adapter initialisation failed: {0}", ex));
                 }
 
                 bool supportedDevice = adapterTestDevice != null;
@@ -244,9 +158,12 @@ namespace VRageRender
                 bool supportsConcurrentResources = false;
                 bool supportsCommandLists = false;
                 if (supportedDevice)
-            
                 {
-                    adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
+                    Result res = adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
+                    if (res != Result.Ok)
+                    {
+                        MyRender11.Log.WriteLine(string.Format("Adapter does not support threading: {0}", res));
+                    }
                 }
 
                 // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
@@ -270,6 +187,12 @@ namespace VRageRender
                     adapter.Description.SubsystemId,
                     adapter.Description.VendorId
                     );
+
+                if (adapter != null)
+                {
+                    MyRender11.Log.WriteLine(string.Format("Shared system memory: {0}", svram));
+                    MyRender11.Log.WriteLine(string.Format("Dedicated video memory: {0}", adapter.Description.DedicatedVideoMemory));
+                }
 
                 var info = new MyAdapterInfo
                 {
@@ -302,21 +225,21 @@ namespace VRageRender
                 }
 
                 info.MaxAntialiasingModeSupported = MyAntialiasingMode.FXAA;
-                if (supportedDevice)
-                {
-                    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 2) > 0)
-                    {
-                        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_2;
-                    }
-                    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 4) > 0)
-                    {
-                        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_4;
-                    }
-                    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 8) > 0)
-                    {
-                        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_8;
-                    }
-                }
+                //if (supportedDevice)
+                //{
+                //    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 2) > 0)
+                //    {
+                //        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_2;
+                //    }
+                //    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 4) > 0)
+                //    {
+                //        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_4;
+                //    }
+                //    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 8) > 0)
+                //    {
+                //        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_8;
+                //    }
+                //}
 
                 LogAdapterInfoBegin(ref info);
 
@@ -389,7 +312,7 @@ namespace VRageRender
                         };
 
                         info.OutputName = "FallbackOutput";
-            
+
                         info.Name = String.Format("{0}", adapter.Description.Description);
                         info.OutputId = 0;
                         info.CurrentDisplayMode = fallbackDisplayModes[fallbackDisplayModes.Length - 1];
@@ -434,5 +357,5 @@ namespace VRageRender
 
             return m_adapterInfoList;
         }
-	}
+    }
 }

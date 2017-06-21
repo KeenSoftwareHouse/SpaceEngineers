@@ -37,12 +37,29 @@ namespace VRage.Collections
         private int m_capacity;
         private IComparer<K> m_comparer;
 
-        public MyBinaryHeap(int initialCapacity = 128, IComparer<K> comparer = null)
+        public MyBinaryHeap()
+        {
+            m_array = new HeapItem<K>[128];
+            m_count = 0;
+            m_capacity = 128;
+            m_comparer = Comparer<K>.Default;
+        }
+
+        public MyBinaryHeap(int initialCapacity)
         {
             m_array = new HeapItem<K>[initialCapacity];
             m_count = 0;
             m_capacity = initialCapacity;
-            m_comparer = comparer ?? Comparer<K>.Default;
+            m_comparer = Comparer<K>.Default;
+        }
+
+        public MyBinaryHeap(int initialCapacity, IComparer<K> comparer)
+        {
+            m_array = new HeapItem<K>[initialCapacity];
+            m_count = 0;
+            m_capacity = initialCapacity;
+            Debug.Assert(comparer != null);
+            m_comparer = comparer;
         }
 
         public void Insert(V value, K key)

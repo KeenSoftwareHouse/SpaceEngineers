@@ -23,10 +23,12 @@ using Sandbox.Game.World;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Entities.Character;
 using VRage;
-using Sandbox.Common.Components;
+
 using VRageMath.Spatial;
 using Sandbox.Game;
+using VRage.Collections;
 using VRage.Game;
+using VRage.Profiler;
 
 #endregion
 
@@ -48,6 +50,7 @@ namespace Sandbox.Engine.Physics
     using Sandbox.Game.EntityComponents;
     using VRage.Game.ObjectBuilders.ComponentSystem;
     using Sandbox.Game.EntityComponents.Systems;
+    using Sandbox.Game.Replication;
 
     /// <summary>
     /// Abstract engine physics body object.
@@ -57,15 +60,34 @@ namespace Sandbox.Engine.Physics
     {
         #region Fields
         static MyStringId m_startCue = MyStringId.GetOrCompute("Start");
+        private static MyStringHash m_character = MyStringHash.GetOrCompute("Character");
 
-        private Vector3 m_lastLinearVelocity;
-        private Vector3 m_lastAngularVelocity;
         private int m_motionCounter = 0;
         //MyMotionState m_motionState;
         protected float m_angularDamping;
         protected float m_linearDamping;
 
-        protected ulong ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
+        private ulong m_clusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
+
+        protected ulong ClusterObjectID
+        {
+            get { return m_clusterObjectID; }
+            set
+            {
+                m_clusterObjectID = value;
+                if (value != MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED)
+                    Offset = MyPhysics.GetObjectOffset(value);
+                else
+                    Offset = Vector3D.Zero;
+                    
+                foreach (var child in WeldInfo.Children)
+                {
+                    child.Offset = Offset;
+                }
+            }
+        }
+        protected Vector3D Offset = Vector3D.Zero;
+        protected Matrix m_bodyMatrix;
 
         public new MyPhysicsBodyComponentDefinition Definition { get; private set; }
 
@@ -113,13 +135,19 @@ namespace Sandbox.Engine.Physics
                     {
                         m_rigidBody.ContactSoundCallback -= MyPhysicsBody_ContactSoundCallback;
                         m_rigidBody.ContactPointCallback -= OnContactPointCallback;
+
+                        m_rigidBody.Activated -= OnDynamicRigidBodyActivated;
+                        m_rigidBody.Deactivated -= OnDynamicRigidBodyDeactivated;
                     }
                     m_rigidBody = value;
                     if (m_rigidBody != null)
                     {
                         m_rigidBody.ContactPointCallback += OnContactPointCallback;
                         m_rigidBody.ContactSoundCallback += MyPhysicsBody_ContactSoundCallback;
-                    }
+
+                        m_rigidBody.Activated += OnDynamicRigidBodyActivated;
+                        m_rigidBody.Deactivated += OnDynamicRigidBodyDeactivated;
+                    }                 
                 }
             }
         }
@@ -128,9 +156,9 @@ namespace Sandbox.Engine.Physics
         public delegate void PhysicsContactHandler(ref MyPhysics.MyContactPointEvent e);
         public event PhysicsContactHandler ContactPointCallback;
 
-        protected HashSet<HkConstraint> m_constraints = new HashSet<HkConstraint>();
-        protected HashSet<HkConstraint> m_constraintsAddBatch = new HashSet<HkConstraint>();
-        HashSet<HkConstraint> m_constraintsRemoveBatch = new HashSet<HkConstraint>();
+        private readonly HashSet<HkConstraint> m_constraints = new HashSet<HkConstraint>();
+        private readonly List<HkConstraint> m_constraintsAddBatch = new List<HkConstraint>();
+        private readonly List<HkConstraint> m_constraintsRemoveBatch = new List<HkConstraint>();
 
         /// <summary>
         /// Gets or sets the mass.
@@ -167,7 +195,7 @@ namespace Sandbox.Engine.Physics
         {
             get
             {
-                return RigidBody.GetRigidBodyInfo().LinearVelocity.Length();
+                return LinearVelocity.Length();
             }
         }
 
@@ -203,6 +231,9 @@ namespace Sandbox.Engine.Physics
                 return false;
             }
         }
+
+        // True for piston subparts only
+        public bool IsSubpart { get; set; }
 
         protected override void CloseRigidBody()
         {
@@ -326,14 +357,6 @@ namespace Sandbox.Engine.Physics
             }
         }
 
-        public override void SetSpeeds(Vector3 linear, Vector3 angular)
-        {
-            LinearVelocity = linear;
-            AngularVelocity = angular;
-            ClearAccelerations();
-            SetActualSpeedsAsPrevious();
-        }
-
         /// <summary>
         /// Gets or sets the linear damping.
         /// </summary>
@@ -438,6 +461,7 @@ namespace Sandbox.Engine.Physics
             this.m_enabled = false;
             this.Entity = entity;
             this.Flags = flags;
+            this.IsSubpart = false;
         }
 
         void MyPhysicsBody_ContactSoundCallback(ref HkContactPointEvent e)
@@ -504,7 +528,7 @@ namespace Sandbox.Engine.Physics
                             transform = RigidBody.GetRigidBodyMatrix();
                             AddForceTorqueBody(force, torque, RigidBody, ref transform);
                         }
-                        if (CharacterProxy != null)
+                        if (CharacterProxy != null && CharacterProxy.GetHitRigidBody() != null)
                         {
                             transform = Entity.WorldMatrix;
                             AddForceTorqueBody(force, torque, CharacterProxy.GetHitRigidBody(), ref transform);
@@ -554,11 +578,9 @@ namespace Sandbox.Engine.Physics
             if (rigidBody == null || force == null || MyUtils.IsZero(force.Value))
                 return;
 
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-
             if (position.HasValue)
             {
-                Vector3 point = position.Value - offset;
+                Vector3 point = position.Value - Offset;
                 rigidBody.ApplyForce(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, force.Value, point);
             }
             else
@@ -570,10 +592,8 @@ namespace Sandbox.Engine.Physics
             if (rigidBody == null)
                 return;
 
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-
             if (force.HasValue && position.HasValue)
-                rigidBody.ApplyPointImpulse(force.Value, (Vector3)(position.Value - offset));
+                rigidBody.ApplyPointImpulse(force.Value, (Vector3)(position.Value - Offset));
 
             if (torque.HasValue)
                 rigidBody.ApplyAngularImpulse(torque.Value * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
@@ -656,15 +676,23 @@ namespace Sandbox.Engine.Physics
 
                     if (!IsConstraintValid(c))
                         col = Color.Red;
+                    if (!c.Enabled)
+                        col = Color.Yellow;
 
                     Vector3 pivotA, pivotB;
                     c.GetPivotsInWorld(out pivotA, out pivotB);
                     var pos = ClusterToWorld(pivotA);
                     MyRenderProxy.DebugDrawSphere(pos, 0.2f, col, 1, false);
-                    MyRenderProxy.DebugDrawText3D(pos, i.ToString(), Color.White, 0.7f, true);
-                    i++;
+                    MyRenderProxy.DebugDrawText3D(pos, i + " A", Color.White, 0.7f, true);
+
+                    Vector3 pos1 = pos;
+                  
                     pos = ClusterToWorld(pivotB);
                     MyRenderProxy.DebugDrawSphere(pos, 0.2f, col, 1, false);
+                    MyRenderProxy.DebugDrawText3D(pos, i+ " B", Color.White, 0.7f, true);
+
+                    MyRenderProxy.DebugDrawLine3D(pos1,pos,col,col,false);
+                    i++;
                 }
             }
 
@@ -695,13 +723,11 @@ namespace Sandbox.Engine.Physics
                 //if (!Enabled)
                 //    return;
 
-                var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-
                 if (RigidBody != null && BreakableBody != null)
                 {
-                    Vector3D com = Vector3D.Transform((Vector3D)BreakableBody.BreakableShape.CoM, RigidBody.GetRigidBodyMatrix()) + offset;
+                    Vector3D com = Vector3D.Transform((Vector3D)BreakableBody.BreakableShape.CoM, RigidBody.GetRigidBodyMatrix()) + Offset;
                     Color color = RigidBody.GetMotionType() != Havok.HkMotionType.Box_Inertia ? Color.Gray : RigidBody.IsActive ? Color.Red : Color.Blue;
-                    VRageRender.MyRenderProxy.DebugDrawSphere(RigidBody.CenterOfMassWorld + offset, 0.2f, color, 1, false);
+                    VRageRender.MyRenderProxy.DebugDrawSphere(RigidBody.CenterOfMassWorld + Offset, 0.2f, color, 1, false);
 
                     VRageRender.MyRenderProxy.DebugDrawAxis(Entity.PositionComp.WorldMatrix, 0.2f, false);
                 }
@@ -711,7 +737,7 @@ namespace Sandbox.Engine.Physics
                 {
                     index = 0;
                     Matrix rbMatrix = RigidBody.GetRigidBodyMatrix();
-                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + offset, rbMatrix.Forward, rbMatrix.Up);
+                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + Offset, rbMatrix.Forward, rbMatrix.Up);
 
                     MyPhysicsDebugDraw.DrawCollisionShape(RigidBody.GetShape(), worldMatrix, alpha, ref index);
                 }
@@ -720,7 +746,7 @@ namespace Sandbox.Engine.Physics
                 {
                     index = 0;
                     Matrix rbMatrix = RigidBody2.GetRigidBodyMatrix();
-                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + offset, rbMatrix.Forward, rbMatrix.Up);
+                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + Offset, rbMatrix.Forward, rbMatrix.Up);
 
                     MyPhysicsDebugDraw.DrawCollisionShape(RigidBody2.GetShape(), worldMatrix, alpha, ref index);
                 }
@@ -730,7 +756,7 @@ namespace Sandbox.Engine.Physics
                     index = 0;
                     //MatrixD characterTransform = MatrixD.CreateWorld(CharacterProxy.Position + offset, CharacterProxy.Forward, CharacterProxy.Up);
                     Matrix rbMatrix = CharacterProxy.GetRigidBodyTransform();
-                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + offset, rbMatrix.Forward, rbMatrix.Up);
+                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + Offset, rbMatrix.Forward, rbMatrix.Up);
 
                     MyPhysicsDebugDraw.DrawCollisionShape(CharacterProxy.GetShape(), worldMatrix, alpha, ref index);
                 }
@@ -861,6 +887,15 @@ namespace Sandbox.Engine.Physics
                 ProfilerShort.End();
                 return;
             }
+            ProfilerShort.BeginNextBlock("GetMaterial");
+            var worldPos = ClusterToWorld(value.ContactPoint.Position);
+            var materialA = bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f);
+            var materialB = bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f);
+            /*if (materialA == m_character || materialB == m_character)
+            {
+                ProfilerShort.End();
+                return;
+            }*/
             ProfilerShort.Begin("Lambdas");
             var colision = value.Base;
             Func<bool> canHear = () =>
@@ -887,18 +922,20 @@ namespace Sandbox.Engine.Physics
                 //mass = mass == 0 ? massB : massB == 0 ? mass : mass < massB ? mass : massB; // select smaller mass > 0
                 //mass /= 40; //reference mass
                 //val *= mass;
-                if (value.SeparatingVelocity < 10)
-                    volume = value.SeparatingVelocity / 10;
+                if (Math.Abs(value.SeparatingVelocity) < 10f)
+                    volume = 0.5f + Math.Abs(value.SeparatingVelocity) / 20f;
                 else
-                    volume = 1;
+                    volume = 1f;
             }
 
-            ProfilerShort.BeginNextBlock("GetMaterial");
-            var worldPos = ClusterToWorld(value.ContactPoint.Position);
-            var materialA = bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f);
-            var materialB = bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f);
             ProfilerShort.BeginNextBlock("PlaySound");
-            MyAudioComponent.PlayContactSound(Entity.EntityId, m_startCue, worldPos, materialA, materialB, volume, canHear);
+            bool firstOneIsLighter = bodyB.Entity is MyVoxelBase || bodyB.Entity.Physics == null;
+            if (firstOneIsLighter == false && bodyA.Entity.Physics != null && bodyA.Entity.Physics.IsStatic == false && (bodyB.Entity.Physics.IsStatic || bodyA.Entity.Physics.Mass < bodyB.Entity.Physics.Mass))
+                firstOneIsLighter = true;
+            if (firstOneIsLighter)
+                MyAudioComponent.PlayContactSound(bodyA.Entity.EntityId, m_startCue, worldPos, materialA, materialB, volume, canHear, surfaceEntity: (MyEntity)bodyB.Entity, separatingVelocity: Math.Abs(value.SeparatingVelocity));
+            else
+                MyAudioComponent.PlayContactSound(bodyB.Entity.EntityId, m_startCue, worldPos, materialB, materialA, volume, canHear, surfaceEntity: (MyEntity)bodyA.Entity, separatingVelocity: Math.Abs(value.SeparatingVelocity));
             ProfilerShort.End();
             ProfilerShort.End();
         }
@@ -946,13 +983,7 @@ false,
                 maxSpeedRelativeToShip,
                 maxForce);
 
-            //Unreliable, using fall sounds only now (when hiting ground with feet)
-            //CharacterProxy.GetRigidBody().ContactSoundCallback += MyPhysicsBody_ContactSoundCallback;
-            //CharacterProxy.GetRigidBody().ContactSoundCallbackEnabled = true;
             CharacterProxy.GetRigidBody().ContactPointCallbackDelay = 0;
-            //CharacterProxy.Gravity = new Vector3(0, -20, 0);
-
-
         }
 
         protected virtual void ActivateCollision() { }
@@ -969,7 +1000,7 @@ false,
                     Unweld(false);
                 else
                 {
-                    MyPhysics.Clusters.RemoveObject(ClusterObjectID);
+                    MyPhysics.RemoveObject(ClusterObjectID);
                     ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
                     CheckRBNotInWorld();
                 }
@@ -1040,6 +1071,7 @@ false,
 
                m_world.RemoveConstraint(constraint);             
             }
+            CheckRBNotInWorld();
 
             m_world = null;
             IsInWorld = false;
@@ -1055,7 +1087,7 @@ false,
                 CloseRagdollMode(world as HkWorld);
             }
 
-            if (BreakableBody != null)
+            if (BreakableBody != null && m_world.DestructionWorld != null)
             {
                 m_world.DestructionWorld.RemoveBreakableBody(BreakableBody);
             }
@@ -1074,7 +1106,10 @@ false,
 
             foreach (var constraint in m_constraints)
             {
-                m_constraintsRemoveBatch.Add(constraint);
+                if (IsConstraintValid(constraint) && constraint.InWorld)
+                    m_constraintsRemoveBatch.Add(constraint);
+                else
+                    Debug.Fail("Trying to remove invalid constraint!");
             }
 
             m_world = null;
@@ -1090,16 +1125,25 @@ false,
                 if (IsConstraintValid(constraint))
                 {
                     m_world.AddConstraint(constraint);
-                    constraint.OnAddedToWorld();
                 }
                 else
                     Debug.Fail("Trying to add invalid constraint!");
             }
             m_constraintsAddBatch.Clear();
 
+            if (CharacterProxy != null)
+            {
+                //has to be called after all entities are in world
+                //otherwise character will fly(jetpack on) through obstacles after reorder clusters
+                var characterBody = CharacterProxy.GetRigidBody();
+                if(characterBody != null)
+                    m_world.RefreshCollisionFilterOnEntity(characterBody); 
+            }
+
             if (ReactivateRagdoll)
             {
-                ActivateRagdoll(GetRigidBodyMatrix());
+                GetRigidBodyMatrix(out m_bodyMatrix);
+                ActivateRagdoll(m_bodyMatrix);
                 ReactivateRagdoll = false;
             }
 
@@ -1115,11 +1159,12 @@ false,
                 {
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyA), "Object was removed prior to constraint");
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyB), "Object was removed prior to constraint");
-                    constraint.OnRemovedFromWorld();
                     world.RemoveConstraint(constraint);
                 }
                 else
-                    Debug.Fail("Trying to remove invalid constraint!");
+                {
+                       Debug.Fail("Trying to remove invalid constraint!");
+                }
             }
 
             if (IsRagdollModeActive)
@@ -1174,21 +1219,16 @@ false,
         /// </summary>
         /// <param name="rbo">The rbo.</param>
         /// <param name="step">The step.</param>
-        public virtual void OnMotion(HkRigidBody rbo, float step)
+        public virtual void OnMotion(HkRigidBody rbo, float step, bool fromParent = false)
         {
             if (rbo == RigidBody2)
                 return;
             Debug.Assert(rbo == RigidBody);
-
-            foreach(var child in WeldInfo.Children)
-            {
-                child.OnMotion(rbo, step);
-            }
-
+         
             if (Entity == null)
                 return;
 
-            if (Entity.Parent != null)//Parent should take care of moving children
+            if (!IsSubpart && (Entity.Parent != null)) //Parent should take care of moving children but now for piston subpart
                 return;
 
             if (this.Flags == RigidBodyFlag.RBF_DISABLE_COLLISION_RESPONSE)
@@ -1213,23 +1253,46 @@ false,
                 // To prevent disconnect movement between dynamic and kinematic
                 // Setting motion to prevent body activation (we don't want to activate kinematic body)
                 ProfilerShort.Begin("Set doubled body");
-                RigidBody2.Motion.SetWorldMatrix(rbo.GetRigidBodyMatrix());
+                //RigidBody2.Motion.SetWorldMatrix(rbo.GetRigidBodyMatrix());
+                                  
+                Matrix mt = rbo.PredictRigidBodyMatrix(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, HavokWorld);
+                Quaternion nextOrientation = Quaternion.CreateFromRotationMatrix(mt);
+                Vector4 nextPosition = new Vector4(mt.Translation.X, mt.Translation.Y, mt.Translation.Z, 0);
+                HkKeyFrameUtility.ApplyHardKeyFrame(ref nextPosition, ref nextOrientation, 1.0f/MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, RigidBody2);
+              
+                //Console.WriteLine("Rb Omg:{0} {1} {2} Omg2:{3} {4} {5}\n", rbo.AngularVelocity.X, rbo.AngularVelocity.Y, rbo.AngularVelocity.Z, RigidBody2.AngularVelocity.X, RigidBody2.AngularVelocity.Y, RigidBody2.AngularVelocity.Z);
+                //Console.WriteLine("LV:{0} {1} {2} LV2:{3} {4} {5}\n", rbo.LinearVelocity.X, rbo.LinearVelocity.Y, rbo.LinearVelocity.Z, RigidBody2.LinearVelocity.X, RigidBody2.LinearVelocity.Y, RigidBody2.LinearVelocity.Z); 
+
+                // Add mixed balanced angular velocity
+                const float w = 0.1f;
+                RigidBody2.AngularVelocity = RigidBody2.AngularVelocity * w + rbo.AngularVelocity * (1 - w);
+                             
                 ProfilerShort.End();
             }
-            const int MaxIgnoredMovements = 5;
+                       
+            const int MaxIgnoredMovements = -1; // Default 5
             const float MinVelocitySq = 0.00000001f;
             m_motionCounter++;
             if (m_motionCounter > MaxIgnoredMovements ||
-                LinearVelocity.LengthSquared() > MinVelocitySq || AngularVelocity.LengthSquared() > MinVelocitySq)
+                LinearVelocity.LengthSquared() > MinVelocitySq || AngularVelocity.LengthSquared() > MinVelocitySq || fromParent || ServerWorldMatrix.HasValue)
             {
                 ProfilerShort.Begin("GetWorldMatrix");
-                var matrix = GetWorldMatrix();
+                var matrix = ServerWorldMatrix.HasValue ? ServerWorldMatrix.Value : GetWorldMatrix();
                 ProfilerShort.End();
-
                 ProfilerShort.Begin("SetWorldMatrix");
-                this.Entity.PositionComp.SetWorldMatrix(matrix, this, true);
+                this.Entity.PositionComp.SetWorldMatrix(matrix, ServerWorldMatrix.HasValue ? null : this, true);
+                ServerWorldMatrix = null;
                 ProfilerShort.End();
                 m_motionCounter = 0;
+
+                foreach (var child in WeldInfo.Children)
+                {
+                    child.OnMotion(rbo, step,true);
+                }
+            }
+            else
+            {
+                Debug.Assert(fromParent == false,"well well well");
             }
 
             ProfilerShort.Begin("UpdateCluster");
@@ -1240,41 +1303,78 @@ false,
             ProfilerShort.End();
         }
 
+        public void SynchronizeKeyframedRigidBody()
+        {
+            if ( (RigidBody != null) && (RigidBody2 != null) )
+            {
+                if(RigidBody.IsActive != RigidBody2.IsActive)
+                {
+                    Console.WriteLine(" RigidBody:{0} RigidBody2:{1} ", RigidBody.IsActive, RigidBody2.IsActive);
+
+                    if (RigidBody.IsActive)
+                    {
+                        RigidBody2.IsActive = true;
+                    }
+                    else
+                    {
+                        // Reset velocities
+                        RigidBody2.LinearVelocity = Vector3.Zero;
+                        RigidBody2.AngularVelocity = Vector3.Zero;
+
+                        RigidBody2.IsActive = false;
+                    }
+                }               
+            }            
+        }
+
+        void OnDynamicRigidBodyActivated(HkEntity entity)
+        {
+            SynchronizeKeyframedRigidBody();
+        }
+
+        void OnDynamicRigidBodyDeactivated(HkEntity entity)
+        {
+            SynchronizeKeyframedRigidBody();
+        }
+
         public override MatrixD GetWorldMatrix()
         {
             if (WeldInfo.Parent != null)
                 return WeldInfo.Transform * WeldInfo.Parent.GetWorldMatrix();
-            
-            Vector3 transformedCenter;
-            MatrixD entityMatrix = MatrixD.Identity;
-            Matrix rbWorld;
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
 
-            if (RigidBody2 != null)
+            MatrixD entityMatrix;
+
+            if (RigidBody != null)
             {
-                rbWorld = RigidBody2.GetRigidBodyMatrix();
-                transformedCenter = Vector3.TransformNormal(Center, rbWorld);
-                entityMatrix = MatrixD.CreateWorld(rbWorld.Translation - transformedCenter + offset, rbWorld.Forward, rbWorld.Up);
+                entityMatrix = RigidBody.GetRigidBodyMatrix();
+                entityMatrix.Translation += Offset;
             }
-            else if (RigidBody != null)
+            else if (RigidBody2 != null)
             {
-                rbWorld = RigidBody.GetRigidBodyMatrix();
-                transformedCenter = Vector3.TransformNormal(Center, rbWorld);
-                entityMatrix = MatrixD.CreateWorld(rbWorld.Translation - transformedCenter + offset, rbWorld.Forward, rbWorld.Up);
+                entityMatrix = RigidBody2.GetRigidBodyMatrix();
+                entityMatrix.Translation += Offset;
             }
             else if (CharacterProxy != null)
             {
                 MatrixD characterTransform = CharacterProxy.GetRigidBodyTransform();
                 //MatrixD characterTransform = MatrixD.CreateWorld(CharacterProxy.Position, CharacterProxy.Forward, CharacterProxy.Up);
 
-                transformedCenter = Vector3.TransformNormal(Center, characterTransform);
-                characterTransform.Translation = CharacterProxy.Position - transformedCenter + offset;
+                characterTransform.Translation = CharacterProxy.Position + Offset;
                 entityMatrix = characterTransform;
             }
             else if (Ragdoll != null & IsRagdollModeActive)
             {
-                entityMatrix = Ragdoll.WorldMatrix;               
-                entityMatrix.Translation = entityMatrix.Translation + offset;
+                entityMatrix = Ragdoll.WorldMatrix;
+                entityMatrix.Translation = entityMatrix.Translation + Offset;
+            }
+            else
+            {
+                entityMatrix = MatrixD.Identity;
+            }
+
+            if (Center != Vector3.Zero)
+            {
+                entityMatrix.Translation -= Vector3D.TransformNormal(Center, ref entityMatrix);
             }
 
             return entityMatrix;
@@ -1282,7 +1382,8 @@ false,
 
         public override Vector3 GetVelocityAtPoint(Vector3D worldPos)
         {
-            Vector3 relPos = WorldToCluster(worldPos);
+            //TODO:Avoid M/N transition inside RigidBody.GetVelocityAtPoint
+            Vector3 relPos = (Vector3)WorldToCluster(worldPos);
             if (RigidBody != null)
                 return RigidBody.GetVelocityAtPoint(relPos);
 
@@ -1305,35 +1406,44 @@ false,
 
             Vector3 velocity = Vector3.Zero;
             IMyEntity parentEntity = Entity.GetTopMostParent();
-            if (parentEntity != null && parentEntity.Physics != null)
+            if (parentEntity.Physics != null)
             {
                 velocity = parentEntity.Physics.LinearVelocity;
+                //TODO:this should be optional, all our child bodies are kinematic and dependent on parent atm
+                if (Entity != parentEntity)
+                    LinearVelocity = parentEntity.Physics.GetVelocityAtPoint(Entity.PositionComp.GetPosition());
             }
             if(!IsWelded)
-                MyPhysics.Clusters.MoveObject(ClusterObjectID, parentEntity.WorldAABB, parentEntity.WorldAABB, velocity);
+                MyPhysics.MoveObject(ClusterObjectID, parentEntity.WorldAABB, velocity);
 
-            Matrix rigidBodyMatrix = GetRigidBodyMatrix();
+            Matrix bodyMatrix;
+            GetRigidBodyMatrix(out bodyMatrix);
+            if (bodyMatrix.EqualsFast(ref m_bodyMatrix))
+                return;
+
+            m_bodyMatrix = bodyMatrix;
 
             if (RigidBody != null)
             {
-                RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody.SetWorldMatrix(m_bodyMatrix);
             }
 
             if (RigidBody2 != null)
             {
-                RigidBody2.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody2.SetWorldMatrix(m_bodyMatrix);
             }
 
             if (CharacterProxy != null)
             {
-                CharacterProxy.Position = rigidBodyMatrix.Translation;
-                CharacterProxy.Forward = rigidBodyMatrix.Forward;
-                CharacterProxy.Up = rigidBodyMatrix.Up;
+
+                //CharacterProxy.Position = m_bodyMatrix.Translation; // Position is set later by SetRigidBodyTransform
+                CharacterProxy.Forward = m_bodyMatrix.Forward;
+                CharacterProxy.Up = m_bodyMatrix.Up;
                 CharacterProxy.Speed = 0;
 
                 //if (CharacterProxy.ImmediateSetWorldTransform)
                 {
-                    CharacterProxy.SetRigidBodyTransform(rigidBodyMatrix);
+                    CharacterProxy.SetRigidBodyTransform(m_bodyMatrix);
                 }
             }
 
@@ -1348,35 +1458,31 @@ false,
 
             if (Ragdoll != null && IsRagdollModeActive && source is MyCockpit)
             {
-                Debug.Assert(rigidBodyMatrix.IsValid() && rigidBodyMatrix != Matrix.Zero, "Ragdoll world matrix is invalid!");
-                Ragdoll.ResetToRigPose();                
-                Ragdoll.SetWorldMatrix(rigidBodyMatrix);
+                Debug.Assert(m_bodyMatrix.IsValid() && m_bodyMatrix != Matrix.Zero, "Ragdoll world matrix is invalid!");
+                Ragdoll.ResetToRigPose();
+                Ragdoll.SetWorldMatrix(m_bodyMatrix);
                 Ragdoll.ResetVelocities();
             }
         }
 
-        protected Matrix GetRigidBodyMatrix()
+        protected void GetRigidBodyMatrix(out Matrix m)
         {
             System.Diagnostics.Debug.Assert(ClusterObjectID != MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED, "Unitialized object in cluster!");
-
-            Vector3 transformedCenter = Vector3.TransformNormal(Center, Entity.WorldMatrix);
-
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-
-            Matrix rigidBodyMatrix = Matrix.CreateWorld((Vector3)((Vector3D)transformedCenter + Entity.GetPosition() - (Vector3D)offset), Entity.WorldMatrix.Forward, Entity.WorldMatrix.Up);
-            return rigidBodyMatrix;
+            var wm = Entity.WorldMatrix;
+            if (Center != Vector3.Zero)
+                wm.Translation += Vector3.TransformNormal(Center, wm);
+            wm.Translation -= Offset;
+            m = wm;
         }
 
         protected Matrix GetRigidBodyMatrix(MatrixD worldMatrix)
         {
             System.Diagnostics.Debug.Assert(ClusterObjectID != MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED, "Unitialized object in cluster!");
 
-            Vector3 transformedCenter = Vector3.TransformNormal(Center, worldMatrix);
-
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-
-            Matrix rigidBodyMatrix = Matrix.CreateWorld((Vector3)((Vector3D)transformedCenter + worldMatrix.Translation - (Vector3D)offset), worldMatrix.Forward, worldMatrix.Up);
-            return rigidBodyMatrix;
+            if(Center != Vector3.Zero)
+                worldMatrix.Translation += Vector3D.TransformNormal(Center, ref worldMatrix);
+            worldMatrix.Translation -= Offset;
+            return worldMatrix;
         }
 
         public virtual void ChangeQualityType(HkCollidableQualityType quality)
@@ -1392,8 +1498,7 @@ false,
         {
             get
             {
-                var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-                return RigidBody.CenterOfMassWorld + offset;
+                return RigidBody.CenterOfMassWorld + Offset;
             }
         }
 
@@ -1404,12 +1509,10 @@ false,
             ProfilerShort.Begin("PhysicsBody.OnContacPointCallback");
             if (ContactPointCallback != null)
             {
-                var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-
                 MyPhysics.MyContactPointEvent ce = new MyPhysics.MyContactPointEvent()
                 {
                     ContactPointEvent = e,
-                    Position = e.ContactPoint.Position + offset
+                    Position = e.ContactPoint.Position + Offset
                 };
 
                 ContactPointCallback(ref ce);
@@ -1417,14 +1520,21 @@ false,
             ProfilerShort.End();
         }
 
-        public static bool IsConstraintValid(HkConstraint constraint)
+        private static bool IsConstraintValid(HkConstraint constraint, bool checkBodiesInWorld)
         {
             if (constraint == null) return false;
             if (constraint.IsDisposed) return false;
             if (constraint.RigidBodyA == null | constraint.RigidBodyB == null) return false;
-            if (!constraint.RigidBodyA.InWorld | !constraint.RigidBodyB.InWorld) return false;
+            //bodies are not in world when using batches
+            if (checkBodiesInWorld && (!constraint.RigidBodyA.InWorld | !constraint.RigidBodyB.InWorld)) return false;
             return true;
         }
+
+        public static bool IsConstraintValid(HkConstraint constraint)
+        {
+            return IsConstraintValid(constraint, true);
+        }
+
         public void AddConstraint(HkConstraint constraint)
         {
             if (IsWelded)
@@ -1434,23 +1544,17 @@ false,
             }
             if (HavokWorld == null || RigidBody == null)
                 return;
+            Debug.Assert(!m_constraints.Contains(constraint), "Constraint added twice");
+            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyA), "Object must be in the world");
+            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyB), "Object must be in the world");
+            Debug.Assert(IsConstraintValid(constraint), "Cannot add invalid constraint");
+
             if (constraint.UserData == 0)
                 constraint.UserData = (uint)(WeldedRigidBody == null ? RigidBody.GetGcRoot() : WeldedRigidBody.GetGcRoot());
 
-            Debug.Assert(!m_constraints.Contains(constraint), "Constraint added twice");
-
-            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyA), "Object must be in the world");
-            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyB), "Object must be in the world");
-            Debug.Assert(constraint.RigidBodyA.IsAddedToWorld);
-            Debug.Assert(constraint.RigidBodyB.IsAddedToWorld);
             m_constraints.Add(constraint);
 
             HavokWorld.AddConstraint(constraint);
-
-            if (constraint.InWorld)
-                constraint.OnAddedToWorld();
-            else
-                Debug.Fail("Constraint not added!");
         }
 
         public void RemoveConstraint(HkConstraint constraint)
@@ -1459,6 +1563,7 @@ false,
 
             if(IsWelded)
             {
+                m_constraints.Remove(constraint);
                 WeldInfo.Parent.RemoveConstraint(constraint);
                 return;
             }
@@ -1467,12 +1572,11 @@ false,
 
             if (HavokWorld != null)
             {
-                constraint.OnRemovedFromWorld();
                 HavokWorld.RemoveConstraint(constraint);
             }
         }
 
-        public HashSet<HkConstraint> Constraints
+        public HashSetReader<HkConstraint> Constraints
         {
             get { return m_constraints; }
         }
@@ -1486,14 +1590,12 @@ false,
 
         public override Vector3D WorldToCluster(Vector3D worldPos)
         {
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-            return (Vector3D)(worldPos - offset);
+            return worldPos - Offset;
         }
 
         public override Vector3D ClusterToWorld(Vector3 clusterPos)
         {
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
-            return (Vector3D)clusterPos + (Vector3D)offset;
+            return (Vector3D)clusterPos + Offset;
         }
 
         /// <summary>
@@ -1504,9 +1606,14 @@ false,
             if (!Enabled)
                 return;
 
-            System.Diagnostics.Debug.Assert(!IsInWorld);
+            System.Diagnostics.Debug.Assert(!IsInWorld && ClusterObjectID == MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED && m_world == null);
 
-            ClusterObjectID = MyPhysics.Clusters.AddObject(Entity.WorldAABB, LinearVelocity, this, null);
+            if(ClusterObjectID == MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED)
+                ClusterObjectID = MyPhysics.AddObject(Entity.WorldAABB, this, null, ((MyEntity)this.Entity).DebugName, Entity.EntityId);
+            else
+            {
+                Debug.Fail("Hotfix. Object was activated twice fix properly!");
+            }
         }
 
         public virtual void Activate(object world, ulong clusterObjectID)
@@ -1522,11 +1629,11 @@ false,
 
             IsInWorld = true;
 
-            Matrix rigidBodyMatrix = GetRigidBodyMatrix();
+            GetRigidBodyMatrix(out m_bodyMatrix);
 
             if (BreakableBody != null)
             {
-                RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody.SetWorldMatrix(m_bodyMatrix);
 
                 //Disable destruction on clients
                 if (Sync.IsServer)
@@ -1536,12 +1643,12 @@ false,
             }
             else if (RigidBody != null)
             {
-                RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody.SetWorldMatrix(m_bodyMatrix);
                 m_world.AddRigidBody(RigidBody);
             }
             if (RigidBody2 != null)
             {
-                RigidBody2.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody2.SetWorldMatrix(m_bodyMatrix);
                 m_world.AddRigidBody(RigidBody2);
             }
 
@@ -1551,10 +1658,10 @@ false,
                 CharacterSystemGroupCollisionFilterID = m_world.GetCollisionFilter().GetNewSystemGroup();
                 // Calculate filter info for this character
                 CharacterCollisionFilter = HkGroupFilter.CalcFilterInfo(MyPhysics.CollisionLayers.CharacterCollisionLayer, CharacterSystemGroupCollisionFilterID, 0, 0);
-                CharacterProxy.CharacterRigidBody.SetCollisionFilterInfo(CharacterCollisionFilter);
+                CharacterProxy.SetCollisionFilterInfo(CharacterCollisionFilter);
 
 
-                CharacterProxy.SetRigidBodyTransform(rigidBodyMatrix);
+                CharacterProxy.SetRigidBodyTransform(m_bodyMatrix);
                 CharacterProxy.Activate(m_world);
             }
 
@@ -1596,37 +1703,52 @@ false,
             IsInWorld = true;
 
 
-            Matrix rigidBodyMatrix = GetRigidBodyMatrix();
+            GetRigidBodyMatrix(out m_bodyMatrix);
 
             if (RigidBody != null)
             {
-                RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody.SetWorldMatrix(m_bodyMatrix);
                 m_world.AddRigidBodyBatch(RigidBody);
             }
             if (RigidBody2 != null)
             {
-                RigidBody2.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody2.SetWorldMatrix(m_bodyMatrix);
                 m_world.AddRigidBodyBatch(RigidBody2);
             }
 
             if (CharacterProxy != null)
             {
-                CharacterProxy.SetRigidBodyTransform(rigidBodyMatrix);
+                // obtain this character new system group id for collision filtering
+                CharacterSystemGroupCollisionFilterID = m_world.GetCollisionFilter().GetNewSystemGroup();
+                // Calculate filter info for this character
+                CharacterCollisionFilter = HkGroupFilter.CalcFilterInfo(MyPhysics.CollisionLayers.CharacterCollisionLayer, CharacterSystemGroupCollisionFilterID, 1, 1);
+                CharacterProxy.SetCollisionFilterInfo(CharacterCollisionFilter);
+
+                CharacterProxy.SetRigidBodyTransform(m_bodyMatrix);
                 CharacterProxy.Activate(m_world);
             }
 
+            if (SwitchToRagdollModeOnActivate)
+            {
+                if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.Activate.SwitchToRagdollModeOnActivate");
+                SwitchToRagdollModeOnActivate = false;
+                SwitchToRagdollMode(m_ragdollDeadMode);
+            }
+
+
             foreach (var constraint in m_constraints)
             {
-                if (!IsConstraintValid(constraint)) continue;
+                //boides wont be in world yet here
+                if (!IsConstraintValid(constraint,false)) continue;
                 m_constraintsAddBatch.Add(constraint);
             }
 
-            if (ReactivateRagdoll)
-            {
-                if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.ActivateBatch.ReactivateRagdoll");
-                ActivateRagdoll(rigidBodyMatrix);
-                ReactivateRagdoll = false;
-            }
+            //if (ReactivateRagdoll)
+            //{
+            //    if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.ActivateBatch.ReactivateRagdoll");
+            //    ActivateRagdoll(m_bodyMatrix);
+            //    ReactivateRagdoll = false;
+            //}
 
         }
         public void UpdateCluster()
@@ -1634,10 +1756,9 @@ false,
             Debug.Assert(Entity != null && !Entity.Closed && Entity.GetTopMostParent().Physics != null);
             if (!MyPerGameSettings.LimitedWorld && Entity != null && !Entity.Closed)
             {
-                var physics = Entity.GetTopMostParent().Physics;
-                if(physics != null)
-                    MyPhysics.Clusters.MoveObject(ClusterObjectID, Entity.WorldAABB, Entity.WorldAABB,
-                        physics.LinearVelocity);
+                //Entity.WorldAABB triger AABB recalculation after the worldmatrix changed (part of execution time)
+                MyPhysics.MoveObject(ClusterObjectID, Entity.WorldAABB,
+                        this.LinearVelocity);
             }
         }
 
@@ -1676,39 +1797,7 @@ false,
             get { return IsStaticForCluster; }
         }
 
-        public void ReorderClusters()
-        {
-            if (IsWelded)
-                WeldInfo.Parent.ReorderClusters();
-            else
-                MyPhysics.Clusters.ReorderClusters(Entity.PositionComp.WorldAABB, ClusterObjectID);
-        }
-
         #endregion
-
-        public override void UpdateAccelerations()
-        {
-            Vector3 delta = LinearVelocity - m_lastLinearVelocity;
-            m_lastLinearVelocity = LinearVelocity;
-            LinearAcceleration = delta / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-
-            Vector3 deltaAng = AngularVelocity - m_lastAngularVelocity;
-            m_lastAngularVelocity = AngularVelocity;
-            AngularAcceleration = deltaAng / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-        }
-
-        public void ClearAccelerations()
-        {
-            LinearAcceleration = Vector3.Zero;
-            AngularAcceleration = Vector3.Zero;
-        }
-
-        public void SetActualSpeedsAsPrevious()
-        {
-            // setting of previous speeds according to current one - elimination of acceleration that was caused by setting of speed when for example speed on server is different that speed on client
-            m_lastLinearVelocity = LinearVelocity;
-            m_lastAngularVelocity = AngularVelocity;
-        }
 
         /// <summary>
         /// Gets shape of this physics body even if its welded with other

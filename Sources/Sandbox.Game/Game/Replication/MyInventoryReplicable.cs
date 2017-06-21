@@ -21,16 +21,19 @@ namespace Sandbox.Game.Replication
 {
     class MyInventoryReplicable : MyExternalReplicableEvent<MyInventory>
     {
-        MyPropertySyncStateGroup m_propertySync;
-        MyEntityInventoryStateGroup m_stateGroup;
-        HashSet<ulong> m_clientList;
+        StateGroups.MyPropertySyncStateGroup m_propertySync;
+        StateGroups.MyEntityInventoryStateGroup m_stateGroup;
+        MyExternalReplicable m_parent;
 
         public MyInventory Inventory { get { return Instance; } }
         Action<MyEntity> m_destroyEntity;
 
+        MyEntity m_owner = null;
+
         public MyInventoryReplicable()
         {
             m_destroyEntity = (entity) => RaiseDestroyed();
+
         }
 
         protected override void OnHook()
@@ -38,46 +41,40 @@ namespace Sandbox.Game.Replication
             base.OnHook();
             if (Inventory != null)
             {
-                m_stateGroup = new MyEntityInventoryStateGroup(Inventory, Sync.IsServer);
+                m_stateGroup = new StateGroups.MyEntityInventoryStateGroup(Inventory, Sync.IsServer, this);
                 ((MyEntity)Inventory.Owner).OnClose += m_destroyEntity;
                 Inventory.BeforeRemovedFromContainer += (component) => OnRemovedFromContainer();
-                m_propertySync = new MyPropertySyncStateGroup(this, Instance.SyncType);
+                m_propertySync = new StateGroups.MyPropertySyncStateGroup(this, Instance.SyncType);
             }
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
-            Debug.Assert(!((MyEntity)Inventory.Owner).Closed, "Sending inventory of closed entity");
-            if (Inventory.Owner is MyCharacter)
-            {
-                return MyExternalReplicable.FindByObject(Inventory.Owner);
-            }
+            if (Inventory == null)
+                return null;
 
+            Debug.Assert(!((MyEntity)Inventory.Owner).Closed, "Sending inventory of closed entity");
+         
             if (Inventory.Owner is MyCubeBlock)
             {
                 return MyExternalReplicable.FindByObject((Inventory.Owner as MyCubeBlock).CubeGrid);
             }
 
-            return null;
+            return MyExternalReplicable.FindByObject(Inventory.Owner);
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
-            if (m_clientList == null)
-            {
-                m_clientList = new HashSet<ulong>();
-            }
-
-            if (m_clientList.Contains(client.EndpointId.Value))
-            {
-                return 1.0f;
-            }
-
             MyEntity owner = Inventory.Owner.GetTopMostParent();
-            var parent = MyExternalReplicable.FindByObject(owner);
-            if (parent != null && client.HasReplicable(parent))
+
+            if (owner != m_owner)
             {
-                m_clientList.Add(client.EndpointId.Value);
+                m_owner = owner;
+                m_parent = MyExternalReplicable.FindByObject(owner);
+            }
+
+            if (m_parent != null && client.HasReplicable(m_parent))
+            {
                 return 1.0f;
             }
 
@@ -168,5 +165,15 @@ namespace Sandbox.Game.Replication
             }
         }
 
+        public override bool HasToBeChild
+        {
+            get { return true; }
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            System.Diagnostics.Debug.Fail("GetAABB can be called only on root replicables");
+            return VRageMath.BoundingBoxD.CreateInvalid();
+        }
     }
 }

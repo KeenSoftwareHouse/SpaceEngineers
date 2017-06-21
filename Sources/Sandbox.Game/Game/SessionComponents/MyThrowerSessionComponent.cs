@@ -38,7 +38,7 @@ namespace Sandbox.Game.Components
         {
             get
             {
-                return MyFakes.ENABLE_PREFAB_THROWER;
+                return false;
             }
         }
 
@@ -62,9 +62,7 @@ namespace Sandbox.Game.Components
             if (!(MyScreenManager.GetScreenWithFocus() is MyGuiScreenGamePlay))
                 return;
 
-            if (!
-                (VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS || !MySession.Static.SurvivalMode || (MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.Static.LocalHumanPlayer.Id.SteamId)))
-                )
+            if (!(VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS || !MySession.Static.SurvivalMode || MySession.Static.LocalHumanPlayer.IsAdmin))
                 return;
 
 
@@ -109,7 +107,7 @@ namespace Sandbox.Game.Components
                 float deltaSeconds = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_startTime) / 1000.0f;
                 float velocity = deltaSeconds / CurrentDefinition.PushTime * CurrentDefinition.MaxSpeed;
                 velocity = MathHelper.Clamp(velocity, CurrentDefinition.MinSpeed, CurrentDefinition.MaxSpeed);
-                var linearVelocity = cameraDir * velocity;
+                var linearVelocity = cameraDir * velocity + MySession.Static.ControlledEntity.Entity.Physics.LinearVelocity;
                 float mass = 0;
                 if (CurrentDefinition.Mass.HasValue)
                 {
@@ -152,7 +150,7 @@ namespace Sandbox.Game.Components
                 if (emitter != null)
                 {
                     emitter.SetPosition(position);
-                    emitter.PlaySound(throwSound);
+                    emitter.PlaySoundWithDistance(throwSound);
                 }
             }
         }

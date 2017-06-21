@@ -52,12 +52,12 @@ namespace VRageMath
         {
             Forward = Base6Directions.GetForward(ref m);
             Up      = Base6Directions.GetUp(ref m);
-            Debug.Assert(IsValid);
+            //Debug.Assert(IsValid);
         }
 
         public void GetQuaternion(out Quaternion result)
         {
-            Debug.Assert(IsValid);
+            //Debug.Assert(IsValid);
 
             Matrix matrix;
             GetMatrix(out matrix);
@@ -67,7 +67,7 @@ namespace VRageMath
 
         public void GetMatrix(out Matrix result)
         {
-            Debug.Assert(IsValid);
+            //Debug.Assert(IsValid);
             
             Vector3 vecForward, vecUp;
             Base6Directions.GetVector(Forward, out vecForward);

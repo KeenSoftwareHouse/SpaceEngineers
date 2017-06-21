@@ -11,6 +11,7 @@ using System.Text;
 using VRage;
 using VRage;
 using VRage.Game;
+using VRage.Profiler;
 using VRage.Utils;
 
 namespace Sandbox.Engine.Physics
@@ -192,6 +193,8 @@ namespace Sandbox.Engine.Physics
 
         internal void Free()
         {
+            HashSet<IntPtr> releasedShapes = new HashSet<IntPtr>();
+
             m_tracker.CancelAll();
             using (m_poolLock.AcquireExclusiveUsing())
             {
@@ -199,7 +202,25 @@ namespace Sandbox.Engine.Physics
                 {
                     foreach (var model in pool.Values)
                         foreach (var shape in model)
+                        {
+                            if (releasedShapes.Contains(shape.NativeDebug))
+                            {
+                                string error = "Shape " + shape.Name + " was referenced twice in the pool!";
+                                System.Diagnostics.Debug.Assert(false, error);
+                                MyLog.Default.WriteLine(error);
+                            }
+                            releasedShapes.Add(shape.NativeDebug);
+                        }
+                }
+
+                foreach (var pool in m_pools.Values)
+                {
+                    foreach (var model in pool.Values)
+                        foreach (var shape in model)
+                        {
+                            var native = shape.NativeDebug;
                             shape.RemoveReference();
+                        }
                 }
                 m_pools.Clear();
             }

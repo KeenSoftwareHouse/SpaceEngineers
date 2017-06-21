@@ -8,6 +8,7 @@ using VRage.Algorithms;
 using VRage.Generics;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {

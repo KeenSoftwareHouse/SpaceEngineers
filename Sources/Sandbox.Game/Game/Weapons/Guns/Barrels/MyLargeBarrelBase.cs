@@ -1,27 +1,23 @@
 ﻿#region Using
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities;
 using Sandbox.Game.World;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using VRage.Game.Entity;
-using VRage.Game;
+using VRageRender.Import;
 
 #endregion
 
-namespace Sandbox.Game.Weapons
+namespace Sandbox.Game.Weapons.Guns.Barrels
 {
     public abstract class MyLargeBarrelBase 
     {
         #region Fields
         // used ammo type for this barrel:
         protected MyGunBase m_gunBase;
+        public MyGunBase GunBase { get { return m_gunBase; } }
 
         public MyModelDummy CameraDummy { get; private set; }
 
@@ -87,16 +83,7 @@ namespace Sandbox.Game.Weapons
 
         public virtual bool StartShooting()
         {
-            if (IsControlledByPlayer())
-            {
-                return true;
-            }
-
             return true;
-         
-
-            StopShooting();
-            return false;
         }
 
         public virtual void StopShooting()

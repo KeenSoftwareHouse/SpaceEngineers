@@ -7,10 +7,12 @@ using System.Text;
 using VRageMath;
 using Sandbox.Game.World;
 using VRage.Utils;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyTerminalControlSeparator<TBlock> : MyTerminalControl<TBlock>
+    public class MyTerminalControlSeparator<TBlock> : MyTerminalControl<TBlock>, IMyTerminalControlSeparator
         where TBlock : MyTerminalBlock
     {
         public MyTerminalControlSeparator()
@@ -25,6 +27,14 @@ namespace Sandbox.Game.Gui
             control.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
             control.AddHorizontal(Vector2.Zero, 1);
             return control;
+        }
+
+        string IMyTerminalControl.Id
+        {
+            get
+            {
+                return "";
+            }
         }
     }
 }

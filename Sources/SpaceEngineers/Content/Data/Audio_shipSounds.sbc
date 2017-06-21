@@ -1,0 +1,741 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Sounds>
+    <!--
+    
+                  SHIP SOUNDS - SMALL
+    
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallRunSlow</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.65</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipSmallRunSlowLoop2d01.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipSmallRunSlowLoop3d01.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallRunMedium</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.65</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipSmallRunMediumLoop2d01.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipSmallRunMediumLoop3d01.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallRunFast</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.65</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipSmallRunFastLoop2d01.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipSmallRunFastLoop3d01.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallEngine</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>0</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipSmallEngine2d.wav</Loop>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcEmpty3d.wav</Loop>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallStart</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.7</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipSmallStart2d.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipSmallStart3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallSpeedUp</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.7</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipSmallSpeedUp2d.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipSmallSpeedUp2d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipSmallSpeedUp3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipSmallSpeedUp3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallSpeedDown</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.75</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipSmallSpeedDown2d.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipSmallSpeedDown2d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipSmallSpeedDown3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipSmallSpeedDown3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallEnd</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.7</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipSmallEnd2d.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipSmallEnd3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallThrusterIon</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterIon2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterIon3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallThrusterIonIdle</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.19</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterIonNoPower2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterIonNoPower3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallThrusterAtmosphericMedium</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoMedium2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoMedium3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallThrusterAtmosphericSlow</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoMedium2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoMedium3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallThrusterAtmosphericFast</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <DisablePitchEffects>true</DisablePitchEffects>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoFast2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoFast3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallThrusterAtmosphericIdle</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoNoPower2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoNoPower3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallThrusterHydrogen</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterHydrogen2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterHydrogen3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallThrusterHydrogenIdle</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.85</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterHydroNoPower2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterHydroNoPower3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallWheelsRun</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipWheelsRunLoop2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipWheelsRunLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipSmallWheelsGround</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipWheelsNoPitchLoop2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipWheelsNoPitchLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ImpTire</SubtypeId>
+      </Id>
+      <Category>TireImp</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.7</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <PreventSynchronization>6</PreventSynchronization>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcImpTire3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcImpTire3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <!--
+    
+                  SHIP SOUNDS - LARGE
+    
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeIdle</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>200</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipLargeIdle3d.wav</Loop>
+        </Wave>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipLargeIdle2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeRunLoop</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.9</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipLargeRunLoop3d.wav</Loop>
+        </Wave>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipLargeRunLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeEngine</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.9</Volume>
+      <Loopable>true</Loopable>
+      <DisablePitchEffects>true</DisablePitchEffects>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipLargeEngine3d.wav</Loop>
+        </Wave>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipLargeEngine2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeStart</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>400</MaxDistance>
+      <Volume>0.75</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipLargeStart2d.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipLargeStart3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeEnd</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.7</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipLargeEnd2d.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipLargeEnd3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeSpeedUp</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.7</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipLargeSpeedUp3d.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipLargeSpeedUp2d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeSpeedDown</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>1</Volume>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\SHIP_SYS\ArcShipLargeSpeedDown3d.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\SHIP_SYS\ArcShipLargeSpeedDown2d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeThrusterIon</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.04</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterIon2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterIon3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeThrusterIonIdle</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.09</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterIonNoPower2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterIonNoPower3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeThrusterAtmosphericMedium</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoMedium2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoMedium3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeThrusterAtmosphericSlow</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoMedium2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoMedium3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeThrusterAtmosphericFast</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoFast2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoFast3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeThrusterAtmosphericIdle</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoNoPower2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoNoPower3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeThrusterHydrogen</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterHydrogen2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterHydrogen3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeThrusterHydrogenIdle</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterHydroNoPower2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipThrusterHydroNoPower3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeWheelsRun</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>0.85</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipWheelsRunLoop2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipWheelsRunLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ShipLargeWheelsGround</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>150</MaxDistance>
+      <Volume>1</Volume>
+      <Loopable>true</Loopable>
+      <RealisticFilter>realShipFilter</RealisticFilter>
+      <RealisticVolumeChange>0.6</RealisticVolumeChange>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP_SYS\ArcShipWheelsNoPitchLoop2d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\SHIP_SYS\ArcShipWheelsNoPitchLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+  </Sounds>
+</Definitions>

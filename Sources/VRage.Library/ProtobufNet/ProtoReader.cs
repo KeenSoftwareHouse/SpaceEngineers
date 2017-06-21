@@ -1,4 +1,5 @@
-﻿
+﻿#if !XB1 // XB1_NOPROTOBUF
+
 using System;
 
 using System.IO;
@@ -1317,3 +1318,4 @@ namespace ProtoBuf
         }
     }
 }
+#endif // !XB1

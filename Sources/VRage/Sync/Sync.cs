@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using VRage.Library.Collections;
 using VRage.Serialization;
 
-namespace VRage
+namespace VRage.Sync
 {
     public delegate bool SyncValidate<T>(T newValue);
 
@@ -14,7 +10,9 @@ namespace VRage
     {
         public readonly int Id;
         public readonly Type ValueType;
+#if !XB1 // !XB1_SYNC_NOREFLECTION
         public readonly MySerializeInfo SerializeInfo;
+#endif // XB1
 
         /// <summary>
         /// ValueChanged event is raised when value is set locally (settings Value property) or remotely (through deserialization).
@@ -22,12 +20,20 @@ namespace VRage
         /// </summary>
         public event Action<SyncBase> ValueChanged;
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
         public SyncBase(Type valueType, int id, MySerializeInfo serializeInfo)
         {
             ValueType = valueType;
             Id = id;
             SerializeInfo = serializeInfo;
         }
+#else // XB1
+        public SyncBase(Type valueType, int id)
+        {
+            ValueType = valueType;
+            Id = id;
+        }
+#endif // XB1
 
         protected void RaiseValueChanged()
         {
@@ -66,9 +72,21 @@ namespace VRage
         /// </summary>
         public SyncValidate<T> Validate;
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
         public Sync(int id, MySerializeInfo serializeInfo)
             : base(typeof(T), id, serializeInfo)
         {
+        }
+#else // XB1
+        public Sync(int id)
+            : base(typeof(T), id)
+        {
+        }
+#endif // XB1
+
+        public override string ToString()
+        {
+            return Value.ToString();
         }
 
         bool IsValid(ref T value)
@@ -105,7 +123,11 @@ namespace VRage
 
         public override SyncBase Clone(int newId)
         {
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             var sync = new Sync<T>(newId, SerializeInfo);
+#else // XB1
+            var sync = new Sync<T>(newId);
+#endif // XB1
             CopyValueChanged(this, sync);
             sync.Validate = Validate;
             sync.m_value = m_value;
@@ -114,6 +136,7 @@ namespace VRage
 
         public override bool Serialize(BitStream stream, bool validate)
         {
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             if (stream.Reading)
             {
                 T newValue;
@@ -125,6 +148,10 @@ namespace VRage
                 MySerializer.Write(stream, ref m_value, SerializeInfo);
                 return true;
             }
+#else // XB1
+            System.Diagnostics.Debug.Assert(false);
+            return false;
+#endif // XB1
         }
 
         public static implicit operator T(Sync<T> sync)

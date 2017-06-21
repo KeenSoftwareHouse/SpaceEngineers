@@ -1,11 +1,11 @@
-﻿using Sandbox.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Input;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 
@@ -19,8 +19,8 @@ namespace Sandbox.Graphics.GUI
         {
             public MyGuiCompositeTexture BackgroundTexture;
             public Vector2 BackgroundPaddingSize;
-            public MyFontEnum ItemFontHighlight;
-            public MyFontEnum ItemFontNormal;
+            public string ItemFontHighlight;
+            public string ItemFontNormal;
             public MyGuiBorderThickness ItemMargin; // outer margin of each item used when spacing items
             public MyGuiBorderThickness ItemPadding; // internal padding of each item used when drawing text
             public MyGuiBorderThickness ContentPadding; // internal padding surrounding items
@@ -113,7 +113,7 @@ namespace Sandbox.Graphics.GUI
             public int ItemIndex;
             public MySharedButtonsEnum Button;
         }
-        
+
         public struct ColoredIcon
         {
             public string Icon;
@@ -130,7 +130,7 @@ namespace Sandbox.Graphics.GUI
         {
             public readonly Dictionary<MyGuiDrawAlignEnum, StringBuilder> TextsByAlign;
             public readonly Dictionary<MyGuiDrawAlignEnum, ColoredIcon> IconsByAlign;
-            public string Icon;
+            public string[] Icons;
             public string SubIcon;
             public MyToolTips ToolTip;
             public object UserData;
@@ -147,7 +147,16 @@ namespace Sandbox.Graphics.GUI
                         String toolTip = null,
                         object userData = null,
                         bool enabled = true) :
-                this(icon, subicon, (toolTip != null) ? new MyToolTips(toolTip) : null, userData, enabled)
+                this(new string[] { icon }, subicon, (toolTip != null) ? new MyToolTips(toolTip) : null, userData, enabled)
+            {
+            }
+
+            public Item(string[] icons = null,
+                        string subicon = null,
+                        String toolTip = null,
+                        object userData = null,
+                        bool enabled = true) :
+                this(icons, subicon, (toolTip != null) ? new MyToolTips(toolTip) : null, userData, enabled)
             {
             }
 
@@ -160,7 +169,26 @@ namespace Sandbox.Graphics.GUI
             {
                 TextsByAlign = new Dictionary<MyGuiDrawAlignEnum, StringBuilder>();
                 IconsByAlign = new Dictionary<MyGuiDrawAlignEnum, ColoredIcon>();
-                Icon = icon;
+                Icons = new string[] { icon };
+                SubIcon = subicon;
+                ToolTip = toolTips;
+                UserData = userData;
+                Enabled = enabled;
+                IconColorMask = Vector4.One;
+                OverlayColorMask = Vector4.One;
+                blinkCount = 0;
+            }
+
+            public Item(
+                string[] icons = null,
+                string subicon = null,
+                MyToolTips toolTips = null,
+                object userData = null,
+                bool enabled = true)
+            {
+                TextsByAlign = new Dictionary<MyGuiDrawAlignEnum, StringBuilder>();
+                IconsByAlign = new Dictionary<MyGuiDrawAlignEnum, ColoredIcon>();
+                Icons = icons;
                 SubIcon = subicon;
                 ToolTip = toolTips;
                 UserData = userData;
@@ -179,6 +207,15 @@ namespace Sandbox.Graphics.GUI
                 TextsByAlign[textAlign].Clear().AppendStringBuilder(text);
             }
 
+            public void AddText(string text, MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
+            {
+                if (!TextsByAlign.ContainsKey(textAlign))
+                    TextsByAlign[textAlign] = new StringBuilder();
+                if (TextsByAlign[textAlign].CompareTo(text) == 0)
+                    return;
+                TextsByAlign[textAlign].Clear().Append(text);
+            }
+
             public void AddIcon(ColoredIcon icon, MyGuiDrawAlignEnum iconAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP)
             {
                 if (!IconsByAlign.ContainsKey(iconAlign))
@@ -190,6 +227,11 @@ namespace Sandbox.Graphics.GUI
             public void ClearText(MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
             {
                 TextsByAlign.Remove(textAlign);
+            }
+
+            public void ClearAllText()
+            {
+                TextsByAlign.Clear();
             }
 
             public float blinkingTransparency()
@@ -227,6 +269,12 @@ namespace Sandbox.Graphics.GUI
         private MyToolTips m_emptyItemToolTip;
         //Do not raise click events immediately. Wait for double click
         private EventArgs? m_singleClickEvents;
+        // Previously clicked item. Used for check, whether item released can be called
+        private EventArgs? m_itemClicked;
+        private int? m_lastClick = null;
+
+        public Dictionary<int, Color> ModalItems;
+
         #endregion
 
         #region Construction & serialization
@@ -276,6 +324,7 @@ namespace Sandbox.Graphics.GUI
         #region Events
         public event Action<MyGuiControlGrid, EventArgs> ItemChanged;
         public event Action<MyGuiControlGrid, EventArgs> ItemClicked;
+        public event Action<MyGuiControlGrid, EventArgs> ItemReleased;
         public event Action<MyGuiControlGrid, EventArgs> ItemClickedWithoutDoubleClick;
         public event Action<MyGuiControlGrid, EventArgs> ItemDoubleClicked;
         public event Action<MyGuiControlGrid, EventArgs> ItemDragged;
@@ -317,6 +366,20 @@ namespace Sandbox.Graphics.GUI
             }
         }
         private int m_rowsCount;
+
+        public int MaxItemCount
+        {
+            get { return m_maxItemCount; }
+            set
+            {
+                if (m_maxItemCount != value)
+                {
+                    m_maxItemCount = value;
+                    RefreshInternals();
+                }
+            }
+        }
+        private int m_maxItemCount = int.MaxValue;
 
         public Vector2 ItemSize
         {
@@ -415,6 +478,7 @@ namespace Sandbox.Graphics.GUI
         public string EmptyItemIcon;
 
         public bool SelectionEnabled = true;
+        public bool ShowEmptySlots = true;
 
         #endregion
 
@@ -461,7 +525,14 @@ namespace Sandbox.Graphics.GUI
 
         public bool IsValidIndex(int index)
         {
-            return 0 <= index && index < m_items.Count;
+            if (ModalItems != null && ModalItems.Count > 0)
+            {
+                if (!ModalItems.ContainsKey(index))
+                {
+                    return false;
+                }
+            }
+            return 0 <= index && index < m_items.Count && index < m_maxItemCount;
         }
 
         public Item GetItemAt(int rowIdx, int colIdx)
@@ -572,18 +643,18 @@ namespace Sandbox.Graphics.GUI
                 return;
 
             // fill up row to the end
-            while ((m_items.Count % ColumnsCount)!=0)
+            while ((m_items.Count % ColumnsCount) != 0)
             {
                 m_items.Add(null);
             }
 
-            for ( int i=0; i<numberOfRows; i++ )
+            for (int i = 0; i < numberOfRows; i++)
             {
                 // adding of one row
-                for (int j = 0; j < ColumnsCount; j++ )
+                for (int j = 0; j < ColumnsCount; j++)
                     m_items.Add(null);
             }
-            RecalculateRowsCount();            
+            RecalculateRowsCount();
         }
 
         public void RecalculateRowsCount()
@@ -613,21 +684,21 @@ namespace Sandbox.Graphics.GUI
                 return captureInput;
             }
 
-            if (!Enabled || !HandleMouse)
+            if (!Enabled)
                 return captureInput;
-
-            var oldMouseOverIndex = MouseOverIndex;
-            MouseOverIndex = (HandleMouse) ? ComputeIndex(MyGuiManager.MouseCursorPosition) : INVALID_INDEX;
-            if (oldMouseOverIndex != MouseOverIndex && IsValidCellIndex(MouseOverIndex) && Enabled)
-            {
-                MyGuiSoundManager.PlaySound(GuiSounds.MouseOver);
-            }
 
             if (!IsMouseOver)
             {
                 //User moved mouse from toolbar area. Try to trigger any pending clicks registered
                 TryTriggerSingleClickEvent();
                 return captureInput;
+            }
+
+            var oldMouseOverIndex = MouseOverIndex;
+            MouseOverIndex = IsMouseOver ? ComputeIndex(MyGuiManager.MouseCursorPosition) : INVALID_INDEX;
+            if (oldMouseOverIndex != MouseOverIndex && Enabled && MouseOverIndex != INVALID_INDEX)
+            {
+                MyGuiSoundManager.PlaySound(GuiSounds.MouseOver);
             }
 
             HandleNewMousePress(ref captureInput);
@@ -713,7 +784,12 @@ namespace Sandbox.Graphics.GUI
             Vector2I coords;
             coords.X = (int)((normalizedPosition.X - m_itemsRectangle.Position.X) / m_itemStep.X);
             coords.Y = (int)((normalizedPosition.Y - m_itemsRectangle.Position.Y) / m_itemStep.Y);
-            return coords.Y * ColumnsCount + coords.X;
+            int index = coords.Y * ColumnsCount + coords.X;
+
+            if (!IsValidCellIndex(index))
+                return INVALID_INDEX;
+
+            return index;
         }
 
         private int ComputeRow(int itemIndex)
@@ -722,15 +798,14 @@ namespace Sandbox.Graphics.GUI
         }
 
         /// <summary>
-        /// This check is performed against number of rows and columns instead of number of items.
+        /// Says, whether the given index points at a cell that can possibly contain an item.
+        /// The thing is, the item does not necessarily have to be there. m_items can be even smaller than a valid index (but not larger)
         /// </summary>
         /// <param name="itemIndex"></param>
         /// <returns></returns>
         private bool IsValidCellIndex(int itemIndex)
         {
-            return 0 <= itemIndex &&
-                   ComputeColumn(itemIndex) < ColumnsCount &&
-                   ComputeRow(itemIndex) < RowsCount;
+            return 0 <= itemIndex && itemIndex < m_maxItemCount;
         }
 
         private void DebugDraw()
@@ -756,34 +831,59 @@ namespace Sandbox.Graphics.GUI
         {
             var normalTexture = m_styleDef.ItemTexture.Normal;
             var highlightTexture = m_styleDef.ItemTexture.Highlight;
-            int idx = 0;
-            for (int row = 0; row < RowsCount; ++row)
+            int itemNumber = Math.Min(m_maxItemCount, RowsCount * ColumnsCount);
+            for (int idx = 0; idx < itemNumber; ++idx)
             {
-                for (int col = 0; col < ColumnsCount; ++col)
+                int row = idx / ColumnsCount;
+                int col = idx % ColumnsCount;
+
+                var drawPositionTopLeft = m_itemsRectangle.Position + m_itemStep * new Vector2((float)col, (float)row);
+                var item = TryGetItemAt(idx);
+                bool enabled = this.Enabled && ((item != null) ? item.Enabled : true);
+
+                bool shouldBlink = false;
+                float blinkingTransparency = 1.0f;
+                if (item != null)
                 {
-                    var drawPositionTopLeft = m_itemsRectangle.Position + m_itemStep * new Vector2((float)col, (float)row);
-                    var item = TryGetItemAt(row, col);
-                    bool enabled = this.Enabled && ((item != null) ? item.Enabled : true);
-
-                    bool shouldBlink = false;
-                    float blinkingTransparency = 1.0f;
-                    if (item != null)
+                    shouldBlink = MyGuiManager.TotalTimeInMilliseconds - item.blinkCount <= Item.MILISSECONDS_TO_BLINK;
+                    if (shouldBlink)
                     {
-                        shouldBlink = MyGuiManager.TotalTimeInMilliseconds - item.blinkCount <= Item.MILISSECONDS_TO_BLINK;
-                        if (shouldBlink)
-                        {
-                            blinkingTransparency = item.blinkingTransparency();
-                        }
+                        blinkingTransparency = item.blinkingTransparency();
                     }
-                    bool highlight = enabled && (idx == MouseOverIndex || idx == SelectedIndex || shouldBlink);
+                }
+                bool highlight = enabled && IsValidIndex(MouseOverIndex) && (idx == MouseOverIndex || idx == SelectedIndex || shouldBlink);
 
+                var colorMask = ColorMask;
+                if (ModalItems != null && ModalItems.Count > 0)
+                {
+                    if (ModalItems.ContainsKey(idx))
+                    {
+                        colorMask = ModalItems[idx];
+                        MyGuiConstants.TEXTURE_RECTANGLE_NEUTRAL.Draw(drawPositionTopLeft, ItemSize, Color.Yellow);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+                if (ShowEmptySlots)
+                {
                     MyGuiManager.DrawSpriteBatch(
                         texture: highlight ? highlightTexture : normalTexture,
                         normalizedCoord: drawPositionTopLeft,
                         normalizedSize: ItemSize,
-                        color: ApplyColorMaskModifiers(ColorMask, enabled, transitionAlpha * blinkingTransparency),
+                        color: ApplyColorMaskModifiers(colorMask, enabled, transitionAlpha * blinkingTransparency),
                         drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
-                    ++idx;
+                }
+                else if (item != null)
+                {
+                    MyGuiManager.DrawSpriteBatch(
+                        texture: highlight ? highlightTexture : normalTexture,
+                        normalizedCoord: drawPositionTopLeft,
+                        normalizedSize: ItemSize,
+                        color: ApplyColorMaskModifiers(colorMask, enabled, transitionAlpha * blinkingTransparency),
+                        drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
                 }
             }
         }
@@ -791,77 +891,88 @@ namespace Sandbox.Graphics.GUI
 
         private void DrawItems(float transitionAlpha)
         {
-            for (int row = 0; row < RowsCount; ++row)
+            int itemNumber = Math.Min(m_maxItemCount, RowsCount * ColumnsCount);
+            for (int idx = 0; idx < itemNumber; ++idx)
             {
-                for (int col = 0; col < ColumnsCount; ++col)
+                int row = idx / ColumnsCount;
+                int col = idx % ColumnsCount;
+
+                var item = TryGetItemAt(idx);
+                var drawPositionTopLeft = m_itemsRectangle.Position + m_itemStep * new Vector2((float)col, (float)row);
+
+                var colorMask = ColorMask;
+
+                bool itemEnabled = true;
+
+                if (ModalItems != null && ModalItems.Count > 0)
                 {
-                    int idx = ComputeIndex(row, col);
-                    var item = TryGetItemAt(idx);
-                    var drawPositionTopLeft = m_itemsRectangle.Position + m_itemStep * new Vector2((float)col, (float)row);
-                    
-                    //Sets the subicon at 8/9 of the cube
-                    Vector2 subIconAdjust = new Vector2(8 / 9.0f, 4 / 9.0f);
-                    var drawPositionTopRight = m_itemsRectangle.Position + m_itemStep * (new Vector2((float)col, (float) row) + subIconAdjust);
+                    if (!ModalItems.ContainsKey(idx))
+                        continue;
+                }
 
-                    if (item != null && item.Icon != null)
-                    {
-                        bool enabled = this.Enabled && item.Enabled;
+                //Sets the subicon at 8/9 of the cube
+                Vector2 subIconAdjust = new Vector2(8 / 9.0f, 4 / 9.0f);
+                var drawPositionTopRight = m_itemsRectangle.Position + m_itemStep * (new Vector2((float)col, (float)row) + subIconAdjust);
+
+                if (item != null && item.Icons != null)
+                {
+                    bool enabled = this.Enabled && item.Enabled && itemEnabled;
+                    for (int i = 0; i < item.Icons.Length; i++)
                         MyGuiManager.DrawSpriteBatch(
-                            texture: item.Icon,
+                            texture: item.Icons[i],
                             normalizedCoord: drawPositionTopLeft,
                             normalizedSize: ItemSize,
-                            color: ApplyColorMaskModifiers(ColorMask * item.IconColorMask, enabled, transitionAlpha),
+                            color: ApplyColorMaskModifiers(colorMask * item.IconColorMask, enabled, transitionAlpha),
                             drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                             waitTillLoaded: false);
-                        if (item.SubIcon != null && item.SubIcon!="")
-                        {
-                            MyGuiManager.DrawSpriteBatch(
-                            texture: item.SubIcon,
-                            normalizedCoord: drawPositionTopRight,
-                            normalizedSize: ItemSize/3,
-                            color: ApplyColorMaskModifiers(ColorMask * item.IconColorMask, enabled, transitionAlpha),
-                            drawAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM,
-                            waitTillLoaded: false);
-                        
-                        }
-                        if (item.OverlayPercent != 0f)
-                        {
-                            MyGuiManager.DrawSpriteBatch(
-                                texture: MyGuiConstants.BLANK_TEXTURE,
-                                normalizedCoord: drawPositionTopLeft,
-                                normalizedSize: ItemSize * new Vector2(item.OverlayPercent, 1f),
-                                color: ApplyColorMaskModifiers(ColorMask * item.OverlayColorMask, enabled, transitionAlpha * 0.5f),
-                                drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                                waitTillLoaded: false);
-                        }
-
-                    }
-                    else if (EmptyItemIcon != null)
+                    if (item.SubIcon != null && item.SubIcon != "")
                     {
-                        bool enabled = this.Enabled;
                         MyGuiManager.DrawSpriteBatch(
-                            texture: EmptyItemIcon,
+                        texture: item.SubIcon,
+                        normalizedCoord: drawPositionTopRight,
+                        normalizedSize: ItemSize / 3,
+                        color: ApplyColorMaskModifiers(colorMask * item.IconColorMask, enabled, transitionAlpha),
+                        drawAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM,
+                        waitTillLoaded: false);
+
+                    }
+                    if (item.OverlayPercent != 0f)
+                    {
+                        MyGuiManager.DrawSpriteBatch(
+                            texture: MyGuiConstants.BLANK_TEXTURE,
                             normalizedCoord: drawPositionTopLeft,
-                            normalizedSize: ItemSize,
-                            color: ApplyColorMaskModifiers(ColorMask, enabled, transitionAlpha),
+                            normalizedSize: ItemSize * new Vector2(item.OverlayPercent, 1f),
+                            color: ApplyColorMaskModifiers(colorMask * item.OverlayColorMask, enabled, transitionAlpha * 0.5f),
                             drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                            waitTillLoaded: true);
+                            waitTillLoaded: false);
                     }
 
-                    if (item != null)
+                }
+                else if (EmptyItemIcon != null)
+                {
+                    bool enabled = this.Enabled && itemEnabled;
+                    MyGuiManager.DrawSpriteBatch(
+                        texture: EmptyItemIcon,
+                        normalizedCoord: drawPositionTopLeft,
+                        normalizedSize: ItemSize,
+                        color: ApplyColorMaskModifiers(ColorMask, enabled, transitionAlpha),
+                        drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                        waitTillLoaded: true);
+                }
+
+                if (item != null)
+                {
+                    foreach (var alignIcon in item.IconsByAlign)
                     {
-                        foreach (var alignIcon in item.IconsByAlign)
-                        {
-                            if (string.IsNullOrEmpty(alignIcon.Value.Icon))
-                                continue;
-                            MyGuiManager.DrawSpriteBatch(
-                            texture: alignIcon.Value.Icon,
-                            normalizedCoord: drawPositionTopLeft + m_itemStep * new Vector2(0.5f / 9.0f, 1 / 9.0f),
-                            normalizedSize: ItemSize / 3,
-                            color: ApplyColorMaskModifiers(alignIcon.Value.Color, true, transitionAlpha),
-                            drawAlign: alignIcon.Key,
-                            waitTillLoaded: true);
-                        }
+                        if (string.IsNullOrEmpty(alignIcon.Value.Icon))
+                            continue;
+                        MyGuiManager.DrawSpriteBatch(
+                        texture: alignIcon.Value.Icon,
+                        normalizedCoord: drawPositionTopLeft + m_itemStep * new Vector2(0.5f / 9.0f, 1 / 9.0f),
+                        normalizedSize: ItemSize / 3,
+                        color: ApplyColorMaskModifiers(alignIcon.Value.Color, true, transitionAlpha),
+                        drawAlign: alignIcon.Key,
+                        waitTillLoaded: true);
                     }
                 }
             }
@@ -873,30 +984,30 @@ namespace Sandbox.Graphics.GUI
             var normalFont = m_styleDef.ItemFontNormal;
             var highlightFont = m_styleDef.ItemFontHighlight;
 
-            for (int row = 0; row < RowsCount; ++row)
+            int itemNumber = Math.Min(m_maxItemCount, RowsCount * ColumnsCount);
+            for (int idx = 0; idx < itemNumber; ++idx)
             {
-                for (int col = 0; col < ColumnsCount; ++col)
+                int row = idx / ColumnsCount;
+                int col = idx % ColumnsCount;
+
+                var item = TryGetItemAt(idx);
+                if (item != null)
                 {
-                    int idx = ComputeIndex(row, col);
-                    var item = TryGetItemAt(idx);
-                    if (item != null)
+                    foreach (var entry in item.TextsByAlign)
                     {
-                        foreach (var entry in item.TextsByAlign)
-                        {
-                            var drawPositionTopLeft = m_itemsRectangle.Position + m_itemStep * new Vector2((float)col, (float)row);
-                            var paddedRect = new RectangleF(drawPositionTopLeft + padding.TopLeftOffset,
-                                                            ItemSize - padding.SizeChange);
-                            var drawPos = MyUtils.GetCoordAlignedFromRectangle(ref paddedRect, entry.Key);
-                            bool enabled = this.Enabled && item.Enabled;
-                            MyGuiManager.DrawString(
-                                font: (idx == MouseOverIndex || idx == SelectedIndex) ? highlightFont : normalFont,
-                                text: entry.Value,
-                                normalizedCoord: drawPos,
-                                scale: ItemTextScaleWithLanguage,
-                                colorMask: ApplyColorMaskModifiers(ColorMask, enabled, transitionAlpha),
-                                drawAlign: entry.Key,
-                                maxTextWidth: paddedRect.Size.X);
-                        }
+                        var drawPositionTopLeft = m_itemsRectangle.Position + m_itemStep * new Vector2((float)col, (float)row);
+                        var paddedRect = new RectangleF(drawPositionTopLeft + padding.TopLeftOffset,
+                                                        ItemSize - padding.SizeChange);
+                        var drawPos = MyUtils.GetCoordAlignedFromRectangle(ref paddedRect, entry.Key);
+                        bool enabled = this.Enabled && item.Enabled;
+                        MyGuiManager.DrawString(
+                            font: (idx == MouseOverIndex || idx == SelectedIndex) ? highlightFont : normalFont,
+                            text: entry.Value,
+                            normalizedCoord: drawPos,
+                            scale: ItemTextScaleWithLanguage,
+                            colorMask: ApplyColorMaskModifiers(ColorMask, enabled, transitionAlpha),
+                            drawAlign: entry.Key,
+                            maxTextWidth: paddedRect.Size.X);
                     }
                 }
             }
@@ -907,7 +1018,7 @@ namespace Sandbox.Graphics.GUI
             if (MyInput.Static.IsNewButtonPressed(button))
             {
                 isDragging = true;
-                m_mouseDragStartPosition = MyGuiManager.MouseCursorPosition;                
+                m_mouseDragStartPosition = MyGuiManager.MouseCursorPosition;
             }
             else if (MyInput.Static.IsButtonPressed(button))
             {
@@ -941,26 +1052,51 @@ namespace Sandbox.Graphics.GUI
         {
             bool cursorInItems = m_itemsRectangle.Contains(MyGuiManager.MouseCursorPosition);
 
-            int? mouseOverIndex = ComputeIndex(MyGuiManager.MouseCursorPosition);
-            if (!IsValidIndex(mouseOverIndex.Value))
-                mouseOverIndex = null;
+            if (MyInput.Static.IsNewPrimaryButtonReleased() || MyInput.Static.IsNewSecondaryButtonReleased())
+            {
+                if (cursorInItems)
+                {
+                    int? mouseOverIndex = ComputeIndex(MyGuiManager.MouseCursorPosition);
+                    if (!IsValidIndex(mouseOverIndex.Value))
+                        mouseOverIndex = null;
+
+                    SelectMouseOverItem(mouseOverIndex);
+
+                    if (SelectedIndex.HasValue && m_itemClicked.HasValue && m_lastClick.HasValue && mouseOverIndex.HasValue)
+                    {
+                        if (MyGuiManager.TotalTimeInMilliseconds - m_lastClick.Value < MyGuiConstants.CLICK_RELEASE_DELAY && m_itemClicked.Value.ItemIndex == mouseOverIndex.Value)
+                        {
+                            captureInput = this;
+                            MySharedButtonsEnum button = MySharedButtonsEnum.None;
+                            if (MyInput.Static.IsNewPrimaryButtonReleased())
+                                button = MySharedButtonsEnum.Primary;
+                            else if (MyInput.Static.IsNewSecondaryButtonReleased())
+                                button = MySharedButtonsEnum.Secondary;
+
+                            EventArgs args;
+                            MakeEventArgs(out args, SelectedIndex.Value, button);
+
+                            var handler = ItemReleased;
+                            if (handler != null)
+                                handler(this, args);
+                        }
+                    }
+                }
+                m_itemClicked = null;
+                m_lastClick = null;
+            }
 
             if (MyInput.Static.IsAnyNewMouseOrJoystickPressed() && cursorInItems)
             {
-                if (SelectionEnabled && mouseOverIndex.HasValue)
-                {
-                    if (EnableSelectEmptyCell)
-                    {
-                        SelectedIndex = mouseOverIndex.Value;
-                    }
-                    else if (TryGetItemAt(mouseOverIndex.Value) != null)
-                    {
-                        SelectedIndex = mouseOverIndex.Value;
-                    }
-                }
-                
+                m_lastClick = MyGuiManager.TotalTimeInMilliseconds;
+
+                int? mouseOverIndex = ComputeIndex(MyGuiManager.MouseCursorPosition);
+                if (!IsValidIndex(mouseOverIndex.Value))
+                    mouseOverIndex = null;
+                SelectMouseOverItem(mouseOverIndex);
+
                 captureInput = this;
-                if (mouseOverIndex.HasValue && (ItemClicked != null || ItemClickedWithoutDoubleClick != null))
+                if (SelectedIndex.HasValue && (ItemClicked != null || ItemClickedWithoutDoubleClick != null))
                 {
                     MySharedButtonsEnum button = MySharedButtonsEnum.None;
                     if (MyInput.Static.IsNewPrimaryButtonPressed())
@@ -969,14 +1105,15 @@ namespace Sandbox.Graphics.GUI
                         button = MySharedButtonsEnum.Secondary;
 
                     EventArgs args;
-                    MakeEventArgs(out args, mouseOverIndex.Value, button);
+                    MakeEventArgs(out args, SelectedIndex.Value, button);
                     var handler = ItemClicked;
                     if (handler != null)
                         handler(this, args);
 
                     m_singleClickEvents = args;
+                    m_itemClicked = args;
 
-                    if(MyInput.Static.IsAnyCtrlKeyPressed() || MyInput.Static.IsAnyShiftKeyPressed())
+                    if (MyInput.Static.IsAnyCtrlKeyPressed() || MyInput.Static.IsAnyShiftKeyPressed())
                         MyGuiSoundManager.PlaySound(GuiSounds.Item);
                 }
             }
@@ -991,13 +1128,13 @@ namespace Sandbox.Graphics.GUI
                 else if ((MyGuiManager.TotalTimeInMilliseconds - m_doubleClickStarted.Value) <= MyGuiConstants.DOUBLE_CLICK_DELAY &&
                          (m_doubleClickFirstPosition - MyGuiManager.MouseCursorPosition).Length() <= 0.005f)
                 {
-                    if (mouseOverIndex.HasValue && TryGetItemAt(mouseOverIndex.Value) != null && ItemDoubleClicked != null)
+                    if (SelectedIndex.HasValue && TryGetItemAt(SelectedIndex.Value) != null && ItemDoubleClicked != null)
                     {
                         //Cancel click event when we double click
                         m_singleClickEvents = null;
 
                         EventArgs args;
-                        MakeEventArgs(out args, mouseOverIndex.Value, MySharedButtonsEnum.Primary);
+                        MakeEventArgs(out args, SelectedIndex.Value, MySharedButtonsEnum.Primary);
                         Debug.Assert(GetItemAt(args.ItemIndex) != null, "Double click should not be reported when clicking on empty position.");
                         ItemDoubleClicked(this, args);
                         MyGuiSoundManager.PlaySound(GuiSounds.Item);
@@ -1005,6 +1142,21 @@ namespace Sandbox.Graphics.GUI
 
                     m_doubleClickStarted = null;
                     captureInput = this;
+                }
+            }
+        }
+
+        private void SelectMouseOverItem(int? mouseOverIndex)
+        {
+            if (SelectionEnabled && mouseOverIndex.HasValue)
+            {
+                if (EnableSelectEmptyCell)
+                {
+                    SelectedIndex = mouseOverIndex.Value;
+                }
+                else if (TryGetItemAt(mouseOverIndex.Value) != null)
+                {
+                    SelectedIndex = mouseOverIndex.Value;
                 }
             }
         }
@@ -1026,7 +1178,7 @@ namespace Sandbox.Graphics.GUI
                        m_itemStep * new Vector2((float)ColumnsCount, (float)RowsCount);
             }
 
-            var requiredItemCount = RowsCount * ColumnsCount;
+            var requiredItemCount = Math.Min(m_maxItemCount, RowsCount * ColumnsCount);
             Debug.Assert(requiredItemCount >= 0);
             // Make sure we have minimum number of Items.
             while (m_items.Count < requiredItemCount)

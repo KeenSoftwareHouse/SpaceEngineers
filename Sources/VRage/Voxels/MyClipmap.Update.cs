@@ -15,7 +15,7 @@ namespace VRage.Voxels
     {
         private static float[][] m_lodRangeGroups;
 
-        private static MyBinaryHeap<FrameT, UpdateQueueItem> m_updateQueue = new MyBinaryHeap<FrameT, UpdateQueueItem>(comparer: new UpdateFrameComparer());
+        private static MyBinaryHeap<FrameT, UpdateQueueItem> m_updateQueue = new MyBinaryHeap<FrameT, UpdateQueueItem>(128, new UpdateFrameComparer());
         private static HashSet<MyClipmap> m_toRemove = new HashSet<MyClipmap>();
         private static HashSet<MyClipmap> m_notReady = new HashSet<MyClipmap>();
         private static FrameT m_currentFrameIdx;
@@ -33,11 +33,11 @@ namespace VRage.Voxels
             }
             UpdateLodRanges(MyRenderConstants.m_renderQualityProfiles[0].LodClipmapRanges);
 
-            CellsCache = new LRUCache<UInt64, CellData>(32768);
+            CellsCache = new LRUCache<UInt64, MyClipmap_CellData>(32768);
             CellsCache.OnItemDiscarded += OnCellDiscarded;      
         }
 
-        static void OnCellDiscarded(UInt64 cellId, CellData data)
+        static void OnCellDiscarded(UInt64 cellId, MyClipmap_CellData data)
         {
             if (data.Cell != null)
             {

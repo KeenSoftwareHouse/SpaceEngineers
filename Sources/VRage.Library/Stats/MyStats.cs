@@ -15,7 +15,11 @@ namespace VRage.Stats
             Name,
         }
 
+#if UNSHARPER
+		public SortEnum Sort = SortEnum.None;
+#else
         public volatile SortEnum Sort = SortEnum.None;
+#endif
 
         static Comparer<KeyValuePair<string, MyStat>> m_nameComparer = new MyNameComparer();
 
@@ -97,7 +101,7 @@ namespace VRage.Stats
             Write(name, 0, MyStatTypeEnum.Counter, refreshMs, 0, clearRateMs);
         }
 
-        public MyStatToken Measure(string name, MyStatTypeEnum type = MyStatTypeEnum.Avg, int refreshMs = 200, int numDecimals = 1, int clearRateMs = -1)
+        public MyStatToken Measure(string name, MyStatTypeEnum type, int refreshMs = 200, int numDecimals = 1, int clearRateMs = -1)
         {
             var stat = GetStat(name);
             if (stat.DrawText == null)
@@ -107,6 +111,11 @@ namespace VRage.Stats
             }
             stat.ChangeSettings((type | MyStatTypeEnum.FormatFlag) & ~MyStatTypeEnum.LongFlag, refreshMs, numDecimals, clearRateMs);
             return new MyStatToken(m_timer, stat);
+        }
+        
+        public MyStatToken Measure(string name)
+        {
+            return Measure(name, MyStatTypeEnum.Avg);
         }
 
         private string GetMeasureText(string name, MyStatTypeEnum type)

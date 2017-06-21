@@ -63,7 +63,9 @@ namespace Sandbox.Game.EntityComponents
 		public float DefinedOutput { get { return DefinedOutputByType(m_resourceTypeToIndex.Keys.First()); } }
 	    public bool ProductionEnabled { get { return ProductionEnabledByType(m_resourceTypeToIndex.Keys.First()); } }
 
+        //How much resource is filled actually (usedratio * Capacity)
 		public float RemainingCapacity { get { return RemainingCapacityByType(m_resourceTypeToIndex.Keys.First()); } }
+
 		public bool IsInfiniteCapacity { get { return float.IsInfinity(RemainingCapacity); } }
 	    public float ProductionToCapacityMultiplier { get { return ProductionToCapacityMultiplierByType(m_resourceTypeToIndex.Keys.First()); } }
 	    public bool Enabled { get { return m_enabled; } set { SetEnabled(value); } }
@@ -186,8 +188,8 @@ namespace Sandbox.Game.EntityComponents
 	        return Math.Min(m_dataPerType[typeIndex].MaxOutput, m_dataPerType[typeIndex].RemainingCapacity*m_dataPerType[typeIndex].ProductionToCapacityMultiplier*MyEngineConstants.UPDATE_STEPS_PER_SECOND);
 	    }
 
-		internal void SetMaxOutput(float newMaxOutput) { SetMaxOutputByType(m_resourceTypeToIndex.Keys.First(), newMaxOutput); }
-		internal void SetMaxOutputByType(MyDefinitionId resourceTypeId, float newMaxOutput)
+		public void SetMaxOutput(float newMaxOutput) { SetMaxOutputByType(m_resourceTypeToIndex.Keys.First(), newMaxOutput); }
+		public void SetMaxOutputByType(MyDefinitionId resourceTypeId, float newMaxOutput)
 		{
 			var typeIndex = GetTypeIndex(resourceTypeId);
 			if (m_dataPerType[typeIndex].MaxOutput != newMaxOutput)
@@ -251,17 +253,22 @@ namespace Sandbox.Game.EntityComponents
 
 	    private void SetEnabled(bool newValue)
 	    {
+            bool oldValue = m_enabled;
+
 	        m_enabled = newValue;
 
-            foreach (var resourceId in m_resourceIds)
-                if (ProductionEnabledChanged != null)
-                    ProductionEnabledChanged(resourceId, this);
+            if (oldValue != m_enabled)
+            {
+                foreach (var resourceId in m_resourceIds)
+                    if (ProductionEnabledChanged != null)
+                        ProductionEnabledChanged(resourceId, this);
 
-	        if (!m_enabled)
-	        {
-                foreach(var resourceId in m_resourceIds)
-	                SetOutputByType(resourceId, 0f);
-	        }
+                if (!m_enabled)
+                {
+                    foreach (var resourceId in m_resourceIds)
+                        SetOutputByType(resourceId, 0f);
+                }
+            }
 	    }
 
 		protected int GetTypeIndex(MyDefinitionId resourceTypeId)

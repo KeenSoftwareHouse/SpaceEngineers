@@ -14,7 +14,7 @@ using System.Diagnostics;
 using System.Linq;
 using Sandbox.Game.EntityComponents;
 using VRageMath;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage.ModAPI;
 using VRage.Game.Components;
@@ -25,15 +25,30 @@ using Sandbox.Engine.Multiplayer;
 using VRage.Game.Entity;
 using VRage;
 using VRage.Game;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Collector))]
-    class MyCollector : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyCollector, IMyInventoryOwner
+    public class MyCollector : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyCollector, IMyInventoryOwner
     {
-        static MyCollector()
+        public new MyPoweredCargoContainerDefinition BlockDefinition { get { return SlimBlock.BlockDefinition as MyPoweredCargoContainerDefinition; } }
+
+        public MyCollector()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            CreateTerminalControls();
+        }
+
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyCollector>())
+                return;
+            base.CreateTerminalControls();
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyCollector>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConvSystem.Getter = (x) => (x).UseConveyorSystem;
             useConvSystem.Setter = (x, v) => x.UseConveyorSystem = v;
@@ -43,7 +58,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            if (ResourceSink == null) return false;
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         private Sync<bool> m_useConveyorSystem;
@@ -51,18 +67,16 @@ namespace Sandbox.Game.Entities.Blocks
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
-            var def = BlockDefinition as MyPoweredCargoContainerDefinition;
+            var ob = objectBuilder as MyObjectBuilder_Collector;
+
             var sinkComp = new MyResourceSinkComponent();
             sinkComp.Init(
-                MyStringHash.GetOrCompute(def.ResourceSinkGroup),
-                MyEnergyConstants.MAX_REQUIRED_POWER_COLLECTOR,
-                () => base.CheckIsWorking() ? ResourceSink.MaxRequiredInput : 0f);
+                MyStringHash.GetOrCompute(BlockDefinition.ResourceSinkGroup),
+                BlockDefinition.RequiredPowerInput,
+                ComputeRequiredPower);
             ResourceSink = sinkComp;
-            ResourceSink.Update();
 
             base.Init(objectBuilder, cubeGrid);
-           
-            var ob = objectBuilder as MyObjectBuilder_Collector;
 
             m_useConveyorSystem.Value = true;
             if (MyFakes.ENABLE_INVENTORY_FIX)
@@ -72,22 +86,32 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (this.GetInventory() == null)
             {
-               Components.Add<MyInventoryBase>( new MyInventory(def.InventorySize.Volume, def.InventorySize, MyInventoryFlags.CanSend, this));
-               this.GetInventory().Init(ob.Inventory);
+                MyInventory inventory = new MyInventory(BlockDefinition.InventorySize.Volume, BlockDefinition.InventorySize, MyInventoryFlags.CanSend);
+                Components.Add<MyInventoryBase>(inventory);
+                inventory.Init(ob.Inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
             if (Sync.IsServer && CubeGrid.CreatePhysics)
                 LoadDummies();
 
-			
-			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+            ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink,this));
 
             SlimBlock.ComponentStack.IsFunctionalChanged += UpdateReceiver;
             base.EnabledChanged += UpdateReceiver;
 
             m_useConveyorSystem.Value = ob.UseConveyorSystem;
+
+            ResourceSink.Update();
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+        }
+
+        protected float ComputeRequiredPower()
+        {
+            if (!(Enabled && IsFunctional))
+                return 0;
+            return BlockDefinition.RequiredPowerInput;
         }
 
         void UpdateReceiver(MyTerminalBlock block)
@@ -124,6 +148,10 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(Sync.IsServer, "Connector can take objects only on the server!");
 
+            //By Gregory: temporary fix for when pasting grid with collector(collector is off and acts as on). Maybe something better? Note this is not marked for close or else this wouldn't occur
+            if (!base.Enabled)
+                return;
+
             base.UpdateOnceBeforeFrame();
             if (m_entitiesToTake.Count > 0)
             {
@@ -141,7 +169,8 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (playSound)
             {
-                m_soundEmitter.PlaySound(m_actionSound);
+                if (m_soundEmitter != null)
+                    m_soundEmitter.PlaySound(m_actionSound);
                 MyMultiplayer.RaiseEvent(this, x => x.PlayActionSound);
             }
             //m_entitiesToTake.Clear();
@@ -150,7 +179,8 @@ namespace Sandbox.Game.Entities.Blocks
         [Event, Reliable, Broadcast]
         void PlayActionSound()
         {
-            m_soundEmitter.PlaySound(m_actionSound);
+            if (m_soundEmitter != null)
+                m_soundEmitter.PlaySound(m_actionSound);
         }
 
         void Receiver_IsPoweredChanged()
@@ -243,19 +273,19 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!Sync.IsServer)
                 return;
-            VRage.ProfilerShort.Begin("CollectorLeave");
+            ProfilerShort.Begin("CollectorLeave");
             var entities = body.GetAllEntities();
             foreach(var entity in entities)
                 m_entitiesToTake.Remove(entity as MyFloatingObject);
             entities.Clear();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
             if (!Sync.IsServer)
                 return;
-            VRage.ProfilerShort.Begin("CollectorEnter");
+            ProfilerShort.Begin("CollectorEnter");
             var entities = body.GetAllEntities();
             foreach (var entity in entities)
             {
@@ -266,7 +296,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
             entities.Clear();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
             //if (!Sync.IsServer)
             //    return;
             //var entity = body.GetEntity();
@@ -382,6 +412,24 @@ namespace Sandbox.Game.Entities.Blocks
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pushInformation = new PullInformation();
+            pushInformation.Inventory = this.GetInventory(0);
+            pushInformation.OwnerID = OwnerId;
+            pushInformation.Constraint = new MyInventoryConstraint("Empty constraint");
+            return pushInformation;
         }
 
         #endregion

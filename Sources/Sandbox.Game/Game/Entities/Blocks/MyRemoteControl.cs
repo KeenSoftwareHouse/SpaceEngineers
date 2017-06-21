@@ -15,7 +15,6 @@ using System.Text;
 
 using VRageMath;
 using VRage;
-using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage.Utils;
 using Sandbox.Game.Entities.Blocks;
@@ -37,12 +36,23 @@ using VRage.Library.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Game.EntityComponents;
 using VRageRender;
-using VRage.Voxels;
 using Sandbox.Game.AI.Navigation;
 using VRage.Game;
 using VRage.Network;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
+using VRage.Serialization;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.Utils;
+using VRage.Sync;
+using VRage.Voxels;
+using TerminalActionParameter = Sandbox.ModAPI.Ingame.TerminalActionParameter;
+using MyWaypointInfo = Sandbox.ModAPI.Ingame.MyWaypointInfo;
+using Sandbox.Game.Weapons;
+using Sandbox.Engine.Physics;
+using Sandbox.Engine.Voxels;
+using VRage.Game.ObjectBuilders.AI;
 
 namespace Sandbox.Game.Entities
 {
@@ -194,11 +204,12 @@ namespace Sandbox.Game.Entities
             internal void Calculate(Vector3D worldPoint)
             {
                 Clear();
-                var planet = MyGravityProviderSystem.GetStrongestGravityWell(worldPoint);
+                var planet = MyGamePruningStructure.GetClosestPlanet(worldPoint);
                 if (planet != null)
                 {
                     var planetVector = worldPoint - planet.PositionComp.GetPosition();
-                    if (planetVector.Length() > planet.GravityLimit)
+                    var gravityLimit = ((MySphericalNaturalGravityComponent)planet.Components.Get<MyGravityProviderComponent>()).GravityLimit;
+                    if (planetVector.Length() > gravityLimit)
                     {
                         return;
                     }
@@ -207,7 +218,7 @@ namespace Sandbox.Game.Entities
                     PlanetVector = planetVector;
                     if (!Vector3D.IsZero(PlanetVector))
                     {
-                        GravityWorld = Vector3D.Normalize(Planet.GetWorldGravity(worldPoint));
+                        GravityWorld = Vector3D.Normalize(Planet.Components.Get<MyGravityProviderComponent>().GetWorldGravity(worldPoint));
 
                         Vector3 localPoint = (Vector3)(worldPoint - Planet.WorldMatrix.Translation);
                         Vector3D closestPoint = Planet.GetClosestSurfacePointLocal(ref localPoint);
@@ -232,12 +243,14 @@ namespace Sandbox.Game.Entities
         private float m_powerNeeded = 0.01f;
         private long? m_savedPreviousControlledEntityId = null;
         private IMyControllableEntity m_previousControlledEntity;
+        private Sync<long> m_bindedCamera;
+        private static MyTerminalControlCombobox<MyRemoteControl> m_cameraList = null;
 
         public IMyControllableEntity PreviousControlledEntity
         {
             get
             {
-                if (m_savedPreviousControlledEntityId != null)
+                if (m_savedPreviousControlledEntityId.HasValue)
                 {
                     if (TryFindSavedEntity())
                     {
@@ -289,7 +302,7 @@ namespace Sandbox.Game.Entities
             get { return (MyRemoteControlDefinition)base.BlockDefinition; }
         }
 
-        private MyAutopilotWaypoint CurrentWaypoint
+        public MyAutopilotWaypoint CurrentWaypoint
         {
             get
             {
@@ -309,9 +322,22 @@ namespace Sandbox.Game.Entities
         private MyAutopilotWaypoint m_currentWaypoint;
         private PlanetCoordInformation m_destinationInfo;
         private PlanetCoordInformation m_currentInfo;
-        private double m_autopilotSpeedLimit;
+
+        private Vector3D m_currentWorldPosition;
+        private Vector3D m_previousWorldPosition;
+
+        private bool m_rotateBetweenWaypoints;
+        public bool RotateBetweenWaypoints 
+        {
+            get { return MyFakes.ENABLE_VR_REMOTE_CONTROL_WAYPOINTS_FAST_MOVEMENT ? m_rotateBetweenWaypoints : false; }
+            set { m_rotateBetweenWaypoints = value; }
+        }
+
+        private float m_currentAutopilotSpeedLimit = MyObjectBuilder_RemoteControl.DEFAULT_AUTOPILOT_SPEED_LIMIT;
+        private Sync<float> m_autopilotSpeedLimit;
 
         private  readonly Sync<bool> m_useCollisionAvoidance;
+
         private int m_collisionCtr = 0;
         private Vector3D m_oldCollisionDelta = Vector3D.Zero;
         private float[] m_terrainHeightDetection = new float[TERRAIN_HEIGHT_DETECTION_SAMPLES];
@@ -330,6 +356,54 @@ namespace Sandbox.Game.Entities
         private Vector3D m_startPosition;
         private MyToolbar m_actionToolbar;
         private readonly Sync<Base6Directions.Direction> m_currentDirection;
+
+        //new collision avoidance fields
+        private Vector3D m_lastDelta = Vector3D.Zero;
+        private float m_lastAutopilotSpeedLimit = 2;
+        private int m_collisionAvoidanceFrameSkip = 0;
+        private float m_rotateFor = 0f;
+        private List<DetectedObject> m_detectedObstacles = new List<DetectedObject>();
+
+        // Automatic behaviour of remote control (used for strafing, etc)
+        public double TargettingAimDelta { get; private set; }
+        public interface IRemoteControlAutomaticBehaviour
+        {
+            bool NeedUpdate { get; }
+            bool IsActive { get; }
+
+            bool RotateToTarget { get; set; }
+            bool CollisionAvoidance { get; set; }
+            int PlayerPriority { get; set; }
+            float MaxPlayerDistance { get; }
+            TargetPrioritization PrioritizationStyle { get; set; }
+            MyEntity CurrentTarget { get; }
+            List<DroneTarget> TargetList { get; }
+            List<MyEntity> WaypointList { get; }
+            bool WaypointActive { get; }
+            bool CycleWaypoints { get; set; }
+            Vector3D OriginPoint { get; set; }
+
+            float PlayerYAxisOffset { get; }
+            float WaypointThresholdDistance { get; }
+            bool ResetStuckDetection { get; }
+
+            void Update();
+            void WaypointAdvanced();
+            void TargetAdd(DroneTarget target);
+            void TargetClear();
+            void TargetRemove(MyEntity target);
+            void TargetLoseCurrent();
+            void WaypointAdd(MyEntity waypoint);
+            void WaypointClear();
+
+            void DebugDraw();
+            void Load(MyObjectBuilder_AutomaticBehaviour objectBuilder, MyRemoteControl remoteControl);
+            MyObjectBuilder_AutomaticBehaviour GetObjectBuilder();
+        }
+
+        private IRemoteControlAutomaticBehaviour m_automaticBehaviour;
+        public IRemoteControlAutomaticBehaviour AutomaticBehaviour { get { return m_automaticBehaviour; } }
+        private readonly Sync<float> m_waypointThresholdDistance;
 
         private static MyObjectBuilder_AutopilotClipboard m_clipboard;
         private static MyGuiControlListbox m_gpsGuiControl;
@@ -355,8 +429,69 @@ namespace Sandbox.Game.Entities
             { Base6Directions.Direction.Down, Vector3D.Right }
         };
 
-        static MyRemoteControl()
+        bool m_syncing = false;
+
+        public MyRemoteControl()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_autopilotSpeedLimit = SyncType.CreateAndAddProp<float>();
+            m_useCollisionAvoidance = SyncType.CreateAndAddProp<bool>();
+            m_autoPilotEnabled = SyncType.CreateAndAddProp<bool>();
+            m_dockingModeEnabled = SyncType.CreateAndAddProp<bool>();
+            m_currentFlightMode = SyncType.CreateAndAddProp<FlightMode>();
+            m_currentDirection = SyncType.CreateAndAddProp<Base6Directions.Direction>();
+            m_waypointThresholdDistance = SyncType.CreateAndAddProp<float>();
+#endif // XB1
+            CreateTerminalControls();
+            TargettingAimDelta = 0;
+            m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
+            m_isMainRemoteControl.ValueChanged += (x) => MainRemoteControlChanged();
+        }
+
+        private void FillCameraComboBoxContent(ICollection<MyTerminalControlComboBoxItem> items)
+        {
+            items.Add(new MyTerminalControlComboBoxItem() { Key = 0, Value = MyCommonTexts.ScreenGraphicsOptions_AntiAliasing_None });
+            bool bindedCameraExist = false;
+            foreach (var block in CubeGrid.GetFatBlocks<MyCameraBlock>())
+            {
+                items.Add(new MyTerminalControlComboBoxItem() { Key = block.EntityId, Value = MyStringId.GetOrCompute(block.CustomName.ToString()) });
+                if (block.EntityId == m_bindedCamera)
+                    bindedCameraExist = true;
+            }
+            var group = MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid);
+            if (group != null)
+            {
+                foreach (var grid in group.Nodes)
+                {
+                    if (grid.NodeData != CubeGrid)
+                    {
+                        foreach (var block in grid.NodeData.GetFatBlocks<MyCameraBlock>())
+                        {
+                            items.Add(new MyTerminalControlComboBoxItem() { Key = block.EntityId, Value = MyStringId.GetOrCompute(block.CustomName.ToString()) });
+                            if (block.EntityId == m_bindedCamera)
+                                bindedCameraExist = true;
+                        }
+                    }
+                }
+            }
+            if (!bindedCameraExist)
+                m_bindedCamera.Value = 0;
+        }
+
+        protected override void CreateTerminalControls()
+        {
+            
+            if (MyTerminalControlFactory.AreControlsCreated<MyRemoteControl>())
+                return;
+            base.CreateTerminalControls();
+
+            var mainRemoteControl = new MyTerminalControlCheckbox<MyRemoteControl>("MainRemoteControl", MySpaceTexts.TerminalControlPanel_Cockpit_MainRemoteControl, MySpaceTexts.TerminalControlPanel_Cockpit_MainRemoteControl);
+            mainRemoteControl.Getter = (x) => x.IsMainRemoteControl;
+            mainRemoteControl.Setter = (x, v) => x.IsMainRemoteControl = v;
+            mainRemoteControl.Enabled = (x) => x.IsMainRemoteControlFree();
+            mainRemoteControl.EnableAction();
+            MyTerminalControlFactory.AddControl(mainRemoteControl);
+
             var controlBtn = new MyTerminalControlButton<MyRemoteControl>("Control", MySpaceTexts.ControlRemote, MySpaceTexts.Blank, (b) => b.RequestControl());
             controlBtn.Enabled = r => r.CanControl();
             controlBtn.SupportsMultipleBlocks = false;
@@ -396,6 +531,13 @@ namespace Sandbox.Game.Entities
             dockignMode.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(dockignMode);
 
+            var cameraList = new MyTerminalControlCombobox<MyRemoteControl>("CameraList", MySpaceTexts.BlockPropertyTitle_AssignedCamera, MySpaceTexts.Blank);
+            cameraList.ComboBoxContentWithBlock = (x, list) => x.FillCameraComboBoxContent(list);
+            cameraList.Getter = (x) => (long)x.m_bindedCamera;
+            cameraList.Setter = (x, y) => x.m_bindedCamera.Value = y;
+            MyTerminalControlFactory.AddControl(cameraList);
+            m_cameraList = cameraList;
+
             var flightMode = new MyTerminalControlCombobox<MyRemoteControl>("FlightMode", MySpaceTexts.BlockPropertyTitle_FlightMode, MySpaceTexts.Blank);
             flightMode.ComboBoxContent = (x) => FillFlightModeCombo(x);
             flightMode.Getter = (x) => (long)x.m_currentFlightMode.Value;
@@ -408,6 +550,19 @@ namespace Sandbox.Game.Entities
             directionCombo.Getter = (x) => (long)x.m_currentDirection.Value;
             directionCombo.Setter = (x, v) => x.ChangeDirection((Base6Directions.Direction)v);
             MyTerminalControlFactory.AddControl(directionCombo);
+
+            if (MyFakes.ENABLE_VR_REMOTE_BLOCK_AUTOPILOT_SPEED_LIMIT)
+            {
+                var sliderSpeedLimit = new MyTerminalControlSlider<MyRemoteControl>("SpeedLimit", MySpaceTexts.BlockPropertyTitle_RemoteBlockSpeedLimit,
+                    MySpaceTexts.BlockPropertyTitle_RemoteBlockSpeedLimit);
+                sliderSpeedLimit.SetLimits(1, 200);
+                sliderSpeedLimit.DefaultValue = MyObjectBuilder_RemoteControl.DEFAULT_AUTOPILOT_SPEED_LIMIT;
+                sliderSpeedLimit.Getter = (x) => x.m_autopilotSpeedLimit;
+                sliderSpeedLimit.Setter = (x, v) => x.m_autopilotSpeedLimit.Value = v;
+                sliderSpeedLimit.Writer = (x, sb) => sb.Append(MyValueFormatter.GetFormatedFloat(x.m_autopilotSpeedLimit, 0));
+                sliderSpeedLimit.EnableActions();
+                MyTerminalControlFactory.AddControl(sliderSpeedLimit);
+            }
 
             var waypointList = new MyTerminalControlListbox<MyRemoteControl>("WaypointList", MySpaceTexts.BlockPropertyTitle_Waypoints, MySpaceTexts.Blank, true);
             waypointList.ListContent = (x, list1, list2) => x.FillWaypointList(list1, list2);
@@ -506,11 +661,6 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(pasteButton);
         }
 
-        public MyRemoteControl()
-        {
-            m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
-        }
-
         private static void OnAction(MyRemoteControl block, ListReader<TerminalActionParameter> paramteres)
         {
             var firstParameter = paramteres.FirstOrDefault();
@@ -518,16 +668,6 @@ namespace Sandbox.Game.Entities
             {
                 block.ChangeDirection((Base6Directions.Direction)firstParameter.Value);
             }
-        }
-
-        public new MySyncRemoteControl SyncObject
-        {
-            get { return (MySyncRemoteControl)base.SyncObject; }
-        }
-
-        protected override MySyncComponentBase OnCreateSync()
-        {
-            return new MySyncRemoteControl(this);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -556,8 +696,13 @@ namespace Sandbox.Game.Entities
             m_dockingModeEnabled.Value = remoteOb.DockingModeEnabled;
             m_currentFlightMode.Value = (FlightMode)remoteOb.FlightMode;
             m_currentDirection.Value = (Base6Directions.Direction)remoteOb.Direction;
+            m_autopilotSpeedLimit.Value = remoteOb.AutopilotSpeedLimit;
+            m_bindedCamera.Value = remoteOb.BindedCamera;
+            m_waypointThresholdDistance.Value = remoteOb.WaypointThresholdDistance;
+            m_currentAutopilotSpeedLimit = m_autopilotSpeedLimit;
+            IsMainRemoteControl = remoteOb.IsMainRemoteControl;
 
-            m_stuckDetection = new MyStuckDetection(0.03f, 0.01f);
+            m_stuckDetection = new MyStuckDetection(0.03f, 0.01f, this.CubeGrid.PositionComp.WorldAABB);
 
             if (remoteOb.Coords == null || remoteOb.Coords.Count == 0)
             {
@@ -611,6 +756,15 @@ namespace Sandbox.Game.Entities
             AddDebugRenderComponent(new MyDebugRenderComponentRemoteControl(this));
 
             m_useCollisionAvoidance.Value = remoteOb.CollisionAvoidance;
+            if (remoteOb.AutomaticBehaviour != null)
+            {
+                if (remoteOb.AutomaticBehaviour is MyObjectBuilder_DroneStrafeBehaviour)
+                {
+                    MyDroneStrafeBehaviour behavior = new MyDroneStrafeBehaviour();
+                    behavior.Load(remoteOb.AutomaticBehaviour, this);
+                    SetAutomaticBehaviour(behavior);
+                }
+            }
 
             for (int i = 0; i < TERRAIN_HEIGHT_DETECTION_SAMPLES; i++)
             {
@@ -653,7 +807,10 @@ namespace Sandbox.Game.Entities
         {
             base.UpdateBeforeSimulation();
 
-            if (m_savedPreviousControlledEntityId != null && m_savedPreviousControlledEntityId.HasValue)
+            m_previousWorldPosition = m_currentWorldPosition;
+            m_currentWorldPosition = WorldMatrix.Translation;
+
+            if (m_savedPreviousControlledEntityId.HasValue)
             {
                 MySession.Static.Players.UpdatePlayerControllers(EntityId);
                 if (TryFindSavedEntity())
@@ -661,28 +818,31 @@ namespace Sandbox.Game.Entities
                     m_savedPreviousControlledEntityId = null;
                 }
             }
-
             UpdateAutopilot();
         }
 
         #region Autopilot GUI
         private bool CanEnableAutoPilot()
         {
-            return IsWorking && m_previousControlledEntity == null;
+            //by Gregory: disable autopilot when  no waypoints or only one way point in circle or patrol
+            if (m_automaticBehaviour == null && (m_waypoints.Count == 0 || (m_waypoints.Count == 1 && m_currentFlightMode != FlightMode.OneWay)))
+                return false;
+            
+            return IsFunctional && m_previousControlledEntity == null;
         }
 
-        private static void FillFlightModeCombo(List<TerminalComboBoxItem> list)
+        private static void FillFlightModeCombo(List<MyTerminalControlComboBoxItem> list)
         {
-            list.Add(new TerminalComboBoxItem() { Key = 0, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_Patrol });
-            list.Add(new TerminalComboBoxItem() { Key = 1, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_Circle });
-            list.Add(new TerminalComboBoxItem() { Key = 2, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_OneWay });
+            list.Add(new MyTerminalControlComboBoxItem() { Key = 0, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_Patrol });
+            list.Add(new MyTerminalControlComboBoxItem() { Key = 1, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_Circle });
+            list.Add(new MyTerminalControlComboBoxItem() { Key = 2, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_OneWay });
         }
 
-        private static void FillDirectionCombo(List<TerminalComboBoxItem> list)
+        private static void FillDirectionCombo(List<MyTerminalControlComboBoxItem> list)
         {
             foreach (var direction in m_directionNames)
             {
-                list.Add(new TerminalComboBoxItem() { Key = (long)direction.Key, Value = direction.Value });
+                list.Add(new MyTerminalControlComboBoxItem() { Key = (long)direction.Key, Value = direction.Value });
             }
         }
 
@@ -695,8 +855,32 @@ namespace Sandbox.Game.Entities
         {
             if (CanEnableAutoPilot())
             {
-                m_autoPilotEnabled.Value = enabled;
+                if (enabled == false)
+                {
+                    ClearMovementControl();
+                }
+            m_autoPilotEnabled.Value = enabled;
+        }
             }
+
+        bool ModAPI.Ingame.IMyRemoteControl.IsAutoPilotEnabled
+        {
+            get { return m_autoPilotEnabled.Value; }
+        }
+
+        public bool IsAutopilotEnabled()
+        {
+            return m_autoPilotEnabled.Value;
+        }
+
+        public bool HasWaypoints()
+        {
+            return m_waypoints.Count > 0;
+        }
+
+        public void SetWaypointThresholdDistance(float thresholdDistance)
+        {
+            m_waypointThresholdDistance.Value = thresholdDistance;
         }
 
         void RemoveAutoPilot()
@@ -757,7 +941,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void SetDockingMode(bool enabled)
+        public void SetDockingMode(bool enabled)
         {
             m_dockingModeEnabled.Value = enabled;
         }
@@ -805,11 +989,12 @@ namespace Sandbox.Game.Entities
                     names[i] = m_selectedGpsLocations[i].Name;
                 }
 
-                SyncObject.AddWaypoints(coords, names);
+                MyMultiplayer.RaiseEvent(this,x=> x.OnAddWaypoints,coords, names);
                 m_selectedGpsLocations.Clear();
             }
         }
 
+        [Event, Reliable, Server, Broadcast]
         private void OnAddWaypoints(Vector3D[] coords, string[] names)
         {
             Debug.Assert(coords.Length == names.Length);
@@ -855,17 +1040,15 @@ namespace Sandbox.Game.Entities
 
                 if (indexes.Count > 0)
                 {
-                    var indexesToSend = indexes.ToArray();
-                    Array.Sort(indexesToSend);
-
-                    SyncObject.MoveWaypointsUp(indexesToSend);
+                    MyMultiplayer.RaiseEvent(this, x => x.OnMoveWaypointsUp, indexes);
                 }
             }
         }
 
-        private void OnMoveWaypointsUp(int[] indexes)
+        [Event, Reliable, Server, Broadcast]
+        private void OnMoveWaypointsUp(List<int> indexes)
         {
-            for (int i = 0; i < indexes.Length; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
                 Debug.Assert(indexes[i] > 0);
                 SwapWaypoints(indexes[i] - 1, indexes[i]);
@@ -906,17 +1089,15 @@ namespace Sandbox.Game.Entities
 
                 if (indexes.Count > 0)
                 {
-                    var indexesToSend = indexes.ToArray();
-                    Array.Sort(indexesToSend);
-
-                    SyncObject.MoveWaypointsDown(indexesToSend);
+                    MyMultiplayer.RaiseEvent(this, x => x.OnMoveWaypointsDown, indexes);
                 }
             }
         }
 
-        private void OnMoveWaypointsDown(int[] indexes)
+        [Event, Reliable, Server, Broadcast]
+        private void OnMoveWaypointsDown(List<int> indexes)
         {
-            for (int i = indexes.Length - 1; i >= 0; i--)
+            for (int i = indexes.Count - 1; i >= 0; i--)
             {
                 int index = indexes[i];
                 Debug.Assert(index < m_waypoints.Count - 1);
@@ -945,14 +1126,16 @@ namespace Sandbox.Game.Entities
                     var item = m_selectedWaypoints[i];
                     indexes[i] = m_waypoints.IndexOf(item);
                 }
+
                 Array.Sort(indexes);
-
-                SyncObject.RemoveWaypoints(indexes);
-
+                MyMultiplayer.RaiseEvent(this, x => x.OnRemoveWaypoints, indexes);
+               
                 m_selectedWaypoints.Clear();
+                RaisePropertiesChangedRemote();
             }
         }
 
+        [Event, Reliable, Server, Broadcast]
         private void OnRemoveWaypoints(int[] indexes)
         {
             bool currentWaypointRemoved = false;
@@ -973,15 +1156,22 @@ namespace Sandbox.Game.Entities
             RaisePropertiesChangedRemote();
         }
 
-        private void ChangeFlightMode(FlightMode flightMode)
+        public void ChangeFlightMode(FlightMode flightMode)
         {
             if (flightMode != m_currentFlightMode)
             {
                 m_currentFlightMode.Value = flightMode;
             }
+
+            SetAutoPilotEnabled(m_autoPilotEnabled);
         }
 
-        private void ChangeDirection(Base6Directions.Direction direction)
+        public void SetAutoPilotSpeedLimit(float speedLimit)
+        {
+            m_currentAutopilotSpeedLimit = speedLimit;
+        }
+
+        public void ChangeDirection(Base6Directions.Direction direction)
         {
             m_currentDirection.Value = direction;
         }
@@ -1100,10 +1290,11 @@ namespace Sandbox.Game.Entities
         {
             if (m_clipboard != null)
             {
-                SyncObject.SendPasteAutopilotSettings(m_clipboard);
+                MyMultiplayer.RaiseEvent(this, x => x.OnPasteAutopilotSetup, m_clipboard);
             }
         }
 
+        [Event, Reliable, Server, Broadcast]
         private void OnPasteAutopilotSetup(MyObjectBuilder_AutopilotClipboard clipboard)
         {
             m_currentDirection.Value = (Base6Directions.Direction)clipboard.Direction;
@@ -1144,22 +1335,48 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        void ModAPI.Ingame.IMyRemoteControl.GetWaypointInfo(List<MyWaypointInfo> waypoints)
+        {
+            if (waypoints == null)
+                return;
+            waypoints.Clear();
+            for (int index = 0; index < m_waypoints.Count; index++)
+            {
+                var waypoint = m_waypoints[index];
+                waypoints.Add(new MyWaypointInfo(waypoint.Name, waypoint.Coords));
+            }
+        }
+
         [Event, Reliable, Server, BroadcastExcept]
         void ClearWaypoints_Implementation()
         {
             m_waypoints.Clear();
+            m_currentAutopilotSpeedLimit = m_autopilotSpeedLimit;
             AdvanceWaypoint();
             RaisePropertiesChangedRemote();
         }
 
         public void AddWaypoint(Vector3D point, string name)
         {
-            SyncObject.AddWaypoint(point, name);
+            MyMultiplayer.RaiseEvent(this, x => x.OnAddWaypoint, point, name);
         }
 
+        [Event, Reliable, Server, Broadcast]
         private void OnAddWaypoint(Vector3D point, string name)
         {
             m_waypoints.Add(new MyAutopilotWaypoint(point, name, this));
+            RaisePropertiesChangedRemote();
+        }
+
+        public void AddWaypoint(Vector3D point, string name, List<MyObjectBuilder_ToolbarItem> actionBuilders)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnAddWaypoint, point, name, actionBuilders);
+        }
+
+        [Event,Reliable,Server,Broadcast]
+        private void OnAddWaypoint(Vector3D point, string name, [DynamicItem(typeof(MyObjectBuilderDynamicSerializer))] List<MyObjectBuilder_ToolbarItem> actionBuilders)
+        {
+            m_waypoints.Add(new MyAutopilotWaypoint(point, name, actionBuilders, null, this));
             RaisePropertiesChangedRemote();
         }
 
@@ -1243,7 +1460,7 @@ namespace Sandbox.Game.Entities
         {
             if (m_selectedWaypoints.Count == 1)
             {
-                SyncObject.SendToolbarItemChanged(ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
+                SendToolbarItemChanged(ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
             }
         }
 
@@ -1299,50 +1516,118 @@ namespace Sandbox.Game.Entities
                             AdvanceWaypoint();
                         }
 
-                        if (Sync.IsServer && CurrentWaypoint != null && !IsInStoppingDistance())
+                        if (MyFakes.ENABLE_VR_REMOTE_CONTROL_WAYPOINTS_FAST_MOVEMENT)
+                        {
+                            // Skip all reached waypoints at once
+                            MyAutopilotWaypoint oldWaypoint = null;
+                            while (CurrentWaypoint != null && CurrentWaypoint != oldWaypoint 
+                                && (m_automaticBehaviour == null || !m_automaticBehaviour.IsActive) 
+                                && IsInStoppingDistance())
+                            {
+                                oldWaypoint = CurrentWaypoint;
+                                AdvanceWaypoint();
+                            }
+                        }
+
+                        if (Sync.IsServer && CurrentWaypoint != null && !IsInStoppingDistance() && m_autoPilotEnabled) // Autopilot can be disabled in AdvanceWaypoint
                         {
                             Vector3D deltaPos, perpDeltaPos, targetDelta;
                             bool rotating, isLabile;
+                            float autopilotSpeedLimit;
 
-                            CalculateDeltaPos(out deltaPos, out perpDeltaPos, out targetDelta);
+                            CalculateDeltaPos(out deltaPos, out perpDeltaPos, out targetDelta, out autopilotSpeedLimit);
                             UpdateGyro(targetDelta, perpDeltaPos, out rotating, out isLabile);
 
                             m_stuckDetection.SetRotating(rotating);
 
-                            if (rotating && !isLabile)
+                            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
+                                MyRenderProxy.DebugDrawLine3D(WorldMatrix.Translation, WorldMatrix.Translation + deltaPos, Color.Green, Color.GreenYellow, false, false);
+                            m_rotateFor -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                            if ((m_automaticBehaviour == null || m_automaticBehaviour.RotateToTarget == false || m_automaticBehaviour.CurrentTarget == null) 
+                                && rotating && !isLabile
+                                && (!MyFakes.ENABLE_NEW_COLLISION_AVOIDANCE || !m_useCollisionAvoidance.Value || Vector3D.DistanceSquared(CurrentWaypoint.Coords, CubeGrid.WorldMatrix.Translation) < 25))
                             {
-								if (thrustComp != null)
+                                if (thrustComp != null)
                                     thrustComp.AutoPilotControlThrust = Vector3.Zero;
                             }
                             else
                             {
-                                UpdateThrust(deltaPos, perpDeltaPos);
+                                UpdateThrust(deltaPos, perpDeltaPos, autopilotSpeedLimit);
                             }
                         }
                     }
+                    else if (Sync.IsServer && m_automaticBehaviour != null && m_automaticBehaviour.IsActive && m_automaticBehaviour.RotateToTarget)
+                    {
+                        bool rotating, isLabile;
+                        UpdateGyro(Vector3.Zero, Vector3.Zero, out rotating, out isLabile);
 
-                    m_stuckDetection.Update(this.WorldMatrix.Translation, this.WorldMatrix.Forward);
+                        if (rotating && !isLabile)
+                        {
+                            if (thrustComp != null)
+                                thrustComp.AutoPilotControlThrust = Vector3.Zero;
+                        }
+                    }
+
+                    m_stuckDetection.Update(this.WorldMatrix.Translation, this.WorldMatrix.Forward, CurrentWaypoint == null ? Vector3D.Zero : CurrentWaypoint.Coords);
                 }
+
+                if (m_automaticBehaviour != null)
+                    m_automaticBehaviour.Update();
             }
         }
 
         private bool IsInStoppingDistance()
         {
-            double cubesErrorAllowed = 3;
             int currentIndex = m_waypoints.IndexOf(CurrentWaypoint);
+            double currentDstSqr = (WorldMatrix.Translation - CurrentWaypoint.Coords).LengthSquared();
+            double dstError = CubeGrid.GridSize * 3;
 
-            if (m_dockingModeEnabled || (m_currentFlightMode == FlightMode.OneWay && currentIndex == m_waypoints.Count - 1))
+            if (m_automaticBehaviour != null && m_automaticBehaviour.IsActive)
             {
-                cubesErrorAllowed = 0.25;
+                dstError = m_automaticBehaviour.WaypointThresholdDistance;
+            }
+            else if (m_waypointThresholdDistance > 0)
+            {
+                dstError = m_waypointThresholdDistance;
+            }
+            else if (m_dockingModeEnabled || (m_currentFlightMode == FlightMode.OneWay && currentIndex == m_waypoints.Count - 1))
+            {
+                if (CubeGrid.GridSize >= 0.5f)
+                    dstError = CubeGrid.GridSize * 0.25;
+                else
+                    dstError = CubeGrid.GridSize;
             }
 
-            return (WorldMatrix.Translation - CurrentWaypoint.Coords).LengthSquared() < CubeGrid.GridSize * CubeGrid.GridSize * cubesErrorAllowed * cubesErrorAllowed;
+            if (MyFakes.ENABLE_VR_REMOTE_CONTROL_WAYPOINTS_FAST_MOVEMENT)
+            {
+                // Check if movement from previous position to current position intersects waypoint sphere.
+                if (currentDstSqr < dstError * dstError)
+                    return true;
+
+                double prevDstSqr = (m_previousWorldPosition - CurrentWaypoint.Coords).LengthSquared();
+                if (prevDstSqr < dstError * dstError)
+                    return true;
+
+                var dir = WorldMatrix.Translation - m_previousWorldPosition;
+                double rayLength = dir.Normalize();
+                if (rayLength > 0.01)
+                {
+                    RayD ray = new RayD(m_previousWorldPosition, dir);
+                    BoundingSphereD sphere = new BoundingSphereD(CurrentWaypoint.Coords, dstError);
+                    double? intersection = sphere.Intersects(ray);
+                    return (intersection != null) ? intersection.Value <= rayLength : false;
+                }
+            }
+
+            return currentDstSqr < dstError * dstError;
         }
 
         private void AdvanceWaypoint()
         {
             int currentIndex = m_waypoints.IndexOf(CurrentWaypoint);
-            var m_oldWaypoint = CurrentWaypoint;
+            var oldWaypoint = CurrentWaypoint;
+
+            bool enableAutopilot = m_autoPilotEnabled;
 
             if (m_waypoints.Count > 0)
             {
@@ -1357,7 +1642,14 @@ namespace Sandbox.Game.Entities
                         currentIndex++;
                         if (currentIndex >= m_waypoints.Count)
                         {
-                            currentIndex = m_waypoints.Count - 2;
+                            if (m_waypoints.Count != 1)
+                            {
+                                currentIndex = m_waypoints.Count - 2;
+                            }
+                            else
+                            {
+                                currentIndex = 0;
+                            }
                             m_patrolDirectionForward = false;
                         }
                     }
@@ -1367,6 +1659,10 @@ namespace Sandbox.Game.Entities
                         if (currentIndex < 0)
                         {
                             currentIndex = 1;
+                            if (m_waypoints.Count == 1)
+                            {
+                                currentIndex = 0;
+                            }
                             m_patrolDirectionForward = true;
                         }
                     }
@@ -1385,7 +1681,10 @@ namespace Sandbox.Game.Entities
 						if(thrustComp != null)
                         thrustComp.AutoPilotControlThrust = Vector3.Zero;
 
-                        if (Sync.IsServer) SetAutoPilotEnabled(false);
+                        if (Sync.IsServer)
+                        {
+                            enableAutopilot = false;
+                        }
                     }
                 }
             }
@@ -1393,7 +1692,10 @@ namespace Sandbox.Game.Entities
             if (currentIndex < 0 || currentIndex >= m_waypoints.Count)
             {
                 CurrentWaypoint = null;
-                if (Sync.IsServer) SetAutoPilotEnabled(false);
+                if (Sync.IsServer)
+                {
+                    enableAutopilot = false;
+                }
                 UpdatePlanetWaypointInfo();
                 UpdateText();
             }
@@ -1401,17 +1703,32 @@ namespace Sandbox.Game.Entities
             {
                 CurrentWaypoint = m_waypoints[currentIndex];
 
-                if (CurrentWaypoint != m_oldWaypoint)
+                if (CurrentWaypoint != oldWaypoint || m_waypoints.Count == 1)
                 {
-                    if (Sync.IsServer && m_oldWaypoint.Actions != null && m_autoPilotEnabled)
+                    if (Sync.IsServer && oldWaypoint.Actions != null)
                     {
-                        for (int i = 0; i < m_oldWaypoint.Actions.Length; i++)
+                        for (int i = 0; i < oldWaypoint.Actions.Length; i++)
                         {
-                            if (m_oldWaypoint.Actions[i] != null)
+                            if (oldWaypoint.Actions[i] != null)
                             {
-                                m_actionToolbar.SetItemAtIndex(0, m_oldWaypoint.Actions[i]);
+                                m_actionToolbar.SetItemAtIndex(0, oldWaypoint.Actions[i]);
                                 m_actionToolbar.UpdateItem(0);
                                 m_actionToolbar.ActivateItemAtSlot(0);
+
+                                var action = m_actionToolbar.GetItemAtSlot(0);
+                                
+                                //The action activated maybe to activate autopilot. Then we must take this into account
+                                if (Sync.IsServer && action != null && action.DisplayName.ToString().Contains("Autopilot"))
+                                {
+                                    enableAutopilot = m_autoPilotEnabled.Value;
+                                }
+                                
+                                //by Gregory temporary fix in order not to get the action looping for one waypoint
+                                if (Sync.IsServer && m_waypoints.Count == 1)
+                                {
+                                    enableAutopilot = false;
+                                }
+                                
                             }
                         }
                         m_actionToolbar.Clear();
@@ -1422,7 +1739,16 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            m_stuckDetection.Reset();
+            if (Sync.IsServer && enableAutopilot != m_autoPilotEnabled)
+            {
+                SetAutoPilotEnabled(enableAutopilot);
+            }
+
+            bool forceResetStuckDetection = m_automaticBehaviour != null && m_automaticBehaviour.IsActive && m_automaticBehaviour.ResetStuckDetection;
+            m_stuckDetection.Reset(force: forceResetStuckDetection);
+
+            if (m_automaticBehaviour != null)
+                m_automaticBehaviour.WaypointAdvanced();
         }
 
         private void UpdatePlanetWaypointInfo()
@@ -1436,7 +1762,7 @@ namespace Sandbox.Game.Entities
             q1.Conjugate();
             QuaternionD r = q2 * q1;
 
-            double angle = 2 * System.Math.Acos(r.W);
+            double angle = 2 * System.Math.Acos(MathHelper.Clamp(r.W, -1, 1));
             if (angle > Math.PI)
             {
                 angle -= 2.0 * Math.PI;
@@ -1477,7 +1803,7 @@ namespace Sandbox.Game.Entities
                 target = QuaternionD.CreateFromForwardUp(targetDirection, -gravity);
 
                 // If directly above or below the target, the target orientation changes very quickly
-                isLabile = Math.Abs(Vector3D.Dot(targetDirection, gravity)) < 0.001;
+                isLabile = Vector3D.Dot(targetDirection, orientation.Forward) > 0.95 || Math.Abs(Vector3D.Dot(Vector3D.Normalize(deltaPos), gravity)) > 0.95;
             }
             else
             {
@@ -1486,27 +1812,56 @@ namespace Sandbox.Game.Entities
                 target = QuaternionD.CreateFromForwardUp(targetDirection, orientation.Up);
             }
 
+            // Rotate to enemy player when strafing
+            if (m_automaticBehaviour != null && m_automaticBehaviour.IsActive && m_automaticBehaviour.RotateToTarget && m_automaticBehaviour.CurrentTarget != null)
+            {
+                isLabile = false;
+                var forwardOrientation = MatrixD.CreateWorld(Vector3D.Zero, (Vector3D)Base6Directions.GetVector(Base6Directions.Direction.Forward), m_upVectors[Base6Directions.Direction.Forward]);
+                orientation = forwardOrientation * WorldMatrix.GetOrientation();
+                current = QuaternionD.CreateFromRotationMatrix(orientation);
+
+                targetDirection = m_automaticBehaviour.CurrentTarget.WorldMatrix.Translation - WorldMatrix.Translation;
+                if (m_automaticBehaviour.CurrentTarget is MyCharacter)
+                    targetDirection += m_automaticBehaviour.CurrentTarget.WorldMatrix.Up * m_automaticBehaviour.PlayerYAxisOffset;
+                targetDirection.Normalize();
+
+                Vector3D up = m_automaticBehaviour.CurrentTarget.WorldMatrix.Up;
+                up.Normalize();
+
+                if (Math.Abs(Vector3D.Dot(targetDirection, up)) >= 0.98)
+                {
+                    up = Vector3D.CalculatePerpendicularVector(targetDirection);
+                }
+                else
+                {
+                    Vector3D right = Vector3D.Cross(targetDirection, up);
+                    up = Vector3D.Cross(right, targetDirection);
+                }
+
+                target = QuaternionD.CreateFromForwardUp(targetDirection, up);
+
+                //rotating = false;
+            }
+
             Vector3D velocity = GetAngleVelocity(current, target);
             Vector3D velocityToTarget = velocity * angularVelocity.Dot(ref velocity);
 
             velocity = Vector3D.Transform(velocity, invWorldRot);
+            double angle = System.Math.Acos(MathHelper.Clamp(Vector3D.Dot(targetDirection, orientation.Forward),-1,1));
 
-            double angle = System.Math.Acos(Vector3D.Dot(targetDirection, orientation.Forward));
+            TargettingAimDelta = angle;
             if (angle < 0.01)
             {
                 rotating = false;
                 return;
             }
 
-            if (velocity.LengthSquared() > 1.0)
-            {
-                Vector3D.Normalize(velocity);
-            }
+            rotating = rotating && !RotateBetweenWaypoints;
 
             Vector3D deceleration = angularVelocity - gyros.GetAngularVelocity(-velocity);
             double timeToStop = (angularVelocity / deceleration).Max();
             double timeToReachTarget = (angle / velocityToTarget.Length()) * angle;
-
+            // TODO: this should be rewritten (no IsNan, IsInfinity)
             if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > timeToStop)
             {
                 if (m_dockingModeEnabled)
@@ -1514,6 +1869,12 @@ namespace Sandbox.Game.Entities
                     velocity /= 4.0;
                 }
                 gyros.ControlTorque = velocity;
+                gyros.MarkDirty();
+            }
+            else if (angle < 0.1 && m_automaticBehaviour != null && m_automaticBehaviour.RotateToTarget && m_automaticBehaviour.CurrentTarget != null)
+            {
+                gyros.ControlTorque = velocity / 3.0;
+                gyros.MarkDirty();
             }
 
             if (m_dockingModeEnabled)
@@ -1526,9 +1887,9 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void CalculateDeltaPos(out Vector3D deltaPos, out Vector3D perpDeltaPos, out Vector3D targetDelta)
+        private void CalculateDeltaPos(out Vector3D deltaPos, out Vector3D perpDeltaPos, out Vector3D targetDelta, out float autopilotSpeedLimit)
         {
-            m_autopilotSpeedLimit = 120.0f;
+            autopilotSpeedLimit = m_currentAutopilotSpeedLimit;
             m_currentInfo.Calculate(WorldMatrix.Translation);
             Vector3D targetPos = CurrentWaypoint.Coords;
             Vector3D currentPos = WorldMatrix.Translation;
@@ -1536,7 +1897,15 @@ namespace Sandbox.Game.Entities
 
             if (m_useCollisionAvoidance)
             {
-                deltaPos = AvoidCollisions(targetDelta);
+                if (MyFakes.ENABLE_NEW_COLLISION_AVOIDANCE)
+                {
+                    deltaPos = AvoidCollisionsVs2(targetDelta, ref autopilotSpeedLimit);
+                    targetDelta = deltaPos;
+                }
+                else
+                {
+                    deltaPos = AvoidCollisions(targetDelta, ref autopilotSpeedLimit);
+                }
             }
             else
             {
@@ -1546,7 +1915,263 @@ namespace Sandbox.Game.Entities
             perpDeltaPos = Vector3D.Reject(targetDelta, m_currentInfo.GravityWorld);
         }
 
-        private Vector3D AvoidCollisions(Vector3D delta)
+        public struct DetectedObject
+        {
+            public float Distance;
+            public Vector3D Position;
+            public bool IsVoxel;
+
+            public DetectedObject(float dist, Vector3D pos, bool voxel)
+            {
+                Distance = dist;
+                Position = pos;
+                IsVoxel = voxel;
+            }
+        }
+
+        private void FillListOfDetectedObjects(Vector3D pos, MyEntity parentEntity, ref int listLimit, ref Vector3D shipFront, ref float closestEntityDist, ref MyEntity closestEntity)
+        {
+            float dist = Vector3.DistanceSquared((Vector3)pos, (Vector3)shipFront);
+            if (dist < closestEntityDist)
+            {
+                closestEntityDist = dist;
+                closestEntity = parentEntity;
+            }
+            if (m_detectedObstacles.Count == 0)
+            {
+                m_detectedObstacles.Add(new DetectedObject(dist, pos, parentEntity is MyVoxelBase));
+            }
+            else
+            {
+                for (int i = 0; i < m_detectedObstacles.Count; i++)
+                {
+                    if (dist < m_detectedObstacles[i].Distance)
+                    {
+                        if (m_detectedObstacles.Count == listLimit)
+                            m_detectedObstacles.RemoveAt(listLimit - 1);
+                        m_detectedObstacles.AddOrInsert(new DetectedObject(dist, pos, parentEntity is MyVoxelBase), i);
+                        break;
+                    }
+                }
+            }
+            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
+                MyRenderProxy.DebugDrawSphere(pos, 1.5f, Color.Red, 1f, false);
+        }
+
+        private Vector3D AvoidCollisionsVs2(Vector3D delta, ref float autopilotSpeedLimit)
+        {
+            if (m_collisionAvoidanceFrameSkip > 0)
+            {
+                m_collisionAvoidanceFrameSkip--;
+                autopilotSpeedLimit = m_lastAutopilotSpeedLimit;
+                return m_lastDelta;
+            }
+            m_collisionAvoidanceFrameSkip = 19;
+
+            MyEntityThrustComponent thrustSystem = CubeGrid.Components.Get<MyEntityThrustComponent>();
+            if (thrustSystem == null)
+                return delta;
+
+            bool debugDraw = MyDebugDrawSettings.ENABLE_DEBUG_DRAW;
+            //debugDraw = true;
+            float farRatio = 1;
+            int listLimit = 5;
+            bool avoidCharacters = true;
+            Vector3D originalDelta = delta;
+
+            //detection values
+            float mass = CubeGrid.GetCurrentMass();
+            float velocity = Math.Max(CubeGrid.Physics.LinearVelocity.Length(), 3);
+            float radiusRatio = velocity <= 3 ? 1 : 1.25f;
+            float thrusterForce = thrustSystem.GetMaxThrustInDirection(m_currentDirection.Value);
+            double decceleration = thrusterForce / mass;
+            double deccelerationTime = velocity / decceleration;
+            double stoppingDistance = deccelerationTime * velocity / 2;
+
+            //detection positions
+            Vector3D direction = Vector3D.Normalize(CubeGrid.Physics.LinearVelocity);
+            Vector3D speedDelta = direction * stoppingDistance;
+            Vector3D shipFront = CubeGrid.PositionComp.LocalVolume.Radius * direction + CubeGrid.PositionComp.WorldAABB.Center;
+            Vector3D shipBack = CubeGrid.PositionComp.WorldAABB.Center - CubeGrid.PositionComp.LocalVolume.Radius * direction;
+            Vector3D farPoint = shipFront + direction * stoppingDistance;
+
+            //bounding boxes
+            Quaternion orientation = Quaternion.CreateFromForwardUp(direction, CubeGrid.WorldMatrix.Up);
+            MatrixD orientationMatrix = MatrixD.CreateFromQuaternion(orientation);
+            MyOrientedBoundingBoxD closeBoundingBox = new MyOrientedBoundingBoxD((shipBack + farPoint) / 2, new Vector3D(CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio, CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio, stoppingDistance / 2 + CubeGrid.PositionComp.LocalVolume.Radius * 2), orientation);
+            MyOrientedBoundingBoxD farBoundingBox = new MyOrientedBoundingBoxD(farPoint + farRatio * speedDelta / 2, new Vector3D(CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio, CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio, farRatio * stoppingDistance / 2), orientation);
+            BoundingBoxD closeBoundingBoxLocal = new BoundingBoxD(closeBoundingBox.Center - closeBoundingBox.HalfExtent, closeBoundingBox.Center + closeBoundingBox.HalfExtent);
+            if (debugDraw && m_rotateFor <= 0)
+            {
+                MyRenderProxy.DebugDrawOBB(closeBoundingBox, Color.Red, 0.25f, false, false, false);
+                //MyRenderProxy.DebugDrawLine3D(shipFront, farPoint, Color.Red, Color.Yellow, false, false);
+            }
+
+            //close check - find all possible obstacles in boundaries
+            BoundingSphereD sphere = new BoundingSphereD(shipFront + speedDelta / 2, stoppingDistance / 2);
+            List<MyEntity> resultEntities = new List<MyEntity>();
+            List<MySlimBlock> resultBlocks = new List<MySlimBlock>();
+            MyGamePruningStructure.GetAllTargetsInSphere(ref sphere, resultEntities, MyEntityQueryType.Both);
+            MyEntity closestEntity = null;
+            float closestEntityDist = float.MaxValue;
+            bool voxels = false;
+            foreach (var entity in resultEntities)
+            {
+                if (entity is MyCubeGrid)
+                {
+                    MyCubeGrid grid = (MyCubeGrid)entity;
+                    if (MyCubeGridGroups.Static.Physical.GetGroup(CubeGrid) == MyCubeGridGroups.Static.Physical.GetGroup(grid))
+                        continue;
+
+                    foreach (var block in grid.GetBlocks())
+                    {
+                        Vector3D pos = block.WorldPosition;
+                        if (closeBoundingBox.Contains(ref pos))
+                            FillListOfDetectedObjects(pos, grid, ref listLimit, ref shipFront, ref closestEntityDist, ref closestEntity);
+                    }
+                }
+                if (entity is MyCharacter && avoidCharacters)
+                    FillListOfDetectedObjects(entity.WorldMatrix.Translation, entity, ref listLimit, ref shipFront, ref closestEntityDist, ref closestEntity);
+
+                if (entity is MyVoxelBase)
+                    voxels = true;
+            }
+
+            //voxels are inside bounding box - use raycasting to find obstacles
+            bool centralRaycast = false;
+            if (voxels)
+            {
+                Vector3D[] corners = new Vector3D[8];
+                closeBoundingBox.GetCorners(corners, 0);
+
+                for (int i = -1; i < 4; i++)
+                {
+                    Vector3D targetPosition = i >= 0 ? corners[i + 4] : farPoint;//raycast far corners of bounding box and center of far face of bounding box
+                    MyPhysics.HitInfo? hitInfo = MyPhysics.CastRay(shipFront + direction * 0.1, targetPosition);
+                    if (hitInfo != null)
+                    {
+                        MyEntity target = hitInfo.Value.HkHitInfo.Body.UserObject as MyEntity;
+                        if (target == null && hitInfo.Value.HkHitInfo.Body.UserObject is MyVoxelPhysicsBody)
+                            target = ((MyVoxelPhysicsBody)hitInfo.Value.HkHitInfo.Body.UserObject).Entity as MyEntity;
+                        FillListOfDetectedObjects(hitInfo.Value.Position, target, ref listLimit, ref shipFront, ref closestEntityDist, ref closestEntity);
+
+                        if (i == -1 && targetPosition != null)
+                            centralRaycast = true;
+                    }
+
+                    if (debugDraw)
+                        MyRenderProxy.DebugDrawLine3D(shipFront, targetPosition, Color.Pink, Color.White, false, false);
+                }
+            }
+
+            //at least one obstacle detected
+            if (closestEntityDist < float.MaxValue)
+            {
+                m_rotateFor = 3f;
+                int detectedCount = 0;
+                Vector3D avoidPositionAverage = Vector3D.Zero;
+                bool voxelTunnel = false;
+                if (!centralRaycast)
+                {
+                    for (int i = 0; i < m_detectedObstacles.Count; i++)
+                    {
+                        if (i == 4)
+                        {
+                            voxelTunnel = true;
+                            break;
+                        }
+                        if (!m_detectedObstacles[i].IsVoxel)
+                            break;
+                    }
+                }
+
+                if (voxelTunnel)//special case when inside voxel tunnel
+                {
+                    avoidPositionAverage = farPoint;
+                }
+                else
+                {
+                    //go through 5 closest obstacles that are also close to closest obstacle and create correction course
+                    for (int i = 0; i < m_detectedObstacles.Count; i++)
+                    {
+                        if (i == 0 || m_detectedObstacles[i].Distance - m_detectedObstacles[0].Distance < 15 * 15)
+                        {
+                            detectedCount++;
+                            Vector3D toObstacle = m_detectedObstacles[i].Position - CubeGrid.WorldMatrix.Translation;
+                            Vector3D crossUp = Vector3D.Cross(delta, toObstacle);
+                            Vector3D crossObstacle = Vector3D.Cross(crossUp, delta);
+                            //Vector3D avoidPosition = closestEntityPos - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * 2;
+                            Vector3D avoidPosition = m_detectedObstacles[i].Position - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio * 2;
+                            if (debugDraw)
+                                MyRenderProxy.DebugDrawLine3D(CubeGrid.WorldMatrix.Translation, avoidPosition, Color.White, Color.Tomato, false, false);
+                            avoidPositionAverage += avoidPosition;
+                        }
+                    }
+                    avoidPositionAverage /= detectedCount;
+                }
+                /*
+                //Vector3D toObstacle = closestEntityPos - CubeGrid.WorldMatrix.Translation;
+                Vector3D toObstacle = average - CubeGrid.WorldMatrix.Translation;
+                Vector3D crossUp = Vector3D.Cross(delta, toObstacle);
+                Vector3D crossObstacle = Vector3D.Cross(crossUp, delta);
+                //Vector3D avoidPosition = closestEntityPos - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * 2;
+                Vector3D avoidPosition = closestEntityPos - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio * 2;
+                MyRenderProxy.DebugDrawLine3D(closestEntityPos, avoidPosition, Color.Red, Color.GreenYellow, false, false);*/
+                //delta = (avoidPosition - CubeGrid.WorldMatrix.Translation) * 15;
+                //delta = (avoidPosition - closestEntityPos) * 50;
+
+                autopilotSpeedLimit = 1 + autopilotSpeedLimit * ((float)Math.Sqrt(closestEntityDist)) / ((float)stoppingDistance) * 0.5f;
+                if (detectedCount < 5 || voxelTunnel)//voxel tunnel or less than 5 close obstacles
+                    delta = (avoidPositionAverage - CubeGrid.WorldMatrix.Translation);
+                else if (closestEntity != null)//5+ close obstacles (wall for example)
+                {
+                    Vector3D toObstacle = closestEntity.WorldMatrix.Translation - CubeGrid.WorldMatrix.Translation;
+                    Vector3D crossUp = Vector3D.Cross(delta, toObstacle);
+                    Vector3D crossObstacle = Vector3D.Cross(crossUp, delta);
+                    delta = (closestEntity.WorldMatrix.Translation - Vector3D.Normalize(crossObstacle) * CubeGrid.PositionComp.LocalVolume.Radius * radiusRatio * 2) - closestEntity.WorldMatrix.Translation;
+                    delta *= 2f;
+                    autopilotSpeedLimit *= 0.75f;
+                }
+
+                //check if resulting course is not to close to first obstacle
+                Vector3D deltaNormalized = Vector3D.Normalize(delta);
+                float dot = (float)Vector3D.Dot(deltaNormalized, Vector3D.Normalize(m_detectedObstacles[0].Position - CubeGrid.WorldMatrix.Translation));
+                if (dot > 0.5f)
+                    delta *= -1;
+                else
+                {//check if resulting course is not heading in completely opposite direction from target
+                    dot = (float)Vector3D.Dot(deltaNormalized, Vector3D.Normalize(originalDelta));
+                    if (dot < -0.5f)
+                        delta = originalDelta;
+                }
+
+                if(debugDraw)
+                    MyRenderProxy.DebugDrawLine3D(CubeGrid.WorldMatrix.Translation, CubeGrid.WorldMatrix.Translation + delta, Color.Red, Color.Aquamarine, false, false);
+                //MatrixD toObstacle = MatrixD.CreateFromDir(shipFront - closestEntityPos);
+                //delta = CubeGrid.PositionComp.GetPosition() - (closestEntityPos + toObstacle.Right * CubeGrid.PositionComp.LocalVolume.Radius / 2);
+            }
+            else
+            {
+                if (debugDraw && m_rotateFor <= 0)
+                {
+                    MyRenderProxy.DebugDrawLine3D(farPoint, farPoint + speedDelta, Color.Yellow, Color.Green, false, false);
+                    //MyRenderProxy.DebugDrawOBB(farBoundingBox, Color.Green, 0.25f, false, false, false);
+                }
+            }
+            m_detectedObstacles.Clear();
+
+            //keep last course for some time after no obstacles are found
+            if (closestEntityDist == float.MaxValue && m_rotateFor > 1.5f)
+            {
+                autopilotSpeedLimit = m_lastAutopilotSpeedLimit;
+                return m_lastDelta;
+            }
+            m_lastAutopilotSpeedLimit = autopilotSpeedLimit;
+            m_lastDelta = delta;
+            return delta;
+        }
+
+        private Vector3D AvoidCollisions(Vector3D delta, ref float autopilotSpeedLimit)
         {
             if (m_collisionCtr <= 0)
             {
@@ -1558,20 +2183,26 @@ namespace Sandbox.Game.Entities
                 return m_oldCollisionDelta;
             }
 
-            bool drawDebug = MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_DRONES;
+            bool drawDebug = MyDebugDrawSettings.ENABLE_DEBUG_DRAW;// && MyDebugDrawSettings.DEBUG_DRAW_DRONES;
 
             Vector3D originalDelta = delta;
 
             Vector3D origin = this.CubeGrid.Physics.CenterOfMassWorld;
             double shipRadius = this.CubeGrid.PositionComp.WorldVolume.Radius * 1.3f;
+            if (MyFakes.ENABLE_VR_DRONE_COLLISIONS) //TODO VR: this MyFake should be enabled in VR but disabled in SE
+                shipRadius = this.CubeGrid.PositionComp.WorldVolume.Radius * 1f;
 
             Vector3D linVel = this.CubeGrid.Physics.LinearVelocity;
 
             double vel = linVel.Length();
             double detectionRadius = this.CubeGrid.PositionComp.WorldVolume.Radius * 10.0f + (vel * vel) * 0.05;
+            if (MyFakes.ENABLE_VR_DRONE_COLLISIONS)
+                detectionRadius = this.CubeGrid.PositionComp.WorldVolume.Radius + (vel * vel) * 0.05;
             BoundingSphereD sphere = new BoundingSphereD(origin, detectionRadius);
 
             Vector3D testPoint = sphere.Center + linVel * 2.0f;
+            if (MyFakes.ENABLE_VR_DRONE_COLLISIONS)
+                testPoint = sphere.Center + linVel;
 
             if (drawDebug)
             {
@@ -1587,8 +2218,13 @@ namespace Sandbox.Game.Entities
             double maxAvCoeff = 0.0f;
 
             var entities = MyEntities.GetTopMostEntitiesInSphere(ref sphere);
-            var strongestPlanet = MyGravityProviderSystem.GetStrongestGravityWell(origin);
-            if (!entities.Contains(strongestPlanet)) entities.Add(strongestPlanet);
+            IMyGravityProvider well;
+            if (MyGravityProviderSystem.GetStrongestNaturalGravityWell(origin, out well) > 0 && well is MyGravityProviderComponent)
+            {
+                MyEntity e = (MyEntity)((MyGravityProviderComponent)well).Entity;
+                if (!entities.Contains(e)) entities.Add(e);
+            }
+
             for (int i = 0; i < entities.Count; ++i)
             {
                 var entity = entities[i];
@@ -1598,8 +2234,26 @@ namespace Sandbox.Game.Entities
                 Vector3D steeringDelta = Vector3D.Zero;
                 Vector3D avoidanceDelta = Vector3D.Zero;
 
-                if ((entity is MyCubeGrid) || (entity is MyVoxelMap))
+                if ((entity is MyCubeGrid) || (entity is MyVoxelMap) || (entity is MySkinnedEntity))
                 {
+                    if (MyFakes.ENABLE_VR_DRONE_COLLISIONS && (entity is MyCubeGrid))
+                    {
+                        var grid = entity as MyCubeGrid;
+                        if (grid.IsStatic)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (entity is MyCubeGrid)
+                    {
+                        var grid = entity as MyCubeGrid;
+                        if(MyCubeGridGroups.Static.Physical.GetGroup(CubeGrid) == MyCubeGridGroups.Static.Physical.GetGroup(grid))
+                        {
+                            continue;
+                        }
+                    }
+
                     var otherSphere = entity.PositionComp.WorldVolume;
                     otherSphere.Radius += shipRadius;
                     Vector3D offset = otherSphere.Center - sphere.Center;
@@ -1611,7 +2265,7 @@ namespace Sandbox.Game.Entities
                     BoundingSphereD forbiddenSphere = new BoundingSphereD(otherSphere.Center + linVel, otherSphere.Radius + vel);
                     if (forbiddenSphere.Contains(testPoint) == ContainmentType.Contains)
                     {
-                        m_autopilotSpeedLimit = 2.0f;
+                        autopilotSpeedLimit = 2.0f;
                         if (drawDebug)
                         {
                             MyRenderProxy.DebugDrawSphere(forbiddenSphere.Center, (float)forbiddenSphere.Radius, Color.Red, 1.0f, false);
@@ -1645,18 +2299,21 @@ namespace Sandbox.Game.Entities
                 else if (entity is MyPlanet)
                 {
                     var planet = entity as MyPlanet;
+                    float gravityLimit = ((MySphericalNaturalGravityComponent)planet.Components.Get<MyGravityProviderComponent>()).GravityLimit;
+
                     Vector3D planetPos = planet.WorldMatrix.Translation;
                     Vector3D offset = planetPos - origin;
 
                     double dist = offset.Length();
-                    double distFromGravity = dist - planet.GravityLimit;
+
+                    double distFromGravity = dist - gravityLimit;
                     if (distFromGravity > PLANET_AVOIDANCE_RADIUS || distFromGravity < -PLANET_AVOIDANCE_TOLERANCE) continue;
 
                     Vector3D repulsionPoleDir = planetPos - m_currentWaypoint.Coords;
                     if (Vector3D.IsZero(repulsionPoleDir)) repulsionPoleDir = Vector3.Up;
                     else repulsionPoleDir.Normalize();
 
-                    Vector3D repulsionPole = planetPos + repulsionPoleDir * planet.GravityLimit;
+                    Vector3D repulsionPole = planetPos + repulsionPoleDir * gravityLimit;
 
                     Vector3D toCenter = offset;
                     toCenter.Normalize();
@@ -1699,9 +2356,9 @@ namespace Sandbox.Game.Entities
                     }
 
                     double testPointDist = (testPoint - planetPos).Length();
-                    if (testPointDist < planet.GravityLimit) m_autopilotSpeedLimit = 2.0f;
+                    if (testPointDist < gravityLimit) m_autopilotSpeedLimit.Value = 2.0f;
 
-                    double avCoeff = (planet.GravityLimit + PLANET_AVOIDANCE_RADIUS - testPointDist) / PLANET_AVOIDANCE_RADIUS;
+                    double avCoeff = (gravityLimit + PLANET_AVOIDANCE_RADIUS - testPointDist) / PLANET_AVOIDANCE_RADIUS;
 
                     steeringDelta *= avCoeff; // avCoeff == svLength
                     avoidanceDelta = -toCenter * avCoeff;
@@ -1745,7 +2402,7 @@ namespace Sandbox.Game.Entities
             return delta;
         }
 
-        private void UpdateThrust(Vector3D delta, Vector3D perpDelta)
+        private void UpdateThrust(Vector3D delta, Vector3D perpDelta, double maxSpeed)
         {
             var thrustSystem = CubeGrid.Components.Get<MyEntityThrustComponent>();
 	        if (thrustSystem == null)
@@ -1755,7 +2412,6 @@ namespace Sandbox.Game.Entities
 
             // Planet-related stuff
             m_dbgDeltaH = Vector3.Zero;
-            double maxSpeed = m_autopilotSpeedLimit;
             if (m_currentInfo.IsValid())
             {
                 // Sample several points around the bottom of the ship to get a better estimation of the terrain underneath
@@ -1808,7 +2464,7 @@ namespace Sandbox.Game.Entities
                 // Below 50m, the speed will be minimal, Above 150m, it will be maximal
                 // coeff(50) = 0, coeff(150) = 1
                 double coeff = (distanceToGround - 50.0) * 0.01;
-                if (coeff < 0.05) coeff = 0.05;
+                if (coeff < 0.05) coeff = 0.15;
                 if (coeff > 1.0f) coeff = 1.0f;
                 maxSpeed = maxSpeed * Math.Max(coeff, 0.05);
 
@@ -1824,10 +2480,11 @@ namespace Sandbox.Game.Entities
 
                 delta += m_dbgDeltaH;
 
+                //For now remove this (causes cubegrid to get stuck at a height)
                 // If we are very close to the ground, just thrust upward to avoid crashing.
                 // The coefficient is set-up that way that at 50m, this thrust will overcome the thrust to the target.
-                double groundAvoidanceCoeff = Math.Max(0.0, Math.Min(1.0, distanceToGround * 0.01));
-                delta = Vector3D.Lerp(-m_currentInfo.GravityWorld * delta.Length(), delta, groundAvoidanceCoeff);
+                //double groundAvoidanceCoeff = Math.Max(0.0, Math.Min(1.0, distanceToGround * 0.1));
+                //delta = Vector3D.Lerp(-m_currentInfo.GravityWorld * delta.Length(), delta, groundAvoidanceCoeff);
             }
 
             m_dbgDelta = delta;
@@ -1872,8 +2529,10 @@ namespace Sandbox.Game.Entities
 
             if ((double.IsInfinity(timeToReachTarget) || double.IsNaN(timeToStop) || timeToReachTarget > timeToStop) && velocity.LengthSquared() < (maxSpeed * maxSpeed))
             {
-                thrustSystem.AutoPilotControlThrust = Vector3D.Transform(delta, invWorldRot) - Vector3D.Transform(velocityToCancel, invWorldRot);
-                thrustSystem.AutoPilotControlThrust.Normalize();
+                Vector3 thrust = Vector3D.Transform(delta, invWorldRot) - Vector3D.Transform(velocityToCancel, invWorldRot);       
+                thrust.Normalize();
+                // becaouse of c# properties and structs 
+                thrustSystem.AutoPilotControlThrust = thrust;
             }
         }
 
@@ -1884,7 +2543,7 @@ namespace Sandbox.Game.Entities
 				thrustComp.DampenersEnabled = true;
         }
 
-        bool IMyRemoteControl.GetNearestPlayer(out Vector3D playerPosition)
+        bool ModAPI.Ingame.IMyRemoteControl.GetNearestPlayer(out Vector3D playerPosition)
         {
             playerPosition = default(Vector3D);
             if (!MySession.Static.Players.IdentityIsNpc(OwnerId))
@@ -1892,9 +2551,40 @@ namespace Sandbox.Game.Entities
                 return false;
             }
 
+            var player = GetNearestPlayer();
+            if (player == null)
+                return false;
+
+            playerPosition = player.Controller.ControlledEntity.Entity.WorldMatrix.Translation;
+            return true;
+        }
+
+        public bool GetNearestPlayer(out MatrixD playerWorldTransform, Vector3 offset)
+        {
+            playerWorldTransform = MatrixD.Identity;
+            if (!MySession.Static.Players.IdentityIsNpc(OwnerId))
+                return false;
+
+            var player = GetNearestPlayer();
+            if (player == null)
+                return false;
+
+            playerWorldTransform = player.Controller.ControlledEntity.Entity.WorldMatrix;
+            Vector3 offsetTransformed = Vector3.TransformNormal(offset, playerWorldTransform);
+            playerWorldTransform.Translation = playerWorldTransform.Translation + offsetTransformed;
+            return true;
+        }
+
+        public Vector3D GetNaturalGravity()
+        {
+            return MyGravityProviderSystem.CalculateNaturalGravityInPoint(WorldMatrix.Translation);
+        }
+
+        public MyPlayer GetNearestPlayer()
+        {
             Vector3D myPosition = this.WorldMatrix.Translation;
             double closestDistSq = double.MaxValue;
-            bool success = false;
+            MyPlayer result = null;
 
             foreach (var player in MySession.Static.Players.GetOnlinePlayers())
             {
@@ -1906,17 +2596,11 @@ namespace Sandbox.Game.Entities
                 if (distSq < closestDistSq)
                 {
                     closestDistSq = distSq;
-                    playerPosition = position;
-                    success = true;
+                    result = player;
                 }
             }
 
-            return success;
-        }
-
-        public Vector3D GetNaturalGravity()
-        {
-            return MyGravityProviderSystem.CalculateNaturalGravityInPoint(WorldMatrix.Translation);
+            return result;
         }
 
         /// <summary>
@@ -1925,7 +2609,7 @@ namespace Sandbox.Game.Entities
         /// <param name="originalDestination">The final destination that the remote wants to get to.</param>
         /// <param name="checkRadius">The maximum radius until which this method should search.</param>
         /// <param name="shipRadius">The radius of our ship. Make sure that this is large enough to avoid collision.</param>
-        Vector3D IMyRemoteControl.GetFreeDestination(Vector3D originalDestination, float checkRadius, float shipRadius)
+        Vector3D ModAPI.IMyRemoteControl.GetFreeDestination(Vector3D originalDestination, float checkRadius, float shipRadius)
         {
             MyCestmirDebugInputComponent.ClearDebugSpheres();
             MyCestmirDebugInputComponent.ClearDebugPoints();
@@ -1943,7 +2627,7 @@ namespace Sandbox.Game.Entities
             double closestIntersection = double.MaxValue;
             BoundingSphereD closestSphere = default(BoundingSphereD);
 
-            var entities = MyEntities.GetEntitiesInSphere(ref sphere);
+            var entities = MyEntities.GetTopMostEntitiesInSphere(ref sphere);
             for (int i = 0; i < entities.Count; ++i)
             {
                 var entity = entities[i];
@@ -1997,7 +2681,7 @@ namespace Sandbox.Game.Entities
         private bool TryFindSavedEntity()
         {
             MyEntity oldControllerEntity;
-            if (MyEntities.TryGetEntityById(m_savedPreviousControlledEntityId.Value, out oldControllerEntity))
+            if (m_savedPreviousControlledEntityId.HasValue && MyEntities.TryGetEntityById(m_savedPreviousControlledEntityId.Value, out oldControllerEntity))
             {
                 m_previousControlledEntity = (IMyControllableEntity)oldControllerEntity;
                 if (m_previousControlledEntity != null)
@@ -2017,7 +2701,7 @@ namespace Sandbox.Game.Entities
 
         public bool WasControllingCockpitWhenSaved()
         {
-            if (m_savedPreviousControlledEntityId != null)
+            if (m_savedPreviousControlledEntityId.HasValue)
             {
                 MyEntity oldControllerEntity;
                 if (MyEntities.TryGetEntityById(m_savedPreviousControlledEntityId.Value, out oldControllerEntity))
@@ -2072,6 +2756,10 @@ namespace Sandbox.Game.Entities
             objectBuilder.DockingModeEnabled = m_dockingModeEnabled;
             objectBuilder.FlightMode = (int)m_currentFlightMode.Value;
             objectBuilder.Direction = (byte)m_currentDirection.Value;
+            objectBuilder.AutopilotSpeedLimit = m_autopilotSpeedLimit;
+            objectBuilder.WaypointThresholdDistance = m_waypointThresholdDistance;
+            objectBuilder.BindedCamera = m_bindedCamera.Value;
+            objectBuilder.IsMainRemoteControl = m_isMainRemoteControl;
 
             objectBuilder.Waypoints = new List<MyObjectBuilder_AutopilotWaypoint>(m_waypoints.Count);
 
@@ -2090,6 +2778,7 @@ namespace Sandbox.Game.Entities
             }
 
             objectBuilder.CollisionAvoidance = m_useCollisionAvoidance;
+            objectBuilder.AutomaticBehaviour = m_automaticBehaviour != null ? m_automaticBehaviour.GetObjectBuilder() : null;
 
             return objectBuilder;
         }
@@ -2109,15 +2798,23 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
             MyValueFormatter.AppendWorkInBestUnit(m_powerNeeded, DetailedInfo);
+            DetailedInfo.Append("\n");
+            var pilot = m_previousControlledEntity as MyCharacter;
+            if( pilot != null && pilot != MySession.Static.LocalCharacter)
+            {
+                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.RemoteControlUsedBy));
+                DetailedInfo.Append(pilot.DisplayNameText);
+                DetailedInfo.Append("\n");
+            }
 
             if (m_autoPilotEnabled && CurrentWaypoint != null)
             {
                 DetailedInfo.Append("\n");
-                DetailedInfo.Append("Current waypoint: ");
+                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.RemoteControlWaypoint));
                 DetailedInfo.Append(CurrentWaypoint.Name);
 
                 DetailedInfo.Append("\n");
-                DetailedInfo.Append("Coords: ");
+                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.RemoteControlCoord));
                 DetailedInfo.Append(CurrentWaypoint.Coords);
             }
             RaisePropertiesChangedRemote();
@@ -2169,7 +2866,7 @@ namespace Sandbox.Game.Entities
             MyGuiScreenTerminal.Show(MyTerminalPageEnum.ControlPanel, MySession.Static.LocalHumanPlayer.Character, this);
         }
 
-        private void RequestControl()
+        public void RequestControl()
         {
             if (!MyFakes.ENABLE_REMOTE_CONTROL)
             {
@@ -2241,9 +2938,12 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            //MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, this);
+
             if (MyCubeBuilder.Static.IsActivated)
             {
-                MyCubeBuilder.Static.Deactivate();
+                //MyCubeBuilder.Static.Deactivate();
+                MySession.Static.GameFocusManager.Clear();
             }
 
             UpdateEmissivity();
@@ -2288,6 +2988,11 @@ namespace Sandbox.Game.Entities
         {
             base.OnUnregisteredFromGridSystems();
             RequestRelease(false);
+
+            //if (MySession.Static.CameraController == this && Pilot == MySession.Static.LocalCharacter)
+            //{
+            //    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, Pilot);
+            //}  
 
             if (m_autoPilotEnabled)
             {
@@ -2342,15 +3047,24 @@ namespace Sandbox.Game.Entities
                     receiver.Clear();
                 }
             }
-
+            RefreshTerminal();
             UpdateEmissivity();
+        }
+
+        private void RefreshTerminal()
+        {
+            if (Pilot != MySession.Static.LocalCharacter)
+            {
+                RaisePropertiesChanged();
+                UpdateText();
+            }
         }
 
         private void ReturnControl(IMyControllableEntity nextControllableEntity)
         {
             //Check if it was already switched by server
             if (ControllerInfo.Controller != null)
-            {
+            {            
                 this.SwitchControl(nextControllableEntity);
             }
 
@@ -2366,6 +3080,30 @@ namespace Sandbox.Game.Entities
             if (user.ControllerInfo != null && user.ControllerInfo.Controller != null)
             {
                 user.SwitchControl(this);
+
+                RefreshTerminal();
+            }
+
+            //switch to binded camera
+            if (m_bindedCamera != 0)
+            {
+                MyEntity entity;
+                if (MyEntities.TryGetEntityById(m_bindedCamera, out entity))
+                {
+                    MyCameraBlock camera = entity as MyCameraBlock;
+                    if (camera != null)
+                    {
+                        camera.RequestSetView();
+        }
+                    else
+                    {
+                        m_bindedCamera.Value = 0;
+                    }
+                }
+                else
+                {
+                    m_bindedCamera.Value = 0;
+                }
             }
         }
 
@@ -2435,7 +3173,7 @@ namespace Sandbox.Game.Entities
         {
             if (ControllerInfo.Controller == null)
             {
-                System.Diagnostics.Debug.Assert(m_savedPreviousControlledEntityId != null,"Controller is null, but remote control was not properly released!");
+                System.Diagnostics.Debug.Assert(m_savedPreviousControlledEntityId.HasValue,"Controller is null, but remote control was not properly released!");
                 return false;
             }
 
@@ -2500,12 +3238,16 @@ namespace Sandbox.Game.Entities
 
         public UseActionResult CanUse(UseActionEnum actionEnum, IMyControllableEntity user)
         {
+            if (m_previousControlledEntity != null && user != m_previousControlledEntity)
+            {
+                return UseActionResult.UsedBySomeoneElse;
+            }
             return UseActionResult.OK;
         }
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         private void UpdateEmissivity()
@@ -2564,356 +3306,116 @@ namespace Sandbox.Game.Entities
             return null;
         }
 
-        [PreloadRequired]
-        public class MySyncRemoteControl : MySyncControllableEntity
+        void SendToolbarItemChanged(ToolbarItem item, int index, int waypointIndex)
         {
-            [ProtoContract]
-            [MessageIdAttribute(2504, P2PMessageEnum.Reliable)]
-            protected struct RemoveWaypointsMsg : IEntityMessage
+            if (m_syncing)
+                return;
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnToolbarItemChanged, item, index, waypointIndex);
+        }
+
+        [Event, Reliable, Server, BroadcastExcept]
+        private void OnToolbarItemChanged(ToolbarItem item, int index, int waypointIndex)
+        {
+            m_syncing = true;
+            MyToolbarItem toolbarItem = null;
+            if (item.EntityID != 0)
             {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public int[] WaypointIndexes;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2505, P2PMessageEnum.Reliable)]
-            protected struct MoveWaypointsUpMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public int[] WaypointIndexes;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2506, P2PMessageEnum.Reliable)]
-            protected struct MoveWaypointsDownMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public int[] WaypointIndexes;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2507, P2PMessageEnum.Reliable)]
-            protected struct AddWaypointsMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public Vector3D[] Coords;
-                [ProtoMember]
-                public string[] Names;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2508, P2PMessageEnum.Reliable)]
-            public struct ChangeToolbarItemMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public int WaypointIndex;
-
-                [ProtoMember]
-                public ToolbarItem Item;
-
-                [ProtoMember]
-                public int Index;
-
-                public override string ToString()
+                if (string.IsNullOrEmpty(item.GroupName))
                 {
-                    return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
-                }
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2510, P2PMessageEnum.Reliable)]
-            protected struct PasteAutopilotSetupMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public MyObjectBuilder_AutopilotClipboard Clipboard;
-            }
-
-
-            [ProtoContract]
-            [MessageIdAttribute(2512, P2PMessageEnum.Reliable)]
-            protected struct AddWaypointMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public Vector3D Coord;
-
-                [ProtoMember]
-                public string Name;
-            }
-
-
-            static MySyncRemoteControl()
-            {
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, RemoveWaypointsMsg>(OnRemoveWaypoints, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, MoveWaypointsUpMsg>(OnMoveWaypointsUp, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, MoveWaypointsDownMsg>(OnMoveWaypointsDown, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, AddWaypointsMsg>(OnAddWaypoints, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, PasteAutopilotSetupMsg>(OnPasteAutopilotSetup, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, AddWaypointMsg>(OnAddWaypoint, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
-            }
-
-            private MyRemoteControl m_remoteControl;
-         
-            public MySyncRemoteControl(MyRemoteControl remoteControl) :
-                base(remoteControl)
-            {
-                m_remoteControl = remoteControl;
-            }
-
-
-            private bool m_syncing;
-            public bool IsSyncing
-            {
-                get { return m_syncing; }
-            }
-
-            public void RemoveWaypoints(int[] waypointIndexes)
-            {
-                if (m_syncing)
-                {
-                    return;
-                }
-
-                var msg = new RemoveWaypointsMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.WaypointIndexes = waypointIndexes;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-                m_syncing = true;
-            }
-
-            public void MoveWaypointsUp(int[] waypointIndexes)
-            {
-                if (m_syncing)
-                {
-                    return;
-                }
-
-                var msg = new MoveWaypointsUpMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.WaypointIndexes = waypointIndexes;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-                m_syncing = true;
-            }
-
-            public void MoveWaypointsDown(int[] waypointIndexes)
-            {
-                if (m_syncing)
-                {
-                    return;
-                }
-
-                var msg = new MoveWaypointsDownMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.WaypointIndexes = waypointIndexes;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-                m_syncing = true;
-            }
-
-            public void AddWaypoints(Vector3D[] coords, string[] names)
-            {
-                if (m_syncing)
-                {
-                    return;
-                }
-
-                var msg = new AddWaypointsMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.Coords = coords;
-                msg.Names = names;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-                m_syncing = true;
-            }
-
-            public void SendToolbarItemChanged(ToolbarItem item, int index, int waypointIndex)
-            {
-                if (m_syncing)
-                    return;
-                var msg = new ChangeToolbarItemMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.Item = item;
-                msg.Index = index;
-                msg.WaypointIndex = waypointIndex;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-            }
-
-            public void SendPasteAutopilotSettings(MyObjectBuilder_AutopilotClipboard clipboard)
-            {
-                var msg = new PasteAutopilotSetupMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.Clipboard = clipboard;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg,MyTransportMessageEnum.Request);
-            }
-
-            public void AddWaypoint(Vector3D point, string name)
-            {
-                var msg = new AddWaypointMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-                msg.Coord = point;
-                msg.Name = name;
-
-                if (Sync.IsServer)
-                {
-                    m_remoteControl.OnAddWaypoint(point, name);
-                    Sync.Layer.SendMessageToAll(ref msg);
+                    MyTerminalBlock block;
+                    if (MyEntities.TryGetEntityById<MyTerminalBlock>(item.EntityID, out block))
+                    {
+                        var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
+                        builder._Action = item.Action;
+                        builder.Parameters = item.Parameters;
+                        toolbarItem = MyToolbarItemFactory.CreateToolbarItem(builder);
+                    }
                 }
                 else
                 {
-                    Sync.Layer.SendMessageToServer(ref msg);
-                }
-            }
-
-            private static void OnRemoveWaypoints(MySyncRemoteControl sync, ref RemoveWaypointsMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnRemoveWaypoints(msg.WaypointIndexes);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-          
-            private static void OnMoveWaypointsUp(MySyncRemoteControl sync, ref MoveWaypointsUpMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnMoveWaypointsUp(msg.WaypointIndexes);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-         
-            private static void OnMoveWaypointsDown(MySyncRemoteControl sync, ref MoveWaypointsDownMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnMoveWaypointsDown(msg.WaypointIndexes);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-           
-            private static void OnAddWaypoints(MySyncRemoteControl sync, ref AddWaypointsMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnAddWaypoints(msg.Coords, msg.Names);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-  
-            private static void OnToolbarItemChanged(MySyncRemoteControl sync, ref ChangeToolbarItemMsg msg, MyNetworkClient sender)
-            {
-                sync.m_syncing = true;
-                MyToolbarItem item = null;
-                if (msg.Item.EntityID != 0)
-                {
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
+                    MyRemoteControl parent;
+                    if (MyEntities.TryGetEntityById<MyRemoteControl>(item.EntityID, out parent))
                     {
-                        MyTerminalBlock block;
-                        if (MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
+                        var grid = parent.CubeGrid;
+                        var groupName = item.GroupName;
+                        var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
+                        if (group != null)
                         {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            builder.Parameters = msg.Item.Parameters;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyRemoteControl parent;
-                        if (MyEntities.TryGetEntityById<MyRemoteControl>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                builder.Parameters = msg.Item.Parameters;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
+                            var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
+                            builder._Action = item.Action;
+                            builder.BlockEntityId = item.EntityID;
+                            builder.Parameters = item.Parameters;
+                            toolbarItem = MyToolbarItemFactory.CreateToolbarItem(builder);
                         }
                     }
                 }
-
-                var waypoint = sync.m_remoteControl.m_waypoints[msg.WaypointIndex];
-                if (waypoint.Actions == null)
-                {
-                    waypoint.InitActions();
-                }
-                waypoint.Actions[msg.Index] = item;
-                sync.m_remoteControl.RaisePropertiesChangedRemote();
-                sync.m_syncing = false;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
             }
-           
-            private static void OnPasteAutopilotSetup(MySyncRemoteControl sync, ref PasteAutopilotSetupMsg msg, MyNetworkClient sender)
+
+            var waypoint = m_waypoints[waypointIndex];
+            if (waypoint.Actions == null)
             {
-                sync.m_remoteControl.OnPasteAutopilotSetup(msg.Clipboard);
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
+                waypoint.InitActions();
             }
+            waypoint.Actions[index] = toolbarItem;
+            RaisePropertiesChangedRemote();
+            m_syncing = false;
+        }
 
-            private static void OnAddWaypoint(MySyncRemoteControl sync, ref AddWaypointMsg msg, MyNetworkClient sender)
+        public void SetAutomaticBehaviour(IRemoteControlAutomaticBehaviour automaticBehaviour)
+        {
+            m_automaticBehaviour = automaticBehaviour;
+        }
+
+        public void RemoveAutomaticBehaviour()
+        {
+            m_automaticBehaviour = null;
+        }
+
+        private readonly Sync<bool> m_isMainRemoteControl;
+        public bool IsMainRemoteControl
+        {
+            get
             {
-                sync.m_remoteControl.OnAddWaypoint(msg.Coord, msg.Name);
-                if (Sync.IsServer)
+                return m_isMainRemoteControl;
+            }
+            set
+            {
+                m_isMainRemoteControl.Value = value;
+            }
+        }
+
+        private void SetMainRemoteControl(bool value)
+        {
+            if (value)
+            {
+                if (CubeGrid.HasMainRemoteControl() && !CubeGrid.IsMainRemoteControl(this))
                 {
-                    Sync.Layer.SendMessageToAll(ref msg);
+                    IsMainRemoteControl = false;
+                    return;
                 }
             }
+            IsMainRemoteControl = value;
+        }
+
+        private void MainRemoteControlChanged()
+        {
+            if (m_isMainRemoteControl)
+            {
+                CubeGrid.SetMainRemoteControl(this);
+            }
+            else
+            {
+                if (CubeGrid.IsMainRemoteControl(this))
+                {
+                    CubeGrid.SetMainRemoteControl(null);
+                }
+            }
+        }
+
+        protected bool IsMainRemoteControlFree()
+        {
+            return CubeGrid.HasMainRemoteControl() == false || CubeGrid.IsMainRemoteControl(this);
         }
 
         class MyDebugRenderComponentRemoteControl : MyDebugRenderComponent
@@ -2923,22 +3425,99 @@ namespace Sandbox.Game.Entities
                 : base(remote)
             {
                 m_remote = remote;
-    }
+            }
 
-            public override bool DebugDraw()
+            MyAutopilotWaypoint m_prevWaypoint;
+            public override void DebugDraw()
             {
-                if (m_remote.CurrentWaypoint == null) return false;
+                if (m_remote.CurrentWaypoint == null && m_prevWaypoint == null) return;
+                if (m_remote.CurrentWaypoint != null)
+                    m_prevWaypoint = m_remote.CurrentWaypoint;
+
+                var waypoint = m_prevWaypoint;
 
                 Vector3D pos1 = m_remote.WorldMatrix.Translation;
 
                 MyRenderProxy.DebugDrawArrow3D(pos1, pos1 + m_remote.m_dbgDelta, Color.Yellow, Color.Yellow, false);
                 MyRenderProxy.DebugDrawArrow3D(pos1, pos1 + m_remote.m_dbgDeltaH, Color.LightBlue, Color.LightBlue, false);
-                MyRenderProxy.DebugDrawLine3D(pos1, m_remote.CurrentWaypoint.Coords, Color.Red, Color.Red, false);
-                MyRenderProxy.DebugDrawText3D(m_remote.CurrentWaypoint.Coords, m_remote.m_destinationInfo.Elevation.ToString("N"), Color.White, 1.0f, false);
+                MyRenderProxy.DebugDrawLine3D(pos1, waypoint.Coords, Color.Red, Color.Red, false);
+                MyRenderProxy.DebugDrawText3D(waypoint.Coords, m_remote.m_destinationInfo.Elevation.ToString("N"), Color.White, 1.0f, false);
                 MyRenderProxy.DebugDrawText3D(pos1, m_remote.m_currentInfo.Elevation.ToString("N"), Color.White, 1.0f, false);
 
-                return true;
-}
+                if (m_remote.m_automaticBehaviour != null)
+                    m_remote.m_automaticBehaviour.DebugDraw();
+            }
+        }
+
+        //void IMyCameraController.ControlCamera(MyCamera currentCamera)
+        //{
+        //    IMyCameraController pilotCameraController = Pilot;
+        //    if (pilotCameraController != null)
+        //        pilotCameraController.ControlCamera(currentCamera);
+        //}
+
+        //void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
+        //{
+        //    IMyCameraController pilotCameraController = Pilot;
+        //    if (pilotCameraController != null)
+        //        pilotCameraController.Rotate(rotationIndicator, rollIndicator);
+        //}
+
+        //void IMyCameraController.RotateStopped()
+        //{
+        //    MyEntity pilotParent = Pilot;
+        //    while (pilotParent != null && pilotParent.Parent is IMyCameraController)
+        //        pilotParent = pilotParent.Parent;
+
+        //    IMyCameraController pilotCameraController = (IMyCameraController)pilotParent;
+        //    if (pilotCameraController != null)
+        //        pilotCameraController.RotateStopped();
+        //}
+
+        //void IMyCameraController.OnAssumeControl(IMyCameraController previousCameraController)
+        //{
+        //}
+
+        //void IMyCameraController.OnReleaseControl(IMyCameraController newCameraController)
+        //{
+        //}
+
+        //bool IMyCameraController.HandleUse()
+        //{
+        //    IMyCameraController pilotCameraController = Pilot;
+        //    if (pilotCameraController != null)
+        //        return pilotCameraController.HandleUse();
+        //    return false;
+        //}
+
+        //bool IMyCameraController.HandlePickUp()
+        //{
+        //    IMyCameraController pilotCameraController = Pilot;
+        //    if (pilotCameraController != null)
+        //        return pilotCameraController.HandlePickUp();
+        //    return false;
+        //}
+
+        //bool IMyCameraController.IsInFirstPersonView
+        //{
+        //    get
+        //    {
+        //        IMyCameraController pilotCameraController = Pilot;
+        //        if (pilotCameraController != null)
+        //            return pilotCameraController.IsInFirstPersonView;
+        //        return true;
+        //    }
+        //    set
+        //    {
+        //        IMyCameraController pilotCameraController = Pilot;
+        //        if (pilotCameraController != null)
+        //            pilotCameraController.IsInFirstPersonView = value;
+        //    }
+        //}
+
+        //bool IMyCameraController.AllowCubeBuilding
+        //{
+        //    get { return false; }
+        //}
         }
     }
-}

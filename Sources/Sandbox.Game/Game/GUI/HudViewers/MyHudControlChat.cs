@@ -22,14 +22,16 @@ namespace Sandbox.Game.GUI.HudViewers
             Vector2? position = null,
             Vector2? size = null,
             Vector4? backgroundColor = null,
-            MyFontEnum font = MyFontEnum.White,
+            string font = MyFontEnum.White,
             float textScale = 0.7f,
             MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM,
             StringBuilder contents = null,
             bool drawScrollbar = false,
             MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM,
-            bool selectable = false)
-            : base (position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, selectable, true)
+            int? visibleLinesCount = null,
+            bool selectable = false
+        )
+            : base(position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, visibleLinesCount, selectable, true)
         {
             m_forceUpdate = true;
             m_chat = chat;
@@ -59,10 +61,10 @@ namespace Sandbox.Game.GUI.HudViewers
 
                 foreach (var message in m_chat.MessagesQueue)
                 {
-                    bool isMe = Sandbox.Engine.Networking.MySteam.UserName == message.Item1;
-
-                    AppendText(new StringBuilder(message.Item1 + ":"), isMe ? MyFontEnum.Blue : MyFontEnum.White, TextScale, Vector4.One);
-                    AppendText(new StringBuilder(message.Item2));
+                    var username = new StringBuilder(message.Item1);
+                    username.Append(": ");
+                    AppendText(username, message.Item3, TextScale, Vector4.One);
+                    AppendText(new StringBuilder(message.Item2), MyFontEnum.White, TextScale, Vector4.One);
                     AppendLine();
                 }
 

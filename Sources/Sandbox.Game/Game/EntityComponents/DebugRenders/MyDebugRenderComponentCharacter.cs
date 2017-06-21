@@ -25,9 +25,9 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Common.Components;
+
 using Sandbox.ModAPI;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game;
 using VRage.Game.Entity;
 
@@ -49,7 +49,7 @@ namespace Sandbox.Game.Components
         private float m_lastDamage = 0;
         private float m_lastCharacterVelocity;
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE)
             {
@@ -100,13 +100,14 @@ namespace Sandbox.Game.Components
 
             if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_BONES)
             {
+                m_character.AnimationController.UpdateTransformations();
                 for (int s = 0; s < m_character.AnimationController.CharacterBones.Length; s++)
                 {
                     MyCharacterBone bone2 = m_character.AnimationController.CharacterBones[s];
                     if (bone2.Parent == null)
                         continue;
 
-                    bone2.ComputeAbsoluteTransform();
+                    //bone2.ComputeAbsoluteTransform();
 
                     var p2m = Matrix.CreateScale(0.1f) * bone2.AbsoluteTransform * m_character.PositionComp.WorldMatrix;
                     Vector3 p2 = p2m.Translation;
@@ -126,7 +127,6 @@ namespace Sandbox.Game.Components
                     VRageRender.MyRenderProxy.DebugDrawAxis(p2m, 0.1f, false);
                 }
             }
-            return true;
         }
 
         #endregion

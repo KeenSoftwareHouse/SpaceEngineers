@@ -48,7 +48,7 @@
     </VoxelHand>
   </VoxelHands>
   <GridCreators>
-    <GridCreator>
+    <!--<GridCreator>
       <Id>
         <TypeId>GridCreateToolDefinition</TypeId>
         <SubtypeId>CreateSmallShip</SubtypeId>
@@ -65,7 +65,7 @@
       <DisplayName>DisplayName_GridCreateTool_CreateLargeShip</DisplayName>
       <Icon>Textures\GUI\GScreenLargeGridIcon.dds</Icon>
       <Public>true</Public>
-    </GridCreator>
+    </GridCreator>-->
     <GridCreator>
       <Id>
         <TypeId>GridCreateToolDefinition</TypeId>

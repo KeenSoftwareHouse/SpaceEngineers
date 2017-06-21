@@ -18,6 +18,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Sandbox.Game.EntityComponents;
+using Sandbox.ModAPI;
+using Sandbox.Game.SessionComponents.Clipboard;
 using VRage;
 using VRage.FileSystem;
 using VRage.Game;
@@ -26,20 +28,15 @@ using VRage.Library.Utils;
 using VRage.ModAPI;
 using VRageMath;
 using VRage.Game.Entity;
+using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
+using VRage.Network;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    public abstract class MyProjectorBase : MyFunctionalBlock, ModAPI.Ingame.IMyProjector
+    public abstract partial class MyProjectorBase : MyFunctionalBlock
     {
-        public enum BuildCheckResult
-        {
-            OK,
-            NotConnected,
-            IntersectedWithGrid,
-            IntersectedWithSomethingElse,
-            AlreadyBuilt,
-            NotFound,
-        }
 
         public new MyProjectorDefinition BlockDefinition
         {
@@ -59,16 +56,24 @@ namespace Sandbox.Game.Entities.Blocks
         protected Vector3I m_projectionOffset;
         protected Vector3I m_projectionRotation;
 
+        public Vector3I ProjectionOffset { get { return m_projectionOffset; } }
+        public Vector3I ProjectionRotation { get { return m_projectionRotation; } }
+        public Quaternion ProjectionRotationQuaternion
+        {
+            get
+            {
+                Vector3 radians = ProjectionRotation * MathHelper.PiOver2;
+                Quaternion rotation = Quaternion.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z);
+                return rotation;
+            }
+        }
+
         private MySlimBlock m_hiddenBlock;
 
         private bool m_shouldUpdateProjection = false;
         private bool m_shouldUpdateTexts = false;
 
         private MyObjectBuilder_CubeGrid m_savedProjection;
-
-        protected new MySyncProjector SyncObject;
-
-        protected bool m_keepProjection = false;
 
         protected bool m_showOnlyBuildable = false;
 
@@ -79,8 +84,26 @@ namespace Sandbox.Game.Entities.Blocks
         public MyProjectorBase()
             : base()
         {
-            m_clipboard = new MyProjectorClipboard(this);
-            m_spawnClipboard = new MyProjectorClipboard(this);
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_keepProjection = SyncType.CreateAndAddProp<bool>();
+            m_instantBuildingEnabled = SyncType.CreateAndAddProp<bool>();
+            m_maxNumberOfProjections = SyncType.CreateAndAddProp<int>();
+            m_maxNumberOfBlocksPerProjection = SyncType.CreateAndAddProp<int>();
+            m_getOwnershipFromProjector = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            m_clipboard = new MyProjectorClipboard(this, MyClipboardComponent.ClipboardDefinition.PastingSettings);
+            m_spawnClipboard = new MyProjectorClipboard(this, MyClipboardComponent.ClipboardDefinition.PastingSettings);
+
+            m_keepProjection.Value = false;
+            m_instantBuildingEnabled.Value = false;
+            m_maxNumberOfProjections.Value = 0;
+            m_maxNumberOfBlocksPerProjection.Value = 0;
+            m_getOwnershipFromProjector.Value = false;
+
+            m_instantBuildingEnabled.ValueChanged += m_instantBuildingEnabled_ValueChanged;
+            m_maxNumberOfProjections.ValueChanged += m_maxNumberOfProjections_ValueChanged;
+            m_maxNumberOfBlocksPerProjection.ValueChanged += m_maxNumberOfBlocksPerProjection_ValueChanged;
+            m_getOwnershipFromProjector.ValueChanged += m_getOwnershipFromProjector_ValueChanged;
         }
 
         protected MyCubeGrid ProjectedGrid 
@@ -97,21 +120,52 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected const int MAX_NUMBER_OF_PROJECTIONS = 1000;
         protected const int MAX_NUMBER_OF_BLOCKS = 10000;
-        protected bool m_instantBuildingEnabled = false;
-        protected int m_maxNumberOfProjections = 0;
-        protected int m_maxNumberOfBlocksPerProjection = 0;
         private int m_projectionsRemaining = 0;
-        protected bool m_getOwnershipFromProjector;
 
-        static MyProjectorBase()
+        private readonly Sync<bool> m_keepProjection;
+        private readonly Sync<bool> m_instantBuildingEnabled;
+        private readonly Sync<int> m_maxNumberOfProjections;
+        private readonly Sync<int> m_maxNumberOfBlocksPerProjection;
+        private readonly Sync<bool> m_getOwnershipFromProjector;
+
+        #region Properties
+
+        protected bool InstantBuildingEnabled
         {
-
-
+            get { return m_instantBuildingEnabled; }
+            set { m_instantBuildingEnabled.Value = value; }
         }
 
+        protected int MaxNumberOfProjections
+        {
+            get { return m_maxNumberOfProjections; }
+            set { m_maxNumberOfProjections.Value = value; }
+        }
+
+        protected int MaxNumberOfBlocksPerProjection
+        {
+            get { return m_maxNumberOfBlocksPerProjection; }
+            set { m_maxNumberOfBlocksPerProjection.Value = value; }
+        }
+
+        protected bool GetOwnershipFromProjector
+        {
+            get { return m_getOwnershipFromProjector; }
+            set { m_getOwnershipFromProjector.Value = value; }
+        }
+
+        protected bool KeepProjection
+        {
+            get { return m_keepProjection; }
+            set { m_keepProjection.Value = value; }
+        }
+
+        public bool IsActivating { get; private set; }
+
+        #endregion
 
         #region UI
-        
+
         protected bool IsProjecting()
         {
             return m_clipboard.IsActive;
@@ -129,10 +183,10 @@ namespace Sandbox.Game.Entities.Blocks
         {
             m_shouldUpdateProjection = true;
             m_shouldUpdateTexts = true;
-            SyncObject.SendNewOffset(m_projectionOffset, m_projectionRotation, m_showOnlyBuildable);
+            SendNewOffset(m_projectionOffset, m_projectionRotation, m_showOnlyBuildable);
 
             //We need to remap because the after the movement, blocks that were already built can be built again
-            SyncObject.SendRemap();
+            SendRemap();
         }
         
         public void SelectBlueprint()
@@ -143,7 +197,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             RemoveProjection(false);
-            var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard);
+            var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard, true);
             blueprintScreen.Closed += OnBlueprintScreen_Closed;
             MyGuiSandbox.AddScreen(blueprintScreen);
 
@@ -229,12 +283,16 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
 
-            m_originalGridBuilder = (MyObjectBuilder_CubeGrid)m_clipboard.CopiedGrids[largestGridIndex].Clone();
-
-            m_clipboard.ProcessCubeGrid(m_clipboard.CopiedGrids[largestGridIndex]);
-
-            MyEntities.RemapObjectBuilder(m_originalGridBuilder);
-            SyncObject.SendNewBlueprint(m_originalGridBuilder);
+            ParallelTasks.Parallel.Start(delegate()
+            {
+                m_originalGridBuilder = (MyObjectBuilder_CubeGrid)m_clipboard.CopiedGrids[largestGridIndex].Clone();
+                m_clipboard.ProcessCubeGrid(m_clipboard.CopiedGrids[largestGridIndex]);
+                MyEntities.RemapObjectBuilder(m_originalGridBuilder);
+            }, 
+            delegate()
+            {
+                SendNewBlueprint(m_originalGridBuilder);
+            });
         }
 
         protected bool ScenarioSettingsEnabled()
@@ -285,41 +343,31 @@ namespace Sandbox.Game.Entities.Blocks
         protected void TrySetInstantBuilding(bool v)
         {
             if (CanEnableInstantBuilding())
-            {
-                SyncObject.SendNewInstantBuilding(v);
-            }
+                InstantBuildingEnabled = v;
         }
 
         protected void TrySetGetOwnership(bool v)
         {
             if (CanEnableInstantBuilding())
-            {
-                SyncObject.SendNewGetOwnership(v);
-            }
+                GetOwnershipFromProjector = v;
         }
 
-        public void TrySpawnProjection()
+        protected void TrySpawnProjection()
         {
             if (CanSpawnProjection())
-            {
-                SyncObject.SendSpawnProjection();
-            }
+                SendSpawnProjection();
         }
 
         protected void TryChangeMaxNumberOfBlocksPerProjection(float v)
         {
             if (CanEditInstantBuildingSettings())
-            {
-                SyncObject.SendNewMaxNumberOfBlocks((int)Math.Round(v));
-            }
+                MaxNumberOfProjections = (int)Math.Round(v);
         }
 
         protected void TryChangeNumberOfProjections(float v)
         {
             if (CanEditInstantBuildingSettings())
-            {
-                SyncObject.SendNewMaxNumberOfProjections((int)Math.Round(v));
-            }
+                MaxNumberOfBlocksPerProjection = (int)Math.Round(v);
         }
         
         #endregion
@@ -375,6 +423,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SetTransparencyForSubparts(MyEntity renderEntity, float transparency)
         {
+            renderEntity.Render.CastShadows = false;
 
             if (renderEntity.Subparts == null)
                 return;
@@ -382,6 +431,7 @@ namespace Sandbox.Game.Entities.Blocks
             foreach (var subpart in renderEntity.Subparts)
             {
                 subpart.Value.Render.Transparency = transparency;
+                subpart.Value.Render.CastShadows = false;
                 subpart.Value.Render.RemoveRenderObjects();
                 subpart.Value.Render.AddRenderObjects();
 
@@ -457,14 +507,14 @@ namespace Sandbox.Game.Entities.Blocks
                 m_projectionRotation = projectorBuilder.ProjectionRotation;
 
                 m_savedProjection = projectorBuilder.ProjectedGrid;
-                m_keepProjection = projectorBuilder.KeepProjection;
+                KeepProjection = projectorBuilder.KeepProjection;
             }
 
             m_showOnlyBuildable = projectorBuilder.ShowOnlyBuildable;
-            m_instantBuildingEnabled = projectorBuilder.InstantBuildingEnabled;
-            m_maxNumberOfProjections = projectorBuilder.MaxNumberOfProjections;
-            m_maxNumberOfBlocksPerProjection = projectorBuilder.MaxNumberOfBlocks;
-            m_getOwnershipFromProjector = projectorBuilder.GetOwnershipFromProjector;
+            InstantBuildingEnabled = projectorBuilder.InstantBuildingEnabled;
+            MaxNumberOfProjections = projectorBuilder.MaxNumberOfProjections;
+            MaxNumberOfBlocksPerProjection = projectorBuilder.MaxNumberOfBlocks;
+            GetOwnershipFromProjector = projectorBuilder.GetOwnershipFromProjector;
 
             m_projectionsRemaining = MathHelper.Clamp(projectorBuilder.ProjectionsRemaining, 0, m_maxNumberOfProjections);
 
@@ -474,10 +524,8 @@ namespace Sandbox.Game.Entities.Blocks
 			ResourceSink.Update();
             m_statsDirty = true;
             UpdateText();
-            
-            SyncObject = new MySyncProjector(this);
 
-            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
@@ -491,21 +539,24 @@ namespace Sandbox.Game.Entities.Blocks
         {
             m_clipboard.ResetGridOrientation();
             m_shouldUpdateProjection = true;
-            if (!m_clipboard.IsActive)
+            if (!m_clipboard.IsActive && !IsActivating)
             {
-                m_clipboard.Activate();
+                IsActivating = true;
+                m_clipboard.Activate(delegate()
+                {
+                    if (m_clipboard.PreviewGrids.Count != 0)
+                        ProjectedGrid.Projector = this;
+                    m_shouldUpdateProjection = true;
+                    m_shouldUpdateTexts = true;
+
+                    m_clipboard.ActuallyTestPlacement();
+
+                    SetRotation(m_clipboard, m_projectionRotation);
+
+                    NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+                    IsActivating = false;
+                });
             }
-
-            if (m_clipboard.PreviewGrids.Count != 0)
-                ProjectedGrid.Projector = this;
-            m_shouldUpdateProjection = true;
-            m_shouldUpdateTexts = true;
-
-            m_clipboard.ActuallyTestPlacement();
-
-            SetRotation(m_clipboard, m_projectionRotation);
-
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -598,27 +649,6 @@ namespace Sandbox.Game.Entities.Blocks
         #endregion
 
         #region Update & Events
-        public override void UpdateBeforeSimulation()
-        {
-            base.UpdateBeforeSimulation();
-            
-            if (m_clipboard.IsActive)
-            {
-                m_clipboard.Update();
-
-                if (!MySandboxGame.IsDedicated)
-                {
-                    HideIntersectedBlock();
-                }
-
-                if (m_shouldUpdateProjection)
-                {
-                    UpdateProjection();
-                    m_shouldUpdateProjection = false;
-                }
-            }
-        }
-
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
@@ -636,6 +666,23 @@ namespace Sandbox.Game.Entities.Blocks
                     }
                     m_frameCount = 0;
                     m_removeRequested = false;
+                }
+            }
+
+
+            if (m_clipboard.IsActive)
+            {
+                m_clipboard.Update();
+
+                if (!MySandboxGame.IsDedicated)
+                {
+                    HideIntersectedBlock();
+                }
+
+                if (m_shouldUpdateProjection)
+                {
+                    UpdateProjection();
+                    m_shouldUpdateProjection = false;
                 }
             }
         }
@@ -747,6 +794,18 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        protected override void OnStopWorking()
+        {
+            UpdateEmissivity();
+            base.OnStopWorking();
+        }
+
+        protected override void OnStartWorking()
+        {
+            UpdateEmissivity();
+            base.OnStartWorking();
+        }
+
         private void UpdateEmissivity()
         {
             UpdateIsWorking();
@@ -755,7 +814,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (IsProjecting())
                 {
                     MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Teal, Color.White);
-                    if (m_soundEmitter != null && m_soundEmitter.SoundId != BlockDefinition.PrimarySound.SoundId)
+                    if (m_soundEmitter != null && (m_soundEmitter.SoundId != BlockDefinition.PrimarySound.Arcade && m_soundEmitter.SoundId != BlockDefinition.PrimarySound.Realistic))
                     {
                         m_soundEmitter.StopSound(false);
                         m_soundEmitter.PlaySound(BlockDefinition.PrimarySound);
@@ -764,7 +823,7 @@ namespace Sandbox.Game.Entities.Blocks
                 else
                 {
                     MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Green, Color.White);
-                    if (m_soundEmitter != null && m_soundEmitter.SoundId != BlockDefinition.IdleSound.SoundId)
+                    if (m_soundEmitter != null && (m_soundEmitter.SoundId != BlockDefinition.IdleSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.IdleSound.Realistic))
                     {
                         m_soundEmitter.StopSound(false);
                         m_soundEmitter.PlaySound(BlockDefinition.IdleSound);
@@ -881,9 +940,9 @@ namespace Sandbox.Game.Entities.Blocks
 
         void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
         {
-            if (m_originalGridBuilder != null && Sync.IsServer)
+            if (m_originalGridBuilder != null && Sync.IsServer && MarkedForClose == false && Closed  == false)
             {
-                SyncObject.SendRemap();
+               SendRemap();
             }
         }
 
@@ -891,7 +950,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (m_originalGridBuilder != null && Sync.IsServer)
             {
-                SyncObject.SendRemap();
+                SendRemap();
             }
         }
 
@@ -908,7 +967,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void PowerReceiver_IsPoweredChanged()
         {
-			if (!ResourceSink.IsPowered && IsProjecting())
+            if (!ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && IsProjecting())
             {
                 RequestRemoveProjection();
             }
@@ -973,6 +1032,7 @@ namespace Sandbox.Game.Entities.Blocks
         void previewGrid_OnBlockAdded(MySlimBlock obj)
         {
             m_shouldUpdateProjection = true;
+            m_shouldUpdateTexts = true; // Text should always be updated, not only when terminal block is added, armor blocks etc also count!
 
             //Update groups
             if (m_originalGridBuilder == null || !IsProjecting())
@@ -1025,7 +1085,6 @@ namespace Sandbox.Game.Entities.Blocks
                         }
                     }
                 }
-                m_shouldUpdateTexts = true;
             }
         }
 
@@ -1036,9 +1095,10 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
 
-        internal void OnSpawnProjection()
+        [Event, Reliable, Server]
+        private void OnSpawnProjection()
         {
-            if (Sync.IsServer && CanSpawnProjection())
+            if (CanSpawnProjection())
             {
                 var clone = (MyObjectBuilder_CubeGrid)m_originalGridBuilder.Clone();
                 MyEntities.RemapObjectBuilder(clone);
@@ -1071,7 +1131,8 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        internal void OnConfirmSpawnProjection()
+        [Event, Reliable, Server]
+        private void OnConfirmSpawnProjection()
         {
             if (m_maxNumberOfProjections < MAX_NUMBER_OF_PROJECTIONS)
             {
@@ -1088,38 +1149,31 @@ namespace Sandbox.Game.Entities.Blocks
             RaisePropertiesChanged();
         }
 
-        internal void OnSetMaxNumberOfBlocks(int maxNumber)
+        void m_instantBuildingEnabled_ValueChanged(SyncBase obj)
         {
-            m_maxNumberOfBlocksPerProjection = maxNumber;
-
-            RaisePropertiesChanged();
-        }
-
-        internal void OnSetMaxNumberOfProjections(int maxNumber)
-        {
-            m_maxNumberOfProjections = maxNumber;
-            m_projectionsRemaining = m_maxNumberOfProjections;
-
-            RaisePropertiesChanged();
-        }
-
-        internal void OnSetInstantBuilding(bool enabled)
-        {
-            m_instantBuildingEnabled = enabled;
             m_shouldUpdateProjection = true;
-
-            if (enabled)
-            {
+            if (m_instantBuildingEnabled)
                 m_projectionsRemaining = m_maxNumberOfProjections;
-            }
+
             RaisePropertiesChanged();
         }
 
-        internal void OnSetGetOwnership(bool enabled)
+        void m_maxNumberOfProjections_ValueChanged(SyncBase obj)
         {
-            m_getOwnershipFromProjector = enabled;
+            m_projectionsRemaining = m_maxNumberOfProjections;
             RaisePropertiesChanged();
         }
+
+        void m_maxNumberOfBlocksPerProjection_ValueChanged(SyncBase obj)
+        {
+            RaisePropertiesChanged();
+        }
+
+        void m_getOwnershipFromProjector_ValueChanged(SyncBase obj)
+        {
+            RaisePropertiesChanged();
+        }
+
         #endregion
 
         #region Building
@@ -1135,21 +1189,18 @@ namespace Sandbox.Game.Entities.Blocks
         {
             MyBlockOrientation blockOrientation = projectedBlock.Orientation;
             
-            Matrix local;
-            blockOrientation.GetMatrix(out local);
-            var gridOrientation = (m_clipboard as MyGridClipboard).GetFirstGridOrientationMatrix();
-            if (gridOrientation != Matrix.Identity)
-            {
-                var afterRotation = Matrix.Multiply(local, gridOrientation);
-                blockOrientation = new MyBlockOrientation(ref afterRotation);
-            }
-            
+            //GR: For rotation take into account:
+            //the projected block orientation
             Quaternion blockOrientationQuat;
             blockOrientation.GetQuaternion(out blockOrientationQuat);
 
+            //GR: The projector block orientation (which is relative to the Cubegrid orientation)
             Quaternion projQuat = Quaternion.Identity;
             Orientation.GetQuaternion(out projQuat);
-            blockOrientationQuat = Quaternion.Multiply(projQuat, blockOrientationQuat);
+
+            //AB: The orienation settings of the projector 
+            //Take into account order of multiplication to review!
+            blockOrientationQuat = Quaternion.Multiply(Quaternion.Multiply(projQuat, ProjectionRotationQuaternion), blockOrientationQuat);
 
             Vector3I projectedMin = CubeGrid.WorldToGridInteger(projectedBlock.CubeGrid.GridIntegerToWorld(projectedBlock.Min));
             Vector3I projectedMax = CubeGrid.WorldToGridInteger(projectedBlock.CubeGrid.GridIntegerToWorld(projectedBlock.Max));
@@ -1167,7 +1218,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             MyGridPlacementSettings settings = new MyGridPlacementSettings();
-            settings.Mode = MyGridPlacementSettings.SnapMode.OneFreeAxis;
+            settings.SnapMode = SnapMode.OneFreeAxis;
 
 			var mountPoints = projectedBlock.BlockDefinition.GetBuildProgressModelMountPoints(1.0f);
 			bool isConnected = MyCubeGrid.CheckConnectivity(this.CubeGrid, projectedBlock.BlockDefinition, mountPoints,
@@ -1203,25 +1254,16 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public void Build(MySlimBlock cubeBlock, long owner, long builder)
+        public void Build(MySlimBlock cubeBlock, long owner, long builder, bool requestInstant = true, long builtBy = 0)
         {
             Quaternion quat = Quaternion.Identity;
             var orientation = cubeBlock.Orientation;
 
-            Matrix local;
-            orientation.GetMatrix(out local);
-            var gridOrientation = m_clipboard.GetFirstGridOrientationMatrix();
-            if (gridOrientation != Matrix.Identity)
-            {
-                var afterRotation = Matrix.Multiply(local, gridOrientation);
-                orientation = new MyBlockOrientation(ref afterRotation);
-            }
-
             Quaternion projQuat = Quaternion.Identity;
             Orientation.GetQuaternion(out projQuat);
             orientation.GetQuaternion(out quat);
+            quat = Quaternion.Multiply(ProjectionRotationQuaternion, quat);
             quat = Quaternion.Multiply(projQuat, quat);
-
 
             var projectorGrid = CubeGrid;
             var projectedGrid = cubeBlock.CubeGrid;
@@ -1237,30 +1279,35 @@ namespace Sandbox.Game.Entities.Blocks
             Vector3I projectedMax = new Vector3I(Math.Max(min.X, max.X), Math.Max(min.Y, max.Y), Math.Max(min.Z, max.Z));
 
 
-            MyCubeGrid.MyBlockLocation location = new MyCubeGrid.MyBlockLocation(cubeBlock.BlockDefinition.Id, projectedMin, projectedMax, pos,
-                quat, 0, owner);
+            MyCubeGrid.MyBlockLocation location = new MyCubeGrid.MyBlockLocation(cubeBlock.BlockDefinition.Id, projectedMin, projectedMax, pos, quat, 0, owner);
 
             MyObjectBuilder_CubeBlock objectBuilder = null;
-            //Find original grid builder
-            foreach (var blockBuilder in m_originalGridBuilder.CubeBlocks)
+
+            if (m_originalGridBuilder != null)
             {
-                if ((Vector3I)blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
+                //Find original grid builder
+                foreach (var blockBuilder in m_originalGridBuilder.CubeBlocks)
                 {
-                    objectBuilder = (MyObjectBuilder_CubeBlock)blockBuilder.Clone();
-                    objectBuilder.SetupForProjector();
+                    if ((Vector3I)blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
+                    {
+                        objectBuilder = (MyObjectBuilder_CubeBlock)blockBuilder.Clone();
+                        objectBuilder.SetupForProjector();
+                    }
                 }
             }
 
             if (objectBuilder == null)
             {
-                System.Diagnostics.Debug.Fail("Original object builder could not be found! (AlexFlorea)");
+                //Original object builder not found because projector was destroyed
+                //System.Diagnostics.Debug.Fail("Original object builder could not be found! (AlexFlorea)");
                 objectBuilder = cubeBlock.GetObjectBuilder();
                 location.EntityId = MyEntityIdentifier.AllocateId();
             }
 
             objectBuilder.ConstructionInventory = null;
-            bool isAdmin = MySession.Static.IsAdminModeEnabled;
-            MyMultiplayer.RaiseEvent(projectorGrid, x => x.BuildBlock, cubeBlock.ColorMaskHSV.PackHSVToUint(), location, objectBuilder, builder, isAdmin, owner);
+            objectBuilder.BuiltBy = builtBy;
+            bool buildInstant = requestInstant && MySession.Static.CreativeToolsEnabled(Sync.MyId);
+            MyMultiplayer.RaiseEvent(projectorGrid, x => x.BuildBlockRequest, cubeBlock.ColorMaskHSV.PackHSVToUint(), location, objectBuilder, builder, buildInstant, owner);
             HideCube(cubeBlock);
         }
         #endregion
@@ -1269,11 +1316,11 @@ namespace Sandbox.Game.Entities.Blocks
         internal void SetNewBlueprint(MyObjectBuilder_CubeGrid gridBuilder)
         {
             m_originalGridBuilder = gridBuilder;
-            
-            var clone = (MyObjectBuilder_CubeGrid)gridBuilder.Clone();
 
-            MyEntities.RemapObjectBuilder(clone);
-            m_clipboard.ProcessCubeGrid(clone);
+            var clone = m_originalGridBuilder;//(MyObjectBuilder_CubeGrid)gridBuilder.Clone();
+
+            //MyEntities.RemapObjectBuilder(clone);
+            //m_clipboard.ProcessCubeGrid(clone);
 
             m_clipboard.SetGridFromBuilder(clone, Vector3.Zero, 0f);
 
@@ -1299,517 +1346,103 @@ namespace Sandbox.Game.Entities.Blocks
             SetRotation(m_clipboard, m_projectionRotation);
         }
 
-        [PreloadRequired]
-        protected class MySyncProjector
+        private void SendNewBlueprint(MyObjectBuilder_CubeGrid projectedGrid)
         {
-            MyProjectorBase m_projector;
-            //Cached because server doesn't send this back
-            MyObjectBuilder_CubeGrid m_lastSentCubeGrid;
-
-            [ProtoBuf.ProtoContract]
-            [MessageIdAttribute(7600, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct NewBlueprintMsg : IEntityMessage
-            {
-                [ProtoBuf.ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoBuf.ProtoMember]
-                public MyObjectBuilder_CubeGrid ProjectedGrid;
-            }
-
-            [MessageIdAttribute(7601, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct NewBlueprintAckMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-            }
-
-            [MessageIdAttribute(7602, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct OffsetMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public Vector3I PositionOffset;
-                public Vector3I RotationOffset;
-                public Byte showOnlyBuildable;
-            }
-
-            [MessageIdAttribute(7603, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct KeepProjectionMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit KeepProjection;
-            }
-
-            [MessageIdAttribute(7604, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct RemoveProjectionMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-            }
-
-            [MessageIdAttribute(7605, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct RemapRequestMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-            }
-
-            [MessageIdAttribute(7606, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct RemapSeedMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public int Seed;
-            }
-
-            [MessageIdAttribute(7607, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct SetInstantBuildingMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit Enabled;
-            }
-
-            [MessageIdAttribute(7608, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct SetMaxNumberOfProjectionsMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public int MaxNumber;
-            }
-
-            [MessageIdAttribute(7609, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct SetMaxNumberOfBlocksMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public int MaxNumber;
-            }
-
-            [MessageIdAttribute(7610, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct SpawnProjectionMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-            }
-
-            [MessageIdAttribute(7611, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct ConfirmSpawnProjectionMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-            }
-
-            [MessageIdAttribute(7612, SteamSDK.P2PMessageEnum.Reliable)]
-            protected struct SetGetOwnershipMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit GetOwnership;
-            }
-
-            static MySyncProjector()
-            {
-                MySyncLayer.RegisterMessage<NewBlueprintMsg>(OnNewBlueprintRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<NewBlueprintMsg>(OnNewBlueprintSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<NewBlueprintAckMsg>(OnNewBlueprintAck, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<OffsetMsg>(OnOffsetChangedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<OffsetMsg>(OnOffsetChangedSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<KeepProjectionMsg>(OnKeepProjectionChangedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<KeepProjectionMsg>(OnKeepProjectionChangedSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<RemoveProjectionMsg>(OnRemoveProjectionRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<RemoveProjectionMsg>(OnRemoveProjectionSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<RemapRequestMsg>(OnRemapRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<RemapSeedMsg>(OnRemapSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-
-                MySyncLayer.RegisterMessage<SetInstantBuildingMsg>(OnSetInstantBuilding, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterMessage<SetMaxNumberOfProjectionsMsg>(OnSetMaxNumberOfProjections, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterMessage<SetMaxNumberOfBlocksMsg>(OnSetMaxNumberOfBlocks, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterMessage<SpawnProjectionMsg>(OnSpawnProjection, MyMessagePermissions.ToServer);
-                MySyncLayer.RegisterMessage<ConfirmSpawnProjectionMsg>(OnConfirmSpawnProjection, MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterMessage<SetGetOwnershipMsg>(OnSetGetOwnership, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-            }
-
-            public MySyncProjector(MyProjectorBase projector)
-            {
-                m_projector = projector;
-            }
-
-            public void SendNewBlueprint(MyObjectBuilder_CubeGrid projectedGrid)
-            {
-                var msg = new NewBlueprintMsg();
-                msg.EntityId = m_projector.EntityId;
-                msg.ProjectedGrid = projectedGrid;
-
-                var ack = new NewBlueprintAckMsg();
-                ack.EntityId = m_projector.EntityId;
-
-                m_lastSentCubeGrid = projectedGrid;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                    OnNewBlueprintAck(ref ack, null);
-                }
-                else
-                {
-                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-                }
-            }
-
-            private static void OnNewBlueprintRequest(ref NewBlueprintMsg msg, MyNetworkClient sender)
-            {
-                //Send to all and self but one
-                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
-                Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
-
-                var ack = new NewBlueprintAckMsg();
-                ack.EntityId = msg.EntityId;
-                Sync.Layer.SendMessage(ref ack, sender.SteamUserId, MyTransportMessageEnum.Success);
-            }
-
-            private static void OnNewBlueprintSuccess(ref NewBlueprintMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.SetNewBlueprint(msg.ProjectedGrid);
-                }
-            }
-
-            private static void OnNewBlueprintAck(ref NewBlueprintAckMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.SetNewBlueprint(projector.SyncObject.m_lastSentCubeGrid);
-                }
-            }
-
-            public void SendNewOffset(Vector3I positionOffset, Vector3I rotationOffset, bool showOnlyBuildable)
-            {
-                var msg = new OffsetMsg();
-                msg.EntityId = m_projector.EntityId;
-                msg.PositionOffset = positionOffset;
-                msg.RotationOffset = rotationOffset;
-                msg.showOnlyBuildable = (byte)(showOnlyBuildable ? 1 : 0);
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-                }
-                else
-                {
-                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-                }
-            }
-
-            private static void OnOffsetChangedRequest(ref OffsetMsg msg, MyNetworkClient sender)
-            {
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-            }
-
-            private static void OnOffsetChangedSuccess(ref OffsetMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.SetNewOffset(msg.PositionOffset, msg.RotationOffset, msg.showOnlyBuildable == 1);
-                    projector.m_shouldUpdateProjection = true;
-                }
-            }
-
-            public void SendNewKeepProjection(bool keepProjection)
-            {
-                var msg = new KeepProjectionMsg();
-                msg.EntityId = m_projector.EntityId;
-                msg.KeepProjection = keepProjection;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-                }
-                else
-                {
-                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-                }
-            }
-
-            private static void OnKeepProjectionChangedRequest(ref KeepProjectionMsg msg, MyNetworkClient sender)
-            {
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-            }
-
-            private static void OnKeepProjectionChangedSuccess(ref KeepProjectionMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.m_keepProjection = msg.KeepProjection;
-                }
-            }
-
-            public void SendRemoveProjection()
-            {
-                var msg = new RemoveProjectionMsg();
-                msg.EntityId = m_projector.EntityId;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-                }
-                else
-                {
-                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-                }
-            }
-
-            private static void OnRemoveProjectionRequest(ref RemoveProjectionMsg msg, MyNetworkClient sender)
-            {
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-            }
-
-            private static void OnRemoveProjectionSuccess(ref RemoveProjectionMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.RemoveProjection(false);
-                }
-            }
-
-            public void SendRemap()
-            {
-                var msg = new RemapRequestMsg();
-                msg.EntityId = m_projector.EntityId;
-                Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-            }
-
-            private static void OnRemapRequest(ref RemapRequestMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    int randomSeed = MyRandom.Instance.CreateRandomSeed();
-                    var seedMsg = new RemapSeedMsg();
-                    seedMsg.EntityId = projector.EntityId;
-                    seedMsg.Seed = randomSeed;
-
-                    Sync.Layer.SendMessageToAllAndSelf(ref seedMsg, MyTransportMessageEnum.Success);
-                }
-            }
-
-            private static void OnRemapSuccess(ref RemapSeedMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.OnRemap(msg.Seed);
-                }
-            }
-
-
-            public void SendNewInstantBuilding(bool instantBuilding)
-            {
-                var msg = new SetInstantBuildingMsg();
-                msg.EntityId = m_projector.EntityId;
-                msg.Enabled = instantBuilding;
-                Sync.Layer.SendMessageToServerAndSelf(ref msg,MyTransportMessageEnum.Request);
-            }
-
-            private static void OnSetInstantBuilding(ref SetInstantBuildingMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.OnSetInstantBuilding(msg.Enabled);
-                    if (Sync.IsServer)
-                    {
-                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                    }
-                }
-            }
-
-           
-
-            public void SendNewMaxNumberOfProjections(int maxNumber)
-            {
-                var msg = new SetMaxNumberOfProjectionsMsg();
-                msg.MaxNumber = maxNumber;
-                msg.EntityId = m_projector.EntityId;
-                Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Request);
-            }
-
-            private static void OnSetMaxNumberOfProjections(ref SetMaxNumberOfProjectionsMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.OnSetMaxNumberOfProjections(msg.MaxNumber);
-                    if (Sync.IsServer)
-                    {
-                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                    }
-                }
-            }
-
-           
-            public void SendNewMaxNumberOfBlocks(int maxNumber)
-            {
-                var msg = new SetMaxNumberOfBlocksMsg();
-                msg.MaxNumber = maxNumber;
-                msg.EntityId = m_projector.EntityId;
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-            }
-
-            private static void OnSetMaxNumberOfBlocks(ref SetMaxNumberOfBlocksMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.OnSetMaxNumberOfBlocks(msg.MaxNumber);
-                    if (Sync.IsServer)
-                    {
-                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                    }
-                }
-            }
-
-           
-
-            public void SendSpawnProjection()
-            {
-                var msg = new SpawnProjectionMsg();
-                msg.EntityId = m_projector.EntityId;
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            private static void OnSpawnProjection(ref SpawnProjectionMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.OnSpawnProjection();
-                }
-            }
-
-            public void SendConfirmSpawnProjection()
-            {
-                var msg = new ConfirmSpawnProjectionMsg();
-                msg.EntityId = m_projector.EntityId;
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            private static void OnConfirmSpawnProjection(ref ConfirmSpawnProjectionMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.OnConfirmSpawnProjection();
-                }
-            }
-
-            public void SendNewGetOwnership(bool getOwnership)
-            {
-                var msg = new SetGetOwnershipMsg();
-                msg.EntityId = m_projector.EntityId;
-                msg.GetOwnership = getOwnership;
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-            }
-
-            private static void OnSetGetOwnership(ref SetGetOwnershipMsg msg, MyNetworkClient sender)
-            {
-                MyEntity projectorEntity;
-                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
-                var projector = projectorEntity as MyProjectorBase;
-                if (projector != null)
-                {
-                    projector.OnSetGetOwnership(msg.GetOwnership);
-                    if (Sync.IsServer)
-                    {
-                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                    }
-                }
-            }          
+            SetNewBlueprint(projectedGrid);
+            MyMultiplayer.RaiseEvent(this, x => x.OnNewBlueprintSuccess, projectedGrid);
         }
+
+        [Event, Reliable, Server, BroadcastExcept]
+        private void OnNewBlueprintSuccess(MyObjectBuilder_CubeGrid projectedGrid)
+        {
+            if (MyEventContext.Current.IsLocallyInvoked == false)
+            {
+                if (!MySession.Static.IsUserScripter(MyEventContext.Current.Sender.Value))
+                {
+                    if (RemoveScriptsFromProjection(ref projectedGrid))
+                        MyMultiplayer.RaiseEvent(this, x => x.ShowScriptRemoveMessage, MyEventContext.Current.Sender);
+                }
+                SetNewBlueprint(projectedGrid);
+            }
+        }
+
+        private bool RemoveScriptsFromProjection(ref MyObjectBuilder_CubeGrid grid)
+        {
+            bool found = false;
+            foreach (var block in grid.CubeBlocks)
+            {
+                var programmable = block as MyObjectBuilder_MyProgrammableBlock;
+                if (programmable == null)
+                    continue;
+
+                if (programmable.Program != null)
+                {
+                    programmable.Program = null;
+                    found = true;
+                }
+            }
+            return found;
+        }
+
+        [Event, Reliable, Client]
+        private void ShowScriptRemoveMessage()
+        {
+            MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.Notification_BlueprintScriptRemoved, 5000, MyFontEnum.Red));
+        }
+
+        public void SendNewOffset(Vector3I positionOffset, Vector3I rotationOffset, bool showOnlyBuildable)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnOffsetChangedSuccess, positionOffset, rotationOffset, showOnlyBuildable);
+        }
+
+
+        [Event, Reliable, Server, Broadcast]
+        private void OnOffsetChangedSuccess(Vector3I positionOffset, Vector3I rotationOffset, bool showOnlyBuildable)
+        {   
+            SetNewOffset(positionOffset, rotationOffset, showOnlyBuildable);
+            m_shouldUpdateProjection = true;
+        }
+
+        public void SendRemoveProjection()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemoveProjectionRequest);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void OnRemoveProjectionRequest()
+        {
+            RemoveProjection(false);
+        }
+
+        private void SendRemap()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemapRequest);
+        }
+
+        [Event, Reliable, Server]
+        private void OnRemapRequest()
+        {
+            int randomSeed = MyRandom.Instance.CreateRandomSeed();
+            OnRemap(randomSeed);
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemapSuccess, randomSeed);
+        }
+
+        [Event, Reliable, Broadcast]
+        private void OnRemapSuccess(int seed)
+        {
+            OnRemap(seed);
+        }
+
+        private void SendSpawnProjection()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnSpawnProjection);
+        }
+
+        private void SendConfirmSpawnProjection()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnConfirmSpawnProjection);
+        }
+
         #endregion
-
-        #region ModAPI
-        int ModAPI.Ingame.IMyProjector.ProjectionOffsetX { get { return this.m_projectionOffset.X; } }
-        int ModAPI.Ingame.IMyProjector.ProjectionOffsetY { get { return this.m_projectionOffset.Y; } }
-        int ModAPI.Ingame.IMyProjector.ProjectionOffsetZ { get { return this.m_projectionOffset.Z; } }
-
-        int ModAPI.Ingame.IMyProjector.ProjectionRotX { get { return this.m_projectionRotation.X*90; } }
-        int ModAPI.Ingame.IMyProjector.ProjectionRotY { get { return this.m_projectionRotation.Y * 90; } }
-        int ModAPI.Ingame.IMyProjector.ProjectionRotZ { get { return this.m_projectionRotation.Z* 90; } }
-
-        int ModAPI.Ingame.IMyProjector.RemainingBlocks { get { return this.m_remainingBlocks; } }
-
-
-        bool ModAPI.Ingame.IMyProjector.LoadRandomBlueprint(string searchPattern)
-        {
-            bool success = false;
-            string[] files = System.IO.Directory.GetFiles(Path.Combine(MyFileSystem.ContentPath, "Data", "Blueprints"), searchPattern);
-
-            if (files.Length > 0)
-            {
-                var index = MyRandom.Instance.Next() % files.Length;
-                success = LoadBlueprint(files[index]);
-            }
-            return success;
-        }
-
-        bool ModAPI.Ingame.IMyProjector.LoadBlueprint(string path)
-        {
-            return LoadBlueprint(path);
-        }
-
-        private bool LoadBlueprint(string path)
-        {
-            bool success = false;
-            MyObjectBuilder_Definitions blueprint;
-            blueprint = MyGuiBlueprintScreenBase.LoadPrefab(path);
-
-            if (blueprint != null)
-                success = MyGuiBlueprintScreen.CopyBlueprintPrefabToClipboard(blueprint, m_clipboard);
-
-            OnBlueprintScreen_Closed(null);
-            return success;
-        }
-        #endregion
-
     }
 }

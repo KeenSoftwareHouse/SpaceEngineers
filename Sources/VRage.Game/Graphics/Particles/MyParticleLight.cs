@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
+using VRageRender.Animations;
+using VRageRender.Messages;
 
 #endregion
 
@@ -162,48 +162,7 @@ namespace VRage.Game
 
         private void InitLight()
         {
-            Vector3 localPosition;
-            Position.GetInterpolatedValue(0, out localPosition);
-
-            Vector4 color;
-            Color.GetInterpolatedValue(0, out color);
-
-            float range;
-            Range.GetInterpolatedValue(0, out range);
-
-            float intensity;
-            Intensity.GetInterpolatedValue(0, out intensity);
-
-            m_renderObjectID = VRageRender.MyRenderProxy.CreateRenderLight(
-               VRageRender.LightTypeEnum.PointLight,
-               Vector3D.Transform(localPosition, m_effect.WorldMatrix),
-               -1,
-               0,
-               color,
-               color,
-               1,
-               range,
-               intensity,
-               true,
-               false,
-               0,
-               false,
-               Vector3.Zero,
-               Vector3.Zero,
-               0,
-               Vector4.Zero,
-               0,
-               0,
-               null,
-               0,
-               false,
-               false,
-               VRageRender.Lights.MyGlareTypeEnum.Normal,
-               0,
-               0,
-               0,
-               null,
-               0);
+            m_renderObjectID = VRageRender.MyRenderProxy.CreateRenderLight();
         }
 
         public void Close()
@@ -220,8 +179,11 @@ namespace VRage.Game
 
         private void CloseLight()
         {
-            VRageRender.MyRenderProxy.RemoveRenderObject(m_renderObjectID);
-            m_renderObjectID = MyRenderProxy.RENDER_ID_UNASSIGNED;
+            if (m_renderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
+            {
+                VRageRender.MyRenderProxy.RemoveRenderObject(m_renderObjectID);
+                m_renderObjectID = MyRenderProxy.RENDER_ID_UNASSIGNED;
+            }
         }
 
         #endregion
@@ -251,19 +213,20 @@ namespace VRage.Game
 
             bool created = false;
 
-            if (Enabled && m_renderObjectID == MyRenderProxy.RENDER_ID_UNASSIGNED)
+            if (Enabled)
             {
-                InitLight();
-                created = true;
+                if (m_renderObjectID == MyRenderProxy.RENDER_ID_UNASSIGNED)
+                {
+                    InitLight();
+                    created = true;
+                }
             }
-            if (!Enabled && m_renderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
+            else 
             {
-                CloseLight();
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-                return;
-            }
-            if (!Enabled)
-            {
+                if (m_renderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
+                {
+                    CloseLight();
+                }
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
                 return;
             }
@@ -302,20 +265,12 @@ namespace VRage.Game
             IntensityVar.GetInterpolatedValue(m_effect.GetElapsedTime(), out intensityVar);
             float intensityRnd = MyUtils.GetRandomFloat(-intensityVar, intensityVar);
             intensity += intensityRnd;
+            if (m_effect.IsStopped)
+                intensity = 0;
 
-            Vector3D position = Vector3D.Transform(localPosition, m_effect.WorldMatrix);
-            if (m_position != position || created)
-            {
-                m_position = position;
-
-                MatrixD lightMatrix = MatrixD.CreateTranslation(m_position);
-                VRageRender.MyRenderProxy.UpdateRenderObject(
-                    m_renderObjectID,
-                    ref lightMatrix,
-                    true);
-            }
-
-            if ((m_color != color) ||
+            Vector3D position = Vector3D.Transform(localPosition * m_effect.GetEmitterScale(), m_effect.WorldMatrix);
+            if ((m_position != position) ||
+                (m_color != color) ||
                 (m_range != range) ||
                 (m_intensity != intensity) ||
                 created)
@@ -323,41 +278,31 @@ namespace VRage.Game
                 m_color = color;
                 m_intensity = intensity;
                 m_range = range;
+                m_position = position;
 
-                VRageRender.MyRenderProxy.UpdateRenderLight(
-                m_renderObjectID,
-                VRageRender.LightTypeEnum.PointLight,
-                m_position,
-                -1,
-                0,
-                m_color,
-                m_color,
-                1,
-                m_range,
-                m_intensity,
-                true,
-                true,
-                0,
-                false,
-                Vector3.Zero,
-                Vector3.Zero,
-                0,
-                Vector4.Zero,
-                0,
-                0,
-                null,
-                0,
-                false,
-                false, 
-                VRageRender.Lights.MyGlareTypeEnum.Normal,
-                0,
-                0,
-                0,
-                null,
-                0);
+                MyLightLayout light = new MyLightLayout()
+                {
+                    Range = m_range * m_effect.GetEmitterScale(),
+                    Color = new Vector3(m_color),
+                    Falloff = 1,
+                    GlossFactor = 1,
+                    DiffuseFactor = 1,
+                };
+
+                UpdateRenderLightData renderLightData = new UpdateRenderLightData()
+                {
+                    ID = m_renderObjectID,
+                    Position = m_position,
+                    Type = LightTypeEnum.PointLight,
+                    ParentID = -1,
+                    UseInForwardRender = true,
+                    SpecularColor = new Vector3(m_color),
+                    PointLightOn = true,
+                    PointLightIntensity = m_intensity,
+                    PointLight = light,
+                };
+                MyRenderProxy.UpdateRenderLight(ref renderLightData);
             }
-                
-
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
@@ -368,9 +313,8 @@ namespace VRage.Game
 
         public MyParticleLight CreateInstance(MyParticleEffect effect)
         {
-            MyParticleLight particleLight = MyParticlesManager.LightsPool.Allocate(true);
-            if (particleLight == null)
-                return null;
+            MyParticleLight particleLight;
+            MyParticlesManager.LightsPool.AllocateOrCreate(out particleLight);
 
             particleLight.Start(effect);
 
@@ -393,7 +337,8 @@ namespace VRage.Game
 
         public MyParticleLight Duplicate(MyParticleEffect effect)
         {
-            MyParticleLight particleLight = MyParticlesManager.LightsPool.Allocate();
+            MyParticleLight particleLight;
+            MyParticlesManager.LightsPool.AllocateOrCreate(out particleLight);
             particleLight.Start(effect);
 
             particleLight.Name = Name;
@@ -429,15 +374,47 @@ namespace VRage.Game
         public void Serialize(XmlWriter writer)
         {
             writer.WriteStartElement("ParticleLight");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteAttributeString("version", Version.ToString(CultureInfo.InvariantCulture));
+            writer.WriteAttributeString("Name", Name);
+            writer.WriteAttributeString("Version", Version.ToString(CultureInfo.InvariantCulture));
+
+            writer.WriteStartElement("Properties");
 
             foreach (IMyConstProperty property in m_properties)
             {
-                property.Serialize(writer);
-            }
+                writer.WriteStartElement("Property");
 
-            writer.WriteEndElement(); 
+                writer.WriteAttributeString("Name", property.Name);
+
+                writer.WriteAttributeString("Type", property.BaseValueType);
+
+                PropertyAnimationType animType = PropertyAnimationType.Const;
+                if (property.Animated)
+                    animType = property.Is2D ? PropertyAnimationType.Animated2D : PropertyAnimationType.Animated;
+                writer.WriteAttributeString("AnimationType", animType.ToString());
+
+                property.Serialize(writer);
+
+                writer.WriteEndElement();//property
+            }
+            writer.WriteEndElement();//properties
+
+            writer.WriteEndElement();//particle light
+        }
+
+        public void DeserializeFromObjectBuilder(ParticleLight light)
+        {
+            m_name = light.Name;
+
+            foreach (GenerationProperty property in light.Properties)
+            {
+                for (int i = 0; i < m_properties.Length; i++)
+                {
+                    if (m_properties[i].Name.Equals(property.Name))
+                    {
+                        m_properties[i].DeserializeFromObjectBuilder(property);
+                    }
+                }
+            }
         }
 
         public void Deserialize(XmlReader reader)

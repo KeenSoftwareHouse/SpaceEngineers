@@ -14,12 +14,20 @@ using VRage.Game.Components;
 using VRageMath;
 using VRage.Game.Entity;
 using VRage.Game.Models;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace Sandbox.Game.World
 {
     public partial class MyPlayer
     {
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
         public struct PlayerId : IComparable<PlayerId>
+#else // XB1
+        public struct PlayerId : IComparable<PlayerId>, IMySetGetMemberDataHelper
+#endif // XB1
         {
             public ulong SteamId; // Steam Id that identifies the steam account that the controller belongs to
             public int SerialId;  // Serial Id to differentiate between multiple controllers on one computer
@@ -95,6 +103,19 @@ namespace Sandbox.Game.World
                 id.SerialId--;
                 return id;
             }
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+            public object GetMemberData(MemberInfo m)
+            {
+                if (m.Name == "SteamId")
+                    return SteamId;
+                if (m.Name == "SerialId")
+                    return SerialId;
+
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+                return null;
+            }
+#endif // XB1
         }
 
         private MyNetworkClient m_client;
@@ -149,6 +170,46 @@ namespace Sandbox.Game.World
 
         public bool IsRealPlayer { get { return Id.SerialId == 0; } }
         public bool IsBot { get { return !IsRealPlayer; } }
+
+        public bool IsAdmin
+        {
+            get
+            {
+                if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return true;
+                return MySession.Static.IsUserAdmin( Client.SteamUserId );
+            }
+        }
+
+        public bool IsSpaceMaster
+        {
+            get
+            {
+                if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return true;
+                return MySession.Static.IsUserSpaceMaster( Client.SteamUserId );
+            }
+        }
+
+        public bool IsScripter
+        {
+            get
+            {
+                if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return true;
+                return MySession.Static.IsUserScripter(Client.SteamUserId);
+            }
+        }
+
+        public bool IsModerator
+        {
+            get
+            {
+                if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return true;
+                return MySession.Static.IsUserModerator(Client.SteamUserId);
+            }
+        }
 
         public MyCharacter Character
         {
@@ -404,6 +465,27 @@ namespace Sandbox.Game.World
             if (Identity == null) return VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies;
 
             return GetRelationBetweenPlayers(Identity.IdentityId, playerId);
+        }
+
+        public static MyRelationsBetweenPlayers GetRelationsBetweenPlayers(long playerId1, long playerId2)
+        {
+            if (playerId1 == 0 || playerId2 == 0) return MyRelationsBetweenPlayers.Neutral;
+            if (playerId1 == playerId2) return MyRelationsBetweenPlayers.Self;
+
+            var faction1 = MySession.Static.Factions.TryGetPlayerFaction(playerId1);
+            var faction2 = MySession.Static.Factions.TryGetPlayerFaction(playerId2);
+
+            if (faction1 == null || faction2 == null)
+                return MyRelationsBetweenPlayers.Enemies;
+
+            if (faction1 == faction2)
+                return MyRelationsBetweenPlayers.Allies;
+
+            MyRelationsBetweenFactions relation = MySession.Static.Factions.GetRelationBetweenFactions(faction1.FactionId, faction2.FactionId);
+            if (relation == MyRelationsBetweenFactions.Neutral)
+                return MyRelationsBetweenPlayers.Neutral;
+
+            return MyRelationsBetweenPlayers.Enemies;
         }
 
         public void RemoveGrid(long gridEntityId)

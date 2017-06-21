@@ -47,23 +47,23 @@ namespace Sandbox.Game.Gui
 
             foreach (var material in materials)
             {
-                var componentDefinition = MyDefinitionManager.Static.GetComponentDefinition(material.Key);
+                var def = MyDefinitionManager.Static.GetDefinition(material.Key);
                 var info = new MyHudBlockInfo.ComponentInfo();
-                if (componentDefinition == null)
+                if (def == null)
                 {
                     MyPhysicalItemDefinition physicalDefinition = null;
                     if (!MyDefinitionManager.Static.TryGetPhysicalItemDefinition(material.Key, out physicalDefinition))
                         continue;
                     info.ComponentName = physicalDefinition.DisplayNameText;
-                    info.Icon = physicalDefinition.Icon;
+                    info.Icons = physicalDefinition.Icons;
                     info.DefinitionId = physicalDefinition.Id;
                     info.TotalCount = 1;
                 }
                 else
                 {
-                    info.DefinitionId = componentDefinition.Id;
-                    info.ComponentName = componentDefinition.DisplayNameText;
-                    info.Icon = componentDefinition.Icon;
+                    info.DefinitionId = def.Id;
+                    info.ComponentName = def.DisplayNameText;
+                    info.Icons = def.Icons;
                     info.TotalCount = material.Value;
                 }
                 blockInfo.Components.Add(info);
@@ -80,20 +80,20 @@ namespace Sandbox.Game.Gui
                 var info = new MyHudBlockInfo.ComponentInfo();
                 info.DefinitionId = comp.Definition.Id;
                 info.ComponentName = comp.Definition.DisplayNameText;
-                info.Icon = comp.Definition.Icon;
+                info.Icons = comp.Definition.Icons;
                 info.TotalCount = comp.Count;
                 blockInfo.Components.Add(info);
             }
         }
 
-        private static void InitBlockInfo(MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)
+        public static void InitBlockInfo(this MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)
         {
             blockInfo.BlockName = definition.DisplayNameText;
-            blockInfo.BlockIcon = definition.Icon;
+            blockInfo.BlockIcons = definition.Icons;
             blockInfo.BlockIntegrity = 0;
-            blockInfo.CriticalComponentIndex = -1;
-            blockInfo.CriticalIntegrity = 0;
-            blockInfo.OwnershipIntegrity = 0;
+            blockInfo.CriticalComponentIndex = definition.CriticalGroup;
+            blockInfo.CriticalIntegrity = definition.CriticalIntegrityRatio;
+            blockInfo.OwnershipIntegrity = definition.OwnershipIntegrityRatio;
             blockInfo.MissingComponentIndex = -1;
             blockInfo.Components.Clear();
         }

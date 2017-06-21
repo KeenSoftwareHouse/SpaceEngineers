@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ using System.Text;
 
 namespace VRage.Native
 {
+#if !UNSHARPER
     public class NativeCallHelper<TDelegate>
             where TDelegate : class
     {
@@ -48,4 +50,7 @@ namespace VRage.Native
             return m.CreateDelegate<TDelegate>();
         }
     }
+#endif
 }
+
+#endif // !XB1

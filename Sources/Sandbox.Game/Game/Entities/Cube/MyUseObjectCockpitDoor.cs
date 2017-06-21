@@ -9,6 +9,7 @@ using VRage.Import;
 using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -46,6 +47,11 @@ namespace Sandbox.Game.Entities.Cube
             {
                 return Cockpit.Render.GetRenderObjectID();
             }
+        }
+
+        public override int InstanceID
+        {
+            get { return -1; }
         }
 
         public override bool ShowOverlay
@@ -98,7 +104,12 @@ namespace Sandbox.Game.Entities.Cube
 
         public override bool PlayIndicatorSound
         {
-            get { return true; }
+            get
+            {
+                if (Cockpit is MyShipController)
+                    return (Cockpit as MyShipController).PlayDefaultUseSound;
+                return true;
+            }
         }
     }
 }

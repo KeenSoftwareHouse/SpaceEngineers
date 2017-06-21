@@ -120,7 +120,7 @@ namespace VRage
 
         public static DictionaryReader<int, LanguageDescription> Languages
         {
-            get { return m_languageIdToLanguage; }
+            get { return new DictionaryReader<int, LanguageDescription>(m_languageIdToLanguage); }
         }
 
         public static void LoadSupportedLanguages(string rootDirectory, HashSet<int> outSupportedLanguages)

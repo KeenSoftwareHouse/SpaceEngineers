@@ -8,7 +8,6 @@ using Sandbox.Game.Lights;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
@@ -19,11 +18,12 @@ using VRage.Game.Entity;
 using Sandbox.Game.Weapons.Guns;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ShipGrinder))]
-    class MyShipGrinder : MyShipToolBase, IMyShipGrinder
+    public class MyShipGrinder : MyShipToolBase, IMyShipGrinder
     {
         private static MySoundPair IDLE_SOUND = new MySoundPair("ToolPlayGrindIdle");
         private static MySoundPair METAL_SOUND = new MySoundPair("ToolPlayGrindMetal");
@@ -54,6 +54,9 @@ namespace Sandbox.Game.Weapons
                 METAL_SOUND.Init("ToolLrgGrindMetal");
             }
             m_rotationSpeed = 0.0f;
+
+            HeatUpFrames = MyShipGrinderConstants.GRINDER_HEATUP_FRAMES;
+            NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override void OnControlAcquired(Sandbox.Game.Entities.Character.MyCharacter owner)
@@ -87,6 +90,7 @@ namespace Sandbox.Game.Weapons
 
         protected override bool Activate(HashSet<MySlimBlock> targets)
         {
+            int successTargets = targets.Count;
             m_otherGrid = null;
             if (targets.Count > 0)
             {
@@ -102,14 +106,24 @@ namespace Sandbox.Game.Weapons
 
                     m_otherGrid = block.CubeGrid;
 
+                    bool tmp2 = m_otherGrid.Physics == null || !m_otherGrid.Physics.Enabled;
+                    if (tmp2)
+                    {
+                        successTargets--;
+                        continue;
+                    }
+
                     float damage = MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient;
                     MyDamageInformation damageInfo = new MyDamageInformation(false, damage, MyDamageType.Grind, EntityId);
 
                     if (block.UseDamageSystem)
                         MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
 
-                    block.DecreaseMountLevel(damageInfo.Amount, this.GetInventory());
-                    block.MoveItemsFromConstructionStockpile(this.GetInventory());
+                    if (block.CubeGrid.Editable)
+                    {
+                        block.DecreaseMountLevel(damageInfo.Amount, this.GetInventory());
+                        block.MoveItemsFromConstructionStockpile(this.GetInventory());
+                    }
 
                     if (block.UseDamageSystem)
                         MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);
@@ -128,10 +142,11 @@ namespace Sandbox.Game.Weapons
                         block.CubeGrid.RazeBlock(block.Min);
                     }
                 }
-                
+                if (successTargets > 0)
+                    SetBuildingMusic(200);
             }
-            m_wantsToShake = targets.Count != 0;
-            return targets.Count != 0;
+            m_wantsToShake = successTargets != 0;
+            return successTargets != 0;
         }
 
         private void EmptyBlockInventories(MyCubeBlock block)
@@ -191,6 +206,12 @@ namespace Sandbox.Game.Weapons
                 m_wantsToShake = false;
                 m_otherGrid = null;
             }
+
+            if (!IsShooting && !IsHeatingUp && m_rotationSpeed <= float.Epsilon)
+            {
+                // Doesn't actually do anything, switch each frame update off
+                NeedsUpdate &= ~VRage.ModAPI.MyEntityUpdateEnum.EACH_FRAME;
+            }
         }
 
         public override void UpdateAfterSimulation100()
@@ -227,8 +248,8 @@ namespace Sandbox.Game.Weapons
             MyLight light = MyLights.AddLight();
             light.Start(MyLight.LightTypeEnum.PointLight, Vector3.Zero, new Vector4(1.0f, 0.8f, 0.6f, 1.0f), 2.0f, 10.0f);
             light.GlareMaterial = "GlareWelder";
-            light.GlareOn = true;
-            light.GlareQuerySize = 1;
+            light.GlareOn = light.LightOn;
+            light.GlareQuerySize = 0.4f;
             light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
             return light;
         }
@@ -291,8 +312,8 @@ namespace Sandbox.Game.Weapons
         private Matrix GetEffectMatrix(int effectNum)
         {
             Matrix retval = WorldMatrix;
-            retval.Translation += retval.Forward * 1.9f;
-            retval.Translation += retval.Up * (effectNum == 1 ? 0.65f : -0.65f);
+            retval.Translation += retval.Forward * 1.5f;
+            retval.Translation += retval.Up * (effectNum == 1 ? 0.25f : -0.25f);
 
             float zRotation = effectNum == 1 ? MyUtils.GetRandomFloat(0.3f, 0.7f) : MyUtils.GetRandomFloat(-0.7f, -0.3f);
             float yRotation = (float)Math.PI * -MyUtils.GetRandomFloat(0.47f, 0.53f);
@@ -314,8 +335,10 @@ namespace Sandbox.Game.Weapons
 
         protected override void PlayLoopSound(bool activated)
         {
+            if (m_soundEmitter == null)
+                return;
             MySoundPair cueEnum = activated ? METAL_SOUND : IDLE_SOUND;
-            if (m_soundEmitter.Sound != null && (m_soundEmitter.Sound.CueEnum == METAL_SOUND.SoundId || m_soundEmitter.Sound.CueEnum == IDLE_SOUND.SoundId) && m_soundEmitter.Sound.IsPlaying)
+            if (m_soundEmitter.Sound != null && (m_soundEmitter.SoundPair.Equals(METAL_SOUND) || m_soundEmitter.SoundPair.Equals(IDLE_SOUND)) && m_soundEmitter.Sound.IsPlaying)
                 m_soundEmitter.PlaySingleSound(cueEnum, true, true);
             else
                 m_soundEmitter.PlaySound(cueEnum);
@@ -333,6 +356,24 @@ namespace Sandbox.Game.Weapons
                 }
             }
         }
-        
+
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public override Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public override Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = pullInformation.Inventory.Constraint;
+            return pullInformation;
+        }
+
+        #endregion
     }
 }

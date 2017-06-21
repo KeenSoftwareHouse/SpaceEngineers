@@ -15,22 +15,51 @@ namespace Sandbox.Game.Replication
 {
     static class MySupportHelper
     {
+        static List<MyEntity> m_entities = new List<MyEntity>();
         static readonly bool DEBUG_DRAW = false;
         const int MinBlockCount = 5; // More than 5 blocks
         const float MinSpeedSq = 10 * 10;
 
         public static MyEntityPhysicsStateGroup FindSupportForCharacter(MyEntity entity)
         {
-            var support = SphereCast(entity, 1, 2); // ?? SphereBounds(character, 8);
-            if (support != null && support.Entity.Physics != null && support.Entity.Physics.IsStatic)
-                support = null; // Static == no support
+            return FindPhysics(FindSupportForCharacterAABB(entity));
+        }
 
-            if (DEBUG_DRAW && support != null)
+        public static MyEntity FindSupportForCharacterAABB(MyEntity entity)
+        {
+            BoundingBoxD characterBox = entity.PositionComp.WorldAABB;
+            characterBox.Inflate(1.0);
+            m_entities.Clear();
+
+            MyEntities.GetTopMostEntitiesInBox(ref characterBox, m_entities);
+
+            float maxRadius = 0;
+            MyCubeGrid biggestGrid = null;
+
+            foreach(var parent in m_entities)
             {
-                VRageRender.MyRenderProxy.DebugDrawAABB(support.Entity.PositionComp.WorldAABB, Color.Red, 1, 1, false);
-            }
+                MyCubeGrid grid =  parent as MyCubeGrid;
 
-            return support;
+                if(grid != null)
+                {
+                    if (grid.Physics == null ||  grid.Physics.IsStatic || grid.GridSizeEnum == MyCubeSize.Small)
+                    {
+                        continue;
+                    }
+                    grid = MyGridPhysicsStateGroup.GetMasterGrid(grid);
+                    var rad = grid.PositionComp.LocalVolume.Radius;
+                    if (rad > maxRadius || (rad == maxRadius && (biggestGrid == null || grid.EntityId > biggestGrid.EntityId)))
+                    {
+                        maxRadius = rad;
+                        biggestGrid = grid;
+                    }
+                }
+            }
+            if (biggestGrid != null && biggestGrid.CubeBlocks.Count > 10)
+            {
+                return biggestGrid;
+            }
+            return null;
         }
 
         public static MyEntityPhysicsStateGroup FindSupport(MyEntity entity)

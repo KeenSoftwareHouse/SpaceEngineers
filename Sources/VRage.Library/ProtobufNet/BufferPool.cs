@@ -1,5 +1,7 @@
-﻿
+﻿#if !XB1 // XB1_NOPROTOBUF
 using System.Threading;
+using System.Diagnostics;
+
 namespace ProtoBuf
 {
     internal class BufferPool
@@ -70,6 +72,9 @@ namespace ProtoBuf
         }
         internal static void ReleaseBufferToPool(ref byte[] buffer)
         {
+#if XB1
+			Debug.Assert(false);
+#else
             if (buffer == null) return;
             if (buffer.Length == BufferLength)
             {
@@ -97,7 +102,12 @@ namespace ProtoBuf
             }
             // if no space, just drop it on the floor
             buffer = null;
+
+
+
+#endif //XB1
         }
 
     }
 }
+#endif // !XB1

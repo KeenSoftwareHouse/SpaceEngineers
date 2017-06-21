@@ -17,7 +17,16 @@ namespace VRage.Collections
 
         public Action<TKey, TValue> OnItemDiscarded;
 
-        public LRUCache(int cacheSize, IEqualityComparer<TKey> comparer = null)
+        public LRUCache(int cacheSize)
+        {
+            m_comparer = EqualityComparer<TKey>.Default;
+            m_cacheEntries = new CacheEntry[cacheSize];
+            m_entryLookup = new Dictionary<TKey, int>(cacheSize, m_comparer);
+
+            ResetInternal();
+        }
+
+        public LRUCache(int cacheSize, IEqualityComparer<TKey> comparer)
         {
             m_comparer = comparer ?? EqualityComparer<TKey>.Default;
             m_cacheEntries = new CacheEntry[cacheSize];

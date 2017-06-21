@@ -15,33 +15,43 @@ namespace VRage.Game
     public static class MySimpleObjectDraw
     {
         private static List<LineD> m_lineBuffer = new List<LineD>(2000);   //max capacity of rendered lines  
-        private static List<Vector3D> m_verticesBuffer = new List<Vector3D>(2000);   //max capacity of rendered lines
+        private static readonly List<Vector3D> m_verticesBuffer = new List<Vector3D>(2000);   //max capacity of rendered lines
 
         // Empty function, but forces static variable preload during game load
         static MySimpleObjectDraw() { }
 
-        public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, MySimpleObjectRasterizer rasterization, int wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
+        public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, MySimpleObjectRasterizer rasterization, 
+            int wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, 
+            int customViewProjection = -1)
         {
-            DrawTransparentBox(ref worldMatrix, ref localbox, ref color, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, lineMaterial, onlyFrontFaces, customViewProjection, priority);
+            DrawTransparentBox(ref worldMatrix, ref localbox, ref color, ref color, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, 
+                lineMaterial, onlyFrontFaces, customViewProjection);
+        }
+
+        public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, ref Color frontFaceColor, 
+            MySimpleObjectRasterizer rasterization, int wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, 
+            bool onlyFrontFaces = false, int customViewProjection = -1)
+        {
+            DrawTransparentBox(ref worldMatrix, ref localbox, ref color, ref frontFaceColor, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, lineMaterial, onlyFrontFaces, customViewProjection);
         }
 
         public static void DrawAttachedTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color,
             int renderObjectID, ref MatrixD worldToLocal,
-            MySimpleObjectRasterizer rasterization, int wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int priority = 0)
+            MySimpleObjectRasterizer rasterization, int wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false)
         {
-            DrawAttachedTransparentBox(ref worldMatrix, ref localbox, ref color, renderObjectID, ref worldToLocal, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, lineMaterial, onlyFrontFaces, priority);
+            DrawAttachedTransparentBox(ref worldMatrix, ref localbox, ref color, renderObjectID, ref worldToLocal, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, lineMaterial, onlyFrontFaces);
         }
 
-        public static bool FaceVisible(Vector3 center, Vector3 normal)
+        public static bool FaceVisible(Vector3D center, Vector3D normal)
         {
-            var viewDir = center - MyTransparentGeometry.Camera.Translation;
-            return Vector3.Dot(viewDir, normal) < 0;
+            var viewDir = Vector3D.Normalize(center - MyTransparentGeometry.Camera.Translation);
+            return Vector3D.Dot(viewDir, normal) < 0;
         }
 
         /// <summary>
         /// DrawTransparentBox
         /// </summary>
-        public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, MySimpleObjectRasterizer rasterization, Vector3I wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
+        public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, ref Color frontFaceColor, MySimpleObjectRasterizer rasterization, Vector3I wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1)
         {
             if (faceMaterial == null)
             {
@@ -75,7 +85,7 @@ namespace VRage.Game
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfHeight, ref worldMatrix);
-                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, frontFaceColor, ref vctPos, customViewProjection);
                 }
 
                 //@ Back side
@@ -83,7 +93,7 @@ namespace VRage.Game
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfHeight, ref worldMatrix);
-                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos,  customViewProjection);
                 }
 
                 //@ Left side
@@ -95,7 +105,7 @@ namespace VRage.Game
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfDeep, halfHeight, ref rotated);
-                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
                 }
 
                 //@ Right side
@@ -103,7 +113,7 @@ namespace VRage.Game
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfDeep, halfHeight, ref rotated);
-                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
                 }
 
                 //@ Top side
@@ -115,7 +125,7 @@ namespace VRage.Game
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfDeep, ref rotated);
-                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
                 }
 
                 //@ Bottom side
@@ -123,7 +133,7 @@ namespace VRage.Game
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfDeep, ref rotated);
-                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
                 }
             }
 
@@ -131,11 +141,11 @@ namespace VRage.Game
             {
                 Color wireColor = color;
                 wireColor *= 1.3f;
-                DrawWireFramedBox(ref worldMatrix, ref localbox, ref wireColor, lineWidth, wireDivideRatio, lineMaterial, onlyFrontFaces, customViewProjection, priority);
+                DrawWireFramedBox(ref worldMatrix, ref localbox, ref wireColor, lineWidth, wireDivideRatio, lineMaterial, onlyFrontFaces, customViewProjection);
             }
         }
 
-        public static void DrawTransparentRamp(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, string faceMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
+        public static void DrawTransparentRamp(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, string faceMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1)
         {
             if (faceMaterial == null)
             {
@@ -162,7 +172,7 @@ namespace VRage.Game
             if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
             {
                 MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfHeight, ref worldMatrix);
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
             }
 
             //@ Left side
@@ -175,7 +185,7 @@ namespace VRage.Game
             {
                 MyUtils.GenerateQuad(out quad, ref vctPos, halfDeep, halfHeight, ref rotated);
                 quad.Point3 = quad.Point0;
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
             }
 
             //@ Right side
@@ -184,7 +194,7 @@ namespace VRage.Game
             {
                 MyUtils.GenerateQuad(out quad, ref vctPos, halfDeep, halfHeight, ref rotated);
                 quad.Point3 = quad.Point0;
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
             }
 
             Vector3 p1 = Vector3.One;
@@ -201,7 +211,7 @@ namespace VRage.Game
                 MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfDeep, ref rotated);
                 p1 = quad.Point1;
                 p2 = quad.Point2;
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
             }
 
             //@ Top side
@@ -211,11 +221,11 @@ namespace VRage.Game
                 MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfDeep, ref rotated);
                 quad.Point1 = p1;
                 quad.Point2 = p2;
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
             }
         }
 
-        public static void DrawTransparentRoundedCorner(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, string faceMaterial = null, int customViewProjection = -1, int priority = 0)
+        public static void DrawTransparentRoundedCorner(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, string faceMaterial = null, int customViewProjection = -1)
         {
             if (faceMaterial == null)
             {
@@ -239,7 +249,7 @@ namespace VRage.Game
             quad.Point3 = Vector3.Transform(quad.Point3, worldMatrix);
 
             Vector3D vctPos = (quad.Point0 + quad.Point1 + quad.Point2 + quad.Point3) * 0.25;
-            MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+            MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
 
             // Right side
             quad.Point0   = localbox.Min;
@@ -256,7 +266,7 @@ namespace VRage.Game
             quad.Point3 = Vector3.Transform(quad.Point3, worldMatrix);
 
             vctPos = (quad.Point0 + quad.Point1 + quad.Point2 + quad.Point3) * 0.25f;
-            MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+            MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
 
             // Rounded Side
             float angleStep = MathHelper.TwoPi / 40;
@@ -300,14 +310,14 @@ namespace VRage.Game
                 quad.Point3 = Vector3.Transform(quad.Point3, worldMatrix);
 
                 vctPos = (quad.Point0 + quad.Point1 + quad.Point2 + quad.Point3) * 0.25f;
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjection);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjection);
             }
             worldMatrix.Translation = backup;
         }
 
         public static void DrawAttachedTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, 
             int renderObjectID, ref MatrixD worldToLocal,
-            MySimpleObjectRasterizer rasterization, Vector3I wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int priority = 0)
+            MySimpleObjectRasterizer rasterization, Vector3I wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false)
         {
             if (faceMaterial == null)
             {
@@ -336,8 +346,7 @@ namespace VRage.Game
 
                 //@ Front side
                 Vector3D faceNorm = Vector3D.TransformNormal(Vector3D.Forward, orientation);
-                faceNorm *= halfDeep;
-                Vector3D vctPos = translation + faceNorm;
+                Vector3D vctPos = translation + faceNorm * halfDeep;
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfHeight, ref worldMatrix);
@@ -345,11 +354,11 @@ namespace VRage.Game
                     Vector3D.Transform(ref quad.Point1, ref worldToLocal, out quad.Point1);
                     Vector3D.Transform(ref quad.Point2, ref worldToLocal, out quad.Point2);
                     Vector3D.Transform(ref quad.Point3, ref worldToLocal, out quad.Point3);
-                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, ref color, ref vctPos, renderObjectID, priority);
+                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, color, ref vctPos, renderObjectID);
                 }
 
                 //@ Back side
-                vctPos = translation - faceNorm;
+                vctPos = translation - faceNorm * halfDeep;
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfHeight, ref worldMatrix);
@@ -357,15 +366,14 @@ namespace VRage.Game
                     Vector3D.Transform(ref quad.Point1, ref worldToLocal, out quad.Point1);
                     Vector3D.Transform(ref quad.Point2, ref worldToLocal, out quad.Point2);
                     Vector3D.Transform(ref quad.Point3, ref worldToLocal, out quad.Point3);
-                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, ref color, ref vctPos, renderObjectID, priority);
+                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, color, ref vctPos, renderObjectID);
                 }
 
                 //@ Left side
                 MatrixD rotMat = Matrix.CreateRotationY(MathHelper.ToRadians(90f));
                 MatrixD rotated = rotMat * worldMatrix;
-                faceNorm = Vector3D.TransformNormal(Vector3.Left, worldMatrix);
-                faceNorm *= halfWidth;
-                vctPos = translation + faceNorm;
+                faceNorm = Vector3D.TransformNormal(Vector3D.Left, worldMatrix);
+                vctPos = translation + faceNorm * halfWidth;
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfDeep, halfHeight, ref rotated);
@@ -373,11 +381,11 @@ namespace VRage.Game
                     Vector3D.Transform(ref quad.Point1, ref worldToLocal, out quad.Point1);
                     Vector3D.Transform(ref quad.Point2, ref worldToLocal, out quad.Point2);
                     Vector3D.Transform(ref quad.Point3, ref worldToLocal, out quad.Point3);
-                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, ref color, ref vctPos, renderObjectID, priority);
+                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, color, ref vctPos, renderObjectID);
                 }
 
                 //@ Right side
-                vctPos = translation - faceNorm;
+                vctPos = translation - faceNorm * halfWidth;
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfDeep, halfHeight, ref rotated);
@@ -385,15 +393,14 @@ namespace VRage.Game
                     Vector3D.Transform(ref quad.Point1, ref worldToLocal, out quad.Point1);
                     Vector3D.Transform(ref quad.Point2, ref worldToLocal, out quad.Point2);
                     Vector3D.Transform(ref quad.Point3, ref worldToLocal, out quad.Point3);
-                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, ref color, ref vctPos, renderObjectID, priority);
+                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, color, ref vctPos, renderObjectID);
                 }
 
                 //@ Top side
                 rotMat = MatrixD.CreateRotationX(MathHelper.ToRadians(90f));
                 rotated = rotMat * worldMatrix;
-                faceNorm = Vector3D.TransformNormal(Vector3.Up, worldMatrix);
-                faceNorm *= ((localbox.Max.Y - localbox.Min.Y) / 2f);
-                vctPos = translation + faceNorm;
+                faceNorm = Vector3D.TransformNormal(Vector3D.Up, worldMatrix);
+                vctPos = translation + faceNorm * halfHeight;
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfDeep, ref rotated);
@@ -401,11 +408,11 @@ namespace VRage.Game
                     Vector3D.Transform(ref quad.Point1, ref worldToLocal, out quad.Point1);
                     Vector3D.Transform(ref quad.Point2, ref worldToLocal, out quad.Point2);
                     Vector3D.Transform(ref quad.Point3, ref worldToLocal, out quad.Point3);
-                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, ref color, ref vctPos, renderObjectID, priority);
+                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, color, ref vctPos, renderObjectID);
                 }
 
                 //@ Bottom side
-                vctPos = translation - faceNorm;
+                vctPos = translation - faceNorm * halfHeight;
                 if (!onlyFrontFaces || FaceVisible(vctPos, -faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfDeep, ref rotated);
@@ -413,8 +420,9 @@ namespace VRage.Game
                     Vector3D.Transform(ref quad.Point1, ref worldToLocal, out quad.Point1);
                     Vector3D.Transform(ref quad.Point2, ref worldToLocal, out quad.Point2);
                     Vector3D.Transform(ref quad.Point3, ref worldToLocal, out quad.Point3);
-                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, ref color, ref vctPos, renderObjectID, priority);
+                    MyTransparentGeometry.AddAttachedQuad(faceMaterial, ref quad, color, ref vctPos, renderObjectID);
                 }
+
             }
 
             if (rasterization == MySimpleObjectRasterizer.Wireframe || rasterization == MySimpleObjectRasterizer.SolidAndWireframe)
@@ -423,7 +431,7 @@ namespace VRage.Game
                 vctWireColor *= 1.3f;
                 DrawAttachedWireFramedBox(ref worldMatrix, ref localbox, 
                     renderObjectID, ref worldToLocal,
-                    ref vctWireColor, lineWidth, wireDivideRatio, lineMaterial, onlyFrontFaces, priority);
+                    ref vctWireColor, lineWidth, wireDivideRatio, lineMaterial, onlyFrontFaces);
             }
         }
 
@@ -436,7 +444,7 @@ namespace VRage.Game
         /// <param name="bWireFramed"></param>
         /// <param name="wireDivideRatio"></param>
         /// <param name="wireDivideRatio"></param>
-        private static void DrawWireFramedBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, float fThickRatio, Vector3I wireDivideRatio, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
+        private static void DrawWireFramedBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, float fThickRatio, Vector3I wireDivideRatio, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1)
         {
             if (lineMaterial == null)
             {
@@ -587,13 +595,14 @@ namespace VRage.Game
             foreach (LineD line in m_lineBuffer)
             {
                 //@ 16 - lifespan for 1 update in 60FPS
-                MyTransparentGeometry.AddLineBillboard(lineMaterial, color, line.From, line.Direction, (float)line.Length, thickness, priority, false, customViewProjection);
+                MyTransparentGeometry.AddLineBillboard(lineMaterial, color, line.From, line.Direction, (float)line.Length, thickness, 
+                    VRageRender.MyBillboard.BlenType.Standard, customViewProjection);
             }
         }
 
         private static void DrawAttachedWireFramedBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, 
             int renderObjectID, ref MatrixD worldToLocal,
-            ref Vector4 vctColor, float fThickRatio, Vector3I wireDivideRatio, string lineMaterial = null, bool onlyFrontFaces = false, int priority = 0)
+            ref Vector4 vctColor, float fThickRatio, Vector3I wireDivideRatio, string lineMaterial = null, bool onlyFrontFaces = false)
         {
             if (lineMaterial == null)
             {
@@ -746,7 +755,7 @@ namespace VRage.Game
                 //@ 16 - lifespan for 1 update in 60FPS
                 MyTransparentGeometry.AddLineBillboard(lineMaterial, vctColor, line.From,
                     renderObjectID, ref worldToLocal,
-                    line.Direction, (float)line.Length, thickness, priority, false);
+                    line.Direction, (float)line.Length, thickness);
             }
         }
 
@@ -785,7 +794,7 @@ namespace VRage.Game
 
                 if (rasterization == MySimpleObjectRasterizer.Solid || rasterization == MySimpleObjectRasterizer.SolidAndWireframe)
                 {
-                    MyTransparentGeometry.AddQuad(faceMaterial ?? "ContainerBorder", ref quad, ref color, ref vctZero, 0, customViewProjectionMatrix);
+                    MyTransparentGeometry.AddQuad(faceMaterial ?? "ContainerBorder", ref quad, color, ref vctZero, customViewProjectionMatrix);
                 }
 
                 if (rasterization == MySimpleObjectRasterizer.Wireframe || rasterization == MySimpleObjectRasterizer.SolidAndWireframe)
@@ -799,7 +808,8 @@ namespace VRage.Game
                     {
                         dir = MyUtils.Normalize(dir);
 
-                        MyTransparentGeometry.AddLineBillboard(lineMaterial, color, start, dir, len, thickness, 0, false, customViewProjectionMatrix);
+                        MyTransparentGeometry.AddLineBillboard(lineMaterial, color, start, dir, len, thickness, 
+                            VRageRender.MyBillboard.BlenType.Standard, customViewProjectionMatrix);
                     }
 
                     start = quad.Point1;
@@ -809,14 +819,15 @@ namespace VRage.Game
                     {
                         dir = MyUtils.Normalize(dir);
 
-                        MyTransparentGeometry.AddLineBillboard(lineMaterial, color, start, dir, len, thickness, 0, false, customViewProjectionMatrix);
+                        MyTransparentGeometry.AddLineBillboard(lineMaterial, color, start, dir, len, thickness, 
+                            VRageRender.MyBillboard.BlenType.Standard, customViewProjectionMatrix);
                     }
 
                 }
             }
         }
 
-        public static void DrawTransparentCapsule(ref MatrixD worldMatrix, float radius, float height, ref Color color, int wireDivideRatio, string faceMaterial = null, int priority = 0, int customViewProjectionMatrix = -1)
+        public static void DrawTransparentCapsule(ref MatrixD worldMatrix, float radius, float height, ref Color color, int wireDivideRatio, string faceMaterial = null, int customViewProjectionMatrix = -1)
         {
             if (faceMaterial == null)
                 faceMaterial = "ContainerBorder";
@@ -840,7 +851,7 @@ namespace VRage.Game
                 quad.Point1 = m_verticesBuffer[i + 3];
                 quad.Point2 = m_verticesBuffer[i + 2];
                 quad.Point3 = m_verticesBuffer[i];
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctZero, priority, customViewProjectionMatrix);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctZero, customViewProjectionMatrix);
             }
 
             MatrixD lowerSphere = MatrixD.CreateRotationX(-MathHelper.PiOver2);
@@ -857,7 +868,7 @@ namespace VRage.Game
                 quad.Point1 = m_verticesBuffer[i + 3];
                 quad.Point2 = m_verticesBuffer[i + 2];
                 quad.Point3 = m_verticesBuffer[i];
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctZero, priority, customViewProjectionMatrix);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctZero, customViewProjectionMatrix);
             }
 
             // Cylinder
@@ -895,16 +906,16 @@ namespace VRage.Game
                 quad.Point3 = Vector3D.Transform(quad.Point3, worldMatrix);
 
                 var vctPos = (quad.Point0 + quad.Point1 + quad.Point2 + quad.Point3) * 0.25f;
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref vctPos, priority, customViewProjectionMatrix);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, customViewProjectionMatrix);
             }
         }
 
-        public static void DrawTransparentCone(ref MatrixD worldMatrix, float radius, float height, ref Color color, int wireDivideRatio, string faceMaterial = null, int priority = 0, int customViewProjectionMatrix = -1)
+        public static void DrawTransparentCone(ref MatrixD worldMatrix, float radius, float height, ref Color color, int wireDivideRatio, string faceMaterial = null, int customViewProjectionMatrix = -1)
         {
-            DrawTransparentCone(worldMatrix.Translation, worldMatrix.Forward * height, worldMatrix.Up * radius, color, wireDivideRatio, faceMaterial, priority, customViewProjectionMatrix);
+            DrawTransparentCone(worldMatrix.Translation, worldMatrix.Forward * height, worldMatrix.Up * radius, color, wireDivideRatio, faceMaterial, customViewProjectionMatrix);
         }
 
-        private static void DrawTransparentCone(Vector3D apexPosition, Vector3 directionVector, Vector3 baseVector, Color color, int wireDivideRatio, string faceMaterial = null, int priority = 0, int customViewProjectionMatrix = -1)
+        private static void DrawTransparentCone(Vector3D apexPosition, Vector3 directionVector, Vector3 baseVector, Color color, int wireDivideRatio, string faceMaterial = null, int customViewProjectionMatrix = -1)
         {
             faceMaterial = faceMaterial ?? "ContainerBorder";
 
@@ -928,7 +939,7 @@ namespace VRage.Game
                 quad.Point2 = apex;
                 quad.Point3 = apex;
 
-                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, ref color, ref Vector3D.Zero);
+                MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref Vector3D.Zero);
             }
         }
 

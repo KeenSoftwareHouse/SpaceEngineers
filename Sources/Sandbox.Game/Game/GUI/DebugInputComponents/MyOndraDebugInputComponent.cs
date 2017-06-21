@@ -215,7 +215,7 @@ namespace Sandbox.Game.Gui
 
             if (MyInput.Static.IsNewKeyPressed(MyKeys.NumPad6))
             {
-                var view = MySession.Static.CameraController.GetViewMatrix();
+                var view = MySector.MainCamera.ViewMatrix;
                 var inv = Matrix.Invert(view);
 
                 //MyPhysicalInventoryItem item = new MyPhysicalInventoryItem(100, 
@@ -293,7 +293,7 @@ namespace Sandbox.Game.Gui
 
             if (MyInput.Static.IsNewKeyPressed(MyKeys.NumPad8))
             {
-                var view = MySession.Static.CameraController.GetViewMatrix();
+                var view = MySector.MainCamera.ViewMatrix;
                 var inv = Matrix.Invert(view);
 
                 var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");

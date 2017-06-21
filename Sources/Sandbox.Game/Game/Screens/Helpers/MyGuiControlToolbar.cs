@@ -18,30 +18,35 @@ namespace Sandbox.Game.Screens.Helpers
 {
     public class MyGuiControlToolbar : MyGuiControlBase
     {
-        private static StringBuilder m_textCache = new StringBuilder();
+        protected static StringBuilder m_textCache = new StringBuilder();
 
-        private MyGuiControlGrid m_toolbarItemsGrid;
-        private MyGuiControlLabel m_selectedItemLabel;
-        private MyGuiControlPanel m_colorVariantPanel;
-        private MyGuiControlContextMenu m_contextMenu;
-        private List<MyGuiControlLabel> m_pageLabelList = new List<MyGuiControlLabel>();
-        private MyToolbar m_shownToolbar;
+        protected MyGuiControlGrid m_toolbarItemsGrid;
+        protected MyGuiControlLabel m_selectedItemLabel;
+        protected MyGuiControlPanel m_colorVariantPanel;
+        protected MyGuiControlLabel m_gridSizeLabel;
+        protected MyGuiControlImage m_gridSize;
+        protected MyGuiControlContextMenu m_contextMenu;
+        protected List<MyGuiControlLabel> m_pageLabelList = new List<MyGuiControlLabel>();
+        protected MyToolbar m_shownToolbar;
         public MyToolbar ShownToolbar
         {
-            get 
-            { 
-                return m_shownToolbar; 
+            get
+            {
+                return m_shownToolbar;
             }
         }
         public MyGuiControlGrid ToolbarGrid
         {
-            get {
+            get
+            {
                 return m_toolbarItemsGrid;
             }
         }
 
-        private int m_contextMenuItemIndex = -1;
+        private bool m_gridSizeLargeBlock = true;
+        protected int m_contextMenuItemIndex = -1;
 
+        public bool UseContextMenu = true;
         public bool DrawNumbers { get { return MyToolbarComponent.CurrentToolbar.DrawNumbers; } }
         public Func<int, Sandbox.Graphics.GUI.MyGuiControlGrid.ColoredIcon> GetSymbol { get { return MyToolbarComponent.CurrentToolbar.GetSymbol; } }
 
@@ -60,7 +65,7 @@ namespace Sandbox.Game.Screens.Helpers
         {
             base.OnVisibleChanged();
             MyToolbarComponent.IsToolbarControlShown = this.Visible;
-        }        
+        }
 
         public override void OnRemoving()
         {
@@ -75,9 +80,9 @@ namespace Sandbox.Game.Screens.Helpers
                 m_shownToolbar.CurrentPageChanged -= Toolbar_CurrentPageChanged;
                 m_shownToolbar = null;
             }
-            
+
             MyToolbarComponent.IsToolbarControlShown = false;
-            
+
             base.OnRemoving();
         }
 
@@ -88,7 +93,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (captureControl == null)
                 captureControl = base.HandleInputElements();
 
-            if (MyInput.Static.IsMouseReleased(MyMouseButtonsEnum.Right) && m_contextMenu.Enabled)
+            if (UseContextMenu && MyInput.Static.IsMouseReleased(MyMouseButtonsEnum.Right) && m_contextMenu.Enabled)
             {
                 m_contextMenu.Enabled = false;
                 m_contextMenu.Activate();
@@ -100,11 +105,27 @@ namespace Sandbox.Game.Screens.Helpers
         public override void Update()
         {
             base.Update();
+
+            //grid size image
+            if (m_gridSize.Visible && MyCubeBuilder.Static != null)
+            {
+                bool newSizeLarge = MyCubeBuilder.Static.CubeBuilderState.CubeSizeMode == MyCubeSize.Large;
+                if (newSizeLarge != m_gridSizeLargeBlock)
+                {
+                    m_gridSizeLargeBlock = newSizeLarge;
+                    m_gridSize.SetTexture(newSizeLarge ? MyGuiConstants.TEXTURE_ICON_LARGE_BLOCK : MyGuiConstants.TEXTURE_ICON_SMALL_BLOCK);
+                }
+            }
+
+            //grid size label
+            bool showLabel = m_gridSize.Visible && MySandboxGame.Config.ShowBuildingSizeHint;
+            if (m_gridSizeLabel.Visible != showLabel)
+                m_gridSizeLabel.Visible = showLabel;
         }
 
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-			Color c = (new Vector3(MyPlayer.SelectedColor.X, MathHelper.Clamp(MyPlayer.SelectedColor.Y + 0.8f, 0f, 1f), MathHelper.Clamp(MyPlayer.SelectedColor.Z + 0.55f, 0f, 1f))).HSVtoColor();
+            Color c = (new Vector3(MyPlayer.SelectedColor.X, MathHelper.Clamp(MyPlayer.SelectedColor.Y + 0.8f, 0f, 1f), MathHelper.Clamp(MyPlayer.SelectedColor.Z + 0.55f, 0f, 1f))).HSVtoColor();
             m_colorVariantPanel.ColorMask = c.ToVector4();
             base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
@@ -140,9 +161,22 @@ namespace Sandbox.Game.Screens.Helpers
                 position.X += pageLabel.Size.X + 0.001f;
             }
 
-            // Move the context menu to the top
-            Elements.Remove(m_contextMenu);
-            Elements.Add(m_contextMenu);
+            if (UseContextMenu)
+            {
+                // Move the context menu to the top
+                Elements.Remove(m_contextMenu);
+                Elements.Add(m_contextMenu);
+            }
+
+            //grid size image position - left from toolbar
+            Vector2 gridSizePosition = m_toolbarItemsGrid.Position;
+            gridSizePosition.X -= (m_toolbarItemsGrid.Size.X + 0.005f);
+            gridSizePosition.Y -= 0.0025f;
+            m_gridSize.Position = gridSizePosition;
+
+            //grid size label position - above grid size image
+            gridSizePosition.Y -= m_gridSize.Size.Y * 1.25f;
+            m_gridSizeLabel.Position = gridSizePosition;
         }
 
         private void RecreateControls(bool contructor)
@@ -160,6 +194,24 @@ namespace Sandbox.Game.Screens.Helpers
             m_selectedItemLabel = new MyGuiControlLabel();
             m_colorVariantPanel = new MyGuiControlPanel(size: new Vector2(0.1f, 0.025f));
             m_colorVariantPanel.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+
+            //grid size image (left from toolbar)
+            m_gridSize = new MyGuiControlImage(size: m_toolbarItemsGrid.ItemSize * 0.6f);
+            m_gridSize.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
+            m_gridSize.SetTexture(MyGuiConstants.TEXTURE_ICON_LARGE_BLOCK);
+            m_gridSize.Visible = false;
+            m_gridSize.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+            Elements.Add(m_gridSize);
+
+            //grid size label (above grid size image)
+            m_gridSizeLabel = new MyGuiControlLabel();
+            m_gridSizeLabel.Text = "";
+            m_gridSizeLabel.Visible = false;
+            m_gridSizeLabel.Size = new Vector2(m_toolbarItemsGrid.ItemSize.X * 3f, m_toolbarItemsGrid.ItemSize.Y / 2f);
+            m_gridSizeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
+            m_gridSizeLabel.BackgroundTexture = null;
+            m_gridSizeLabel.TextScale = 0.75f;
+            Elements.Add(m_gridSizeLabel);
 
             m_contextMenu = new MyGuiControlContextMenu();
             m_contextMenu.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
@@ -186,7 +238,7 @@ namespace Sandbox.Game.Screens.Helpers
             return m_toolbarItemsGrid == grid;
         }
 
-        private void ShowToolbar(MyToolbar toolbar)
+        public void ShowToolbar(MyToolbar toolbar)
         {
             if (m_shownToolbar != null)
             {
@@ -216,15 +268,15 @@ namespace Sandbox.Game.Screens.Helpers
                 var slotCount = toolbar.SlotCount;
                 m_toolbarItemsGrid.ColumnsCount = slotCount + (toolbar.ShowHolsterSlot ? 1 : 0);
                 for (int i = 0; i < slotCount; ++i)
-                    SetGridItemAt(i, toolbar.GetSlotItem(i));
+                    SetGridItemAt(i, toolbar.GetSlotItem(i), clear: true);
                 m_selectedItemLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
                 m_colorVariantPanel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
                 m_colorVariantPanel.Visible = MyFakes.ENABLE_BLOCK_COLORING; // character != null;
-                
-                if (toolbar.ShowHolsterSlot)
-                    SetGridItemAt(slotCount, new MyToolbarItemEmpty(), @"Textures\GUI\Icons\HideWeapon.dds", null, MyTexts.GetString(MyCommonTexts.HideWeapon));
 
-                if(toolbar.PageCount > 1)
+                if (toolbar.ShowHolsterSlot)
+                    SetGridItemAt(slotCount, new MyToolbarItemEmpty(), new string[] { @"Textures\GUI\Icons\HideWeapon.dds" }, null, MyTexts.GetString(MyCommonTexts.HideWeapon));
+
+                if (toolbar.PageCount > 1)
                     for (int i = 0; i < toolbar.PageCount; ++i)
                     {
                         m_textCache.Clear();
@@ -275,11 +327,27 @@ namespace Sandbox.Game.Screens.Helpers
                 Debug.Assert(MyCubeBuilder.Static != null, "Cube builder should be loaded here");
 
                 m_colorVariantPanel.Visible = (item is MyToolbarItemCubeBlock) && MyFakes.ENABLE_BLOCK_COLORING;
+
+                //set grid size image visible when some block is selected
+                m_gridSize.Visible = (item is MyToolbarItemCubeBlock);
+                if (m_gridSize.Visible)
+                {
+                    if (MyCubeBuilder.Static.CubeBuilderState.HasComplementBlock())
+                    {
+                        MyStringId keyId = MyStringId.GetOrCompute("SLOT" + (toolbar.SelectedSlot + 1).ToString());
+                        MyControl control = MyInput.Static.GetGameControl(keyId);
+                        StringBuilder sb = new StringBuilder();
+                        m_gridSizeLabel.Text = sb.AppendFormat(MyTexts.GetString(MySpaceTexts.CubeBuilder_CubeSizeModeChange), (control != null ? "\"" + control.ToString() + "\"" : "?"), "\n").ToString();
+                    }
+                    else
+                        m_gridSizeLabel.Text = "";
+                }
             }
             else
             {
                 m_colorVariantPanel.Visible = false;
                 m_selectedItemLabel.Text = String.Empty;
+                m_gridSize.Visible = false;
             }
         }
 
@@ -300,54 +368,67 @@ namespace Sandbox.Game.Screens.Helpers
             }
         }
 
-        private void SetGridItemAt(int slot, MyToolbarItem item)
+        private void SetGridItemAt(int slot, MyToolbarItem item, bool clear = false)
         {
             if (item != null)
-                SetGridItemAt(slot, item, item.Icon, item.SubIcon, item.DisplayName.ToString(), GetSymbol(slot));
+                SetGridItemAt(slot, item, item.Icons, item.SubIcon, item.DisplayName.ToString(), GetSymbol(slot), clear);
             else
-                SetGridItemAt(slot, null, null, null, null, GetSymbol(slot));
+                SetGridItemAt(slot, null, null, null, null, GetSymbol(slot), clear);
         }
 
-        private void SetGridItemAt(int slot, MyToolbarItem item, string icon, string subicon, String tooltip, Sandbox.Graphics.GUI.MyGuiControlGrid.ColoredIcon? symbol = null)
+        protected virtual void SetGridItemAt(int slot, MyToolbarItem item, string[] icons, string subicon, String tooltip, MyGuiControlGrid.ColoredIcon? symbol = null, bool clear = false)
         {
             var gridItem = m_toolbarItemsGrid.GetItemAt(slot);
+
             if (gridItem == null)
             {
                 gridItem = new MyGuiControlGrid.Item(
-                    icon: icon,
+                    icons: icons,
                     subicon: subicon,
                     toolTip: tooltip,
                     userData: item);
-                if(DrawNumbers)
-                    gridItem.AddText(MyToolbarComponent.GetSlotControlText(slot));
-                //Ammo amount in toolbar
-                if (item != null)
-                    gridItem.AddText(item.IconText, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-                else
-                    gridItem.ClearText(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-                gridItem.Enabled = (item != null) ? item.Enabled : true;
-                if(symbol.HasValue)
-                    gridItem.AddIcon(symbol.Value, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+                //By Gregory: Changed to IconText for weapon check MyToolbarItemWeapon IconText override
+                //if (item != null)
+                //    gridItem.AddText(item.IconText, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+                //else
+                //    gridItem.ClearText(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+                //gridItem.Enabled = (item != null) ? item.Enabled : true;
+                //if (symbol.HasValue)
+                //    gridItem.AddIcon(symbol.Value, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
                 m_toolbarItemsGrid.SetItemAt(slot, gridItem);
             }
             else
             {
                 gridItem.UserData = item;
-                gridItem.Icon = icon;
+                gridItem.Icons = icons;
                 gridItem.SubIcon = subicon;
                 if (gridItem.ToolTip == null)
                     gridItem.ToolTip = new MyToolTips();
                 gridItem.ToolTip.ToolTips.Clear();
                 gridItem.ToolTip.AddToolTip(tooltip);
-                //Ammo amount in toolbar
-                if (item != null)
-                    gridItem.AddText(item.IconText, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-                else
-                    gridItem.ClearText(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-                gridItem.Enabled = (item != null) ? item.Enabled : true;
-                if (symbol.HasValue)
-                    gridItem.AddIcon(symbol.Value, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+                //By Gregory: Changed to IconText for weapon check MyToolbarItemWeapon IconText override
+                //if (item != null)
+                //    gridItem.AddText(item.IconText, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+                //else
+                //    gridItem.ClearText(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+                //gridItem.Enabled = (item != null) ? item.Enabled : true;
+                //if (symbol.HasValue)
+                //    gridItem.AddIcon(symbol.Value, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
             }
+
+            if (item == null || clear)
+                gridItem.ClearAllText();
+
+            if (DrawNumbers)
+                gridItem.AddText(MyToolbarComponent.GetSlotControlText(slot));
+
+            if (item != null)
+                item.FillGridItem(gridItem);
+
+            gridItem.Enabled = (item != null) ? item.Enabled : true;
+            if (symbol.HasValue)
+                gridItem.AddIcon(symbol.Value, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+
         }
 
         private void RemoveToolbarItem(int slot)
@@ -379,7 +460,7 @@ namespace Sandbox.Game.Screens.Helpers
         }
 
         private void Toolbar_ItemChanged(MyToolbar toolbar, MyToolbar.IndexArgs args)
-        {            
+        {
             UpdateItemAtIndex(toolbar, args.ItemIndex);
         }
 
@@ -402,7 +483,7 @@ namespace Sandbox.Game.Screens.Helpers
             int slot = toolbar.IndexToSlot(index);
             if (!toolbar.IsValidIndex(index) || !toolbar.IsValidSlot(slot)) return;
 
-            SetGridItemAt(slot, toolbar[index]);
+            SetGridItemAt(slot, toolbar[index], clear: true);
             if (toolbar.SelectedSlot == slot)
                 RefreshSelectedItem(toolbar);
         }
@@ -429,26 +510,27 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 var slot = toolbar.IndexToSlot(args.ItemIndex);
                 if (slot != -1)
-                    m_toolbarItemsGrid.GetItemAt(slot).Icon = toolbar.GetItemIcon(args.ItemIndex);
+                    m_toolbarItemsGrid.GetItemAt(slot).Icons = toolbar.GetItemIcons(args.ItemIndex);
             }
             else
             {
                 for (int i = 0; i < m_toolbarItemsGrid.ColumnsCount; ++i)
                 {
-                    m_toolbarItemsGrid.GetItemAt(i).Icon = toolbar.GetItemIcon(toolbar.SlotToIndex(i));
+                    m_toolbarItemsGrid.GetItemAt(i).Icons = toolbar.GetItemIcons(toolbar.SlotToIndex(i));
                 }
             }
         }
 
         private void Toolbar_CurrentPageChanged(MyToolbar toolbar, MyToolbar.PageChangeArgs args)
         {
-            m_contextMenu.Deactivate();
+            if (UseContextMenu)
+                m_contextMenu.Deactivate();
 
             HighlightCurrentPageLabel();
 
             for (int i = 0; i < MyToolbarComponent.CurrentToolbar.SlotCount; ++i)
             {
-                SetGridItemAt(i, toolbar.GetSlotItem(i));
+                SetGridItemAt(i, toolbar.GetSlotItem(i), clear: true);
             }
         }
 
@@ -465,7 +547,7 @@ namespace Sandbox.Game.Screens.Helpers
                 if (item is MyToolbarItemActions)
                 {
                     var actionList = (item as MyToolbarItemActions).PossibleActions(ShownToolbar.ToolbarType);
-                    if (actionList.Count > 0)
+                    if (UseContextMenu && actionList.Count > 0)
                     {
                         m_contextMenu.CreateNewContextMenu();
                         foreach (var action in actionList)
@@ -558,6 +640,6 @@ namespace Sandbox.Game.Screens.Helpers
 
         #endregion
 
-       
+
     }
 }

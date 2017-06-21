@@ -20,6 +20,8 @@ using VRageMath;
 using VRageRender;
 using Sandbox.Game.GUI;
 using Sandbox.Game.World;
+using VRageRender.Import;
+using VRageRender.Messages;
 
 #endregion
 
@@ -124,7 +126,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                         MyRenderInstanceBufferType.Generic);
                 }
 
-                MyRenderProxy.UpdateRenderInstanceBuffer(InstanceBuffer, InstanceData.Values.ToList(), InstanceData.Count);
+                MyRenderProxy.UpdateRenderInstanceBufferRange(InstanceBuffer, InstanceData.Values.ToArray());
             }
 
             public bool DisableInstance(int sectorInstanceId)

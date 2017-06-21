@@ -7,7 +7,6 @@ using System.Text;
 using VRage.Collections;
 
 using VRageMath;
-using VRageRender.Resources;
 using Vector3 = VRageMath.Vector3;
 using Color = VRageMath.Color;
 using Matrix = VRageMath.Matrix;
@@ -351,7 +350,7 @@ namespace VRageRender
 //        {
 //            if (!MyRender.Settings.FreezeFoliageViewer)
 //            {
-//                m_frozenView = MyEnvironment.View;
+//                m_frozenView = MyRender11.Environment.View;
 //            }
 
 //            m_frustums.Clear();
@@ -367,7 +366,7 @@ namespace VRageRender
 //                    m_frustums.Add(null);
 //                else
 //                    m_frustums.Add(new BoundingFrustum((MyRender.Settings.FreezeFoliageViewer ? m_frozenView : MyEnvironment.View) *
-//                        Matrix.CreateFromPerspectiveFieldOfView(ref MyEnvironment.Projection, near, far)));
+//                        Matrix.CreateFromPerspectiveFieldOfView(ref MyRender11.Environment.Projection, near, far)));
 //            }
 //        }
 
@@ -462,7 +461,7 @@ namespace VRageRender
 //                m_foliagePass.Level = kv.Key;
 //                m_foliagePass.Shape = MyFloraShapeEnum.Billboard_X;
 
-//                m_foliagePass.ViewProjection = MyEnvironment.View * MyEnvironment.Projection;
+//                m_foliagePass.ViewProjection = MyRender11.Environment.View * MyRender11.Environment.Projection;
 //                m_foliagePass.Viewport = new MyViewport(MyRender.ViewportResolution.X, MyRender.ViewportResolution.Y);
 //                //m_foliagePass.DepthBuffer = MyRender.MainGbuffer.DepthBuffer.DepthStencil;
 //                //m_foliagePass.RTs = MyRender.MainGbuffer.GbufferTargets;

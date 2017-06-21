@@ -1,9 +1,11 @@
 ﻿#define USE_SERIAL_MODEL_LOAD
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Diagnostics;
 using VRage.Collections;
+using VRage.Utils;
 
 namespace VRage.Game.Models
 {
@@ -91,17 +93,28 @@ namespace VRage.Game.Models
         }
 
         //  Lazy-loading and then returning reference to model
-        public static MyModel GetModelOnlyAnimationData(string modelAsset)
+        //  Param forceReloadMwm: Reloads MWM even when it is already in cache. Useful when debugging.
+        //  May return null on failure.
+        public static MyModel GetModelOnlyAnimationData(string modelAsset, bool forceReloadMwm = false)
         {
             MyModel model;
-            if (!m_models.TryGetValue(modelAsset, out model))
+            if (forceReloadMwm || !m_models.TryGetValue(modelAsset, out model))
             {
                 model = new MyModel(modelAsset);
                 m_models[modelAsset] = model;
             }
 
-            model.LoadAnimationData();
-            return model;
+            try
+            {
+                model.LoadAnimationData();
+                return model;
+            }
+            catch (Exception e)
+            {
+                MyLog.Default.WriteLine(e);
+                Debug.Fail("Cannot load asset \"" + modelAsset + "\".\n" + e.Message);
+                return null;
+            }
         }
 
 

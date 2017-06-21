@@ -7,9 +7,13 @@ using System.Diagnostics;
 
 namespace Sandbox.Game.GameSystems
 {
-    partial class MyGridTerminalSystem
+    public partial class MyGridTerminalSystem
     {
+        // Malware: I would by far preferred to have removed this hashset and only used the dictionary,
+        // but I fear it might break mod scripts due to the Blocks property below...?
         readonly HashSet<MyTerminalBlock> m_blocks = new HashSet<MyTerminalBlock>();
+        readonly Dictionary<long, MyTerminalBlock> m_blockTable = new Dictionary<long, MyTerminalBlock>();
+
         readonly List<MyBlockGroup> m_blockGroups = new List<MyBlockGroup>();
 
         public event Action<MyTerminalBlock> BlockAdded;
@@ -20,9 +24,10 @@ namespace Sandbox.Game.GameSystems
 
         public void Add(MyTerminalBlock block)
         {
-            if (block.MarkedForClose)
+            if (block.MarkedForClose || block.IsBeingRemoved)
                 return;
-            Debug.Assert(!m_blocks.Contains(block), "Block to add is already in terminal");
+            Debug.Assert(!m_blockTable.ContainsKey(block.EntityId), "Block to add is already in terminal");
+            m_blockTable.Add(block.EntityId, block);
             m_blocks.Add(block);
 
             var handler = BlockAdded;
@@ -33,14 +38,15 @@ namespace Sandbox.Game.GameSystems
         {
             if (block.MarkedForClose)
                 return;
-            Debug.Assert(m_blocks.Contains(block), "Block to remove is not in terminal");
+            Debug.Assert(m_blockTable.ContainsKey(block.EntityId) || block.IsBeingRemoved, "Block to remove is not in terminal");
+            m_blockTable.Remove(block.EntityId);
+            Debug.Assert(m_blocks.Contains(block) || block.IsBeingRemoved, "Block to remove is not in terminal");
             m_blocks.Remove(block);
 
             for (int i = 0; i < BlockGroups.Count; i++)
             {
                 var group = BlockGroups[i];
-                if (group.Blocks.Contains(block))
-                    group.Blocks.Remove(block);
+                group.Blocks.Remove(block);
                 if (group.Blocks.Count == 0)
                 {
                     RemoveGroup(group);
@@ -59,29 +65,39 @@ namespace Sandbox.Game.GameSystems
             if (group.Blocks.Count == 0)
                 return null;
             bool modified = false;
-            foreach (var g in BlockGroups)
+            for (int index = 0; index < BlockGroups.Count; index++)
+            {
+                var g = BlockGroups[index];
                 if (g.Name.CompareTo(group.Name) == 0)
                 {
                     if (group.CubeGrid != null) //change came from grid i.e. destroyed block that was in group
                     {
                         for (int i = 0; i < g.Blocks.Count; i++)
+                        {
                             if (g.Blocks[i].CubeGrid == group.CubeGrid)
                             {
                                 g.Blocks.RemoveAt(i);
                                 i--;
                             }
+                        }
                     }
                     else //change came from gui, we clear group and add all blocks that came in
+                    {
                         g.Blocks.Clear();
-                    foreach (var b in group.Blocks) { 
-                        if (g.Blocks.Contains(b)) 
+                    }
+                    foreach (var b in group.Blocks)
+                    {
+                        if (g.Blocks.Contains(b))
+                        {
                             continue;
+                        }
                         g.Blocks.Add(b);
                     }
                     group = g;
                     modified = true;
                     break;
                 }
+            }
 
             if (!modified) //new group
             {
@@ -100,11 +116,14 @@ namespace Sandbox.Game.GameSystems
         public void RemoveGroup(MyBlockGroup group)
         {
             bool removed = false;
-            if(!BlockGroups.Contains(group)) // if you delete from terminal group matches and you delete whole group
-                foreach (var g in BlockGroups) //removing group from grid side (grid disconnected, or last block from that grid group removed)
+            if (!BlockGroups.Contains(group)) // if you delete from terminal group matches and you delete whole group
+            {
+                for (int index = 0; index < BlockGroups.Count; index++)
+                {
+                    var g = BlockGroups[index];
                     if (g.Name.CompareTo(group.Name) == 0)
                     {
-                        for (int i = 0; i < g.Blocks.Count; i++ ) 
+                        for (int i = 0; i < g.Blocks.Count; i++)
                         {
                             var b = g.Blocks[i];
                             if (b.CubeGrid == group.CubeGrid) //remove only blocks of that grid from group
@@ -114,11 +133,17 @@ namespace Sandbox.Game.GameSystems
                             }
                         }
                         if (g.Blocks.Count == 0)
+                        {
                             group = g; //group to remove
+                        }
                         else
+                        {
                             removed = true;
+                        }
                         break;
                     }
+                }
+            }
 
             if (!removed)
                 BlockGroups.Remove(group);
@@ -127,6 +152,7 @@ namespace Sandbox.Game.GameSystems
                 GroupRemoved(group);
         }
 
+        // Malware: Can this one be changed so the m_blocks can be removed and only the m_blockTable remain?
         public HashSetReader<MyTerminalBlock> Blocks
         {
             get

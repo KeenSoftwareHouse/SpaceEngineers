@@ -37,5 +37,27 @@ namespace VRage
                 directory.Create();
             }
         }
+
+        public static bool IsParentOf(this DirectoryInfo dir, string absPath)
+        {
+            string parentPath = dir.FullName.TrimEnd(Path.DirectorySeparatorChar);
+            var currentDir = new DirectoryInfo(absPath);
+
+            while (currentDir.Exists)
+            {
+                if(currentDir.FullName.TrimEnd(Path.DirectorySeparatorChar).Equals(parentPath, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if(!currentDir.FullName.TrimEnd(Path.DirectorySeparatorChar).StartsWith(parentPath))
+                    return false;
+
+                if(currentDir.Parent == null)
+                    return false;
+
+                currentDir = currentDir.Parent;
+            }
+
+            return false;
+        }
     }
 }

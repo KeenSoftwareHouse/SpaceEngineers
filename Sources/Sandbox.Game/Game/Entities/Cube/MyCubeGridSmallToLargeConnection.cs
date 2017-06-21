@@ -25,10 +25,7 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Plugins;
 using System.Reflection;
-using Sandbox.Common.Components;
-using VRage;
 using Sandbox.Game.Entities;
-using VRage.Voxels;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Localization;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
@@ -51,6 +48,8 @@ namespace Sandbox.Game.Entities.Cube
     {
         private static readonly HashSet<MyCubeBlock> m_tmpBlocks = new HashSet<MyCubeBlock>();
         private static readonly HashSet<MySlimBlock> m_tmpSlimBlocks = new HashSet<MySlimBlock>();
+        private static readonly HashSet<MySlimBlock> m_tmpSlimBlocks2 = new HashSet<MySlimBlock>();
+        private static readonly List<MySlimBlock> m_tmpSlimBlocksList = new List<MySlimBlock>();
         private static readonly HashSet<MyCubeGrid> m_tmpGrids = new HashSet<MyCubeGrid>();
         private static readonly List<MyCubeGrid> m_tmpGridList = new List<MyCubeGrid>();
 
@@ -122,11 +121,11 @@ namespace Sandbox.Game.Entities.Cube
                 aabb = (BoundingBoxD)block.FatBlock.Model.BoundingBox;
                 Matrix m;
                 block.FatBlock.Orientation.GetMatrix(out m);
-                aabb = aabb.Transform(m);
+                aabb = aabb.TransformFast(m);
                 aabb.Translate(aabbCenter);
             }
 
-            aabb = aabb.Transform(block.CubeGrid.WorldMatrix);
+            aabb = aabb.TransformFast(block.CubeGrid.WorldMatrix);
             aabb.Inflate(0.125);
 
             List<MyEntity> boxOverlapList = new List<MyEntity>();
@@ -157,6 +156,120 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             boxOverlapList.Clear();
+        }
+
+        /// <summary>
+        /// Writes all surrounding blocks around the given one with the given size.
+        /// </summary>
+        private void GetSurroundingBlocksFromStaticGrids(MySlimBlock block, MyCubeSize cubeSizeEnum, HashSet<MySlimBlock> outBlocks)
+        {
+            outBlocks.Clear();
+
+            BoundingBoxD aabbForNeighbors = new BoundingBoxD(block.Min * block.CubeGrid.GridSize, block.Max * block.CubeGrid.GridSize);
+            BoundingBoxD aabb = new BoundingBoxD(block.Min * block.CubeGrid.GridSize - block.CubeGrid.GridSize / 2, block.Max * block.CubeGrid.GridSize + block.CubeGrid.GridSize / 2);
+            if (block.FatBlock != null)
+            {
+                var aabbCenter = aabb.Center;
+                aabb = (BoundingBoxD)block.FatBlock.Model.BoundingBox;
+                Matrix m;
+                block.FatBlock.Orientation.GetMatrix(out m);
+                aabb = aabb.TransformFast(m);
+                aabb.Translate(aabbCenter);
+            }
+
+            aabb.Inflate(0.125);
+            var aabbWorld = aabb.TransformFast(block.CubeGrid.WorldMatrix);
+
+            List<MyEntity> boxOverlapList = new List<MyEntity>();
+            MyEntities.GetElementsInBox(ref aabbWorld, boxOverlapList);
+
+            for (int i = 0; i < boxOverlapList.Count; i++)
+            {
+                var cubeGrid = boxOverlapList[i] as MyCubeGrid;
+                if (cubeGrid != null)
+                {
+                    if (cubeGrid.IsStatic && cubeGrid != block.CubeGrid && cubeGrid.EnableSmallToLargeConnections && cubeGrid.SmallToLargeConnectionsInitialized
+                        && cubeGrid.GridSizeEnum == cubeSizeEnum)
+                    {
+                        Debug.Assert(m_tmpSlimBlocksList.Count == 0);
+                        m_tmpSlimBlocksList.Clear();
+                        cubeGrid.GetBlocksIntersectingOBB(aabb, block.CubeGrid.WorldMatrix, m_tmpSlimBlocksList);
+
+                        CheckNeighborBlocks(block, aabbForNeighbors, cubeGrid, m_tmpSlimBlocksList);
+
+                        foreach (var slimBlock in m_tmpSlimBlocksList)
+                        {
+                            if (slimBlock.FatBlock != null)
+                            {
+                                if (slimBlock.FatBlock is MyFracturedBlock)
+                                    continue;
+
+                                if (slimBlock.FatBlock.Components.Has<MyFractureComponentBase>())
+                                    continue;
+
+                                if (slimBlock.FatBlock is MyCompoundCubeBlock)
+                                {
+                                    foreach (var blockInCompound in (slimBlock.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                                    {
+                                        if (!(blockInCompound.FatBlock.Components.Has<MyFractureComponentBase>()))
+                                            outBlocks.Add(blockInCompound);
+                                    }
+                                }
+                                else
+                                    outBlocks.Add(slimBlock);
+                            }
+                            else
+                                outBlocks.Add(slimBlock);
+                        }
+
+                        m_tmpSlimBlocksList.Clear();
+                    }
+                }
+            }
+
+            boxOverlapList.Clear();
+        }
+
+        /// <summary>
+        /// Checks if blocks are neigbors to block(s) in aabbForNeighbors.
+        /// </summary>
+        private static void CheckNeighborBlocks(MySlimBlock block, BoundingBoxD aabbForNeighbors, MyCubeGrid cubeGrid, List<MySlimBlock> blocks)
+        {
+            var compositeTransformToGrid = block.CubeGrid.WorldMatrix * cubeGrid.PositionComp.WorldMatrixNormalizedInv;
+            var aabbForNeighborsInGrid = aabbForNeighbors.TransformFast(ref compositeTransformToGrid);
+            Vector3I start = Vector3I.Round(cubeGrid.GridSizeR * aabbForNeighborsInGrid.Min);
+            Vector3I end = Vector3I.Round(cubeGrid.GridSizeR * aabbForNeighborsInGrid.Max);
+            Vector3I startIt = Vector3I.Min(start, end);
+            Vector3I endIt = Vector3I.Max(start, end);
+
+            for (int slimBlockIndex = blocks.Count - 1; slimBlockIndex >= 0; --slimBlockIndex)
+            {
+                var slimBlock = blocks[slimBlockIndex];
+                bool found = false;
+
+                Vector3I_RangeIterator itBlockInGridPos = new Vector3I_RangeIterator(ref slimBlock.Min, ref slimBlock.Max);
+                var posInGrid = itBlockInGridPos.Current;
+                for (; itBlockInGridPos.IsValid(); itBlockInGridPos.GetNext(out posInGrid))
+                {
+                    Vector3I_RangeIterator itBlockPos = new Vector3I_RangeIterator(ref startIt, ref endIt);
+                    var pos = itBlockPos.Current;
+                    for (; itBlockPos.IsValid(); itBlockPos.GetNext(out pos))
+                    {
+                        Vector3I diff = Vector3I.Abs(posInGrid - pos);
+                        if (pos == posInGrid || diff.X + diff.Y + diff.Z == 1)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found)
+                        break;
+                }
+
+                if (!found)
+                    blocks.RemoveAt(slimBlockIndex);
+            }
         }
 
         /// <summary>
@@ -326,7 +439,7 @@ namespace Sandbox.Game.Entities.Cube
                 return true;
 
             if (!block.CubeGrid.IsStatic || !block.CubeGrid.EnableSmallToLargeConnections || !block.CubeGrid.SmallToLargeConnectionsInitialized 
-                || block.FatBlock == null || block.FatBlock.Components.Has<MyFractureComponentBase>())
+                || (block.FatBlock != null && block.FatBlock.Components.Has<MyFractureComponentBase>()))
                 return false;
 
             bool retval = false;
@@ -343,9 +456,9 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             MyCubeSize searchCubeSize = GetCubeSize(block) == MyCubeSize.Large ? MyCubeSize.Small : MyCubeSize.Large;
-            GetSurroundingBlocksFromStaticGrids(block, searchCubeSize, m_tmpBlocks);
+            GetSurroundingBlocksFromStaticGrids(block, searchCubeSize, m_tmpSlimBlocks2);
 
-            if (m_tmpBlocks.Count == 0)
+            if (m_tmpSlimBlocks2.Count == 0)
                 return false;
 
             float smallGridSize = MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Small);
@@ -356,19 +469,19 @@ namespace Sandbox.Game.Entities.Cube
 
             if (GetCubeSize(block) == MyCubeSize.Large)
             {
-                foreach (var smallBlock in m_tmpBlocks)
+                foreach (var smallBlock in m_tmpSlimBlocks2)
                 {
-                    Debug.Assert(GetCubeSize(smallBlock.SlimBlock) == MyCubeSize.Small);
+                    Debug.Assert(GetCubeSize(smallBlock) == MyCubeSize.Small);
 
                     BoundingBoxD smallAabb;
-                    smallBlock.SlimBlock.GetWorldBoundingBox(out smallAabb);
+                    smallBlock.GetWorldBoundingBox(out smallAabb);
 
                     if (!smallAabb.Intersects(blockAabb))
                         continue;
 
-                    if (SmallBlockConnectsToLarge(smallBlock.SlimBlock, ref smallAabb, block, ref blockAabb))
+                    if (SmallBlockConnectsToLarge(smallBlock, ref smallAabb, block, ref blockAabb))
                     {
-                        ConnectSmallToLargeBlock(smallBlock.SlimBlock, block);
+                        ConnectSmallToLargeBlock(smallBlock, block);
                         retval = true;
                     }
                 }
@@ -377,19 +490,19 @@ namespace Sandbox.Game.Entities.Cube
             {
                 Debug.Assert(GetCubeSize(block) == MyCubeSize.Small);
 
-                foreach (var largeBlock in m_tmpBlocks)
+                foreach (var largeBlock in m_tmpSlimBlocks2)
                 {
-                    Debug.Assert(GetCubeSize(largeBlock.SlimBlock) == MyCubeSize.Large);
+                    Debug.Assert(GetCubeSize(largeBlock) == MyCubeSize.Large);
 
                     BoundingBoxD largeAabb;
-                    largeBlock.SlimBlock.GetWorldBoundingBox(out largeAabb);
+                    largeBlock.GetWorldBoundingBox(out largeAabb);
 
                     if (!largeAabb.Intersects(blockAabb))
                         continue;
 
-                    if (SmallBlockConnectsToLarge(block, ref blockAabb, largeBlock.SlimBlock, ref largeAabb))
+                    if (SmallBlockConnectsToLarge(block, ref blockAabb, largeBlock, ref largeAabb))
                     {
-                        ConnectSmallToLargeBlock(block, largeBlock.SlimBlock);
+                        ConnectSmallToLargeBlock(block, largeBlock);
                         retval = true;
                     }
                 }
@@ -429,8 +542,8 @@ namespace Sandbox.Game.Entities.Cube
                     // Convert free small grids to dynamic
                     foreach (var smallGrid in m_tmpGrids)
                     {
-                        if (!smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
-                            smallGrid.TestDynamic = true;
+                        if (smallGrid.TestDynamic == MyCubeGrid.MyTestDynamicReason.NoReason && !SmallGridIsStatic(smallGrid))
+                            smallGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                     }
                 }
 
@@ -446,8 +559,8 @@ namespace Sandbox.Game.Entities.Cube
                     if (Sync.IsServer && block.CubeGrid.GetBlocks().Count > 0)
                     {
                         // Convert free small grid to dynamic
-                        if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
-                            block.CubeGrid.TestDynamic = true;
+                        if (block.CubeGrid.TestDynamic == MyCubeGrid.MyTestDynamicReason.NoReason && !SmallGridIsStatic(block.CubeGrid))
+                            block.CubeGrid.TestDynamic =  MyCubeGrid.MyTestDynamicReason.GridSplit;
                     }
                     return;
                 }
@@ -480,8 +593,8 @@ namespace Sandbox.Game.Entities.Cube
                 if (Sync.IsServer && !m_mapSmallGridToConnectedBlocks.TryGetValue(block.CubeGrid, out connections) && block.CubeGrid.GetBlocks().Count > 0)
                 {
                     // Convert free small grid to dynamic
-                    if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
-                        block.CubeGrid.TestDynamic = true;
+                    if (block.CubeGrid.TestDynamic == MyCubeGrid.MyTestDynamicReason.NoReason && !SmallGridIsStatic(block.CubeGrid))
+                        block.CubeGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                 }
             }
 
@@ -546,8 +659,8 @@ namespace Sandbox.Game.Entities.Cube
                 // Convert free small grids to dynamic
                 foreach (var smallGrid in m_tmpGrids)
                 {
-                    if (smallGrid.IsStatic && !smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
-                        smallGrid.TestDynamic = true;
+                    if (smallGrid.IsStatic && smallGrid.TestDynamic == MyCubeGrid.MyTestDynamicReason.NoReason && !SmallGridIsStatic(smallGrid))
+                        smallGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                 }
             }
 
@@ -677,12 +790,9 @@ namespace Sandbox.Game.Entities.Cube
                 if (largeBlock.FatBlock != null)
                 {
                     MyModel model = largeBlock.FatBlock.Model;
-                    if (model != null)
+                    if (model != null && model.HavokCollisionShapes != null)
                     {
                         HkShape[] shapes = model.HavokCollisionShapes;
-                        if (shapes == null || shapes.Length == 0)
-                            return false;
-
                         for (int i = 0; i < shapes.Length; ++i)
                         {
                             result = MyPhysics.IsPenetratingShapeShape(shape, ref intersectedBoxCenter, ref Quaternion.Identity, shapes[i], ref largeTranslation, ref largeRotation);
@@ -838,12 +948,12 @@ namespace Sandbox.Game.Entities.Cube
             {
                 // Test dynamic
                 if (!m_mapSmallGridToConnectedBlocks.TryGetValue(originalGrid, out connections) || connections.Count == 0)
-                    originalGrid.TestDynamic = true;
+                    originalGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
 
                 foreach (var split in gridSplits)
                 {
                     if (!m_mapSmallGridToConnectedBlocks.TryGetValue(split, out connections) || connections.Count == 0)
-                        split.TestDynamic = true;
+                        split.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
                 }
             }
         }

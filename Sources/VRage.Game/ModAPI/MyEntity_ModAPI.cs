@@ -259,6 +259,18 @@ namespace VRage.Game.Entity
             }
         }
 
+        MyModStorageComponentBase IMyEntity.Storage
+        {
+            get
+            {
+                return Storage;
+            }
+            set
+            {
+                Storage = value;
+            }
+        }
+
         bool IMyEntity.Visible
         {
             get
@@ -390,7 +402,7 @@ namespace VRage.Game.Entity
 
         VRageMath.BoundingBox IMyEntity.LocalAABBHr
         {
-            get { return PositionComp.LocalAABBHr; }
+            get { return PositionComp.LocalAABB; }
         }
 
         VRageMath.Matrix IMyEntity.LocalMatrix
@@ -444,16 +456,6 @@ namespace VRage.Game.Entity
             PositionComp.SetWorldMatrix(worldMatrix, source);
         }
 
-        VRageMath.BoundingBoxD IMyEntity.WorldAABB
-        {
-            get { return PositionComp.WorldAABB; }
-        }
-
-        VRageMath.BoundingBoxD IMyEntity.WorldAABBHr
-        {
-            get { return PositionComp.WorldAABBHr; }
-        }
-
         VRageMath.MatrixD IMyEntity.WorldMatrix
         {
             get
@@ -474,21 +476,6 @@ namespace VRage.Game.Entity
         VRageMath.MatrixD IMyEntity.WorldMatrixNormalizedInv
         {
             get { return PositionComp.WorldMatrixNormalizedInv; }
-        }
-
-        VRageMath.BoundingSphereD IMyEntity.WorldVolume
-        {
-            get { return PositionComp.WorldVolume; }
-        }
-
-        VRageMath.BoundingSphereD IMyEntity.WorldVolumeHr
-        {
-            get { return PositionComp.WorldVolumeHr; }
-        }
-
-        VRageMath.Vector3D IMyEntity.GetPosition()
-        {
-            return PositionComp.GetPosition();
         }
 
         void IMyEntity.SetPosition(VRageMath.Vector3D pos)
@@ -516,6 +503,48 @@ namespace VRage.Game.Entity
                     subPart.Value.Render.ColorMaskHsv = colorMaskHsv;
                 }
             }
-        }        
+        }
+
+        void IMyEntity.SetEmissiveParts(string emissiveName, VRageMath.Color emissivePartColor, float emissivity)
+        {
+            SetEmissiveParts(emissiveName, emissivePartColor, emissivity);
+        }
+
+        void IMyEntity.SetEmissivePartsForSubparts(string emissiveName, VRageMath.Color emissivePartColor, float emissivity)
+        {
+            SetEmissivePartsForSubparts(emissiveName, emissivePartColor, emissivity);
+        }
+
+        #region Ingame Interface
+        VRageMath.BoundingBoxD ModAPI.Ingame.IMyEntity.WorldAABB
+        {
+            get { return PositionComp.WorldAABB; }
+        }
+
+        VRageMath.BoundingBoxD ModAPI.Ingame.IMyEntity.WorldAABBHr
+        {
+            get { return PositionComp.WorldAABB; }
+        }
+
+        VRageMath.MatrixD ModAPI.Ingame.IMyEntity.WorldMatrix
+        {
+            get { return PositionComp.WorldMatrix; }
+        }
+
+        VRageMath.BoundingSphereD ModAPI.Ingame.IMyEntity.WorldVolume
+        {
+            get { return PositionComp.WorldVolume; }
+        }
+
+        VRageMath.BoundingSphereD ModAPI.Ingame.IMyEntity.WorldVolumeHr
+        {
+            get { return PositionComp.WorldVolume; }
+        }
+
+        VRageMath.Vector3D ModAPI.Ingame.IMyEntity.GetPosition()
+        {
+            return PositionComp.GetPosition();
+        }
+        #endregion
     }
 }

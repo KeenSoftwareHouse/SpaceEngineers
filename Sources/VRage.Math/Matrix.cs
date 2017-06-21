@@ -6,6 +6,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
+
 
 namespace VRageMath
 {
@@ -14,7 +19,12 @@ namespace VRageMath
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]    
     [StructLayout(LayoutKind.Explicit)]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct Matrix : IEquatable<Matrix>
+#else // XB1
+    public struct Matrix : IEquatable<Matrix>, IMySetGetMemberDataHelper
+#endif // XB1
+
     {
         private unsafe struct F16
         {
@@ -24,12 +34,16 @@ namespace VRageMath
 
         public static Matrix Identity = new Matrix(1f, 0.0f, 0.0f, 0.0f, 0.0f, 1f, 0.0f, 0.0f, 0.0f, 0.0f, 1f, 0.0f, 0.0f, 0.0f, 0.0f, 1f);
         public static Matrix Zero = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+
+#if !XB1
+
         /// <summary>
         /// Matrix values
         /// </summary>
         [FieldOffset(0)]
         private F16 M;
-
+#endif
         /// <summary>
         /// Value at row 1 column 1 of the matrix.
         /// </summary>
@@ -408,6 +422,7 @@ namespace VRageMath
         /// <summary>
         /// Same result as Matrix.CreateScale(scale) * matrix, but much faster
         /// </summary>
+		[Unsharper.UnsharperDisableReflection()]
         public static void Rescale(ref Matrix matrix, float scale)
         {
             matrix.M11 *= scale;
@@ -426,6 +441,7 @@ namespace VRageMath
         /// <summary>
         /// Same result as Matrix.CreateScale(scale) * matrix, but much faster
         /// </summary>
+		[Unsharper.UnsharperDisableReflection()]
         public static void Rescale(ref Matrix matrix, ref Vector3 scale)
         {
             matrix.M11 *= scale.X;
@@ -441,12 +457,14 @@ namespace VRageMath
             matrix.M33 *= scale.Z;
         }
 
+		[Unsharper.UnsharperDisableReflection()]
         public static Matrix Rescale(Matrix matrix, float scale)
         {
             Rescale(ref matrix, scale);
             return matrix;
         }
 
+		[Unsharper.UnsharperDisableReflection()]
         public static Matrix Rescale(Matrix matrix, Vector3 scale)
         {
             Rescale(ref matrix, ref scale);
@@ -526,6 +544,26 @@ namespace VRageMath
             this.M43 = 0;
             this.M44 = 1;
         }
+
+		public Matrix(MatrixD other)
+		{
+            this.M11 = (float)other.M11;
+            this.M12 = (float)other.M12;
+            this.M13 = (float)other.M13;
+            this.M14 = (float)other.M14;
+            this.M21 = (float)other.M21;
+            this.M22 = (float)other.M22;
+            this.M23 = (float)other.M23;
+            this.M24 = (float)other.M24;
+            this.M31 = (float)other.M31;
+            this.M32 = (float)other.M32;
+            this.M33 = (float)other.M33;
+            this.M34 = (float)other.M34;
+            this.M41 = (float)other.M41;
+            this.M42 = (float)other.M42;
+            this.M43 = (float)other.M43;
+            this.M44 = (float)other.M44;
+		}
 
         /// <summary>
         /// Negates individual elements of a matrix.
@@ -1468,6 +1506,32 @@ namespace VRageMath
             result.M44 = 1f;
         }
 
+        public static void CreateRotationFromTwoVectors(ref Vector3 fromVector, ref Vector3 toVector, out Matrix resultMatrix)
+        {
+            Vector3 fromVectorNormalized = Vector3.Normalize(fromVector);
+            Vector3 toVectorNormalized = Vector3.Normalize(toVector);
+
+            Vector3 rotAxis;
+            Vector3 thirdAxis;
+            Vector3.Cross(ref fromVectorNormalized, ref toVectorNormalized, out rotAxis);
+            rotAxis.Normalize();
+            Vector3.Cross(ref fromVectorNormalized, ref rotAxis, out thirdAxis);
+            Matrix fromMatrixTransposed = new Matrix(
+                fromVectorNormalized.X, rotAxis.X, thirdAxis.X, 0,
+                fromVectorNormalized.Y, rotAxis.Y, thirdAxis.Y, 0,
+                fromVectorNormalized.Z, rotAxis.Z, thirdAxis.Z, 0,
+                0, 0, 0, 1);
+            
+            Vector3.Cross(ref toVectorNormalized, ref rotAxis, out thirdAxis);
+            Matrix toMatrix = new Matrix(
+                toVectorNormalized.X, toVectorNormalized.Y, toVectorNormalized.Z, 0,
+                rotAxis.X, rotAxis.Y, rotAxis.Z, 0,
+                thirdAxis.X, thirdAxis.Y, thirdAxis.Z, 0,
+                0, 0, 0, 1);
+
+            resultMatrix = fromMatrixTransposed * toMatrix;
+        }
+
         /// <summary>
         /// Builds a perspective projection matrix based on a field of view and returns by value.
         /// </summary>
@@ -1476,20 +1540,20 @@ namespace VRageMath
         {
             if ((double)fieldOfView <= 0.0 || (double)fieldOfView >= 3.14159274101257)
                 throw new ArgumentOutOfRangeException("fieldOfView", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "OutRangeFieldOfView", new object[1]
-        {
-          (object) "fieldOfView"
-        }));
+                {
+                    (object) "fieldOfView"
+                }));
             else if ((double)nearPlaneDistance <= 0.0)
                 throw new ArgumentOutOfRangeException("nearPlaneDistance", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "NegativePlaneDistance", new object[1]
-        {
-          (object) "nearPlaneDistance"
-        }));
+                {
+                    (object) "nearPlaneDistance"
+                }));
             else if ((double)farPlaneDistance <= 0.0)
             {
                 throw new ArgumentOutOfRangeException("farPlaneDistance", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "NegativePlaneDistance", new object[1]
-        {
-          (object) "farPlaneDistance"
-        }));
+                {
+                    (object) "farPlaneDistance"
+                }));
             }
             else
             {
@@ -1507,6 +1571,44 @@ namespace VRageMath
                 matrix.M34 = -1f;
                 matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
                 matrix.M43 = (float)((double)nearPlaneDistance * (double)farPlaneDistance / ((double)nearPlaneDistance - (double)farPlaneDistance));
+                return matrix;
+            }
+        }
+        public static Matrix CreatePerspectiveFovRhComplementary(float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance)
+        {
+            if ((double)fieldOfView <= 0.0 || (double)fieldOfView >= 3.14159274101257)
+                throw new ArgumentOutOfRangeException("fieldOfView", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "OutRangeFieldOfView", new object[1]
+                {
+                    (object) "fieldOfView"
+                }));
+            else if ((double)nearPlaneDistance <= 0.0)
+                throw new ArgumentOutOfRangeException("nearPlaneDistance", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "NegativePlaneDistance", new object[1]
+                {
+                    (object) "nearPlaneDistance"
+                }));
+            else if ((double)farPlaneDistance <= 0.0)
+            {
+                throw new ArgumentOutOfRangeException("farPlaneDistance", string.Format((IFormatProvider)CultureInfo.CurrentCulture, "NegativePlaneDistance", new object[1]
+                {
+                    (object) "farPlaneDistance"
+                }));
+            }
+            else
+            {
+                //if ((double)nearPlaneDistance >= (double)farPlaneDistance)
+                //    throw new ArgumentOutOfRangeException("nearPlaneDistance", "OppositePlanes");
+                float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+                float num2 = num1 / aspectRatio;
+                Matrix matrix;
+                matrix.M11 = num2;
+                matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+                matrix.M22 = num1;
+                matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+                matrix.M31 = matrix.M32 = 0.0f;
+                matrix.M33 = -farPlaneDistance / (nearPlaneDistance - farPlaneDistance) - 1;
+                matrix.M34 = -1f;
+                matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
+                matrix.M43 = -(float)((double)nearPlaneDistance * (double)farPlaneDistance / ((double)nearPlaneDistance - (double)farPlaneDistance));
                 return matrix;
             }
         }
@@ -2472,7 +2574,7 @@ return flag;
         {
             unsafe
             {
-                fixed (float* data = M.data)
+				fixed(float * data = &M11)
                 {
                     float* basePos = data + row * 4;
                     return new Vector4(*basePos, *(basePos + 1), *(basePos + 2), *(basePos + 3));
@@ -2484,7 +2586,7 @@ return flag;
         {
             unsafe
             {
-                fixed (float* data = M.data)
+				fixed (float* data = &M11)
                 {
                     float* basePos = data + row * 4;
                     *(basePos + 0) = value.X;
@@ -2501,7 +2603,7 @@ return flag;
             {
                 unsafe
                 {
-                    fixed (float* data = M.data)
+					fixed (float* data = &M11)
                     {
                         return data[row * 4 + column];
                     }
@@ -2511,7 +2613,7 @@ return flag;
             {
                 unsafe
                 {
-                    fixed (float* data = M.data)
+					fixed (float* data = &M11)
                     {
                         data[row * 4 + column] = value;
                     }
@@ -2703,6 +2805,11 @@ return flag;
         /// </summary>
         /// <param name="matrix">Source matrix.</param>
         public static Matrix Invert(Matrix matrix)
+        {
+            return Invert(ref matrix);
+        }
+
+        public static Matrix Invert(ref Matrix matrix)
         {
             float num1 = matrix.M11;
             float num2 = matrix.M12;
@@ -3153,6 +3260,7 @@ return flag;
         //  ( D3DXMATRIX *pOut, CONST D3DXMATRIX *pM1, CONST D3DXMATRIX *pM2 );
 
         /// <summary>Native Interop Function</summary>
+#if NATIVE_SUPPORT
         [DllImport("d3dx9_43.dll", EntryPoint = "D3DXMatrixMultiply", CallingConvention = CallingConvention.StdCall, SetLastError = false, PreserveSig = true), SuppressUnmanagedCodeSecurityAttribute]
         private unsafe extern static Matrix* D3DXMatrixMultiply_([Out] Matrix* pOut, [In] Matrix* pM1, [In] Matrix* pM2);
 
@@ -3167,7 +3275,7 @@ return flag;
                     D3DXMatrixMultiply_(resultRef_, m1Ref_, m2Ref_);
             }
         }
-
+#endif
         /// <summary>
         /// Multiplies a matrix by another matrix.
         /// </summary>
@@ -3377,6 +3485,12 @@ return flag;
             orientation.Up = Up;
             orientation.Right = Right;
             return orientation;
+        }
+
+        [Conditional("DEBUG")]
+        public void AssertIsValid()
+        {
+            Debug.Assert(IsValid());
         }
 
         public bool IsValid()
@@ -3669,6 +3783,84 @@ return flag;
         //        (double)m.M41, (double)m.M42, (double)m.M43, (double)m.M44);
         //}
 
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name.Length > 1)
+            {
+                if (m.Name[0] != 'M')
+                {
+                    if (m.Name == "Up")
+                        return Up;
+                    if (m.Name == "Down")
+                        return Down;
+                    if (m.Name == "Right")
+                        return Right;
+                    if (m.Name == "Left")
+                        return Left;
+                    if (m.Name == "Forward")
+                        return Forward;
+                    if (m.Name == "Backward")
+                        return Backward;
+                    if (m.Name == "Translation")
+                        return Translation;
+                }
+                else
+                {
+                    if (m.Name.Length > 2)
+                    {
+                        if (m.Name[1] == '1')
+                        {
+                            if (m.Name[2] == '1')
+                                return M11;
+                            if (m.Name[2] == '2')
+                                return M12;
+                            if (m.Name[2] == '3')
+                                return M13;
+                            if (m.Name[2] == '4')
+                                return M14;
+                        }
+                        if (m.Name[1] == '2')
+                        {
+                            if (m.Name[2] == '1')
+                                return M21;
+                            if (m.Name[2] == '2')
+                                return M22;
+                            if (m.Name[2] == '3')
+                                return M23;
+                            if (m.Name[2] == '4')
+                                return M24;
+                        }
+                        if (m.Name[1] == '3')
+                        {
+                            if (m.Name[2] == '1')
+                                return M31;
+                            if (m.Name[2] == '2')
+                                return M32;
+                            if (m.Name[2] == '3')
+                                return M33;
+                            if (m.Name[2] == '4')
+                                return M34;
+                        }
+                        if (m.Name[1] == '4')
+                        {
+                            if (m.Name[2] == '1')
+                                return M41;
+                            if (m.Name[2] == '2')
+                                return M42;
+                            if (m.Name[2] == '3')
+                                return M43;
+                            if (m.Name[2] == '4')
+                                return M44;
+                        }
+                    }
+                }
+            }
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 
 }

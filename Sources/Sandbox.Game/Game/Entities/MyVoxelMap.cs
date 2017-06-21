@@ -1,31 +1,17 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
-using Sandbox.Engine.Voxels;
+﻿using Sandbox.Engine.Voxels;
 using Sandbox.Game.Components;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System.Diagnostics;
-using System.Threading;
-
-using VRage;
 using VRageMath;
-using VRageRender;
-using Sandbox.Common.Components;
 using Sandbox.Engine.Utils;
-using VRage.Voxels;
 using VRage.Utils;
-using System;
 using VRage.ObjectBuilders;
 using VRage.Game.Components;
-using VRage.Network;
-using VRage.Library.Collections;
-using System.Collections.Generic;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.Game.Replication;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
+using VRage.Voxels;
+using System;
 
 
 namespace Sandbox.Game.Entities
@@ -92,6 +78,12 @@ namespace Sandbox.Game.Entities
             }
 
             m_storage = MyStorageBase.Load(ob.StorageName);
+            
+            if(m_storage == null)
+            {
+                throw new Exception("Voxel storage not found: " + ob.StorageName);
+            }
+
             Init(builder, m_storage);
 
             if (ob.ContentChanged.HasValue)
@@ -145,7 +137,6 @@ namespace Sandbox.Game.Entities
 
         public override void UpdateOnceBeforeFrame()
         {
-            PositionComp.UpdateAABBHr();
             base.UpdateOnceBeforeFrame();
         }
 
@@ -322,21 +313,23 @@ namespace Sandbox.Game.Entities
             ProfilerShort.End();
         }
 
-       
+
         protected override void InitVoxelMap(MatrixD worldMatrix, Vector3I size, bool useOffset = true)
         {
             base.InitVoxelMap(worldMatrix, size, useOffset);
 
+            ((MyStorageBase)Storage).InitWriteCache(8);
+
             ProfilerShort.Begin("new MyVoxelPhysicsBody");
             Physics = new MyVoxelPhysicsBody(this, 3.0f, lazyPhysics: DelayRigidBodyCreation);
-            Physics.Enabled = true;
+            Physics.Enabled = !MyFakes.DISABLE_VOXEL_PHYSICS;
             ProfilerShort.End();
         }
 
         public bool IsStaticForCluster
         {
-            get { return ((MyVoxelPhysicsBody)Physics).IsStaticForCluster; }
-            set { ((MyVoxelPhysicsBody)Physics).IsStaticForCluster = value; }
+            get { return Physics.IsStaticForCluster; }
+            set { Physics.IsStaticForCluster = value; }
         }
 
         public override int GetOrePriority()

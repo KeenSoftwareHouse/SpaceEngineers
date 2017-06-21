@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using VRage;
 using VRage.Collections;
+using VRage.Library;
 
 namespace ParallelTasks
 {
-    class WorkItem
+    public class WorkItem
     {
         // MartinG@DigitalRune: I replaced the SpinLocks in this class with normal locks. The 
         // SpinLocks could cause severe problems where threads are blocked up to several milliseconds. 
@@ -111,7 +112,7 @@ namespace ParallelTasks
         volatile int executing;
         List<Task> children;
         volatile int waitCount;
-        
+
         //object executionLock = new object();
         FastResourceLock executionLock = new FastResourceLock();
 
@@ -122,7 +123,7 @@ namespace ParallelTasks
 #if WINDOWS_PHONE
         static Hashtable<Thread, Stack<Task>> runningTasks = new Hashtable<Thread, Stack<Task>>(1);
 #else
-        static Hashtable<Thread, Stack<Task>> runningTasks = new Hashtable<Thread, Stack<Task>>(Environment.ProcessorCount);
+        static Hashtable<Thread, Stack<Task>> runningTasks = new Hashtable<Thread, Stack<Task>>(MyEnvironment.ProcessorCount);
 #endif
 
         public int RunCount
@@ -140,8 +141,11 @@ namespace ParallelTasks
             get { return work; }
         }
 
+        public WorkData WorkData { get; set; }
+
         public Action Callback { get; set; }
-        public MyConcurrentQueue<WorkItem> CompletionCallbacks { get; set; }
+        public Action<WorkData> DataCallback { get; set; }
+        public ConcurrentCachingList<WorkItem> CompletionCallbacks { get; set; }
 
         public static Task? CurrentTask
         {
@@ -164,13 +168,14 @@ namespace ParallelTasks
             children = new List<Task>();
         }
 
-        public Task PrepareStart(IWork work)
+        public Task PrepareStart(IWork work, Thread thread = null)
         {
             this.work = work;
+
             resetEvent.Reset();
             children.Clear();
             exceptionBuffer = null;
-            ExecutingThread = Thread.CurrentThread;
+            ExecutingThread = thread ?? Thread.CurrentThread;
 
             var task = new Task(this);
             var currentTask = WorkItem.CurrentTask;
@@ -205,7 +210,18 @@ namespace ParallelTasks
             tasks.Push(new Task(this));
 
             // execute the task
-            try { work.DoWork(); }
+            try
+            {
+                // Set work data to running if able
+                if (WorkData != null)
+                    WorkData.WorkState = ParallelTasks.WorkData.WorkStateEnum.RUNNING;
+                
+                work.DoWork(WorkData);
+
+                // Set work data to succeeded if able and not failed
+                if (WorkData != null && WorkData.WorkState == ParallelTasks.WorkData.WorkStateEnum.RUNNING)
+                    WorkData.WorkState = ParallelTasks.WorkData.WorkStateEnum.SUCCEEDED;
+            }
             catch (Exception e)
             {
                 if (exceptionBuffer == null)
@@ -227,8 +243,15 @@ namespace ParallelTasks
                 if (executing == 0)
                 {
                     if (exceptionBuffer != null)
+					{
+#if UNSHARPER
+						//workaround for volatile int to const int& casting problem in c++.
+						int val = runCount;
+						exceptions.Add(val, exceptionBuffer.ToArray());
+#else
                         exceptions.Add(runCount, exceptionBuffer.ToArray());
-
+#endif
+					}
                     // wait for all children to complete
                     foreach (var child in children)
                         child.Wait();
@@ -241,14 +264,14 @@ namespace ParallelTasks
                     // wait for waiting tasks to all exit
                     while (waitCount > 0) ;
 
-                    if (Callback == null)
+                    if (Callback == null && DataCallback == null)
                     {
                         Requeue();
                     }
                     else
                     {
                         // if we have a callback, then queue for execution
-                        CompletionCallbacks.Enqueue(this);
+                        CompletionCallbacks.Add(this);
                     }
 
                     return true;

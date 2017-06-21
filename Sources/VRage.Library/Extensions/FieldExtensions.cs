@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // !XB1_SYNC_NOREFLECTION
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -33,3 +34,4 @@ namespace System.Linq.Expressions
         }
     }
 }
+#endif // !XB1

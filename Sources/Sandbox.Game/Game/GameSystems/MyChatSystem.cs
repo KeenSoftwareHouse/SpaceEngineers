@@ -333,7 +333,7 @@ namespace Sandbox.Game.GameSystems
                         {
                             if (playerToSendTo.Value)
                             {
-                                if (MySyncCharacter.RetryFactionMessage(chatFactionHistory.FactionId1, chatFactionHistory.FactionId2, chatItem, MySession.Static.Players.TryGetIdentity(playerToSendTo.Key)))
+                                if (MyCharacter.RetryFactionMessage(chatFactionHistory.FactionId1, chatFactionHistory.FactionId2, chatItem, MySession.Static.Players.TryGetIdentity(playerToSendTo.Key)))
                                 {
                                     break;
                                 }

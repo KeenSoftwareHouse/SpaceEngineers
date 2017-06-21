@@ -6,8 +6,246 @@ using System.Text;
 
 namespace VRage.Win32
 {
+#if !UNSHARPER
+
     public static partial class WinApi
     {
+#if XB1 // from winapi-structures
+		public delegate bool ConsoleEventHandler(CtrlType sig);
+        public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MyCopyData
+        {
+            public IntPtr Data;
+            public int DataSize;
+            public IntPtr DataPointer;
+        }
+
+#if !XB1
+        [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Ansi)]
+        public struct DEVMODE
+        {
+            public const int CCHDEVICENAME = 32;
+            public const int CCHFORMNAME = 32;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CCHDEVICENAME)]
+            [FieldOffset(0)]
+            public string dmDeviceName;
+            [FieldOffset(32)]
+            public Int16 dmSpecVersion;
+            [FieldOffset(34)]
+            public Int16 dmDriverVersion;
+            [FieldOffset(36)]
+            public Int16 dmSize;
+            [FieldOffset(38)]
+            public Int16 dmDriverExtra;
+            [FieldOffset(40)]
+            public DM dmFields;
+
+            [FieldOffset(44)]
+            Int16 dmOrientation;
+            [FieldOffset(46)]
+            Int16 dmPaperSize;
+            [FieldOffset(48)]
+            Int16 dmPaperLength;
+            [FieldOffset(50)]
+            Int16 dmPaperWidth;
+            [FieldOffset(52)]
+            Int16 dmScale;
+            [FieldOffset(54)]
+            Int16 dmCopies;
+            [FieldOffset(56)]
+            Int16 dmDefaultSource;
+            [FieldOffset(58)]
+            Int16 dmPrintQuality;
+
+            [FieldOffset(44)]
+            public POINTL dmPosition;
+            [FieldOffset(52)]
+            public Int32 dmDisplayOrientation;
+            [FieldOffset(56)]
+            public Int32 dmDisplayFixedOutput;
+
+            [FieldOffset(60)]
+            public short dmColor; // See note below!
+            [FieldOffset(62)]
+            public short dmDuplex; // See note below!
+            [FieldOffset(64)]
+            public short dmYResolution;
+            [FieldOffset(66)]
+            public short dmTTOption;
+            [FieldOffset(68)]
+            public short dmCollate; // See note below!
+            [FieldOffset(72)]
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CCHFORMNAME)]
+            public string dmFormName;
+            [FieldOffset(102)]
+            public Int16 dmLogPixels;
+            [FieldOffset(104)]
+            public Int32 dmBitsPerPel;
+            [FieldOffset(108)]
+            public Int32 dmPelsWidth;
+            [FieldOffset(112)]
+            public Int32 dmPelsHeight;
+            [FieldOffset(116)]
+            public Int32 dmDisplayFlags;
+            [FieldOffset(116)]
+            public Int32 dmNup;
+            [FieldOffset(120)]
+            public Int32 dmDisplayFrequency;
+        }
+#endif // !XB1
+
+        public struct POINTL
+        {
+            public Int32 x;
+            public Int32 y;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MSG
+        {
+            public IntPtr hwnd;
+            public UInt32 message;
+            public IntPtr wParam;
+            public IntPtr lParam;
+            public UInt32 time;
+            public POINT pt;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public class MEMORYSTATUSEX
+        {
+            public uint dwLength;
+            public uint dwMemoryLoad;
+            public ulong ullTotalPhys;
+            public ulong ullAvailPhys;
+            public ulong ullTotalPageFile;
+            public ulong ullAvailPageFile;
+            public ulong ullTotalVirtual;
+            public ulong ullAvailVirtual;
+            public ulong ullAvailExtendedVirtual;
+            public MEMORYSTATUSEX()
+            {
+                this.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct DeviceChangeHookStruct
+        {
+            public int lParam;
+            public int wParam;
+            public int message;
+            public int hwnd;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct KeyboardHookStruct
+        {
+            public int vkCode;
+            public int scanCode;
+            public int flags;
+            public int time;
+            public int dwExtraInfo;
+        }
+
+		// From Winapi-Helpers
+#if !XB1
+		public static void SendMessage<T>(ref T data, IntPtr windowHandle)
+				   where T : struct
+		{
+			try
+			{
+				int structSize = Marshal.SizeOf(data);
+				IntPtr structPtr = Marshal.AllocHGlobal(structSize);
+				Marshal.StructureToPtr(data, structPtr, true);
+				WinApi.MyCopyData copyData = new WinApi.MyCopyData();
+				copyData.DataSize = structSize;
+				copyData.DataPointer = structPtr;
+				SendMessage(windowHandle, (uint)WM.COPYDATA, IntPtr.Zero, ref copyData);
+				Marshal.FreeHGlobal(structPtr);
+			}
+			catch (Exception)
+			{
+
+			}
+		}
+
+		public static IntPtr FindWindowInParent(string parentName, string childName)
+		{
+			IntPtr parent = FindWindow(null, parentName);
+			if (parent != IntPtr.Zero)
+			{
+				return FindChildWindow(parent, childName);
+			}
+			return IntPtr.Zero;
+		}
+
+		public static IntPtr FindChildWindow(IntPtr windowHandle, string childName)
+		{
+			IntPtr child = FindWindowEx(windowHandle, IntPtr.Zero, null, childName);
+			var int322 = windowHandle.ToInt32();
+			if (child != IntPtr.Zero)
+			{
+				return child;
+			}
+			else
+			{
+				IntPtr firstChild = IntPtr.Zero;
+				child = GetWindow(windowHandle, GW_CHILD);
+				while (firstChild != child && child != IntPtr.Zero)
+				{
+					if (firstChild == IntPtr.Zero)
+						firstChild = child;
+					IntPtr retChild = FindChildWindow(child, childName);
+					if (retChild != IntPtr.Zero)
+						return retChild;
+					child = GetWindow(child, GW_HWNDNEXT);
+				}
+				return IntPtr.Zero;
+			}
+		}
+
+		public static bool IsValidWindow(IntPtr windowHandle)
+		{
+			return IsWindow(windowHandle);
+		}
+
+		static Func<long> m_workingSetDelegate;
+
+		/// <summary>
+		/// Gets working set size without creating garbage, it's also faster.
+		/// Environment.WorkingSet create garbage.
+		/// </summary>
+		public static long WorkingSet
+		{
+			get
+			{
+				if (m_workingSetDelegate == null)
+				{
+					// To properly initialize security permission
+					long testVal = Environment.WorkingSet;
+
+					// Avoids allocation (internally WorkingSet property allocates during each call and is slower than this).
+					var info = typeof(System.Environment).GetMethod("GetWorkingSet", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+					m_workingSetDelegate = (Func<long>)Delegate.CreateDelegate(typeof(Func<long>), info);
+				}
+				return m_workingSetDelegate();
+			}
+		}
+#endif // !XB1
+
+#endif
+#if !XB1
         [DllImport("user32.dll")]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
@@ -26,7 +264,9 @@ namespace VRage.Win32
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsWindow(IntPtr hWnd);
+#endif // !XB1
 
+#if !XB1
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool AllocConsole();
 
@@ -63,7 +303,9 @@ namespace VRage.Win32
 
         [DllImport("user32.dll")]
         public static extern void PostQuitMessage(int nExitCode);
+#endif // !XB1
 
+#if !XB1
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
 
@@ -138,6 +380,16 @@ namespace VRage.Win32
         // For setting system options:
         [DllImport("ntdll.dll", EntryPoint = "NtSetTimerResolution")]
         public static extern NTSTATUS NtSetTimerResolution(uint DesiredResolution, bool SetResolution, ref uint CurrentResolution);
+#endif // !XB1
 
     }
+#elif false
+	[Unsharper.UnsharperDisableReflection()]
+	public static partial class WinApi
+	{
+
+		[DllImport("user32.dll")]
+		public static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
+	}
+#endif	
 }

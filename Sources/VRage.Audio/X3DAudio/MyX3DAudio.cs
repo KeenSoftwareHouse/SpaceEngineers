@@ -97,7 +97,7 @@ namespace VRage.Audio.X3DAudio
             }
         }
 
-        public float Apply3D(SourceVoice voice, Listener listener, Emitter emitter, int srcChannels, int dstChannels, CalculateFlags flags, float maxDistance, float frequencyRatio, bool silent)
+        public float Apply3D(SourceVoice voice, Listener listener, Emitter emitter, int srcChannels, int dstChannels, CalculateFlags flags, float maxDistance, float frequencyRatio, bool silent, bool use3DCalculation = true)
         {
             unsafe
             {
@@ -113,7 +113,18 @@ namespace VRage.Audio.X3DAudio
                 settings.MatrixCoefficientsPointer = new IntPtr(matrixCoefficients);
                 settings.DelayTimesPointer = new IntPtr(delay);
 
-                Calculate(listener, emitter, flags, &settings);
+                if (use3DCalculation)
+                {
+                    Calculate(listener, emitter, flags, &settings);
+                    
+                    voice.SetFrequencyRatio(frequencyRatio * settings.DopplerFactor);
+                }
+                else
+                { //realistic sounds
+                    settings.EmitterToListenerDistance = Vector3.Distance(new Vector3(listener.Position.X, listener.Position.Y, listener.Position.Z), new Vector3(emitter.Position.X, emitter.Position.Y, emitter.Position.Z));
+                    for(int i = 0; i < matrixCoefficientCount; i++)
+                        matrixCoefficients[i] = 1f;
+                }
 
                 if (emitter.InnerRadius == 0f)
                 {
@@ -128,9 +139,14 @@ namespace VRage.Audio.X3DAudio
                         matrixCoefficients[i] *= decay;
                     }
                 }
-
+#if !XB1
                 voice.SetOutputMatrix(null, settings.SrcChannelCount, settings.DstChannelCount, matrixCoefficients);
-                voice.SetFrequencyRatio(frequencyRatio * settings.DopplerFactor);
+#else // XB1
+                var matCoefs = new float[matrixCoefficientCount];
+                for (int i = 0; i < matrixCoefficientCount; i++)
+                    matCoefs[i] = matrixCoefficients[i];
+                voice.SetOutputMatrix(null, settings.SrcChannelCount, settings.DstChannelCount, matCoefs);
+#endif // XB1
                 return settings.EmitterToListenerDistance;
             }
         }

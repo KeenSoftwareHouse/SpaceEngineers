@@ -1,18 +1,11 @@
-﻿using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.AI;
+﻿using Sandbox.Game.AI;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using VRage.Game;
 using VRage.Utils;
 using VRageMath;
@@ -77,7 +70,7 @@ namespace SpaceEngineers.Game.AI
                 if (player.Character == null) continue;
 
                 position = player.GetPosition();
-                planet = MyGravityProviderSystem.GetNearestPlanet(position.Value);
+                planet = MyGamePruningStructure.GetClosestPlanet(position.Value);
 
                 var animalSpawnInfo = GetDayOrNightAnimalSpawnInfo(planet, position.Value);
                 if (animalSpawnInfo == null || animalSpawnInfo.Animals == null ||
@@ -90,7 +83,7 @@ namespace SpaceEngineers.Game.AI
 
                 if (oldPosition != null) // prevent teleporting from planet to planet
                 {
-                    var planetOld = MyGravityProviderSystem.GetNearestPlanet(oldPosition.Value);
+                    var planetOld = MyGamePruningStructure.GetClosestPlanet(oldPosition.Value);
                     if (planet != planetOld)
                     {
                         position = null;
@@ -104,7 +97,7 @@ namespace SpaceEngineers.Game.AI
             if (!position.HasValue || planet == null) 
                 return false;
 
-            Vector3D gravity = planet.GetWorldGravity(position.Value);
+            Vector3D gravity = planet.Components.Get<MyGravityProviderComponent>().GetWorldGravity(position.Value);
             if (Vector3D.IsZero(gravity))
                 gravity = Vector3D.Down;
             else
@@ -169,7 +162,9 @@ namespace SpaceEngineers.Game.AI
         static bool IsThereNight(MyPlanet planet, ref Vector3D position)
         {
             // gravitation vector and vector to sun are facing same direction
-            Vector3 grav = planet.GetWorldGravityNormalized(ref position);
+
+            // We don't even have to normalize :D
+            Vector3 grav = position - planet.PositionComp.GetPosition();
             return Vector3.Dot(MySector.DirectionToSunNormalized, grav) > 0;
         }
     }

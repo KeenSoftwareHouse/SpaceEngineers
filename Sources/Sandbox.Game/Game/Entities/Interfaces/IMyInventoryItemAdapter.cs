@@ -1,4 +1,5 @@
-﻿using VRage.Utils;
+﻿using VRage;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Interfaces
 {
@@ -6,8 +7,10 @@ namespace Sandbox.Game.Entities.Interfaces
     {
         float Mass { get; }
         float Volume { get; }
+        bool HasIntegralAmounts { get; }
+        MyFixedPoint MaxStackAmount { get; }
         string DisplayNameText { get; }
-        string Icon { get; }
+        string[] Icons { get; }
         MyStringId? IconSymbol { get; }
     }
 }

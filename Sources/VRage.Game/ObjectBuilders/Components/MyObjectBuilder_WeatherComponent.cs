@@ -8,6 +8,6 @@ namespace VRage.Game
     public class MyObjectBuilder_WeatherComponent : MyObjectBuilder_SessionComponent
     {
         [ProtoMember]
-        public bool WeatherEnabled;
+        public bool WeatherEnabled = true;
     }
 }

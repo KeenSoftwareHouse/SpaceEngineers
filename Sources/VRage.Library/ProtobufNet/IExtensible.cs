@@ -1,4 +1,4 @@
-﻿
+﻿#if !XB1 // XB1_NOPROTOBUF
 namespace ProtoBuf
 {
 
@@ -25,3 +25,4 @@ namespace ProtoBuf
 
     
 }
+#endif // !XB1

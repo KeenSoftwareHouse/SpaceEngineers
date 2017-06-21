@@ -1,4 +1,5 @@
-﻿using ParallelTasks;
+﻿#if !XB1
+using ParallelTasks;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
@@ -329,3 +330,4 @@ namespace Sandbox.Engine.Networking
 
     }
 }
+#endif // !XB1

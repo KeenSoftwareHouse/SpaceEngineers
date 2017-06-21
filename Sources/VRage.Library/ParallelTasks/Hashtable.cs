@@ -6,85 +6,102 @@ using System.Threading;
 
 namespace ParallelTasks
 {
-    /// <summary>
-    /// A thread safe hashtable.
-    /// </summary>
-    /// <typeparam name="Key">The type of item to use as keys.</typeparam>
-    /// <typeparam name="Data">The type of data stored.</typeparam>
-    public class Hashtable<Key, Data>
-        : IEnumerable<KeyValuePair<Key, Data>>
+
+	public class HashTableEnumerator<TKey, TData>
+	: IEnumerator<KeyValuePair<TKey, TData>>
+	{
+		int currentIndex = -1;
+		Hashtable<TKey, TData> table;
+
+		public HashTableEnumerator(Hashtable<TKey, TData> table)
+		{
+			this.table = table;
+		}
+
+		public KeyValuePair<TKey, TData> Current
+		{
+			get;
+			private set;
+		}
+
+		public void Dispose()
+		{
+		}
+
+		object System.Collections.IEnumerator.Current
+		{
+			get { return Current; }
+		}
+
+		public bool MoveNext()
+		{
+			HashtableNode<TKey,TData> node;
+			do
+			{
+				currentIndex++;
+				if (table.array.Length <= currentIndex)
+					return false;
+
+				node = table.array[currentIndex];
+			} while (node.Token != HashtableToken.Used);
+
+			Current = new KeyValuePair<TKey, TData>(node.Key, node.Data);
+			return true;
+		}
+
+		public void Reset()
+		{
+			currentIndex = -1;
+		}
+	}
+
+	public enum HashtableToken
+	{
+		Empty,
+		Used,
+		Deleted
+	}
+
+    public struct HashtableNode<TKey,TData>
     {
-        struct Node
-        {
-            public Key Key;
-            public Data Data;
-            public Token Token;
-        }
+        public TKey Key;
+        public TData Data;
+        public HashtableToken Token;
 
-        enum Token
-        {
-            Empty,
-            Used,
-            Deleted
-        }
+		public HashtableNode(TKey key, TData data, HashtableToken token)
+		{
+			Key = key;
+			Data = data;
+			Token = token;
+		}
+    }
 
-        class Enumerator
-            : IEnumerator<KeyValuePair<Key, Data>>
-        {
-            int currentIndex = -1;
-            Hashtable<Key, Data> table;
 
-            public Enumerator(Hashtable<Key, Data> table)
-            {
-                this.table = table;
-            }
 
-            public KeyValuePair<Key, Data> Current
-            {
-                get;
-                private set;
-            }
+	public class GetHashCode_HashTable<TKey>
+	{
+		public static int GetHashCode(TKey v) //where TKey: class
+		{
+			return v.GetHashCode();
+		}
+	}
 
-            public void Dispose()
-            {
-            }
-
-            object System.Collections.IEnumerator.Current
-            {
-                get { return Current; }
-            }
-
-            public bool MoveNext()
-            {
-                Node node;
-                do
-                {
-                    currentIndex++;
-                    if (table.array.Length <= currentIndex)
-                        return false;
-
-                    node = table.array[currentIndex];
-                } while (node.Token != Hashtable<Key,Data>.Token.Used);
-
-                Current = new KeyValuePair<Key,Data>(node.Key, node.Data);
-                return true;
-            }
-
-            public void Reset()
-            {
-                currentIndex = -1;
-            }
-        }
-
+    public class Hashtable<TKey, TData>
+        : IEnumerable<KeyValuePair<TKey, TData>>
+    {
 
         // MartinG@DigitalRune: Use EqualityComparer.Equals() instead of object.Equals(). 
         // object.Equals() casts value types to object and can therefore create "garbage".
-        private static readonly EqualityComparer<Key> KeyComparer = EqualityComparer<Key>.Default;
+        private static readonly EqualityComparer<TKey> KeyComparer = EqualityComparer<TKey>.Default;
 
-        volatile Node[] array;
+#if UNSHARPER_TMP
+		public HashtableNode<TKey, TData>[] array;
+#else
+        public volatile HashtableNode<TKey,TData>[] array;
+#endif
         SpinLock writeLock;
 
-        static readonly Node DeletedNode = new Node() { Key = default(Key), Data = default(Data), Token = Token.Deleted };
+        static readonly HashtableNode<TKey,TData> DeletedNode = new HashtableNode<TKey,TData>( default(TKey), default(TData), HashtableToken.Deleted);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Hashtable&lt;Key, Data&gt;"/> class.
@@ -94,7 +111,7 @@ namespace ParallelTasks
         {
             if (initialCapacity < 1)
                 throw new ArgumentOutOfRangeException("initialCapacity", "cannot be < 1");
-            array = new Hashtable<Key, Data>.Node[initialCapacity];
+            array = new HashtableNode<TKey,TData>[initialCapacity];
             writeLock = new SpinLock();
         }
 
@@ -103,8 +120,26 @@ namespace ParallelTasks
         /// </summary>
         /// <param name="key">The key at which to add the item.</param>
         /// <param name="data">The data to add.</param>
-        public void Add(Key key, Data data)
+        public void Add(TKey key, TData data)
         {
+#if UNSHARPER_TMP
+			try
+			{
+				writeLock.Enter();
+				bool inserted = Insert(array, key, data);
+
+				if (!inserted)
+				{
+					Resize();
+					Insert(array, key, data);
+				}
+				writeLock.Exit();
+			}
+			catch
+			{
+				writeLock.Exit();
+			}
+#else
             try
             {
                 writeLock.Enter();
@@ -120,37 +155,38 @@ namespace ParallelTasks
             {
                 writeLock.Exit();
             }
+#endif
         }
 
         private void Resize()
         {
-            var newArray = new Node[array.Length * 2];
+            var newArray = new HashtableNode<TKey,TData>[array.Length * 2];
             for (int i = 0; i < array.Length; i++)
             {
                 var item = array[i];
-                if (item.Token == Token.Used)
+                if (item.Token == HashtableToken.Used)
                     Insert(newArray, item.Key, item.Data);
             }
 
             array = newArray;
         }
 
-        private bool Insert(Node[] table, Key key, Data data)
+        private bool Insert(HashtableNode<TKey,TData>[] table, TKey key, TData data)
         {
-            var initialHash = Math.Abs(key.GetHashCode()) % table.Length;
+			var initialHash = Math.Abs(GetHashCode_HashTable<TKey>.GetHashCode(key)) % table.Length;
             var hash = initialHash;
             bool inserted = false;
             do
             {
                 var node = table[hash];
                 // if node is empty, or marked with a tombstone
-                if (node.Token == Token.Empty || node.Token == Token.Deleted || KeyComparer.Equals(key, node.Key))
+                if (node.Token == HashtableToken.Empty || node.Token == HashtableToken.Deleted || KeyComparer.Equals(key, node.Key))
                 {
-                    table[hash] = new Node()
+                    table[hash] = new HashtableNode<TKey,TData>()
                     {
                         Key = key,
                         Data = data,
-                        Token = Token.Used
+                        Token = HashtableToken.Used
                     };
                     inserted = true;
                     break;
@@ -168,15 +204,15 @@ namespace ParallelTasks
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The new value.</param>
-        public void UnsafeSet(Key key, Data value)
+        public void UnsafeSet(TKey key, TData value)
         {
-            Node[] table;
+            HashtableNode<TKey,TData>[] table;
             bool inserted = false;
 
             do
             {
                 table = array;
-                var initialHash = Math.Abs(key.GetHashCode()) % table.Length;
+				var initialHash = Math.Abs(GetHashCode_HashTable<TKey>.GetHashCode(key)) % table.Length;
                 var hash = initialHash;
 
                 do
@@ -184,11 +220,11 @@ namespace ParallelTasks
                     var node = table[hash];
                     if (KeyComparer.Equals(key, node.Key))
                     {
-                        table[hash] = new Node()
+                        table[hash] = new HashtableNode<TKey,TData>()
                         {
                             Key = key,
                             Data = value,
-                            Token = Token.Used
+                            Token = HashtableToken.Used
                         };
                         inserted = true;
                         break;
@@ -204,19 +240,19 @@ namespace ParallelTasks
                 Add(key, value);
         }
 
-        private bool Find(Key key, out Node node)
+        private bool Find(TKey key, out HashtableNode<TKey,TData> node)
         {
-            node = new Hashtable<Key, Data>.Node();
+            node = new HashtableNode<TKey,TData>();
             var table = array;
-            var initialHash = Math.Abs(key.GetHashCode()) % table.Length;
+			var initialHash = Math.Abs(GetHashCode_HashTable<TKey>.GetHashCode(key)) % table.Length;
             var hash = initialHash;
             
             do
             {
-                Node n = table[hash];
-                if (n.Token == Token.Empty)
+                HashtableNode<TKey,TData> n = table[hash];
+                if (n.Token == HashtableToken.Empty)
                     return false;
-                if (n.Token == Token.Deleted || !KeyComparer.Equals(key, n.Key))
+                if (n.Token == HashtableToken.Deleted || !KeyComparer.Equals(key, n.Key))
                     hash = (hash + 1) % table.Length;
                 else
                 {
@@ -234,9 +270,9 @@ namespace ParallelTasks
         /// <param name="key">The key to search for.</param>
         /// <param name="data">The data at the key location.</param>
         /// <returns><c>true</c> if the data was found; else <c>false</c>.</returns>
-        public bool TryGet(Key key, out Data data)
+        public bool TryGet(TKey key, out TData data)
         {
-            Node n;
+            HashtableNode<TKey,TData> n;
             if (Find(key, out n))
             {
                 data = n.Data;
@@ -244,7 +280,7 @@ namespace ParallelTasks
             }
             else
             {
-                data = default(Data);
+                data = default(TData);
                 return false;
             }
         }
@@ -253,23 +289,23 @@ namespace ParallelTasks
         /// Removes the data at the specified key location.
         /// </summary>
         /// <param name="key">The key.</param>
-        public void Remove(Key key)
+        public void Remove(TKey key)
         {
             try
             {
                 writeLock.Enter();
 
 
-                Node[] table = array;
-                var initialHash = Math.Abs(key.GetHashCode()) % table.Length;
+                HashtableNode<TKey,TData>[] table = array;
+				var initialHash = Math.Abs(GetHashCode_HashTable<TKey>.GetHashCode(key)) % table.Length;
                 var hash = initialHash;
 
                 do
                 {
-                    Node n = table[hash];
-                    if (n.Token == Token.Empty)
+                    HashtableNode<TKey,TData> n = table[hash];
+                    if (n.Token == HashtableToken.Empty)
                         return;
-                    if (n.Token == Token.Deleted || !KeyComparer.Equals(key, n.Key))
+                    if (n.Token == HashtableToken.Deleted || !KeyComparer.Equals(key, n.Key))
                         hash = (hash + 1) % table.Length;
                     else
                         table[hash] = DeletedNode;
@@ -287,9 +323,9 @@ namespace ParallelTasks
         /// <returns>
         /// A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
         /// </returns>
-        public IEnumerator<KeyValuePair<Key, Data>> GetEnumerator()
+        public IEnumerator<KeyValuePair<TKey, TData>> GetEnumerator()
         {
-            return new Enumerator(this);
+            return new HashTableEnumerator<TKey,TData>(this);
         }
 
         /// <summary>

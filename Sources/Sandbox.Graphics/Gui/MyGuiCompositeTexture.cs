@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ObjectBuilders.Definitions.GUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -281,5 +282,61 @@ namespace Sandbox.Graphics.GUI
             target.Height = (int)screenSize.Y;
         }
 
+        public static implicit operator MyGuiCompositeTexture(SerializableCompositeTexture texture)
+        {
+            var composite = new MyGuiCompositeTexture(texture.Center);
+
+            float centerWidth = texture.Size.X - texture.BorderSizes.Left - texture.BorderSizes.Right;
+            float centerHeight = texture.Size.Y - texture.BorderSizes.Top - texture.BorderSizes.Bottom;
+
+            var lt = new MyGuiSizedTexture() { SizePx = new Vector2(texture.BorderSizes.Left,  texture.BorderSizes.Top),    Texture = texture.LeftTop };
+            var lc = new MyGuiSizedTexture() { SizePx = new Vector2(texture.BorderSizes.Left,  centerHeight),               Texture = texture.LeftCenter };
+            var lb = new MyGuiSizedTexture() { SizePx = new Vector2(texture.BorderSizes.Left,  texture.BorderSizes.Bottom), Texture = texture.LeftBottom };
+            var ct = new MyGuiSizedTexture() { SizePx = new Vector2(centerWidth,               texture.BorderSizes.Top),    Texture = texture.CenterTop };
+            var cc = new MyGuiSizedTexture() { SizePx = new Vector2(centerWidth,               centerHeight),               Texture = texture.Center };
+            var cb = new MyGuiSizedTexture() { SizePx = new Vector2(centerWidth,               texture.BorderSizes.Bottom), Texture = texture.CenterBottom };
+            var rt = new MyGuiSizedTexture() { SizePx = new Vector2(texture.BorderSizes.Right, texture.BorderSizes.Top),    Texture = texture.RightTop };
+            var rc = new MyGuiSizedTexture() { SizePx = new Vector2(texture.BorderSizes.Right, centerHeight),               Texture = texture.RightCenter };
+            var rb = new MyGuiSizedTexture() { SizePx = new Vector2(texture.BorderSizes.Right, texture.BorderSizes.Bottom), Texture = texture.RightBottom };
+
+            if (texture.LeftTop != null) composite.LeftTop = lt;
+            if (texture.LeftCenter != null) composite.LeftCenter = lc;
+            if (texture.LeftBottom != null) composite.LeftBottom = lb;
+            if (texture.CenterTop != null) composite.CenterTop = ct;
+            if (texture.Center != null) composite.Center = cc;
+            if (texture.CenterBottom != null) composite.CenterBottom = cb;
+            if (texture.RightTop != null) composite.RightTop = rt;
+            if (texture.RightCenter != null) composite.RightCenter = rc;
+            if (texture.RightBottom != null) composite.RightBottom = rb;
+
+            return composite;
+        }
+
+        public static implicit operator SerializableCompositeTexture(MyGuiCompositeTexture texture)
+        {
+            var serializable = new SerializableCompositeTexture();
+
+            serializable.BorderSizes.Left   = texture.LeftCenter.SizePx.X;
+            serializable.BorderSizes.Right  = texture.RightCenter.SizePx.X;
+            serializable.BorderSizes.Top    = texture.CenterTop.SizePx.Y;
+            serializable.BorderSizes.Bottom = texture.CenterBottom.SizePx.Y;
+
+            float w = serializable.BorderSizes.Left + texture.Center.SizePx.X + serializable.BorderSizes.Right;
+            float h = serializable.BorderSizes.Top + texture.Center.SizePx.Y + serializable.BorderSizes.Bottom;
+
+            serializable.Size = new Vector2(w, h);
+
+            serializable.LeftTop = texture.LeftTop.Texture;
+            serializable.LeftCenter = texture.LeftCenter.Texture;
+            serializable.LeftBottom = texture.LeftBottom.Texture;
+            serializable.CenterTop = texture.CenterTop.Texture;
+            serializable.Center = texture.Center.Texture;
+            serializable.CenterBottom = texture.CenterBottom.Texture;
+            serializable.RightTop = texture.RightTop.Texture;
+            serializable.RightCenter = texture.RightCenter.Texture;
+            serializable.RightBottom = texture.RightBottom.Texture;
+
+            return serializable;
+        }
     }
 }

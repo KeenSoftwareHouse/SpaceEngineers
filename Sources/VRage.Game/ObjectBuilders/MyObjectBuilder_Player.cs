@@ -29,6 +29,7 @@ namespace VRage.Game
         }
 
 		[ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string DisplayName;
 
         [ProtoMember]
@@ -38,15 +39,19 @@ namespace VRage.Game
         public bool Connected;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_Toolbar Toolbar;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public CameraControllerSettings CharacterCameraData;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<CameraControllerSettings> EntityCameraData;
 
 		[ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
 		public List<Vector3> BuildColorSlots = null;
 		public bool ShouldSerializeBuildColorSlots() { return BuildColorSlots != null; }
 
@@ -54,35 +59,42 @@ namespace VRage.Game
 
 		//[ProtoMember]
 		// Obsolete!
+        [NoSerialize]
 		public ulong SteamID;
 		public bool ShouldSerializeSteamID() { return false; }
 
 		//[ProtoMember]
 		// Obsolete! Dont use dictionaries when not needed
-		private SerializableDictionary<long, CameraControllerSettings> m_cameraData;
-		public SerializableDictionary<long, CameraControllerSettings> CameraData
-		{
-			get { /*Debug.Fail("Obsolete!");*/ return m_cameraData; }
-			set { m_cameraData = value; }
-		}
+        [NoSerialize]
+        private SerializableDictionary<long, CameraControllerSettings> m_cameraData;
+        [NoSerialize]
+        public SerializableDictionary<long, CameraControllerSettings> CameraData
+        {
+            get { /*Debug.Fail("Obsolete!");*/ return m_cameraData; }
+            set { m_cameraData = value; }
+        }
 		public bool ShouldSerializeCameraData() { return false; }
 
 		//[ProtoMember]
 		// Obsolete!
+        [NoSerialize]
 		public long PlayerEntity;
 		public bool ShouldSerializePlayerEntity() { return false; }
 
 		//[ProtoMember]
 		// Obsolete!
+        [NoSerialize]
 		public string PlayerModel;
 		public bool ShouldSerializePlayerModel() { return false; }
 
 		//[ProtoMember]
 		// Obsolete!
+        [NoSerialize]
 		public long PlayerId;
 		public bool ShouldSerializePlayerId() { return false; }
 
 		//[ProtoMember]
+        [NoSerialize]
 		public long LastActivity;
 		public bool ShouldSerializeLastActivity() { return false; }
 		#endregion

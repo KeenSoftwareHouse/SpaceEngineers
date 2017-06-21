@@ -1024,5 +1024,21 @@ namespace VRageMath
         {
             return Math.Abs(value.X) < epsilon && Math.Abs(value.Y) < epsilon && Math.Abs(value.Z) < epsilon && Math.Abs(value.W) < epsilon;
         }
+
+        public static void CreateFromTwoVectors(ref Vector3D firstVector, ref Vector3D secondVector, out QuaternionD result)
+        {
+            Vector3D thirdVector;
+            Vector3D.Cross(ref firstVector, ref secondVector, out thirdVector);
+            result = new QuaternionD(thirdVector.X, thirdVector.Y, thirdVector.Z, Vector3.Dot(firstVector, secondVector));
+            result.W += result.Length();
+            result.Normalize();
+        }
+
+        public static QuaternionD CreateFromTwoVectors(Vector3D firstVector, Vector3D secondVector)
+        {
+            QuaternionD rtn;
+            CreateFromTwoVectors(ref firstVector, ref secondVector, out rtn);
+            return rtn;
+        }
     }
 }

@@ -8,16 +8,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Sandbox.Game.Entities.Cube;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRageMath;
+using VRage.Collections;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Screens.Helpers
 {
     public class MyToolbar
     {
+        public interface IMyToolbarExtension
+        {
+            void Update();
+            void AddedToToolbar(MyToolbar toolbar);
+        }
+
         public struct SlotArgs
         {
             public int? SlotNumber;
@@ -41,6 +50,8 @@ namespace Sandbox.Game.Screens.Helpers
         public int ItemCount { get { return SlotCount * PageCount; } }
 
         private MyToolbarItem[] m_items;
+
+        private CachingDictionary<Type, IMyToolbarExtension> m_extensions;
 
         private MyToolbarType m_toolbarType;
         public MyToolbarType ToolbarType
@@ -238,7 +249,7 @@ namespace Sandbox.Game.Screens.Helpers
 
             MyCockpit cockpit = Owner as MyCockpit;
             if (cockpit != null && cockpit.CubeGrid != null)
-                cockpit.CubeGrid.OnBlockRemoved += OnBlockRemoved;
+                cockpit.CubeGrid.OnBlockClosed += OnBlockClosed;
         }
 
         public MyObjectBuilder_Toolbar GetObjectBuilder()
@@ -342,13 +353,13 @@ namespace Sandbox.Game.Screens.Helpers
             if (m_items[i] != null)
             {
                 oldEnabledState = m_items[i].Enabled;
-                m_items[i].OnClose();
+                m_items[i].OnRemovedFromToolbar(this);
             }
 
             m_items[i] = item;
-
-            if (m_items[i] != null)
+            if (item != null)
             {
+                item.OnAddedToToolbar(this);
                 newEnabledState = true;
             }
 
@@ -365,6 +376,36 @@ namespace Sandbox.Game.Screens.Helpers
                 if (IsValidSlot(slot))
                     SlotEnabledChanged(slot);
             }
+        }
+
+        public void AddExtension(IMyToolbarExtension newExtension)
+        {
+            if (m_extensions == null)
+            {
+                m_extensions = new CachingDictionary<Type, IMyToolbarExtension>();
+            }
+
+            m_extensions.Add(newExtension.GetType(), newExtension);
+            newExtension.AddedToToolbar(this);
+        }
+
+        public bool TryGetExtension<T>(out T extension)
+            where T: class, IMyToolbarExtension
+        {
+            extension = null;
+
+            if (m_extensions == null) return false;
+            IMyToolbarExtension retval = null;
+            if (m_extensions.TryGetValue(typeof(T), out retval))
+            {
+                extension = retval as T;
+            }
+            return extension != null;
+        }
+
+        public void RemoveExtension(IMyToolbarExtension toRemove)
+        {
+            m_extensions.Remove(toRemove.GetType());
         }
 
         void ToolbarItemUpdated(int index, MyToolbarItem.ChangeInfo changed)
@@ -408,7 +449,7 @@ namespace Sandbox.Game.Screens.Helpers
             Update();
         }
 
-        private void OnBlockRemoved(MySlimBlock block)
+        private void OnBlockClosed(MySlimBlock block)
         {
             if (block.FatBlock == null)
                 return;
@@ -420,7 +461,7 @@ namespace Sandbox.Game.Screens.Helpers
                 {
                     if (m_items[i] == null) continue;
 
-                    m_items[i].OnClose();
+                    m_items[i].OnRemovedFromToolbar(this);
                     m_items[i] = null;
                 }
                 return;
@@ -568,14 +609,16 @@ namespace Sandbox.Game.Screens.Helpers
         {
             var itemToActivate = m_items[index];
             if (StagedSelectedSlot.HasValue && SlotToIndex(StagedSelectedSlot.Value) != index)
-                    StagedSelectedSlot = null;
+                StagedSelectedSlot = null;
             if (itemToActivate != null && itemToActivate.Enabled)
             {
                 if (checkIfWantsToBeActivated && !itemToActivate.WantsToBeActivated)
                     return false;
+
                 if (itemToActivate.WantsToBeActivated || MyCubeBuilder.Static.IsActivated)
                 {
-                    Unselect(false);
+                    if (SelectedItem != itemToActivate)
+                        Unselect(false);
                 }
                 return itemToActivate.Activate();
             }
@@ -591,15 +634,13 @@ namespace Sandbox.Game.Screens.Helpers
             if (SelectedItem != null && unselectSound)
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
 
-            var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
+            if (unselectSound)
+                MySession.Static.GameFocusManager.Clear();
+
+            var controlledObject = MySession.Static.ControlledEntity;
             if (controlledObject != null)
                 controlledObject.SwitchToWeapon(null);
-
-            if (MyCubeBuilder.Static.IsActivated)
-            {
-                MyCubeBuilder.Static.Deactivate();
-            }
-
+            
             if (Unselected != null)
                 Unselected(this);
         }
@@ -631,15 +672,15 @@ namespace Sandbox.Game.Screens.Helpers
             return true;
         }
 
-        public string GetItemIcon(int idx)
+        public string[] GetItemIcons(int idx)
         {
             if (!IsValidIndex(idx))
-                return "";
+                return null;
 
             if (m_items[idx] != null)
-                return m_items[idx].Icon;
+                return m_items[idx].Icons;
 
-            return "";
+            return null;
         }
 
         public long GetControllerPlayerID()
@@ -716,6 +757,15 @@ namespace Sandbox.Game.Screens.Helpers
                 SelectedSlotChanged(this, new SlotArgs() { SlotNumber = m_selectedSlot });
 
             EnabledOverride = null;
+
+            if (m_extensions != null)
+            {
+                foreach (var extension in m_extensions.Values)
+                {
+                    extension.Update();
+                }
+                m_extensions.ApplyChanges();
+            }
 
             ProfilerShort.End();
         }

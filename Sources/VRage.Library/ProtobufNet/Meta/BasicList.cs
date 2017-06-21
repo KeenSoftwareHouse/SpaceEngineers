@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOPROTOBUF
+using System;
 using System.Collections;
 
 namespace ProtoBuf.Meta
@@ -219,3 +220,4 @@ namespace ProtoBuf.Meta
 
 
 }
+#endif // !XB1

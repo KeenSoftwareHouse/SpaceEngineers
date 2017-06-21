@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
+using VRage.Library.Collections;
 
 #endregion
 
@@ -53,7 +54,6 @@ namespace VRageMath
         /// </summary>
         public const int NullNode = -1;
         private int m_freeList;
-        private int m_insertionCount;
         private int m_nodeCapacity;
         private int m_nodeCount;
         private DynamicTreeNode[] m_nodes;
@@ -484,8 +484,6 @@ namespace VRageMath
 
         private void InsertLeaf(int leaf, bool rebalance)
         {
-            ++m_insertionCount;
-
             if (m_root == NullNode)
             {
                 m_root = leaf;
@@ -1123,8 +1121,8 @@ namespace VRageMath
         }
 
         public void OverlapAllFrustum<T>(ref BoundingFrustumD frustum, List<T> elementsList, List<bool> isInsideList,
-            Vector3 projectionDir, float projectionFactor, float ignoreThr,
-            uint requiredFlags, bool clear = true)
+            float projectionFactor, float ignoreThr, 
+                uint requiredFlags, bool clear = true)
         {
             if (clear)
             {
@@ -1172,7 +1170,8 @@ namespace VRageMath
 
                                 if (nodeToAdd.IsLeaf())
                                 {
-                                    if (nodeToAdd.Aabb.ProjectedArea(projectionDir) * projectionFactor > ignoreThr)
+                                    double size = nodeToAdd.Aabb.Size.Length();
+                                    if (size * projectionFactor > ignoreThr)
                                     {
                                         uint flags = GetUserFlag(nodeIdToAdd);
                                         if ((flags & requiredFlags) == requiredFlags)
@@ -1196,7 +1195,8 @@ namespace VRageMath
                             {
                                 if (node.IsLeaf())
                                 {
-                                    if (node.Aabb.ProjectedArea(projectionDir) * projectionFactor > ignoreThr)
+                                    double size = node.Aabb.Size.Length();
+                                    if (size * projectionFactor > ignoreThr)
                                     {
                                         uint flags = GetUserFlag(nodeId);
                                         if ((flags & requiredFlags) == requiredFlags)
@@ -1329,6 +1329,46 @@ namespace VRageMath
 
                 PushStack(stack);
             }
+        }
+
+        public bool OverlapsAnyLeafBoundingBox(ref BoundingBoxD bbox)
+        {
+            if (m_root == NullNode)
+                return false;
+
+            using (m_rwLock.AcquireSharedUsing())
+            {
+                Stack<int> stack = GetStack();
+                stack.Push(m_root);
+
+                while (stack.Count > 0)
+                {
+                    int nodeId = stack.Pop();
+                    if (nodeId == NullNode)
+                    {
+                        continue;
+                    }
+
+                    DynamicTreeNode node = m_nodes[nodeId];
+
+                    if (node.Aabb.Intersects(bbox))
+                    {
+                        if (node.IsLeaf())
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            stack.Push(node.Child1);
+                            stack.Push(node.Child2);
+                        }
+                    }
+                }
+
+                PushStack(stack);
+            }
+
+            return false;
         }
 
         /**
@@ -1466,7 +1506,6 @@ namespace VRageMath
             m_root = NullNode;
 
             m_nodeCount = 0;
-            m_insertionCount = 0;
 
             // Build a linked list for the free list.
             for (int i = 0; i < m_nodeCapacity - 1; ++i)
@@ -1484,17 +1523,20 @@ namespace VRageMath
         {
             using (m_rwLock.AcquireExclusiveUsing())
             {
-                lock (m_StackCacheCollection)
-                {
-                    foreach (var item in m_StackCacheCollection)
-                    {
-                        item.Clear();
-                    }
+                ResetNodes();
+            }
+        }
 
-                    m_StackCacheCollection.Clear();
+        public static void Dispose()
+        {
+            lock (m_StackCacheCollection)
+            {
+                foreach (var item in m_StackCacheCollection)
+                {
+                    item.Clear();
                 }
 
-                ResetNodes();
+                m_StackCacheCollection.Clear();
             }
         }
     }

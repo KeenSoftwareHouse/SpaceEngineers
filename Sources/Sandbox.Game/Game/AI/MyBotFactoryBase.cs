@@ -1,19 +1,19 @@
-﻿using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Game.AI.Actions;
 using Sandbox.Game.AI.Logic;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using VRage.Game;
+using VRage.Game.AI;
 using VRage.Game.Common;
 using VRage.ObjectBuilders;
 using VRageMath;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace Sandbox.Game.AI
 {
@@ -57,6 +57,10 @@ namespace Sandbox.Game.AI
             }
         }
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private bool m_botDataLoaded = false;
+#endif // XB1
+
         protected Dictionary<string, Type> m_TargetTypeByName;
         protected Dictionary<string, BehaviorData> m_botDataByBehaviorType;
         protected Dictionary<string, LogicData> m_logicDataByBehaviorSubtype;
@@ -71,12 +75,16 @@ namespace Sandbox.Game.AI
         {
             m_objectFactory = new MyObjectFactory<MyBotTypeAttribute, IMyBot>();
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            m_objectFactory.RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             var baseAssembly = Assembly.GetAssembly(typeof(MyAgentBot));
             m_objectFactory.RegisterFromAssembly(baseAssembly);
             m_objectFactory.RegisterFromAssembly(VRage.Plugins.MyPlugins.GameAssembly);
 
             foreach (var plugin in VRage.Plugins.MyPlugins.Plugins)
                 m_objectFactory.RegisterFromAssembly(plugin.GetType().Assembly);
+#endif // !XB1
         }
 
         public MyBotFactoryBase()
@@ -88,17 +96,29 @@ namespace Sandbox.Game.AI
             m_tmpTypeArray = new Type[1] { null };
             m_tmpConstructorParamArray = new object[1] { null };
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            LoadBotData(MyAssembly.AllInOneAssembly);
+#else // !XB1
             var baseAssembly = Assembly.GetAssembly(typeof(MyAgentBot));
             LoadBotData(baseAssembly);
             LoadBotData(VRage.Plugins.MyPlugins.GameAssembly);
 
             foreach (var plugin in VRage.Plugins.MyPlugins.Plugins)
                 LoadBotData(plugin.GetType().Assembly);
+#endif // !XB1
         }
 
         protected void LoadBotData(Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_botDataLoaded == false);
+            if (m_botDataLoaded == true)
+                return;
+            m_botDataLoaded = true;
+            var allTypes = MyAssembly.GetTypes();
+#else // !XB1
             var allTypes = assembly.GetTypes();
+#endif // !XB1
 
             foreach (var type in allTypes)
             {

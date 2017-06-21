@@ -23,7 +23,6 @@ namespace Sandbox.Game.Components
     {
         // TODO: Move this to definition..
         private int m_lastUpdateTime;
-        private bool m_productionEnabled;
         private MyEntity3DSoundEmitter m_soundEmitter;
 
         public MySoundPair ActionSound { get; set; }
@@ -50,16 +49,16 @@ namespace Sandbox.Game.Components
                 {
                     var classDefinition = MyDefinitionManager.Static.GetBlueprintClass(blueprintClass);
                     System.Diagnostics.Debug.Assert(classDefinition != null, blueprintClass + " blueprint class definition was not found.");
-                    m_blueprintClasses.Add(classDefinition);
+                    if (classDefinition != null)
+                    {
+                        m_blueprintClasses.Add(classDefinition);
+                    }
                 }
             }
         }
 
         protected override void UpdateProduction_Implementation()
         {
-            if (!m_productionEnabled)
-                return;
-
             if (IsProducing)
             {
                 UpdateCurrentItem();
@@ -124,7 +123,7 @@ namespace Sandbox.Game.Components
             // TODO: Initialization
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_CraftingComponentBasic;           
 
@@ -188,8 +187,6 @@ namespace Sandbox.Game.Components
                 entity.NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
             }
 
-            m_productionEnabled = true;
-
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
 
@@ -197,9 +194,20 @@ namespace Sandbox.Game.Components
         {
             base.StopOperating_Implementation();
 
-            m_productionEnabled = false;
             if (m_soundEmitter != null) 
                 m_soundEmitter.StopSound(true);
+        }
+
+        public override void OnAddedToContainer()
+        {
+            base.OnAddedToContainer();
+
+            var entity = Entity as MyEntity;
+
+            if (entity != null)
+            {
+                entity.NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            }
         }
     }
 }

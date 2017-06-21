@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
 using VRage.Collections;
+using VRage.Profiler;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -72,11 +72,9 @@ namespace Sandbox.Game.Entities
             return ret;
         }
 
-        public List<MyVoxelBase> GetAllOverlappingWithSphere(ref BoundingSphereD sphere)
+        public void GetAllOverlappingWithSphere(ref BoundingSphereD sphere, List<MyVoxelBase> voxels)
         {
-            List<MyVoxelBase> voxels = new List<MyVoxelBase>();
             MyGamePruningStructure.GetAllVoxelMapsInSphere(ref sphere, voxels);
-            return voxels;
         }
 
         public void Add(MyVoxelBase voxelMap)
@@ -151,7 +149,7 @@ namespace Sandbox.Game.Entities
             byte[] compressedData;
             foreach (var voxelMap in m_voxelMapsByEntityId.Values)
             {
-                if(includeChanged == false && voxelMap.ContentChanged)
+                if (includeChanged == false && (voxelMap.ContentChanged || voxelMap.BeforeContentChanged))
                 {
                     continue;
                 }

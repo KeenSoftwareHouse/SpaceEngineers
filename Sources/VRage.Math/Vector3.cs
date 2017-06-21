@@ -6,6 +6,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace VRageMath
 {
@@ -13,7 +17,12 @@ namespace VRageMath
     /// Defines a vector with three components.
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]
+    [Unsharper.UnsharperDisableReflection()]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct Vector3 : IEquatable<Vector3>
+#else // XB1
+    public struct Vector3 : IEquatable<Vector3>, IMySetGetMemberDataHelper
+#endif // XB1
     {
         public static Vector3 Zero = new Vector3();
         public static Vector3 One = new Vector3(1f, 1f, 1f);
@@ -269,6 +278,28 @@ namespace VRageMath
             return vector3;
         }
 
+        public void Divide(float divider)
+        {
+            float num = 1f / divider;
+            X *= num;
+            Y *= num;
+            Z *= num;
+        }
+
+        public void Multiply(float scale)
+        {
+            X *= scale;
+            Y *= scale;
+            Z *= scale;
+        }
+
+        public void Add(Vector3 other)
+        {
+            X += other.X;
+            Y += other.Y;
+            Z += other.Z;
+        }
+
         public static Vector3 Abs(Vector3 value)
         {
             return new Vector3(Math.Abs(value.X), Math.Abs(value.Y), Math.Abs(value.Z));
@@ -377,6 +408,11 @@ namespace VRageMath
                 return (double)this.Z == (double)other.Z;
             else
                 return false;
+        }
+
+        public bool Equals(Vector3 other,float epsilon)
+        {
+            return Math.Abs(this.X - other.X) < epsilon && Math.Abs(this.Y - other.Y) < epsilon && Math.Abs(this.Z - other.Z) < epsilon;
         }
 
         /// <summary>
@@ -845,6 +881,34 @@ namespace VRageMath
         }
 
         /// <summary>
+        /// Separates minimal and maximal values of any two input vectors
+        /// </summary>
+        /// <param name="min">minimal values of the two vectors</param>
+        /// <param name="max">maximal values of the two vectors</param>
+        public static void MinMax(ref Vector3 min, ref Vector3 max)
+        {
+            float tmp;
+            if (min.X > max.X)
+            {
+                tmp = min.X;
+                min.X = max.X;
+                max.X = tmp;
+            }
+            if (min.Y > max.Y)
+            {
+                tmp = min.Y;
+                min.Y = max.Y;
+                max.Y = tmp;
+            }
+            if (min.Z > max.Z)
+            {
+                tmp = min.Z;
+                min.Z = max.Z;
+                max.Z = tmp;
+            }
+        }
+
+        /// <summary>
         /// Returns a vector that is equal to the projection of the input vector to the coordinate axis that corresponds
         /// to the original vector's largest value.
         /// </summary>
@@ -994,6 +1058,25 @@ namespace VRageMath
             result.X = (float)((double)value1.X + (double)amount1 * ((double)value2.X - (double)value1.X) + (double)amount2 * ((double)value3.X - (double)value1.X));
             result.Y = (float)((double)value1.Y + (double)amount1 * ((double)value2.Y - (double)value1.Y) + (double)amount2 * ((double)value3.Y - (double)value1.Y));
             result.Z = (float)((double)value1.Z + (double)amount1 * ((double)value2.Z - (double)value1.Z) + (double)amount2 * ((double)value3.Z - (double)value1.Z));
+        }
+
+        /// <summary>
+        /// Compute barycentric coordinates (u, v, w) for point p with respect to triangle (a, b, c)
+        /// From : Real-Time Collision Detection, Christer Ericson, CRC Press
+        /// 3.4 Barycentric Coordinates
+        /// </summary>
+        public static void Barycentric(Vector3 p, Vector3 a, Vector3 b, Vector3 c, out float u, out float v, out float w)
+        {
+            Vector3 v0 = b - a, v1 = c - a, v2 = p - a;
+            float d00 = Dot(v0, v0);
+            float d01 = Dot(v0, v1);
+            float d11 = Dot(v1, v1);
+            float d20 = Dot(v2, v0);
+            float d21 = Dot(v2, v1);
+            float denom = d00 * d11 - d01 * d01;
+            v = (d11 * d20 - d01 * d21) / denom;
+            w = (d00 * d21 - d01 * d20) / denom;
+            u = 1.0f - v - w;
         }
 
         /// <summary>
@@ -1162,11 +1245,41 @@ namespace VRageMath
                      matrix.Translation;
         }
 
+        /**
+         * Transform the provided vector only about the rotation, scale and translation terms of a matrix.
+         * 
+         * This effectively treats the matrix as a 3x4 matrix and the input vector as a 4 dimensional vector with unit W coordinate.
+         */
+        public static void TransformNoProjection(ref Vector3 vector, ref Matrix matrix, out Vector3 result)
+        {
+            float x = (vector.X * matrix.M11 + vector.Y * matrix.M21 + vector.Z * matrix.M31) + matrix.M41;
+            float y = (vector.X * matrix.M12 + vector.Y * matrix.M22 + vector.Z * matrix.M32) + matrix.M42;
+            float z = (vector.X * matrix.M13 + vector.Y * matrix.M23 + vector.Z * matrix.M33) + matrix.M43;
+
+            result.X = x;
+            result.Y = y;
+            result.Z = z;
+        }
+
+        /**
+         * Transform the provided vector only about the rotation and scale terms of a matrix.
+         */
+        public static void RotateAndScale(ref Vector3 vector, ref Matrix matrix, out Vector3 result)
+        {
+            float x = (vector.X * matrix.M11 + vector.Y * matrix.M21 + vector.Z * matrix.M31);
+            float y = (vector.X * matrix.M12 + vector.Y * matrix.M22 + vector.Z * matrix.M32);
+            float z = (vector.X * matrix.M13 + vector.Y * matrix.M23 + vector.Z * matrix.M33);
+
+            result.X = x;
+            result.Y = y;
+            result.Z = z;
+        }
 
         // Transform (x, y, z, 1) by matrix, project result back into w=1.
         //D3DXVECTOR3* WINAPI D3DXVec3TransformCoord
         //  ( D3DXVECTOR3 *pOut, CONST D3DXVECTOR3 *pV, CONST D3DXMATRIX *pM );
 
+#if NATIVE_SUPPORT
         /// <summary>Native Interop Function</summary>
         [DllImport("d3dx9_43.dll", EntryPoint = "D3DXVec3TransformCoord", CallingConvention = CallingConvention.StdCall, PreserveSig = true), SuppressUnmanagedCodeSecurityAttribute]
         private unsafe extern static Vector3* D3DXVec3TransformCoord_([Out] Vector3* pOut, [In] Vector3* pV,[In] Matrix* pM);
@@ -1182,7 +1295,7 @@ namespace VRageMath
                     D3DXVec3TransformCoord_(resultRef_, posRef_, matRef_);
             }
         }
-
+#endif
 
 
 
@@ -1276,6 +1389,12 @@ namespace VRageMath
             result = - normal.X * Base6Directions.GetVector(orientation.Left)
                      + normal.Y * Base6Directions.GetVector(orientation.Up)
                      - normal.Z * Base6Directions.GetVector(orientation.Forward);
+        }
+
+        public static Vector3 TransformNormal(Vector3 normal, ref Matrix matrix)
+        {
+            TransformNormal(ref normal, ref matrix, out normal);
+            return normal;
         }
 
         /// <summary>
@@ -1774,6 +1893,21 @@ namespace VRageMath
         {
             return new Vector3(Math.Round(v.X, numDecimals), Math.Round(v.Y, numDecimals), Math.Round(v.Z, numDecimals));
         }
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name == "X")
+                return X;
+            if (m.Name == "Y")
+                return Y;
+            if (m.Name == "Z")
+                return Z;
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 
     public static class NullableVector3Extensions

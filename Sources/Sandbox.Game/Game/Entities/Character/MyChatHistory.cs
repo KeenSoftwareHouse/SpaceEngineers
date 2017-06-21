@@ -457,8 +457,10 @@ namespace Sandbox.Game.Entities.Character
 
     public class MyGlobalChatItem
     {
-        public string Text;
-        public long IdentityId;
+        public string Text = "";
+        public long IdentityId = 0;
+        public string Author = "";
+        public string AuthorFont = MyFontEnum.Blue;
 
         public MyGlobalChatItem()
         {
@@ -473,7 +475,17 @@ namespace Sandbox.Game.Entities.Character
         public void Init(MyObjectBuilder_GlobalChatItem chatBuilder)
         {
             Text = chatBuilder.Text;
-            IdentityId = MyEntityIdentifier.ConstructId(MyEntityIdentifier.ID_OBJECT_TYPE.IDENTITY, chatBuilder.IdentityIdUniqueNumber);
+            AuthorFont = chatBuilder.Font;
+            if (chatBuilder.IdentityIdUniqueNumber == 0)
+            {
+                IdentityId = 0;
+                Author = chatBuilder.Author;
+            }
+            else
+            {
+                IdentityId = MyEntityIdentifier.ConstructId(MyEntityIdentifier.ID_OBJECT_TYPE.IDENTITY, chatBuilder.IdentityIdUniqueNumber);
+                Author = "";
+            }
         }
 
         public MyObjectBuilder_GlobalChatItem GetObjectBuilder()
@@ -481,7 +493,17 @@ namespace Sandbox.Game.Entities.Character
             var objectBuilder = new MyObjectBuilder_GlobalChatItem();
 
             objectBuilder.Text = Text;
-            objectBuilder.IdentityIdUniqueNumber = MyEntityIdentifier.GetIdUniqueNumber(IdentityId);
+            objectBuilder.Font = AuthorFont;
+            if (IdentityId == 0)
+            {
+                objectBuilder.IdentityIdUniqueNumber = 0;
+                objectBuilder.Author = Author;
+            }
+            else
+            {
+                objectBuilder.IdentityIdUniqueNumber = MyEntityIdentifier.GetIdUniqueNumber(IdentityId);
+                objectBuilder.Author = "";
+            }
         
             return objectBuilder;
         }

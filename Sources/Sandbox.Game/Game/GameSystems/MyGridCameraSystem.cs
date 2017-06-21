@@ -9,14 +9,17 @@ using Sandbox.Game.World;
 using System.Collections.Generic;
 using System.Linq;
 using Sandbox.Game.EntityComponents;
+using VRage.Audio;
 using VRage.Game;
+using VRage.Game.Components;
 using VRage.Input;
 using VRage.Utils;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridCameraSystem
+    public class MyGridCameraSystem
     {
         private MyCubeGrid m_grid;
         private readonly List<MyCameraBlock> m_cameras;
@@ -34,6 +37,8 @@ namespace Sandbox.Game.GameSystems
         {
             get { return m_currentCamera; }
         }
+
+        public static IMyCameraController PreviousNonCameraBlockController { get; set; }
 
         private static MyHudCameraOverlay m_cameraOverlay;
         static MyGridCameraSystem()
@@ -100,7 +105,12 @@ namespace Sandbox.Game.GameSystems
                 MyHudCameraOverlay.Enabled = false;
             }
 
-            string shipName = MyAntennaSystem.Static.GetLogicalGroupRepresentative(m_grid).DisplayName ?? "";
+            //By Gregory: Temporary fix cause Session component for antenna system hasn't been called yet and Static isn't assigned yet at game load(see BeforeStart function).
+            string shipName = "";
+            if (MyAntennaSystem.Static != null)
+            {
+                shipName = MyAntennaSystem.Static.GetLogicalGroupRepresentative(m_grid).DisplayName ?? "";
+            }
             string cameraName = newCamera.DisplayNameText;
             
             MyHud.CameraInfo.Enable(shipName, cameraName);
@@ -108,16 +118,12 @@ namespace Sandbox.Game.GameSystems
             m_ignoreNextInput = true;
 
             MySessionComponentVoxelHand.Static.Enabled = false;
-            MyCubeBuilder.Static.Deactivate();
+            MySession.Static.GameFocusManager.Clear();
+            //MyCubeBuilder.Static.Deactivate();
         }
 
         public void UpdateBeforeSimulation()
         {
-            if (!MyFakes.ENABLE_CAMERA_BLOCK)
-            {
-                return;
-            }
-
             if (m_currentCamera == null)
             {
                 return;
@@ -140,12 +146,12 @@ namespace Sandbox.Game.GameSystems
                 return;
             }
 
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SWITCH_LEFT))
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SWITCH_LEFT) && MyGuiScreenChat.Static == null) //GK: Make sure we are not in chat screen
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                 SetPrev();
             }
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SWITCH_RIGHT))
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SWITCH_RIGHT) && MyGuiScreenChat.Static == null) //GK: Make sure we are not in chat screen
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                 SetNext();
@@ -159,10 +165,6 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation10()
         {
-            if (!MyFakes.ENABLE_CAMERA_BLOCK)
-            {
-                return;
-            }
             if (m_currentCamera != null)
             {
                 if (!CameraIsInRangeAndPlayerHasAccess(m_currentCamera))
@@ -202,9 +204,21 @@ namespace Sandbox.Game.GameSystems
         {
             ResetCurrentCamera();
             //Can be null when closing the game
-            if (MySession.Static.LocalCharacter != null)
+            bool switched = false;
+            if (PreviousNonCameraBlockController != null)
             {
-                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter as MyEntity);
+                MyEntity entity = PreviousNonCameraBlockController as MyEntity;
+                if (entity != null && !entity.Closed)
+                {
+                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, entity);
+                    PreviousNonCameraBlockController = null;
+                    switched = true;
+                }
+            }
+
+            if (!switched && MySession.Static.LocalCharacter != null)
+            {
+                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter);
             }
             DisableCameraEffects();
         }
@@ -219,9 +233,11 @@ namespace Sandbox.Game.GameSystems
 
         private void ResetCurrentCamera()
         {
-            m_currentCamera.OnExitView();
-            
-            m_currentCamera = null;
+            if (m_currentCamera != null)
+            {
+                m_currentCamera.OnExitView();
+                m_currentCamera = null;
+            }
         }
 
         private void SetNext()
@@ -358,11 +374,6 @@ namespace Sandbox.Game.GameSystems
 
         public void PrepareForDraw()
         {
-            if (!MyFakes.ENABLE_CAMERA_BLOCK)
-            {
-                return;
-            }
-
             if (m_currentCamera == null)
             {
                 return;

@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using VRageMath;
 using VRage.ModAPI;
 using System.Diagnostics;
+using VRage.Game.Entity;
+using VRage.Game.ObjectBuilders.Components;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 
 namespace VRage.Game.Components
 {
+    [MyComponentBuilder(typeof(MyObjectBuilder_HierarchyComponentBase))]
     public class MyHierarchyComponentBase : MyEntityComponentBase
     {
         protected List<MyHierarchyComponentBase> m_children = new List<MyHierarchyComponentBase>();
+        protected readonly List<MyEntity> m_deserializedEntities = new List<MyEntity>();
+
+        public event Action<IMyEntity> OnChildRemoved;
 
         /// <summary>
         /// Return top most parent of this entity
@@ -95,6 +102,13 @@ namespace VRage.Game.Components
             //MyEntities.Remove(child);  // if it's already in the world, remove it
 
             MyHierarchyComponentBase childHierarchy = child.Components.Get<MyHierarchyComponentBase>();
+
+            if (m_children.Contains(childHierarchy))
+            {
+                Debug.Fail("The child is already in the hierarchy.");
+                return;
+            }
+
             childHierarchy.Parent = this;
 
             if (preserveWorldPos)
@@ -159,6 +173,9 @@ namespace VRage.Game.Components
 
             if (child.InScene)
                 child.OnRemovedFromScene(this);
+
+            if (OnChildRemoved != null)
+                OnChildRemoved(child);
         }
         public void GetChildrenRecursive(HashSet<IMyEntity> result)
         {
@@ -187,6 +204,65 @@ namespace VRage.Game.Components
             m_parent = null;
 
             base.OnBeforeRemovedFromContainer();
+        }
+
+        public override bool IsSerialized()
+        {
+            return true;
+        }
+
+        public override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+
+            foreach (var child in m_children)
+            {
+                if (!child.Entity.InScene)
+                {
+                    child.Entity.OnAddedToScene(Container.Entity);
+                }
+            }
+        }
+
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
+        {
+            var ob = new MyObjectBuilder_HierarchyComponentBase();
+
+            foreach (var child in Children)
+            {
+                //IMPORTANT - entities that are supposed to be saved in hierarchy should be saved ONLY in hierarchy
+                if (child.Entity.Save)
+                {
+                    ob.Children.Add(child.Entity.GetObjectBuilder(copy));
+                }
+            }
+            // Dont serialize when empty
+            return ob.Children.Count > 0 ? ob : null;
+        }
+
+        public override void Deserialize(MyObjectBuilder_ComponentBase builder)
+        {
+            base.Deserialize(builder);
+            var ob = builder as MyObjectBuilder_HierarchyComponentBase;
+
+            if (ob != null)
+            {
+                m_deserializedEntities.Clear();
+                foreach (var child in ob.Children)
+                {
+                    //IMPORTANT - entities that are supposed to be saved in hierarchy should be saved ONLY in hierarchy
+                    if (!MyEntityIdentifier.ExistsById(child.EntityId))
+                    {
+                        var childEntity = MyEntity.MyEntitiesCreateFromObjectBuilderExtCallback(child, true);
+                        m_deserializedEntities.Add(childEntity);
+                    }
+                }
+
+                foreach (var deserializedEntity in m_deserializedEntities)
+                {
+                    AddChild(deserializedEntity, true, false);
+                }
+            }
         }
     }
 }

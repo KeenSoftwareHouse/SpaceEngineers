@@ -1,17 +1,15 @@
 ﻿#region Using
 
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
 using System.Collections.Generic;
 using System.Diagnostics;
-using VRage.Game;
+using VRage;
 using VRage.Game.Models;
-using VRage.Import;
 using VRageMath;
 using VRageRender;
+using VRageRender.Import;
+using VRageRender.Messages;
 using ModelId = System.Int32;
 
 
@@ -23,19 +21,22 @@ namespace Sandbox.Game.Entities.Cube
     {
         private class MyBuilderInstanceData
         {
-            public ModelId Model;
             public MyInstanceInfo InstanceInfo = new MyInstanceInfo(MyInstanceFlagsEnum.ShowLod1 | MyInstanceFlagsEnum.EnableColorMask, float.MaxValue);
-            public List<MyCubeInstanceData> InstanceData = new List<MyCubeInstanceData>();
+            //public List<MyCubeInstanceData> InstanceData = new List<MyCubeInstanceData>();
+            public List<MyInstanceData> InstanceData = new List<MyInstanceData>();
+            
         }
 
         private Dictionary<ModelId, MyBuilderInstanceData> m_instanceParts = new Dictionary<ModelId, MyBuilderInstanceData>();
         private uint m_instanceBufferId = MyRenderProxy.RENDER_ID_UNASSIGNED;
-        private List<MyCubeInstanceData> m_tmpInstanceData = new List<MyCubeInstanceData>(); // Merge instance data
+        //private List<MyCubeInstanceData> m_tmpInstanceData = new List<MyCubeInstanceData>(); // Merge instance data
+        private MyInstanceData [] m_instanceDataArray;
+        private List<MyInstanceData> m_tmpInstanceData = new List<MyInstanceData>(); // Merge instance data
         private Dictionary<ModelId, MyRenderInstanceInfo> m_instanceInfo = new Dictionary<ModelId, MyRenderInstanceInfo>();
         private Dictionary<ModelId, uint> m_instanceGroupRenderObjects = new Dictionary<ModelId, uint>();
         private BoundingBox m_cubeBuilderAABB;
 
-        private float Transparency = (MyFakes.ENABLE_TRANSPARENT_CUBE_BUILDER) ? 0.25f : 0.0f;
+        private float Transparency = (MyFakes.ENABLE_TRANSPARENT_CUBE_BUILDER) ? 0.5f : 0.0f;
 
 
 
@@ -43,13 +44,13 @@ namespace Sandbox.Game.Entities.Cube
         {
             foreach (var renderObject in m_instanceGroupRenderObjects)
             {
-                VRageRender.MyRenderProxy.RemoveRenderObject(renderObject.Value);
+                MyRenderProxy.RemoveRenderObject(renderObject.Value);
             }
             m_instanceGroupRenderObjects.Clear();
 
             if (m_instanceBufferId != MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
-                VRageRender.MyRenderProxy.RemoveRenderObject(m_instanceBufferId);
+                MyRenderProxy.RemoveRenderObject(m_instanceBufferId);
                 m_instanceBufferId = MyRenderProxy.RENDER_ID_UNASSIGNED;
             }
         }
@@ -74,48 +75,49 @@ namespace Sandbox.Game.Entities.Cube
             if (!m_instanceParts.TryGetValue(model, out builderInstanceData))
             {
                 builderInstanceData = new MyBuilderInstanceData();
-                builderInstanceData.Model = model;
                 m_instanceParts.Add(model, builderInstanceData);
             }
 
-            if (bones == null)
+            //if (bones == null)
+            //{
+            //    builderInstanceData.InstanceData.Add(new MyCubeInstanceData()
+            //    {
+            //        ColorMaskHSV = new Vector4(MyPlayer.SelectedColor, 0),
+            //        EnableSkinning = false,
+            //        LocalMatrix = localMatrix
+            //    });
+            //}
+            //else
+            //{
+            //    var cubeInstance = new MyCubeInstanceData()
+            //    {
+            //        ColorMaskHSV = new Vector4(MyPlayer.SelectedColor, 0),
+            //        EnableSkinning = true,
+            //        LocalMatrix = localMatrix,
+            //    };
+
+            //    cubeInstance.BoneRange = gridSize;
+
+            //    for (int i = 0; i < 9; i++)
+            //    {
+            //        cubeInstance[i] = bones[i];
+            //    }
+
+            //    builderInstanceData.InstanceData.Add(cubeInstance);
+            //}
+
+            builderInstanceData.InstanceData.Add(new MyInstanceData()
             {
-                builderInstanceData.InstanceData.Add(new MyCubeInstanceData()
-                {
-                    ColorMaskHSV = new Vector4(MyPlayer.SelectedColor, 0),
-                    EnableSkinning = false,
-                    LocalMatrix = localMatrix
-                });
-            }
-            else
-            {
-                var cubeInstance = new MyCubeInstanceData()
-                {
-					ColorMaskHSV = new Vector4(MyPlayer.SelectedColor, 0),
-                    EnableSkinning = true,
-                    LocalMatrix = localMatrix,
-                };
-
-                cubeInstance.BoneRange = gridSize;
-
-                for (int i = 0; i < 9; i++)
-                {
-                    cubeInstance[i] = bones[i];
-                }
-
-                builderInstanceData.InstanceData.Add(cubeInstance);
-            }
-
-            m_cubeBuilderAABB = m_cubeBuilderAABB.Include(
-                new BoundingBox(new Vector3(-MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large)),
-                                new Vector3(MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large))).Transform(localMatrix));
+                ColorMaskHSV = new VRageMath.PackedVector.HalfVector4(new Vector4(MyPlayer.SelectedColor, 0)),
+                LocalMatrix = localMatrix
+            });
         }
 
         public void UpdateRenderInstanceData()
         {
             if (m_instanceBufferId == MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
-                m_instanceBufferId = MyRenderProxy.CreateRenderInstanceBuffer("Cube builder instance buffer", MyRenderInstanceBufferType.Cube);
+                m_instanceBufferId = MyRenderProxy.CreateRenderInstanceBuffer("Cube builder instance buffer", MyRenderInstanceBufferType.Generic);
             }
 
             // Merge data into one buffer
@@ -128,14 +130,16 @@ namespace Sandbox.Game.Entities.Cube
                 m_tmpInstanceData.AddList(part.Value.InstanceData);
             }
 
+            m_instanceDataArray = m_tmpInstanceData.ToArray();
             if (m_tmpInstanceData.Count > 0)
             {
-                MyRenderProxy.UpdateRenderCubeInstanceBuffer(m_instanceBufferId, m_tmpInstanceData, (int)(m_tmpInstanceData.Count * 1.2f));
+               // MyRenderProxy.UpdateRenderCubeInstanceBuffer(m_instanceBufferId, m_tmpInstanceData, (int)(m_tmpInstanceData.Count * 1.2f));
+                MyRenderProxy.UpdateRenderInstanceBufferRange(m_instanceBufferId, m_instanceDataArray);
             }
             m_tmpInstanceData.Clear();
         }
 
-        public void UpdateRenderEntitiesData(MatrixD gridWorldMatrix, bool useTransparency)
+        public void UpdateRenderEntitiesData(MatrixD gridWorldMatrix, bool useTransparency, float rescale=1)
         {
             // Create/Remove/Update render objects
             foreach (var item in m_instanceInfo)
@@ -150,7 +154,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (!exists && hasAnyInstances)
                 {
                     var model = MyModel.GetById(item.Key);
-                    renderObjectId = VRageRender.MyRenderProxy.CreateRenderEntity(
+                    renderObjectId = MyRenderProxy.CreateRenderEntity(
                         "Cube builder, part: " + item.Key,
                         model,
                         MatrixD.Identity,
@@ -159,8 +163,9 @@ namespace Sandbox.Game.Entities.Cube
                         CullingOptions.Default,
                         Vector3.One,
 						MyPlayer.SelectedColor,
-                        useTransparency ? Transparency : 0,
-                        item.Value.MaxViewDistance
+                        dithering: useTransparency ? Transparency : 0,
+                        maxViewDistance: item.Value.MaxViewDistance,
+                        rescale: rescale
                     );
 
                     m_instanceGroupRenderObjects[item.Key] = renderObjectId;
@@ -168,9 +173,8 @@ namespace Sandbox.Game.Entities.Cube
                 else if (exists && !hasAnyInstances)
                 {
                     uint objectId = m_instanceGroupRenderObjects[item.Key];
-                    VRageRender.MyRenderProxy.RemoveRenderObject(objectId);
+                    MyRenderProxy.RemoveRenderObject(objectId);
                     m_instanceGroupRenderObjects.Remove(item.Key);
-                    renderObjectId = MyRenderProxy.RENDER_ID_UNASSIGNED;
                     continue;
                 }
 
@@ -178,7 +182,7 @@ namespace Sandbox.Game.Entities.Cube
                 {
 					MyRenderProxy.UpdateRenderEntity(renderObjectId, Color.White, MyPlayer.SelectedColor, useTransparency ? Transparency : 0);
                     MyRenderProxy.UpdateRenderObject(renderObjectId, ref gridWorldMatrix, false);
-                    MyRenderProxy.SetInstanceBuffer(renderObjectId, item.Value.InstanceBufferId, item.Value.InstanceStart, item.Value.InstanceCount, m_cubeBuilderAABB);
+                    MyRenderProxy.SetInstanceBuffer(renderObjectId, item.Value.InstanceBufferId, item.Value.InstanceStart, item.Value.InstanceCount, m_cubeBuilderAABB, m_instanceDataArray);
                 }
             }
         }

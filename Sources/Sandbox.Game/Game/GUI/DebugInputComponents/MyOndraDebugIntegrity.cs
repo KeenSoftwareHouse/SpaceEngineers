@@ -10,6 +10,7 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.GUI.DebugInputComponents
 {

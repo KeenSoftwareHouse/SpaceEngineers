@@ -10,7 +10,8 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_ThrustDefinition))]
     public class MyThrustDefinition : MyCubeBlockDefinition
     {
-	    public MyStringHash ResourceSinkGroup;
+        public MyStringHash ResourceSinkGroup;
+        public MyStringHash ThrusterType;
         public MyFuelConverterInfo FuelConverter;
 	    public float SlowdownFactor;
         public float ForceMagnitude;
@@ -55,6 +56,7 @@ namespace Sandbox.Definitions
             FuelConverter = thrustBuilder.FuelConverter;
 			SlowdownFactor = thrustBuilder.SlowdownFactor;
             ForceMagnitude = thrustBuilder.ForceMagnitude;
+            ThrusterType = MyStringHash.GetOrCompute(thrustBuilder.ThrusterType);
             MaxPowerConsumption = thrustBuilder.MaxPowerConsumption;
             MinPowerConsumption = thrustBuilder.MinPowerConsumption;
             FlameDamageLengthScale = thrustBuilder.FlameDamageLengthScale;

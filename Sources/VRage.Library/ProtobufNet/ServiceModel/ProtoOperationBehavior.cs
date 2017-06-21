@@ -1,4 +1,5 @@
-﻿#if FEAT_SERVICEMODEL && PLAT_XMLSERIALIZER && !NO_GENERICS
+﻿#if !XB1 // XB1_NOPROTOBUF
+#if FEAT_SERVICEMODEL && PLAT_XMLSERIALIZER && !NO_GENERICS
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -48,3 +49,4 @@ namespace ProtoBuf.ServiceModel
     }
 }
 #endif
+#endif // !XB1

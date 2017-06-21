@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿#if !XB1
+
+using System.Collections.Generic;
 
 namespace VRage.Input
 {
-    struct MyKeyboardState
+    public struct MyKeyboardState
     {   
         MyKeyboardBuffer m_buffer;
 
@@ -43,3 +45,5 @@ namespace VRage.Input
         }
     }
 }
+
+#endif

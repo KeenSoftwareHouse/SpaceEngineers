@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
@@ -77,7 +78,7 @@ namespace Sandbox.Game.Gui
 
             #region Add Revert, OK, Cancel and selection combobox
             var buttonSize = MyGuiControlButton.GetVisualStyle(MyGuiControlButtonStyleEnum.Default).NormalTexture.MinSizeGui;
-            float buttonsY = bottomCenter.Y - 110f / MyGuiConstants.GUI_OPTIMAL_SIZE.Y;
+            float buttonsY = bottomCenter.Y - 0.055f;
             var okButton = new MyGuiControlButton(
                 position: new Vector2(-buttonSize.X - 20f / MyGuiConstants.GUI_OPTIMAL_SIZE.X, buttonsY),
                 size: MyGuiConstants.MESSAGE_BOX_BUTTON_SIZE_SMALL,
@@ -107,6 +108,23 @@ namespace Sandbox.Game.Gui
             m_controlTypeList = new MyGuiControlCombobox(cBoxPosition);
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.General, MyCommonTexts.ControlTypeGeneral);
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.Navigation, MyCommonTexts.ControlTypeNavigation);
+
+            //by Gregory this is temporary for Medieval Engineers. Do not show Navigation2 screen if Navigation2 tag is not found
+            var DoNotAddNavigation2 = true;
+            foreach (var control in MyInput.Static.GetGameControlsList())
+            {
+                if (control.GetControlTypeEnum() == MyGuiControlTypeEnum.Navigation2)
+                {
+                    DoNotAddNavigation2 = false;
+                    break;
+                }
+            }
+
+            if (!DoNotAddNavigation2)
+            {
+                m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.Navigation2, MyCommonTexts.ControlTypeNavigation2);
+            }
+            
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.ToolsOrWeapons, MyCommonTexts.ControlTypeToolsOrWeapons);
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.ToolsOrWeapons2, MyCommonTexts.ControlTypeToolsOrWeapons2);
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.Systems1, MyCommonTexts.ControlTypeSystems1);
@@ -138,6 +156,7 @@ namespace Sandbox.Game.Gui
 
             AddControlsByType(MyGuiControlTypeEnum.General);
             AddControlsByType(MyGuiControlTypeEnum.Navigation);
+            AddControlsByType(MyGuiControlTypeEnum.Navigation2);
             AddControlsByType(MyGuiControlTypeEnum.Systems1);
             AddControlsByType(MyGuiControlTypeEnum.Systems2);
             AddControlsByType(MyGuiControlTypeEnum.Systems3);
@@ -341,21 +360,24 @@ namespace Sandbox.Game.Gui
                 m_joystickSensitivitySlider = new MyGuiControlSlider(
                     position: m_controlsOriginRight + multiplierSensitivity * MyGuiConstants.CONTROLS_DELTA + new Vector2(MyGuiConstants.COMBOBOX_MEDIUM_SIZE.X / 2.0f, 0),
                     minValue: 0.1f,
-                    maxValue: 6.0f);
+                    maxValue: 6.0f,
+                    defaultValue: MyInput.Static.GetJoystickSensitivity());
                 m_joystickSensitivitySlider.Value = MyInput.Static.GetJoystickSensitivity();
                 m_allControls[MyGuiControlTypeEnum.General].Add(m_joystickSensitivitySlider);
 
                 m_joystickExponentSlider = new MyGuiControlSlider(
                     position: m_controlsOriginRight + multiplierExponent * MyGuiConstants.CONTROLS_DELTA + new Vector2(MyGuiConstants.COMBOBOX_MEDIUM_SIZE.X / 2.0f, 0),
                     minValue: 1.0f,
-                    maxValue: 8.0f);
+                    maxValue: 8.0f,
+                    defaultValue: MyInput.Static.GetJoystickExponent());
                 m_joystickExponentSlider.Value = MyInput.Static.GetJoystickExponent();
                 m_allControls[MyGuiControlTypeEnum.General].Add(m_joystickExponentSlider);
 
                 m_joystickDeadzoneSlider = new MyGuiControlSlider(
                     position: m_controlsOriginRight + multiplierDeadzone * MyGuiConstants.CONTROLS_DELTA + new Vector2(MyGuiConstants.COMBOBOX_MEDIUM_SIZE.X / 2.0f, 0),
                     minValue: 0.0f,
-                    maxValue: 0.5f);
+                    maxValue: 0.5f,
+                    defaultValue: MyInput.Static.GetJoystickDeadzone());
                 m_joystickDeadzoneSlider.Value = MyInput.Static.GetJoystickDeadzone();
                 m_allControls[MyGuiControlTypeEnum.General].Add(m_joystickDeadzoneSlider);
             }

@@ -3,6 +3,7 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Localization;
+using Sandbox.Game.SessionComponents.Clipboard;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
@@ -11,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Sandbox.Game.Screens;
+using Sandbox.Game.World;
 using VRage;
 using VRage;
 using VRage.FileSystem;
@@ -84,7 +87,7 @@ namespace Sandbox.Game.Gui
 
             CreateDebugButton(usableWidth, MyCommonTexts.ScreenDebugOfficial_ReloadTextures, ReloadTextures);
             CreateDebugButton(usableWidth, MyCommonTexts.ScreenDebugOfficial_ReloadModels, ReloadModels);
-            CreateDebugButton(usableWidth, MyCommonTexts.ScreenDebugOfficial_SavePrefab, SavePrefab, MyCubeBuilder.Static != null ? MyCubeBuilder.Static.Clipboard.HasCopiedGrids() : false, MyCommonTexts.ToolTipSaveShip);
+            CreateDebugButton(usableWidth, MyCommonTexts.ScreenDebugOfficial_SavePrefab, SavePrefab, MyClipboardComponent.Static != null ? MyClipboardComponent.Static.Clipboard.HasCopiedGrids() : false, MyCommonTexts.ToolTipSaveShip);
 
             // Don't enable the SE bot debugging in official builds yet
             if (MyPerGameSettings.Game == GameEnum.ME_GAME || !MyFinalBuildConstants.IS_OFFICIAL)
@@ -189,7 +192,14 @@ namespace Sandbox.Game.Gui
         {
             base.HandleInput(receivedFocusInThisUpdate);
 
-            if (MyInput.Static.IsNewKeyPressed(MyKeys.F12) || MyInput.Static.IsNewKeyPressed(MyKeys.F11) || MyInput.Static.IsNewKeyPressed(MyKeys.F10))
+            if (MyInput.Static.IsNewKeyPressed(MyKeys.F11) && MySession.Static.IsServer)
+            {
+                // Show Scripting tools
+                MyScreenManager.AddScreen(new MyGuiScreenScriptingTools());
+                CloseScreen();
+            }
+
+            if (MyInput.Static.IsNewKeyPressed(MyKeys.F12) || MyInput.Static.IsNewKeyPressed(MyKeys.F10))
             {
                 this.CloseScreen();
             }
@@ -221,7 +231,7 @@ namespace Sandbox.Game.Gui
 
         private void SavePrefab(MyGuiControlButton obj)
         {
-            string name = MyUtils.StripInvalidChars(MyCubeBuilder.Static.Clipboard.CopiedGridsName);
+            string name = MyUtils.StripInvalidChars(MyClipboardComponent.Static.Clipboard.CopiedGridsName);
             string filePath = Path.Combine(MyFileSystem.UserDataPath, "Export", name + ".sbc");
             int index = 1;
             try
@@ -231,7 +241,7 @@ namespace Sandbox.Game.Gui
                     filePath = Path.Combine(MyFileSystem.UserDataPath, "Export", name + "_" + index + ".sbc");
                     index++;
                 }
-                MyCubeBuilder.Static.Clipboard.SaveClipboardAsPrefab(name, filePath);
+                MyClipboardComponent.Static.Clipboard.SaveClipboardAsPrefab(name, filePath);
             }
             catch (Exception e)
             {
@@ -241,6 +251,7 @@ namespace Sandbox.Game.Gui
 
         private void CopyErrorLogToClipboard(MyGuiControlButton obj)
         {
+#if !XB1
             StringBuilder text = new StringBuilder();
 
             if (MyDefinitionErrors.GetErrors().Count() == 0)
@@ -257,6 +268,9 @@ namespace Sandbox.Game.Gui
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             thread.Join();
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
         }
     }
 }

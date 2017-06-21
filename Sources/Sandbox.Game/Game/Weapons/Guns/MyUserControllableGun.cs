@@ -18,6 +18,7 @@ using VRage;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game;
+using VRage.Sync;
 
 namespace Sandbox.Game.Weapons
 {
@@ -30,11 +31,19 @@ namespace Sandbox.Game.Weapons
 
         public MyUserControllableGun()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isShooting = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            CreateTerminalControls();
+
             m_isShooting.ValueChanged += (x) => ShootingChanged();
         }
 
-        static MyUserControllableGun()
+        protected override void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyUserControllableGun>())
+                return;
+            base.CreateTerminalControls();
             if (MyFakes.ENABLE_WEAPON_TERMINAL_CONTROL)
             {
                 var shootOnce = new MyTerminalControlButton<MyUserControllableGun>("ShootOnce", MySpaceTexts.Terminal_ShootOnce, MySpaceTexts.Blank, (b) => b.OnShootOncePressed());
@@ -67,6 +76,11 @@ namespace Sandbox.Game.Weapons
             return builder;
         }
 
+        public virtual bool IsStationary()
+        {
+            return false;
+        }
+
         void OnShootOncePressed()
         {
            SyncRotationAndOrientation();
@@ -77,6 +91,11 @@ namespace Sandbox.Game.Weapons
         public void ShootOncePressedEvent()
         {
             Shoot();
+        }
+
+        public void SetShooting(bool shooting)
+        {
+            OnShootPressed(shooting);
         }
 
         void OnShootPressed(bool isShooting)
@@ -166,6 +185,22 @@ namespace Sandbox.Game.Weapons
             {
                 EndShoot();
             }
+        }
+
+        public override void OnRemovedByCubeBuilder()
+        {
+            MyInventory inventory = this.GetInventory();
+            if(inventory != null)
+                ReleaseInventory(inventory);
+            base.OnRemovedByCubeBuilder();
+        }
+
+        public override void OnDestroy()
+        {
+            MyInventory inventory = this.GetInventory();
+            if (inventory != null)
+                ReleaseInventory(inventory);
+            base.OnDestroy();
         }
     }
 

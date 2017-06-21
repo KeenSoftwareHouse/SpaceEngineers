@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_MissionSM xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>Mission_Creative_01</Name>
+  <Cursors>
+    <MyObjectBuilder_MissionSMCursor>
+      <NodeName>WelcomeToCreativeMode</NodeName>
+    </MyObjectBuilder_MissionSMCursor>
+  </Cursors>
+  <Nodes>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="113" y="323" />
+      <Name>WelcomeToCreativeMode</Name>
+      <ScriptFilePath>Data\Scripts\CreativeIntroduction_WelcomeScript.vs</ScriptFilePath>
+      <ScriptClassName>CreativeIntroduction_WelcomeScript</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="436" y="320" />
+      <Name>PlaceBlock</Name>
+      <ScriptFilePath>Data\Scripts\CreativeIntroduction_PlaceBlock.vs</ScriptFilePath>
+      <ScriptClassName>CreativeIntroduction_PlaceBlock</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="746" y="320" />
+      <Name>Thrusters</Name>
+      <ScriptFilePath>D:\KeenSWH\branches\LukasVilim\Sources\SpaceEngineers\Content\Data\Scripts\CreativeIntroduction_Thrusters.vs</ScriptFilePath>
+      <ScriptClassName>CreativeIntroduction_Thrusters</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="1350" y="323" />
+      <Name>HangarDoor</Name>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="1571" y="318" />
+      <Name>FlyInstruction</Name>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="1795" y="313" />
+      <Name>ReachGoal</Name>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="1059" y="314" />
+      <Name>Gyroscope</Name>
+      <ScriptFilePath>Data\Scripts\CreativeIntroduction_Gyroscope.vs</ScriptFilePath>
+      <ScriptClassName>CreativeIntroduction_Gyroscope</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+  </Nodes>
+  <Transitions>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>WelcomeToCreativeMode</From>
+      <To>PlaceBlock</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>PlaceBlock</From>
+      <To>Thrusters</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>Thrusters</From>
+      <To>Gyroscope</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>HangarDoor</From>
+      <To>FlyInstruction</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>FlyInstruction</From>
+      <To>ReachGoal</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>Gyroscope</From>
+      <To>HangarDoor</To>
+    </MyObjectBuilder_MissionSMTransition>
+  </Transitions>
+</MyObjectBuilder_MissionSM>

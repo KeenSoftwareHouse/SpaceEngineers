@@ -568,11 +568,11 @@ namespace VRageMath
         /// <param name="matrix">A transformation matrix that might include translation, rotation, or uniform scaling. Note that BoundingSphereD.Transform will not return correct results if there are non-uniform scaling, shears, or other unusual transforms in this transformation matrix. This is because there is no way to shear or non-uniformly scale a sphere. Such an operation would cause the sphere to lose its shape as a sphere.</param>
         public BoundingSphereD Transform(MatrixD matrix)
         {
-            BoundingSphereD BoundingSphereD = new BoundingSphereD();
-            BoundingSphereD.Center = Vector3D.Transform(this.Center, matrix);
+            BoundingSphereD bsd = new BoundingSphereD();
+            bsd.Center = Vector3D.Transform(this.Center, matrix);
             double num = Math.Max((double)((double)matrix.M11 * (double)matrix.M11 + (double)matrix.M12 * (double)matrix.M12 + (double)matrix.M13 * (double)matrix.M13), Math.Max((double)((double)matrix.M21 * (double)matrix.M21 + (double)matrix.M22 * (double)matrix.M22 + (double)matrix.M23 * (double)matrix.M23), (double)((double)matrix.M31 * (double)matrix.M31 + (double)matrix.M32 * (double)matrix.M32 + (double)matrix.M33 * (double)matrix.M33)));
-            BoundingSphereD.Radius = this.Radius * (double)Math.Sqrt((double)num);
-            return BoundingSphereD;
+            bsd.Radius = this.Radius * (double)Math.Sqrt((double)num);
+            return bsd;
         }
 
         /// <summary>

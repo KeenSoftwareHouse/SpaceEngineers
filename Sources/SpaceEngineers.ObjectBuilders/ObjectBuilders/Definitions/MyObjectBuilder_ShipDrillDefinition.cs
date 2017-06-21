@@ -14,10 +14,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 	    public string ResourceSinkGroup;
 
         [ProtoMember]
-        public float SensorRadius;
+        public float SensorRadius = 1.5f;
 
         [ProtoMember]
         public float SensorOffset;
 
+        [ProtoMember]
+        public float CutOutRadius = 2.5f;
+
+        [ProtoMember]
+        public float CutOutOffset;
     }
 }

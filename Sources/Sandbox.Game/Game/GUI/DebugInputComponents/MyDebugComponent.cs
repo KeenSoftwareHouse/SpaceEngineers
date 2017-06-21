@@ -12,7 +12,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
-    public abstract class MyDebugComponent : IMyNamedComponent
+    public abstract class MyDebugComponent
     {
         #region Nested classes
 
@@ -35,7 +35,7 @@ namespace Sandbox.Game.Gui
             public bool Alt;
             
             public Func<string> Description;
-            public Func<bool> Action;
+            public Func<bool> _Action;
 
             public string GetKeysString()
             {
@@ -143,7 +143,6 @@ namespace Sandbox.Game.Gui
         }
 
         #endregion
-
 
         #region Text Rendering
 
@@ -296,9 +295,9 @@ namespace Sandbox.Game.Gui
                         stateActive &= MyInput.Static.IsKeyPress(shortcut.Key);
                 }
 
-                if (stateActive && shortcut.Action != null)
+                if (stateActive && shortcut._Action != null)
                 {
-                    return shortcut.Action();
+                    return shortcut._Action();
                 }
             }
 
@@ -390,7 +389,7 @@ namespace Sandbox.Game.Gui
                 Shift = shift,
                 Alt = alt,
                 Description = description,
-                Action = action,                
+                _Action = action,                
             });
         }
 

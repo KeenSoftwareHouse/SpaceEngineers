@@ -1,13 +1,11 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.AI;
+﻿#if !XB1
+using Sandbox.Common;
+using VRage.Game.AI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Xml.Serialization;
 using VRage.Game;
 using VRage.Game.ObjectBuilders.AI;
 using VRage.ObjectBuilders;
@@ -175,3 +173,4 @@ namespace Sandbox.Engine.AI
         }
     }
 }
+#endif // !XB1

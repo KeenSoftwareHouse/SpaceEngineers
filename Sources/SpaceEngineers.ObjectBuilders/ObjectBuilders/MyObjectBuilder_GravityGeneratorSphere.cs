@@ -12,12 +12,9 @@ namespace Sandbox.Common.ObjectBuilders
     [ProtoContract]
     [MyObjectBuilderDefinition]
     [System.Xml.Serialization.XmlSerializerAssembly("SpaceEngineers.ObjectBuilders.XmlSerializers")]
-    public class MyObjectBuilder_GravityGeneratorSphere : MyObjectBuilder_FunctionalBlock
+    public class MyObjectBuilder_GravityGeneratorSphere : MyObjectBuilder_GravityGeneratorBase
     {
         [ProtoMember]
         public float Radius = 150f;
-
-        [ProtoMember, DefaultValue(9.81f)]
-        public float GravityAcceleration = 9.81f;
     }
 }

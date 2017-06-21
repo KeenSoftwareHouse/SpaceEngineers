@@ -9,6 +9,7 @@ using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using ImageFileFormat = SharpDX.Direct3D9.ImageFileFormat;
 
 namespace VRageRender
 {
@@ -55,9 +56,6 @@ namespace VRageRender
                 case ".jpg":
                 case ".jpeg":
                     return ImageFileFormat.Jpg;
-
-                case ".dds":
-                    return ImageFileFormat.Dds;
 
                 case ".bmp":
                     return ImageFileFormat.Bmp;

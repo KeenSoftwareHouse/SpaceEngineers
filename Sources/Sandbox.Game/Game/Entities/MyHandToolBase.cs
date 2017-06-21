@@ -28,6 +28,8 @@ using VRage;
 using VRage.Game;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.ModAPI;
 
 #endregion
 
@@ -36,7 +38,7 @@ namespace Sandbox.Game.Entities
 {
     [StaticEventOwner]
     [MyEntityType(typeof(MyObjectBuilder_HandToolBase))]
-    public class MyHandToolBase : MyEntity, IMyHandheldGunObject<MyDeviceBase>, IStoppableAttackingTool
+    public class MyHandToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>, IStoppableAttackingTool
     {
         #region Nested
 
@@ -50,7 +52,7 @@ namespace Sandbox.Game.Entities
                 HandTool = tool;
             }
 
-            public override void OnMotion(HkRigidBody rbo, float step)
+            public override void OnMotion(HkRigidBody rbo, float step, bool fromParent)
             {
             }
 
@@ -62,7 +64,7 @@ namespace Sandbox.Game.Entities
             {
                // Vector3 transformedCenter = Vector3.TransformNormal(Center, worldMatrix);
 
-                var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+                var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
                 Matrix rigidBodyMatrix = Matrix.CreateWorld((Vector3)(worldMatrix.Translation - (Vector3D)offset), worldMatrix.Forward, worldMatrix.Up);
 
@@ -163,10 +165,7 @@ namespace Sandbox.Game.Entities
             get { return m_handItemDefinitionId; }
         }
 
-        public MyDeviceBase GunBase
-        {
-            get { return null; }
-        }
+        public MyToolBase GunBase { get; private set; } 
 
         public virtual bool ForceAnimationInsteadOfIK { get { return true; } }
         public bool IsBlocking { get { return m_shotToolAction.HasValue && m_shotToolAction.Value.Name == MyStringId.GetOrCompute("Block"); } }
@@ -192,6 +191,7 @@ namespace Sandbox.Game.Entities
         public MyHandToolBase()
         {          
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            GunBase = new MyToolBase();
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -216,6 +216,11 @@ namespace Sandbox.Game.Entities
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
 
 			var builder = objectBuilder as MyObjectBuilder_HandToolBase;
+
+            if (builder.DeviceBase != null)
+            {
+                GunBase.Init(builder.DeviceBase);
+            }
         }
 
         protected virtual void InitToolComponents()
@@ -224,8 +229,9 @@ namespace Sandbox.Game.Entities
 
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
-            var ob = base.GetObjectBuilder(copy);
+            var ob = base.GetObjectBuilder(copy) as MyObjectBuilder_HandToolBase;
             ob.SubtypeName = m_handItemDefinitionId.SubtypeName;
+            ob.DeviceBase = GunBase.GetObjectBuilder();
             return ob;
         }
 
@@ -279,7 +285,7 @@ namespace Sandbox.Game.Entities
             return status == MyGunStatusEnum.OK;
         }
 
-        public virtual void Shoot(MyShootActionEnum shootAction, VRageMath.Vector3 direction, string gunAction)
+        public virtual void Shoot(MyShootActionEnum shootAction, VRageMath.Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             m_shotToolAction = null;
             m_wasShooting = false;
@@ -340,6 +346,7 @@ namespace Sandbox.Game.Entities
                 // Stop upper character animation called because character can have some animation set (blocking, ...).
                 m_owner.StopUpperCharacterAnimation(0.1f);
                 m_owner.PlayCharacterAnimation(m_shotHitCondition.Animation, MyBlendOption.Immediate, frameOption, 0.2f, m_shotHitCondition.AnimationTimeScale, false, null, true);
+                m_owner.TriggerCharacterAnimationEvent(m_shotHitCondition.Animation.ToLower(), false);
 
                 if (m_owner.StatComp != null)
                 {
@@ -364,7 +371,7 @@ namespace Sandbox.Game.Entities
                 MySoundPair sound;
                 if (def.GeneralSounds.TryGetValue(MyStringId.GetOrCompute(soundName), out sound) && !sound.SoundId.IsNull)
                 {
-                    m_soundEmitter.PlaySound(sound.SoundId);
+                    m_soundEmitter.PlaySound(sound);
                 }
                 else
                 {
@@ -418,6 +425,7 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
+            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(400, 200), String.Format("Primary: {0}, Secondary: {1}", m_primaryToolAction, m_secondaryToolAction), Color.Magenta, 1.0f);
 
             bool isShooting = IsShooting;
 
@@ -433,16 +441,21 @@ namespace Sandbox.Game.Entities
                         {
                             var shapeCastComponent = detectorComponent as MyCharacterShapecastDetectorComponent;
                             shapeCastComponent.ShapeRadius = m_shotToolAction.Value.CustomShapeRadius;
-                            shapeCastComponent.DoDetection();
+                            shapeCastComponent.DoDetectionModel();
                             shapeCastComponent.ShapeRadius = MyCharacterShapecastDetectorComponent.DEFAULT_SHAPE_RADIUS;
                         }
 
                         if (detectorComponent.DetectedEntity != null)
                         {
+                            MyHitInfo hitInfo = new MyHitInfo();
+                            hitInfo.Position = detectorComponent.HitPosition;
+                            hitInfo.Normal = detectorComponent.HitNormal;
+                            hitInfo.ShapeKey = detectorComponent.ShapeKey; 
+
                             bool isBlock = false;
                             float efficiencyMultiplier = 1.0f;
                             bool canHit = CanHit(toolComponent, detectorComponent, ref isBlock, out efficiencyMultiplier);
-                            
+
                             bool isHit = false;
                             if (canHit)
                             {
@@ -451,11 +464,12 @@ namespace Sandbox.Game.Entities
                                     efficiencyMultiplier *= Owner.StatComp.GetEfficiencyModifier(m_shotToolAction.Value.StatsEfficiency);
                                 }
 
+                                float efficiency = m_shotToolAction.Value.Efficiency * efficiencyMultiplier;
                                 var tool = detectorComponent.DetectedEntity as MyHandToolBase;
                                 if (isBlock && tool != null)
-                                    isHit = toolComponent.Hit(tool.Owner, detectorComponent.HitPosition, detectorComponent.HitNormal, detectorComponent.ShapeKey, m_shotToolAction.Value.Efficiency * efficiencyMultiplier);
+                                    isHit = toolComponent.Hit(tool.Owner, hitInfo, detectorComponent.ShapeKey, efficiency);
                                 else
-                                    isHit = toolComponent.Hit((MyEntity) detectorComponent.DetectedEntity, detectorComponent.HitPosition, detectorComponent.HitNormal, detectorComponent.ShapeKey, m_shotToolAction.Value.Efficiency * efficiencyMultiplier);
+                                    isHit = toolComponent.Hit((MyEntity)detectorComponent.DetectedEntity, hitInfo, detectorComponent.ShapeKey, efficiency);
 
                                 if (isHit && Sync.IsServer && Owner.StatComp != null)
                                 {
@@ -515,6 +529,7 @@ namespace Sandbox.Game.Entities
 
             if (!isShooting && m_wasShooting)
             {
+                m_owner.TriggerCharacterAnimationEvent("stop_tool_action", false);
                 m_owner.StopUpperCharacterAnimation(0.4f);
                 m_shotToolAction = null;
             }
@@ -578,7 +593,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            float hitDistance = Vector3.Distance(detectorComponent.HitPosition, PositionComp.GetPosition());
+            float hitDistance = Vector3.Distance(detectorComponent.HitPosition, detectorComponent.StartPosition);
             canHit = hitDistance <= m_toolItemDef.HitDistance;
             if (!canHit)
             {
@@ -608,8 +623,7 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation10()
         {
             base.UpdateAfterSimulation10();
-
-
+            
             GetMostEffectiveToolAction(m_toolItemDef.PrimaryActions, out m_primaryToolAction, out m_primaryHitCondition);
             GetMostEffectiveToolAction(m_toolItemDef.SecondaryActions, out m_secondaryToolAction, out m_secondaryHitCondition);
 
@@ -647,12 +661,14 @@ namespace Sandbox.Game.Entities
         {
             MyCharacterDetectorComponent detectorComponent = m_owner.Components.Get<MyCharacterDetectorComponent>();
             IMyEntity hitEntity = null;
+            uint shapeKey = 0;
 
             if (detectorComponent != null)
             {
                 hitEntity = detectorComponent.DetectedEntity;
+                shapeKey = detectorComponent.ShapeKey;
 
-                float hitDistance = Vector3.Distance(detectorComponent.HitPosition, PositionComp.GetPosition());
+                float hitDistance = Vector3.Distance(detectorComponent.HitPosition, detectorComponent.StartPosition);
 
                 if (hitDistance > m_toolItemDef.HitDistance)
                     hitEntity = null;
@@ -672,7 +688,7 @@ namespace Sandbox.Game.Entities
                         {
                             if (hitEntity != null)
                             {
-                                string availableState = GetStateForTarget((MyEntity)hitEntity, condition.Component);
+                                string availableState = GetStateForTarget((MyEntity)hitEntity, shapeKey, condition.Component);
                                 if (condition.EntityType.Contains(availableState))
                                 {
                                     bestAction = action;
@@ -715,7 +731,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void DrawHud(Sandbox.ModAPI.Interfaces.IMyCameraController camera, long playerId)
+        public void DrawHud(IMyCameraController camera, long playerId)
 		{
             if (m_primaryToolAction.HasValue)
             {
@@ -724,7 +740,7 @@ namespace Sandbox.Game.Entities
             }
 		}
 
-        private string GetStateForTarget(MyEntity targetEntity, string actionType)
+        private string GetStateForTarget(MyEntity targetEntity, uint shapeKey, string actionType)
         {
             if (targetEntity == null)
                 return null;
@@ -733,14 +749,14 @@ namespace Sandbox.Game.Entities
             IMyHandToolComponent comp;
             if (m_toolComponents.TryGetValue(actionType, out comp))
             {
-                targetState = comp.GetStateForTarget(targetEntity);
+                targetState = comp.GetStateForTarget(targetEntity, shapeKey);
                 if (!string.IsNullOrEmpty(targetState))
                     return targetState;
             }
 
             foreach (var c in m_toolComponents)
             {
-                targetState = c.Value.GetStateForTarget(targetEntity);
+                targetState = c.Value.GetStateForTarget(targetEntity, shapeKey);
                 if (!string.IsNullOrEmpty(targetState))
                     return targetState;
             }
@@ -833,5 +849,11 @@ namespace Sandbox.Game.Entities
 
         public int CurrentAmmunition { set; get; }
         public int CurrentMagazineAmmunition { set; get; }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
+        }
     }
 }

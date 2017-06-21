@@ -7,6 +7,7 @@ using Sandbox.Definitions;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.EntityComponents
@@ -18,6 +19,9 @@ namespace Sandbox.Game.EntityComponents
         public float Mass;
         public bool RemoveEntityOnEmpty;
         public bool MultiplierEnabled;
+        public int MaxItemCount;
+
+        public MyInventoryConstraint InputConstraint;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -33,6 +37,20 @@ namespace Sandbox.Game.EntityComponents
             Mass = ob.Mass;
             RemoveEntityOnEmpty = ob.RemoveEntityOnEmpty;
             MultiplierEnabled = ob.MultiplierEnabled;
+            MaxItemCount = ob.MaxItemCount;
+
+            if (ob.InputConstraint != null)
+            {
+                InputConstraint = new MyInventoryConstraint("Input", whitelist: ob.InputConstraint.IsWhitelist);
+
+                foreach (var constraint in ob.InputConstraint.Entries)
+                {
+                    if (string.IsNullOrEmpty(constraint.SubtypeName))
+                        InputConstraint.AddObjectBuilderType(constraint.TypeId);
+                    else
+                        InputConstraint.Add(constraint);
+                }
+            }
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -43,6 +61,21 @@ namespace Sandbox.Game.EntityComponents
             ob.Mass = Mass;
             ob.RemoveEntityOnEmpty = RemoveEntityOnEmpty;
             ob.MultiplierEnabled = MultiplierEnabled;
+            ob.MaxItemCount = MaxItemCount;
+
+            if (InputConstraint != null)
+            {
+                ob.InputConstraint = new MyObjectBuilder_InventoryComponentDefinition.InventoryConstraintDefinition
+                {
+                    IsWhitelist = InputConstraint.IsWhitelist
+                };
+
+                foreach (var type in InputConstraint.ConstrainedTypes)
+                    ob.InputConstraint.Entries.Add(new MyDefinitionId(type));
+
+                foreach (var id in InputConstraint.ConstrainedIds)
+                    ob.InputConstraint.Entries.Add(id);
+            }
 
             return ob;
         }

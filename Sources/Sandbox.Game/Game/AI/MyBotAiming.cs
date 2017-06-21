@@ -33,7 +33,6 @@ namespace Sandbox.Game.AI
         private MyEntity m_aimTarget;
         private Vector3 m_rotationHint;
         private Vector3? m_relativeTarget; // serves as absolute target if m_aimTarget is null
-        private Random m_random = MyFakes.DEBUG_AVOID_RANDOM_AI ? new Random(0):new Random();
 
         public Vector3 RotationHint { get { return m_rotationHint; } }
 
@@ -148,9 +147,8 @@ namespace Sandbox.Game.AI
         }
 
         private void AddErrorToAiming(MyCharacter character, float errorLenght)
-        {            
-            float random = (float)m_random.NextDouble();
-            if (random < MISSING_PROBABILITY)
+        {
+            if (MyUtils.GetRandomFloat() < MISSING_PROBABILITY)
             {
                 character.AimedPoint += Vector3D.Normalize(MyUtils.GetRandomVector3()) * errorLenght;
             }

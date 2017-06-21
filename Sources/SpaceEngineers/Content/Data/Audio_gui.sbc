@@ -1,0 +1,1146 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Sounds>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudOxyHigh</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <Volume>0.7</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudOxyHigh2d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudOxyNone</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <Volume>0.7</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudOxyNone2d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocAmmoNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoNo01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoNo02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoNo03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayDropItem</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.821624756</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayDropItem2d01.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayDropItem3d03.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayDropItem3d02.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayDropItem3d01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayDropItem2d02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayDropItem2d03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayDropItem</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <MaxDistance>20</MaxDistance>
+      <PitchVariation>120</PitchVariation>
+      <Volume>0.8</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayDropItem2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayTakeItem</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayTakeItem</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <Volume>1</Volume>
+      <PitchVariation>100</PitchVariation>
+      <VolumeVariation>2</VolumeVariation>
+      <PreventSynchronization>10</PreventSynchronization>
+      <!--<Pitch>1</Pitch>-->
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayTakeItem2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayTakeItem2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayTakeItem2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocAmmoLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoLow01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoLow02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoLow03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocAmmoCritical</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoCritical01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoCritical02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocAmmoCritical03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocHealthLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocHealthLow01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocHealthLow02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocHealthLow03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocFuelCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocFuelCrit.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocFuelLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocFuelLow.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocEnergyNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocEnergyNo.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocEnergyCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocEnergyCrit.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocEnergyLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocEnergyLow.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocSolarInbound</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocSolarInbound.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocMeteorInbound</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocMeteorInbound.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocInventoryFull</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocInventoryFull.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocHealthCritical</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocHealthCritical01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocHealthCritical02.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocStationFuelNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocStationFuelNo01.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocStationFuelCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocStationFuelCrit.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocStationFuelLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocStationFuelLow.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocShipFuelNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocShipFuelNo01.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocShipFuelCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocShipFuelCrit.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocShipFuelLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocShipFuelLow.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocSuitEnergyNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocSuitEnergyNo01.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocSuitEnergyCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocSuitEnergyCrit.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudVocSuitEnergyLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudVocSuitEnergyLow.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <!--<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocAmmoNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoNo01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoNo02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoNo03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>-->
+    <!--<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocAmmoLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoLow01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoLow02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoLow03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>-->
+    <!--<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocAmmoCritical</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoCritical01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoCritical02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocAmmoCritical03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>-->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocHealthLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocHealthLow01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocHealthLow02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocHealthLow03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocFuelCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocFuelCrit.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocFuelLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocFuelLow.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocEnergyNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocEnergyNo.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocEnergyCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocEnergyCrit.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocEnergyLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocEnergyLow.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <!--<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocSolarInbound</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.2</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocSolarInbound.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>-->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocMeteorInbound</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocMeteorInbound.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <!--<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocInventoryFull</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.2</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocInventoryFull.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>-->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocHealthCritical</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocHealthCritical01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocHealthCritical02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocStationFuelNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocStationFuelNo01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocStationFuelCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocStationFuelCrit.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocStationFuelLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocStationFuelLow.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocShipFuelNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocShipFuelNo01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocShipFuelCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocShipFuelCrit.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocShipFuelLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocShipFuelLow.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocSuitEnergyNo</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocSuitEnergyNo01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocSuitEnergyCrit</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocSuitEnergyCrit.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudVocSuitEnergyLow</SubtypeId>
+      </Id>
+      <Category>HUD_VOC</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudVocSuitEnergyLow.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudClick</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.07</Volume>
+      <PitchVariation>31.9456253</PitchVariation>
+      <CanBeSilencedByVoid>false</CanBeSilencedByVoid>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudClick.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudUse</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>20</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudUse01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudUse02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudUse03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudUse</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>50</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudUse01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudItem</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>1.5</VolumeVariation>
+      <PitchVariation>33</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudInventoryObjClick2d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\HUD\HudInventoryObjClick3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudItem</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <VolumeVariation>1.5</VolumeVariation>
+      <PitchVariation>33</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudItem01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudRotateBlock</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.3</Volume>
+      <VolumeVariation>2</VolumeVariation>
+      <PitchVariation>100</PitchVariation>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudRotateBlock01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>REAL\HUD\RealHudRotateBlock02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudRotateBlock03.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudPlaceBlock</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>0.6273493</VolumeVariation>
+      <PitchVariation>68.08322</PitchVariation>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudPlaceBlock01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudPlaceBlock02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudPlaceBlock03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudDeleteBlock</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>70</PitchVariation>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudDeleteBlock01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudColorBlock</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>2</VolumeVariation>
+      <PitchVariation>25</PitchVariation>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudColorBlock01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>REAL\HUD\RealHudColorBlock02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudColorBlock03.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealHudUnable</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.4</Volume>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\HUD\RealHudUnable01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudRotateBlock</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.2</Volume>
+      <VolumeVariation>2.795607</VolumeVariation>
+      <PitchVariation>131.324142</PitchVariation>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudRotateBlock01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudRotateBlock02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudRotateBlock03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudPlaceBlock</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.2</Volume>
+      <VolumeVariation>0.6273493</VolumeVariation>
+      <PitchVariation>68.08322</PitchVariation>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudPlaceBlock01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudPlaceBlock02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudPlaceBlock03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudPlaceItem</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.05</Volume>
+      <VolumeVariation>0</VolumeVariation>
+      <PitchVariation>25</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudMouseOver.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudDeleteBlock</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.2</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>70</PitchVariation>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudDeleteBlock01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudDeleteBlock02.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudColorBlock</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.2</Volume>
+      <VolumeVariation>1.6392</VolumeVariation>
+      <PitchVariation>44.59381</PitchVariation>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudColorBlock01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudColorBlock02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudColorBlock03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudMouseClick</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <Volume>0.05</Volume>
+      <PitchVariation>25</PitchVariation>
+      <CanBeSilencedByVoid>false</CanBeSilencedByVoid>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudMouseClick.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudMouseOver</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <Volume>0.02</Volume>
+      <PitchVariation>25</PitchVariation>
+      <CanBeSilencedByVoid>false</CanBeSilencedByVoid>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudMouseOver.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcHudUnable</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.2</Volume>
+      <PreventSynchronization>1</PreventSynchronization>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudUnable01.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusicMenu</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\se_mainmenu1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>NoRandom</TransitionCategory>
+      <MusicCategory>MusicMenu</MusicCategory>
+    </Sound>
+  </Sounds>
+</Definitions>

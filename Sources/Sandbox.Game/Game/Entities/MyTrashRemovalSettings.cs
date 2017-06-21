@@ -8,7 +8,7 @@ namespace Sandbox.Game.Entities
     public enum MyTrashRemovalFlags : int
     {
         None = 0,
-        Default =  WithBlockCount | DistanceFromPlayer,
+        Default = WithBlockCount | DistanceFromPlayer,
 
         Fixed          = 1,
         Stationary     = 2,
@@ -20,7 +20,7 @@ namespace Sandbox.Game.Entities
         WithMedBay     = 256,
         WithBlockCount = 512,
         DistanceFromPlayer  = 1024,
-    }
+        }
 
     public enum MyTrashRemovalOperation
     {
@@ -38,7 +38,14 @@ namespace Sandbox.Game.Entities
             BlockCountThreshold = 20,
             PlayerDistanceThreshold = 100
         };
-        
+        public static readonly MyTrashRemovalSettings DevilishlyAggresive = new MyTrashRemovalSettings()
+        {
+            Flags = MyTrashRemovalFlags.WithBlockCount | MyTrashRemovalFlags.DistanceFromPlayer
+                    | MyTrashRemovalFlags.Stationary | MyTrashRemovalFlags.Linear,
+            BlockCountThreshold = 40,
+            PlayerDistanceThreshold = 3
+        };
+
         public MyTrashRemovalFlags Flags;
         public int BlockCountThreshold;
         public float PlayerDistanceThreshold;

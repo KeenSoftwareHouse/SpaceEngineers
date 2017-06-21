@@ -1,13 +1,8 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
+using VRageRender;
 
-using VRageMath;
-
-namespace VRageRender
+namespace VRage.Render11.LightingStage
 {
     class MyAAEdgeMarking : MyScreenPass
     {
@@ -15,17 +10,17 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_ps = MyShaders.CreatePs("edge_detection.hlsl");
+            m_ps = MyShaders.CreatePs("Postprocess/EdgeDetection.hlsl");
         }
 
         internal static void Run()
         {
-            RC.SetDS(MyDepthStencilState.MarkEdgeInStencil, 0xFF);
-            RC.SetPS(m_ps);
-            RC.BindDepthRT(MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.DepthReadOnly, null);
-            RC.BindGBufferForReadSkipStencil(0, MyGBuffer.Main);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.MarkEdgeInStencil, 0xFF);
+            RC.PixelShader.Set(m_ps);
+            RC.SetRtv(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.DepthReadOnly);
+            RC.PixelShader.SetSrvs(0, MyGBuffer.Main, MyGBufferSrvFilter.NO_STENCIL);
             DrawFullscreenQuad();
-            RC.SetDS(null);
+            RC.SetDepthStencilState(null);
         }
     }
 }

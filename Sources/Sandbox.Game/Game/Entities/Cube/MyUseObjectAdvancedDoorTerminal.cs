@@ -5,6 +5,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Common;
 using System.Diagnostics;
+using Sandbox.Game.World;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
@@ -12,6 +13,9 @@ using VRageMath;
 using VRage.Generics;
 using VRage.ModAPI;
 using VRage.Game;
+using VRage.Game.ModAPI;
+using VRageRender.Import;
+using Sandbox.Game.World;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -51,6 +55,11 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        public override int InstanceID
+        {
+            get { return -1; }
+        }
+
         public override bool ShowOverlay
         {
             get { return true; }
@@ -65,7 +74,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             var user = entity as MyCharacter;
             var relation = Door.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-            if (!relation.IsFriendly())
+            if (!relation.IsFriendly() && !MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
             {
                 if (user.ControllerInfo.IsLocallyHumanControlled())
                 {

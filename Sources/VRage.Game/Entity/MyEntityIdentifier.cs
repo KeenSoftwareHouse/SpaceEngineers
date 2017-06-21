@@ -30,8 +30,11 @@ namespace VRage
         static Dictionary<long, IMyEntity> m_entityList { get { return (m_perThreadData ?? m_mainData).EntityList; } }
 
         // Want to share, always accessed through interlocked, safe
+#if UNSHARPER
+		static long[] m_lastGeneratedIds = new long[(int)MyEnum_Range<ID_OBJECT_TYPE>.Max + 1];
+#else
         static long[] m_lastGeneratedIds = new long[(int)MyEnum<ID_OBJECT_TYPE>.Range.Max + 1];
-
+#endif
         /// <summary>
         /// Freezes allocating entity ids.
         /// This is important, because during load, no entity cannot allocate new id, because it could allocate id which already has entity which will be loaded soon.
@@ -106,6 +109,7 @@ namespace VRage
             Array.Clear(m_lastGeneratedIds, 0, m_lastGeneratedIds.Length);
         }
 
+#if !UNSHARPER
         /// <summary>
         /// This method is used when loading existing entity IDs to track the last generated ID
         /// </summary>
@@ -116,6 +120,7 @@ namespace VRage
 
             MyUtils.InterlockedMax(ref m_lastGeneratedIds[(byte)type], num);
         }
+#endif
 
         /// <summary>
         /// Registers entity with given ID. Do not call this directly, it is called automatically
@@ -165,6 +170,17 @@ namespace VRage
             return id & 0x00FFFFFFFFFFFFFF;
         }
 
+        /**
+         * Construct an ID using the hash from a string.
+         */
+        public static long ConstructIdFromString(ID_OBJECT_TYPE type, string uniqueString)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(uniqueString), "Unique string was incorrect!");
+            long eid = uniqueString.GetHashCode64();
+            eid = (eid >> 8) + eid + (eid << 13);
+            return (eid & 0x00FFFFFFFFFFFFFF) | ((long)type << 56);
+        }
+
         public static long ConstructId(ID_OBJECT_TYPE type, long uniqueNumber)
         {
             Debug.Assert(((ulong)uniqueNumber & 0xFF00000000000000) == 0, "Unique number was incorrect!");
@@ -189,12 +205,21 @@ namespace VRage
 
         public static IMyEntity GetEntityById(long entityId)
         {
-            return m_entityList[entityId];
+            IMyEntity entity;
+            bool found = m_entityList.TryGetValue(entityId, out entity);
+            // If called from thread other than main, we have to explicitly search the main entity dictionary as well
+            if (!found && m_perThreadData != null)
+                found = m_mainData.EntityList.TryGetValue(entityId, out entity);
+            return entity;
         }
 
         public static bool TryGetEntity(long entityId, out IMyEntity entity)
         {
-            return m_entityList.TryGetValue(entityId, out entity);
+            bool found = m_entityList.TryGetValue(entityId, out entity);
+            // If called from thread other than main, we have to explicitly search the main entity dictionary as well
+            if (!found && m_perThreadData != null)
+                found = m_mainData.EntityList.TryGetValue(entityId, out entity);
+            return found;
         }
 
         public static bool TryGetEntity<T>(long entityId, out T entity) where T : class ,IMyEntity
@@ -207,7 +232,7 @@ namespace VRage
 
         public static bool ExistsById(long entityId)
         {
-            return m_entityList.ContainsKey(entityId);
+            return m_entityList.ContainsKey(entityId) || (m_perThreadData != null && m_mainData.EntityList.ContainsKey(entityId));
         }
 
         /// <summary>

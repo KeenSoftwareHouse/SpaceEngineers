@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-using Sandbox.Common.ObjectBuilders;
+using VRage.Game.GUI.TextPanel;
 
 namespace Sandbox.ModAPI.Ingame
 {
@@ -15,10 +14,14 @@ namespace Sandbox.ModAPI.Ingame
         bool WritePublicTitle(string value, bool append = false);
         string GetPublicTitle();
 
+        [Obsolete("LCD private text is deprecated")]
         bool WritePrivateText(string value, bool append = false);
+        [Obsolete("LCD private text is deprecated")]
         string GetPrivateText();
 
+        [Obsolete("LCD private text is deprecated")]
         bool WritePrivateTitle(string value, bool append = false);
+        [Obsolete("LCD private text is deprecated")]
         string GetPrivateTitle();
 
         void AddImageToSelection(string id, bool checkExistence = false);
@@ -45,6 +48,7 @@ namespace Sandbox.ModAPI.Ingame
         string CurrentlyShownImage { get; }
 
         void ShowPublicTextOnScreen();
+        [Obsolete("LCD private text is deprecated")]
         void ShowPrivateTextOnScreen();
         void ShowTextureOnScreen();
         void SetShowOnScreen(ShowTextOnScreenFlag set);

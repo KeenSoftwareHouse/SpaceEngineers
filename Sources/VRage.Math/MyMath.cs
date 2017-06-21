@@ -6,27 +6,34 @@ namespace VRageMath
 {
     public static class MyMath
     {
-        private static Vector3[] m_corners = new Vector3[8];
         //Number of steps dividing whole circle
-        private const int ANGLE_GRANULARITY = 2 * 314;
+        private const float Size = 10000f;
+        private static int ANGLE_GRANULARITY = 0;
+        private static float[] m_precomputedValues = null;
+
+        private static Vector3[] m_corners = new Vector3[8];
+
         private static readonly float OneOverRoot3 = (float)Math.Pow(3, -0.5f);
-
-        static float[] m_precomputedValues = new float[ANGLE_GRANULARITY];
-
         public static Vector3 Vector3One = Vector3.One;
 
-        static MyMath()
+        public static void InitializeFastSin()
         {
-            for (int i = 0; i < 2 * 314; i++)
+            // Don't re-initialize look-up table if not necessary
+            if (m_precomputedValues != null)
+                return;
+
+            ANGLE_GRANULARITY = 2 * (int)(Math.PI * Size);
+            m_precomputedValues = new float[ANGLE_GRANULARITY];
+            for (int i = 0; i < ANGLE_GRANULARITY; i++)
             {
-                m_precomputedValues[i] = (float)Math.Sin(i / 100.0f);
+                m_precomputedValues[i] = (float)Math.Sin(i / Size);
             }
         }
 
         public static float FastSin(float angle)
         {
             //Reduce angle to interval 0-2PI
-            int angleInt = (int)(angle * 100.0f);
+            int angleInt = (int)(angle * Size);
             angleInt = angleInt % ANGLE_GRANULARITY;
             if (angleInt < 0)
                 angleInt += ANGLE_GRANULARITY;

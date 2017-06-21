@@ -17,11 +17,12 @@ using VRage;
 using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
-    class MyBatteryBlock : MyFunctionalBlock, Sandbox.ModAPI.Ingame.IMyBatteryBlock
+    public class MyBatteryBlock : MyFunctionalBlock, ModAPI.IMyBatteryBlock
     {
         static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
@@ -74,7 +75,7 @@ namespace Sandbox.Game.Entities
 
         public float CurrentInput
         {
-            get { if (ResourceSink != null) return ResourceSink.CurrentInput; return 0; }
+            get { if (ResourceSink != null) return ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId); return 0; }
         }
 
         public bool IsCharging
@@ -88,7 +89,7 @@ namespace Sandbox.Game.Entities
             set
             {
                 m_semiautoEnabled.Value = value;
-                
+
                 if(!OnlyRecharge && !OnlyDischarge)
                 {
                     if (CurrentStoredPower == 0)
@@ -104,8 +105,10 @@ namespace Sandbox.Game.Entities
             get { return m_onlyRecharge.Value; }
             set
             {
+                if (value)
+                    OnlyDischarge = false;
                 m_onlyRecharge.Value = value;
-                m_producerEnabled.Value = !value;          
+                m_producerEnabled.Value = !value;
             }
         }
 
@@ -114,6 +117,8 @@ namespace Sandbox.Game.Entities
             get { return m_onlyDischarge.Value; }
             set
             {
+                if (value)
+                    OnlyRecharge = false;
                 m_onlyDischarge.Value = value;
             }
         }
@@ -123,8 +128,33 @@ namespace Sandbox.Game.Entities
 			return Enabled && SourceComp.Enabled && SourceComp.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
-        static MyBatteryBlock()
+        public MyBatteryBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isFull = SyncType.CreateAndAddProp<bool>();
+            m_onlyRecharge = SyncType.CreateAndAddProp<bool>();
+            m_onlyDischarge = SyncType.CreateAndAddProp<bool>();
+            m_semiautoEnabled = SyncType.CreateAndAddProp<bool>();
+            m_producerEnabled = SyncType.CreateAndAddProp<bool>();
+            m_storedPower = SyncType.CreateAndAddProp<float>();
+#endif // XB1
+            CreateTerminalControls();
+
+            SourceComp = new MyResourceSourceComponent();
+            ResourceSink = new MyResourceSinkComponent();
+            m_semiautoEnabled.ValueChanged += (x) => UpdateMaxOutputAndEmissivity();
+            m_onlyRecharge.ValueChanged += (x) => { if (m_onlyRecharge.Value) m_onlyDischarge.Value = false; UpdateMaxOutputAndEmissivity(); };
+            m_onlyDischarge.ValueChanged += (x) => { if (m_onlyDischarge.Value) m_onlyRecharge.Value = false; UpdateMaxOutputAndEmissivity(); };
+
+            m_producerEnabled.ValueChanged += (x) => ProducerEnadChanged();
+            m_storedPower.ValueChanged += (x) => CapacityChanged();
+	    }
+
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyBatteryBlock>())
+                return;
+            base.CreateTerminalControls();
             var recharge = new MyTerminalControlCheckbox<MyBatteryBlock>("Recharge", MySpaceTexts.BlockPropertyTitle_Recharge, MySpaceTexts.ToolTipBatteryBlock);
             recharge.Getter = (x) => x.OnlyRecharge;
             recharge.Setter = (x, v) => x.OnlyRecharge = v;
@@ -146,18 +176,6 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(discharge);
             MyTerminalControlFactory.AddControl(semiAuto);
         }
-
-        public MyBatteryBlock()
-        {
-            SourceComp = new MyResourceSourceComponent();
-            ResourceSink = new MyResourceSinkComponent();
-            m_semiautoEnabled.ValueChanged += (x) => UpdateMaxOutputAndEmissivity();
-            m_onlyRecharge.ValueChanged += (x) => { if (m_onlyRecharge.Value) m_onlyDischarge.Value = false; UpdateMaxOutputAndEmissivity(); };
-            m_onlyDischarge.ValueChanged += (x) => { if (m_onlyDischarge.Value) m_onlyRecharge.Value = false; UpdateMaxOutputAndEmissivity(); };
-
-            m_producerEnabled.ValueChanged += (x) => ProducerEnadChanged();
-            m_storedPower.ValueChanged += (x) => CapacityChanged();
-	    }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
@@ -195,9 +213,9 @@ namespace Sandbox.Game.Entities
 
             m_storedPower.Value = CurrentStoredPower;
 
-            OnlyRecharge = !batteryBuilder.ProducerEnabled;
 			
             SemiautoEnabled = batteryBuilder.SemiautoEnabled;
+            OnlyRecharge = !batteryBuilder.ProducerEnabled;
             OnlyDischarge = batteryBuilder.OnlyDischargeEnabled;
             UpdateMaxOutputAndEmissivity();
 
@@ -280,7 +298,7 @@ namespace Sandbox.Game.Entities
 
         private void CalculateInputTimeRemaining()
         {
-			if (ResourceSink.CurrentInput != 0)
+            if (ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) != 0)
 				TimeRemaining = (MaxStoredPower - CurrentStoredPower) / (ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) / SourceComp.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId));
             else
                 TimeRemaining = 0;
@@ -389,7 +407,7 @@ namespace Sandbox.Game.Entities
             MyValueFormatter.AppendWorkHoursInBestUnit(MaxStoredPower, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentOutput));
 			MyValueFormatter.AppendWorkInBestUnit(SourceComp.CurrentOutput, DetailedInfo);
@@ -513,11 +531,11 @@ namespace Sandbox.Game.Entities
                 {
                     if (i < fillCount)
                     {
-                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], color, 1f);
+                        UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], color, 1f);
                     }
                     else
                     {
-                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 0f);
+                        UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], Color.Black, 0f);
                     }
                 }
                 m_prevEmissiveColor = color;
@@ -534,8 +552,7 @@ namespace Sandbox.Game.Entities
 
         void ComponentStack_IsFunctionalChanged()
         {
-            if(!IsFunctional)
-                CurrentStoredPower = 0;
+            CurrentStoredPower = IsFunctional ? BlockDefinition.InitialStoredPowerRatio * BlockDefinition.MaxStoredPower : 0;
             UpdateMaxOutputAndEmissivity();
         }
 

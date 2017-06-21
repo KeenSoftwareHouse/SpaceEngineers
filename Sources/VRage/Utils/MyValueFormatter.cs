@@ -63,7 +63,8 @@ namespace VRage.Utils
             try
             {
                 m_numberFormatInfoHelper.NumberDecimalDigits = decimalDigits;
-                return System.Convert.ToDecimal(number, m_numberFormatInfoHelper);
+                //by Gregory: Added Round cause decimal digits weren't wworking properly
+                return Math.Round(System.Convert.ToDecimal(number, m_numberFormatInfoHelper), decimalDigits);
             }
             catch
             {
@@ -80,11 +81,12 @@ namespace VRage.Utils
             m_numberFormatInfoHelper.NumberDecimalDigits = decimalDigits;
             try
             {
-                result = (float)System.Convert.ToDouble(number, m_numberFormatInfoHelper);
+                //by Gregory: Added Round cause decimal digits weren't wworking properly
+                result = (float)Math.Round((float)System.Convert.ToDouble(number, m_numberFormatInfoHelper), decimalDigits);
             }
             catch 
             {
-            }            
+            }
             m_numberFormatInfoHelper.NumberGroupSeparator = originalGroupSeparator;
 
             return result;
@@ -269,6 +271,13 @@ namespace VRage.Utils
             output.ConcatFormat("{0:00}", timeInSeconds / (60 * 60) % 24);
             output.Append(":");
             output.ConcatFormat("{0:00}", timeInSeconds / 60 % 60);
+            output.Append(":");
+            output.ConcatFormat("{0:00}", timeInSeconds % 60);
+        }
+
+        public static void AppendTimeExactMinSec(int timeInSeconds, StringBuilder output)
+        {
+            output.ConcatFormat("{0:00}", timeInSeconds / 60 % (60 * 24));
             output.Append(":");
             output.ConcatFormat("{0:00}", timeInSeconds % 60);
         }

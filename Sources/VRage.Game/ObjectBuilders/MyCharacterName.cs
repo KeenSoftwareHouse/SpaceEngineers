@@ -7,7 +7,9 @@ namespace VRage.Game
     public class MyCharacterName
     {
         [XmlAttribute]
+#if !XB1 // XB1_NOPROTOBUF
         [ProtoMember(1)]
+#endif // !XB1
         public string Name;
     }
 }

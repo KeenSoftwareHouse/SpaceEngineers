@@ -1,0 +1,1759 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Sounds>
+    <!--
+    
+            Calm category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA01\Mus_calm_KA_3.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA01\Mus_tension_KA_2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA02\Mus_calm_KA_4.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA01\Mus_special_KA_7.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA01\Mus_Special_LostInTheDistance.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA07\Mus_special_1_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_07</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA15\Mus_special_KA_11.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_08</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA02\Mus_mystery_KA_2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_09</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_KA01\Mus_sadness_KA_1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_09</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_KA01\Mus_sadness_KA_3.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_10</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_KA02\Mus_sadness_KA_5.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_11</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_KA02\Mus_sadness_KA_6.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_12</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_KA02\Mus_sadness_KA_8.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusCalm_13</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_MM01\Mus_sadness_2_a_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Mystery category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusMystery_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA01\Mus_tension_KA_1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusMystery_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA03\Mus_calm_KA_2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusMystery_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA04\Mus_stealth_KA_1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusMystery_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA07\Mus_stealth_a_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusMystery_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA15\Mus_special_KA_4.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusMystery_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA02\Mus_horror_KA_1.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA02\Mus_horror_KA_1_x.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusMystery_07</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA02\Mus_horror_KA_2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusMystery_08</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA02\Mus_horror_KA_3.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Building category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusBuild_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA02\Mus_calm_KA_5.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusBuild_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA02\Mus_tension_KA_3.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusBuild_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA01\Mus_desperatestress_KA_1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusBuild_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA02\Mus_desperatestress_KA_2.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA02\Mus_desperatestress_KA_2_longer.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA02\Mus_desperatestress_KA_2_longer_2b.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusBuild_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA01\Mus_victory_KA_1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusBuild_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA01\Mus_victory_KA_6.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusBuild_07</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA03\Mus_stress_KA_5.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Space category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_MM01\Mus_calm_b_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_MM01\Mus_calm_a_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA01\Mus_calm_KA_1.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA01\Mus_calm_KA_1_theme.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA03\Mus_tension_a_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA15\Mus_special_KA_14.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA01\Mus_mystery_KA_1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_07</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA01\Mus_mystery_KA_3.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_08</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA01\Mus_mystery_KA_4.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_09</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusMystery\MusMystery_KA02\Mus_mystery_KA_3_tempo.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_10</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_KA02\Mus_sadness_KA_2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_11</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_KA02\Mus_sadness_KA_7.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_KA02\Mus_sadness_KA_7_choir.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusSpace_12</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusSadnessOrDesperation\MusSadnessOrDesperation_MM01\Mus_sadness_3_a_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>CalmAtmosphere</TransitionCategory>
+      <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Light fight category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusCalmAtmosphere\MusCalmAtmosphere_KA02\Mus_tension_KA_4_rev.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA02\Mus_light_fight_2_a_MM.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA02\Mus_light_fight_2_b_MM.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA02\Mus_light_fight_2_c_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA03\Mus_desperatestress_KA_3.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA04\Mus_desperatestress_KA_4.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA01\Mus_fight_KA_6a.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA01\Mus_fight_KA_6b.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA03\Mus_fight_KA_9c.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_07</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA03\Mus_stress_KA_1.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA03\Mus_stress_KA_2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_08</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA03\Mus_stress_KA_3.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA03\Mus_stress_KA_4.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_09</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA04\Mus_stress_a_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_10</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA04\Mus_stress_b_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_11</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA07\Mus_heavyfight_KA_22_rev.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_12</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA07\Mus_special_2_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_13</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA07\Mus_stealth_c_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusLightFight_14</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA15\Mus_special_5_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Heavy fight category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA01\Mus_fight_KA_4a4b4c.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA01\Mus_fight_KA_5a5b5c.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA01\Mus_lightfight_21.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusDesperateWithStress\MusDesperateWithStress_KA02\Mus_light_fight_3_acb_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA01\Mus_fight_KA_13.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA02\Mus_fight_KA_1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_07</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA02\Mus_fight_KA_2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_08</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA02\Mus_fight_KA_12a.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA02\Mus_fight_KA_12b.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA02\Mus_fight_KA_12c.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_09</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA04\Mus_heavyfight_KA_16.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_10</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA04\Mus_heavyfight_KA_19.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_11</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA05\Mus_heavyfight_KA_17_rev.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_12</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA15\Mus_heavyfight_KA_15.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_13</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA15\Mus_special_3_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusHeavyFight_14</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA15\Mus_special_KA_6.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Combat</TransitionCategory>
+      <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Danger category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusDanger_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA05\Mus_stealth_KA_2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusDanger_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA05\Mus_stealth_KA_3.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusDanger_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA05\Mus_stealth_KA_4.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusDanger_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA07\Mus_stealth_b_MM.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusDanger_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusHeavyFight\MusHeavyFight_KA15\Mus_special_KA_15.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusDanger_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track10.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Neutral</TransitionCategory>
+      <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Earthlike planet category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusEarthlike_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track2.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusEarthlike_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track3.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusEarthlike_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track4.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusEarthlike_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track8.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusEarthlike_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track16.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusEarthlike_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track17.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Neutral planet category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusPlanet_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track13.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusPlanet_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusPlanet_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track5.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusPlanet_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track9.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusPlanet_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track11.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusPlanet_06</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track18.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Alien planet category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusAlien_01</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusAlien\se_track6.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusAlien_02</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusAlien\se_track7.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusAlien_03</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusAlien\se_track12.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusAlien_04</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusAlien\se_track15.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusAlien_05</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track14.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Planet</TransitionCategory>
+      <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+    <!--
+    
+            Special category
+            
+    -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusFun</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusFun\Spazzmatica_Polka.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>NoRandom</TransitionCategory>
+      <MusicCategory>MusFun</MusicCategory>
+      <StreamSound>true</StreamSound>
+    </Sound>
+  </Sounds>
+</Definitions>

@@ -7,7 +7,7 @@ using VRageMath;
 using VRageRender;
 using Sandbox.Graphics;
 using Sandbox.Game.Weapons;
-using Sandbox.Common.Components;
+
 using VRage.Game.Components;
 
 namespace Sandbox.Game.Components
@@ -40,8 +40,9 @@ namespace Sandbox.Game.Components
 
             projectedPoint2D = MyGuiManager.GetHudPixelCoordFromNormalizedCoord(projectedPoint2D);
 
-            MyGuiManager.DrawSprite(m_invetoryItem.IconTexture, projectedPoint2D, new Rectangle(0, 0, 128, 128), Color.White,
-                 0, new Vector2(64, 64), new Vector2(0.5f), VRageRender.Graphics.SpriteEffects.None, 0);
+            for (int i = 0; i < m_invetoryItem.IconTextures.Length; i++ )
+                MyGuiManager.DrawSprite(m_invetoryItem.IconTextures[i], projectedPoint2D, new Rectangle(0, 0, 128, 128), Color.White,
+                     0, new Vector2(64, 64), new Vector2(0.5f), SpriteEffects.None, 0);
         }
         
         #endregion

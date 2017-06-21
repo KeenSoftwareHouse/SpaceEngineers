@@ -25,9 +25,9 @@ namespace System
             }
         }
 
-        public static void ResetRead(this BitStream stream, MyPacket packet)
+        public static void ResetRead(this BitStream stream, MyPacket packet, bool copy = true)
         {
-            stream.ResetRead(packet.Data, packet.PayloadOffset, packet.PayloadLength * 8);
+            stream.ResetRead(packet.Data, packet.PayloadOffset, packet.PayloadLength * 8, copy);
         }
 
         public static NetworkId ReadNetworkId(this VRage.Library.Collections.BitStream stream)

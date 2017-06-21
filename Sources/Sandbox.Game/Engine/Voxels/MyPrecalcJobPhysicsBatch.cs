@@ -1,18 +1,11 @@
 ﻿using Havok;
-using ParallelTasks;
-using Sandbox.Engine.Utils;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using VRage;
 using VRage.Generics;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -23,21 +16,23 @@ namespace Sandbox.Engine.Voxels
         private MyVoxelPhysicsBody m_targetPhysics;
         internal HashSet<Vector3I> CellBatch = new HashSet<Vector3I>(Vector3I.Comparer);
 
-        private Dictionary<Vector3I, HkBvCompressedMeshShape> m_newShapes = new Dictionary<Vector3I, HkBvCompressedMeshShape>(Vector3I.Comparer);
+        private Dictionary<Vector3I, HkShape> m_newShapes = new Dictionary<Vector3I, HkShape>(Vector3I.Comparer);
         private volatile bool m_isCancelled;
 
         public int Lod;
 
         public MyPrecalcJobPhysicsBatch() : base(true) { }
 
-        public static void Start(MyVoxelPhysicsBody targetPhysics, ref HashSet<Vector3I> cellBatchForSwap)
+        public static void Start(MyVoxelPhysicsBody targetPhysics, ref HashSet<Vector3I> cellBatchForSwap, int lod)
         {
             var job = m_instancePool.Allocate();
 
+            job.Lod = lod;
+
             job.m_targetPhysics = targetPhysics;
             MyUtils.Swap(ref job.CellBatch, ref cellBatchForSwap);
-            Debug.Assert(targetPhysics.RunningBatchTask == null);
-            targetPhysics.RunningBatchTask = job;
+            Debug.Assert(targetPhysics.RunningBatchTask[lod] == null);
+            targetPhysics.RunningBatchTask[lod] = job;
             MyPrecalcComponent.EnqueueBack(job);
         }
 
@@ -79,18 +74,18 @@ namespace Sandbox.Engine.Voxels
 
             if (MyPrecalcComponent.Loaded && !m_isCancelled)
             {
-                Debug.Assert(m_targetPhysics.RunningBatchTask == this);
+                Debug.Assert(m_targetPhysics.RunningBatchTask[Lod] == this);
                 m_targetPhysics.OnBatchTaskComplete(m_newShapes, Lod);
             }
 
             foreach (var newShape in m_newShapes.Values)
             {
-                if (!newShape.Base.IsZero)
-                    newShape.Base.RemoveReference();
+                if (!newShape.IsZero)
+                    newShape.RemoveReference();
             }
 
-            if (m_targetPhysics.RunningBatchTask == this)
-                m_targetPhysics.RunningBatchTask = null;
+            if (m_targetPhysics.RunningBatchTask[Lod] == this)
+                m_targetPhysics.RunningBatchTask[Lod] = null;
             m_targetPhysics = null;
             CellBatch.Clear();
             m_newShapes.Clear();

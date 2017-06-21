@@ -9,7 +9,7 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Import;
 using VRageMath;
 using VRage.Utils;
@@ -24,7 +24,8 @@ using Sandbox.Game.World;
 using VRage.Game;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.Entity;
-
+using Sandbox.Game.Multiplayer;
+using VRage.Profiler;
 
 #endregion
 
@@ -37,14 +38,23 @@ namespace Sandbox.Game.Entities.Character
         static string TopBody = "LeftHand RightHand LeftFingers RightFingers Head Spine";
 
         bool m_resetWeaponAnimationState;
+        private Quaternion m_lastRotation;
 
         #endregion
 
         #region Animations init
 
 
+        // temporary solution, resolving jittering
+        private readonly Vector3[] m_animationSpeedFilter = new Vector3[4];
+        private int m_animationSpeedFilterCursor = 0;
+
         void InitAnimations()
         {
+            m_animationSpeedFilterCursor = 0;
+            for (int i = 0; i < m_animationSpeedFilter.Length; i++)
+                m_animationSpeedFilter[i] = Vector3.Zero;
+
             foreach (var bones in m_characterDefinition.BoneSets)
             {
                 AddAnimationPlayer(bones.Key, bones.Value);
@@ -75,30 +85,19 @@ namespace Sandbox.Game.Entities.Character
         }
 
 
-        public override void UpdateToolPosition()
-        {
-            if (m_currentWeapon != null)
-            {
-                if (!MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon))
-                {
-                    UpdateWeaponPosition();
-                }
-            }
-        }
-
         protected override void CalculateTransforms(float distance)
         {
             ProfilerShort.Begin("MyCharacter.CalculateTransforms");
 
             base.CalculateTransforms(distance);
-
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("UpdateLeftHandItemPosition");
-            if (m_leftHandItem != null)
+            if (m_headBoneIndex >= 0 && AnimationController.CharacterBones != null && (IsInFirstPersonView || ForceFirstPersonCamera) && ControllerInfo.IsLocallyControlled() && !IsBot)
             {
-                UpdateLeftHandItemPosition();
+                Vector3 headHorizontalTranslation = AnimationController.CharacterBones[m_headBoneIndex].AbsoluteTransform.Translation;
+                headHorizontalTranslation.Y = 0;
+                MyCharacterBone.TranslateAllBones(AnimationController.CharacterBones, -headHorizontalTranslation);
             }
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("Calculate Hand IK");
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Calculate Hand IK");
 
 
             if (this == MySession.Static.ControlledEntity)
@@ -107,52 +106,39 @@ namespace Sandbox.Game.Entities.Character
                 // set the aimed point explicitly using AimedPoint property
                 m_aimedPoint = GetAimedPointFromCamera();
             }
-            
-            if (m_currentWeapon != null)
-            {
-                if (!MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon))
-                {
-                    UpdateWeaponPosition(); //mainly IK and some zoom + ironsight stuff
-                    if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1 && (!UseAnimationForWeapon && m_animationToIKState == 0))
-                    {
-                        MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
-                        CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
-                    }
 
-                    if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && (!UseAnimationForWeapon || m_animationToIKState != 0) && IsSitting == false)
-                    {
-                        MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
-                        CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
-                    }
-                }
-                else
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("Update anim IK");
+
+            AnimationController.UpdateInverseKinematics(); // since we already have absolute transforms
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("UpdateLeftHandItemPosition");
+            if (m_leftHandItem != null)
+            {
+                UpdateLeftHandItemPosition();
+            }
+
+            if (m_currentWeapon != null && WeaponPosition != null && m_handItemDefinition != null)
+            {
+                WeaponPosition.Update();
+                //mainly IK and some zoom + ironsight stuff
+                if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1)
                 {
-                    Debug.Assert(m_rightHandItemBone != -1, "Invalid bone for weapon.");
-                    if (m_rightHandItemBone != -1)
-                    {
-                        //use animation for right hand item
-                        MatrixD rightHandItemMatrix = AnimationController.CharacterBones[m_rightHandItemBone].AbsoluteTransform * WorldMatrix;
-                        //var rightHandItemMatrix = ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix; //use with UpdateWeaponPosition() but not working for barbarians
-                        Vector3D up = rightHandItemMatrix.Up;
-                        rightHandItemMatrix.Up = rightHandItemMatrix.Forward;
-                        rightHandItemMatrix.Forward = up;
-                        rightHandItemMatrix.Right = -rightHandItemMatrix.Right;
-                        ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix = rightHandItemMatrix;
-                    }
+                    MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                    CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
+                }
+
+                if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && IsSitting == false)
+                {
+                    MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                    CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
                 }
             }
 
+            MyRenderProxy.GetRenderProfiler().StartNextBlock("UpdateTransformations");
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("ComputeBoneTransform");
+            AnimationController.UpdateTransformations();
 
-            var characterBones = AnimationController.CharacterBones;
-            for (int i = 0; i < characterBones.Length; i++)
-            {
-                MyCharacterBone bone = characterBones[i];
-                BoneRelativeTransforms[i] = bone.ComputeBoneTransform();
-            }
-
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+            MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             ProfilerShort.End();
         }
@@ -165,12 +151,15 @@ namespace Sandbox.Game.Entities.Character
 
         public override void UpdateAnimation(float distance)
         {
+            if (UseNewAnimationSystem)
+                UpdateAnimationNewSystem();
             if (MySandboxGame.IsDedicated && MyPerGameSettings.DisableAnimationsOnDS)
                 return;
             MyAnimationPlayerBlendPair leftHandPlayer;
             if (TryGetAnimationPlayer("LeftHand", out leftHandPlayer))
             {
-                if (leftHandPlayer.GetState() == MyAnimationPlayerBlendPair.AnimationBlendState.Stopped && m_leftHandItem != null)
+                if (leftHandPlayer.GetState() == MyAnimationPlayerBlendPair.AnimationBlendState.Stopped 
+                    && m_leftHandItem != null && !UseNewAnimationSystem)
                 {
                     m_leftHandItem.Close();
                     m_leftHandItem = null;
@@ -188,12 +177,91 @@ namespace Sandbox.Game.Entities.Character
                 //    (m_rightFingersPlayer.GetState() == MyAnimationPlayerBlendPair.AnimationBlendState.Stopped))
                 {
                     m_resetWeaponAnimationState = false;
-                    UseAnimationForWeapon = false;
                 }
             }
         }
 
-        
+        private void UpdateAnimationNewSystem()
+        {
+            var variableStorage = AnimationController.Variables;
+            // character speed
+            if (Physics != null && Physics.CharacterProxy != null)
+            {
+                Vector3 localSpeedWorldRotUnfiltered = (Physics.CharacterProxy.LinearVelocity - Physics.CharacterProxy.GroundVelocity);
+
+                //Minimize walking bug during standing on floating object
+                if ((GetCurrentMovementState() == MyCharacterMovementEnum.Standing) /*&& Physics.CharacterProxy.CharacterRigidBody.IsSupportedByFloatingObject()*/)
+                {
+                   float r = Physics.CharacterProxy.Up.Dot(localSpeedWorldRotUnfiltered);
+                   if (r < 0.0f)
+                   {
+                       localSpeedWorldRotUnfiltered -= Physics.CharacterProxy.Up * r;
+                   }
+                }
+                                               
+                var localSpeedWorldRot = FilterLocalSpeed(localSpeedWorldRotUnfiltered);
+                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeed, localSpeedWorldRot.Length());
+            
+                float localSpeedX = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Right);
+                float localSpeedY = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Up);
+                float localSpeedZ = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Forward);
+
+                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedX, localSpeedX);
+                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedY, localSpeedY);
+                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedZ, localSpeedZ);
+                const float speedThreshold2 = 0.1f * 0.1f;
+                float speedangle = localSpeedWorldRot.LengthSquared() > speedThreshold2 ? (float)(-Math.Atan2(localSpeedZ, localSpeedX) * 180.0f / Math.PI) + 90.0f : 0.0f;
+                while (speedangle < 0.0f)
+                    speedangle += 360.0f;
+                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedAngle, speedangle);
+
+                Quaternion currentRotation = this.GetRotation();
+                m_animTurningSpeed = (Quaternion.Inverse(currentRotation) * m_lastRotation).Y / (CHARACTER_X_ROTATION_SPEED * CHARACTER_Y_ROTATION_FACTOR / 2) * 180.0f / (float)Math.PI;
+                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdTurningSpeed, m_animTurningSpeed);
+                m_lastRotation = currentRotation;
+
+                if (OxygenComponent != null)
+                    variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdHelmetOpen, OxygenComponent.HelmetEnabled ? 0.0f : 1.0f);
+
+                if (Parent is MyCockpit)
+                    variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdLean, 0);
+                else
+                    variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdLean, m_animLeaning);
+            }
+
+            if (JetpackComp != null)
+                AnimationController.Variables.SetValue(MyAnimationVariableStorageHints.StrIdFlying, JetpackComp.Running ? 1.0f : 0.0f);
+
+            MyCharacterMovementEnum movementState = GetCurrentMovementState();
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFlying, movementState == MyCharacterMovementEnum.Flying ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFalling, IsFalling || movementState == MyCharacterMovementEnum.Falling ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdCrouch, (WantsCrouch && !WantsSprint) ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSitting, movementState == MyCharacterMovementEnum.Sitting ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdJumping, movementState == MyCharacterMovementEnum.Jump ? 1.0f : 0.0f);
+
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFirstPerson, m_isInFirstPerson ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdHoldingTool, m_currentWeapon != null ? 1.0f : 0.0f);
+        }
+
+        private Vector3 FilterLocalSpeed(Vector3 localSpeedWorldRotUnfiltered)
+        {
+            m_animationSpeedFilter[m_animationSpeedFilterCursor++] = localSpeedWorldRotUnfiltered;
+            if (m_animationSpeedFilterCursor >= m_animationSpeedFilter.Length)
+                m_animationSpeedFilterCursor = 0;
+
+            Vector3 localSpeedWorldRot = Vector3.Zero;
+            for (int i = 0; i < m_animationSpeedFilter.Length; i++)
+            {
+                if (m_animationSpeedFilter[i].X*m_animationSpeedFilter[i].X > localSpeedWorldRot.X*localSpeedWorldRot.X)
+                    localSpeedWorldRot.X = m_animationSpeedFilter[i].X;
+                if (m_animationSpeedFilter[i].Y*m_animationSpeedFilter[i].Y > localSpeedWorldRot.Y*localSpeedWorldRot.Y)
+                    localSpeedWorldRot.Y = m_animationSpeedFilter[i].Y;
+                if (m_animationSpeedFilter[i].Z*m_animationSpeedFilter[i].Z > localSpeedWorldRot.Z*localSpeedWorldRot.Z)
+                    localSpeedWorldRot.Z = m_animationSpeedFilter[i].Z;
+            }
+            return localSpeedWorldRot;
+        }
+
         /*
          * This was hacked so the character would have a fluid movement (when shooting still and then start another movement - jump, strafe, running, etc...).
          * Before this, the attack animation would be overriden, but still with normal physical/damage effects.
@@ -241,36 +309,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (animDefinition.AllowWithWeapon)
             {
-                if (!UseAnimationForWeapon)
-                {
-                    StoreWeaponRelativeMatrix();
-                    UseAnimationForWeapon = true;
-                    m_resetWeaponAnimationState = true;
-                }
-            }
-
-            if (!animDefinition.LeftHandItem.TypeId.IsNull)
-            {
-                if (m_leftHandItem != null)
-                {
-                    (m_leftHandItem as IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>).OnControlReleased();
-                    m_leftHandItem.Close();
-                }
-
-                m_leftHandItem = MyEntityFactory.CreateEntity(animDefinition.LeftHandItem.TypeId);
-                var ob = MyEntityFactory.CreateObjectBuilder(m_leftHandItem);
-                m_leftHandItem.Init(ob);
-
-                var leftHandTool = m_leftHandItem as IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>;
-                if (leftHandTool != null)
-                {
-                    leftHandTool.OnControlAcquired(this);
-                }
-
-                (m_leftHandItem as IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>).OnControlAcquired(this);
-                UpdateLeftHandItemPosition();
-
-                MyEntities.Add(m_leftHandItem);
+                m_resetWeaponAnimationState = true;
             }
         }
 
@@ -291,10 +330,15 @@ namespace Sandbox.Game.Entities.Character
 
         public override void AddCommand(MyAnimationCommand command, bool sync = false)
         {
+            if (UseNewAnimationSystem)
+                return;
+
             base.AddCommand(command, sync);
 
             if (sync)
-                SyncObject.SendAnimationCommand(ref command);
+            {
+                SendAnimationCommand(ref command);
+            }
         }
 
 
@@ -369,6 +413,21 @@ namespace Sandbox.Game.Entities.Character
             m_animationCommandsEnabled = true;
         }
 
+        public void TriggerCharacterAnimationEvent(string eventName, bool sync)
+        {
+            if (!UseNewAnimationSystem || string.IsNullOrEmpty(eventName))
+                return;
+
+            if (sync)
+            {
+                SendAnimationEvent(eventName);
+            }
+            else
+            {
+                AnimationController.TriggerAction(MyStringId.GetOrCompute(eventName));
+            }
+        }
+
         public void PlayCharacterAnimation(
            string animationName,
            MyBlendOption blendOption,
@@ -380,6 +439,8 @@ namespace Sandbox.Game.Entities.Character
            bool excludeLegsWhenMoving = false
            )
         {
+            if (UseNewAnimationSystem)
+                return;
             bool disableAnimations = MySandboxGame.IsDedicated && MyPerGameSettings.DisableAnimationsOnDS;
             if (disableAnimations && !sync)
             {
@@ -413,18 +474,23 @@ namespace Sandbox.Game.Entities.Character
             };
 
             // CH: If we don't want to play the animation ourselves, but it has to be synced, we have to send it to clients at least
-            if (disableAnimations && sync)
+            // MZ: when sync is on, we always want to send the message
+            if (sync)
             {
-                SyncObject.SendAnimationCommand(ref command);
+                SendAnimationCommand(ref command);
             }
             else
             {
-                AddCommand(command, sync);
+                // if animations are disabled and sync is off, don't do anything
+                if (!disableAnimations)
+                    AddCommand(command, sync);
             }
         }
 
         public void StopUpperCharacterAnimation(float blendTime)
         {
+            if (UseNewAnimationSystem)
+                return;
             AddCommand(new MyAnimationCommand()
                 {
                     AnimationSubtypeName = null,
@@ -437,6 +503,8 @@ namespace Sandbox.Game.Entities.Character
 
         public void StopLowerCharacterAnimation(float blendTime)
         {
+            if (UseNewAnimationSystem)
+                return;
             AddCommand(new MyAnimationCommand()
             {
                 AnimationSubtypeName = null,

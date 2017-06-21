@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using ProtoBuf;
 using VRage.Data;
+using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game
@@ -108,7 +109,8 @@ namespace VRage.Game
         XMinusHalfX,
         YMinusHalfX,
         ZMinusHalfX,
-        ZThenOffsetX
+        ZThenOffsetX,
+        YThenOffsetX,
     }
 
     public enum MyAutorotateMode
@@ -150,10 +152,19 @@ namespace VRage.Game
         Both = Horizontal | Vertical,
     }
 
+    public struct VoxelPlacementOverride
+    {
+        public VoxelPlacementSettings StaticMode;
+        public VoxelPlacementSettings DynamicMode;
+    }
+
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CubeBlockDefinition : MyObjectBuilder_PhysicalModelDefinition
     {
+
+        #region Properties Definitions
+
         [ProtoContract]
         public class MountPoint
         {
@@ -201,6 +212,10 @@ namespace VRage.Game
 
             [XmlAttribute, ProtoMember, DefaultValue(true)]
             public bool Enabled = true;
+
+            [XmlAttribute, ProtoMember, DefaultValue(false)]
+            public bool Default = false;
+
         }
 
         [ProtoContract]
@@ -336,6 +351,65 @@ namespace VRage.Game
             public string BuilderType;
         }
 
+        [ProtoContract]
+        public class CubeBlockEffectBase
+        {
+            [XmlAttribute]
+            [ProtoMember]
+            public string Name = "";
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float ParameterMin = float.MinValue;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float ParameterMax = float.MaxValue;
+
+            [XmlArrayItem("ParticleEffect")]
+            [ProtoMember]
+            public CubeBlockEffect[] ParticleEffects;
+        }
+
+        [ProtoContract]
+        public class CubeBlockEffect
+        {
+            [XmlAttribute]
+            [ProtoMember]
+            public string Name = "";
+
+            [XmlAttribute]
+            [ProtoMember]
+            public string Origin = "";
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float Delay = 0f;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float Duration = 0f;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public bool Loop = false;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float SpawnTimeMin = 0f;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float SpawnTimeMax = 0f;
+        }
+
+        #endregion
+
+        public VoxelPlacementOverride? VoxelPlacement = null;
+
+        [ProtoMember, DefaultValue(false)]
+        public bool SilenceableByShipSoundSystem;
+
         [ProtoMember]
         public MyCubeSize CubeSize;
         
@@ -358,6 +432,10 @@ namespace VRage.Game
         [XmlArrayItem("Component")]
         [ProtoMember]
         public CubeBlockComponent[] Components;
+        
+        [XmlArrayItem("Effect")]
+        [ProtoMember]
+        public CubeBlockEffectBase[] Effects;
 
         [ProtoMember]
         public CriticalPart CriticalComponent;
@@ -465,17 +543,23 @@ namespace VRage.Game
 
         [XmlArrayItem("GeneratedBlock")]
         [ProtoMember, DefaultValue(null)]
-        public SerializableDefinitionId[] GeneratedBlocks = null;
+        public SerializableDefinitionId[] GeneratedBlocks;
 
         [ProtoMember, DefaultValue(null)]
-        public string GeneratedBlockType = null;
+        public string GeneratedBlockType;
 
         // Defines if the block is mirrored version of some other block (mirrored block is usually used as block variant)
         [ProtoMember, DefaultValue(false)]
-        public bool Mirrored = false;
+        public bool Mirrored;
 
         [ProtoMember, DefaultValue(0)]
-        public int DamageEffectId = 0;
+        public int DamageEffectId;
+
+        [ProtoMember, DefaultValue("")]
+        public string DestroyEffect;
+
+        [ProtoMember, DefaultValue("")]
+        public string DestroySound;
 
         // Defines if the block is deformed by a skeleton by default (round blocks)
         [ProtoMember, DefaultValue(null)]
@@ -483,14 +567,14 @@ namespace VRage.Game
 
         // Defines if the block can be randomly rotated when line/plane building is applied to it.
         [ProtoMember, DefaultValue(false)]
-        public bool RandomRotation = false;
+        public bool RandomRotation;
 
         // Temporary flag that tells the oxygen system to treat this block as a full block
         [ProtoMember, DefaultValue(false)]
-        public bool IsAirTight = false;
+        public bool IsAirTight;
 
         [ProtoMember, DefaultValue(1)]
-        public int Points = 1;
+        public int Points;
 
         [ProtoMember, DefaultValue(0)]
         public int MaxIntegrity = 0;

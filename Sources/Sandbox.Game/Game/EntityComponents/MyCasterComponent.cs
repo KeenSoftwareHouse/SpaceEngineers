@@ -10,7 +10,11 @@ using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
 using VRageMath;
+using Sandbox.Game.WorldEnvironment.Modules;
+using Sandbox.Game.WorldEnvironment;
+using Sandbox.Game.World;
 
 namespace Sandbox.Game.EntityComponents
 {
@@ -47,6 +51,16 @@ namespace Sandbox.Game.EntityComponents
         /// Indicates floating object that was hit by raycast.
         /// </summary>
         private MyFloatingObject m_hitFloatingObject;
+
+        /// <summary>
+        /// Indicates Environment Sector hit.
+        /// </summary>
+        private MyEnvironmentSector m_hitEnvironmentSector;
+
+        /// <summary>
+        /// Indicates Specific item of Environment Sector hit.
+        /// </summary>
+        private int m_environmentItem;
 
         /// <summary>
         /// Indicates exact hit position of raycast.
@@ -92,6 +106,7 @@ namespace Sandbox.Game.EntityComponents
             var entitiesInRange = this.m_caster.EntitiesInRange;
             float closestDistance = float.MaxValue;
             MyEntity closestEntity = null;
+            int itemId = 0;
 
             if (!m_isPointOfRefSet)
                 m_pointOfReference = worldPos.Translation;
@@ -108,6 +123,7 @@ namespace Sandbox.Game.EntityComponents
                         if (distanceSq < closestDistance)
                         {
                             closestEntity = entity.Entity;
+                            itemId = entity.ItemId;
                             this.m_distanceToHitSq = distanceSq;
                             this.m_hitPosition = entity.DetectionPoint;
 
@@ -123,6 +139,8 @@ namespace Sandbox.Game.EntityComponents
             this.m_hitDestroaybleObj = closestEntity as IMyDestroyableObject;
             this.m_hitFloatingObject = closestEntity as MyFloatingObject;
             this.m_hitCharacter = closestEntity as MyCharacter;
+            this.m_hitEnvironmentSector = closestEntity as MyEnvironmentSector;
+            this.m_environmentItem = itemId;
 
             if (m_hitCubeGrid != null)
             {
@@ -173,6 +191,10 @@ namespace Sandbox.Game.EntityComponents
         public IMyDestroyableObject HitDestroyableObj { get { return this.m_hitDestroaybleObj; } }
 
         public MyFloatingObject HitFloatingObject { get { return this.m_hitFloatingObject; } }
+
+        public MyEnvironmentSector HitEnvironmentSector { get { return this.m_hitEnvironmentSector; } }
+
+        public int EnvironmentItem { get { return this.m_environmentItem; } }
 
         public MyCharacter HitCharacter { get { return this.m_hitCharacter; } }
 

@@ -11,11 +11,12 @@ namespace VRage.Game
     {
         [ProtoMember]
         [XmlElement("Amount")]
-        public MyFixedPoint Amount;
+        public MyFixedPoint Amount = 1;
 
         [ProtoMember]
         [XmlElement("Scale")]
         public float Scale = 1.0f;
+        public bool ShouldSerializeScale() { return Scale != 1.0f; }
 
         [XmlElement("AmountDecimal")]
         [NoSerialize]
@@ -24,25 +25,26 @@ namespace VRage.Game
             get { return (decimal)Amount; }
             set { Amount = (MyFixedPoint)value; }
         }
-        public bool ShouldSerializeAmountDecimal() { return false; }
+        public bool ShouldSerializeObsolete_AmountDecimal() { return false; }
 
         /// <summary>
-        /// Obsolete. It is here only to keep LIMITED backwards compatibility with old saves. Nulls content when unsupported.
+        /// Obsolete. It is here only to keep backwards compatibility with old saves. Nulls content when unsupported.
         /// </summary>
-        [NoSerialize]
-        public MyObjectBuilder_Base Content
-        {
-            get { return PhysicalContent; }
-            set { PhysicalContent = value as MyObjectBuilder_PhysicalObject; }
-        }
+        [ProtoMember]
+        [XmlElement(Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_PhysicalObject>))]
+        [DynamicObjectBuilder]
+        [Serialize(MyObjectFlags.Nullable)]
+        public MyObjectBuilder_PhysicalObject Content;
+
         public bool ShouldSerializeContent() { return false; }
 
         [ProtoMember]
         [XmlElement(Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_PhysicalObject>))]
         [DynamicObjectBuilder]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_PhysicalObject PhysicalContent;
 
         [ProtoMember]
-        public uint ItemId;
+        public uint ItemId = 0;
     }
 }

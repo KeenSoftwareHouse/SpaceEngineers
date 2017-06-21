@@ -18,7 +18,8 @@ using Sandbox.Graphics;
 
 namespace Sandbox.Game.Gui
 {
-    [MyDebugScreen("Game", "System")]
+#if !XB1
+    [MyDebugScreen("VRage", "System")]
     class MyGuiScreenDebugSystem : MyGuiScreenDebugBase
     {
         private MyGuiControlMultilineText m_havokStatsMultiline;
@@ -74,4 +75,5 @@ namespace Sandbox.Game.Gui
             GC.Collect();
         }
     }
+#endif
 }

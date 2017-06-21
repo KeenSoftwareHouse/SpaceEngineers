@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using VRage.Game.Entity;
+using VRage.ModAPI;
+using VRage.Profiler;
 using VRageMath;
 using VRage.Utils;
 
@@ -24,9 +27,7 @@ namespace VRage.Game.Components
             }
             set
             {
-                m_localAABB = value;
-                m_localVolume = BoundingSphere.CreateFromBoundingBox(m_localAABB);
-                m_worldVolumeDirty = true;
+                base.LocalAABB = value;
                 Container.Entity.UpdateGamePruningStructure();
             }
         }
@@ -91,18 +92,19 @@ namespace VRage.Game.Components
         /// </summary>
         /// <param name="worldMatrix">The world matrix.</param>
         /// <param name="source">The source object that caused this change or null when not important.</param>
-        public override void SetWorldMatrix(MatrixD worldMatrix, object source = null, bool forceUpdate = false)
+        public override void SetWorldMatrix(MatrixD worldMatrix, object source = null, bool forceUpdate = false, bool updateChildren = true)
         {
             if (Entity.Parent != null && source != Entity.Parent)
                 return;
-            MyUtils.AssertIsValid(worldMatrix);
+
+            worldMatrix.AssertIsValid();
 
             if (Scale != null)
             {
                 MyUtils.Normalize(ref worldMatrix, out worldMatrix);
                 worldMatrix = MatrixD.CreateScale(Scale.Value) * worldMatrix;
             }
-            if (m_worldMatrix.EqualsFast(ref worldMatrix) && !forceUpdate)
+            if (!forceUpdate && m_worldMatrix.EqualsFast(ref worldMatrix))
                 return;
 
             if (this.Container.Entity.Parent == null)
@@ -115,12 +117,7 @@ namespace VRage.Game.Components
             }
             this.m_worldMatrix = worldMatrix;
 
-            OnWorldPositionChanged(source);
-
-            if (this.Container.Entity.InScene && source != m_syncObject && ShouldSync && this.Container.Entity.Parent == null)
-            {
-                m_syncObject.MarkPhysicsDirty();
-            }
+            OnWorldPositionChanged(source, updateChildren);
         }
 
         /// <summary>
@@ -140,18 +137,20 @@ namespace VRage.Game.Components
         /// Called when [world position changed].
         /// </summary>
         /// <param name="source">The source object that caused this event.</param>
-        protected override void OnWorldPositionChanged(object source)
+        protected override void OnWorldPositionChanged(object source, bool updateChildren = true)
         {
             //ProfilerShort.Begin("OnWorldPositionChanged");
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
 
-            if (Entity.Parent == null)
+            if (Entity.Parent == null || (Entity.Flags & EntityFlags.IsGamePrunningStructureObject) != 0)
             {
                 Container.Entity.UpdateGamePruningStructure();
             }
 
-            UpdateChildren(source); //update children WMs
+            if (updateChildren)
+                UpdateChildren(source); //update children WMs
             m_worldVolumeDirty = true;
+            m_worldAABBDirty = true;
             m_normalizedInvMatrixDirty = true;
             m_invScaledMatrixDirty = true;
 

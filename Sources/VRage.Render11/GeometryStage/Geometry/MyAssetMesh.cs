@@ -11,12 +11,13 @@ using System.Text;
 using VRage.FileSystem;
 using VRage.Import;
 using VRage.Library.Utils;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
-using VRageRender.Resources;
+using VRageRender.Import;
 using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
 
 
 namespace VRageRender
@@ -65,7 +66,7 @@ namespace VRageRender
                 contentPath = assetName.Substring(0, assetName.ToLower().IndexOf("models"));
 
             try
-            { 
+            {
 
                 importer.ImportData(fsPath, new string[]
                     {
@@ -106,18 +107,15 @@ namespace VRageRender
                     tanW.W = T.Cross(N).Dot(B) < 0 ? -1 : 1;
                     tangentBitanSgn[i] = VF_Packer.PackTangentSignB4(ref tanW);
                 }
-                bool hasBonesInfo = false;
-                if (boneIndices.Length > 0 && boneWeights.Length > 0)
-                {
-                    hasBonesInfo = true;
-                }
+                
+                bool hasBonesInfo = boneIndices.Length > 0 && boneWeights.Length > 0;
                 var bones = (MyModelBone[])tagData[MyImporterConstants.TAG_BONES];
 
                 //
-                var vertexBuffers = new List<VertexBufferId>();
-                IndexBufferId indexBuffer = IndexBufferId.NULL;
-                var submeshes = new Dictionary<string, List<MyDrawSubmesh>>();
-                var submeshes2 = new Dictionary<string, List<MySubmeshInfo>>();
+                var vertexBuffers = new List<IVertexBuffer>();
+                IIndexBuffer indexBuffer = null;
+                var submeshes = new Dictionary<MyMeshDrawTechnique, List<MyDrawSubmesh>>();
+                var submeshes2 = new Dictionary<MyMeshDrawTechnique, List<MySubmeshInfo>>();
                 var submeshesMeta = new List<MySubmeshInfo>();
 
                 int indicesNum = 0;
@@ -267,7 +265,7 @@ namespace VRageRender
 
                             fixed (ushort* I = indices16)
                             {
-                                indexBuffer = MyHwBuffers.CreateIndexBuffer(indices16.Length, Format.R16_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(I), assetName + " index buffer");
+                                indexBuffer = MyManagers.Buffers.CreateIndexBuffer(assetName + " index buffer", indices16.Length, new IntPtr(I), MyIndexBufferFormat.UShort, ResourceUsage.Immutable);
                             }
                         }
                         else
@@ -275,7 +273,7 @@ namespace VRageRender
                             var indicesArray = indices.ToArray();
                             fixed (uint* I = indicesArray)
                             {
-                                indexBuffer = MyHwBuffers.CreateIndexBuffer(indices.Count, Format.R32_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(I), assetName + " index buffer");
+                                indexBuffer = MyManagers.Buffers.CreateIndexBuffer(assetName + " index buffer", indices.Count, new IntPtr(I), MyIndexBufferFormat.UInt, ResourceUsage.Immutable);
                             }
                         }
                     }
@@ -295,7 +293,10 @@ namespace VRageRender
 
                             fixed (MyVertexFormatPositionH4* V = vertices)
                             {
-                                vertexBuffers.Add(MyHwBuffers.CreateVertexBuffer(verticesNum, sizeof(MyVertexFormatPositionH4), BindFlags.VertexBuffer, ResourceUsage.Immutable, new IntPtr(V), assetName + " vertex buffer " + vertexBuffers.Count));
+                                vertexBuffers.Add(
+                                    MyManagers.Buffers.CreateVertexBuffer(
+                                        assetName + " vertex buffer " + vertexBuffers.Count, verticesNum,
+                                        sizeof(MyVertexFormatPositionH4), new IntPtr(V), ResourceUsage.Immutable));
                             }
                         }
                         else
@@ -309,11 +310,14 @@ namespace VRageRender
                                     boneWeights[i]);
                             }
                             meshVertexInput = meshVertexInput.Append(MyVertexInputComponentType.POSITION_PACKED)
-                                .Append(MyVertexInputComponentType.BLEND_WEIGHTS).Append(MyVertexInputComponentType.BLEND_INDICES);
+                                .Append(MyVertexInputComponentType.BLEND_WEIGHTS)
+                                .Append(MyVertexInputComponentType.BLEND_INDICES);
 
                             fixed (MyVertexFormatPositionSkinning* V = vertices)
                             {
-                                vertexBuffers.Add(MyHwBuffers.CreateVertexBuffer(verticesNum, sizeof(MyVertexFormatPositionSkinning), BindFlags.VertexBuffer, ResourceUsage.Immutable, new IntPtr(V), assetName + " vertex buffer " + vertexBuffers.Count));
+                                vertexBuffers.Add(MyManagers.Buffers.CreateVertexBuffer(
+                                    assetName + " vertex buffer " + vertexBuffers.Count, verticesNum,
+                                    sizeof(MyVertexFormatPositionSkinning), new IntPtr(V), ResourceUsage.Immutable));
                             }
                         }
                         // add second stream
@@ -326,7 +330,9 @@ namespace VRageRender
 
                             fixed (MyVertexFormatTexcoordNormalTangent* V = vertices)
                             {
-                                vertexBuffers.Add(MyHwBuffers.CreateVertexBuffer(verticesNum, sizeof(MyVertexFormatTexcoordNormalTangent), BindFlags.VertexBuffer, ResourceUsage.Immutable, new IntPtr(V), assetName + " vertex buffer " + vertexBuffers.Count));
+                                vertexBuffers.Add(MyManagers.Buffers.CreateVertexBuffer(
+                                    assetName + " vertex buffer " + vertexBuffers.Count, verticesNum,
+                                    sizeof(MyVertexFormatTexcoordNormalTangent), new IntPtr(V), ResourceUsage.Immutable));
                             }
 
                             result.VertexExtendedData = vertices;
@@ -350,7 +356,7 @@ namespace VRageRender
                 }
                 #endregion
 
-                if(missingMaterial)
+                if (missingMaterial)
                 {
                     Debug.WriteLine(String.Format("Mesh {0} has missing material", assetName));
                 }
@@ -377,7 +383,7 @@ namespace VRageRender
                 importer.Clear();
                 return result;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return MyAssetsLoader.GetDebugMesh().LODs[0].m_meshInfo;
             }
@@ -407,7 +413,7 @@ namespace VRageRender
 
         //internal static MyMaterialDescription LoadMaterial(VRage.Common.Import.MyMaterialDescriptor materialDesc)
         //{
-            
+
 
         //    if (materialDesc != null)
         //    {
@@ -456,7 +462,7 @@ namespace VRageRender
             }
             #endregion
 
-            
+
             string contentPath = null;
             if (Path.IsPathRooted(assetName) && assetName.ToLower().Contains("models"))
                 contentPath = assetName.Substring(0, assetName.ToLower().IndexOf("models"));
@@ -516,7 +522,7 @@ namespace VRageRender
                     var lod = new MyRenderLodInfo();
                     lod.Distance = lodDesc.Distance;
                     lod.LodNum = num;
-                    lod.m_meshInfo = LoadMesh(lodDesc.Model);
+                    lod.m_meshInfo = LoadMesh(lodDesc.GetModelAbsoluteFilePath(m_name));
                     LODs[num] = lod;
                     num++;
                 }

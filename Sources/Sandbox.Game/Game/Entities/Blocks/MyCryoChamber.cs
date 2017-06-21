@@ -23,11 +23,16 @@ using System.Diagnostics;
 using VRage;
 using Sandbox.Game.Replication;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
+using Sandbox.ModAPI;
+using VRage.Game.Entity;
+using VRage.Sync;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CryoChamber))]
-    public class MyCryoChamber : MyCockpit
+    public class MyCryoChamber : MyCockpit, IMyCryoChamber
     {
         private MatrixD m_characterDummy;
         private MatrixD m_cameraDummy;
@@ -56,15 +61,21 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         protected override MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCryoChamber; } }
-        static MyCryoChamber()
-        {
-            m_horizonIndicator.Enabled = (x) => false;
-            m_horizonIndicator.Visible = (x) => false;
-        }
+
         public MyCryoChamber()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_attachedPlayerId = SyncType.CreateAndAddProp<MyPlayer.PlayerId?>();
+#endif // XB1
+
             ControllerInfo.ControlAcquired += OnCryoChamberControlAcquired;
             m_attachedPlayerId.ValueChanged += (x) => AttachedPlayerChanged();
+        }
+
+        //override this in order not to show horizon
+        protected override bool CanHaveHorizon()
+        {
+            return false;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -202,10 +213,10 @@ namespace Sandbox.Game.Entities.Blocks
             var jetpack = pilot.JetpackComp;
             m_pilotJetpack = jetpack.TurnedOn;
             if (jetpack != null)
-                jetpack.TurnOnJetpack(false, false, false, false);
+                jetpack.TurnOnJetpack(false);
 
             pilot.Sit(true, MySession.Static.LocalCharacter == pilot, false, BlockDefinition.CharacterAnimation);
-
+            pilot.TriggerCharacterAnimationEvent("entercryochamber", false);
 
             pilot.SuitBattery.ResourceSource.Enabled = true;
 
@@ -270,6 +281,28 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 UpdateSound(Pilot != null && Pilot == MySession.Static.LocalCharacter);
             }
+
+            if(IsLocalCharacterInside())
+            {
+                if (MySession.Static.CameraController is MyEntity)
+                {
+                    if (MyHudCameraOverlay.TextureName == null || MyHudCameraOverlay.TextureName != m_overlayTextureName)
+                        SetOverlay();
+                    if (MyHudCameraOverlay.Enabled == false)
+                    {
+                        MyHudCameraOverlay.Enabled = true;
+                        this.Render.Visible = false;
+                    }
+                }
+                else
+                {
+                    if (MyHudCameraOverlay.Enabled)
+                    {
+                        MyHudCameraOverlay.Enabled = false;
+                        this.Render.Visible = true;
+                    }
+                }
+            }
         }
 
         public override void UpdateAfterSimulation100()
@@ -288,9 +321,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SetOverlay()
         {
-            MyHudCameraOverlay.TextureName = m_overlayTextureName;
-            MyHudCameraOverlay.Enabled = true;
-            this.Render.Visible = false;
+            if (IsLocalCharacterInside())
+            {
+                MyHudCameraOverlay.TextureName = m_overlayTextureName;
+                MyHudCameraOverlay.Enabled = true;
+                this.Render.Visible = false;
+            }
         }
 
         private void UpdateEmissivity(bool isUsed)
@@ -408,15 +444,22 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (isUsed)
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.SoundId)
+                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.InsideSound.Realistic)
                     {
-                        m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
+                        m_soundEmitter.Force2D = true;
+                        m_soundEmitter.Force3D = false;
+                        if (m_soundEmitter.SoundId == BlockDefinition.OutsideSound.Arcade || m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Realistic)
+                            m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
+                        else
+                            m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true, true);
                     }
                 }
                 else
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.SoundId)
+                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Realistic)
                     {
+                        m_soundEmitter.Force2D = false;
+                        m_soundEmitter.Force3D = true;
                         m_soundEmitter.PlaySound(BlockDefinition.OutsideSound, true);
                     }
                 }

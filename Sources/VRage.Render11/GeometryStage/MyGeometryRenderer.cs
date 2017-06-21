@@ -3,25 +3,23 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
-using VRageMath;
+
+using VRage.Collections;
+using VRage.Profiler;
+using VRage.Render11.GeometryStage2;
+using VRage.Render11.LightingStage.Shadows;using VRageMath;
 using Vector3 = VRageMath.Vector3;
 
 namespace VRageRender
 {
     struct MyCullingSmallObjects
     {
-        internal Vector3 ProjectionDir;
         internal float ProjectionFactor;
         internal float SkipThreshold;
     }
 
     class MyGeometryRenderer
     {
-        internal const string DEFAULT_OPAQUE_PASS = "gbuffer";
-        internal const string DEFAULT_DEPTH_PASS = "depth";
-        internal const string DEFAULT_FORWARD_PASS = "forward";
-        internal const string DEFAULT_HIGHLIGHT_PASS = "highlight";
-
         private readonly MyDynamicAABBTreeD m_renderablesDBVH;
         private readonly MyShadows m_shadowHandler;
 
@@ -48,23 +46,21 @@ namespace VRageRender
             m_cullQuery.Reset();
         }
 
-        // Adds to commandLists the command lists containing the rendering commands for the renderables given in renderablesDBVH
-        internal void Render(Queue<CommandList> commandLists, bool updateEnvironmentMap = false)
+        internal MyCullQuery PrepareCullQuery(bool updateEnvironmentMap = false)
         {
-            ProfilerShort.Begin("MyGeometryRenderer.Render");
-            MyGpuProfiler.IC_BeginBlock("MyGeometryRenderer.Render");
-
-            ProfilerShort.Begin("Culling");
             PrepareFrame();
 
-            ProfilerShort.Begin("Prepare culling");
             var shadowmapQueries = m_shadowHandler.PrepareQueries();
             MyVisibilityCuller.PrepareCullQuery(m_cullQuery, shadowmapQueries, updateEnvironmentMap);
+            
+            return m_cullQuery;
+        }
 
-            ProfilerShort.BeginNextBlock("Perform culling");
+        // Adds to commandLists the command lists containing the rendering commands for the renderables given in renderablesDBVH
+        internal void Render(Queue<CommandList> commandLists)
+        {
+            ProfilerShort.Begin("Perform culling");
             m_visibilityCuller.PerformCulling(m_cullQuery, m_renderablesDBVH);
-            ProfilerShort.End();
-            ProfilerShort.End();
 
             ProfilerShort.BeginNextBlock("Record command lists");
             m_renderingDispatcher.RecordCommandLists(m_cullQuery, commandLists);
@@ -74,9 +70,7 @@ namespace VRageRender
 
             ProfilerShort.BeginNextBlock("Frame cleanup");
             EndFrame();
-
-            MyGpuProfiler.IC_EndBlock();
-            ProfilerShort.End();    // End function block
+            ProfilerShort.End();
         }
 
         // Sends information about the visible objects in cullQuery to MyRenderProxy

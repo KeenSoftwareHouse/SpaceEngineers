@@ -15,9 +15,13 @@ namespace VRage.Serialization
         readonly static TEnum m_firstValue = MyEnum<TEnum>.Values.FirstOrDefault();
         readonly static TEnum m_secondValue = MyEnum<TEnum>.Values.Skip(1).FirstOrDefault();
         readonly static ulong m_firstUlong = MyEnum<TEnum>.GetValue(m_firstValue);
+#if UNSHARPER
+		readonly static int m_bitCount = (int)Math.Log(MyEnum<TEnum>.GetValue(MyEnum_Range<TEnum>.Max), 2) + 1;
+		public readonly static bool HasNegativeValues = Comparer<TEnum>.Default.Compare(MyEnum_Range<TEnum>.Min, default(TEnum)) < 0;
+#else
         readonly static int m_bitCount = (int)Math.Log(MyEnum<TEnum>.GetValue(MyEnum<TEnum>.Range.Max), 2) + 1;
         public readonly static bool HasNegativeValues = Comparer<TEnum>.Default.Compare(MyEnum<TEnum>.Range.Min, default(TEnum)) < 0;
-
+#endif
         // TODO: Special serialization for flags
 
         static MySerializerEnum()

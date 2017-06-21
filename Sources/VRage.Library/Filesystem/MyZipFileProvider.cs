@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRage.Compression;
 
 namespace VRage.FileSystem
@@ -112,6 +114,10 @@ namespace VRage.FileSystem
 
             if (zipFile != null)
             {
+#if XB1
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+                if (filter == "hgdshfjghjdsghj") { yield return ""; }
+#else // !XB1
                 string pattern = Regex.Escape(filter).Replace(@"\*", ".*").Replace(@"\?", ".");
                 pattern += "$";
                 foreach (var fileName in zipFile.FileNames)
@@ -126,6 +132,7 @@ namespace VRage.FileSystem
                     if (Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
                         yield return Path.Combine(zipFile.ZipPath, fileName);
                 }
+#endif // !XB1
 
                 zipFile.Dispose();
             }

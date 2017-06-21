@@ -4,6 +4,10 @@ using System.Diagnostics;
 using VRage;
 using VRage.Collections;
 using VRage.Generics;
+
+using VRage.Render11.Common;
+using VRage.Profiler;
+using VRage.Render11.LightingStage.Shadows;using VRage.Render11.Resources;
 using VRageMath;
 
 namespace VRageRender
@@ -13,7 +17,8 @@ namespace VRageRender
         Unassigned,
         MainFrustum,
         ShadowCascade,
-        ShadowProjection
+        ShadowProjection,
+        EnvironmentProbe
     }
 
     class MyFrustumCullQuery
@@ -26,7 +31,7 @@ namespace VRageRender
         internal readonly List<bool> IsInsideList2 = new List<bool>();
         internal MyCullingSmallObjects? SmallObjects;
         internal MyFrustumEnum Type;
-        internal int CascadeIndex;
+        internal int Index;
         internal HashSet<uint> Ignored;
 
 
@@ -48,7 +53,7 @@ namespace VRageRender
 
             SmallObjects = null;
             Type = MyFrustumEnum.Unassigned;
-            CascadeIndex = 0;
+            Index = 0;
             Ignored = null;
         }
 
@@ -100,12 +105,13 @@ namespace VRageRender
 
         internal void AddMainViewPass(MyViewport viewport, MyGBuffer gbuffer)
         {
-            int frustumMask = AddFrustum(ref MyEnvironment.ViewProjectionD);
+            int frustumMask = AddFrustum(ref MyRender11.Environment.Matrices.ViewProjectionD);
             FrustumCullQueries[Size - 1].Type = MyFrustumEnum.MainFrustum;
 
             var pass = MyObjectPoolManager.Allocate<MyGBufferPass>();
+            pass.DebugName = "GBuffer";
             pass.ProcessingMask = frustumMask;
-            pass.ViewProjection = MyEnvironment.ViewProjectionAt0;
+            pass.ViewProjection = MyRender11.Environment.Matrices.ViewProjectionAt0;
             pass.Viewport = viewport;
             pass.GBuffer = gbuffer;
 
@@ -114,34 +120,42 @@ namespace VRageRender
             RenderingPasses[Size - 1] = pass;
         }
 
-        internal void AddForwardPass(ref Matrix offsetedViewProjection, ref MatrixD viewProjection, MyViewport viewport, DepthStencilView dsv, RenderTargetView rtv)
+        internal void AddForwardPass(int index, ref Matrix offsetedViewProjection, ref MatrixD viewProjection, MyViewport viewport, IDsvBindable dsv, IRtvBindable rtv)
         {
             int frustumMask = AddFrustum(ref viewProjection);
 
             MyForwardPass pass = MyObjectPoolManager.Allocate<MyForwardPass>();
+            pass.DebugName = "EnvironmentProbe";
             pass.ProcessingMask = frustumMask;
             pass.ViewProjection = offsetedViewProjection;
             pass.Viewport = viewport;
-            pass.DSV = dsv;
-            pass.RTV = rtv;
+            pass.FrustumIndex = index;
+            pass.Dsv = dsv;
+            pass.Rtv = rtv;
 
             pass.PerFrame();
 
             RenderingPasses[Size - 1] = pass;
         }
 
-        internal void AddDepthPass(ref MatrixD worldToProjection, Matrix viewProjectionLocal, MyViewport viewport, DepthStencilView depthTarget, bool isCascade, string debugName)
+        internal void AddDepthPass(MyShadowmapQuery shadowmapQuery)
         {
+            var worldToProjection = shadowmapQuery.ProjectionInfo.WorldToProjection;
             int frustumMask = AddFrustum(ref worldToProjection);
 
             MyDepthPass pass = MyObjectPoolManager.Allocate<MyDepthPass>();
-            pass.DebugName = debugName;
+            pass.DebugName = MyVisibilityCuller.ToString(shadowmapQuery.QueryType);
             pass.ProcessingMask = frustumMask;
-            pass.ViewProjection = viewProjectionLocal;
-            pass.Viewport = viewport;
+            pass.ViewProjection = shadowmapQuery.ProjectionInfo.CurrentLocalToProjection;
+            pass.Viewport = shadowmapQuery.Viewport;
+            pass.FrustumIndex = shadowmapQuery.Index;
 
-            pass.DSV = depthTarget;
-            pass.DefaultRasterizer = isCascade ? MyRender11.m_cascadesRasterizerState : MyRender11.m_shadowRasterizerState;
+            pass.Dsv = shadowmapQuery.DepthBuffer;
+            bool isCascade = shadowmapQuery.QueryType == MyFrustumEnum.ShadowCascade;
+            pass.IsCascade = isCascade;
+            pass.DefaultRasterizer = isCascade
+                ? MyRasterizerStateManager.CascadesRasterizerStateOld
+                : MyRasterizerStateManager.ShadowRasterizerState;
 
             pass.PerFrame();
 
@@ -180,39 +194,48 @@ namespace VRageRender
                     return "ShadowCascade";
                 case MyFrustumEnum.ShadowProjection:
                     return "ShadowProjection";
+                case MyFrustumEnum.EnvironmentProbe:
+                    return "EnvironmentProbe";
                 default:
                     return "Unassigned";
             }
         }
 
+        static void AddShadowmapQueryIntoCullQuery(MyCullQuery cullQuery, MyShadowmapQuery shadowmapQuery)
+        {
+            cullQuery.AddDepthPass(shadowmapQuery);
+
+            if (shadowmapQuery.QueryType == MyFrustumEnum.ShadowCascade)
+            {
+                var smallCulling = new MyCullingSmallObjects
+                {
+                    ProjectionFactor = shadowmapQuery.ProjectionFactor, // <- this disables culling of objects depending on the previous cascade
+                    SkipThreshold = MyManagers.Shadow.GetSettingsSmallObjectSkipping(shadowmapQuery.Index),
+                };
+                cullQuery.FrustumCullQueries[cullQuery.Size - 1].SmallObjects = smallCulling;
+            }
+
+            cullQuery.FrustumCullQueries[cullQuery.Size - 1].Type = shadowmapQuery.QueryType;
+            cullQuery.FrustumCullQueries[cullQuery.Size - 1].Index = shadowmapQuery.Index;
+            cullQuery.FrustumCullQueries[cullQuery.Size - 1].Ignored = shadowmapQuery.IgnoredEntities;
+        }
+
+        
+        static List<MyShadowmapQuery> m_tmpShadowmapQueries = new List<MyShadowmapQuery>();
         internal static void PrepareCullQuery(MyCullQuery cullQuery, ListReader<MyShadowmapQuery> shadowmapQueries, bool updateEnvironmentMap)
         {
             cullQuery.AddMainViewPass(new MyViewport(MyRender11.ViewportResolution), MyGBuffer.Main);
 
-            foreach (var shadowmapQuery in shadowmapQueries)
-            {
-                bool isCascade = shadowmapQuery.QueryType == MyFrustumEnum.ShadowCascade;
-                var matrix = shadowmapQuery.ProjectionInfo.WorldToProjection;
-                cullQuery.AddDepthPass(ref matrix, shadowmapQuery.ProjectionInfo.CurrentLocalToProjection, shadowmapQuery.Viewport, shadowmapQuery.DepthBuffer, isCascade, ToString(shadowmapQuery.QueryType));
+            foreach (var shadowmapQuery in shadowmapQueries) // old shadowing system
+                AddShadowmapQueryIntoCullQuery(cullQuery, shadowmapQuery);
 
-                if (isCascade)
-                {
-                    var smallCulling = new MyCullingSmallObjects
-                    {
-                        ProjectionDir = shadowmapQuery.ProjectionDir,
-                        ProjectionFactor = shadowmapQuery.ProjectionFactor,
-                        SkipThreshold = MyRenderProxy.Settings.ShadowCascadeSmallSkipThresholds[shadowmapQuery.CascadeIndex]
-                    };
-                    cullQuery.FrustumCullQueries[cullQuery.Size - 1].SmallObjects = smallCulling;
-                    cullQuery.FrustumCullQueries[cullQuery.Size - 1].CascadeIndex = shadowmapQuery.CascadeIndex;
-                }
-
-                cullQuery.FrustumCullQueries[cullQuery.Size - 1].Type = shadowmapQuery.QueryType;
-                cullQuery.FrustumCullQueries[cullQuery.Size - 1].Ignored = shadowmapQuery.IgnoredEntities;
-            }
+            //m_tmpShadowmapQueries.Clear();
+            //MyManagers.ShadowCore.PrepareShadowmapQueries(ref m_tmpShadowmapQueries);
+            //foreach (var shadowmapQuery in m_tmpShadowmapQueries) // new shadowing system
+            //    AddShadowmapQueryIntoCullQuery(cullQuery, shadowmapQuery);
 
             if (updateEnvironmentMap)
-                MyEnvironmentProbe.UpdateEnvironmentProbes(cullQuery);
+                MyManagers.EnvironmentProbe.UpdateCullQuery(cullQuery);
         }
 
         internal void PerformCulling(MyCullQuery cullQuery, MyDynamicAABBTreeD renderableBVH)

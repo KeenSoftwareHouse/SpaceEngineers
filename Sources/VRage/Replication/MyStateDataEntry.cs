@@ -11,21 +11,17 @@ namespace VRage.Network
 {
     public class MyStateDataEntry
     {
-        public int FramesWithoutSync;
+        public long LastSyncedFrame;
         public float Priority;
-        public StateGroupEnum GroupType;
 
-        public readonly IMyReplicable Owner;
         public readonly NetworkId GroupId;
         public readonly IMyStateGroup Group;
 
-        public MyStateDataEntry(IMyReplicable owner, NetworkId groupId, IMyStateGroup group)
+        public MyStateDataEntry(NetworkId groupId, IMyStateGroup group)
         {
             Priority = 0;
-            Owner = owner;
             GroupId = groupId;
             Group = group;
-            GroupType = group.GroupType;
         }
 
         public override string ToString()

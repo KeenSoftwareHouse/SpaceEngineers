@@ -4,11 +4,19 @@ using System.Diagnostics;
 using System.Reflection;
 using VRage.Plugins;
 using VRage.Reflection;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRage.ObjectBuilders
 {
     public struct MyObjectBuilderType
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+        const string LEGACY_TYPE_PREFIX = "MyObjectBuilder_";
+
         public static readonly MyObjectBuilderType Invalid = new MyObjectBuilderType(null);
 
         private readonly Type m_type;
@@ -64,7 +72,7 @@ namespace VRage.ObjectBuilders
 
         public override int GetHashCode()
         {
-            return m_type.GetHashCode();
+            return m_type != null ? m_type.GetHashCode() : 0;
         }
 
         public override string ToString()
@@ -132,44 +140,27 @@ namespace VRage.ObjectBuilders
             m_idByType = new Dictionary<MyObjectBuilderType, MyRuntimeObjectBuilderId>(EXPECTED_TYPE_COUNT, MyObjectBuilderType.Comparer);
         }
 
-        /// <summary>
-        /// Register all object builders types from game assemblies. This function must be called after links to assemblies in MyPlugins are set!
-        /// Returns false if assembly links are not set. Only MyPlugins.UserAssembly can be null.
-        /// </summary>
-        public static bool RegisterAssemblies()
-        {
-            if (m_typeById.Count > 0)
-                UnregisterAssemblies();
-
-            MyObjectBuilderType.RegisterFromAssembly(Assembly.GetExecutingAssembly(), registerLegacyNames: true);
-            //MyObjectBuilderType.RegisterLegacyName(typeof(MyObjectBuilder_GlobalEventDefinition), "EventDefinition");
-            //MyObjectBuilderType.RegisterLegacyName(typeof(MyObjectBuilder_FactionCollection), "Factions");
-            if (MyPlugins.SandboxAssemblyReady)
-                MyObjectBuilderType.RegisterFromAssembly(MyPlugins.SandboxAssembly, registerLegacyNames: true); //TODO: Will be removed 
-            if (MyPlugins.GameAssemblyReady)
-                MyObjectBuilderType.RegisterFromAssembly(MyPlugins.GameAssembly, registerLegacyNames: true);
-            if (MyPlugins.GameObjectBuildersAssemblyReady)
-                MyObjectBuilderType.RegisterFromAssembly(MyPlugins.GameObjectBuildersAssembly, registerLegacyNames: true);
-            if (MyPlugins.UserAssemblyReady)
-                MyObjectBuilderType.RegisterFromAssembly(MyPlugins.UserAssembly, registerLegacyNames: true);
-
-            return Assembly.GetExecutingAssembly() != null && MyPlugins.SandboxAssembly != null
-                && MyPlugins.GameAssembly != null && MyPlugins.GameObjectBuildersAssembly != null;
-        }
-
         // Are the types already registered?
         public static bool IsReady()
         {
             return m_typeByName.Count > 0;
         }
 
-        internal static void RegisterFromAssembly(Assembly assembly, bool registerLegacyNames = false)
+        public static void RegisterFromAssembly(Assembly assembly, bool registerLegacyNames = false)
         {
             if (assembly == null)
                 return;
 
             var baseType = typeof(MyObjectBuilder_Base);
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            var types = MyAssembly.GetTypes();
+#else // !XB1
             var types = assembly.GetTypes();
+#endif // !XB1
             Array.Sort(types, FullyQualifiedNameComparer.Default);
             foreach (var type in types)
             {
@@ -182,9 +173,8 @@ namespace VRage.ObjectBuilders
                     m_idByType.Add(myType, myId);
                     m_typeByName.Add(type.Name, myType);
 
-                    const string PREFIX = "MyObjectBuilder_";
-                    if (registerLegacyNames && type.Name.StartsWith(PREFIX))
-                        RegisterLegacyName(myType, type.Name.Substring(PREFIX.Length));
+                    if (registerLegacyNames && type.Name.StartsWith(LEGACY_TYPE_PREFIX))
+                        RegisterLegacyName(myType, type.Name.Substring(LEGACY_TYPE_PREFIX.Length));
 
                     var attrs = type.GetCustomAttributes(typeof(MyObjectBuilderDefinitionAttribute), true);
                     if (attrs.Length > 0)
@@ -202,6 +192,25 @@ namespace VRage.ObjectBuilders
         internal static void RegisterLegacyName(MyObjectBuilderType type, string legacyName)
         {
             m_typeByLegacyName.Add(legacyName, type);
+        }
+
+        /// <summary>
+        /// Used for type remapping when overriding definition types
+        /// </summary>
+        internal static void RemapType(ref SerializableDefinitionId id, Dictionary<string, string> typeOverrideMap)
+        {
+            string overrideType;
+            bool found = typeOverrideMap.TryGetValue(id.TypeIdString, out overrideType);
+            if (!found)
+            {
+                if (id.TypeIdString.StartsWith(LEGACY_TYPE_PREFIX))
+                    found = typeOverrideMap.TryGetValue(id.TypeIdString.Substring(LEGACY_TYPE_PREFIX.Length), out overrideType);
+            }
+
+            if (!found)
+                return;
+
+            id.TypeIdString = overrideType;
         }
 
         public static void UnregisterAssemblies()

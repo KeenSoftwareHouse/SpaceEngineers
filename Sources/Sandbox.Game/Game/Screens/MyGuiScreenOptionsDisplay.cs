@@ -40,7 +40,6 @@ namespace Sandbox.Game.Gui
         {
             EnabledBackgroundFade = true;
             Size = new Vector2(1000f, 650f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
-            LoadResolutions();
             RecreateControls(true);
         }
 
@@ -155,15 +154,12 @@ namespace Sandbox.Game.Gui
             CloseButtonOffset = new Vector2(-50f, 50f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
         }
 
-        private void LoadResolutions()
+        private void LoadResolutions(MyAdapterInfo adapter)
         {
             var duplicateFilter = new HashSet<Vector2I>(Vector2I.Comparer);
-            foreach (var adapter in MyVideoSettingsManager.Adapters)
+            foreach (var displayMode in adapter.SupportedDisplayModes)
             {
-                foreach (var displayMode in adapter.SupportedDisplayModes)
-                {
-                    duplicateFilter.Add(new Vector2I(displayMode.Width, displayMode.Height));
-                }
+                duplicateFilter.Add(new Vector2I(displayMode.Width, displayMode.Height));
             }
 
             m_resolutions.Clear();
@@ -186,6 +182,8 @@ namespace Sandbox.Game.Gui
         {
             int adapterIndex = (int)m_comboVideoAdapter.GetSelectedKey();
             { // AddDisplayModesToComboBox
+                LoadResolutions(MyVideoSettingsManager.Adapters[adapterIndex]);
+
                 m_comboResolution.ClearItems();
 
                 var displayAspectRatio = MyVideoSettingsManager.GetRecommendedAspectRatio(adapterIndex);
@@ -225,6 +223,7 @@ namespace Sandbox.Game.Gui
             int adapterIndex = (int)m_comboVideoAdapter.GetSelectedKey();
             var selectedResolution = m_resolutions[(int)m_comboResolution.GetSelectedKey()];
             bool fullscreenSupported = false;
+#if !XB1
             foreach (var displayMode in MyVideoSettingsManager.Adapters[adapterIndex].SupportedDisplayModes)
             {
                 if (displayMode.Width == selectedResolution.X &&
@@ -234,6 +233,7 @@ namespace Sandbox.Game.Gui
                     break;
                 }
             }
+#endif
 
             var selectedWindowMode = (MyWindowModeEnum)m_comboWindowMode.GetSelectedKey();
             m_comboWindowMode.ClearItems();
@@ -260,7 +260,10 @@ namespace Sandbox.Game.Gui
         private bool ReadSettingsFromControls(ref MyRenderDeviceSettings deviceSettings)
         {
             bool changed = false;
-            MyRenderDeviceSettings read = new MyRenderDeviceSettings();
+            MyRenderDeviceSettings read = new MyRenderDeviceSettings
+                {
+                    AdapterOrdinal = deviceSettings.AdapterOrdinal, // We don't change the value until restarting the game (NewAdapter is loaded from Config)
+                };
 
             var selectedResolution = (int)m_comboResolution.GetSelectedKey();
             if ((uint)selectedResolution < (uint)m_resolutions.Count)
@@ -269,7 +272,10 @@ namespace Sandbox.Game.Gui
                 read.BackBufferWidth = resolution.X;
                 read.BackBufferHeight = resolution.Y;
                 read.WindowMode = (MyWindowModeEnum)m_comboWindowMode.GetSelectedKey();
-                read.AdapterOrdinal = (int)m_comboVideoAdapter.GetSelectedKey();
+
+                read.NewAdapterOrdinal = (int)m_comboVideoAdapter.GetSelectedKey(); // Setting NewAdapter instead of Adapter -- it is saved to config on game end
+                changed |= read.NewAdapterOrdinal != read.AdapterOrdinal; // Notify change of adapter (it is not included in Settings' Equals)
+
                 read.VSync = m_checkboxVSync.IsChecked;
                 read.RefreshRate = 0;
 
@@ -297,7 +303,7 @@ namespace Sandbox.Game.Gui
 
         private void WriteSettingsToControls(MyRenderDeviceSettings deviceSettings)
         {
-            m_comboVideoAdapter.SelectItemByKey(deviceSettings.AdapterOrdinal);
+            m_comboVideoAdapter.SelectItemByKey(deviceSettings.NewAdapterOrdinal);
             m_comboResolution.SelectItemByKey(m_resolutions.FindIndex(
                 (res) => res.X == deviceSettings.BackBufferWidth && res.Y == deviceSettings.BackBufferHeight));
             m_comboWindowMode.SelectItemByKey((int)deviceSettings.WindowMode);
@@ -317,6 +323,7 @@ namespace Sandbox.Game.Gui
             //  Update NEW settings
             bool somethingChanged = ReadSettingsFromControls(ref m_settingsNew);
 
+
             //  Change video mode to new one
             if (somethingChanged)
             {
@@ -334,10 +341,11 @@ namespace Sandbox.Game.Gui
             {
                 case MyVideoSettingsManager.ChangeResult.Success:
                     m_waitingForConfirmation = true;
+
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                         buttonType: MyMessageBoxButtonsType.YES_NO_TIMEOUT,
-                        messageText: MyTexts.Get(MyCommonTexts.DoYouWantToKeepTheseSettingsXSecondsRemaining),
                         messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
+                        messageText: MyTexts.Get(MyCommonTexts.DoYouWantToKeepTheseSettingsXSecondsRemaining),
                         callback: OnMessageBoxCallback,
                         timeoutInMiliseconds: MyGuiConstants.VIDEO_OPTIONS_CONFIRMATION_TIMEOUT_IN_MILISECONDS));
                     break;
@@ -369,8 +377,16 @@ namespace Sandbox.Game.Gui
 
                 //  These are now OLD settings
                 ReadSettingsFromControls(ref m_settingsOld);
-
                 this.CloseScreenNow();
+
+                if (m_settingsNew.NewAdapterOrdinal != m_settingsNew.AdapterOrdinal)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                        buttonType: MyMessageBoxButtonsType.YES_NO,
+                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning),
+                        messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextRestartNeededAfterAdapterSwitch),
+                        callback: OnMessageBoxAdapterChangeCallback));
+                }
             }
             else
             {
@@ -378,6 +394,12 @@ namespace Sandbox.Game.Gui
             }
 
             m_waitingForConfirmation = false;
+        }
+
+        public void OnMessageBoxAdapterChangeCallback(MyGuiScreenMessageBox.ResultEnum callbackReturn)
+        {
+            if (callbackReturn == MyGuiScreenMessageBox.ResultEnum.YES)
+                MySessionLoader.ExitGame();
         }
 
         public override bool CloseScreen()

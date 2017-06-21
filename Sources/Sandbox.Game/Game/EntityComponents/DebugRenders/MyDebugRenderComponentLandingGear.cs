@@ -19,7 +19,7 @@ namespace Sandbox.Game.Components
             m_langingGear = landingGear;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             var result = true;
 
@@ -38,7 +38,6 @@ namespace Sandbox.Game.Components
                     MyRenderProxy.DebugDrawOBB(m, Color.Yellow.ToVector3(), 1.0f, false, false);
                 }
             }
-            return result;
         }
     }
 }

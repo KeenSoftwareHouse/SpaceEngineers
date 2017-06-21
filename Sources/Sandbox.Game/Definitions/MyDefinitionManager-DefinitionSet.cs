@@ -66,6 +66,7 @@ namespace Sandbox.Definitions
                 base.Clear();
 
                 m_cubeSizes = new float[typeof(MyCubeSize).GetEnumValues().Length];
+                m_cubeSizesOriginal = new float[typeof(MyCubeSize).GetEnumValues().Length];
                 m_basePrefabNames = new string[m_cubeSizes.Length * 4]; // Index computed 4 * enumInt + 2*static + creative.
 
                 m_definitionsById = new DefinitionDictionary<MyDefinitionBase>(100);
@@ -117,8 +118,8 @@ namespace Sandbox.Definitions
                 m_respawnShips = new Dictionary<string, MyRespawnShipDefinition>();
 
                 m_sounds = new DefinitionDictionary<MyAudioDefinition>(10);
-                m_environmentDef = new MyEnvironmentDefinition();
-                m_behaviorDefinitions = new DefinitionDictionary<MyBehaviorDefinition>(10);
+
+                m_shipSounds = new DefinitionDictionary<MyShipSoundsDefinition>(10);                m_behaviorDefinitions = new DefinitionDictionary<MyBehaviorDefinition>(10);
                 m_voxelMapStorages = new Dictionary<string, MyVoxelMapStorageDefinition>(64);
                 m_characterNames = new List<MyCharacterName>(32);
 
@@ -154,6 +155,8 @@ namespace Sandbox.Definitions
                     m_physicalMaterialsByName = new Dictionary<string, MyPhysicalMaterialDefinition>();
                 }
 
+                m_fontsById = new DefinitionDictionary<MyFontDefinition>(16);
+
                 m_lootBagDefinition = null;
             }
 
@@ -170,7 +173,10 @@ namespace Sandbox.Definitions
                 {
                     var cubeSize = definitionSet.m_cubeSizes[i];
                     if (cubeSize != 0)
+                    {
                         m_cubeSizes[i] = cubeSize;
+                        m_cubeSizesOriginal[i] = definitionSet.m_cubeSizesOriginal[i];
+                    }
                 }
 
                 for (int i = 0; i < definitionSet.m_basePrefabNames.Length; i++)
@@ -300,12 +306,6 @@ namespace Sandbox.Definitions
                         m_respawnShips.Remove(respawnShip.Key);
                 }
 
-                if (definitionSet.m_environmentDef != null)
-                {
-                    if (definitionSet.m_environmentDef.Enabled)
-                        m_environmentDef.Merge(definitionSet.m_environmentDef);
-                }
-
                 foreach (var animationSet in definitionSet.m_animationsBySkeletonType)
                 {
                     foreach (var animation in animationSet.Value)
@@ -412,6 +412,11 @@ namespace Sandbox.Definitions
                 m_entityContainers.Merge(definitionSet.m_entityContainers);
 
                 m_lootBagDefinition = definitionSet.m_lootBagDefinition;
+
+                foreach (var font in definitionSet.m_fontsById)
+                {
+                    m_fontsById[font.Key] = font.Value;
+                }
             }
 
             static void MergeDefinitionLists<T>(List<T> output, List<T> input) where T : MyDefinitionBase
@@ -437,12 +442,14 @@ namespace Sandbox.Definitions
             }
 
             internal float[] m_cubeSizes;
+            internal float[] m_cubeSizesOriginal;
             internal string[] m_basePrefabNames;
 
             internal DefinitionDictionary<MyCubeBlockDefinition>[] m_uniqueCubeBlocksBySize; //without variants
             internal DefinitionDictionary<MyDefinitionBase> m_definitionsById;
             internal DefinitionDictionary<MyBlueprintDefinitionBase> m_blueprintsById;
             internal DefinitionDictionary<MyHandItemDefinition> m_handItemsById;
+            internal DefinitionDictionary<MyFontDefinition> m_fontsById;
 
             internal DefinitionDictionary<MyPhysicalItemDefinition> m_physicalItemsByHandItemId;
             internal DefinitionDictionary<MyHandItemDefinition> m_handItemsByPhysicalItemId;
@@ -490,17 +497,14 @@ namespace Sandbox.Definitions
             internal Dictionary<string, MyCubeBlockDefinitionGroup> m_blockGroups;
 
             internal Dictionary<string, Vector2I> m_blockPositions;
-            internal MyEnvironmentDefinition m_environmentDef = new MyEnvironmentDefinition();
 
             internal DefinitionDictionary<MyAudioDefinition> m_sounds;
+            internal DefinitionDictionary<MyShipSoundsDefinition> m_shipSounds;
+            internal MyShipSoundSystemDefinition m_shipSoundSystem = new MyShipSoundSystemDefinition();
 
             internal DefinitionDictionary<MyBehaviorDefinition> m_behaviorDefinitions;
 
             public Dictionary<string, MyVoxelMapStorageDefinition> m_voxelMapStorages;
-
-            public List<MyVoxelMapGroup> m_voxelMapGroups = new List<MyVoxelMapGroup>();
-
-            public List<MyVoxelMapModifier> m_voxelMapModifiers = new List<MyVoxelMapModifier>();
 
             public readonly Dictionary<int, List<MyDefinitionId>> m_channelEnvironmentItemsDefs = new Dictionary<int, List<MyDefinitionId>>();
 
@@ -509,8 +513,6 @@ namespace Sandbox.Definitions
             internal MyBattleDefinition m_battleDefinition;
 
             internal DefinitionDictionary<MyPlanetGeneratorDefinition> m_planetGeneratorDefinitions;
-
-            internal MyVoxelMaterialChangesDefinition m_voxelMaterialChangesDefinition;
 
             internal DefinitionDictionary<MyComponentGroupDefinition> m_componentGroups;
             internal Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>> m_componentGroupMembers;

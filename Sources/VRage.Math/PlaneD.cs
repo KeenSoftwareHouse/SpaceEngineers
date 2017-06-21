@@ -16,7 +16,7 @@ namespace VRageMath
         /// <summary>
         /// The distance of the PlaneD along its normal from the origin.
         /// Note: Be careful! The distance is signed and is the opposite of what people usually expect.
-        ///       If you look closely at the plane equation: (n dot P) - D = 0, you'll realize that D = - (n dot P) (that is, negative instead of positive)
+        ///       If you look closely at the plane equation: (n dot P) + D = 0, you'll realize that D = - (n dot P) (that is, negative instead of positive)
         /// </summary>
         public double D;
 
@@ -390,7 +390,16 @@ namespace VRageMath
         public Vector3D RandomPoint()
         {
             if (_random == null)
-                _random  = new Random();
+            {
+                if (VRage.Library.Utils.MyRandom.DisableRandomSeed)
+                {
+                    _random = new Random(1);
+                }
+                else
+                {
+                    _random = new Random();
+                }
+            }
 
             Vector3D random = new Vector3D();
             Vector3D randomPoint;
@@ -412,13 +421,31 @@ namespace VRageMath
         public double DistanceToPoint(Vector3D point)
         {
             var dot = Vector3D.Dot(Normal, point);
-            return dot - D;
+            return dot + D;
         }
 
         public double DistanceToPoint(ref Vector3D point)
         {
             var dot = Vector3D.Dot(Normal, point);
-            return dot - D;
+            return dot + D;
+        }
+
+        public Vector3D ProjectPoint(ref Vector3D point)
+        {
+            return point - Normal * DistanceToPoint(ref point);
+        }
+
+        /// <summary>
+        /// Gets intersection point in Plane.
+        /// </summary>
+        /// <param name="from">Starting point of a ray.</param>
+        /// <param name="direction">Ray direction.</param>
+        /// <returns>Point of intersection.</returns>
+        public Vector3D Intersection(ref Vector3D from, ref Vector3D direction)
+        {
+            var t = - (DotNormal(from) + D) / DotNormal(direction);
+
+            return new Vector3D(from + t * direction);
         }
     }
 }

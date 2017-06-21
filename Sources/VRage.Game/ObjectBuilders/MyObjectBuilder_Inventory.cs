@@ -31,6 +31,10 @@ namespace VRage.Game
         public MyFixedPoint? Mass = null;
 
         [ProtoMember, DefaultValue(null)]
+        public int? MaxItemCount = null;
+        public bool ShouldSerializeMaxItemCount() { return MaxItemCount.HasValue; }
+
+        [ProtoMember, DefaultValue(null)]
         public SerializableVector3? Size = null;
 
         [ProtoMember, DefaultValue(null)]

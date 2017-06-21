@@ -8,19 +8,19 @@ namespace VRage.Library.Utils
 {
     public class Disposable : IDisposable
     {
-#if DEBUG
+#if DEBUG && !XB1
         StackTrace CreationStackTrace;
 #endif
 
         public Disposable(bool collectStack = false)
-        {
-#if DEBUG
+		{
+#if DEBUG && !XB1
             if (collectStack)
             {
                 CreationStackTrace = new StackTrace(1, true);
             }
 #endif
-        }
+		}
 
         public virtual void Dispose()
         {
@@ -31,7 +31,7 @@ namespace VRage.Library.Utils
         {
             string caption = "Dispose not called!";
             string text = string.Format("Dispose was not called for '{0}'", GetType().FullName);
-#if DEBUG
+#if DEBUG && !XB1
             if (CreationStackTrace != null)
             {
                 text += Environment.NewLine;
@@ -39,7 +39,7 @@ namespace VRage.Library.Utils
             }
 #endif
 
-            System.Diagnostics.Trace.Fail(caption, text);
+			System.Diagnostics.Trace.Fail(caption, text);
         }
     }
 }

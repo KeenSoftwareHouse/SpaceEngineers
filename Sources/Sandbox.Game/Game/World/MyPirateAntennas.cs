@@ -39,6 +39,8 @@ namespace Sandbox.Game.World
             public int LastGenerationGameTime;
             public int SpawnedDrones;
             public bool IsActive;
+            public List<int> SpawnPositionsIndexes;
+            public int CurrentSpawnPositionsIndex = -1;
 
             public static List<PirateAntennaInfo> m_pool = new List<PirateAntennaInfo>();
 
@@ -62,6 +64,7 @@ namespace Sandbox.Game.World
             public static void Deallocate(PirateAntennaInfo toDeallocate)
             {
                 toDeallocate.AntennaDefinition = null;
+                toDeallocate.SpawnPositionsIndexes = null;
                 m_pool.Add(toDeallocate);
             }
 
@@ -71,6 +74,8 @@ namespace Sandbox.Game.World
                 LastGenerationGameTime = MySandboxGame.TotalGamePlayTimeInMilliseconds + (int)antennaDef.FirstSpawnTimeMs - (int)antennaDef.SpawnTimeMs;
                 SpawnedDrones = 0;
                 IsActive = false;
+                SpawnPositionsIndexes = null;
+                CurrentSpawnPositionsIndex = -1;
             }
         }
         private class DroneInfo
@@ -116,14 +121,13 @@ namespace Sandbox.Game.World
         // CH: TODO: Serialization (& sync)!
         private static CachingDictionary<long, DroneInfo> m_droneInfos;
 
-        private static List<MyCubeGrid> m_tmpGridList = new List<MyCubeGrid>();
         private static long m_piratesIdentityId = 0;
 
         public override bool IsRequiredByGame
         {
             get
             {
-                return MyPerGameSettings.Game == GameEnum.SE_GAME;
+                return MyPerGameSettings.Game == GameEnum.SE_GAME || MyPerGameSettings.Game == GameEnum.VRS_GAME;
             }
         }
 
@@ -185,6 +189,8 @@ namespace Sandbox.Game.World
                         {
                             Sync.Players.CreateNewIdentity(IDENTITY_NAME, m_piratesIdentityId, null);
                         }
+
+                        pirateIdentity.LastLoginTime = DateTime.Now;
 
                         // Check if he is already in a faction.
                         MyFaction oldPirateFaction = MySession.Static.Factions.GetPlayerFaction(m_piratesIdentityId);
@@ -323,17 +329,20 @@ namespace Sandbox.Game.World
                 MyRadioAntenna antenna = null;
                 MyEntities.TryGetEntityById(antennaEntry.Key, out antenna);
                 Debug.Assert(antenna != null, "Could not find antenna for spawning enemy drones!");
+                if( antennaInfo.AntennaDefinition.SpawnGroupSampler == null)
+                {
+                    return;
+                }
 
                 var spawnGroup = antennaInfo.AntennaDefinition.SpawnGroupSampler.Sample();
                 Debug.Assert(spawnGroup != null, "Could not find spawnGroup for spawning enemy drones!");
-
                 if
                 (
                     !MySession.Static.Settings.EnableDrones ||
                     antennaInfo.SpawnedDrones >= antennaInfo.AntennaDefinition.MaxDrones ||
                     antenna == null ||
                     spawnGroup == null ||
-                    m_droneInfos.Reader.Count() >= MySession.Static.Settings.MaxDrones
+                    (m_droneInfos.Reader.Count() >= MySession.Static.Settings.MaxDrones)
                 )
                 {
                     antennaInfo.LastGenerationGameTime = currentTime;
@@ -355,14 +364,10 @@ namespace Sandbox.Game.World
                         {
                             Vector3D position = antenna.WorldMatrix.Translation + MyUtils.GetRandomVector3Normalized() * antennaInfo.AntennaDefinition.SpawnDistance;
                             spawnPosition = MyEntities.FindFreePlace(position, spawnGroup.SpawnRadius);
-                            if (spawnPosition.HasValue) break;
+                            if (spawnPosition.HasValue) 
+                                break;
                         }
-
-                        if (spawnPosition.HasValue)
-                        {
-                            successfulSpawn = SpawnDrone(antenna.EntityId, antenna.OwnerId, spawnPosition.Value, spawnGroup);
-                            break;
-                        }
+                        successfulSpawn = SpawnDrone(antenna, antenna.OwnerId, spawnPosition.Value, spawnGroup);
 
                         break;
                     }
@@ -444,67 +449,112 @@ namespace Sandbox.Game.World
             return true;
         }
 
-        private bool SpawnDrone(long antennaEntityId, long ownerId, Vector3D position, MySpawnGroupDefinition spawnGroup)
-        {
-            var planet = MyGravityProviderSystem.GetStrongestGravityWell(position);
+        private bool SpawnDrone(MyRadioAntenna antenna, long ownerId, Vector3D position, MySpawnGroupDefinition spawnGroup, Vector3? spawnUp = null, Vector3? spawnForward = null)        {
+            long antennaEntityId = antenna.EntityId;
+            Vector3D antennaPos = antenna.PositionComp.GetPosition();
+
             Vector3D upVector;
-            if (planet != null && planet.IsPositionInGravityWell(position))
+
+            var planet = MyGamePruningStructure.GetClosestPlanet(position);
+            if (planet != null)
             {
+                if (!MyGravityProviderSystem.IsPositionInNaturalGravity(antennaPos))
+                {
+                    MySandboxGame.Log.WriteLine("Couldn't spawn drone; antenna is not in natural gravity but spawn location is.");
+                    return false;
+                }
                 planet.CorrectSpawnLocation(ref position, spawnGroup.SpawnRadius * 2.0);
-                upVector = -planet.GetWorldGravityNormalized(ref position);
+                upVector = position - planet.PositionComp.GetPosition();
+                upVector.Normalize();
             }
             else
-                upVector = MyUtils.GetRandomVector3Normalized();
+            {
+                var totalGravityInPoint = MyGravityProviderSystem.CalculateTotalGravityInPoint(position);
+                if (totalGravityInPoint != Vector3.Zero)
+                {
+                    upVector = -totalGravityInPoint;
+                    upVector.Normalize();
+                }
+                else if (spawnUp != null)
+                    upVector = spawnUp.Value;
+                else
+                    upVector = MyUtils.GetRandomVector3Normalized();
+            }
 
             Vector3D direction = MyUtils.GetRandomPerpendicularVector(ref upVector);
+            if (spawnForward != null)
+            {
+                // Align forward to up vector.
+                Vector3 forward = spawnForward.Value;
+                if (Math.Abs(Vector3.Dot(forward, upVector)) >= 0.98f)
+                {
+                    forward = Vector3.CalculatePerpendicularVector(upVector);
+                }
+                else
+                {
+                    Vector3 right = Vector3.Cross(forward, upVector);
+                    right.Normalize();
+                    forward = Vector3.Cross(upVector, right);
+                    forward.Normalize();
+                }
+
+                direction = forward;
+            }
+
             MatrixD originMatrix = MatrixD.CreateWorld(position, direction, upVector);
 
             foreach (var shipPrefab in spawnGroup.Prefabs)
             {
                 Vector3D shipPosition = Vector3D.Transform((Vector3D)shipPrefab.Position, originMatrix);
 
-                m_tmpGridList.Clear();
+                List<MyCubeGrid> tmpGridList = new List<MyCubeGrid>();
+
+                Stack<Action> callback = new Stack<Action>();
+                callback.Push(delegate() { ChangeDroneOwnership(tmpGridList, ownerId, antennaEntityId); });
 
                 MyPrefabManager.Static.SpawnPrefab(
-                    resultList: m_tmpGridList,
+                    resultList: tmpGridList,
                     prefabName: shipPrefab.SubtypeId,
                     position: shipPosition,
                     forward: direction,
                     up: upVector,
                     initialLinearVelocity: default(Vector3),
                     beaconName: null,
-                    spawningOptions: Sandbox.ModAPI.SpawningOptions.None,
+                    spawningOptions: VRage.Game.ModAPI.SpawningOptions.None,
                     ownerId: ownerId,
-                    updateSync: true);
-
-                foreach (var grid in m_tmpGridList)
-                {
-                    grid.ChangeGridOwnership(ownerId, MyOwnershipShareModeEnum.None);
-
-                    MyRemoteControl firstRemote = null;
-
-                    foreach (var block in grid.CubeBlocks)
-                    {
-                        if (block.FatBlock == null) continue;
-
-                        var pb = block.FatBlock as MyProgrammableBlock;
-                        if (pb != null)
-                        {
-                            pb.SendRecompile();
-                        }
-
-                        var remote = block.FatBlock as MyRemoteControl;
-                        if (firstRemote == null)
-                            firstRemote = remote;
-                    }
-
-                    // If there's no remote control on the grid, we have to register it as is
-                    RegisterDrone(antennaEntityId, (MyEntity)firstRemote ?? (MyEntity)grid);
-                }
-
-                m_tmpGridList.Clear();
+                    updateSync: true, callbacks: callback);
             }
             return true;
+        }
+
+        private void ChangeDroneOwnership(List<MyCubeGrid> gridList, long ownerId, long antennaEntityId)
+        {
+            foreach (var grid in gridList)
+            {
+                grid.ChangeGridOwnership(ownerId, MyOwnershipShareModeEnum.None);
+
+                MyRemoteControl firstRemote = null;
+
+                foreach (var block in grid.CubeBlocks)
+                {
+                    if (block.FatBlock == null) continue;
+
+                    var pb = block.FatBlock as MyProgrammableBlock;
+                    if (pb != null)
+                    {
+                        pb.SendRecompile();
+                    }
+
+                    var remote = block.FatBlock as MyRemoteControl;
+                    if (firstRemote == null)
+                        firstRemote = remote;
+                }
+
+                // If there's no remote control on the grid, we have to register it as is
+                RegisterDrone(antennaEntityId, (MyEntity)firstRemote ?? (MyEntity)grid);
+            }
+
+            gridList.Clear();
         }
 
         private void RegisterDrone(long antennaEntityId, MyEntity droneMainEntity, bool immediate = true)
@@ -679,5 +729,16 @@ namespace Sandbox.Game.World
                 }
             }
         }
+
+        private static void RandomShuffle<T>(List<T> input)
+        {
+            for (var top = input.Count - 1; top > 1; --top)
+            {
+                var swap = MyUtils.GetRandomInt(0, top);
+                T tmp = input[top];
+                input[top] = input[swap];
+                input[swap] = tmp;
+            }
+        }      
     }
 }

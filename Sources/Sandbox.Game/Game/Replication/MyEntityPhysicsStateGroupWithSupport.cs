@@ -81,7 +81,7 @@ namespace Sandbox.Game.Replication
                     Debug.Fail("Moving support for closed entity");
                     return;
                 }
-                Entity.Physics.LinearVelocity += newVelocity - oldVelocity;
+               Entity.Physics.LinearVelocity += newVelocity - oldVelocity;
             }
         }
 
@@ -96,8 +96,6 @@ namespace Sandbox.Game.Replication
                 Debug.Fail("Moving support for closed entity");
                 return;
             }
-
-            // Support has moved, we need to move entity as it was child entity
             var old = Entity.WorldMatrix;
             MatrixD local = old * MatrixD.Invert(oldSupportTransform);
 
@@ -126,7 +124,7 @@ namespace Sandbox.Game.Replication
         /// <summary>
         /// Serializes physics and takes into account support (what's entity standing on)
         /// </summary>
-        private void SerializePhysicsWithSupport(BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        private void SerializePhysicsWithSupport(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
         {
             if (stream.Writing)
             {
@@ -147,7 +145,7 @@ namespace Sandbox.Game.Replication
                 }
                 else
                 {
-                    base.Serialize(stream, forClient, packetId, maxBitPosition);
+                    base.Serialize(stream, forClient,timestamp, packetId, maxBitPosition);
                 }
             }
             else
@@ -188,21 +186,23 @@ namespace Sandbox.Game.Replication
                 else
                 {
                     SetSupport(null);
-                    base.Serialize(stream, forClient, packetId, maxBitPosition);
+                    base.Serialize(stream, forClient, timestamp, packetId, maxBitPosition);
                 }
             }
         }
 
-        public override void Serialize(BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        public override bool Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
         {
             if (MyFakes.ENABLE_MULTIPLAYER_ENTITY_SUPPORT)
             {
-                SerializePhysicsWithSupport(stream, forClient, packetId, maxBitPosition);
+                SerializePhysicsWithSupport(stream, forClient,timestamp, packetId, maxBitPosition);
             }
             else
             {
-                base.Serialize(stream, forClient, packetId, maxBitPosition);
+                base.Serialize(stream, forClient,timestamp, packetId, maxBitPosition);
             }
+
+            return true;
         }
     }
 }

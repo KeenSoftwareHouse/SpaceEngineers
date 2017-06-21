@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using VRage.Voxels;
+using VRage.Utils;
 using VRageMath;
+using VRage.Voxels;
+using VRageRender.Import;
 
 namespace VRageRender
 {
@@ -40,7 +39,7 @@ namespace VRageRender
             m_voxelOffset = Vector3.Zero;
         }
 
-        internal override unsafe bool RebuildLodProxy(int lodNum, bool skinningEnabled, MySkinningComponent skinning)
+        internal override bool RebuildLodProxy(int lodNum, bool skinningEnabled, MySkinningComponent skinning)
         {
             Debug.Assert(Mesh.Info.LodsNum == 1);
 
@@ -48,29 +47,14 @@ namespace VRageRender
 
             int partCount;
             LodMeshId lodMesh = new LodMeshId();
-            MyMergedLodMeshId mergedLodMesh = new MyMergedLodMeshId();
             VertexLayoutId vertexLayout;
 
-            bool isMergedMesh = MyMeshes.IsMergedVoxelMesh(Mesh);
-            if (!isMergedMesh)
-            {
-                lodMesh = MyMeshes.GetLodMesh(Mesh, 0);
-                // Don't create proxies when they will already be rendered in a merged mesh
-                if (MyMeshes.IsLodMeshMerged(lodMesh) || !Owner.IsVisible)
-                    return false;
+            if (!Owner.IsVisible)
+                return false;
 
-                vertexLayout = lodMesh.VertexLayout;
-                partCount = lodMesh.Info.PartsNum;
-            }
-            else
-            {
-                mergedLodMesh = MyMeshes.GetMergedLodMesh(Mesh, 0);
-                if (mergedLodMesh.VertexLayout == VertexLayoutId.NULL || mergedLodMesh.Info.MergedLodMeshes.Count == 0)
-                    return false;
-
-                partCount = mergedLodMesh.Info.PartsNum;
-                vertexLayout = mergedLodMesh.VertexLayout;
-            }
+            lodMesh = MyMeshes.GetLodMesh(Mesh, 0);
+            vertexLayout = lodMesh.VertexLayout;
+            partCount = lodMesh.Info.PartsNum;
 
             MyObjectPoolManager.Init(ref m_lods[lodNum]);
             lod = m_lods[lodNum];
@@ -80,10 +64,10 @@ namespace VRageRender
 
             Debug.Assert(partCount > 0);
 
-            lod.VertexShaderFlags = MyShaderUnifiedFlags.USE_VOXEL_DATA | MyShaderUnifiedFlags.USE_VOXEL_MORPHING | MyShaderUnifiedFlags.DITHERED;
+            lod.VertexShaderFlags = MyShaderUnifiedFlags.USE_VOXEL_DATA | MyShaderUnifiedFlags.DITHERED ;//| MyShaderUnifiedFlags.USE_VOXEL_MORPHING;
 
-            bool initializeProxies = true;//isMergedMesh || !MyMeshes.IsLodMeshMerged(lodMesh);
-            bool initializeDepthProxy = true;//!isMergedMesh && Num > 0;
+            bool initializeProxies = true;
+            bool initializeDepthProxy = true;
 
             int numToInitialize = (initializeProxies ? partCount : 0) + (initializeDepthProxy ? 1 : 0);
             if (numToInitialize > 0)
@@ -91,69 +75,53 @@ namespace VRageRender
 
             AnyDrawOutsideViewDistance = false;
 
+            int constantBufferSize = GetConstantBufferSize(lod, skinningEnabled);
+
             if (initializeProxies)
             {
                 for (int partIndex = 0; partIndex < partCount; partIndex++)
                 {
-                    CreateRenderableProxyForPart(lod, GetConstantBufferSize(lod, skinningEnabled), partIndex, partIndex, false);
+                    CreateRenderableProxyForPart(lodNum, constantBufferSize, partIndex, partIndex, false);
                 }
             }
             if (initializeDepthProxy)
-                CreateRenderableProxyForPart(lod, GetConstantBufferSize(lod, skinningEnabled), numToInitialize - 1, 0, true);
+                CreateRenderableProxyForPart(lodNum, constantBufferSize, numToInitialize - 1, 0, true);
 
             return true;
         }
 
-        private void CreateRenderableProxyForPart(MyRenderLod lod, int objectConstantsSize, int proxyIndex, int partIndex, bool shadowsOnly)
+        private void CreateRenderableProxyForPart(int lodIndex, int objectConstantsSize, int proxyIndex, int partIndex, bool shadowsOnly)
         {
+            MyRenderLod lod = m_lods[lodIndex];
             var partId = MyMeshes.GetVoxelPart(Mesh, partIndex);
-            var technique = partId.Info.MaterialTriple.IsMultimaterial() ? MyVoxelMesh.MULTI_MATERIAL_TAG : MyVoxelMesh.SINGLE_MATERIAL_TAG;
+            var technique = partId.Info.MaterialTriple.IsMultimaterial() && !shadowsOnly ? MyMeshDrawTechnique.VOXEL_MAP_MULTI : MyMeshDrawTechnique.VOXEL_MAP_SINGLE;
 
-            if (shadowsOnly)
-                technique = MyVoxelMesh.SINGLE_MATERIAL_TAG;
+            MyRenderableProxy renderableProxy = lod.RenderableProxies[proxyIndex];
 
-            lod.RenderableProxies[proxyIndex].WorldMatrix = Owner.WorldMatrix;
+            renderableProxy.WorldMatrix = Owner.WorldMatrix;
             //lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
 
-            lod.RenderableProxies[proxyIndex].NonVoxelObjectData = MyObjectDataNonVoxel.Invalid;
-            lod.RenderableProxies[proxyIndex].VoxelCommonObjectData.VoxelOffset = m_voxelOffset;
-            lod.RenderableProxies[proxyIndex].VoxelCommonObjectData.MassiveCenterRadius = Vector4.Zero; // Set in UpdateLodState
-            lod.RenderableProxies[proxyIndex].VoxelCommonObjectData.VoxelScale = m_voxelScale;
+            renderableProxy.NonVoxelObjectData = MyObjectDataNonVoxel.Invalid;
+            renderableProxy.VoxelCommonObjectData.VoxelOffset = m_voxelOffset;
+            renderableProxy.VoxelCommonObjectData.MassiveCenterRadius = Vector4.Zero; // Set in UpdateLodState
+            renderableProxy.VoxelCommonObjectData.VoxelScale = m_voxelScale;
+            renderableProxy.CommonObjectData.LOD = (uint)m_voxelLod;
 
+            MyStringId shaderMaterial = MyMaterialShaders.MapTechniqueToShaderMaterial(technique);
 
-            AssignLodMeshToProxy(Mesh, lod.RenderableProxies[proxyIndex]);
-            lod.RenderableProxies[proxyIndex].DepthShaders = MyMaterialShaders.Get(
-                X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                X.TEXT(MyGeometryRenderer.DEFAULT_DEPTH_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MyShaderUnifiedFlags.DEPTH_ONLY | MapTechniqueToShaderMaterialFlags(technique) | MyShaderUnifiedFlags.DITHERED);
-            lod.RenderableProxies[proxyIndex].Shaders = MyMaterialShaders.Get(
-                X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                X.TEXT(MyGeometryRenderer.DEFAULT_OPAQUE_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | MyShaderUnifiedFlags.DITHERED);
-            lod.RenderableProxies[proxyIndex].ForwardShaders = MyMaterialShaders.Get(
-                X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | MyShaderUnifiedFlags.DITHERED);
+            Mesh.AssignLodMeshToProxy(renderableProxy);
+            AssignShadersToProxy(renderableProxy, shaderMaterial, lod.VertexLayout1, lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | MyShaderUnifiedFlags.DITHERED);
 
             var partInfo = partId.Info;
 
             MyDrawSubmesh drawSubmesh;
             if (shadowsOnly)
             {
-                MyMeshBuffers buffers;
-                if (MyMeshes.IsMergedVoxelMesh(Mesh))
-                    buffers = MyMeshes.GetMergedLodMesh(Mesh, 0).Buffers;
-                else
-                    buffers = MyMeshes.GetLodMesh(Mesh, 0).Buffers;
-
                 drawSubmesh = new MyDrawSubmesh
                 {
                     BaseVertex = 0,
                     StartIndex = 0,
-                    IndexCount = buffers.IB.Capacity,
+                    IndexCount = Mesh.GetIndexCount(),
                     BonesMapping = null,
                     MaterialId = MyVoxelMaterials1.GetMaterialProxyId(partId.Info.MaterialTriple),
                     Flags = MyDrawSubmesh.MySubmeshFlags.Depth
@@ -190,21 +158,13 @@ namespace VRageRender
 
             My64BitValueHelper.SetBits(ref sortingKey, 36, 2, (ulong)lod.RenderableProxies[proxyIndex].Type);
             My64BitValueHelper.SetBits(ref sortingKey, 32, 4, (ulong)drawSubmesh.MaterialId.Index);
-            My64BitValueHelper.SetBits(ref sortingKey, 26, 6, (ulong)MyShaderMaterial.GetID(MapTechniqueToShaderMaterial(technique)));
+            My64BitValueHelper.SetBits(ref sortingKey, 26, 6, (ulong)MyShaderMaterial.GetID(MyMaterialShaders.MapTechniqueToShaderMaterial(technique).String));
             My64BitValueHelper.SetBits(ref sortingKey, 22, 4, (ulong)m_voxelLod);
             My64BitValueHelper.SetBits(ref sortingKey, 16, 6, (ulong)lod.VertexShaderFlags);
             //My64BitValueHelper.SetBits(ref sortingKey, 14, 6, (ulong)lod.VertexLayout1.Index);
             //My64BitValueHelper.SetBits(ref sortingKey, 0, 14, (ulong)m_owner.ID);      
 
             lod.SortingKeys[proxyIndex] = sortingKey;
-        }
-
-        private void AssignLodMeshToProxy(MeshId mesh, MyRenderableProxy proxy)
-        {
-            if (MyMeshes.IsMergedVoxelMesh(mesh))
-                proxy.MergedMesh = MyMeshes.GetMergedLodMesh(mesh, 0);
-            else
-                proxy.Mesh = MyMeshes.GetLodMesh(mesh, 0);
         }
 
         internal void SetVoxelLod(int lod, MyClipmapScaleEnum scaleEnum)
@@ -224,9 +184,9 @@ namespace VRageRender
             if (IsValidVoxelLod(m_voxelLod))
             {
                 Vector4 massiveCenterRadius = new Vector4(
-                            (float)(m_massiveCenter.X - MyEnvironment.CameraPosition.X),
-                            (float)(m_massiveCenter.Y - MyEnvironment.CameraPosition.Y),
-                            (float)(m_massiveCenter.Z - MyEnvironment.CameraPosition.Z),
+                            (float)(m_massiveCenter.X - MyRender11.Environment.Matrices.CameraPosition.X),
+                            (float)(m_massiveCenter.Y - MyRender11.Environment.Matrices.CameraPosition.Y),
+                            (float)(m_massiveCenter.Z - MyRender11.Environment.Matrices.CameraPosition.Z),
                             m_massiveRadius);
 
                 foreach (MyRenderLod lod in m_lods)
@@ -234,6 +194,7 @@ namespace VRageRender
                     foreach (MyRenderableProxy renderableProxy in lod.RenderableProxies)
                     {
                         renderableProxy.VoxelCommonObjectData.MassiveCenterRadius = massiveCenterRadius;
+                        renderableProxy.CommonObjectData.LOD =(uint)m_voxelLod;
                     }
                 }
             }

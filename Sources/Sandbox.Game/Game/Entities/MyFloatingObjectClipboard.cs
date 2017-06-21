@@ -20,6 +20,7 @@ using VRageRender;
 using Sandbox.Game.Entities.Cube;
 using VRage.ObjectBuilders;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.ModAPI;
 using VRage.Game.Entity;
@@ -177,7 +178,7 @@ namespace Sandbox.Game.Entities
                 return false;
             }
 
-            MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
+            MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceItem);
 
             MyEntities.RemapObjectBuilderCollection(m_copiedFloatingObjects);
 
@@ -496,7 +497,7 @@ namespace Sandbox.Game.Entities
                     Vector3 positionToDragPointGlobal = Vector3.TransformNormal(-m_dragPointToPositionLocal, mat);
                     mat.Translation = mat.Translation + positionToDragPointGlobal;
 
-                    hints.CalculateRotationHints(mat, worldBox, !MyHud.MinimalHud && MySandboxGame.Config.RotationHints && MyFakes.ENABLE_ROTATION_HINTS, isRotating);
+                    hints.CalculateRotationHints(mat, worldBox, !MyHud.MinimalHud && !MyHud.CutsceneHud && MySandboxGame.Config.RotationHints && MyFakes.ENABLE_ROTATION_HINTS, isRotating);
                 }
             }
         }

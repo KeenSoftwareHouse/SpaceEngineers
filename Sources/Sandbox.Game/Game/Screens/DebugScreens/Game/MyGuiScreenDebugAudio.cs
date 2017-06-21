@@ -140,7 +140,7 @@ namespace Sandbox.Game.Gui
                 for(int i = 0; i < def.Effect.SoundsEffects.Count -1; i++)
                 {
                     var combo = AddCombo();
-                    UdpateCuesCombo(combo);
+                    UpdateCuesCombo(combo);
                     m_cues.Add(combo);
                 }
             }
@@ -151,12 +151,12 @@ namespace Sandbox.Game.Gui
             m_currentCategorySelectedItem = m_categoriesCombo.GetSelectedValue().ToString();
             m_applyVolumeToCategory.Enabled = (m_currentCategorySelectedItem != ALL_CATEGORIES);
             m_applyMaxDistanceToCategory.Enabled = (m_currentCategorySelectedItem != ALL_CATEGORIES);
-            UdpateCuesCombo(m_cuesCombo);
+            UpdateCuesCombo(m_cuesCombo);
             foreach (var box in m_cues)
-                UdpateCuesCombo(box);
+                UpdateCuesCombo(box);
         }
 
-        void UdpateCuesCombo(MyGuiControlCombobox box)
+        void UpdateCuesCombo(MyGuiControlCombobox box)
         {
 
             box.ClearItems();

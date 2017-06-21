@@ -2,6 +2,7 @@
 using System.IO;
 using VRage.Import;
 using VRageMath;
+using VRageRender.Import;
 
 namespace VRage.Game.Entity
 {
@@ -16,18 +17,17 @@ namespace VRage.Game.Entity
 
         public static bool GetSubpartFromDummy(string modelPath, string dummyName, MyModelDummy dummy, ref Data outData)
         {
-            const string SUBPART_PREFIX = "subpart_";
-            if (!dummyName.Contains(SUBPART_PREFIX))
+            if (!dummyName.Contains(MyModelDummy.SUBPART_PREFIX))
                 return false;
 
-            Debug.Assert(dummyName.Substring(0, SUBPART_PREFIX.Length).Equals(SUBPART_PREFIX), string.Format("Subpart name should start with prefix '{0}'", SUBPART_PREFIX));
-            Debug.Assert(dummy.CustomData.ContainsKey("file"), "Subpart dummy must have 'file' attribute specified.");
-            
-            string subpartPath = Path.Combine(Path.GetDirectoryName(modelPath), (string)dummy.CustomData["file"]);
+            Debug.Assert(dummyName.Substring(0, MyModelDummy.SUBPART_PREFIX.Length).Equals(MyModelDummy.SUBPART_PREFIX), string.Format("Subpart name should start with prefix '{0}'", MyModelDummy.SUBPART_PREFIX));
+            Debug.Assert(dummy.CustomData.ContainsKey(MyModelDummy.ATTRIBUTE_FILE), "Subpart dummy must have 'file' attribute specified.");
+
+            string subpartPath = Path.Combine(Path.GetDirectoryName(modelPath), (string)dummy.CustomData[MyModelDummy.ATTRIBUTE_FILE]);
             subpartPath += ".mwm"; // Temporary fix
             outData = new Data()
             {
-                Name = dummyName.Substring(SUBPART_PREFIX.Length),
+                Name = dummyName.Substring(MyModelDummy.SUBPART_PREFIX.Length),
                 File = subpartPath,
                 InitialTransform = Matrix.Normalize(dummy.Matrix)
             };

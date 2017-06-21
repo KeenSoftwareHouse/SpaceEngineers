@@ -35,7 +35,12 @@ namespace VRage.FileSystem
             if (!Directory.Exists(path))
                 return null;
 
+//NotYet #if XB1
+//NotYet            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+//NotYet            return null;
+//NotYet #else // !XB1
             return Directory.GetFiles(path, filter, (System.IO.SearchOption)searchOption);
+//NotYet #endif // !XB1
         }
 
         public bool FileExists(string path)

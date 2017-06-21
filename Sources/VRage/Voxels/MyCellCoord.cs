@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRageMath;
-using VRageRender;
 
 namespace VRage.Voxels
 {
@@ -24,7 +23,37 @@ namespace VRage.Voxels
             }
         }
 
-        public const int MAX_LOD_COUNT = 1 << BITS_LOD;
+        const int BITS_LOD = 4;
+
+		const int BITS_X_32 = 10;
+		const int BITS_Y_32 = 8;
+		const int BITS_Z_32 = 10;
+
+		const int BITS_X_64 = 20;
+		const int BITS_Y_64 = 20;
+		const int BITS_Z_64 = 20;
+
+		const int SHIFT_Z_32 = 0;
+		const int SHIFT_Y_32 = SHIFT_Z_32 + BITS_Z_32;
+		const int SHIFT_X_32 = SHIFT_Y_32 + BITS_Y_32;
+		const int SHIFT_LOD_32 = SHIFT_X_32 + BITS_X_32;
+
+		const int SHIFT_Z_64 = 0;
+		const int SHIFT_Y_64 = SHIFT_Z_64 + BITS_Z_64;
+		const int SHIFT_X_64 = SHIFT_Y_64 + BITS_Y_64;
+		const int SHIFT_LOD_64 = SHIFT_X_64 + BITS_X_64;
+
+		const int MASK_LOD = (1 << BITS_LOD) - 1;
+
+		const int MASK_X_32 = (1 << BITS_X_32) - 1;
+		const int MASK_Y_32 = (1 << BITS_Y_32) - 1;
+		const int MASK_Z_32 = (1 << BITS_Z_32) - 1;
+
+		const int MASK_X_64 = (1 << BITS_X_64) - 1;
+		const int MASK_Y_64 = (1 << BITS_Y_64) - 1;
+		const int MASK_Z_64 = (1 << BITS_Z_64) - 1;
+		
+		public const int MAX_LOD_COUNT = 1 << BITS_LOD;
 
         /// <summary>
         /// 0 is the most detailed.
@@ -154,36 +183,6 @@ namespace VRage.Voxels
             return string.Format("{0}, {1}", Lod, CoordInLod);
         }
 
-        // Do not change these settings of bits! It will break backward compatibility.
-        const int BITS_LOD = 4;
-
-        const int BITS_X_32 = 10;
-        const int BITS_Y_32 = 8;
-        const int BITS_Z_32 = 10;
-
-        const int BITS_X_64 = 20;
-        const int BITS_Y_64 = 20;
-        const int BITS_Z_64 = 20;
-
-        const int SHIFT_LOD_32 = SHIFT_X_32 + BITS_X_32;
-        const int SHIFT_X_32   = SHIFT_Y_32 + BITS_Y_32;
-        const int SHIFT_Y_32   = SHIFT_Z_32 + BITS_Z_32;
-        const int SHIFT_Z_32   = 0;
-
-        const int SHIFT_LOD_64 = SHIFT_X_64 + BITS_X_64;
-        const int SHIFT_X_64   = SHIFT_Y_64 + BITS_Y_64;
-        const int SHIFT_Y_64   = SHIFT_Z_64 + BITS_Z_64;
-        const int SHIFT_Z_64   = 0;
-
-        const int MASK_LOD = (1 << BITS_LOD) - 1;
-
-        const int MASK_X_32 = (1 << BITS_X_32) - 1;
-        const int MASK_Y_32 = (1 << BITS_Y_32) - 1;
-        const int MASK_Z_32 = (1 << BITS_Z_32) - 1;
-
-        const int MASK_X_64 = (1 << BITS_X_64) - 1;
-        const int MASK_Y_64 = (1 << BITS_Y_64) - 1;
-        const int MASK_Z_64 = (1 << BITS_Z_64) - 1;
 
         static MyCellCoord()
         {

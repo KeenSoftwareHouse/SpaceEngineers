@@ -27,6 +27,8 @@ using Sandbox.Game.EntityComponents;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using Sandbox.ModAPI;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Entities
 {
@@ -36,13 +38,14 @@ namespace Sandbox.Game.Entities
     /// </summary>
     [MyEntityType(typeof(MyObjectBuilder_ReplicableEntity), mainBuilder: false)] // Backward compatibility
     [MyEntityType(typeof(MyObjectBuilder_InventoryBagEntity), mainBuilder: true)]
-    public class MyInventoryBagEntity : MyEntity
+    public class MyInventoryBagEntity : MyEntity, IMyInventoryBag
     {
         private const string INVENTORY_USE_DUMMY_NAME = "inventory";
-
+        Vector3 m_gravity = Vector3.Zero;
         MyDefinitionId m_definitionId;
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             // Fix old EntityDefinitionId with MyObjectBuilder_EntityBase.
             if (objectBuilder.EntityDefinitionId != null && objectBuilder.EntityDefinitionId.Value.TypeId != typeof(MyObjectBuilder_InventoryBagEntity))
             {
@@ -88,6 +91,22 @@ namespace Sandbox.Game.Entities
             }
 
             return null;
+        }
+
+        public override void UpdateBeforeSimulation()
+        {
+            base.UpdateBeforeSimulation();
+
+            if (Physics != null)
+            {
+                Physics.RigidBody.Gravity = m_gravity;
+            }
+        }
+
+        public override void UpdateAfterSimulation100()
+        {
+            base.UpdateAfterSimulation100();
+            m_gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(PositionComp.GetPosition());
         }
 
     }

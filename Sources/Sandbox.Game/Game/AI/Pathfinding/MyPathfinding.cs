@@ -1,4 +1,5 @@
-﻿using Sandbox.Common;
+﻿using ParallelTasks;
+using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using System;
@@ -9,12 +10,14 @@ using System.Text;
 using VRage;
 using VRage.Algorithms;
 using VRage.Game.Entity;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
-    public class MyPathfinding : MyPathFindingSystem<MyNavigationPrimitive>
+    public class MyPathfinding : MyPathFindingSystem<MyNavigationPrimitive>, IMyPathfinding
     {
         private MyVoxelPathfinding m_voxelPathfinding;
         private MyGridPathfinding m_gridPathfinding;
@@ -57,9 +60,16 @@ namespace Sandbox.Game.AI.Pathfinding
                 MyPathfindingStopwatch.CheckStopMeasuring();
                 MyPathfindingStopwatch.Start();
                 m_gridPathfinding.Update();
+
                 m_voxelPathfinding.Update();
+                //ParallelTasks.Parallel.Start(m_voxelPathfinding);
                 MyPathfindingStopwatch.Stop();
             }
+        }
+
+        public IMyPathfindingLog GetPathfindingLog()
+        {
+            return m_voxelPathfinding.DebugLog;
         }
 
         public void UnloadData()
@@ -86,7 +96,7 @@ namespace Sandbox.Game.AI.Pathfinding
             }
         }
 
-        public MySmartPath FindPathGlobal(Vector3D begin, IMyDestinationShape end, MyEntity entity = null)
+        public IMyPath FindPathGlobal(Vector3D begin, IMyDestinationShape end, MyEntity entity = null)
         {
             Debug.Assert(MyPerGameSettings.EnablePathfinding, "Pathfinding is not enabled!");
             if (!MyPerGameSettings.EnablePathfinding)
@@ -214,7 +224,7 @@ namespace Sandbox.Game.AI.Pathfinding
             m_gridPathfinding.DebugDraw();
             m_voxelPathfinding.DebugDraw();
 
-            if (MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES != VRage.Utils.MyWEMDebugDrawMode.NONE)
+            if (MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES != MyWEMDebugDrawMode.NONE)
             {
                 m_navmeshCoordinator.Links.DebugDraw(Color.Khaki);
             }

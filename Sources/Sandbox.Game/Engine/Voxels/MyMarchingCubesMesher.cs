@@ -1,16 +1,12 @@
-﻿using Sandbox.Engine.Utils;
-using Sandbox.Game;
+﻿using Sandbox.Game;
 using System;
-using System.Linq;
 using System.Diagnostics;
-using VRage;
-using VRage.Import;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 using VRage.Native;
 using System.Collections.Generic;
+using VRage.Profiler;
+using VRage.Voxels;
 
 //  This class is used for precalculation of voxels into triangles and vertex buffers
 //  It is not static and not thread too. But it may be called from thread.
@@ -360,7 +356,7 @@ namespace Sandbox.Engine.Voxels
             return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true, true, false);
         }
 
-        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient, bool doNotCheck)
+        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient, bool doNotCheck, bool adviceCache = false)
         {
 
             m_resultVerticesCounter = 0;
@@ -395,7 +391,7 @@ namespace Sandbox.Engine.Voxels
                 Vector3I coord0 = start;
 
 
-                for (var it = new Vector3I.RangeIterator(ref start, ref end); it.IsValid(); it.GetNext(out coord0))
+                for (var it = new Vector3I_RangeIterator(ref start, ref end); it.IsValid(); it.GetNext(out coord0))
                 {
                     int cubeIndex = 0;
                     if (m_cache.Content(coord0.X + 0, coord0.Y + 0, coord0.Z + 0) < MyVoxelConstants.VOXEL_ISO_LEVEL) cubeIndex |= 1;

@@ -30,14 +30,14 @@ namespace Sandbox.Game.Weapons
      * Created when an item is dropped from inventory. Model and physics could probably be created based on definition (?)
      */
 
-    class MyBaseInventoryItemEntity : MyEntity
+    public class MyBaseInventoryItemEntity : MyEntity
     {
         #region Fields
 
         MyPhysicalItemDefinition m_definition;
         float m_amount;
 
-        public string IconTexture { get { return m_definition.Icon; } }
+        public string[] IconTextures { get { return m_definition.Icons; } }
 
         #endregion
 

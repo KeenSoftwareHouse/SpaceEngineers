@@ -2,18 +2,11 @@
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using VRage;
-using VRage.Collections;
 using VRage.Noise;
-using VRage.Noise.Combiners;
+using VRage.Profiler;
 using VRage.Voxels;
 using VRageMath;
 
@@ -102,7 +95,8 @@ namespace Sandbox.Game.World.Generator
             result.m_state.Size = size;
             result.m_state.UnusedCompat = 0;
 
-            MyCompositeShapes.AsteroidGenerators[result.m_state.Generator](seed, size, out result.m_data);
+			var gen = MyCompositeShapes.AsteroidGenerators[result.m_state.Generator];
+            gen(seed, size, out result.m_data);
 
             return result;
         }
@@ -382,7 +376,8 @@ namespace Sandbox.Game.World.Generator
                 }
             }
 
-            MyCompositeShapes.AsteroidGenerators[m_state.Generator](m_state.Seed, m_state.Size, out m_data);
+			var gen = MyCompositeShapes.AsteroidGenerators[m_state.Generator];
+			gen(m_state.Seed, m_state.Size, out m_data);
 
             m_state.Version = CURRENT_VERSION;
         }
@@ -453,6 +448,8 @@ namespace Sandbox.Game.World.Generator
                 ReadContentRange(req.Target, ref req.Offset, req.Lod, ref req.minInLod, ref req.maxInLod);
             else
                 ReadMaterialRange(req.Target, ref req.Offset, req.Lod, ref req.minInLod, ref req.maxInLod);
+
+            req.Flags = req.RequestFlags & (MyVoxelRequestFlags.RequestFlags);
         }
 
         public MyVoxelRequestFlags SupportedFlags()

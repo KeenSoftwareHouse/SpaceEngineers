@@ -18,6 +18,7 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRageMath;
+using Sandbox.Game.Multiplayer;
 
 namespace SpaceEngineers.Game.Entities
 {
@@ -71,9 +72,9 @@ namespace SpaceEngineers.Game.Entities
             return null;
         }
 
-        public override bool HasBuildingMaterials(MyEntity builder)
+        public override bool HasBuildingMaterials(MyEntity builder, bool testTotal)
         {
-            if (MySession.Static.CreativeMode || (MySession.Static.IsAdminModeEnabled && builder == MySession.Static.LocalCharacter))
+            if (MySession.Static.CreativeMode || (MySession.Static.CreativeToolsEnabled(Sync.MyId) && builder == MySession.Static.LocalCharacter))
                 return true;
 
             if (builder == null) return false;
@@ -97,19 +98,39 @@ namespace SpaceEngineers.Game.Entities
                         Debug.Fail("failed to get identityId");
             }
             bool result = true;
-            foreach (var entry in m_materialList.RequiredMaterials)
+            if (!testTotal)
             {
-                result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
-                if (!result && shipInventory != null)
+                foreach (var entry in m_materialList.RequiredMaterials)
                 {
-                    result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
-                    if (!result)
+                    result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
+                    if (!result && shipInventory != null)
                     {
-                        //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
-                        result = MyGridConveyorSystem.ConveyorSystemItemAmount(cockpit, shipInventory, identityId, entry.Key) >= entry.Value;
+                        result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
+                        if (!result)
+                        {
+                            //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
+                            result = MyGridConveyorSystem.ConveyorSystemItemAmount(cockpit, shipInventory, identityId, entry.Key) >= entry.Value;
+                        }
                     }
+                    if (!result) break;
                 }
-                if (!result) break;
+            }
+            else
+            {
+                foreach (var entry in m_materialList.TotalMaterials)
+                {
+                    result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
+                    if (!result && shipInventory != null)
+                    {
+                        result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
+                        if (!result)
+                        {
+                            //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
+                            result = MyGridConveyorSystem.ConveyorSystemItemAmount(cockpit, shipInventory, identityId, entry.Key) >= entry.Value;
+                        }
+                    }
+                    if (!result) break;
+                }
             }
             return result;
         }
@@ -140,6 +161,12 @@ namespace SpaceEngineers.Game.Entities
             }
         }
 
+        public override void GetBlockAmountPlacementMaterials(MyCubeBlockDefinition definition, int amount)
+        {
+            ClearRequiredMaterials();
+            GetMaterialsSimple(definition, m_materialList, amount);
+        }
+
         public override void GetGridSpawnMaterials(MyObjectBuilder_CubeGrid grid)
         {
             ClearRequiredMaterials();
@@ -165,45 +192,25 @@ namespace SpaceEngineers.Game.Entities
         {
         }
 
-        public override void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob)
+        public override void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob, bool buildAsAdmin)
         {
-            base.BeforeCreateBlock(definition, builder, ob);
+            base.BeforeCreateBlock(definition, builder, ob, buildAsAdmin);
 
-            if (builder != null && MySession.Static.SurvivalMode&&MySession.Static.IsAdminModeEnabled == false)
+            if (builder != null && MySession.Static.SurvivalMode && !buildAsAdmin)
             {
                 ob.IntegrityPercent = MyComponentStack.MOUNT_THRESHOLD;
                 ob.BuildPercent = MyComponentStack.MOUNT_THRESHOLD;
             }
         }
 
-        public override void AfterGridCreated(MyCubeGrid grid, MyEntity builder)
+        public override void AfterSuccessfulBuild(MyEntity builder, bool instantBuild)
         {
-            if (MySession.Static.SurvivalMode)
-            {
-                TakeMaterialsFromBuilder(builder);
-            }
-        }
-
-        public override void AfterGridsSpawn(Dictionary<MyDefinitionId, int> buildItems, MyEntity builder)
-        {
-        }
-
-        public override void AfterBlockBuild(MySlimBlock block, MyEntity builder)
-        {
-            if (builder == null) return;
+            if (builder == null || instantBuild) return;
 
             if (MySession.Static.SurvivalMode)
             {
                 TakeMaterialsFromBuilder(builder);
             }
-        }
-
-        public override void AfterBlocksBuild(HashSet<MyCubeGrid.MyBlockLocation> builtBlocks, MyEntity builder)
-        {
-        }
-
-        public override void AfterMultiBlockBuild(MyEntity builder)
-        {
         }
 
         private void ClearRequiredMaterials()
@@ -211,18 +218,18 @@ namespace SpaceEngineers.Game.Entities
             m_materialList.Clear();
         }
 
-        private static void GetMaterialsSimple(MyCubeBlockDefinition definition, MyComponentList output)
+        private static void GetMaterialsSimple(MyCubeBlockDefinition definition, MyComponentList output, int amount = 1)
         {
             for (int i = 0; i < definition.Components.Length; ++i)
             {
                 var component = definition.Components[i];
-                output.AddMaterial(component.Definition.Id, component.Count, i == 0 ? 1 : 0);
+                output.AddMaterial(component.Definition.Id, component.Count * amount, i == 0 ? 1 : 0);
             }
-            return;
         }
 
         private void TakeMaterialsFromBuilder(MyEntity builder)
         {
+            // CH: TODO: Please refactor this to not be so ugly. Especially, calling the Solve function multiple times on the component combiner is bad...
             if (builder == null) return;
             var inventory = GetBuilderInventory(builder);
             if (inventory == null) return;

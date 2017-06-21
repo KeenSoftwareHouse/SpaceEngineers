@@ -10,9 +10,6 @@ using System.Diagnostics;
 
 using VRageMath;
 using VRageRender;
-using VRageRender.Textures;
-using VRageRender.Graphics;
-using VRageRender.Lights;
 
 #endregion
 
@@ -72,7 +69,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
         struct MyEntityRayCastPair
         {
             public MyEntity Entity;
-            public LineD Ray;
+            public LineD _Ray;
             public Vector3D Position;
             public MyParticleEffect Particle;
         }
@@ -275,7 +272,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
                 {
                     var rand = MyUtils.GetRandomInt(m_rayCastQueue.Count - 1);
                     var entity = m_rayCastQueue[rand].Entity;
-                    var l = m_rayCastQueue[rand].Ray;
+                    var l = m_rayCastQueue[rand]._Ray;
                     var p = m_rayCastQueue[rand].Position;
                     var particle = m_rayCastQueue[rand].Particle;
                     if (entity is MyCubeGrid)
@@ -465,7 +462,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
                                     {
                                         particle.WorldMatrix = MatrixD.CreateWorld(m_hitLst[0].Position, Vector3D.Forward, Vector3D.Up);
                                     }
-                                    m_rayCastQueue.Add(new MyEntityRayCastPair() { Entity = grid, Ray = l , Position = m_hitLst[0].Position, Particle = particle});
+                                    m_rayCastQueue.Add(new MyEntityRayCastPair() { Entity = grid, _Ray = l , Position = m_hitLst[0].Position, Particle = particle});
                                     //grid.Physics.ApplyDeformation(0.2f, 4, 2, Vector3.Transform(m_hitLst[0].Position, invMat), Vector3.Transform(m_directionFromSunNormalized, invMat), Sandbox.Game.Weapons.MyDamageType.Environment);
                                 }
                             }
@@ -533,7 +530,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
             float multiply = (float)(1 - MathHelper.Clamp(Math.Abs(m_distanceToSunWind) / MySunWindConstants.SUN_COLOR_INCREASE_DISTANCE, 0, 1));
             multiply *= MathHelper.Lerp(MySunWindConstants.SUN_COLOR_INCREASE_STRENGTH_MIN, MySunWindConstants.SUN_COLOR_INCREASE_STRENGTH_MAX, m_strength);
 
-            return new Vector4(MySector.SunProperties.SunDiffuse, 1.0f) * (1 + multiply);
+            return new Vector4(MySector.SunProperties.EnvironmentLight.SunColorRaw, 1.0f) * (1 + multiply);
         }
 
         //  When sun wind is approaching camera position, we have to make particle dust more transparent (or invisible), because it doesn't look when mixed with sun wind billboards

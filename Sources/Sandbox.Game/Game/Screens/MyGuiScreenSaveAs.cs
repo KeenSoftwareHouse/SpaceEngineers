@@ -23,7 +23,7 @@ using Sandbox.Game.Screens.Helpers;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiScreenSaveAs : MyGuiScreenBase
+    public class MyGuiScreenSaveAs : MyGuiScreenBase
     {
         MyGuiControlTextbox m_nameTextbox;
         MyGuiControlButton m_okButton, m_cancelButton;
@@ -32,6 +32,8 @@ namespace Sandbox.Game.Gui
         string m_sessionPath;
 
         bool m_fromMainMenu = false;
+
+        public event Action SaveAsConfirm;
 
         public MyGuiScreenSaveAs(MyWorldInfo copyFrom, string sessionPath, List<string> existingSessionNames)
             : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.5f, 0.35f))
@@ -185,7 +187,14 @@ namespace Sandbox.Game.Gui
             m_copyFrom.SessionName = m_nameTextbox.Text;
             MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.SavingPleaseWait, null,
                 beginAction: () => new SaveResult(MyUtils.StripInvalidChars(m_nameTextbox.Text), m_sessionPath, m_copyFrom),
-                endAction: (result, screen) => { screen.CloseScreen(); this.CloseScreen(); }));
+                endAction: (result, screen) =>
+                {
+                    screen.CloseScreen();
+                    this.CloseScreen();
+                    var handler = SaveAsConfirm;
+                    if (handler != null)
+                        handler();
+                }));
             return true;
         }
 

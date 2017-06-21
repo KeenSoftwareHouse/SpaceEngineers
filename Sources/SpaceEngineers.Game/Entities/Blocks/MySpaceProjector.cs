@@ -2,6 +2,7 @@
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Terminal.Controls;
@@ -16,10 +17,16 @@ namespace Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_Projector))]
     public class MySpaceProjector : MyProjectorBase
     {
-
-        static MySpaceProjector()
+        public MySpaceProjector()
         {
+            CreateTerminalControls();
+        }
 
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MySpaceProjector>())
+                return;
+            base.CreateTerminalControls();
             if (!MyFakes.ENABLE_PROJECTOR_BLOCK)
             {
                 return;
@@ -31,16 +38,13 @@ namespace Entities.Blocks
 
             MyTerminalControlFactory.AddControl(blueprintBtn);
 
-            var removeBtn = new MyTerminalControlButton<MySpaceProjector>("Remove", MySpaceTexts.RemoveProjectionButton, MySpaceTexts.Blank, (p) => p.SyncObject.SendRemoveProjection());
+            var removeBtn = new MyTerminalControlButton<MySpaceProjector>("Remove", MySpaceTexts.RemoveProjectionButton, MySpaceTexts.Blank, (p) => p.SendRemoveProjection());
             removeBtn.Enabled = (b) => b.IsProjecting();
             MyTerminalControlFactory.AddControl(removeBtn);
 
             var keepProjectionToggle = new MyTerminalControlCheckbox<MySpaceProjector>("KeepProjection", MySpaceTexts.KeepProjectionToggle, MySpaceTexts.KeepProjectionTooltip);
-            keepProjectionToggle.Getter = (x) => x.m_keepProjection;
-            keepProjectionToggle.Setter = (x, v) =>
-            {
-                x.SyncObject.SendNewKeepProjection(v);
-            };
+            keepProjectionToggle.Getter = (x) => x.KeepProjection;
+            keepProjectionToggle.Setter = (x, v) => x.KeepProjection = v;
             keepProjectionToggle.EnableAction();
             keepProjectionToggle.Enabled = (b) => b.IsProjecting();
             MyTerminalControlFactory.AddControl(keepProjectionToggle);
@@ -160,31 +164,31 @@ namespace Entities.Blocks
             var instantBuildingCheckbox = new MyTerminalControlCheckbox<MySpaceProjector>("InstantBuilding", MySpaceTexts.BlockPropertyTitle_Projector_InstantBuilding, MySpaceTexts.BlockPropertyTitle_Projector_InstantBuilding_Tooltip);
             instantBuildingCheckbox.Visible = (p) => p.ScenarioSettingsEnabled();
             instantBuildingCheckbox.Enabled = (p) => p.CanEnableInstantBuilding();
-            instantBuildingCheckbox.Getter = (p) => p.m_instantBuildingEnabled;
+            instantBuildingCheckbox.Getter = (p) => p.InstantBuildingEnabled;
             instantBuildingCheckbox.Setter = (p, v) => p.TrySetInstantBuilding(v);
             MyTerminalControlFactory.AddControl(instantBuildingCheckbox);
 
             var getOwnershipCheckbox = new MyTerminalControlCheckbox<MySpaceProjector>("GetOwnership", MySpaceTexts.BlockPropertyTitle_Projector_GetOwnership, MySpaceTexts.BlockPropertiesTooltip_Projector_GetOwnership);
             getOwnershipCheckbox.Visible = (p) => p.ScenarioSettingsEnabled();
             getOwnershipCheckbox.Enabled = (p) => p.CanEditInstantBuildingSettings();
-            getOwnershipCheckbox.Getter = (p) => p.m_getOwnershipFromProjector;
+            getOwnershipCheckbox.Getter = (p) => p.GetOwnershipFromProjector;
             getOwnershipCheckbox.Setter = (p, v) => p.TrySetGetOwnership(v);
             MyTerminalControlFactory.AddControl(getOwnershipCheckbox);
 
             var numberOfProjections = new MyTerminalControlSlider<MySpaceProjector>("NumberOfProjections", MySpaceTexts.BlockPropertyTitle_Projector_NumberOfProjections, MySpaceTexts.BlockPropertyTitle_Projector_NumberOfProjections_Tooltip);
             numberOfProjections.Visible = (p) => p.ScenarioSettingsEnabled();
             numberOfProjections.Enabled = (p) => p.CanEditInstantBuildingSettings();
-            numberOfProjections.Getter = (p) => p.m_maxNumberOfProjections;
+            numberOfProjections.Getter = (p) => p.MaxNumberOfProjections;
             numberOfProjections.Setter = (p, v) => p.TryChangeNumberOfProjections(v);
             numberOfProjections.Writer = (p, s) =>
             {
-                if (p.m_maxNumberOfProjections == MAX_NUMBER_OF_PROJECTIONS)
+                if (p.MaxNumberOfProjections == MAX_NUMBER_OF_PROJECTIONS)
                 {
                     s.AppendStringBuilder(MyTexts.Get(MySpaceTexts.ScreenTerminal_Infinite));
                 }
                 else
                 {
-                    s.AppendInt32(p.m_maxNumberOfProjections);
+                    s.AppendInt32(p.MaxNumberOfProjections);
                 }
             };
             numberOfProjections.SetLogLimits(1, MAX_NUMBER_OF_PROJECTIONS);
@@ -193,17 +197,17 @@ namespace Entities.Blocks
             var numberOfBlocks = new MyTerminalControlSlider<MySpaceProjector>("NumberOfBlocks", MySpaceTexts.BlockPropertyTitle_Projector_BlocksPerProjection, MySpaceTexts.BlockPropertyTitle_Projector_BlocksPerProjection_Tooltip);
             numberOfBlocks.Visible = (p) => p.ScenarioSettingsEnabled();
             numberOfBlocks.Enabled = (p) => p.CanEditInstantBuildingSettings();
-            numberOfBlocks.Getter = (p) => p.m_maxNumberOfBlocksPerProjection;
+            numberOfBlocks.Getter = (p) => p.MaxNumberOfBlocksPerProjection;
             numberOfBlocks.Setter = (p, v) => p.TryChangeMaxNumberOfBlocksPerProjection(v);
             numberOfBlocks.Writer = (p, s) =>
             {
-                if (p.m_maxNumberOfBlocksPerProjection == MAX_NUMBER_OF_BLOCKS)
+                if (p.MaxNumberOfBlocksPerProjection == MAX_NUMBER_OF_BLOCKS)
                 {
                     s.AppendStringBuilder(MyTexts.Get(MySpaceTexts.ScreenTerminal_Infinite));
                 }
                 else
                 {
-                    s.AppendInt32(p.m_maxNumberOfBlocksPerProjection);
+                    s.AppendInt32(p.MaxNumberOfBlocksPerProjection);
                 }
             };
             numberOfBlocks.SetLogLimits(1, MAX_NUMBER_OF_BLOCKS);
@@ -213,7 +217,7 @@ namespace Entities.Blocks
         protected override bool CheckIsWorking()
         {
 
-            if (ResourceSink != null && !ResourceSink.IsPowered)
+            if (ResourceSink != null && !ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 return false;
             }

@@ -9,7 +9,7 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Import;
 using VRageMath;
 using VRage.FileSystem;
@@ -164,12 +164,11 @@ namespace Sandbox.Game.Entities
             animationDefinition.Status = MyAnimationDefinition.AnimationStatus.OK;
 
             MyModel animation = VRage.Game.Models.MyModels.GetModelOnlyAnimationData(model);
-
-            System.Diagnostics.Debug.Assert(animation.Animations != null && animation.Animations.Clips.Count > 0);
-            if (animation.Animations == null || animation.Animations.Clips.Count == 0)
+            Debug.Assert(animation != null && animation.Animations != null && animation.Animations.Clips.Count > 0);
+            if (animation != null && animation.Animations == null || animation.Animations.Clips.Count == 0)
                 return;
 
-            System.Diagnostics.Debug.Assert(animationDefinition.ClipIndex < animation.Animations.Clips.Count);
+            Debug.Assert(animationDefinition.ClipIndex < animation.Animations.Clips.Count);
             if (animation.Animations.Clips.Count <= animationDefinition.ClipIndex)
                 return;
 
@@ -180,6 +179,8 @@ namespace Sandbox.Game.Entities
 
             // Create a clip player and assign it to this model                        
             ActualPlayer.Initialize(animation, m_name, animationDefinition.ClipIndex, m_skinnedEntity, 1, timeScale, frameOption, m_bones, m_boneLODs);
+            ActualPlayer.AnimationMwmPathDebug = model;
+            ActualPlayer.AnimationNameDebug = animationDefinition.Id.SubtypeName;
 
             m_state = AnimationBlendState.BlendIn;
             m_currentBlendTime = 0;

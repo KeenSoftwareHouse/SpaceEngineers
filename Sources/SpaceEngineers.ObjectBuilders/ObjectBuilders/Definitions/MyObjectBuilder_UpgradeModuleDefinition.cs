@@ -2,7 +2,7 @@
 using VRage.Game;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace SpaceEngineers.ObjectBuilders.Definitions
 {
     /// <summary>
     /// Upgrade modifier type

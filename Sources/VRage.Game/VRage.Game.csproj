@@ -2,6 +2,7 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}</ProjectGuid>
@@ -9,22 +10,23 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VRage.Game</RootNamespace>
     <AssemblyName>VRage.Game</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +34,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -42,6 +45,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -51,79 +55,296 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <HavokDir>HavokWrapper_SE</HavokDir>
   </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
+  </ImportGroup>
   <PropertyGroup>
-    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\$(Configuration)\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
-    <HavokWrapperFullPath2>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath2>
+    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'">
+    <OutputPath>bin\x64\Release Official\</OutputPath>
+    <DefineConstants>TRACE;OFFICIAL_BUILD,WINDOWS</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'">
+    <OutputPath>bin\x86\Release Official\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath)</HintPath>
-      <HintPath Condition="!exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath2)</HintPath>
+      <HintPath>$(HavokWrapperFullPath)</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\Roslyn\Microsoft.CodeAnalysis.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\Roslyn\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Workspaces, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\Roslyn\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\Roslyn\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
+    <Reference Include="System.Reflection.Metadata, Version=1.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\Roslyn\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\MyBehaviorTreeActionAttribute.cs" />
+    <Compile Include="Common\MyExtDebugClient.cs" />
     <Compile Include="Components\Entity\Render\MyRenderComponentExtensions.cs" />
+    <Compile Include="Components\Session\MyEventQueue.cs" />
+    <Compile Include="Components\IMyComponentOwner.cs" />
+    <Compile Include="Components\Session\MyLocalizationSessionComponent.cs" />
+    <Compile Include="Components\Session\MySessionComponentScriptSharedStorage.cs" />
+    <Compile Include="Components\Session\MyVisualScriptManagerSessionComponent.cs" />
+    <Compile Include="Components\MyIngameScript.cs" />
+    <Compile Include="Components\MyRespawnComponent.cs" />
+    <Compile Include="Components\MyModStorageComponentBase.cs" />
     <Compile Include="Components\Session\MyPhysicsComponentSystem.cs" />
+    <Compile Include="Components\Session\MySessionComponentDefinition.cs" />
+    <Compile Include="Components\Session\MySessionComponentExtDebug.cs" />
+    <Compile Include="Core\VRageCore.cs" />
     <Compile Include="Definitions\Animation\MyAnimationControllerDefinition.cs" />
     <Compile Include="Definitions\Animation\MyAnimationDefinition.cs" />
     <Compile Include="Definitions\MyDefinitionErrors.cs" />
     <Compile Include="Definitions\MyDefinitionManagerBase.cs" />
+    <Compile Include="Definitions\MyDefinitionManagerSimple.cs" />
     <Compile Include="Definitions\MyDefinitionPostprocessor.cs" />
     <Compile Include="Definitions\MyDefinitionSet.cs" />
+    <Compile Include="Definitions\MyFogProperties.cs" />
+    <Compile Include="Definitions\MyGameDefinition.cs" />
+    <Compile Include="Definitions\MyModStorageComponentDefinition.cs" />
+    <Compile Include="Definitions\SessionComponents\MyClipboardDefinition.cs" />
+    <Compile Include="Definitions\SessionComponents\MyCoordinateSystemDefinition.cs" />
+    <Compile Include="Definitions\SessionComponents\MyCubeBuilderDefinition.cs" />
+    <Compile Include="Definitions\MySunProperties.cs" />
+    <Compile Include="Definitions\MyVisualSettingsDefinition.cs" />
     <Compile Include="Entity\EntityComponents\MyAnimationControllerComponent.cs" />
     <Compile Include="Entity\EntityComponents\MyAnimationControllerComponent.LoadFromDef.cs" />
+    <Compile Include="Entity\EntityComponents\MyEntityOwnershipComponent.cs" />
     <Compile Include="Entity\Inventory\MyComponentChange.cs" />
     <Compile Include="Entity\Inventory\MyInventoryBase.cs" />
     <Compile Include="Entity\Inventory\MyPhysicalInventoryItem.cs" />
     <Compile Include="Entity\MyEntity.cs" />
     <Compile Include="Entity\MyEntitySubpart.cs" />
+    <Compile Include="Entity\MyRelationsBetweenPlayers.cs" />
     <Compile Include="Entity\UseObject\MyUseObjectBase.cs" />
+    <Compile Include="Graphics\Particles\IMyParticleGeneration.cs" />
+    <Compile Include="Graphics\Particles\MyParticleGPUGeneration.cs" />
     <Compile Include="Graphics\Particles\MyParticleLight.cs" />
+    <Compile Include="Graphics\Particles\MyParticleSound.cs" />
     <Compile Include="GUI\MyHudEntityParams.cs" />
+    <Compile Include="GUI\TextPanel\TextPanelEnums.cs" />
+    <Compile Include="Localization\MyLocalizationContext.cs" />
+    <Compile Include="Localization\MyLocalization.cs" />
     <Compile Include="ModAPI\IMyCamera.cs" />
-    <Compile Include="ModAPI\Interfaces\IMyInventory.cs" />
-    <Compile Include="ModAPI\Interfaces\IMyInventoryItem.cs" />
-    <Compile Include="ModAPI\Interfaces\IMyInventoryOwner.cs" />
+    <Compile Include="ModAPI\IMyCharacter.cs" />
+    <Compile Include="ModAPI\IMyConfig.cs" />
+    <Compile Include="ModAPI\IMyConfigDedicated.cs" />
+    <Compile Include="ModAPI\IMyControllerInfo.cs" />
+    <Compile Include="ModAPI\IMyCubeBlock.cs" />
+    <Compile Include="ModAPI\IMyCubeBuilder.cs" />
+    <Compile Include="ModAPI\IMyCubeGrid.cs" />
+    <Compile Include="ModAPI\IMyDamageSystem.cs" />
+    <Compile Include="ModAPI\IMyEntityController.cs" />
+    <Compile Include="ModAPI\IMyFaction.cs" />
+    <Compile Include="ModAPI\IMyFactionCollection.cs" />
+    <Compile Include="ModAPI\IMyFloatingObject.cs" />
+    <Compile Include="ModAPI\IMyGamePaths.cs" />
+    <Compile Include="ModAPI\IMyGps.cs" />
+    <Compile Include="ModAPI\IMyGpsCollection.cs" />
+    <Compile Include="ModAPI\IMyGui.cs" />
+    <Compile Include="ModAPI\IMyHudNotification.cs" />
+    <Compile Include="ModAPI\IMyHudObjectiveLine.cs" />
+    <Compile Include="ModAPI\IMyIdentity.cs" />
+    <Compile Include="ModAPI\IMyInventory.cs" />
+    <Compile Include="ModAPI\IMyInventoryItem.cs" />
+    <Compile Include="ModAPI\IMyMultiplayer.cs" />
+    <Compile Include="ModAPI\IMyNetworkClient.cs" />
+    <Compile Include="ModAPI\IMyParallelTask.cs" />
+    <Compile Include="ModAPI\IMyPhysics.cs" />
+    <Compile Include="ModAPI\IMyPlayer.cs" />
+    <Compile Include="ModAPI\IMyPlayerCollection.cs" />
+    <Compile Include="ModAPI\IMyPrefabManager.cs" />
+    <Compile Include="ModAPI\IMySession.cs" />
+    <Compile Include="ModAPI\IMySlimBlock.cs" />
+    <Compile Include="ModAPI\IMyUtilities.cs" />
+    <Compile Include="ModAPI\IMyVoxelMap.cs" />
+    <Compile Include="ModAPI\IMyVoxelMaps.cs" />
+    <Compile Include="ModAPI\IMyVoxelShape.cs" />
+    <Compile Include="ModAPI\IMyVoxelShapeBox.cs" />
+    <Compile Include="ModAPI\IMyVoxelShapeCapsule.cs" />
+    <Compile Include="ModAPI\IMyVoxelShapeRamp.cs" />
+    <Compile Include="ModAPI\IMyVoxelShapeSphere.cs" />
+    <Compile Include="ModAPI\Ingame\IMyCubeBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyCubeGrid.cs" />
+    <Compile Include="ModAPI\Ingame\IMyEntity.cs" />
+    <Compile Include="ModAPI\Ingame\IMySlimBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyInventory.cs" />
+    <Compile Include="ModAPI\Ingame\IMyInventoryItem.cs" />
+    <Compile Include="ModAPI\Ingame\IMyInventoryOwner.cs" />
     <Compile Include="Entity\MyEntitiesInterface.cs" />
+    <Compile Include="ModAPI\Interfaces\IControllableEntity.cs" />
+    <Compile Include="ModAPI\Interfaces\IMyCameraController.cs" />
+    <Compile Include="ModAPI\Interfaces\IMyDecalProxy.cs" />
+    <Compile Include="ModAPI\Interfaces\IMyDestroyableObject.cs" />
+    <Compile Include="ModAPI\MyDamageInformation.cs" />
     <Compile Include="ModAPI\MyEntity_ModAPI.cs" />
+    <Compile Include="ModAPI\MyHitInfo.cs" />
     <Compile Include="ModAPI\MyInventoryItem_ModAPI.cs" />
+    <Compile Include="ModAPI\MyTerminalControlListBoxItem.cs" />
+    <Compile Include="ModAPI\MyTerminalControlComboBoxItem.cs" />
     <Compile Include="MyEngineConstants.cs" />
     <Compile Include="Components\Session\MySessionComponentAnimationSystem.cs" />
+    <Compile Include="MyEnums.cs" />
+    <Compile Include="MyFinalBuildConstants.cs" />
+    <Compile Include="MyPlayerInfo.cs" />
+    <Compile Include="News\MyNews.cs" />
+    <Compile Include="ObjectBuilders\AI\MyObjectBuilder_AutomaticBehaviour.cs" />
+    <Compile Include="ObjectBuilders\AI\MyObjectBuilder_DroneStrafeBehaviour.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationControllerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationFootIkChain.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationLayer.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSM.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationTreeNode.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSMTransitionConditions.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSMTransition.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSMNode.cs" />
+    <Compile Include="ObjectBuilders\Campaign\MyObjectBuilder_Campaign.cs" />
+    <Compile Include="ObjectBuilders\Campaign\MyObjectBuilder_CampaignSM.cs" />
+    <Compile Include="ObjectBuilders\Campaign\MyObjectBuilder_CampaignSMNode.cs" />
+    <Compile Include="ObjectBuilders\Campaign\MyObjectBuilder_CampaignSMTransition.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AtmosphereDetectorComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CharacterPickupComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CraftingComponentInteractive.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CraftingComponentInteractiveDefinition.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_EntityReverbDetectorComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ModStorageComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ModStorageComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AreaTrigger.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ShipSoundComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_PhysicsBodyComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_PhysicsBodyComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_PhysicsComponentBase.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_PhysicsComponentDefinitionBase.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_EntityStatComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_TimerComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_TriggerBase.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_UseObjectsComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_CutsceneSessionComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_EntityOwnershipComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_HierarchyComponentBase.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_ItemAutoswitchComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_LocalizationSessionComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_SharedStorageComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_VisualScriptManagerSessionComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_SessionComponentResearch.cs" />
+    <Compile Include="ObjectBuilders\Definitions\GUI\MyObjectBuilder_ButtonListStyleDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\GUI\MyObjectBuilder_GuiSkinDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\GUI\SerializableCompositeTexture.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DroneBehaviorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FontDefinition.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlImageButton.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Profiler.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ProfilerBlock.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlockBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DefinitionsToPreload.cs" />
     <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_BarbarianWaveEventDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EquivalencyGroupDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GameDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GhostCharacterDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GpsCollectionDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VisualSettingsDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ResearchDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SchematicItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SessionComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SessionComponentResearchDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipSoundsDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TextShadow.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_UsableItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyPhysicsComponentDefinitionBase.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_Questlog.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CampaignSessionComponent.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GhostCharacter.cs" />
+    <Compile Include="ObjectBuilders\Definitions\SessionComponents\MyObjectBuilder_ClipboardDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\SessionComponents\MyObjectBuilder_CoordinateSystemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\SessionComponents\MyObjectBuilder_CubeBuilderDefinition.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlImage.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalModelCollectionDefinition.cs" />
+    <Compile Include="ObjectBuilders\IMyObjectBuilder_GunObject.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CubeBlockStackSizeDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedPiece.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_InventoryBagEntity.cs" />
@@ -137,14 +358,57 @@
     <Compile Include="Graphics\Particles\MyParticlesManager.cs" />
     <Compile Include="Graphics\MySimpleObjectDraw.cs" />
     <Compile Include="Graphics\MyTransparentGeometry.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Localization.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ParticleEffect.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Rope.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ArithmeticScriptNode.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SchematicItem.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_CastScriptNode.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemConsumable.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SectorWeatherComponent.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemMedievalWeapon.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_CommentScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ConstantScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ForLoopScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_GetterScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_InputScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_InterfaceMethodNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_KeyEventScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_LocalizationScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_LogicGateScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ScriptStateMachineManager.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ScriptSM.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ScriptSMCursor.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ScriptSMNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ScriptSMTransition.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_NewListScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_OutputScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ScriptScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_SequenceScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_SwitchScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_TriggerScriptNode.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemUsable.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_BranchingScriptNode.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_UsableItem.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_VSFiles.cs" />
+    <Compile Include="ObjectBuilder\MyDefinitionXmlSerializer.cs" />
+    <Compile Include="ObjectBuilder\MyGlobalTypeMetadata.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_EventScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_FunctionScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_ScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_VariableScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_VariableSetterScriptNode.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_VisualScript.cs" />
+    <Compile Include="ObjectBuilders\VisualScripting\MyObjectBuilder_VisualLevelScript.cs" />
     <Compile Include="Utils\MyCamera.cs" />
+    <Compile Include="Utils\MyCameraShake.cs" />
+    <Compile Include="Utils\MyCameraSpring.cs" />
     <Compile Include="Utils\MyCameraZoomProperties.cs" />
     <Compile Include="Common\MyFactoryTagAttribute.cs" />
     <Compile Include="Components\Entity\MyHierarchyComponent.cs" />
     <Compile Include="Components\Interfaces\IMyUserInputComponent.cs" />
-    <Compile Include="Components\MySessionComponentBase.cs" />
-    <Compile Include="Components\MySessionComponentMapping.cs" />
+    <Compile Include="Components\Session\MySessionComponentBase.cs" />
+    <Compile Include="Components\Session\MySessionComponentMapping.cs" />
     <Compile Include="Entity\EntityComponents\MyGameLogicComponent.cs" />
     <Compile Include="Entity\EntityComponents\MyNullGameLogicComponent.cs" />
     <Compile Include="Entity\EntityComponents\MyNullPosition.cs" />
@@ -369,7 +633,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionReached.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerSomeoneWon.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerTimeLimit.cs" />
-    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VoxelMaterialChangesDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VoxelMaterialModifierDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilderExtensions.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AmmoMagazine.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Battery.cs" />
@@ -476,7 +740,6 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAnimation.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAreaMarker.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemBot.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemConsumable.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemCubeBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemEmpty.cs" />
@@ -499,7 +762,6 @@
     <Compile Include="ObjectBuilders\VRageData\GameRelationAttribute.cs" />
     <Compile Include="ObjectBuilders\VRageData\SerializableBlockOrientation.cs" />
     <Compile Include="ObjectBuilder\DynamicObjectBuilderAttribute.cs" />
-    <Compile Include="ObjectBuilder\MyAbstractXmlSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderDynamicSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderType.cs" />
@@ -513,6 +775,52 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Systems\MyGroupScriptBase.cs" />
     <Compile Include="Utils\MyConstants.cs" />
+    <Compile Include="VisualScripting\Campaign\MyCampaignStateMachine.cs" />
+    <Compile Include="VisualScripting\Campaign\MyCampaignStateMachineNode.cs" />
+    <Compile Include="VisualScripting\IMyLevelScript.cs" />
+    <Compile Include="VisualScripting\IMyStateMachineScript.cs" />
+    <Compile Include="VisualScripting\Missions\MyVSStateMachineManager.cs" />
+    <Compile Include="VisualScripting\Missions\MyVSStateMachine.cs" />
+    <Compile Include="VisualScripting\Missions\MyVSStateMachineBarrierNode.cs" />
+    <Compile Include="VisualScripting\Missions\MyVSStateMachineFinalNode.cs" />
+    <Compile Include="VisualScripting\Missions\MyVSStateMachineNode.cs" />
+    <Compile Include="VisualScripting\Missions\MyVSStateMachineSpreadNode.cs" />
+    <Compile Include="VisualScripting\MyObjectiveLogicScript.cs" />
+    <Compile Include="VisualScripting\MyVisualScriptingProxy.cs" />
+    <Compile Include="VisualScripting\MyVisualScriptLogicProvider.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\MyDependencyCollector.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\MyVSAssemblyProvider.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\MyVSCompiler.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\MyVisualScriptBuilder.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\MyVisualScriptNavigator.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\MyVSPreprocessor.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\IMyVisualSyntaxEntryPoint.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxConstantNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxBuilderNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxForLoopNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxGetterNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxInputNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxKeyEventNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxInterfaceMethodNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxLocalizationNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxLogicGateNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxNewListNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxArithmeticNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxBranchingNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxCastNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxEventNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxFunctionNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxOutputNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxScriptNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxSequenceNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxSetterNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxSwitchNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxTriggerNode.cs" />
+    <Compile Include="VisualScripting\ScriptBuilder\Nodes\MyVisualSyntaxVariableNode.cs" />
+    <Compile Include="VisualScripting\Utils\MyRoslynExtensions.cs" />
+    <Compile Include="VisualScripting\Utils\MySyntaxFactory.cs" />
+    <Compile Include="VisualScripting\Utils\MyVSCollectionExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audio\" />
@@ -520,9 +828,16 @@
     <Folder Include="Grid\" />
     <Folder Include="Inventory\" />
     <Folder Include="ObjectBuilders\Block\" />
+    <Folder Include="ObjectBuilders\Components\Definitions\" />
+    <Folder Include="ObjectBuilders\Environment\" />
+    <Folder Include="Physics\" />
     <Folder Include="VoxelMap\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VRage.Input\VRage.Input.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbf1842bf2d4}</Project>
+      <Name>VRage.Input</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
       <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>
       <Name>VRage.Library</Name>
@@ -531,17 +846,23 @@
       <Project>{40ce67d5-c89f-4a56-ae52-85db1bea07fe}</Project>
       <Name>VRage.Math</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
       <Name>VRage</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\Data\Localization\MyCommonTexts.cs-CZ.resx" />
     <EmbeddedResource Include="Content\Data\Localization\MyCommonTexts.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="MyCommonTexts.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MyCommonTexts.cs</LastGenOutput>
@@ -555,7 +876,7 @@
        Other similar extension points exist, see Microsoft.Common.targets.  -->
   <Target Name="BeforeBuild">
     <Exec Command="echo %time% Running templates..." />
-    <Exec Command="..\..\3rd\Utils\RunTemplate.bat $(ProjectDir)MyCommonTexts" />
+    <Exec Command="..\..\3rd\Utils\RunTemplate.bat &quot;$(ProjectDir)MyCommonTexts&quot;" />
     <Exec Command="echo %time% Templates completed" />
   </Target>
   <Target Name="AfterBuild" DependsOnTargets="AssignTargetPaths;Compile;ResolveKeySource" Inputs="$(MSBuildAllProjects);@(IntermediateAssembly)" Outputs="$(OutputPath)$(_SGenDllName)">

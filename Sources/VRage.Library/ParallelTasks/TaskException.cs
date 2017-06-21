@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Library;
 
 namespace ParallelTasks
 {
@@ -30,10 +31,10 @@ namespace ParallelTasks
 
         public override string ToString()
         {
-            string result = base.ToString() + Environment.NewLine;
+            string result = base.ToString() + MyEnvironment.NewLine;
             for (int i = 0; i < InnerExceptions.Length; i++)
             {
-                result += String.Format("Task exception, inner exception {0}:", i) + Environment.NewLine;
+                result += String.Format("Task exception, inner exception {0}:", i) + MyEnvironment.NewLine;
                 result += InnerExceptions[i].ToString();
             }
             return result;

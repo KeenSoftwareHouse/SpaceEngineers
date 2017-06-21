@@ -7,7 +7,6 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Utils;
 using Sandbox.Game.World;
-using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,6 @@ using System.Text;
 using VRage.Audio;
 using VRage.Game.Components;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using Sandbox.Game.Entities.Character.Components;
 using VRage.Data.Audio;
@@ -24,8 +22,11 @@ using Sandbox.Game.GUI;
 using VRage.Game.Entity;
 using VRageRender;
 using System.Diagnostics;
-using VRage.Animations;
+using Sandbox.Definitions;
+using VRageRender.Animations;
 using VRage.Game;
+using Sandbox.Definitions;
+using Sandbox.Game.SessionComponents;
 
 namespace Sandbox.Game.Components
 {
@@ -40,12 +41,21 @@ namespace Sandbox.Game.Components
 		CROUCH_UP_SOUND,
 
 		PAIN_SOUND,
-		DEATH_SOUND,
+        SUFFOCATE_SOUND,
+        DEATH_SOUND,
+        DEATH_SOUND_SUFFOCATE,
 
 		IRONSIGHT_ACT_SOUND,
 		IRONSIGHT_DEACT_SOUND,
 
-        FAST_FLY_SOUND
+        FAST_FLY_SOUND,
+
+        HELMET_NORMAL,
+        HELMET_LOW,
+        HELMET_CRITICAL,
+        HELMET_NONE,
+        MOVEMENT_SOUND,
+        MAGNETIC_SOUND
 	}
 
 	[MyComponentBuilder(typeof(MyObjectBuilder_CharacterSoundComponent))]
@@ -71,6 +81,7 @@ namespace Sandbox.Game.Components
 			public static readonly MyStringId Sprint = MyStringId.GetOrCompute("Sprint");
 			public static readonly MyStringId Fall = MyStringId.GetOrCompute("Fall");
 		}
+        private static MyStringHash LowPressure = MyStringHash.GetOrCompute("LowPressure");
 
 		#endregion
 
@@ -81,11 +92,15 @@ namespace Sandbox.Game.Components
 		List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
 
 		private int m_lastScreamTime;
+        private float m_jetpackSustainTimer = 0f;
+        private float m_jetpackMinIdleTime = 0f;
+        private const float JETPACK_TIME_BETWEEN_SOUNDS = 0.25f;
+        private bool m_jumpReady = false;
 		const int SCREAM_DELAY_MS = 800;
 
         // default distance of the ankle from the ground
         // (last resort if not found in sbc)
-        const float DEFAULT_ANKLE_HEIGHT = 0.13f;
+        const float DEFAULT_ANKLE_HEIGHT = 0.2f;// 0.13f;
         // last time step sound was played
 		private int m_lastStepTime = 0;
         // minimum time difference between two step sounds
@@ -98,20 +113,42 @@ namespace Sandbox.Game.Components
 
 		private MyCharacter m_character = null;
         private MyCubeGrid m_standingOnGrid = null;
+        private MyVoxelBase m_standingOnVoxel = null;
+        private MyStringHash m_characterPhysicalMaterial = MyMaterialType.CHARACTER;
+        private bool m_isWalking = false;
 
         private const float WIND_SPEED_LOW = 40f;
         private const float WIND_SPEED_HIGH = 80f;
         private const float WIND_SPEED_DIFF = WIND_SPEED_HIGH - WIND_SPEED_LOW;
-        private float windVolume = 0;
-        private bool inAtmosphere = true;
-        private MyEntity3DSoundEmitter windEmitter;
-        private bool windSystem = false;
+        private const float WIND_CHANGE_SPEED = MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 0.5f;
+        private float m_windVolume = 0;
+        private float m_windTargetVolume = 0;
+        private bool m_inAtmosphere = true;
+        private MyEntity3DSoundEmitter m_windEmitter;
+        private bool m_windSystem = false;
 
-        private MySoundPair lastActionSound = null;
+        private MyEntity3DSoundEmitter m_oxygenEmitter;
+        private MyEntity3DSoundEmitter m_movementEmitter;
+
+        private MySoundPair m_lastActionSound = null;
+        private MySoundPair m_lastPrimarySound = null;
 
         public MyCubeGrid StandingOnGrid
         {
             get { return m_standingOnGrid; }
+        }
+        public MyVoxelBase StandingOnVoxel
+        {
+            get { return m_standingOnVoxel; }
+        }
+
+        private bool ShouldUpdateSoundEmitters
+        {
+            get
+            {
+                return (m_character == MySession.Static.LocalCharacter && m_character.AtmosphereDetectorComp != null && m_character.AtmosphereDetectorComp.InAtmosphere == false 
+                    && MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS_QUICK_UPDATE);
+            }
         }
 
 		#endregion
@@ -128,6 +165,9 @@ namespace Sandbox.Game.Components
             {
                 CharacterSounds.Add(i, EmptySoundPair);
             }
+
+            if (MySession.Static != null && (MySession.Static.Settings.EnableOxygen || MySession.Static.CreativeMode))
+                m_oxygenEmitter = new MyEntity3DSoundEmitter(Entity as MyEntity);
 		}
 
 		private void InitSounds()
@@ -141,19 +181,35 @@ namespace Sandbox.Game.Components
             if (m_character.Definition.CrouchUpSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.CROUCH_UP_SOUND] = new MySoundPair(m_character.Definition.CrouchUpSoundName);
          
             if (m_character.Definition.PainSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.PAIN_SOUND] = new MySoundPair(m_character.Definition.PainSoundName);
+            if (m_character.Definition.SuffocateSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.SUFFOCATE_SOUND] = new MySoundPair(m_character.Definition.SuffocateSoundName);
             if (m_character.Definition.DeathSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND] = new MySoundPair(m_character.Definition.DeathSoundName);
+            if (m_character.Definition.DeathBySuffocationSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND_SUFFOCATE] = new MySoundPair(m_character.Definition.DeathBySuffocationSoundName);
 
             if (m_character.Definition.IronsightActSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.IRONSIGHT_ACT_SOUND] = new MySoundPair(m_character.Definition.IronsightActSoundName);
             if (m_character.Definition.IronsightDeactSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.IRONSIGHT_DEACT_SOUND] = new MySoundPair(m_character.Definition.IronsightDeactSoundName);
 
             if (m_character.Definition.FastFlySoundName != null)
             {
-                windEmitter = new MyEntity3DSoundEmitter(Entity as MyEntity);
-                windEmitter.Force3D = false;
-                windSystem = true;
+                m_windEmitter = new MyEntity3DSoundEmitter(Entity as MyEntity);
+                m_windEmitter.Force3D = false;
+                m_windSystem = true;
                 CharacterSounds[(int)CharacterSoundsEnum.FAST_FLY_SOUND] = new MySoundPair(m_character.Definition.FastFlySoundName);
             }
 
+            //helmet sounds
+            if (m_character.Definition.HelmetOxygenNormalSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.HELMET_NORMAL] = new MySoundPair(m_character.Definition.HelmetOxygenNormalSoundName);
+            if (m_character.Definition.HelmetOxygenLowSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.HELMET_LOW] = new MySoundPair(m_character.Definition.HelmetOxygenLowSoundName);
+            if (m_character.Definition.HelmetOxygenCriticalSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.HELMET_CRITICAL] = new MySoundPair(m_character.Definition.HelmetOxygenCriticalSoundName);
+            if (m_character.Definition.HelmetOxygenNoneSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.HELMET_NONE] = new MySoundPair(m_character.Definition.HelmetOxygenNoneSoundName);
+
+            if (m_character.Definition.MovementSoundName != null)
+            {
+                CharacterSounds[(int)CharacterSoundsEnum.MOVEMENT_SOUND] = new MySoundPair(m_character.Definition.MovementSoundName);
+                m_movementEmitter = new MyEntity3DSoundEmitter(Entity as MyEntity);
+            }
+
+            CharacterSounds[(int)CharacterSoundsEnum.MAGNETIC_SOUND] = new MySoundPair("PlayFallGlass"); 
+            
             //Preload();
             //if (m_character.Definition.DeathSoundName != null && m_character.Definition.DeathSoundName.Length > 0) CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND] = new MySoundPair(m_character.Definition.DeathSoundName);
 		}
@@ -168,70 +224,85 @@ namespace Sandbox.Game.Components
 
         public void CharacterDied()
         {
-            if (windEmitter.IsPlaying)
-                windEmitter.StopSound(true);
+            if (m_windEmitter.IsPlaying)
+                m_windEmitter.StopSound(true);
         }
 
         public void UpdateWindSounds()
         {
-            if (windSystem && m_character.IsDead == false)
+            if (m_windSystem && m_character.IsDead == false)
             {
-                if (inAtmosphere)
+                if (m_inAtmosphere)
                 {
                     float speed = m_character.Physics.LinearVelocity.Length();
                     if (speed < WIND_SPEED_LOW)
                     {
-                        windVolume = 0f;
+                        m_windTargetVolume = 0f;
                     }
                     else if (speed < WIND_SPEED_HIGH)
                     {
-                        windVolume = (speed - WIND_SPEED_LOW) / WIND_SPEED_DIFF;
+                        m_windTargetVolume = (speed - WIND_SPEED_LOW) / WIND_SPEED_DIFF;
                     }
                     else
                     {
-                        windVolume = 1f;
+                        m_windTargetVolume = 1f;
                     }
                 }
                 else
                 {
-                    windVolume = 0f;
+                    m_windTargetVolume = 0f;
                 }
-                if (windEmitter.IsPlaying)
+                bool volumeChanged = m_windVolume != m_windTargetVolume;
+                if (m_windVolume < m_windTargetVolume)
+                    m_windVolume = Math.Min(m_windVolume + WIND_CHANGE_SPEED, m_windTargetVolume);
+                else if (m_windVolume > m_windTargetVolume)
+                    m_windVolume = Math.Max(m_windVolume - WIND_CHANGE_SPEED, m_windTargetVolume);
+
+                if (m_windEmitter.IsPlaying)
                 {
-                    if (windVolume <= 0f)
+                    if (m_windVolume <= 0f)
                     {
-                        windEmitter.StopSound(true);
+                        m_windEmitter.StopSound(true);
                     }
                     else
                     {
-                        windEmitter.CustomVolume = windVolume;
+                        m_windEmitter.CustomVolume = m_windVolume;
                     }
                 }
                 else
                 {
-                    if (windVolume > 0f)
+                    if (m_windVolume > 0f)
                     {
-                        windEmitter.PlaySound(CharacterSounds[(int)CharacterSoundsEnum.FAST_FLY_SOUND],true,force2D : true);
-                        windEmitter.CustomVolume = windVolume;
+                        m_windEmitter.PlaySound(CharacterSounds[(int)CharacterSoundsEnum.FAST_FLY_SOUND],true,force2D : true);
+                        m_windEmitter.CustomVolume = m_windVolume;
                     }
+                }
+                if(volumeChanged)
+                {
+                    var ambient = MySession.Static.GetComponent<MySessionComponentPlanetAmbientSounds>();
+                    if (ambient != null)
+                        ambient.VolumeModifierGlobal = 1f - m_windVolume;
                 }
             }
         }
 
 		public void UpdateBeforeSimulation100()
 		{
+            UpdateOxygenSounds();
 			m_soundEmitters[(int)MySoundEmitterEnum.PrimaryState].Update();
-            if (windSystem)
+            if (m_windSystem)
             {
-                inAtmosphere = m_character.InAtmosphere;
-                windEmitter.Update();
+                m_inAtmosphere = m_character.AtmosphereDetectorComp != null && m_character.AtmosphereDetectorComp.InAtmosphere;
+                m_windEmitter.Update();
             }
+            if (m_oxygenEmitter != null)
+                m_oxygenEmitter.Update();
 		}
 
         public void PlayActionSound(MySoundPair actionSound)
         {
-            lastActionSound = actionSound;
-            m_soundEmitters[(int)MySoundEmitterEnum.Action].PlaySound(lastActionSound);
+            m_lastActionSound = actionSound;
+            m_soundEmitters[(int)MySoundEmitterEnum.Action].PlaySound(m_lastActionSound);
         }
 
 		public void FindAndPlayStateSound()
@@ -240,35 +311,66 @@ namespace Sandbox.Game.Components
 			    m_character.Breath.Update();
 
 			var cueEnum = SelectSound();
+            UpdateBreath();
+
+            if (m_isWalking && m_character.IsMagneticBootsEnabled && (CharacterSounds[(int)CharacterSoundsEnum.MAGNETIC_SOUND] != MySoundPair.Empty))
+                cueEnum = CharacterSounds[(int)CharacterSoundsEnum.MAGNETIC_SOUND];
+
+            if (m_movementEmitter != null)
+            {
+                //if (m_character.IsMagneticBootsEnabled)
+                //{
+                //    if (CharacterSounds[(int)CharacterSoundsEnum.MAGNETIC_SOUND] != MySoundPair.Empty)
+                //    {
+                //        if (m_isWalking && !m_movementEmitter.IsPlaying)
+                //            m_movementEmitter.PlaySound(CharacterSounds[(int)CharacterSoundsEnum.MAGNETIC_SOUND]);
+                //        if (!m_isWalking && m_movementEmitter.IsPlaying)
+                //            m_movementEmitter.StopSound(false);
+                //    }
+                //}
+                //else
+                {
+                    if (CharacterSounds[(int)CharacterSoundsEnum.MOVEMENT_SOUND] != MySoundPair.Empty)
+                    {
+                        if (m_isWalking && !m_movementEmitter.IsPlaying)
+                            m_movementEmitter.PlaySound(CharacterSounds[(int)CharacterSoundsEnum.MOVEMENT_SOUND]);
+                        if (!m_isWalking && m_movementEmitter.IsPlaying)
+                            m_movementEmitter.StopSound(false);
+                    }
+                }            
+            }
 
 			var primaryEmitter = m_soundEmitters[(int)MySoundEmitterEnum.PrimaryState];
 			var walkEmitter = m_soundEmitters[(int)MySoundEmitterEnum.WalkState];
-			bool sameSoundAlreadyPlaying = (cueEnum.Arcade == primaryEmitter.SoundId
-											|| (MyFakes.ENABLE_NEW_SOUNDS && cueEnum.Realistic == primaryEmitter.SoundId));
+            bool sameSoundAlreadyPlaying = (cueEnum.Equals(primaryEmitter.SoundPair) && primaryEmitter.IsPlaying);
 
             if (primaryEmitter.Sound != null)
             {
-                MySoundData cue = MyAudio.Static.GetCue(cueEnum.SoundId);
-                if (cue != null)
+                if (primaryEmitter.LastSoundData != null)
                 {
-                    float definedVolume = cue.Volume;
-                    float scaledVolume = definedVolume * MathHelper.Clamp(m_character.Physics.LinearVelocity.Length() / 7.5f, 0.6f, 1);
+                    float scaledVolume = primaryEmitter.LastSoundData.Volume * MathHelper.Clamp(m_character.Physics.LinearVelocity.Length() / 7.5f, 0.6f, 1);
                     primaryEmitter.Sound.SetVolume(scaledVolume);
                 }
             }
 
-			if (!sameSoundAlreadyPlaying)
+            if (!sameSoundAlreadyPlaying && (m_isWalking == false || m_character.Definition.LoopingFootsteps))
 			{
-				if (cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND])
+                if (cueEnum != EmptySoundPair && cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND])
 				{
-					if (primaryEmitter.Loop)
-						primaryEmitter.StopSound(true);
-                    primaryEmitter.PlaySound(cueEnum, false, false);
+                    if (m_jetpackSustainTimer >= JETPACK_TIME_BETWEEN_SOUNDS)
+                    {
+                        if (primaryEmitter.Loop)
+                            primaryEmitter.StopSound(true);
+                        primaryEmitter.PlaySound(cueEnum, false, false);
+                    }
 				}
-                else if (cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_IDLE_SOUND] && primaryEmitter.SoundId == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND].SoundId)
+                else if (primaryEmitter.SoundId.IsNull == false && primaryEmitter.SoundId == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND].SoundId)
 				{
-					primaryEmitter.StopSound(false);
-                    primaryEmitter.PlaySound(cueEnum, false, true);
+                    if (m_jetpackSustainTimer <= 0f || cueEnum != CharacterSounds[(int)CharacterSoundsEnum.JETPACK_IDLE_SOUND])
+                    {
+                        primaryEmitter.StopSound(false);
+                        primaryEmitter.PlaySound(CharacterSounds[(int)CharacterSoundsEnum.JETPACK_IDLE_SOUND], false, true);
+                    }
 				}
                 else if (cueEnum == EmptySoundPair)
                 {
@@ -277,6 +379,10 @@ namespace Sandbox.Game.Components
                         if (soundEmitter.Loop)
                             soundEmitter.StopSound(false);
                     }
+                }
+                else if (cueEnum == m_lastPrimarySound && (cueEnum == CharacterSounds[(int)CharacterSoundsEnum.CROUCH_DOWN_SOUND] || cueEnum == CharacterSounds[(int)CharacterSoundsEnum.CROUCH_UP_SOUND]))
+                {
+                    //do nothing
                 }
 				else
 				{
@@ -289,6 +395,7 @@ namespace Sandbox.Game.Components
 			{
                 IKFeetStepSounds(walkEmitter, cueEnum);
 			}
+            m_lastPrimarySound = cueEnum;
 		}
 
         private void IKFeetStepSounds(MyEntity3DSoundEmitter walkEmitter, MySoundPair cueEnum)
@@ -351,10 +458,14 @@ namespace Sandbox.Game.Components
                 {
                     ankleHeight = DEFAULT_ANKLE_HEIGHT;
                 }
+                float charSpeed = 0f;
+                if (m_character.AnimationController != null)
+                    m_character.AnimationController.Variables.GetValue(MyAnimationVariableStorageHints.StrIdSpeed, out charSpeed);
                 if (posLeftFoot.Y - ankleHeight < m_character.PositionComp.LocalAABB.Min.Y
                     || posRightFoot.Y - ankleHeight < m_character.PositionComp.LocalAABB.Min.Y)
                 {
-                    walkEmitter.PlaySound(cueEnum);
+                    if(charSpeed > 0.05f)
+                        walkEmitter.PlaySound(cueEnum);
                     m_lastStepTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                 }
             }
@@ -373,6 +484,14 @@ namespace Sandbox.Game.Components
 			m_soundEmitters[(int)MySoundEmitterEnum.SecondaryState].PlaySound(CharacterSounds[(int)soundEnum], stopPrevious);
 		}
 
+        public void PlayDeathSound(MyStringHash damageType, bool stopPrevious = false)
+        {
+            if(damageType == LowPressure)
+                m_soundEmitters[(int)MySoundEmitterEnum.SecondaryState].PlaySound(CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND_SUFFOCATE], stopPrevious);
+            else
+                m_soundEmitters[(int)MySoundEmitterEnum.SecondaryState].PlaySound(CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND], stopPrevious);
+        }
+
 		public void StartSecondarySound(string cueName, bool sync = false)
 		{
 			StartSecondarySound(MySoundPair.GetCueId(cueName), sync);
@@ -382,11 +501,11 @@ namespace Sandbox.Game.Components
 		{
 			if (cueId.IsNull) return;
 
-			m_soundEmitters[(int)MySoundEmitterEnum.SecondaryState].PlaySound(cueId);            
+			m_soundEmitters[(int)MySoundEmitterEnum.SecondaryState].PlaySoundWithDistance(cueId);            
 
 			if (sync)
 			{
-				m_character.SyncObject.PlaySecondarySound(cueId);
+				m_character.PlaySecondarySound(cueId);
 			}
 		}
 
@@ -399,10 +518,13 @@ namespace Sandbox.Game.Components
 		private MySoundPair SelectSound()
 		{
             MySoundPair soundPair = EmptySoundPair;
-            Definitions.MyCharacterDefinition myCharDefinition = (Definitions.MyCharacterDefinition)m_character.Definition;
+            MyCharacterDefinition myCharDefinition = m_character.Definition;
             MyStringHash physMaterial = MyStringHash.GetOrCompute(myCharDefinition.PhysicalMaterial);
+            m_isWalking = false;
 
-			switch (m_character.GetCurrentMovementState())
+            bool updateEmitterSounds = false;
+            MyCharacterMovementEnum movementState = m_character.GetCurrentMovementState();
+            switch (movementState)
 			{
 				case MyCharacterMovementEnum.Walking:
 				case MyCharacterMovementEnum.BackWalking:
@@ -416,6 +538,7 @@ namespace Sandbox.Game.Components
                         if (m_character.Breath != null)
 						    m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;
                         soundPair = MyMaterialPropertiesHelper.Static.GetCollisionCue(MovementSoundType.Walk, physMaterial, RayCastGround());
+                        m_isWalking = true;
 					}
 					break;
 				case MyCharacterMovementEnum.Running:
@@ -430,6 +553,7 @@ namespace Sandbox.Game.Components
                         if (m_character.Breath != null)
 						    m_character.Breath.CurrentState = MyCharacterBreath.State.Heated;
                         soundPair = MyMaterialPropertiesHelper.Static.GetCollisionCue(MovementSoundType.Run, physMaterial, RayCastGround());
+                        m_isWalking = true;
 					}
 					break;
 				case MyCharacterMovementEnum.CrouchWalking:
@@ -444,6 +568,7 @@ namespace Sandbox.Game.Components
                         if (m_character.Breath != null)
 						    m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;
                         soundPair = MyMaterialPropertiesHelper.Static.GetCollisionCue(MovementSoundType.CrouchWalk, physMaterial, RayCastGround());
+                        m_isWalking = true;
 					}
 					break;
                 case MyCharacterMovementEnum.Crouching:
@@ -461,14 +586,16 @@ namespace Sandbox.Game.Components
 				case MyCharacterMovementEnum.Sprinting:
                     {
                         if (m_character.Breath != null)
-						    m_character.Breath.CurrentState = MyCharacterBreath.State.Heated;
+                            m_character.Breath.CurrentState = MyCharacterBreath.State.VeryHeated;
                         soundPair = MyMaterialPropertiesHelper.Static.GetCollisionCue(MovementSoundType.Sprint, physMaterial, RayCastGround());
+                        m_isWalking = true;
 					}
 					break;
 				case MyCharacterMovementEnum.Jump:
 					{
-						if (m_character.GetPreviousMovementState() == MyCharacterMovementEnum.Jump)
+                        if (!m_jumpReady)
 							break;
+                        m_jumpReady = false;
 						m_character.SetPreviousMovementState(m_character.GetCurrentMovementState());
 						var emitter = MyAudioComponent.TryGetSoundEmitter(); // We need to use another emitter otherwise the sound would be cut by silence next frame
 						if (emitter != null)
@@ -476,26 +603,44 @@ namespace Sandbox.Game.Components
 							emitter.Entity = m_character;
 							emitter.PlaySingleSound(CharacterSounds[(int)CharacterSoundsEnum.JUMP_SOUND]);
 						}
+
+                        if ((m_standingOnGrid != null || m_standingOnVoxel != null) && ShouldUpdateSoundEmitters)
+                            updateEmitterSounds = true;
                         m_standingOnGrid = null;
+                        m_standingOnVoxel = null;
 					}
 					break;
 				case MyCharacterMovementEnum.Flying:
                     {
                         if (m_character.Breath != null)
 						    m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;
-                        if (m_character.Physics.LinearAcceleration.Length()<1)
-							soundPair = CharacterSounds[(int)CharacterSoundsEnum.JETPACK_IDLE_SOUND];
-						else
-							soundPair = CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND];
+                        if (m_character.JetpackComp != null && m_jetpackMinIdleTime <= 0f && m_character.JetpackComp.FinalThrust.LengthSquared() >= 50000f)
+                        {
+                            soundPair = CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND];
+                            m_jetpackSustainTimer = Math.Min(JETPACK_TIME_BETWEEN_SOUNDS, m_jetpackSustainTimer + MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                        }
+                        else
+                        {
+                            soundPair = CharacterSounds[(int)CharacterSoundsEnum.JETPACK_IDLE_SOUND];
+                            m_jetpackSustainTimer = Math.Max(0f, m_jetpackSustainTimer - MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                        }
+                        m_jetpackMinIdleTime -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
+                        if ((m_standingOnGrid != null || m_standingOnVoxel != null) && ShouldUpdateSoundEmitters)
+                            updateEmitterSounds = true;
                         m_standingOnGrid = null;
+                        m_standingOnVoxel = null;
 					}
 					break;
 				case MyCharacterMovementEnum.Falling:
                     {
                         if (m_character.Breath != null)
 						    m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;
+
+                        if ((m_standingOnGrid != null || m_standingOnVoxel != null) && ShouldUpdateSoundEmitters)
+                            updateEmitterSounds = true;
                         m_standingOnGrid = null;
+                        m_standingOnVoxel = null;
 					}
 					break;
 				default:
@@ -504,23 +649,104 @@ namespace Sandbox.Game.Components
 					break;
 			}
 
-            // turn off breathing when helmet is off and there is no oxygen https://app.asana.com/0/64822442925263/33431071589757
-            if (m_character.OxygenComponent != null && !m_character.OxygenComponent.EnabledHelmet &&
-                m_character.OxygenComponent.EnvironmentOxygenLevel < MyCharacterOxygenComponent.LOW_OXYGEN_RATIO)
-            {
-                if (m_character.Breath != null)
-                    m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;
-            }
+            //MyRenderProxy.DebugDrawText2D(Vector2.Zero, movementState.ToString(), Color.Red, 1.0f);
 
+            if (movementState != MyCharacterMovementEnum.Flying)
+            {
+                m_jetpackSustainTimer = 0f;
+                m_jetpackMinIdleTime = 0.5f;
+            }
+            if(updateEmitterSounds)
+                MyEntity3DSoundEmitter.UpdateEntityEmitters(true, true, false);
 			return soundPair;
 		}
+
+
+        private void UpdateOxygenSounds()
+        {
+            if(m_oxygenEmitter == null)
+                return;
+            if (m_character.IsDead == false && MySession.Static != null && MySession.Static.Settings.EnableOxygen && !MySession.Static.CreativeMode && m_character.OxygenComponent != null && m_character.OxygenComponent.HelmetEnabled)
+            {
+                MySoundPair oxygenSoundToPlay;
+                if (MySession.Static.CreativeMode)
+                {
+                    oxygenSoundToPlay = CharacterSounds[(int)CharacterSoundsEnum.HELMET_NORMAL];
+                }
+                else
+                {
+                    if (m_character.OxygenComponent.SuitOxygenLevel > MyCharacterOxygenComponent.LOW_OXYGEN_RATIO)
+                        oxygenSoundToPlay = CharacterSounds[(int)CharacterSoundsEnum.HELMET_NORMAL];
+                    else if (m_character.OxygenComponent.SuitOxygenLevel > MyCharacterOxygenComponent.LOW_OXYGEN_RATIO / 3f)
+                        oxygenSoundToPlay = CharacterSounds[(int)CharacterSoundsEnum.HELMET_LOW];
+                    else if (m_character.OxygenComponent.SuitOxygenLevel > 0f)
+                        oxygenSoundToPlay = CharacterSounds[(int)CharacterSoundsEnum.HELMET_CRITICAL];
+                    else
+                        oxygenSoundToPlay = CharacterSounds[(int)CharacterSoundsEnum.HELMET_NONE];
+                }
+
+                if (m_oxygenEmitter.IsPlaying == false || m_oxygenEmitter.SoundPair != oxygenSoundToPlay)
+                    m_oxygenEmitter.PlaySound(oxygenSoundToPlay, true);
+            }
+            else if (m_oxygenEmitter.IsPlaying)
+                m_oxygenEmitter.StopSound(true);
+        }
+
+        private void UpdateBreath()
+        {
+            // turn off breathing when helmet is off and there is no oxygen https://app.asana.com/0/64822442925263/33431071589757
+            if (m_character.OxygenComponent != null && m_character.Breath != null)
+            {
+                if (MySession.Static.Settings.EnableOxygen && MySession.Static.CreativeMode == false)
+                {
+                    if (m_character.Parent is MyCockpit && (m_character.Parent as MyCockpit).BlockDefinition.IsPressurized)
+                    {
+                        if (m_character.OxygenComponent.HelmetEnabled)
+                        {
+                            if (m_character.OxygenComponent.SuitOxygenAmount > 0f)
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;//oxygen in suit - breathing
+                            else
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in suit
+                        }
+                        else
+                        {
+                            if (m_character.OxygenComponent.EnvironmentOxygenLevel >= MyCharacterOxygenComponent.LOW_OXYGEN_RATIO)
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;//oxygen in cockpit - no sound
+                            else
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in cockpit
+                        }
+                    }
+                    else
+                    {
+                        if (m_character.OxygenComponent.HelmetEnabled)
+                        {
+                            if (m_character.OxygenComponent.SuitOxygenAmount <= 0f)
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in suit
+                        }
+                        else
+                        {
+                            if (m_character.OxygenComponent.EnvironmentOxygenLevel >= MyCharacterOxygenComponent.LOW_OXYGEN_RATIO)
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;//oxygen in environment - possibly add silent breathing sound
+                            else if (m_character.OxygenComponent.EnvironmentOxygenLevel > 0)
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.VeryHeated;//low oxygen in environment
+                            else
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in environment
+                        }
+                    }
+                }
+                else
+                {
+                    m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;
+                }
+            }
+        }
 
 		public void PlayFallSound()
 		{
 			var walkSurfaceMaterial = RayCastGround();
             if (walkSurfaceMaterial != MyStringHash.NullOrEmpty && MyMaterialPropertiesHelper.Static != null)
 			{
-                var cue = MyMaterialPropertiesHelper.Static.GetCollisionCue(MovementSoundType.Fall, MyMaterialType.CHARACTER, walkSurfaceMaterial);
+                var cue = MyMaterialPropertiesHelper.Static.GetCollisionCue(MovementSoundType.Fall, m_characterPhysicalMaterial, walkSurfaceMaterial);
                 if (cue.SoundId.IsNull == false)
                 {
                     var emitter = MyAudioComponent.TryGetSoundEmitter(); //we need to use other emmiter otherwise the sound would be cut by silence next frame
@@ -551,7 +777,19 @@ namespace Sandbox.Game.Components
 			}
 
             if (m_hits.Count == 0)
+            {
+                if ((m_standingOnGrid != null || m_standingOnVoxel != null) && ShouldUpdateSoundEmitters)
+                {
                 m_standingOnGrid = null;
+                m_standingOnVoxel = null;
+                    MyEntity3DSoundEmitter.UpdateEntityEmitters(true, true, false);
+            }
+                else
+                {
+                    m_standingOnGrid = null;
+                    m_standingOnVoxel = null;
+                }
+            }
 
 			if (index < m_hits.Count)
 			{
@@ -565,16 +803,28 @@ namespace Sandbox.Game.Components
 					var cubeGrid = entity as MyCubeGrid;
 					var voxelBase = entity as MyVoxelBase;
 
+                    if (((cubeGrid != null && m_standingOnGrid != cubeGrid) || (voxelBase != null && m_standingOnVoxel != voxelBase)) && ShouldUpdateSoundEmitters)
+                    {
                     m_standingOnGrid = cubeGrid;
+                    m_standingOnVoxel = voxelBase;
+                        MyEntity3DSoundEmitter.UpdateEntityEmitters(true, true, true);
+                    }
+                    else
+                    {
+                        m_standingOnGrid = cubeGrid;
+                        m_standingOnVoxel = voxelBase;
+                    }
+                    if(cubeGrid != null || voxelBase != null)
+                        m_jumpReady = true;
 
-					if (cubeGrid != null)
-						walkSurfaceMaterial = cubeGrid.Physics.GetMaterialAt(h.Position);
-					else if (voxelBase != null && voxelBase.Storage != null && voxelBase.Storage.DataProvider != null)
-					{
+                    if (cubeGrid != null)
+                        walkSurfaceMaterial = cubeGrid.Physics.GetMaterialAt(h.Position + m_character.PositionComp.WorldMatrix.Down * 0.1f);
+                    else if (voxelBase != null && voxelBase.Storage != null && voxelBase.Storage.DataProvider != null)
+                    {
                         var materialDefinition = voxelBase.GetMaterialAt(ref h.Position);
-						if(materialDefinition != null)
-							walkSurfaceMaterial = MyStringHash.GetOrCompute(materialDefinition.MaterialTypeName);
-					}
+                        if (materialDefinition != null)
+                            walkSurfaceMaterial = MyStringHash.GetOrCompute(materialDefinition.MaterialTypeName);
+                    }
 					if (walkSurfaceMaterial.ToString().Length == 0)
 						walkSurfaceMaterial = MyMaterialType.ROCK;
 				}
@@ -592,6 +842,9 @@ namespace Sandbox.Game.Components
 				if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastScreamTime > SCREAM_DELAY_MS)
 				{
 					m_lastScreamTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                    if (m_character.StatComp != null && m_character.StatComp.LastDamage.Type == LowPressure)
+                        PlaySecondarySound(CharacterSoundsEnum.SUFFOCATE_SOUND);
+                    else
                     PlaySecondarySound(CharacterSoundsEnum.PAIN_SOUND);
 				}
 			}
@@ -605,7 +858,12 @@ namespace Sandbox.Game.Components
 			{
 				soundEmitter.Entity = Entity as MyEntity;
 			}
+            if(m_windEmitter != null)
+                m_windEmitter.Entity = Entity as MyEntity;
+            if (m_oxygenEmitter != null)
+                m_oxygenEmitter.Entity = Entity as MyEntity;
 			m_lastUpdateMovementState = m_character.GetCurrentMovementState();
+            m_characterPhysicalMaterial = MyStringHash.GetOrCompute(m_character.Definition.PhysicalMaterial);
 			InitSounds();
 		}
 

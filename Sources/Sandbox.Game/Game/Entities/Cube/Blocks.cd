@@ -1,0 +1,426 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Sandbox.Game.Entities.Cube.MyTerminalBlock" Collapsed="true">
+    <Position X="0.5" Y="6.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>kBmCCIUCAsACAAhCQAAAgCDAAUAQQQoABZwKDgAEAwo=</HashCode>
+      <FileName>Game\Entities\Cube\MyTerminalBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MySyncedBlock" Collapsed="true">
+    <Position X="0.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Game\Entities\Cube\MySyncedBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyCubeBlock" Collapsed="true">
+    <Position X="9.5" Y="2.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>x06DcYILj5SBrjJx0G7gB8daBO0f8CJ4lHjrHIwbDBk=</HashCode>
+      <FileName>Game\Entities\Cube\MyCubeBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="VRage.Game.Entity.MyEntity" Collapsed="true">
+    <Position X="1.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyCargoContainer" Collapsed="true">
+    <Position X="2.5" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAJAQCAAAAAA0AIIAIgAAACAQACQAAEQCACAAEAAAI=</HashCode>
+      <FileName>Game\Entities\Blocks\MyCargoContainer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyControlPanel" Collapsed="true">
+    <Position X="4.5" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyControlPanel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyScenarioBuildingBlock" Collapsed="true">
+    <Position X="6.75" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEAABAAAAQAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyScenarioBuildingBlock.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyShipController" Collapsed="true">
+    <Position X="9" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>GVpW91tyyzMV/8d18qiw73h7lnkM2+xyv6hnfyWnPks=</HashCode>
+      <FileName>Game\Entities\Blocks\MyShipController.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MySolarPanel" Collapsed="true">
+    <Position X="11.25" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAIMAAABQCAAAAAIACAAAAAAAAAAgkAjEAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MySolarPanel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyWarhead" Collapsed="true">
+    <Position X="13.5" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAABAgJFAYoLYFABABEZAYgAAQKARAKAACASAAgAAAk=</HashCode>
+      <FileName>Game\Entities\Blocks\MyWarhead.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyFunctionalBlock" Collapsed="true">
+    <Position X="0.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AwAAwAAJAAABIIAAQAAAAAAIBAhBQAAAgIAiAQAAAAA=</HashCode>
+      <FileName>Game\Entities\Cube\MyFunctionalBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyAdvancedDoor" Collapsed="true">
+    <Position X="2.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AlNASAoFAQABMCAIggkoAAIABYgAQAEQoqBDBIUBhBQ=</HashCode>
+      <FileName>Game\Entities\Blocks\MyAdvancedDoor.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyAirtightDoorGeneric" Collapsed="true">
+    <Position X="4.75" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkJASAINAQAAMGABgggoEAsABAgAQQIgoSADFAUABAQ=</HashCode>
+      <FileName>Game\Entities\Blocks\MyAirtightDoorGeneric.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyAirVent" Collapsed="true">
+    <Position X="7" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AmKowWKGCAaBAmEBaECqEwxARIgAaDAkASAHiN0ACgQ=</HashCode>
+      <FileName>Game\Entities\Blocks\MyAirVent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyBatteryBlock" Collapsed="true">
+    <Position X="9.25" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IkMAFEIkBUyAELARAAAIAAgABAwEQBIAD0AXShEAAgk=</HashCode>
+      <FileName>Game\Entities\Blocks\MyBatteryBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyBeacon" Collapsed="true">
+    <Position X="11.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gkOAAAIEECkYAAAhgBAowAEBDg4AQAEAABACAAoAAQw=</HashCode>
+      <FileName>Game\Entities\Blocks\MyBeacon.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyButtonPanel" Collapsed="true">
+    <Position X="13.75" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkJFAVIEAAAAAAAAiAAYBEBCBQwAQgCAAAAbwEEAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyButtonPanel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyCameraBlock" Collapsed="true">
+    <Position X="2.5" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IkiIAkNuAAgAQABtsAAIBAIAEigAYgBQCAADQAAMAgA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyCameraBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyCollector" Collapsed="true">
+    <Position X="4.75" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gABBARCAAgAAA0BIIAIIAkAIAQgCQAAEwOAKAAAAIgI=</HashCode>
+      <FileName>Game\Entities\Blocks\MyCollector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyConveyorSorter" Collapsed="true">
+    <Position X="7" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EkIBBFO2AAgCI0IZIIIhAgAOQQgCaACE0mADRAkIBAY=</HashCode>
+      <FileName>Game\Entities\Blocks\MyConveyorSorter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyDebugSphere1" Collapsed="true">
+    <Position X="9.25" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyDebugSphere1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyDebugSphere2" Collapsed="true">
+    <Position X="11.5" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyDebugSphere2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyDebugSphere3" Collapsed="true">
+    <Position X="13.75" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyDebugSphere3.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyDecoy" Collapsed="true">
+    <Position X="2.5" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyDecoy.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyDoor" Collapsed="true">
+    <Position X="4.75" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkJASAIEARAAMIAAgACIAAIADEgAQAEQoCBDAAUABBA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyDoor.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyGasGenerator" Collapsed="true">
+    <Position X="7" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BkIBAWaECA4JA2AJYEIiACoCFQwDwAIEQCGHAkwIAEI=</HashCode>
+      <FileName>Game\Entities\Blocks\MyGasGenerator.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyGasTank" Collapsed="true">
+    <Position X="9.25" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>JkINAG6EAAaGE3AJYEIqgwoCgQ4DaRREwCAHCAkAAGI=</HashCode>
+      <FileName>Game\Entities\Blocks\MyGasTank.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyGravityGeneratorBase" Collapsed="true">
+    <Position X="11.5" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CkCAQBKEEQoEIAQBIgBIIoQggAgABAAAiAACAAoAIA0=</HashCode>
+      <FileName>Game\Entities\Blocks\MyGravityGeneratorBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyGyro" Collapsed="true">
+    <Position X="13.75" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAoAQAYEIIwAAAAgAIAAAaAFBAmAQAgAAAIGAEApAgg=</HashCode>
+      <FileName>Game\Entities\Blocks\MyGyro.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyJumpDrive" Collapsed="true">
+    <Position X="2.5" Y="15.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gEcABGYsABqECAARgAAKAGgAAABIbhIoBEADACFAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyJumpDrive.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyLandingGear" Collapsed="true">
+    <Position X="4.75" Y="15.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>JEIDSEIkAArOODIFJkK0BUbdRIYAwAAQA8AjCAqBAiA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyLandingGear.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyLaserAntenna" Collapsed="true">
+    <Position X="7" Y="15.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>m8KAgVHEEDnNIhBZwsWUkMkmDylE8UkwEBoPt1lqmW4=</HashCode>
+      <FileName>Game\Entities\Blocks\MyLaserAntenna.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyLightingBlock" Collapsed="true">
+    <Position X="9.25" Y="15.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>FkNLAEEMjAACggQAqZIsYmMIFAwCQAICBJATgAJIQAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyLightingBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyMotorBase" Collapsed="true">
+    <Position X="11.5" Y="15.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IkAAoQYDASzCKBJJDSAqE2KZBpgIQBAAkQBCAgAgEYQ=</HashCode>
+      <FileName>Game\Entities\Blocks\MyMotorBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyOreDetector" Collapsed="true">
+    <Position X="13.75" Y="15.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkAAAgIEEAAACEAAAAAIAEECIAgAQIAAgIACAAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyOreDetector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyOxygenFarm" Collapsed="true">
+    <Position X="2.5" Y="17.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAEAGKEAAQAQmMAAAAoAAgAAAgAQAAEgCAHEAAAAAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyOxygenFarm.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyPistonBase" Collapsed="true">
+    <Position X="4.75" Y="17.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>A1IA8AWOAQhCKvYBhAgokcCTBpoASmUNACEDBkBGEIA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyPistonBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyProductionBlock" Collapsed="true">
+    <Position X="7" Y="17.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>MlDBmajDDAQAo0IIIwYoKBIIRgkCRkGGwGCCgAFcBBI=</HashCode>
+      <FileName>Game\Entities\Blocks\MyProductionBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyProgrammableBlock" Collapsed="true">
+    <Position X="9.25" Y="17.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>A0QEsgKUAAICAMBBhIEhAGgAQAhDwkAIARZLAABhIRM=</HashCode>
+      <FileName>Game\Entities\Blocks\MyProgrammableBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyProjectorBase" Collapsed="true">
+    <Position X="11.5" Y="17.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>MEDuSeIMEpnCMnBRqVQEQEoSLAROwAwhwtIbAlfUBqE=</HashCode>
+      <FileName>Game\Entities\Blocks\MyProjectorBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyRadioAntenna" Collapsed="true">
+    <Position X="13.75" Y="17.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CsGAAECCEAgMoAABAgAIAMElBAgAQBARABAiAAgAAAQ=</HashCode>
+      <FileName>Game\Entities\Blocks\MyRadioAntenna.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyReactor" Collapsed="true">
+    <Position X="2.5" Y="18.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BkABAUKuIAgAA2hJIAKAAAAABQwCQBAEQGAWEAgAIg8=</HashCode>
+      <FileName>Game\Entities\Blocks\MyReactor.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MySensorBlock" Collapsed="true">
+    <Position X="4.75" Y="18.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>GkLKAHCEdUqMF0UBG4LYgIQiEQBgQBgAKAIbqUiAAGg=</HashCode>
+      <FileName>Game\Entities\Blocks\MySensorBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyShipMergeBlock" Collapsed="true">
+    <Position X="7" Y="18.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>FgIAUBAGAoFAqAABBAEJCkA4hCwAAAACEQBKAEACIRA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyShipMergeBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MySoundBlock" Collapsed="true">
+    <Position X="9.25" Y="18.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CkAIQADAAAAAHgQAAAkACYkIBA9AUAYCgMMiQAAPzIE=</HashCode>
+      <FileName>Game\Entities\Blocks\MySoundBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyTextPanel" Collapsed="true">
+    <Position X="13.75" Y="18.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>8GMoyKgAoEuIgJ5zzhN9ImmQHHzeaJGIohULaCkII4g=</HashCode>
+      <FileName>Game\Entities\Blocks\MyTextPanel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.MyThrust" Collapsed="true">
+    <Position X="2.5" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QEIAR1OKgBABjgDBAAAgijhJTB4MQCQUAuATBBYNEAA=</HashCode>
+      <FileName>Game\Entities\Blocks\MyThrust.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Blocks.MyTimerBlock" Collapsed="true">
+    <Position X="4.75" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkIgAFKFACAAABABDAAICMAKAAoAQAAgoYASgEAEBAg=</HashCode>
+      <FileName>Game\Entities\Blocks\MyTimerBlock.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Entities.Cube.MyShipConnector" Collapsed="true">
+    <Position X="9.25" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQIdQCEHA0CgY0JLJCsLDNEanQrCUAAI4SkPwiAhg5M=</HashCode>
+      <FileName>Game\Entities\Cube\MyShipConnector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Weapons.MyShipDrill" Collapsed="true">
+    <Position X="11.5" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkKBAWCDDAIE5gCIiMIKAgEaRwkDYAANQmASTASuAIE=</HashCode>
+      <FileName>Game\Weapons\Guns\MyShipDrill.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Weapons.MyShipToolBase" Collapsed="true">
+    <Position X="13.75" Y="20.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkNBAXKBRAKEp0XB6EMKAgAKREsGQAUFQqAeBAQgCBI=</HashCode>
+      <FileName>Game\Weapons\Guns\MyShipToolBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sandbox.Game.Weapons.MyUserControllableGun" Collapsed="true">
+    <Position X="6.75" Y="20.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAIBgIAhAAAgAAAhGBAAgAAQAAIAAACCgACAAA=</HashCode>
+      <FileName>Game\Weapons\Guns\MyUserControllableGun.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="VRage.Game.ModAPI.IMyCubeBlock" Collapsed="true">
+    <Position X="4.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="Sandbox.ModAPI.IMyUpgradableBlock" Collapsed="true">
+    <Position X="7.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="Sandbox.Game.Entities.IMyComponentOwner&lt;T&gt;" Collapsed="true">
+    <Position X="4.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Game\Entities\MyRadioBroadcasters.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

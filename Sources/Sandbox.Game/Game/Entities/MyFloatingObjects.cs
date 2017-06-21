@@ -16,8 +16,6 @@ using VRageMath;
 using VRage;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
-using Sandbox.Common.Components;
-using VRage.Voxels;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities.Character;
@@ -27,6 +25,7 @@ using Sandbox.Engine.Multiplayer;
 using VRage.Game.Entity;
 using Sandbox.Game.Entities.Inventory;
 using VRage.Game;
+using VRage.Profiler;
 
 #endregion
 
@@ -101,31 +100,10 @@ namespace Sandbox.Game.Entities
         static List<MyFloatingObject> m_lowPriority = new List<MyFloatingObject>();
         static Stopwatch m_measurementTime;
         static int m_updateCounter = 0;
-        static int m_highMessagesSent = 0;
-        static int m_normalMessagesSent = 0;
-        static int m_lowMessagesSent = 0;
-        static int m_highIndex = 0;
-        static int m_normalIndex = 0;
-        static int m_lowIndex = 0;
-        static float m_kilobytesPerSecond = 0;
-        static int m_syncCounter = 0;
         static bool m_needReupdateNewObjects = false;
         static int m_checkObjectInsideVoxel = 0;
 
 		static List<Tuple<MyPhysicalInventoryItem, BoundingBoxD, Vector3D>> m_itemsToSpawnNextUpdate = new List<Tuple<MyPhysicalInventoryItem, BoundingBoxD, Vector3D>>();
-
-        static Dictionary<MyFloatingObject, StabilityInfo> m_stableObjectsClient = new Dictionary<MyFloatingObject, StabilityInfo>(m_entityComparer);
-        static Dictionary<MyFloatingObject, StabilityInfo> m_tmpObjects = new Dictionary<MyFloatingObject, StabilityInfo>(m_entityComparer);
-
-        static HashSet<long> m_requestedEntities = new HashSet<long>();
-        static List<long> m_tmpEntities = new List<long>();
-        static int m_requestDelay = 0;
-        static int m_noRequestedCounter = 0;
-        static bool m_stableDirty = false;
-
-        static HashSet<MyFloatingObject> m_stableObjectsServer = new HashSet<MyFloatingObject>(m_entityComparer);
-        static HashSet<MyFloatingObject> m_futureStableObjectsServer = new HashSet<MyFloatingObject>(m_entityComparer);
-        static HashSet<MyFloatingObject> m_removedStableObjectsServer = new HashSet<MyFloatingObject>(m_entityComparer);
 
         #endregion
 
@@ -144,8 +122,6 @@ namespace Sandbox.Game.Entities
         {
             //Debug.Assert(m_instance == this);
             m_instance = null;
-            m_stableObjectsClient.Clear();
-
             base.UnloadData();
         }
 
@@ -177,8 +153,15 @@ namespace Sandbox.Game.Entities
                 OptimizeFloatingObjects();
             }
             else
+            {
                 if (m_needReupdateNewObjects)
+                {
                     OptimizeCloseDistances();
+                }
+
+                // Change quality type to critical, it can be debris after contact with character controller
+                OptimizeQualityType();
+            }
 
             if (VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS)
             {
@@ -197,13 +180,8 @@ namespace Sandbox.Game.Entities
         void OptimizeFloatingObjects()
         {
             ReduceFloatingObjects();
-
             OptimizeCloseDistances();
-
             OptimizeQualityType();
-
-            if (MyPerGameSettings.EnableFloatingObjectsActiveSync && Sync.IsServer)
-                OptimizeStableObjects();    
         }
 
         private void OptimizeCloseDistances()
@@ -214,8 +192,6 @@ namespace Sandbox.Game.Entities
             m_highPriority.Clear();
             m_normalPriority.Clear();
             m_lowPriority.Clear();
-            m_futureStableObjectsServer.Clear();
-            m_removedStableObjectsServer.Clear();
             m_needReupdateNewObjects = false;
 
             float CLOSEST_DISTANCE = 4 * 4;
@@ -243,32 +219,8 @@ namespace Sandbox.Game.Entities
                         m_normalPriority.Add(syncObject);
                     else
                         m_lowPriority.Add(syncObject);
-
-                    m_removedStableObjectsServer.Add(syncObject);
-                }
-                else
-                {
-                    if (linearVelocitySq > lowerEpsilonSq || angularVelocitySq > lowerEpsilonSq)
-                    { // if it is below the sync value but still moving, then resend
-                        m_stableObjectsServer.Remove(syncObject);
-                    }
-                    //syncObject.SyncWaitCounter++;
-                    m_futureStableObjectsServer.Add(syncObject);
                 }
             }
-        }
-
-        void OptimizeStableObjects()
-        {
-            foreach (var removedObject in m_removedStableObjectsServer)
-            {
-                m_tmpEntities.Add(removedObject.EntityId);
-            }
-
-            MyMultiplayer.RaiseStaticEvent(s => MyFloatingObjects.MakeUnstable, m_tmpEntities);
-            m_tmpEntities.Clear();
-            m_stableObjectsServer.ExceptWith(m_removedStableObjectsServer);
-            m_stableObjectsServer.UnionWith(m_futureStableObjectsServer);
         }
 
         void CheckObjectInVoxel()
@@ -378,6 +330,10 @@ namespace Sandbox.Game.Entities
                 thrownEntity.Physics.ForceActivate();
                 ApplyPhysics(thrownEntity, motionInheritedFrom);
                 Debug.Assert(thrownEntity.Save == true, "Thrown item will not be saved. Feel free to ignore this.");
+
+                //Visual scripting action
+                if (MyVisualScriptLogicProvider.ItemSpawned != null)
+                    MyVisualScriptLogicProvider.ItemSpawned(item.Content.TypeId.ToString(), item.Content.SubtypeName, thrownEntity.EntityId, item.Amount.ToIntSafe(), worldMatrix.Translation);
             }
             return thrownEntity;
         }
@@ -399,6 +355,10 @@ namespace Sandbox.Game.Entities
                 AddToPos(thrownEntity, pos, motionInheritedFrom);
 
                 thrownEntity.Physics.ForceActivate();
+
+                //Visual scripting action
+                if (MyVisualScriptLogicProvider.ItemSpawned != null)
+                    MyVisualScriptLogicProvider.ItemSpawned(item.Content.TypeId.ToString(), item.Content.SubtypeName, thrownEntity.EntityId, item.Amount.ToIntSafe(), pos);
             }
             return thrownEntity;
         }
@@ -421,6 +381,10 @@ namespace Sandbox.Game.Entities
             var pos = MyUtils.GetRandomBorderPosition(ref sphere);
             AddToPos(thrownEntity, pos, motionInheritedFrom);
             ProfilerShort.End();
+
+            //Visual scripting action
+            if (thrownEntity != null && MyVisualScriptLogicProvider.ItemSpawned != null)
+                MyVisualScriptLogicProvider.ItemSpawned(item.Content.TypeId.ToString(), item.Content.SubtypeName, thrownEntity.EntityId, item.Amount.ToIntSafe(), pos);
             return thrownEntity;
         }
 
@@ -493,14 +457,7 @@ namespace Sandbox.Game.Entities
             for (int i = 0; i < m_synchronizedFloatingObjects.Count; i++)
             {
                 var floatingObject = m_synchronizedFloatingObjects[i];
-                if (floatingObject.Physics.LinearVelocity.Length() > 5)
-                {
-                    floatingObject.Physics.ChangeQualityType(Havok.HkCollidableQualityType.Bullet);
-                }
-                else
-                {
-                    floatingObject.Physics.ChangeQualityType(Havok.HkCollidableQualityType.Debris);
-                }
+                floatingObject.Physics.ChangeQualityType(Havok.HkCollidableQualityType.Critical); //Default was .Debris                 
             }
         }
 
@@ -571,6 +528,10 @@ namespace Sandbox.Game.Entities
                 {
                     RemoveFloatingObject(obj);
                 }
+                else
+                {
+                    obj.SendCloseRequest();
+                }
             }
             else
             {
@@ -596,15 +557,13 @@ namespace Sandbox.Game.Entities
             {
                 obj.Item.Amount -= amount;
                 obj.RefreshDisplayName();
+                //In this case do not use obj.WasRemovedFromWorld = true; cause it causes the object not being picked up after removed by the collector
             }
             else
+            {
                 obj.Close();
-
-            obj.WasRemovedFromWorld = true;
-
-            m_requestedEntities.Remove(obj.EntityId);
-            m_stableObjectsClient.Remove(obj);
-            m_stableObjectsServer.Remove(obj);
+                obj.WasRemovedFromWorld = true;
+            }
         }
 
 
@@ -693,23 +652,6 @@ namespace Sandbox.Game.Entities
         
         #endregion
 
-        #region Stability
-
-        [Event, Server, Broadcast]
-        private static void MakeUnstable(List<long> entities)
-        {
-            MyFloatingObject floatingObj;
-            foreach (var entityId in entities)
-            {
-                if (!MyEntities.TryGetEntityById(entityId, out floatingObj))
-                    continue;
-                m_requestedEntities.Remove(entityId);
-                m_stableObjectsClient.Remove(floatingObj);
-            }
-        }
-
-        #endregion
-
         /// <summary>
         /// This is used mainly for compactibility issues, it takes the builder of an entity of old object representation and creates a floating object builder for it
         /// </summary>
@@ -734,7 +676,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public static void RequestSpawnCreative(MyObjectBuilder_FloatingObject obj)
         {
-            if (MySession.Static.HasAdminRights||MySession.Static.CreativeMode)
+            if (MySession.Static.HasCreativeRights||MySession.Static.CreativeMode)
             {
                 MyMultiplayer.RaiseStaticEvent(x => RequestSpawnCreative_Implementation, obj);
             }
@@ -743,7 +685,7 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         private static void RequestSpawnCreative_Implementation(MyObjectBuilder_FloatingObject obj)
         {
-            if (MySession.Static.CreativeMode ||MyEventContext.Current.IsLocallyInvoked|| MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            if (MySession.Static.CreativeMode ||MyEventContext.Current.IsLocallyInvoked|| MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
             {
                 MyEntities.CreateFromObjectBuilderAndAdd(obj);
             }

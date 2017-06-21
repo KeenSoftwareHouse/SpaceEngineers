@@ -14,8 +14,8 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
 
-        [ProtoMember, DefaultValue(800)]
-        public float Range = 800;
+        [ProtoMember, DefaultValue(600)]
+        public float Range = 600;
 
         [ProtoMember]
         public int RemainingAmmo;

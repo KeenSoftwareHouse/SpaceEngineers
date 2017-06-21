@@ -1,5 +1,4 @@
-﻿using Sandbox.Common;
-using System;
+﻿using System;
 using System.Text;
 using VRage;
 using VRage.Game;
@@ -18,11 +17,20 @@ namespace Sandbox.Graphics.GUI
     [MyGuiControlType(typeof(MyObjectBuilder_GuiControlLabel))]
     public class MyGuiControlLabel : MyGuiControlBase
     {
-        private MyFontEnum m_font;
+        public class StyleDefinition
+        {
+            public string Font = MyFontEnum.Blue;
+            public Vector4 ColorMask = Vector4.One;
+            public float TextScale = MyGuiConstants.DEFAULT_TEXT_SCALE;
+        }
+
+        private StyleDefinition m_styleDefinition;
+
+        private string m_font;
         /// <summary>
         /// Font used for drawing. Setting null will switch to default font (ie. this never returns null).
         /// </summary>
-        public MyFontEnum Font
+        public string Font
         {
             get { return m_font; }
             set { m_font = value; }
@@ -101,7 +109,7 @@ namespace Sandbox.Graphics.GUI
             String text = null,
             Vector4? colorMask = null,
             float textScale = MyGuiConstants.DEFAULT_TEXT_SCALE,
-            MyFontEnum font = MyFontEnum.Blue,
+            string font = MyFontEnum.Blue,
             MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER)
             : base(position: position,
                    size: size,
@@ -178,6 +186,11 @@ namespace Sandbox.Graphics.GUI
 
             // String builder has priority when drawing.
             float maxWidth = AutoEllipsis ? Size.X : float.PositiveInfinity;
+            if (TextForDraw == null)
+            {
+                MyLog.Default.WriteLine("text shouldn't be null! MyGuiContolLabel:" + this);
+                return;
+            }
             MyGuiManager.DrawString(Font, TextForDraw, GetPositionAbsolute(), TextScaleWithLanguage, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), OriginAlign, maxTextWidth: maxWidth);
         }
 
@@ -232,7 +245,27 @@ namespace Sandbox.Graphics.GUI
 
         public void RecalculateSize()
         {
+            RefreshInternals();
             Size = GetTextSize();
+        }
+
+        public void RefreshInternals()
+        {
+            if (m_styleDefinition == null)
+                return;
+
+            Font = m_styleDefinition.Font;
+            ColorMask = m_styleDefinition.ColorMask;
+            TextScale = m_styleDefinition.TextScale;
+        }
+
+        public void ApplyStyle(StyleDefinition style)
+        {
+            if (style != null)
+            {
+                m_styleDefinition = style;
+                RefreshInternals();
+            }
         }
     }
 }

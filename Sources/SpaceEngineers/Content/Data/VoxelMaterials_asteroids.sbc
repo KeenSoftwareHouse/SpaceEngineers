@@ -1,0 +1,626 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <VoxelMaterials>
+    <!-- Stone_01 - Stone_05 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Stone_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Stone</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <!-- Wether it spawns in asteroids, default true (even if undefined) -->
+      <SpawnsInAsteroids>true</SpawnsInAsteroids>
+      <!-- True = generated in ore pockets and gets detected by ore detector, false = used as asteroids shell -->
+      <IsRare>false</IsRare>
+      <!-- Wether it can spawn from meteorite impacts, default true (even if undefined); NOTE: requires IsRare to be true. -->
+      <SpawnsFromMeteorites>true</SpawnsFromMeteorites>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Stone_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Stone_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\Stone_01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\Stone_01_ForAxisY_ns.dds</NormalY>
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Stone_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <ColorMetalY>Textures\Voxels\Stone_01_ForAxisY_cm.dds</ColorMetalY>
+      
+      <NormalGlossXZnY>Textures\Voxels\Stone_01_ForAxisXZ_ng.dds</NormalGlossXZnY>   
+      <NormalGlossY>Textures\Voxels\Stone_01_ForAxisXZ_ng.dds</NormalGlossY>
+
+      
+	  
+    </VoxelMaterial>
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Stone_02</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Stone</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Stone_02_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Stone_02_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\Stone_02_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\Stone_02_ForAxisY_ns.dds</NormalY>
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Stone_02_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <ColorMetalY>Textures\Voxels\Stone_02_ForAxisY_cm.dds</ColorMetalY>
+
+      <NormalGlossXZnY>Textures\Voxels\Stone_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <NormalGlossY>Textures\Voxels\Stone_02_ForAxisY_ng.dds</NormalGlossY>
+
+      
+	  
+    </VoxelMaterial>
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Stone_03</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Stone</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      <ColorMetalXZnY>Textures\Voxels\Stone_03_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <!--<ColorMetalY>Textures\Voxels\Stone_03_ForAxisY_cm.dds</ColorMetalY>-->
+
+      <NormalGlossXZnY>Textures\Voxels\Stone_03_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <!--<NormalGlossY>Textures\Voxels\Stone_03_ForAxisY_ng.dds</NormalGlossY>-->
+
+      <ColorMetalXZnYFar1>Textures\Voxels\Stone_03_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
+      <NormalGlossXZnYFar1>Textures\Voxels\Stone_03_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
+      <ExtXZnYFar1>Textures\Voxels\Dummy_add.dds</ExtXZnYFar1>
+
+      <ColorMetalXZnYFar2>Textures\Voxels\Stone_03_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar2>
+      <NormalGlossXZnYFar2>Textures\Voxels\Stone_03_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar2>
+      <ExtXZnYFar2>Textures\Voxels\Dummy_add.dds</ExtXZnYFar2>
+
+
+      <ScaleMultiplier>4</ScaleMultiplier>
+
+      <Far1Distance>25</Far1Distance>
+      <Far2Distance>500</Far2Distance>
+      <Far1Scale>30</Far1Scale>
+      <Far2Scale>100</Far2Scale>
+     
+      <!--<InitialScale>3.5</InitialScale>
+	    <ScaleMultiplier>16</ScaleMultiplier>-->
+      
+    </VoxelMaterial>
+    
+      
+        
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Stone_04</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Stone</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <!--<DiffuseXZ>Textures\Voxels\Stone_04_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Stone_04_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\Stone_04_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\Stone_04_ForAxisY_ns.dds</NormalY>-->
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Stone_04_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <!--<ColorMetalY>Textures\Voxels\Stone_04_ForAxisY_cm.dds</ColorMetalY>-->
+      <NormalGlossXZnY>Textures\Voxels\Stone_04_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <!--<NormalGlossY>Textures\Voxels\Stone_04_ForAxisY_ng.dds</NormalGlossY>-->
+
+
+      <ColorMetalXZnYFar1>Textures\Voxels\Stone_04_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
+      <NormalGlossXZnYFar1>Textures\Voxels\Stone_04_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
+      <ExtXZnYFar1>Textures\Voxels\Dummy_add.dds</ExtXZnYFar1>
+
+      <ColorMetalXZnYFar2>Textures\Voxels\Stone_04_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar2>
+      <NormalGlossXZnYFar2>Textures\Voxels\Stone_04_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar2>
+      <ExtXZnYFar2>Textures\Voxels\Dummy_add.dds</ExtXZnYFar2>
+
+
+      <!--<InitialScale>4.1</InitialScale>
+      <ScaleMultiplier>6</ScaleMultiplier>-->
+
+      <Far1Distance>25</Far1Distance>
+      <Far2Distance>500</Far2Distance>
+      <Far1Scale>30</Far1Scale>
+      <Far2Scale>100</Far2Scale>
+   
+  
+	  
+    </VoxelMaterial>
+    
+      
+    
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Stone_05</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Stone</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.1</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Stone_05_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Stone_05_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalXZnY>    
+      <NormalGlossXZnY>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <ExtXZnY>Textures\Voxels\Dummy_add.dds</ExtXZnY>
+
+      <ColorMetalXZnYFar1>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
+      <NormalGlossXZnYFar1>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
+      <ExtXZnYFar1>Textures\Voxels\Dummy_add.dds</ExtXZnYFar1>
+
+      <ColorMetalXZnYFar2>Textures\Voxels\Stone_05_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar2>
+      <NormalGlossXZnYFar2>Textures\Voxels\Stone_05_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar2>
+      <ExtXZnYFar2>Textures\Voxels\Dummy_add.dds</ExtXZnYFar2>
+
+      <ScaleMultiplier>4</ScaleMultiplier>
+
+      <ExtDetailScale>0.005</ExtDetailScale>
+      <Scale>500</Scale>
+      <Far1Distance>25</Far1Distance>
+      <Far2Distance>500</Far2Distance>
+      <Far1Scale>30</Far1Scale>
+      <Far2Scale>100</Far2Scale>     
+
+      <Far3Distance>2000</Far3Distance>
+      <Far3Color>
+        <X>0.17</X>
+        <Y>0.19</Y>
+        <Z>0.20</Z>
+        <W>1.0</W>
+      </Far3Color>
+      
+    </VoxelMaterial>
+
+    <!-- Iron_01 - Iron_02 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Iron_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Iron</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.4</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Iron_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Iron_01_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.498</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Iron_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\Iron_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <ExtXZnY>Textures\Voxels\Iron_01_ForAxisXZ_add.dds</ExtXZnY>
+            
+    </VoxelMaterial>
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Iron_02</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Iron</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.4</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Iron_02_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Iron_02_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>8</SpecularPower>
+      <SpecularShininess>0.23</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Iron_02_ForAxisXZ_cm.dds</ColorMetalXZnY>   
+      <NormalGlossXZnY>Textures\Voxels\Iron_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <ExtXZnY>Textures\Voxels\Iron_02_ForAxisXZ_add.dds</ExtXZnY>
+
+      <Far3Distance>10000</Far3Distance>
+      <Far3Color>
+        <X>0.08</X>
+        <Y>0.01</Y>
+        <Z>0</Z>
+        <W>1.0</W>
+      </Far3Color>
+  
+      
+    </VoxelMaterial>
+
+    <!-- Nickel_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Nickel_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Nickel</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.5</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Nickel_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Nickel_01_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>8</SpecularPower>
+      <SpecularShininess>0.096</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Nickel_01_ForAxisXZ_cm.dds</ColorMetalXZnY>  
+      <NormalGlossXZnY>Textures\Voxels\Nickel_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <ExtXZnY>Textures\Voxels\Nickel_01_ForAxisXZ_add.dds</ExtXZnY>
+
+      
+    </VoxelMaterial>
+    <!-- Cobalt_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Cobalt_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Cobalt</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.4</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Cobalt_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Cobalt_01_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.498</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Cobalt_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\Cobalt_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+
+      
+    </VoxelMaterial>
+    <!-- Magnesium_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Magnesium_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Magnesium</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Magnesium_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Magnesium_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\Magnesium_01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\Magnesium_01_ForAxisY_ns.dds</NormalY>
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Magnesium_01_ForAxisXZ_cm.dds</ColorMetalXZnY>    
+      <ColorMetalY>Textures\Voxels\Magnesium_01_ForAxisY_cm.dds</ColorMetalY>   
+      <NormalGlossXZnY>Textures\Voxels\Magnesium_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <NormalGlossY>Textures\Voxels\Magnesium_01_ForAxisY_ng.dds</NormalGlossY>
+      <ExtXZnY>Textures\Voxels\Magnesium_01_ForAxisY_add.dds</ExtXZnY>
+
+      
+    </VoxelMaterial>
+    <!-- Silicon_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Silicon_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Silicon</MinedOre>
+      <MinedOreRatio>5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Silicon_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Silicon_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\Silicon_01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\Silicon_01_ForAxisY_ns.dds</NormalY>
+      <SpecularPower>9.489</SpecularPower>
+      <SpecularShininess>4.514</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Silicon_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <!--  <ColorMetalY>Textures\Voxels\Silicon_01_ForAxisY_cm.dds</ColorMetalY> -->
+      <NormalGlossXZnY>Textures\Voxels\Silicon_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <!-- <NormalGlossY>Textures\Voxels\Silicon_01_ForAxisY_ng.dds</NormalGlossY> -->
+      <ExtXZnY>Textures\Voxels\Silicon_01_ForAxisY_add.dds</ExtXZnY>
+
+      <!--<InitialScale>2.1</InitialScale>
+      <ScaleMultiplier>4.6</ScaleMultiplier>-->
+
+      
+    </VoxelMaterial>
+    <!-- Silver_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Silver_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Silver</MinedOre>
+      <MinedOreRatio>1.5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Silver_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Silver_01_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>9</SpecularPower>
+      <SpecularShininess>1.435</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Silver_01_ForAxisXZ_cm.dds</ColorMetalXZnY>  
+      <NormalGlossXZnY>Textures\Voxels\Silver_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <ExtXZnY>Textures\Voxels\Silver_01_ForAxisXZ_add.dds</ExtXZnY>
+     
+      
+    </VoxelMaterial>
+    <!-- Gold_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Gold_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Gold</MinedOre>
+      <MinedOreRatio>3.5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Gold_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Gold_01_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>9</SpecularPower>
+      <SpecularShininess>1.435</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Gold_01_ForAxisXZ_cm.dds</ColorMetalXZnY> 
+      <NormalGlossXZnY>Textures\Voxels\Gold_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      
+      <InitialScale>3</InitialScale>
+	    <ScaleMultiplier>7</ScaleMultiplier>
+    
+    </VoxelMaterial>
+    <!-- Platinum_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Platinum_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Platinum</MinedOre>
+      <MinedOreRatio>1.6</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.4</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Platinum_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Platinum_01_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>9</SpecularPower>
+      <SpecularShininess>1.435</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Platinum_01_ForAxisXZ_cm.dds</ColorMetalXZnY> 
+      <NormalGlossXZnY>Textures\Voxels\Platinum_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+     
+      
+    </VoxelMaterial>
+    <!-- Uraninite_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Uraninite_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Rock</MaterialTypeName>
+      <MinedOre>Uranium</MinedOre>
+      <MinedOreRatio>1.5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.4</DamageRatio>
+      <ParticleEffect>Collision_Meteor</ParticleEffect>
+      
+      <DiffuseXZ>Textures\Voxels\Uraninite_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Uraninite_01_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>21</SpecularPower>
+      <SpecularShininess>0.632</SpecularShininess>
+      
+      <ColorMetalXZnY>Textures\Voxels\Uraninite_01_ForAxisXZ_cm.dds</ColorMetalXZnY>    
+      <NormalGlossXZnY>Textures\Voxels\Uraninite_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+     
+      <InitialScale>3.8</InitialScale>
+	    <ScaleMultiplier>6.5</ScaleMultiplier>
+    
+    </VoxelMaterial>
+    
+    <!-- Ice_01 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Ice_01</SubtypeId>
+      </Id>
+      <MaterialTypeName>Ice</MaterialTypeName>
+      <MinedOre>Ice</MinedOre>
+      <MinedOreRatio>4.5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      
+      
+      <DiffuseXZ>Textures\Voxels\Ice_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Ice_01_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>21</SpecularPower>
+      <SpecularShininess>0.632</SpecularShininess>
+      <MinVersion>1</MinVersion>
+      
+      <ColorMetalXZnY>Textures\Voxels\Ice_01_ForAxisXZ_cm.dds</ColorMetalXZnY>   
+      <NormalGlossXZnY>Textures\Voxels\Ice_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+	  <ExtXZnY>Textures\Voxels\Ice_01_ForAxisXZ_add.dds</ExtXZnY>
+	  
+	  <InitialScale>2</InitialScale>
+	  <ScaleMultiplier>4</ScaleMultiplier>
+	  <InitialDistance>5</InitialDistance>
+	  <DistanceMultiplier>4</DistanceMultiplier>
+	  <Far1Distance>1000</Far1Distance>
+      <Far2Distance>5000</Far2Distance>
+      <Far1Scale>14500</Far1Scale>
+      <Far2Scale>10000</Far2Scale>
+	  
+	  
+	    <ColorMetalXZnYFar1>Textures\Voxels\Ice_01_ForAxisXZ_far_cm.dds</ColorMetalXZnYFar1>   
+      <NormalGlossXZnYFar1>Textures\Voxels\Ice_01_ForAxisXZ_far_ng.dds</NormalGlossXZnYFar1>
+	  
+
+	  <ColorMetalXZnYFar2>Textures\Voxels\Ice_01_ForAxisXZ_far_cm.dds</ColorMetalXZnYFar2>   
+    <NormalGlossXZnYFar2>Textures\Voxels\Ice_01_ForAxisXZ_far_ng.dds</NormalGlossXZnYFar2>
+
+
+    </VoxelMaterial>
+    <!-- Ice_02 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Ice_02</SubtypeId>
+      </Id>
+      <MaterialTypeName>Ice</MaterialTypeName>
+      <MinedOre>Ice</MinedOre>
+      <MinedOreRatio>4.5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      
+      
+      <DiffuseXZ>Textures\Voxels\EarthIce_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\EarthIce_ns.dds</NormalXZ>
+      <SpecularPower>21</SpecularPower>
+      <SpecularShininess>0.632</SpecularShininess>
+      <MinVersion>1</MinVersion>
+      <ColorMetalXZnY>Textures\Voxels\EarthIce_Far1_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\EarthIce_Far1_ng.dds</NormalGlossXZnY>
+      <ExtXZnY>Textures\Voxels\Dummy_add.dds</ExtXZnY>
+
+      <ColorMetalXZnYFar1>Textures\Voxels\EarthIce_Far1_cm.dds</ColorMetalXZnYFar1>
+      <NormalGlossXZnYFar1>Textures\Voxels\EarthIce_Far1_ng.dds</NormalGlossXZnYFar1>
+      <ExtXZnYFar1>Textures\Voxels\Dummy_add.dds</ExtXZnYFar1>
+
+      <ColorMetalXZnYFar2>Textures\Voxels\EarthIce_Far2_cm.dds</ColorMetalXZnYFar2>
+      <NormalGlossXZnYFar2>Textures\Voxels\EarthIce_Far2_ng.dds</NormalGlossXZnYFar2>
+      <ExtXZnYFar2>Textures\Voxels\Dummy_add.dds</ExtXZnYFar2>
+
+      <ScaleMultiplier>4</ScaleMultiplier>
+
+      <ExtDetailScale>0.005</ExtDetailScale>
+      <Scale>500</Scale>
+      <Far1Distance>22</Far1Distance>
+      <Far2Distance>500</Far2Distance>
+      <Far1Scale>300</Far1Scale>
+      <Far2Scale>2000</Far2Scale>
+
+      <Far3Distance>10000</Far3Distance>
+      <Far3Color>
+        <X>0.18</X>
+        <Y>0.34</Y>
+        <Z>0.38</Z>
+        <W>1.0</W>
+      </Far3Color>
+      
+      </VoxelMaterial>
+    <!-- Ice_03 -->
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Ice_03</SubtypeId>
+      </Id>
+      <MaterialTypeName>Ice</MaterialTypeName>
+      <MinedOre>Ice</MinedOre>
+      <MinedOreRatio>4.5</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      
+      
+      <DiffuseXZ>Textures\Voxels\Ice_02_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Ice_02_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>21</SpecularPower>
+      <SpecularShininess>0.632</SpecularShininess>
+      <MinVersion>1</MinVersion>
+      <ColorMetalXZnY>Textures\Voxels\Ice_03_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\Ice_03_ng.dds</NormalGlossXZnY>
+      <ExtXZnY>Textures\Voxels\Ice_03_add.dds</ExtXZnY>
+      
+      <ExtDetailScale>0.005</ExtDetailScale>
+      <Scale>2</Scale>
+
+      <Far3Distance>5000</Far3Distance>
+	    <Far3Color>
+        <X>0.09</X>
+        <Y>0.16</Y>
+        <Z>0.18</Z>
+        <W>1.0</W>
+	    </Far3Color>
+    
+    </VoxelMaterial>
+  </VoxelMaterials>
+</Definitions>

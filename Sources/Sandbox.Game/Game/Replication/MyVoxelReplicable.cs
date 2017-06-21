@@ -1,20 +1,15 @@
-﻿using Sandbox.Engine.Multiplayer;
-using Sandbox.Engine.Voxels;
+﻿using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Replication;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Game.Entity;
 using VRage.Library.Collections;
 using VRage.Network;
 using VRage.ObjectBuilders;
-using VRage.Replication;
+using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 
@@ -22,12 +17,13 @@ namespace Sandbox.Game.Replication
 {
     class MyVoxelReplicable : MyEntityReplicableBaseEvent<MyVoxelBase>, IMyStreamableReplicable
     {
+        List<MyEntity> m_entities;
         Action<MyVoxelBase> m_loadingDoneHandler;
-        MyStreamingEntityStateGroup<MyVoxelReplicable> m_streamingGroup;
+        StateGroups.MyStreamingEntityStateGroup<MyVoxelReplicable> m_streamingGroup;
 
         public MyVoxelBase Voxel { get { return Instance; } }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             if(Voxel == null || Voxel.Storage == null || Voxel.Closed)
             {
@@ -41,7 +37,24 @@ namespace Sandbox.Game.Replication
             {
                 return 0.0f;
             }
-            return GetBasePriority(Voxel.PositionComp.GetPosition(), Voxel.Storage.Size * MyVoxelConstants.VOXEL_SIZE_IN_METRES, client);
+
+            ulong clientEndpoint = client.EndpointId.Value;
+            if (cached)
+            {
+
+                if (m_cachedPriorityForClient != null && m_cachedPriorityForClient.ContainsKey(clientEndpoint))
+                {
+                    return m_cachedPriorityForClient[clientEndpoint];
+                }
+            }
+
+            if (m_cachedPriorityForClient == null)
+            {
+                m_cachedPriorityForClient = new Dictionary<ulong, float>();
+            }
+            m_cachedPriorityForClient[clientEndpoint] = GetBasePriority(Voxel.PositionComp.GetPosition(), Voxel.Storage.Size * MyVoxelConstants.VOXEL_SIZE_IN_METRES, client);
+          
+            return m_cachedPriorityForClient[clientEndpoint];
         }
 
         public override bool OnSave(BitStream stream)
@@ -55,11 +68,11 @@ namespace Sandbox.Game.Replication
 
             bool isUserCreated = VRage.Serialization.MySerializer.CreateAndRead<bool>(stream);
             bool isFromPrefab = VRage.Serialization.MySerializer.CreateAndRead<bool>(stream);
-            bool rangeChanged = VRage.Serialization.MySerializer.CreateAndRead<bool>(stream);
+            bool contentChanged = VRage.Serialization.MySerializer.CreateAndRead<bool>(stream);
 
             byte[] data = null;
             string asteroidName = null;
-            if (rangeChanged)
+            if (contentChanged)
             {
                 data = VRage.Serialization.MySerializer.CreateAndRead<byte[]>(stream);
             }
@@ -68,13 +81,16 @@ namespace Sandbox.Game.Replication
                 asteroidName = VRage.Serialization.MySerializer.CreateAndRead<string>(stream);
             }
 
+            MyLog.Default.WriteLine("MyVoxelReplicable.OnLoad - isUserCreated:" + isUserCreated + " isFromPrefab:" + isFromPrefab + " contentChanged:" + contentChanged + " data?: " + (data != null).ToString());
+
             if (isFromPrefab)
             {
                 var builder = VRage.Serialization.MySerializer.CreateAndRead<MyObjectBuilder_EntityBase>(stream, MyObjectBuilderSerializer.Dynamic);
 
-                if (rangeChanged && data != null)
+                if (contentChanged && data != null)
                 {
                     IMyStorage storage = MyStorageBase.Load(data);
+
                     if (MyEntities.TryGetEntityById<MyVoxelBase>(builder.EntityId, out voxelMap))
                     {
                         if(voxelMap is MyVoxelMap)
@@ -105,7 +121,10 @@ namespace Sandbox.Game.Replication
                         {
                             Debug.Fail("Unknown voxel kind");
                         }
-                        MyEntities.Add(voxelMap);
+                        if (voxelMap != null)
+                        {
+                            MyEntities.Add(voxelMap);
+                        }
                     }
                    
                 }
@@ -119,15 +138,21 @@ namespace Sandbox.Game.Replication
                     {
                         ((MyVoxelMap)voxelMap).Init(builder, storage);
                     }
-                    MyEntities.Add(voxelMap);
+                    if (voxelMap != null)
+                    {
+                        MyEntities.Add(voxelMap);
+                    }
                 }
                 else
                 {
                     TryRemoveExistingEntity(builder.EntityId);
 
-                    voxelMap = (MyVoxelBase)MyEntities.CreateFromObjectBuilderNoinit(builder);
-                    voxelMap.Init(builder);
-                    MyEntities.Add(voxelMap);
+                    voxelMap = (MyVoxelBase)MyEntities.CreateFromObjectBuilderNoinit(builder);  
+                    if (voxelMap != null)
+                    {
+                        voxelMap.Init(builder);
+                        MyEntities.Add(voxelMap);
+                    }
                 }
             }
             else
@@ -135,6 +160,26 @@ namespace Sandbox.Game.Replication
                 long voxelMapId = VRage.Serialization.MySerializer.CreateAndRead<long>(stream);
                 MyEntities.TryGetEntityById<MyVoxelBase>(voxelMapId, out voxelMap);
             }
+
+            if (voxelMap != null)
+            {
+                BoundingBoxD voxelBox = new BoundingBoxD(voxelMap.PositionLeftBottomCorner, voxelMap.PositionLeftBottomCorner + voxelMap.SizeInMetres);
+                m_entities = MyEntities.GetEntitiesInAABB(ref voxelBox);
+                foreach (var entity in m_entities)
+                {
+                    MyVoxelBase voxel = entity as MyVoxelBase;
+                    if (voxel != null)
+                    {
+                        if (voxel.Save == false && voxel != voxelMap)
+                        {
+                            voxel.Close();
+                            break;
+                        }
+                    }
+                }
+                m_entities.Clear();
+            }
+   
             loadingDoneHandler(voxelMap);
         }
 
@@ -171,7 +216,7 @@ namespace Sandbox.Game.Replication
         {
             if (m_streamingGroup == null)
             {
-                m_streamingGroup = new MyStreamingEntityStateGroup<MyVoxelReplicable>(this);
+                m_streamingGroup = new StateGroups.MyStreamingEntityStateGroup<MyVoxelReplicable>(this, this);
             }
             return m_streamingGroup;
         }
@@ -185,7 +230,7 @@ namespace Sandbox.Game.Replication
             bool isFromPrefab = Voxel.Save;
             VRage.Serialization.MySerializer.Write(stream, ref isFromPrefab);
 
-            bool contentChanged = (Voxel.ContentChanged || (Voxel.CreatedByUser && Voxel.AsteroidName == null));
+            bool contentChanged = (Voxel.ContentChanged || Voxel.BeforeContentChanged || (Voxel.CreatedByUser && Voxel.AsteroidName == null));
             VRage.Serialization.MySerializer.Write(stream, ref contentChanged);
 
             if (contentChanged)
@@ -194,7 +239,8 @@ namespace Sandbox.Game.Replication
                 Voxel.Storage.Save(out data);
                 VRage.Serialization.MySerializer.Write(stream, ref data);
 
-                Console.WriteLine(String.Format("sending content : {0}", data.Length));
+                if (!VRage.Game.MyFinalBuildConstants.IS_OFFICIAL)
+                    Console.WriteLine(String.Format("sending content : {0}", data.Length));
             }
             else if (isUserCreated)
             {
@@ -204,7 +250,8 @@ namespace Sandbox.Game.Replication
 
             if (isFromPrefab)
             {
-                Console.WriteLine("voxel from prefab / saved");
+                if (!VRage.Game.MyFinalBuildConstants.IS_OFFICIAL)
+                    Console.WriteLine("voxel from prefab / saved");
                 var builder = (MyObjectBuilder_EntityBase)Voxel.GetObjectBuilder();
                 VRage.Serialization.MySerializer.Write(stream, ref builder, MyObjectBuilderSerializer.Dynamic);
             }
@@ -235,6 +282,20 @@ namespace Sandbox.Game.Replication
         public void LoadCancel()
         {
             m_loadingDoneHandler(null);
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            //We want detect planets and asteroids from larger distance
+            var aabb = Instance.PositionComp.WorldAABB;
+
+            if (Voxel is MyPlanet)
+                aabb.Inflate((Voxel as MyPlanet).MaximumRadius * 50);
+            else
+                aabb.Inflate(Voxel.SizeInMetres.Length() * 50);
+            return aabb;
+
+            return Instance.PositionComp.WorldAABB;
         }
     }
 }

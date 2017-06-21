@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOILREADER
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,15 @@ using System.Text;
 
 namespace VRage.Compiler
 {
+#if UNSHARPER
+	public class IlReader
+	{
+		public class IlInstruction
+		{
+		}
+	}
+
+#else
     /// <summary>
     /// Reads method body and returns instructions
     /// </summary>
@@ -255,4 +265,7 @@ namespace VRage.Compiler
             get { return locals; }
         }
     }
+#endif
 }
+#endif // !XB1
+

@@ -1,54 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using VRage.Collections;
 using VRage.Library.Algorithms;
 using VRage.Library.Collections;
-using VRage.Library.Utils;
-using VRage.Plugins;
 using VRage.Utils;
-using VRageMath;
+using VRage.Library;
+using VRage.Library.Utils;
+using VRage.Profiler;
 
 namespace VRage.Network
 {
     public abstract partial class MyReplicationLayer : IDisposable
     {
-        private SequenceIdGenerator m_networkIdGenerator = SequenceIdGenerator.CreateWithStopwatch(TimeSpan.FromSeconds(60));
-        protected HashSet<IMyNetObject> m_fixedObjects = new HashSet<IMyNetObject>();
+        private readonly SequenceIdGenerator m_networkIdGenerator = SequenceIdGenerator.CreateWithStopwatch(TimeSpan.FromSeconds(60));
+        protected HashSet<IMyNetObject> FixedObjects = new HashSet<IMyNetObject>();
 
-        private bool m_isNetworkAuthority;
+        private readonly bool m_isNetworkAuthority;
 
-        private Dictionary<NetworkId, IMyNetObject> m_networkIDToObject = new Dictionary<NetworkId, IMyNetObject>();
-        private Dictionary<IMyNetObject, NetworkId> m_objectToNetworkID = new Dictionary<IMyNetObject, NetworkId>();
-        private Dictionary<IMyEventProxy, IMyProxyTarget> m_proxyToTarget = new Dictionary<IMyEventProxy, IMyProxyTarget>();
-        private Dictionary<Type, Ref<int>> m_tmpReportedObjects = new Dictionary<Type, Ref<int>>();
+        private readonly Dictionary<NetworkId, IMyNetObject> m_networkIDToObject = new Dictionary<NetworkId, IMyNetObject>();
+        private readonly Dictionary<IMyNetObject, NetworkId> m_objectToNetworkID = new Dictionary<IMyNetObject, NetworkId>();
+        private readonly Dictionary<IMyEventProxy, IMyProxyTarget> m_proxyToTarget = new Dictionary<IMyEventProxy, IMyProxyTarget>();
+        private readonly Dictionary<Type, Ref<int>> m_tmpReportedObjects = new Dictionary<Type, Ref<int>>();
 
-        VRage.Library.Collections.BitStream m_sendStreamEvent = new Library.Collections.BitStream();
-        protected VRage.Library.Collections.BitStream m_sendStream = new Library.Collections.BitStream();
-        protected VRage.Library.Collections.BitStream m_receiveStream = new Library.Collections.BitStream();
+        readonly BitStream m_sendStreamEvent = new BitStream();
+        protected BitStream SendStream = new BitStream();
+        protected BitStream ReceiveStream = new BitStream();
+        private const int TIMESTAMP_CORRECTION_MINIMUM = 10;
+        private const float SMOOTH_TIMESTAMP_CORRECTION_AMPLITUDE = 1.0f;
+
+        public bool UseSmoothPing { get; set; }
+        public float PingSmoothFactor = 3.0f;
+        public bool UseSmoothCorrection { get; set; }
+        public float SmoothCorrectionAmplitude { get; set; }
+        public int TimestampCorrectionMinimum { get; set; }
+
+        private FastResourceLock networkObjectLock = new FastResourceLock();
 
         public DictionaryKeysReader<IMyNetObject, NetworkId> NetworkObjects
         {
             get { return new DictionaryKeysReader<IMyNetObject, NetworkId>(m_objectToNetworkID); }
         }
 
-        public MyReplicationLayer(bool isNetworkAuthority)
+        protected MyReplicationLayer(bool isNetworkAuthority)
         {
+            TimestampCorrectionMinimum = TIMESTAMP_CORRECTION_MINIMUM;
+            SmoothCorrectionAmplitude = SMOOTH_TIMESTAMP_CORRECTION_AMPLITUDE;
             m_isNetworkAuthority = isNetworkAuthority;
         }
 
         public virtual void Dispose()
         {
-            m_sendStream.Dispose();
+            SendStream.Dispose();
             m_sendStreamEvent.Dispose();
-            m_receiveStream.Dispose();
+            ReceiveStream.Dispose();
             m_networkIDToObject.Clear();
             m_objectToNetworkID.Clear();
+            m_proxyToTarget.Clear();
         }
 
+        public virtual void SetPriorityMultiplier(EndpointId id, float priority)
+        {
+            
+        }
         protected Type GetTypeByTypeId(TypeId typeId)
         {
             return m_typeTable.Get(typeId).Type;
@@ -83,13 +97,13 @@ namespace VRage.Network
 
             var netId = new NetworkId(id);
             AddNetworkObject(netId, obj);
-            m_fixedObjects.Add(obj);
+            FixedObjects.Add(obj);
         }
 
         public void RemoveFixedObject(uint id, IMyNetObject obj)
         {
             var netId = new NetworkId(id);
-            m_fixedObjects.Remove(obj);
+            FixedObjects.Remove(obj);
             RemoveNetworkedObject(netId, obj);
         }
 
@@ -110,6 +124,7 @@ namespace VRage.Network
         private void AddNetworkObject(NetworkId networkID, IMyNetObject obj)
         {
             IMyNetObject foundObj;
+            networkObjectLock.AcquireExclusiveUsing();
             if (!m_networkIDToObject.TryGetValue(networkID, out foundObj))
             {
                 m_networkIDToObject.Add(networkID, obj);
@@ -119,7 +134,8 @@ namespace VRage.Network
                 if (proxyTarget != null)
                 {
                     Debug.Assert(proxyTarget.Target != null, "IMyProxyTarget.Target is null!");
-                    if (proxyTarget.Target != null)
+                    Debug.Assert(!m_proxyToTarget.ContainsKey(proxyTarget.Target), "Proxy is already added to list!");
+                    if (proxyTarget.Target != null && !m_proxyToTarget.ContainsKey(proxyTarget.Target))
                     {
                         m_proxyToTarget.Add(proxyTarget.Target, proxyTarget);
                     }
@@ -133,6 +149,7 @@ namespace VRage.Network
                 }
                 Debug.Fail("Replicated object already exists!");
             }
+            networkObjectLock.ReleaseExclusive();
         }
 
         protected IMyNetObject RemoveNetworkedObject(NetworkId networkID)
@@ -165,6 +182,7 @@ namespace VRage.Network
 
         protected void RemoveNetworkedObject(NetworkId networkID, IMyNetObject obj)
         {
+            networkObjectLock.AcquireExclusiveUsing();
             bool removedId = m_objectToNetworkID.Remove(obj);
             bool removedObj = m_networkIDToObject.Remove(networkID);
             Debug.Assert(removedId && removedObj, "Networked object was not removed because it was not in collection");
@@ -181,15 +199,29 @@ namespace VRage.Network
             }
 
             m_networkIdGenerator.Return(networkID.Value);
+            networkObjectLock.ReleaseExclusive();
         }
 
         public bool TryGetNetworkIdByObject(IMyNetObject obj, out NetworkId networkId)
         {
+            System.Diagnostics.Debug.Assert(obj != null, "NULL in replicables");
+            if (obj == null)
+            {
+                networkId = NetworkId.Invalid;
+                return false;
+            }
+
             return m_objectToNetworkID.TryGetValue(obj, out networkId);
         }
 
         public NetworkId GetNetworkIdByObject(IMyNetObject obj)
         {
+            System.Diagnostics.Debug.Assert(obj != null, "NULL in replicables");
+            if (obj == null)
+            {
+                return NetworkId.Invalid;
+            }
+
             Debug.Assert(m_objectToNetworkID.ContainsKey(obj), "Networked object is not in list");
             return m_objectToNetworkID.GetValueOrDefault(obj, NetworkId.Invalid);
         }
@@ -204,7 +236,10 @@ namespace VRage.Network
             return m_proxyToTarget.GetValueOrDefault(proxy);
         }
 
-        public abstract void Update();
+        public abstract void UpdateBefore();
+        public abstract void UpdateAfter();
+        public abstract void UpdateClientStateGroups();
+        public abstract void SendUpdate();
 
         string GetGroupName(IMyNetObject obj)
         {
@@ -218,6 +253,7 @@ namespace VRage.Network
 
         public void ReportReplicatedObjects()
         {
+            networkObjectLock.AcquireExclusiveUsing();
             foreach (var obj in m_networkIDToObject)
             {
                 Ref<int> num;
@@ -229,7 +265,7 @@ namespace VRage.Network
                 }
                 num.Value++;
             }
-
+            networkObjectLock.ReleaseExclusive();
             ReportObjects("Replicable objects", typeof(IMyReplicable));
             ReportObjects("State groups", typeof(IMyStateGroup));
             ReportObjects("Unknown net objects", typeof(object));
@@ -269,7 +305,7 @@ namespace VRage.Network
         /// Returns string with current multiplayer status. Use only for debugging.
         /// </summary>
         /// <returns>Already formatted string with current multiplayer status.</returns>
-        public virtual string GetMultiplayerStat() { return "Multiplayer Statistics:" + Environment.NewLine; }
+        public virtual string GetMultiplayerStat() { return "Multiplayer Statistics:" + MyEnvironment.NewLine; }
 
         #endregion
 

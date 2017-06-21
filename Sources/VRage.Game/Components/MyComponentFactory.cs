@@ -3,6 +3,10 @@ using System;
 using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRage.Game.Common;
+using System.Reflection;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRage.Game.Components
 {
@@ -22,9 +26,14 @@ namespace VRage.Game.Components
         static MyComponentFactory()
         {
             m_objectFactory = new MyObjectFactory<MyComponentBuilderAttribute, MyComponentBase>();
+#if XB1 // XB1_ALLINONEASSEMBLY
+            m_objectFactory.RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
+            m_objectFactory.RegisterFromAssembly(Assembly.GetExecutingAssembly());
             m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
             m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxGameAssembly);
             m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
+#endif // !XB1
         }
 
         public static MyComponentBase CreateInstanceByTypeId(MyObjectBuilderType type)
@@ -63,5 +72,9 @@ namespace VRage.Game.Components
             return m_objectFactory.GetProducedType(type);
         }
 
+        public static Type TryGetCreatedInstanceType(MyObjectBuilderType type)
+        {
+            return m_objectFactory.TryGetProducedType(type);
+        }
     }
 }

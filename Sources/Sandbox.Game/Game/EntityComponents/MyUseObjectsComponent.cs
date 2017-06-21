@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Havok;
-using Sandbox.Common.Components;
+
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
@@ -14,6 +14,8 @@ using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
+using VRage.Game.Models;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Components
 {
@@ -112,13 +114,22 @@ namespace Sandbox.Game.Components
                 matrices = new List<Matrix>();
                 m_detectors[detectorName] = matrices;
             }
-            matrices.Add(Matrix.Invert(dummyData.Matrix));
+
+            var dummyMatrix = dummyData.Matrix;
+            if (Entity is MyCubeBlock) 
+            {
+                float scale = (Entity as MyCubeBlock).CubeGrid.GridScale;
+                dummyMatrix.Translation *= scale;
+                Matrix.Rescale(ref dummyMatrix, scale);
+            }
+
+            matrices.Add(Matrix.Invert(dummyMatrix));
 
             var shapeKey = (uint)m_detectorInteractiveObjects.Count;
             var interactiveObject = CreateInteractiveObject(detectorName, dummyName, dummyData, shapeKey);
             if (interactiveObject != null)
             {
-                m_detectorInteractiveObjects.Add(shapeKey, new DetectorData(interactiveObject, dummyData.Matrix, detectorName));
+                m_detectorInteractiveObjects.Add(shapeKey, new DetectorData(interactiveObject, dummyMatrix, detectorName));
                 m_detectorShapeKeys[detectorName] = shapeKey;
             }
 
@@ -142,10 +153,27 @@ namespace Sandbox.Game.Components
         {
             var detectorName = name.ToLower();
             var dummyName = "detector_" + detectorName;
-            MyModelDummy modelDummy = new MyModelDummy() { Name = dummyName, CustomData = null, Matrix = dummyMatrix };
+
+            // Try to assign CustomData from existing same name model dummy
+            MyModel model = Container.Entity.Render.GetModel();
+            MyModelDummy dummy;
+            Dictionary<string, object> customData = null;
+            if (model != null && model.Dummies.TryGetValue(dummyName, out dummy))
+                customData = dummy.CustomData;
+
+            MyModelDummy modelDummy = new MyModelDummy() { Name = dummyName, CustomData = customData, Matrix = dummyMatrix };
             var detector = AddDetector(detectorName, dummyName, modelDummy);
             m_customAddedDetectors.Add(detector);
             return detector;
+        }
+
+        public void SetUseObjectIDs(uint renderId, int instanceId)
+        {
+            foreach (var interactiveObject in m_detectorInteractiveObjects)
+            {
+                interactiveObject.Value.UseObject.SetRenderID(renderId);
+                interactiveObject.Value.UseObject.SetInstanceID(instanceId);
+            }
         }
 
         public override void RecreatePhysics()
@@ -205,23 +233,23 @@ namespace Sandbox.Game.Components
             m_detectorPhysics.OnWorldPositionChanged(obj);
         }
 
-        public override IMyUseObject RaycastDetectors(Vector3D worldFrom, Vector3D worldTo, out float distance)
+        public override IMyUseObject RaycastDetectors(Vector3D worldFrom, Vector3D worldTo, out float parameter)
         {
             var positionComp = Container.Get<MyPositionComponentBase>();
             var invWorld = positionComp.WorldMatrixNormalizedInv;
             var ray = new RayD(worldFrom, worldTo - worldFrom);
 
             IMyUseObject result = null;
-            distance = float.MaxValue;
+            parameter = float.MaxValue;
 
             foreach (var group in m_detectorInteractiveObjects)
             {
                 var m = group.Value.Matrix * positionComp.WorldMatrix;
                 var obb = new MyOrientedBoundingBoxD(m);
                 double? dist = obb.Intersects(ref ray);
-                if (dist.HasValue && dist.Value < distance)
+                if (dist.HasValue && dist.Value < parameter)
                 {
-                    distance = (float)dist.Value;
+                    parameter = (float)dist.Value;
                     result = group.Value.UseObject;
                 }
             }
@@ -275,7 +303,7 @@ namespace Sandbox.Game.Components
             return m_customAddedDetectors.Count > 0;
         }
 
-        public override VRage.Game.ObjectBuilders.ComponentSystem.MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = MyComponentFactory.CreateObjectBuilder(this) as MyObjectBuilder_UseObjectsComponent;
             builder.CustomDetectorsCount = (uint)m_customAddedDetectors.Count;

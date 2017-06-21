@@ -9,7 +9,7 @@ using VRageMath;
 
 namespace Sandbox.Game.GameSystems.Conveyors
 {
-    class MyAttachableConveyorEndpoint : MyMultilineConveyorEndpoint
+    public class MyAttachableConveyorEndpoint : MyMultilineConveyorEndpoint
     {
         class MyAttachableLine : IMyPathEdge<IMyConveyorEndpoint>
         {

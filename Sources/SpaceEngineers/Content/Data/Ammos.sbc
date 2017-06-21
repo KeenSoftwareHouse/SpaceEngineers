@@ -11,11 +11,14 @@
         <SpeedVariance>0</SpeedVariance>
         <MaxTrajectory>800</MaxTrajectory>
         <BackkickForce>3.2</BackkickForce>
+        <PhysicalMaterial>RifleBullet</PhysicalMaterial>
       </BasicProperties>
       <ProjectileProperties>
         <ProjectileHitImpulse>3.2</ProjectileHitImpulse>
-        <ProjectileMassDamage>12</ProjectileMassDamage>
-        <ProjectileHealthDamage>12</ProjectileHealthDamage>
+        <ProjectileMassDamage>30</ProjectileMassDamage>
+        <ProjectileHealthDamage>24</ProjectileHealthDamage>
+        <HeadShot>true</HeadShot>
+        <ProjectileHeadShotDamage>60</ProjectileHeadShotDamage>
       </ProjectileProperties>
     </Ammo>
     <Ammo xsi:type="MyObjectBuilder_ProjectileAmmoDefinition">
@@ -24,15 +27,17 @@
         <SubtypeId>LargeCaliber</SubtypeId>
       </Id>
       <BasicProperties>
-        <DesiredSpeed>300</DesiredSpeed>
+        <DesiredSpeed>400</DesiredSpeed>
         <SpeedVariance>0</SpeedVariance>
         <MaxTrajectory>800</MaxTrajectory>
         <BackkickForce>50</BackkickForce>
+        <PhysicalMaterial>GunBullet</PhysicalMaterial>
       </BasicProperties>
       <ProjectileProperties>
         <ProjectileHitImpulse>185</ProjectileHitImpulse>
         <ProjectileMassDamage>60</ProjectileMassDamage>
-        <ProjectileHealthDamage>185</ProjectileHealthDamage>
+        <ProjectileHealthDamage>33</ProjectileHealthDamage>
+        <HeadShot>true</HeadShot>
       </ProjectileProperties>
     </Ammo>
     <Ammo xsi:type="MyObjectBuilder_MissileAmmoDefinition">
@@ -41,11 +46,12 @@
         <SubtypeId>Missile</SubtypeId>
       </Id>
       <BasicProperties>
-        <DesiredSpeed>700</DesiredSpeed>
+        <DesiredSpeed>200</DesiredSpeed>
         <SpeedVariance>0</SpeedVariance>
         <MaxTrajectory>800</MaxTrajectory>
         <IsExplosive>true</IsExplosive>
         <BackkickForce>700</BackkickForce>
+        <PhysicalMaterial>Missile</PhysicalMaterial>
       </BasicProperties>
       <MissileProperties>
         <MissileMass>45</MissileMass>

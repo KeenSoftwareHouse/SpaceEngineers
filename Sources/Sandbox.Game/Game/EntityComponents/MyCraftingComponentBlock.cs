@@ -235,7 +235,10 @@ namespace Sandbox.Game.Components
                 {
                     var classDefinition = MyDefinitionManager.Static.GetBlueprintClass(blueprintClass);
                     System.Diagnostics.Debug.Assert(classDefinition != null, blueprintClass + " blueprint class definition was not found.");
-                    m_blueprintClasses.Add(classDefinition);
+                    if (classDefinition != null)
+                    {
+                        m_blueprintClasses.Add(classDefinition);
+                    }
                 }
 
                 foreach (var operatingItem in craftDefinition.AcceptedOperatingItems)
@@ -336,7 +339,7 @@ namespace Sandbox.Game.Components
             UpdateOperatingLevel();
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_CraftingComponentBlock;
             

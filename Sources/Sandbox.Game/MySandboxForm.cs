@@ -1,4 +1,6 @@
-﻿using Sandbox.Engine.Platform;
+﻿#if !XB1
+
+using Sandbox.Engine.Platform;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ using VRage;
 using VRage.Utils;
 using VRage.Win32;
 using VRageMath;
+using VRageRender.ExternalApp;
 
 namespace Sandbox
 {
@@ -86,7 +89,7 @@ namespace Sandbox
 
         private void SetClip()
         {
-            Cursor.Clip = this.RectangleToScreen(this.ClientRectangle);
+            Cursor.Clip = this.RectangleToScreen(ClientRectangle);
         }
 
         private static void ClearClip()
@@ -96,6 +99,16 @@ namespace Sandbox
 
         public void UpdateClip()
         {
+            //GR: Catch exception when closing. Happens on synchronized rendering
+            try
+            {
+                MySandboxGame.GameWindowHandle = Handle;
+            }
+            catch (ObjectDisposedException)
+            {
+                MySandboxGame.ExitThreadSafe();
+                return;
+            }
             // TODO: OP! Some old implementation, try finding something more safe
             Control c = Control.FromHandle(WinApi.GetForegroundWindow());
 
@@ -190,3 +203,5 @@ namespace Sandbox
         }
     }
 }
+
+#endif

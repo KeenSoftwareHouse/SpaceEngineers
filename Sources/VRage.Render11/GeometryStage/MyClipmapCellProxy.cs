@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using VRage.Voxels;
 using VRageMath;
+using VRageRender.Messages;
+using VRageRender.Voxels;
 
 namespace VRageRender
 {
@@ -33,20 +35,6 @@ namespace VRageRender
             UpdateActorInfo(true);
         }
 
-        internal bool UpdateMergedMesh(MyRenderMessageUpdateMergedVoxelMesh msg)
-        {
-            if (!MyMeshes.UpdateMergedVoxelCell(MeshId, ref msg.Metadata, msg.MergedBatches))
-                return false;
-            
-            m_scale = msg.Metadata.PositionScale;
-            m_translation = msg.Metadata.PositionOffset;
-            m_localAabb = msg.Metadata.LocalAabb;
-
-            UpdateActorInfo();
-
-            return true;
-        }
-
         private void UpdateActorInfo(bool refreshFoliage = false)
         {
             MyVoxelRenderableComponent renderableComponent = m_actor.GetRenderable() as MyVoxelRenderableComponent;
@@ -74,8 +62,7 @@ namespace VRageRender
 
         void IMyClipmapCell.SetDithering(float dithering)
         {
-            if (m_actor.GetRenderable() != null)
-                m_actor.GetRenderable().SetDithering(dithering);
+            m_actor.GetRenderable().SetDithering(dithering);
         }
 
         bool IMyClipmapCell.IsValid()
@@ -85,7 +72,7 @@ namespace VRageRender
             return m_actor != null && !m_actor.IsDestroyed;
         }
 
-		internal MyClipmapCellProxy(MyCellCoord cellCoord, ref MatrixD worldMatrix, Vector3D massiveCenter, float massiveRadius, RenderFlags additionalFlags = 0, bool mergedMesh = false)
+        internal MyClipmapCellProxy(MyCellCoord cellCoord, ref MatrixD worldMatrix, Vector3D massiveCenter, float massiveRadius, RenderFlags additionalFlags = 0)
         {
             m_worldMatrix = worldMatrix;
 
@@ -96,7 +83,7 @@ namespace VRageRender
 
             MyVoxelRenderableComponent renderableComponent = m_actor.GetRenderable() as MyVoxelRenderableComponent;
 
-            m_mesh = !mergedMesh ? MyMeshes.CreateVoxelCell(cellCoord.CoordInLod, cellCoord.Lod) : MyMeshes.CreateMergedVoxelCell(cellCoord.CoordInLod, cellCoord.Lod);
+            m_mesh = MyMeshes.CreateVoxelCell(cellCoord.CoordInLod, cellCoord.Lod);
             renderableComponent.SetVoxelLod(m_lod, ScaleGroup);
             renderableComponent.SetModel(m_mesh);
             renderableComponent.m_massiveCenter = massiveCenter;
@@ -112,7 +99,7 @@ namespace VRageRender
             bool shouldInitializeFoliage = false;
 
             if(refresh && foliageComponent != null)
-                foliageComponent.InvalidateStreams();
+                foliageComponent.RefreshStreams();
 
             if (foliageComponent == null && !removeComponent)
                 shouldInitializeFoliage = m_mesh.ShouldHaveFoliage();

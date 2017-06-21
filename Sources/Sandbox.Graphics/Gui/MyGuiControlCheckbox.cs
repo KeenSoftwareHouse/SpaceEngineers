@@ -184,7 +184,7 @@ namespace Sandbox.Graphics.GUI
 
             MyGuiControlBase ret = base.HandleInput();
 
-            if (ret == null && (Owner == null || (Owner != null && Owner.HandleMouse)) )
+            if (ret == null )
             {
                 if ( (IsMouseOver && MyInput.Static.IsNewPrimaryButtonPressed()) ||
                      (HasFocus && (MyInput.Static.IsNewKeyPressed(MyKeys.Enter) ||
@@ -213,6 +213,9 @@ namespace Sandbox.Graphics.GUI
 
         private void RefreshInternals()
         {
+            if (m_styleDef == null)
+                m_styleDef = m_styles[(int)MyGuiControlCheckboxStyleEnum.Default];
+
             if (IsChecked)
             {
                 if (HasHighlight)
@@ -239,6 +242,15 @@ namespace Sandbox.Graphics.GUI
         {
             MyGuiSoundManager.PlaySound(GuiSounds.MouseClick);
             IsChecked = !IsChecked;
+        }
+
+        public void ApplyStyle(StyleDefinition style)
+        {
+            if (style != null)
+            {
+                m_styleDef = style;
+                RefreshInternals();
+            }
         }
 
     }

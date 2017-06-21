@@ -8,6 +8,7 @@ namespace VRage
     {
         UserControlled,
         ConstantDelta,
+        FreeMouse,
         None,
         Orbit
     }
@@ -24,10 +25,24 @@ namespace VRage
         public const float DEFAULT_SPECTATOR_ANGULAR_SPEED = 1f;
         public const float MIN_SPECTATOR_ANGULAR_SPEED = 0.0001f;
         public const float MAX_SPECTATOR_ANGULAR_SPEED = 6.0f;
-
-
+         
         public Vector3D ThirdPersonCameraDelta = new Vector3D(-10, 10, -10);
-        public MySpectatorCameraMovementEnum SpectatorCameraMovement = MySpectatorCameraMovementEnum.UserControlled;
+
+        public MySpectatorCameraMovementEnum SpectatorCameraMovement
+        {
+            get { return m_spectatorCameraMovement; }
+            set
+            {
+                if (m_spectatorCameraMovement != value)
+                    OnChangingMode(oldMode: m_spectatorCameraMovement, newMode: value);
+
+                m_spectatorCameraMovement = value;
+            }
+        }
+
+        protected virtual void OnChangingMode(MySpectatorCameraMovementEnum oldMode, MySpectatorCameraMovementEnum newMode) 
+        {    
+        }
 
         public bool IsInFirstPersonView { get; set; }
         public bool ForceFirstPersonCamera { get; set; }
@@ -38,8 +53,10 @@ namespace VRage
             Static = this;
         }
 
+ 		private MySpectatorCameraMovementEnum m_spectatorCameraMovement = MySpectatorCameraMovementEnum.UserControlled;
         Vector3D m_position;
-        Vector3D m_target;
+        Vector3D m_targetDelta = Vector3D.Forward;
+        Vector3D? m_up;
 
         public Vector3D Position
         {
@@ -47,7 +64,7 @@ namespace VRage
             set
             {
                 value.AssertIsValid();
-                m_position = value;
+                m_position = value;                
             }
         }
 
@@ -65,7 +82,9 @@ namespace VRage
 
         protected float m_speedModeLinear = DEFAULT_SPECTATOR_LINEAR_SPEED;
         protected float m_speedModeAngular = DEFAULT_SPECTATOR_ANGULAR_SPEED;
+        
         protected MatrixD m_orientation = MatrixD.Identity;
+        protected bool m_orientationDirty = true;
 
         //  Gets or sets camera's target.
         //  You can set target as point where camera will be looking from it's current position. Angles are calculated automatically.
@@ -73,39 +92,43 @@ namespace VRage
         {
             get
             {
-                return m_target;
+                return Position + m_targetDelta;
             }
             set
             {
-                m_target = value;
-
-                if (SpectatorCameraMovement != MySpectatorCameraMovementEnum.Orbit)
-                {
-                    UpdateOrientation();
-                }
+                var targetDelta = value - Position;
+                m_orientationDirty = m_targetDelta != targetDelta;
+                m_targetDelta = targetDelta;
+                m_up = null;
             }
+        }
+
+        public void SetTarget(Vector3D target, Vector3D? up)
+        {
+            Target = target;
+            m_orientationDirty |= m_up != up;
+            m_up = up;
         }
 
         public void UpdateOrientation()
         {
-            var forward = MyUtils.Normalize(Target - Position);
+            var forward = MyUtils.Normalize(m_targetDelta);
+
             forward = forward.LengthSquared() > 0 ? forward : Vector3D.Forward;
 
-            var unnormalizedRight = Vector3D.Cross(forward, Vector3D.Up);
-            var right = unnormalizedRight.LengthSquared() > 0 ? MyUtils.Normalize(unnormalizedRight) : Vector3D.Right;
-
-            var up = MyUtils.Normalize(Vector3D.Cross(right, forward));
-
-            m_orientation = MatrixD.Identity;
-            m_orientation.Forward = forward;
-            m_orientation.Right = right;
-            m_orientation.Up = up;
+            m_orientation = MatrixD.CreateFromDir(forward, m_up.HasValue ? m_up.Value : Vector3D.Up);
         }
 
         public MatrixD Orientation
         {
             get
             {
+                if (m_orientationDirty)
+                {
+                    UpdateOrientation();
+                    m_orientationDirty = false;
+                }                
+
                 return m_orientation;
             }
         }
@@ -123,10 +146,12 @@ namespace VRage
 
         float m_orbitY = 0;
         float m_orbitX = 0;
-
+        
         //  Moves and rotates player by specified vector and angles
         public virtual void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
+            // this method is overriden by MySpecatorCameraController, content of MySpectator::MoveAndRotate is not run
+
             var oldPosition = Position;
 
             moveIndicator *= m_speedModeLinear;
@@ -176,8 +201,9 @@ namespace VRage
                         m_orbitY += rotationIndicator.Y * 0.01f;
                         m_orbitX += rotationIndicator.X * 0.01f;
 
-                        var delta = Position - Target;
-                        MatrixD invRot = Matrix.Invert(m_orientation);
+                        var delta = -m_targetDelta;
+                        Vector3D target = Position + m_targetDelta;
+                        MatrixD invRot = Matrix.Invert(Orientation);
                         var deltaInv = Vector3D.Transform(delta, invRot);
 
                         rotationIndicator *= 0.01f;
@@ -185,20 +211,47 @@ namespace VRage
                         MatrixD rotationMatrix = MatrixD.CreateRotationX(m_orbitX) * MatrixD.CreateRotationY(m_orbitY) * MatrixD.CreateRotationZ(rollIndicator);
                         delta = Vector3D.Transform(deltaInv, rotationMatrix);
 
-                        Position = Target + delta;
+                        Position = target + delta;
+                        m_targetDelta = -delta;
 
                         var strafe = (m_orientation.Right * moveVector.X) + (m_orientation.Up * moveVector.Y);
 
-                        Target += strafe;
                         Position += strafe;
 
                         var forwardDelta = m_orientation.Forward * -moveVector.Z;
                         Position += forwardDelta;
 
+                        m_targetDelta -= forwardDelta;
+                        m_orientation = rotationMatrix;
+                    }
+                    break;
+
+                case MySpectatorCameraMovementEnum.ConstantDelta:
+                    {
+                        m_orbitY += rotationIndicator.Y * 0.01f;
+                        m_orbitX += rotationIndicator.X * 0.01f;
+
+                        var delta = -m_targetDelta;
+                        Vector3D target = Position + m_targetDelta;
+                        MatrixD invRot = Matrix.Invert(Orientation);
+                        var deltaInv = Vector3D.Transform(delta, invRot);
+
+                        rotationIndicator *= 0.01f;
+
+                        MatrixD rotationMatrix = MatrixD.CreateRotationX(m_orbitX) * MatrixD.CreateRotationY(m_orbitY) * MatrixD.CreateRotationZ(rollIndicator);
+                        delta = Vector3D.Transform(deltaInv, rotationMatrix);
+
+                        Position = target + delta;
+                        m_targetDelta = -delta;
                         m_orientation = rotationMatrix;
                     }
                     break;
             }
+        }
+
+        public virtual void Update()
+        {
+            
         }
 
         public virtual void MoveAndRotateStopped()
@@ -207,7 +260,7 @@ namespace VRage
 
         public MatrixD GetViewMatrix()
         {
-            return MatrixD.Invert(MatrixD.CreateWorld(Position, m_orientation.Forward, m_orientation.Up));
+            return MatrixD.Invert(MatrixD.CreateWorld(Position, Orientation.Forward, Orientation.Up));
         }
 
         public void SetViewMatrix(MatrixD viewMatrix)
@@ -220,13 +273,17 @@ namespace VRage
             m_orientation.Right = inverted.Right;
             m_orientation.Up = inverted.Up;
             m_orientation.Forward = inverted.Forward;
+            m_orientationDirty = false;
         }
 
         public void Reset()
         {
             m_position = Vector3.Zero;
-            m_target = m_position + Vector3.Forward;
+            m_targetDelta = Vector3.Forward;
             ThirdPersonCameraDelta = new Vector3D(-10, 10, -10);
+            m_orientationDirty = true;
+            m_orbitX = 0;
+            m_orbitY = 0;
         }
     }
 }

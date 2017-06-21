@@ -19,6 +19,7 @@ using System.Reflection;
 
 namespace LitJson
 {
+#if !XB1
     internal struct PropertyMetadata
     {
         public MemberInfo Info;
@@ -922,4 +923,5 @@ namespace LitJson
             custom_importers_table.Clear ();
         }
     }
+#endif
 }

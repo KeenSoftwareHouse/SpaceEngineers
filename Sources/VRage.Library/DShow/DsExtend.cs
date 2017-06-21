@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace DShowNET
 {
+#if !XB1
     [ComVisible(true), ComImport,
     Guid("56a868a9-0ad4-11ce-b03a-0020af0ba770"),
     InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -72,4 +73,5 @@ namespace DShowNET
         [PreserveSig]
         int ShouldOperationContinue();
     }
+#endif
 } // namespace DShowNET

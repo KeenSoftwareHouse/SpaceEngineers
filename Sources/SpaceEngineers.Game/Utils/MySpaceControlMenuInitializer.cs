@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SpaceEngineers.Game.Entities.Cube;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -132,10 +133,10 @@ namespace Sandbox.Game.Screens.Helpers
             m_controlMenu.AddItem(m_showBuildScreenControlHelper);
             m_controlMenu.AddItem(m_buildModeControlHelper);
 
-            if (MyCubeBuilder.Static.ShipCreationIsActivated)
-            {
-                m_controlMenu.AddItem(m_enableStationRotationControlHelper);
-            }
+            //if (MyCubeBuilder.Static.ShipCreationIsActivated)
+            //{
+            //    m_controlMenu.AddItem(m_enableStationRotationControlHelper);
+            //}
 
 
             if (MySession.Static.IsScenario)

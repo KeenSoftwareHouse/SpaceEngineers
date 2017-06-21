@@ -13,7 +13,7 @@ namespace Sandbox.Definitions
     public class MyDestructionDefinition : MyDefinitionBase
     {
         public float DestructionDamage;
-        public string Icon;
+        public string[] Icons;
         public float ConvertedFractureIntegrityRatio;
 
         public class MyFracturedPieceDefinition
@@ -30,7 +30,7 @@ namespace Sandbox.Definitions
             var ob = builder as MyObjectBuilder_DestructionDefinition;
 
             DestructionDamage = ob.DestructionDamage;
-            Icon = ob.Icon;
+            Icons = ob.Icons;
             ConvertedFractureIntegrityRatio = ob.ConvertedFractureIntegrityRatio;
 
             if (ob.FracturedPieceDefinitions != null && ob.FracturedPieceDefinitions.Length > 0)
@@ -50,7 +50,7 @@ namespace Sandbox.Definitions
         public void Merge(MyDestructionDefinition src)
         {
             DestructionDamage = src.DestructionDamage;
-            Icon = src.Icon;
+            Icons = src.Icons;
             ConvertedFractureIntegrityRatio = src.ConvertedFractureIntegrityRatio;
             FracturedPieceDefinitions = src.FracturedPieceDefinitions;
         }

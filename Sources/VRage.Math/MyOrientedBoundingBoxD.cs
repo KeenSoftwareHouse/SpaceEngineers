@@ -326,12 +326,12 @@ namespace VRageMath
 
         public static bool operator ==(MyOrientedBoundingBoxD a, MyOrientedBoundingBoxD b)
         {
-            return Equals(a, b);
+            return a.Equals(b);
         }
 
         public static bool operator !=(MyOrientedBoundingBoxD a, MyOrientedBoundingBoxD b)
         {
-            return !Equals(a, b);
+            return !a.Equals(b);
         }
 
         public override string ToString()
@@ -370,6 +370,13 @@ namespace VRageMath
 
         // Determine if this box contains, intersects, or is disjoint from the given BoundingBox.
         public ContainmentType Contains(ref BoundingBox box)
+        {
+            BoundingBoxD boxD = (BoundingBoxD)box;
+            return Contains(ref boxD);
+        }
+
+        // Determine if this box contains, intersects, or is disjoint from the given BoundingBox.
+        public ContainmentType Contains(ref BoundingBoxD box)
         {
             Vector3D boxCenter = (box.Max + box.Min) * 0.5f;
             Vector3D boxHalfExtent = (box.Max - box.Min) * 0.5f;

@@ -15,6 +15,10 @@ namespace VRage.Generics
         public MyStateMachineNode TargetNode = null;
         // List of conditions that must be fulfilled to transfer to target node.
         public List<IMyCondition> Conditions = new List<IMyCondition>();
+        // Priority of the transition, lower is processed sooner.
+        // Transitions with unset priorities are processed as last ones.
+        // After changing this number, you should call MyStateMachine.SortTransitions.
+        public int? Priority;
 
         // Evaluate all conditions, returns true if all "Conditions" are fulfulled.
         // Can be overriden it in subclasses.
@@ -31,6 +35,14 @@ namespace VRage.Generics
         public void _SetId(int newId)
         {
             Id = newId;
+        }
+
+        public override string ToString()
+        {
+            if (TargetNode != null)
+                return "transition -> " + TargetNode.Name;
+            else
+                return "transition -> (null)";
         }
     }
 

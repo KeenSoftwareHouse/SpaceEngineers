@@ -13,7 +13,7 @@ namespace ParallelTasks
         /// <summary>
         /// Executes the work.
         /// </summary>
-        void DoWork();
+        void DoWork(WorkData workData = null);
 
         /// <summary>
         /// Gets options specifying how this work may be executed.

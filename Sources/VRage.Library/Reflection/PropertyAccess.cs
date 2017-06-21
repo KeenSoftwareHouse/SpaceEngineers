@@ -5,10 +5,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
+#if !UNSHARPER //Expressions not supported.
+
 namespace System.Reflection
 {
     public static class PropertyAccess
     {
+#if !XB1 // !XB1_SYNC_NOREFLECTION
         public static Func<T, TProperty> CreateGetter<T, TProperty>(this PropertyInfo propertyInfo)
         {
             var t = typeof(T);
@@ -36,7 +39,9 @@ namespace System.Reflection
             MemberExpression propertySetterExpression = Expression.Property(setInst, propertyInfo);
             return Expression.Lambda<Action<T, TProperty>>(Expression.Assign(propertySetterExpression, setVal), paramExpression, paramExpression2).Compile();
         }
+#endif // !XB1
 
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
         public static Getter<T, TProperty> CreateGetterRef<T, TProperty>(this PropertyInfo propertyInfo)
         {
             var t = typeof(T);
@@ -67,5 +72,8 @@ namespace System.Reflection
             MemberExpression propertySetterExpression = Expression.Property(setInst, propertyInfo);
             return Expression.Lambda<Setter<T, TProperty>>(Expression.Assign(propertySetterExpression, setVal), paramExpression, paramExpression2).Compile();
         }
+#endif // !XB1
     }
 }
+
+#endif

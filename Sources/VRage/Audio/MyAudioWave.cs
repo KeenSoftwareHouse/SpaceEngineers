@@ -11,10 +11,13 @@ namespace VRage
     public sealed class DistantSound
     {
         [ProtoMember, XmlAttribute]
-        public float distance;
+        public float distance = 50f;
 
         [ProtoMember, XmlAttribute]
-        public String sound;
+        public float distanceCrossfade = -1f;
+
+        [ProtoMember, XmlAttribute]
+        public String sound = "";
     };
 
     [ProtoContract, XmlType("Wave")]

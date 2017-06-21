@@ -6,25 +6,17 @@ using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Xml.Linq;
-using VRage;
-using VRage.FileSystem;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 using Sandbox.Game.AI;
 using Sandbox.Game.AI.Pathfinding;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Collections.Generic;
-using Sandbox.Engine.Physics;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
+using VRage.Voxels;
 
 namespace Sandbox.Game.Gui
 {
@@ -214,7 +206,7 @@ namespace Sandbox.Game.Gui
                     {
                         if (agent.Player.Controller.ControlledEntity is MyCharacter)
                         {
-                            Sandbox.ModAPI.MyDamageInformation damageInfo = new Sandbox.ModAPI.MyDamageInformation(false, 1000, MyDamageType.Weapon, MySession.Static.LocalPlayerId);
+                            MyDamageInformation damageInfo = new MyDamageInformation(false, 1000, MyDamageType.Weapon, MySession.Static.LocalPlayerId);
                             (agent.Player.Controller.ControlledEntity as MyCharacter).Kill(true, damageInfo);
                         }
                     }
@@ -593,7 +585,7 @@ namespace Sandbox.Game.Gui
             foreach (var definition in MyDefinitionManager.Static.GetAllDefinitions())
             {
                 grid.Add(new MyGuiControlGrid.Item(
-                    icon: definition.Icon,
+                    icons: definition.Icons,
                     toolTip: definition.DisplayNameText));
             }
 

@@ -15,7 +15,9 @@ using VRage;
 using Sandbox.Engine.Networking;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 using System.Threading;
+#if !XB
 using System.Text.RegularExpressions;
+#endif // !XB1
 using Sandbox.Game.Localization;
 using VRage;
 
@@ -42,6 +44,9 @@ namespace Sandbox.Game.Gui
 
         MyGuiControlLabel m_labelInsShowOnHud;
         MyGuiControlCheckbox m_checkInsShowOnHud;
+
+        MyGuiControlLabel m_labelInsAlwaysVisible;
+        MyGuiControlCheckbox m_checkInsAlwaysVisible;
 
         MyGuiControlButton m_buttonAdd;
         MyGuiControlButton m_buttonAddFromClipboard;
@@ -89,9 +94,13 @@ namespace Sandbox.Game.Gui
             m_labelInsZ = (MyGuiControlLabel)controlsParent.Controls.GetControlByName("labelInsZ");
             m_zCoord = (MyGuiControlTextbox)controlsParent.Controls.GetControlByName("textInsZ");
 
-            m_labelInsShowOnHud=(MyGuiControlLabel)controlsParent.Controls.GetControlByName("labelInsShowOnHud");
+            m_labelInsShowOnHud = (MyGuiControlLabel)controlsParent.Controls.GetControlByName("labelInsShowOnHud");
             m_checkInsShowOnHud = (MyGuiControlCheckbox)controlsParent.Controls.GetControlByName("checkInsShowOnHud");
             m_checkInsShowOnHud.IsCheckedChanged += OnShowOnHudChecked;
+
+            m_labelInsAlwaysVisible = (MyGuiControlLabel)controlsParent.Controls.GetControlByName("labelInsAlwaysVisible");
+            m_checkInsAlwaysVisible = (MyGuiControlCheckbox)controlsParent.Controls.GetControlByName("checkInsAlwaysVisible");
+            m_checkInsAlwaysVisible.IsCheckedChanged += OnAlwaysVisibleChecked;
 
             m_buttonCopy = (MyGuiControlButton)m_controlsParent.Controls.GetControlByName("buttonToClipboard");
             m_buttonCopy.ButtonClicked += OnButtonPressedCopy;
@@ -231,6 +240,7 @@ namespace Sandbox.Game.Gui
             m_yCoord.Enabled = enable;
             m_zCoord.Enabled = enable;
             m_checkInsShowOnHud.Enabled = enable;
+            m_checkInsAlwaysVisible.Enabled = enable;
             m_buttonCopy.Enabled = enable;
         }
 
@@ -465,7 +475,11 @@ namespace Sandbox.Game.Gui
         string m_clipboardText;
         void PasteFromClipboard()
         {
+#if !XB1            
             m_clipboardText = System.Windows.Forms.Clipboard.GetText();
+#else
+            System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
         }
         private void OnButtonPressedNewFromClipboard(MyGuiControlButton sender)
         {
@@ -546,9 +560,38 @@ namespace Sandbox.Game.Gui
         {
             if (m_tableIns.SelectedRow == null)
                 return;
-            ((MyGps)m_tableIns.SelectedRow.UserData).ShowOnHud = sender.IsChecked;//will be updated onSuccess but need to be correct for trySync now
+            MyGps gps = m_tableIns.SelectedRow.UserData as MyGps;
+            gps.ShowOnHud = sender.IsChecked;//will be updated onSuccess but need to be correct for trySync now
+            if (!sender.IsChecked && gps.AlwaysVisible)
+            {
+                gps.AlwaysVisible = false;
+
+                // Uncheck Always Visible without sending it
+                m_checkInsShowOnHud.IsCheckedChanged -= OnShowOnHudChecked;
+                m_checkInsShowOnHud.IsChecked = false;
+                m_checkInsShowOnHud.IsCheckedChanged += OnShowOnHudChecked;
+            }
+
             if (!trySync())
-                MySession.Static.Gpss.ChangeShowOnHud(MySession.Static.LocalPlayerId, ((MyGps)m_tableIns.SelectedRow.UserData).Hash, sender.IsChecked);
+                MySession.Static.Gpss.ChangeShowOnHud(MySession.Static.LocalPlayerId, gps.Hash, sender.IsChecked);
+        }
+
+        private void OnAlwaysVisibleChecked(MyGuiControlCheckbox sender)
+        {
+            if (m_tableIns.SelectedRow == null)
+                return;
+
+            MyGps gps = m_tableIns.SelectedRow.UserData as MyGps;
+            gps.AlwaysVisible = sender.IsChecked;//will be updated onSuccess but need to be correct for trySync now
+            gps.ShowOnHud = gps.ShowOnHud || gps.AlwaysVisible;
+
+            // Check Show on HUD without sending it
+            m_checkInsShowOnHud.IsCheckedChanged -= OnShowOnHudChecked;
+            m_checkInsShowOnHud.IsChecked = m_checkInsShowOnHud.IsChecked || sender.IsChecked;
+            m_checkInsShowOnHud.IsCheckedChanged += OnShowOnHudChecked;
+
+            if (!trySync())
+                MySession.Static.Gpss.ChangeAlwaysVisible(MySession.Static.LocalPlayerId, gps.Hash, sender.IsChecked);
         }
 
         private void FillRight()
@@ -564,15 +607,18 @@ namespace Sandbox.Game.Gui
         private void FillRight(MyGps ins)
         {
             UnhookSyncEvents();
-            m_checkInsShowOnHud.IsCheckedChanged -= OnShowOnHudChecked;   
             m_panelInsName.SetText(new StringBuilder(ins.Name));
             m_panelInsDesc.SetText(new StringBuilder(ins.Description));
             //m_textInsDesc
             m_xCoord.SetText(new StringBuilder(ins.Coords.X.ToString("F2",System.Globalization.CultureInfo.InvariantCulture)));
             m_yCoord.SetText(new StringBuilder(ins.Coords.Y.ToString("F2",System.Globalization.CultureInfo.InvariantCulture)));
             m_zCoord.SetText(new StringBuilder(ins.Coords.Z.ToString("F2",System.Globalization.CultureInfo.InvariantCulture)));
+            m_checkInsShowOnHud.IsCheckedChanged -= OnShowOnHudChecked;
             m_checkInsShowOnHud.IsChecked = ins.ShowOnHud;
             m_checkInsShowOnHud.IsCheckedChanged += OnShowOnHudChecked;
+            m_checkInsAlwaysVisible.IsCheckedChanged -= OnAlwaysVisibleChecked;
+            m_checkInsAlwaysVisible.IsChecked = ins.AlwaysVisible;
+            m_checkInsAlwaysVisible.IsCheckedChanged += OnAlwaysVisibleChecked;
             m_previousHash = ins.Hash;
             HookSyncEvents();
             m_needsSyncName = false;
@@ -600,6 +646,7 @@ namespace Sandbox.Game.Gui
             m_yCoord.SetText(sb);
             m_zCoord.SetText(sb);
             m_checkInsShowOnHud.IsChecked = false;
+            m_checkInsAlwaysVisible.IsChecked = false;
             m_previousHash = null;
             HookSyncEvents();
             m_needsSyncName = false;
@@ -625,6 +672,7 @@ namespace Sandbox.Game.Gui
             UnhookSyncEvents();
 
             m_checkInsShowOnHud.IsCheckedChanged -= OnShowOnHudChecked;
+            m_checkInsAlwaysVisible.IsCheckedChanged -= OnAlwaysVisibleChecked;
 
             m_buttonAdd.ButtonClicked -= OnButtonPressedNew;
             m_buttonAddFromClipboard.ButtonClicked -= OnButtonPressedNewFromClipboard;

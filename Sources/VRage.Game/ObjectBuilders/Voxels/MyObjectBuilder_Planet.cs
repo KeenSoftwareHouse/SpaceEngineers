@@ -5,6 +5,7 @@ using VRage.ObjectBuilders;
 using VRage.Serialization;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
 
 namespace VRage.Game
 {

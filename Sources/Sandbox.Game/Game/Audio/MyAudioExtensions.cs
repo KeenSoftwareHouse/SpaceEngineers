@@ -32,16 +32,20 @@ namespace VRage.Audio
         internal static ListReader<MySoundData> GetSoundDataFromDefinitions()
         {
             var allSoundDefinitions = MyDefinitionManager.Static.GetSoundDefinitions();
-            var query = from definition in allSoundDefinitions
-                        where definition.Enabled
-                        select definition.SoundData;
+            //var query = from definition in allSoundDefinitions
+            //            where definition.Enabled
+            //            select definition.SoundData;
+
+			var query = allSoundDefinitions.Where(x => x.Enabled).Select(x => x.SoundData);
+
             return query.ToList();
         }
 
         internal static ListReader<MyAudioEffect> GetEffectData()
         {
             var allEffectDetinitions = MyDefinitionManager.Static.GetAudioEffectDefinitions();
-            var query = from definition in allEffectDetinitions select definition.Effect;
+            //var query = from definition in allEffectDetinitions select definition.Effect;
+			var query = allEffectDetinitions.Select(x => x.Effect);
             return query.ToList();
         }
     }

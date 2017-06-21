@@ -16,7 +16,6 @@ using Sandbox.Game.World;
 using Sandbox.Gui.RichTextLabel;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.Render;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -25,6 +24,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Game;
+using VRage.Game.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
@@ -44,8 +44,8 @@ namespace Sandbox.Game.Gui
         public class Style
         {
             public string BackgroundTextureName;
-            public MyFontEnum CaptionFont;
-            public MyFontEnum TextFont;
+            public string CaptionFont;
+            public string TextFont;
             public MyGuiControlButtonStyleEnum ButtonStyle;
             public bool ShowBackgroundPanel;
         }
@@ -258,13 +258,13 @@ namespace Sandbox.Game.Gui
             m_descriptionBox.Text = new StringBuilder(m_description);
         }
 
-        public void AppendTextToDescription(string text, Vector4 color, MyFontEnum font = MyFontEnum.White, float scale = 1.0f)
+        public void AppendTextToDescription(string text, Vector4 color, string font = MyFontEnum.White, float scale = 1.0f)
         {
             m_description += text;
             m_descriptionBox.AppendText(text, font, scale, color);
         }
 
-        public void AppendTextToDescription(string text, MyFontEnum font = MyFontEnum.White, float scale = 1.0f)
+        public void AppendTextToDescription(string text, string font = MyFontEnum.White, float scale = 1.0f)
         {
             m_description += text;
             m_descriptionBox.AppendText(text, font, scale, Vector4.One);

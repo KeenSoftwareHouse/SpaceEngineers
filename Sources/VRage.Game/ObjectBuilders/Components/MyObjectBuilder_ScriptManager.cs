@@ -9,7 +9,7 @@ namespace VRage.Game
     public class MyObjectBuilder_ScriptManager : MyObjectBuilder_SessionComponent
     {
         [ProtoMember]
-        public SerializableDictionary<string, object> variables=new SerializableDictionary<string,object>();
+        public SerializableDictionary<string, object> variables = new SerializableDictionary<string,object>();
     }
 }
 

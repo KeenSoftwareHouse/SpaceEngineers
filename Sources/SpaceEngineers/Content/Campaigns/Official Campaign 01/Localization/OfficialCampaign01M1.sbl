@@ -1,0 +1,388 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Localization xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Id>4317061801584641536</Id>
+  <Language>English</Language>
+  <Context>Mission01</Context>
+  <ResourceName>OfficialCampaign01M1</ResourceName>
+  <Default>true</Default>
+  <Entries>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Airlock</Key>
+        <Value xsi:type="xsd:string">Simulations indicate only a 2% chance that the cause of damage was accidental.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AttackWarning</Key>
+        <Value xsi:type="xsd:string">Engineer, your ship has been critically damaged. This will look bad on your report.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AttackWarningpart2</Key>
+        <Value xsi:type="xsd:string">Emergency evacuation recommended, original mission terminated.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AttackWarningpart3</Key>
+        <Value xsi:type="xsd:string">Quickest route to escape pods marked with GPS.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BreachDetected</Key>
+        <Value xsi:type="xsd:string">Sorry I can't override the safeguards, this stations system cannot be reasoned with.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BridgeInfo1</Key>
+        <Value xsi:type="xsd:string">Docking to station is in progress.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BridgeInfo2</Key>
+        <Value xsi:type="xsd:string">The station isn't responding to communications.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BridgeInfo3</Key>
+        <Value xsi:type="xsd:string">Manual exploration is required to determine what happened here.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_CommandCenter</Key>
+        <Value xsi:type="xsd:string">Station designs indicate the command center should be on the upper floor.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_DoorDamaged</Key>
+        <Value xsi:type="xsd:string">This door apears damaged. You can fix it using the tools scattered around.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_EnergyLoss</Key>
+        <Value xsi:type="xsd:string">Warning, suit malfunction detected. Energy level is dropping.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_EnergyStabilize</Key>
+        <Value xsi:type="xsd:string">Suit malfunction repaired. Visiting recharge station is recommended.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_EnterEscapePod</Key>
+        <Value xsi:type="xsd:string">Enter the seat to Evacuate the station.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_EnterTheStation</Key>
+        <Value xsi:type="xsd:string">Proceed with caution, falling off the station will result in a negative Engineer performance report.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GetOxygenBottle</Key>
+        <Value xsi:type="xsd:string">Engineer, remember to breathe oxygen. Oxygen is essential to astronaut performance.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GoToTheAirlock</Key>
+        <Value xsi:type="xsd:string">Engineer, prepare to disembark and commence station investigation.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_GoToTheBridge</Key>
+        <Value xsi:type="xsd:string">Please go to ship bridge for briefing.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Helmet</Key>
+        <Value xsi:type="xsd:string">Warning, movement outside of pressurized enviroment without helmet is not recommended.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Introduction</Key>
+        <Value xsi:type="xsd:string">Virtual Engineer Assistant activated.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Outro</Key>
+        <Value xsi:type="xsd:string">Reports of conflict confirmed, R.O.S. station has been attacked and destroyed by an unknown group. Engineer ship destroyed, evacuating to moon surface.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_StartExploring</Key>
+        <Value xsi:type="xsd:string">Ship auto pilot engaged, moving to safe distance.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_UseRedPanel</Key>
+        <Value xsi:type="xsd:string">The station is reporting heavy damage to systems.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_WakeUp</Key>
+        <Value xsi:type="xsd:string">Starting the Cryochamber thawing procedure.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Airlock</Key>
+        <Value xsi:type="xsd:string">Airlock</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_BluePanel</Key>
+        <Value xsi:type="xsd:string">Blue Panel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Bridge</Key>
+        <Value xsi:type="xsd:string">Bridge</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ControlPanel</Key>
+        <Value xsi:type="xsd:string">Control Panel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_DamagedDoor</Key>
+        <Value xsi:type="xsd:string">Damaged Door</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_EscapePod</Key>
+        <Value xsi:type="xsd:string">Escape pod</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_MedicalBay</Key>
+        <Value xsi:type="xsd:string">Medical Bay - recharge here</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_RedPanel</Key>
+        <Value xsi:type="xsd:string">Red Panel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_StationFrontDoor</Key>
+        <Value xsi:type="xsd:string">Station airlock</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ToCommandCenter</Key>
+        <Value xsi:type="xsd:string">To Command Center</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ToEscapePods</Key>
+        <Value xsi:type="xsd:string">To escape pods</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_Bridge_Approaching</Key>
+        <Value xsi:type="xsd:string">Approaching the station...</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_Bridge_Distance</Key>
+        <Value xsi:type="xsd:string">Distance: {0}m</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_Bridge_Locked</Key>
+        <Value xsi:type="xsd:string">Locked to station</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_Oxy_Amount</Key>
+        <Value xsi:type="xsd:string">Room oxygen: {0}%</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_Oxy_NoPressure</Key>
+        <Value xsi:type="xsd:string">Room is not pressurized</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_Oxy_PressurePreporeLine1</Key>
+        <Value xsi:type="xsd:string">Blast doors are closing,</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_Oxy_PressurePreporeLine2</Key>
+        <Value xsi:type="xsd:string">preparing for pressurization...</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_Oxy_Pressurized</Key>
+        <Value xsi:type="xsd:string">Room is pressurized.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Notification_Intro</Key>
+        <Value xsi:type="xsd:string">Ship Autolog - Approaching Destination. Travel Duration 576 Earth Hours. Initiating Engineer Resuscitation Procedure...</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Cryo</Key>
+        <Value xsi:type="xsd:string">Leave the Cryo Chamber</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Cryo_UseKey</Key>
+        <Value xsi:type="xsd:string">Exit the Cryo Chamber by pressing the [ {0} ] key.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Movement</Key>
+        <Value xsi:type="xsd:string">Report to the Ship's Bridge</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Movement_Door</Key>
+        <Value xsi:type="xsd:string">Look at the door and press [ {0} ] to open / close.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Movement_GPS</Key>
+        <Value xsi:type="xsd:string">Follow the GPS marker for help with navigation.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Movement_Keys</Key>
+        <Value xsi:type="xsd:string">Use the [ {0} ], [ {1} ], [ {2} ], [ {3} ] keys to move.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Movement_Mouse</Key>
+        <Value xsi:type="xsd:string">Use the mouse to look around.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_GoToAirlock</Key>
+        <Value xsi:type="xsd:string">Go to the Ship's Airlock.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_GoToAirlock_Doors</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] to open / close doors.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_GoToAirlock_Navigation</Key>
+        <Value xsi:type="xsd:string">Go to the Airlock located on the lower deck</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04B_Helmet</Key>
+        <Value xsi:type="xsd:string">Open the airlock</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04B_Helmet_RedPanel</Key>
+        <Value xsi:type="xsd:string">Open the hangar doors with the port button panel.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04B_Helmet_toggle</Key>
+        <Value xsi:type="xsd:string">Toggle your helmet by pressing [ {0} ] key</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_Equipment</Key>
+        <Value xsi:type="xsd:string">Acquire Personal Oxygen Supplies</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_Equipment_Button</Key>
+        <Value xsi:type="xsd:string">Use the starboard button panel to dispense a new oxygen bottle.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_Equipment_PickUp</Key>
+        <Value xsi:type="xsd:string">Pick up objects by looking at them and pressing the [ {0} ] key.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_Equipment_UseKey</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] to activate buttons on a button panel.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_EnterStation</Key>
+        <Value xsi:type="xsd:string">Board the Station</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_EnterStation_Airlock</Key>
+        <Value xsi:type="xsd:string">Proceed to station airlock.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_EnterStation_AirlockButton</Key>
+        <Value xsi:type="xsd:string">Use the button panel to cycle the airlock.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_EnterStation_Caution</Key>
+        <Value xsi:type="xsd:string">Station airlock coordinates updated.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_Explore</Key>
+        <Value xsi:type="xsd:string">Locate the Stations Command Center</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_ExplorePartOne_Crouch</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] to crouch.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_ExplorePartOne_Search</Key>
+        <Value xsi:type="xsd:string">Get to the command center by following GPS waypoints</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_Breach</Key>
+        <Value xsi:type="xsd:string">Repressurize the Life Support Room.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_Breach_Intro</Key>
+        <Value xsi:type="xsd:string">Major hull breach detected.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_Breach_Intro2</Key>
+        <Value xsi:type="xsd:string">Station safeguards won't allow doors to open until pressurization is restored.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_Breach_Intro3</Key>
+        <Value xsi:type="xsd:string">Investigate the nearby button panel to attempt closing the ceiling blast doors.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_Breach_Pressurizing</Key>
+        <Value xsi:type="xsd:string">Pressurization in progress. Standby.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_ExplorePartTwo_Intro</Key>
+        <Value xsi:type="xsd:string">Safeguard doors are opening, continue to the command center.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_DamagedDoor</Key>
+        <Value xsi:type="xsd:string">Repair Damaged Door</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_DamagedDoor_Energy</Key>
+        <Value xsi:type="xsd:string">Recharge energy at medical bay (hold [ {0} ] key)</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_DamagedDoor_PickUpComponents</Key>
+        <Value xsi:type="xsd:string">Pick up all higlighted items ([ {0} ] key).</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_DamagedDoor_PickUpMotors</Key>
+        <Value xsi:type="xsd:string">Components picked up: {0}/{1}</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_DamagedDoor_PickUpWelder</Key>
+        <Value xsi:type="xsd:string">Look at an item and press [ {0} ] to pick it up.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_DamagedDoor_Repair</Key>
+        <Value xsi:type="xsd:string">Approach the door and hold left mouse button to start welding.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_ExplorePartThree_Intro</Key>
+        <Value xsi:type="xsd:string">Continue to the command center located nearby.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_ExplorePartThree_IntroPart2</Key>
+        <Value xsi:type="xsd:string">The Command Center is close.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest11_Attacked</Key>
+        <Value xsi:type="xsd:string">Evacuate the Station Immediately</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest11_Attacked_Direction</Key>
+        <Value xsi:type="xsd:string">Follow GPS waypoints to the escape pods</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest11_Attacked_EscapePods</Key>
+        <Value xsi:type="xsd:string">New route confirmed, head to escape pods.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest11_Attacked_Intro</Key>
+        <Value xsi:type="xsd:string">The station is under attack by unknown assailants.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest11_Attacked_Sprint</Key>
+        <Value xsi:type="xsd:string">Sprint by holding [ {0} ] key</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Jumping</Key>
+        <Value xsi:type="xsd:string">Navigate through the Damaged Corridor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Jumping_Danger</Key>
+        <Value xsi:type="xsd:string">Navigate through the damaged corridor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Jumping_Gaps</Key>
+        <Value xsi:type="xsd:string">You will have to jump over the breaks in this corridor.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest12_Jumping_Jump</Key>
+        <Value xsi:type="xsd:string">Use [ {0} ] key to jump over gaps.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest13_GoToEscapePods</Key>
+        <Value xsi:type="xsd:string">Get to the Escape Pod</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest13_GoToEscapePods_Stairs</Key>
+        <Value xsi:type="xsd:string">Continue towards the last GPS marker</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest14_EscapePod</Key>
+        <Value xsi:type="xsd:string">Escape!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest14_EscapePod_How</Key>
+        <Value xsi:type="xsd:string">Approach the seat and press [ {0} ].</Value>
+      </item>
+    </dictionary>
+  </Entries>
+</MyObjectBuilder_Localization>

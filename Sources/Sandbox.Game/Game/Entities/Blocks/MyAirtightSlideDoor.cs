@@ -12,7 +12,7 @@ using VRage.Game.Entity;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AirtightSlideDoor))]
-    public class MyAirtightSlideDoor : MyAirtightDoorGeneric
+    public class MyAirtightSlideDoor : MyAirtightDoorGeneric, ModAPI.IMyAirtightSlideDoor
     {
         private bool hadEnoughPower;
 

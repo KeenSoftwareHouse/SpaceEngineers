@@ -11,6 +11,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using VRage.Utils;
 using ParallelTasks;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.ModAPI
 {

@@ -4,14 +4,18 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Audio;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
+using Sandbox.Game.GameSystems;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.GameSystems;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -19,6 +23,8 @@ using VRage.Network;
 using VRage.Serialization;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
+using Sandbox.Engine.Physics;
 
 namespace Sandbox.Game.Entities
 {
@@ -26,9 +32,24 @@ namespace Sandbox.Game.Entities
     [StaticEventOwner]
     class MyMeteorShower : MySessionComponentBase
     {
-        private static readonly int WAVES_IN_SHOWER = 4;
+        private static readonly int WAVES_IN_SHOWER = 1;
+
+        /// <summary>
+        /// Angle above horizon on which meteor direction leaves sun direction.
+        /// value = Sin(angle_in_radians)
+        /// </summary>
+        private static readonly double HORIZON_ANGLE_FROM_ZENITH_RATIO = Math.Sin(0.35);
+
+        /// <summary>
+        /// Can change size of hit area.
+        /// 0 - meteorits aim to center of structure
+        /// 1 - aim to circle which is cut from sphere BB and plane perpendicular to hit vector (from sun to center of BB)
+        /// </summary>
+        private static readonly double METEOR_BLUR_KOEF = 2.5;
 
         public static BoundingSphereD? CurrentTarget { get { return m_currentTarget; } set { m_currentTarget = value; } }
+
+        private static Vector3D m_tgtPos, m_normalSun, m_pltTgtDir, m_mirrorDir;
 
         private static int m_waveCounter;
         static List<MyEntity> m_meteorList = new List<MyEntity>();
@@ -127,7 +148,6 @@ namespace Sandbox.Game.Entities
             }
 
             m_waveCounter++;
-            SetupDirVectors();
             if (m_waveCounter == 0)
             {
                 ClearMeteorList();
@@ -144,15 +164,15 @@ namespace Sandbox.Game.Entities
                 m_currentTarget = m_targetList.ElementAt(MyUtils.GetRandomInt(m_targetList.Count - 1));
                 MyMultiplayer.RaiseStaticEvent(x => UpdateShowerTarget, m_currentTarget);
                 m_targetList.Remove(m_currentTarget.Value);
-                m_meteorcount = (int)(Math.Pow(m_currentTarget.Value.Radius, 2) * Math.PI / 3000);
-                m_meteorcount /= (MySession.Static.EnvironmentHostility == MyEnvironmentHostilityEnum.CATACLYSM || MySession.Static.EnvironmentHostility == MyEnvironmentHostilityEnum.CATACLYSM_UNREAL) ? 1 : 10;
-                m_meteorcount = MathHelper.Clamp(m_meteorcount, 1, 60);
+                m_meteorcount = (int)(Math.Pow(m_currentTarget.Value.Radius, 2) * Math.PI / 6000);
+                m_meteorcount /= (MySession.Static.EnvironmentHostility == MyEnvironmentHostilityEnum.CATACLYSM || MySession.Static.EnvironmentHostility == MyEnvironmentHostilityEnum.CATACLYSM_UNREAL) ? 1 : 8;
+                m_meteorcount = MathHelper.Clamp(m_meteorcount, 1, 30);
                 
             }
 
             RescheduleEvent(senderEvent);
             CheckTargetValid();
-            if (m_waveCounter < 0)
+            if ( m_waveCounter < 0 )
                 return;
 
             StartWave();
@@ -160,36 +180,148 @@ namespace Sandbox.Game.Entities
 
         private static void StartWave()
         {
-            //m_meteorList.Add(MyMeteor.SpawnRandomLargeDebug(sphere.Center + sunDir * 500 + MyVRageUtils.GetRandomVector3Normalized() * sphere.Radius, sphere));
+            if (!m_currentTarget.HasValue)
+                return;
 
-            var sunDir = MySector.DirectionToSunNormalized;
+            var sunDir = GetCorrectedDirection(MySector.DirectionToSunNormalized);
+            SetupDirVectors(sunDir);
             var waveMeteorCount = MyUtils.GetRandomFloat(Math.Min(2, m_meteorcount - 3), m_meteorcount + 3);
+
+            var randCircle = MyUtils.GetRandomVector3CircleNormalized();
+            var rand = MyUtils.GetRandomFloat(0, 1);
+            Vector3D randomCircleInPlain = randCircle.X * m_rightVector + randCircle.Z * m_downVector;
+            var hitPosition = m_currentTarget.Value.Center + Math.Pow(rand, 0.7f) * m_currentTarget.Value.Radius * randomCircleInPlain * METEOR_BLUR_KOEF;
+            //Cast Ray for sure
+
+            var antigravityDir = -Vector3D.Normalize(MyGravityProviderSystem.CalculateNaturalGravityInPoint(hitPosition));
+            if (antigravityDir != Vector3D.Zero)
+            {
+                var hi = MyPhysics.CastRay(hitPosition + antigravityDir * (3000), hitPosition, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                if (hi != null)
+                {
+                    hitPosition = hi.Value.Position;
+                }
+            }
+            m_meteorHitPos = hitPosition;
             for (int i = 0; i < waveMeteorCount; i++)
             {
-                var randCircle = MyUtils.GetRandomVector3CircleNormalized();
-                var rand = MyUtils.GetRandomFloat(0, 1);
-                Vector3D randomCircleInPlain = randCircle.X * m_rightVector + randCircle.Z * m_downVector;
-                var hitPosition = m_currentTarget.Value.Center + Math.Pow(rand, 0.7f) * m_currentTarget.Value.Radius * randomCircleInPlain;
-                var toSun = sunDir * (2000 + 50 * i);
+                // hit
+                randCircle = MyUtils.GetRandomVector3CircleNormalized();
+                rand = MyUtils.GetRandomFloat(0, 1);
+                randomCircleInPlain = randCircle.X * m_rightVector + randCircle.Z * m_downVector;
+                hitPosition = hitPosition + Math.Pow(rand, 0.7f) * m_currentTarget.Value.Radius * randomCircleInPlain;
+
+
+                // start
+                var toSun = sunDir * (2000 + 100 * i);
                 randCircle = MyUtils.GetRandomVector3CircleNormalized();
                 randomCircleInPlain = randCircle.X * m_rightVector + randCircle.Z * m_downVector;
-                var realPosition = hitPosition + toSun + (float)Math.Tan(MyUtils.GetRandomFloat(0, (float)Math.PI / 18)) * toSun.Length() * randomCircleInPlain;
-                if (MyUtils.GetRandomInt(5) == 0)
-                    m_meteorList.Add(MyMeteor.SpawnRandomLarge(realPosition, Vector3.Normalize(hitPosition - realPosition)));
-                else
-                    m_meteorList.Add(MyMeteor.SpawnRandomSmall(realPosition, Vector3.Normalize(hitPosition - realPosition)));
+                var realPosition = hitPosition + toSun + (float)Math.Tan(MyUtils.GetRandomFloat(0, (float)Math.PI / 18)) * randomCircleInPlain;
+
+                m_meteorList.Add(MyMeteor.SpawnRandom(realPosition, Vector3.Normalize(hitPosition - realPosition)));
+            }
+            m_rightVector = Vector3.Zero;
+        }
+
+        /// <summary>
+        /// Calculate propper direction for meteorits. Everytime above horizon.
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <returns></returns>
+        private static Vector3 GetCorrectedDirection(Vector3 direction)
+        {
+            var currDir = direction;
+
+            if (m_currentTarget == null)
+                return currDir;
+
+            var tgtPos = m_currentTarget.Value.Center;
+            MyMeteorShower.m_tgtPos = tgtPos;
+
+            if (!MyGravityProviderSystem.IsPositionInNaturalGravity(tgtPos))
+                return currDir;
+
+            var pltTgtDir = -Vector3D.Normalize(MyGravityProviderSystem.CalculateNaturalGravityInPoint(tgtPos));
+            var tmpVec = Vector3D.Normalize(Vector3D.Cross(pltTgtDir, currDir));
+            var mirror = Vector3D.Normalize(Vector3D.Cross(tmpVec, pltTgtDir));
+
+            MyMeteorShower.m_mirrorDir = mirror;
+            MyMeteorShower.m_pltTgtDir = pltTgtDir;
+            MyMeteorShower.m_normalSun = tmpVec;
+
+            double horizonRatio = pltTgtDir.Dot(currDir);
+            //below down horizon
+            if (horizonRatio < -HORIZON_ANGLE_FROM_ZENITH_RATIO)
+            {
+                return Vector3D.Reflect(-currDir, mirror);
+            }
+
+            // between below and above horizon (prohi
+            if (horizonRatio < HORIZON_ANGLE_FROM_ZENITH_RATIO)
+            {
+                MatrixD tmpMat = MatrixD.CreateFromAxisAngle(tmpVec, -Math.Asin(HORIZON_ANGLE_FROM_ZENITH_RATIO));
+                return Vector3D.Transform(mirror, tmpMat);
+            }
+
+            // above 20 Degree above horizon
+            return currDir;
+        }
+
+        public static void StartDebugWave(Vector3 pos){
+            m_currentTarget = new BoundingSphereD(pos, 100);
+            m_meteorcount = (int)(Math.Pow(m_currentTarget.Value.Radius, 2) * Math.PI / 3000);
+            m_meteorcount /= (MySession.Static.EnvironmentHostility == MyEnvironmentHostilityEnum.CATACLYSM || MySession.Static.EnvironmentHostility == MyEnvironmentHostilityEnum.CATACLYSM_UNREAL) ? 1 : 8;
+            m_meteorcount = MathHelper.Clamp(m_meteorcount, 1, 40);
+            StartWave();
+        }
+
+        private static Vector3D m_meteorHitPos;
+
+        public override void Draw()
+        {
+            base.Draw();
+            if (MyDebugDrawSettings.DEBUG_DRAW_METEORITS_DIRECTIONS)
+            {
+                Vector3D m_currDir = GetCorrectedDirection(MySector.DirectionToSunNormalized);
+                MyRenderProxy.DebugDrawPoint(m_meteorHitPos, Color.White, false);
+                MyRenderProxy.DebugDrawText3D(m_meteorHitPos, "Hit position", Color.White, 0.5f, false);
+                MyRenderProxy.DebugDrawLine3D(m_tgtPos, m_tgtPos + 10 * MySector.DirectionToSunNormalized, Color.Yellow, Color.Yellow, false);
+                MyRenderProxy.DebugDrawText3D(m_tgtPos + 10 * MySector.DirectionToSunNormalized, "Sun direction (sd)", Color.Yellow, 0.5F, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM);
+                MyRenderProxy.DebugDrawLine3D(m_tgtPos, m_tgtPos + 10 * m_currDir, Color.Red, Color.Red, false);
+                MyRenderProxy.DebugDrawText3D(m_tgtPos + 10 * m_currDir, "Current meteorits direction (cd)", Color.Red, 0.5F, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP);
+                if (MyGravityProviderSystem.IsPositionInNaturalGravity(m_tgtPos))
+                {
+                    MyRenderProxy.DebugDrawLine3D(m_tgtPos, m_tgtPos + 10 * m_normalSun, Color.Blue, Color.Blue, false);
+                    MyRenderProxy.DebugDrawText3D(m_tgtPos + 10 * m_normalSun, "Perpendicular to sd and n0 ", Color.Blue, 0.5F, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                    MyRenderProxy.DebugDrawLine3D(m_tgtPos, m_tgtPos + 10 * m_pltTgtDir, Color.Green, Color.Green, false);
+                    MyRenderProxy.DebugDrawText3D(m_tgtPos + 10 * m_pltTgtDir, "Dir from center of planet to target (n0)", Color.Green, 0.5F, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                    MyRenderProxy.DebugDrawLine3D(m_tgtPos, m_tgtPos + 10 * m_mirrorDir, Color.Purple, Color.Purple, false);
+                    MyRenderProxy.DebugDrawText3D(m_tgtPos + 10 * m_mirrorDir, "Horizon in plane n0 and sd (ho)", Color.Purple, 0.5F, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                }
             }
         }
 
         private static void CheckTargetValid()
         {
-            if (!m_currentTarget.HasValue)
+            if ( !m_currentTarget.HasValue )
                 return;
+
             m_tmpEntityList.Clear();
             var bs = m_currentTarget.Value;
             m_tmpEntityList = MyEntities.GetEntitiesInSphere(ref bs);
             if (m_tmpEntityList.OfType<MyCubeGrid>().ToList().Count == 0)
                 m_waveCounter = -1;
+            if (m_waveCounter >= 0 && MyMusicController.Static != null)
+            {
+                foreach (var entity in m_tmpEntityList)
+                {
+                    if((entity is MyCharacter) && MySession.Static != null && (entity as MyCharacter) == MySession.Static.LocalCharacter)
+                    {
+                        MyMusicController.Static.MeteorShowerIncoming();
+                        break;
+                    }
+                }
+            }
             m_tmpEntityList.Clear();
         }
 
@@ -300,7 +432,7 @@ namespace Sandbox.Game.Entities
             {
                 int size = (cg[i].Max - cg[i].Min + Vector3I.One).Size;
 
-                if (size < 16 || (MySessionComponentEntityTrigger.Static != null && MySessionComponentEntityTrigger.Static.IsActive(cg[i]) == false))
+                if (size < 16 || (MySessionComponentTriggerSystem.Static.IsAnyTriggerActive(cg[i]) == false))
                 {
                     cg.RemoveAt(i);
                     i--;
@@ -356,12 +488,12 @@ namespace Sandbox.Game.Entities
             //}
         }
 
-        private static void SetupDirVectors()
+        private static void SetupDirVectors(Vector3 direction)
         {
             if (m_rightVector == Vector3.Zero)
             {
-                MySector.DirectionToSunNormalized.CalculatePerpendicularVector(out m_rightVector);
-                m_downVector = MyUtils.Normalize(Vector3.Cross(MySector.DirectionToSunNormalized, m_rightVector));
+                direction.CalculatePerpendicularVector(out m_rightVector);
+                m_downVector = MyUtils.Normalize(Vector3.Cross(direction, m_rightVector));
             }
         }
 

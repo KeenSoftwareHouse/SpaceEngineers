@@ -25,9 +25,8 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Plugins;
 using System.Reflection;
-using Sandbox.Common.Components;
+
 using Sandbox.Game.Entities;
-using VRage.Voxels;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Localization;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
@@ -37,11 +36,16 @@ using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities.Character;
+using Sandbox.Game.GameSystems;
 using VRage.Game;
 using VRage.Network;
-using VRage.Render.Models;
 using VRage.Game.Models;
 using VRage.Game.Entity;
+using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
+using VRage.Profiler;
+using VRageRender.Import;
+using VRageRender.Messages;
+using VRageRender.Models;
 
 namespace Sandbox.Game.Entities
 {
@@ -103,6 +107,10 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
+
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_ChooseGridSystemsTypeCalled = false;
+#endif // XB1
 
         // Empty function, but forces static variable preload during game load
         public static void Preload() { }
@@ -185,6 +193,203 @@ namespace Sandbox.Game.Entities
 
         private const double ROTATION_PRECISION = 0.001f;
 
+        public static void GetCubePartsWithoutTopologyCheck(
+            MyCubeBlockDefinition block,
+            Vector3I inputPosition,
+            Matrix rotation,
+            float gridSize,
+            List<string> outModels,
+            List<MatrixD> outLocalMatrices,
+            List<Vector3> outLocalNormals,
+            List<Vector2> outPatternOffsets)
+        {
+            // CH:TODO: Is rotation argument really needed as a Matrix? It should suffice for it to be MyBlockOrientation
+
+            outModels.Clear();
+            outLocalMatrices.Clear();
+            outLocalNormals.Clear();
+            outPatternOffsets.Clear();
+
+            if (block.CubeDefinition == null)
+                return;
+
+            MyTileDefinition[] tiles = MyCubeGridDefinitions.GetCubeTiles(block);
+
+            int count = tiles.Length;
+            int start = 0;
+            int avoidZeroMirrorOffset = 32768;
+            float epsilon = 0.01f;
+
+            for (int i = 0; i < count; i++)
+            {
+                var entry = tiles[start + i];
+                var localMatrix = (MatrixD)entry.LocalMatrix * rotation;
+                var localNormal = Vector3.Transform(entry.Normal, rotation.GetOrientation());
+
+                var position = inputPosition;
+                if(block.CubeDefinition.CubeTopology == MyCubeTopology.Slope2Base)
+                {
+                    var addition = new Vector3I(Vector3.Sign(localNormal.MaxAbsComponent()));
+                    position += addition;
+                }
+                
+
+                string modelPath = block.CubeDefinition.Model[i];
+                Vector2I patternSize = block.CubeDefinition.PatternSize[i];
+
+                int scale = (int)MyModels.GetModelOnlyData(modelPath).PatternScale;
+
+                patternSize = new Vector2I(patternSize.X * scale, patternSize.Y * scale);
+
+                const float sinConst = 10;
+
+                int u = 0;
+                int v = 0;
+
+                float yAxis = Vector3.Dot(Vector3.UnitY, localNormal);
+                float xAxis = Vector3.Dot(Vector3.UnitX, localNormal);
+                float zAxis = Vector3.Dot(Vector3.UnitZ, localNormal);
+                if (MyUtils.IsZero(Math.Abs(yAxis) - 1, epsilon))
+                {
+                    int patternRow = (position.X + avoidZeroMirrorOffset) / patternSize.Y;
+                    int offset = (MyMath.Mod(patternRow + (int)(patternRow * Math.Sin(patternRow * sinConst)), patternSize.X));
+                    u = MyMath.Mod(position.Z + position.Y + offset + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.X + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(yAxis) == 1)
+                        v = (patternSize.Y - 1) - v;
+                }
+                else if (MyUtils.IsZero(Math.Abs(xAxis) - 1, epsilon))
+                {
+                    int patternRow = (position.Z + avoidZeroMirrorOffset) / patternSize.Y;
+                    int offset = (MyMath.Mod(patternRow + (int)(patternRow * Math.Sin(patternRow * sinConst)), patternSize.X));
+                    u = MyMath.Mod(position.X + position.Y + offset + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Z + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(xAxis) == 1)
+                        v = (patternSize.Y - 1) - v;
+                }
+                else if (MyUtils.IsZero(Math.Abs(zAxis) - 1, epsilon))
+                {
+                    int patternRow = (position.Y + avoidZeroMirrorOffset) / patternSize.Y;
+                    int offset = (MyMath.Mod(patternRow + (int)(patternRow * Math.Sin(patternRow * sinConst)), patternSize.X));
+                    u = MyMath.Mod(position.X + offset + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Y + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(zAxis) == 1)
+                        u = (patternSize.X - 1) - u;
+
+                }
+                else if (MyUtils.IsZero(xAxis, epsilon))
+                {   //slope in YZ
+                    u = MyMath.Mod(position.X + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Z + avoidZeroMirrorOffset, patternSize.Y);
+
+                    if (Math.Sign(zAxis) == -1)
+                    {
+                        if (Math.Sign(yAxis) == 1)
+                        {
+                            //v = (patternSize.Y - 1) - v;
+                            //u = (patternSize.X - 1) - u;
+                        }
+                        else
+                        {
+                            // u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                    else
+                    {
+                        if (Math.Sign(yAxis) == -1)
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            //  v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                }
+                else if (MyUtils.IsZero(zAxis, epsilon))
+                {   //slope in XY
+                    u = MyMath.Mod(position.Z + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Y + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(xAxis) == 1)
+                    {
+                        if (Math.Sign(yAxis) == 1)
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            //v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                    else
+                    {
+                        if (Math.Sign(yAxis) == 1)
+                        {
+                            u = (patternSize.X - 1) - u;
+                            // v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            // u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                }
+                else if (MyUtils.IsZero(yAxis, epsilon))
+                {   //slope in XZ
+                    u = MyMath.Mod(position.Y + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Z + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(zAxis) == -1)
+                    {
+                        if (Math.Sign(xAxis) == 1)
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                    else
+                    {
+                        if (Math.Sign(xAxis) == 1)
+                        {
+                            u = (patternSize.X - 1) - u;
+                            //v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            // v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                }
+
+                localMatrix.Translation = inputPosition * gridSize;
+
+                if (entry.DontOffsetTexture)
+                {
+                    u = 0;
+                    v = 0;
+                }
+
+                Vector2 uv = new Vector2(u, v);
+                Vector2 patternOffset = uv / patternSize;
+
+                outPatternOffsets.Add(patternOffset);
+                outModels.Add(modelPath);
+                outLocalMatrices.Add(localMatrix);
+                outLocalNormals.Add(localNormal);
+            }
+        }
+
         public static void GetCubeParts(
             MyCubeBlockDefinition block,
             Vector3I inputPosition,
@@ -223,12 +428,12 @@ namespace Sandbox.Game.Entities
                 var localNormal = Vector3.Transform(entry.Normal, rotation.GetOrientation());
 
                 var position = inputPosition;
-                if(block.CubeDefinition.CubeTopology == MyCubeTopology.Slope2Base)
+                if (block.CubeDefinition.CubeTopology == MyCubeTopology.Slope2Base)
                 {
                     var addition = new Vector3I(Vector3.Sign(localNormal.MaxAbsComponent()));
                     position += addition;
                 }
-                
+
 
                 string modelPath = block.CubeDefinition.Model[i];
                 Vector2I patternSize = block.CubeDefinition.PatternSize[i];
@@ -886,6 +1091,9 @@ namespace Sandbox.Game.Entities
 
         public static void StartConverting(bool placeOnly)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             string folder = Path.Combine(MyFileSystem.UserDataPath, SOURCE_DIRECTORY);
             if (Directory.Exists(folder) == false)
             {
@@ -909,6 +1117,7 @@ namespace Sandbox.Game.Entities
 
             }
             ConvertNextPrefab(m_prefabs, placeOnly);
+#endif // !XB1
         }
 
         public static void ConvertPrefabsToObjs()
@@ -954,15 +1163,22 @@ namespace Sandbox.Game.Entities
 
         private static void RemoveFilesFromDirectory(string path,string fileType)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             string[] filePaths = Directory.GetFiles(path, fileType);
             foreach (string filePath in filePaths)
             {
                 File.Delete(filePath);
             }
+#endif // !XB1
         }
 
         private static void PackFilesToDirectory(string path,  string searchString , VRage.Compression.MyZipArchive arc)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             int len = path.Length + 1;
             foreach (var file in Directory.GetFiles(path, searchString, SearchOption.AllDirectories))
             {
@@ -974,6 +1190,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
+#endif // !XB1
         }
 
         public static void ExportObject(MyCubeGrid baseGrid, bool convertModelsFromSBC, bool exportObjAndSBC = false)
@@ -997,6 +1214,7 @@ namespace Sandbox.Game.Entities
 
         private static void ExportToObjFile(List<MyCubeGrid> baseGrids, bool convertModelsFromSBC, bool exportObjAndSBC)
         {       
+#if !XB1
             materialID = 0;
             var datetimePrefix = MyValueFormatter.GetFormatedDateTimeForFilename(DateTime.Now);
             var name = MyUtils.StripInvalidChars(baseGrids[0].DisplayName.Replace(' ', '_'));
@@ -1104,6 +1322,9 @@ namespace Sandbox.Game.Entities
                         messageText: new StringBuilder(string.Format(MyTexts.GetString(MyCommonTexts.ExportToObjFailed), folder))));
                 }
             }
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
         }
 
         private static void CreatePrefabFile(List<MyCubeGrid> baseGrid, string name, string prefabPath)
@@ -1121,6 +1342,7 @@ namespace Sandbox.Game.Entities
             MyPrefabManager.SavePrefabToPath(name, prefabPath, gridToexport);
         }
 
+
         private static void GetModelDataFromGrid(List<MyCubeGrid> baseGrid, List<Vector3> vertices, List<TriangleWithMaterial> triangles, List<Vector2> uvs, Dictionary<string, MyExportModel.Material> materials, int currVerticesCount)
         {
             var baseGridWorldInv = MatrixD.Invert(baseGrid[0].WorldMatrix);
@@ -1130,7 +1352,7 @@ namespace Sandbox.Game.Entities
                 localToExport = grid.WorldMatrix * baseGridWorldInv;
                 foreach (var cell in grid.RenderData.Cells)
                 {
-                    HashSet<MyCubePart> parts = cell.Value.CubeParts;
+                    var parts = cell.Value.CubeParts;
                     foreach (var part in parts)
                     {
                         Vector3 HSV = new Vector3(part.InstanceData.ColorMaskHSV.X, part.InstanceData.ColorMaskHSV.Y, part.InstanceData.ColorMaskHSV.Z);
@@ -1149,8 +1371,20 @@ namespace Sandbox.Game.Entities
                             //without this piston will always be exported as fully retracted
                             block.FatBlock.UpdateOnceBeforeFrame();                    
                         }
-                        ExtractModelDataForObj(block.FatBlock.Model, block.FatBlock.PositionComp.LocalMatrix * (Matrix)localToExport, vertices, triangles, uvs, ref Vector2.Zero, materials, ref currVerticesCount, block.ColorMaskHSV);
-                        ProcessChildrens(vertices, triangles, uvs, materials, ref currVerticesCount, block.FatBlock.PositionComp.LocalMatrix * (Matrix)localToExport, block.ColorMaskHSV, block.FatBlock.Hierarchy.Children);
+                        // For ME
+                        else if (block.FatBlock is MyCompoundCubeBlock)
+                        {
+                            var compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+                            foreach (var blockInCompound in compoundBlock.GetBlocks())
+                            {
+                                ExtractModelDataForObj(blockInCompound.FatBlock.Model, blockInCompound.FatBlock.PositionComp.WorldMatrix * baseGridWorldInv, vertices, triangles, uvs, ref Vector2.Zero, materials, ref currVerticesCount, blockInCompound.ColorMaskHSV);
+                                ProcessChildrens(vertices, triangles, uvs, materials, ref currVerticesCount, blockInCompound.FatBlock.PositionComp.WorldMatrix * baseGridWorldInv, blockInCompound.ColorMaskHSV, blockInCompound.FatBlock.Hierarchy.Children);
+                            }
+                            continue;
+                        }
+
+                        ExtractModelDataForObj(block.FatBlock.Model, block.FatBlock.PositionComp.WorldMatrix * baseGridWorldInv, vertices, triangles, uvs, ref Vector2.Zero, materials, ref currVerticesCount, block.ColorMaskHSV);
+                        ProcessChildrens(vertices, triangles, uvs, materials, ref currVerticesCount, block.FatBlock.PositionComp.WorldMatrix * baseGridWorldInv, block.ColorMaskHSV, block.FatBlock.Hierarchy.Children);
                     }
                 }
             }
@@ -1221,20 +1455,11 @@ namespace Sandbox.Game.Entities
                     writer.WriteLine("illum 2");
                     if (mat.IsGlass)
                     {
-                        foreach (var material in MyDefinitionManager.Static.GetTransparentMaterialDefinitions())
-                        {
-                            if(mat.DiffuseTexture.Equals(material.Texture, StringComparison.OrdinalIgnoreCase))
-                            {
-                                writer.WriteLine("Kd {0} {1} {2}", material.Color.Y, material.Color.Z, material.Color.W);
-                            };
-                        }
-
                         continue;
                     }
 
                     renderColoredTextureProperties textureToRenderProperties = new renderColoredTextureProperties();
                     textureToRenderProperties.ColorMaskHSV = mat.ColorMaskHSV;
-                    textureToRenderProperties.TextureName = mat.DiffuseTexture;
                     textureToRenderProperties.PathToSave = Path.Combine(folder, mat.NewDiffuseTexture);
                     texturesToRender.Add(textureToRenderProperties);
 
@@ -1353,11 +1578,20 @@ namespace Sandbox.Game.Entities
             // Remove character hits.
             m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
             {
-                return (hit.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
+                if (MySession.Static.ControlledEntity != null)
+                    return (hit.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
+
+                return false;
             });
 
             if (m_tmpHitList.Count == 0)
+            {
+                MyGamePruningStructure.GetTopmostEntitiesOverlappingRay(ref line, m_lineOverlapList);
+                if (m_lineOverlapList.Count > 0)
+                    return m_lineOverlapList[0].Element.GetTopMostParent();
+
                 return null;
+            }
 
             return m_tmpHitList[0].HkHitInfo.GetHitEntity() as MyEntity;
         }
@@ -1434,6 +1668,12 @@ namespace Sandbox.Game.Entities
 
                 if (model != null && model.HavokCollisionShapes != null)
                 {
+                    Matrix local;
+                    blockOrientation.GetMatrix(out local);
+                    Vector3 modelOffset;
+                    Vector3.TransformNormal(ref blockDefinition.ModelOffset, ref local, out modelOffset);
+                    translation += modelOffset;
+
                     int shapeCount = model.HavokCollisionShapes.Length;
                     HkShape[] shapes = new HkShape[shapeCount];
                     for (int q = 0; q < shapeCount; ++q)
@@ -1445,20 +1685,20 @@ namespace Sandbox.Game.Entities
 
                     Quaternion q2 = Quaternion.CreateFromForwardUp(Base6Directions.GetVector(blockOrientation.Forward), Base6Directions.GetVector(blockOrientation.Up));
                     rotation = rotation * q2;
-                    MyPhysics.GetPenetrationsShape(shape, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
+                    MyPhysics.GetPenetrationsShape(shape, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
 
                     shape.Base.RemoveReference();
                 }
                 else
                 {
                     Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-                    MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
+                    MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
                 }
             }
             else
             {
                 Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-                MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
+                MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
             }
             m_lastQueryBox.HalfExtents = halfExtents;
             m_lastQueryTransform = MatrixD.CreateFromQuaternion(rotation);
@@ -1563,7 +1803,7 @@ namespace Sandbox.Game.Entities
             halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
             if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
                 halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
-            Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
+            Vector3D translation = localAabb.TransformFast(ref worldMatrix).Center;
             Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
             quaternion.Normalize();
             ProfilerShort.End();
@@ -1580,31 +1820,31 @@ namespace Sandbox.Game.Entities
             return TestPlacementAreaInternal(targetGrid, ref settings, null, null, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode);
         }
 
-        public static bool TestPlacementAreaWithEntities(MyCubeGrid targetGrid, bool targetGridIsStatic, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode, MyEntity ignoredEntity = null)
-        {
-            ProfilerShort.Begin("Test start with entities");
-            var worldMatrix = targetGrid.WorldMatrix;
+        //public static bool TestPlacementAreaWithEntities(MyCubeGrid targetGrid, bool targetGridIsStatic, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode, MyEntity ignoredEntity = null)
+        //{
+        //    ProfilerShort.Begin("Test start with entities");
+        //    var worldMatrix = targetGrid.WorldMatrix;
 
-            Vector3 halfExtents = localAabb.HalfExtents;
-            halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
-            if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
-                halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
-            Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
-            Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
-            quaternion.Normalize();
-            ProfilerShort.End();
+        //    Vector3 halfExtents = localAabb.HalfExtents;
+        //    halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
+        //    if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
+        //        halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
+        //    Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
+        //    Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
+        //    quaternion.Normalize();
+        //    ProfilerShort.End();
 
-            ProfilerShort.Begin("get top most entities");
+        //    ProfilerShort.Begin("get top most entities");
 
-            m_tmpResultList.Clear();
-            BoundingBoxD box = targetGrid.PositionComp.WorldAABB;
-            MyGamePruningStructure.GetTopMostEntitiesInBox(ref box, m_tmpResultList);
-            ProfilerShort.End();
+        //    m_tmpResultList.Clear();
+        //    BoundingBoxD box = targetGrid.PositionComp.WorldAABB;
+        //    MyGamePruningStructure.GetTopMostEntitiesInBox(ref box, m_tmpResultList);
+        //    ProfilerShort.End();
 
-            return TestPlacementAreaInternalWithEntities(targetGrid, targetGridIsStatic, ref settings, ref localAabb, ignoredEntity, ref worldMatrix, dynamicBuildMode: dynamicBuildMode);
-        }
+        //    return TestPlacementAreaInternalWithEntities(targetGrid, targetGridIsStatic, ref settings, ref localAabb, ignoredEntity, ref worldMatrix, dynamicBuildMode: dynamicBuildMode);
+        //}
 
-        public static bool TestPlacementArea(MyCubeGrid targetGrid, bool targetGridIsStatic, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode, MyEntity ignoredEntity = null, bool testVoxels = true)
+        public static bool TestPlacementArea(MyCubeGrid targetGrid, bool targetGridIsStatic, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode, MyEntity ignoredEntity = null, bool testVoxel = true)
         {
             ProfilerShort.Begin("TestStart");
             var worldMatrix = targetGrid.WorldMatrix;
@@ -1613,47 +1853,135 @@ namespace Sandbox.Game.Entities
             halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
             if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
                 halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
-            Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
+            Vector3D translation = localAabb.TransformFast(ref worldMatrix).Center;
             Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
             quaternion.Normalize();
+            ProfilerShort.End();
+
+            ProfilerShort.Begin("VoxelOverlap");
+
+            if (testVoxel && settings.VoxelPlacement.Value.PlacementMode != VoxelPlacementMode.Both)
+            {
+                bool result = IsAabbInsideVoxel(worldMatrix, localAabb, settings);
+
+                if (settings.VoxelPlacement.Value.PlacementMode == VoxelPlacementMode.InVoxel)
+                    result = !result;
+
+                if (result)
+                {
+                    ProfilerShort.End();
+                    return false;
+                }
+            }
+
             ProfilerShort.End();
 
             ProfilerShort.Begin("Havok.GetPenetrationsBox");
 
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
+            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
             m_lastQueryBox.HalfExtents = halfExtents;
             m_lastQueryTransform = MatrixD.CreateFromQuaternion(quaternion);
             m_lastQueryTransform.Translation = translation;
             ProfilerShort.End();
 
             MyCubeGrid touchingGrid;
-            return TestPlacementAreaInternal(targetGrid, targetGridIsStatic, ref settings, null, null, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode, testVoxels: testVoxels);
+            return TestPlacementAreaInternal(targetGrid, targetGridIsStatic, ref settings, null, null, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode);
+        }
+
+        /// <summary>
+        /// Checks if aabb is in voxel. If settings provided it will return false if penetration settings allow for it.
+        /// </summary>
+        /// <param name="worldMatrix">World matrix of the aabb.</param>
+        /// <param name="localAabb">Local aabb</param>
+        /// <param name="settings">Game settings</param>
+        /// <returns></returns>
+        public static bool IsAabbInsideVoxel(MatrixD worldMatrix, BoundingBoxD localAabb, MyGridPlacementSettings settings)
+        {
+            if(settings.VoxelPlacement==null)
+                return false;
+            
+            var worldAabb = localAabb.TransformFast(ref worldMatrix);
+
+            List<MyVoxelBase> voxels = new List<MyVoxelBase>();
+            MyGamePruningStructure.GetAllVoxelMapsInBox(ref worldAabb, voxels);
+
+            foreach (MyVoxelBase voxel in voxels)
+            {
+                if (settings.VoxelPlacement.Value.PlacementMode != VoxelPlacementMode.Volumetric && voxel.IsAnyAabbCornerInside(ref worldMatrix, localAabb))
+                    return true;
+
+                if (settings.VoxelPlacement.Value.PlacementMode == VoxelPlacementMode.Volumetric && !TestPlacementVoxelMapPenetration(voxel, settings, ref localAabb, ref worldMatrix))
+                    return true;
+            }
+
+            return false;
         }
 
         public static bool TestBlockPlacementArea(MyCubeBlockDefinition blockDefinition, MyBlockOrientation? blockOrientation, MatrixD worldMatrix, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode,
-            MyEntity ignoredEntity = null)
+            MyEntity ignoredEntity = null, bool testVoxel = true)
         {
             ProfilerShort.Begin("TestStart");
             Vector3 halfExtents = localAabb.HalfExtents;
             halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
             if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
                 halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
-            Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
+            Vector3D translation = localAabb.TransformFast(ref worldMatrix).Center;
             Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
             quaternion.Normalize();
             ProfilerShort.End();
 
+            ProfilerShort.Begin("VoxelOverlap");
+            // copy settings so we wont override original one.
+            MyGridPlacementSettings settingsCopy = settings;
+
+            if (testVoxel && !TestVoxelPlacement(blockDefinition, settingsCopy, dynamicBuildMode, worldMatrix, localAabb))
+            {
+                ProfilerShort.End();
+                return false;
+            }
+
+            ProfilerShort.End();
+
             ProfilerShort.Begin("Havok.GetPenetrationsBox");
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
+            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
             m_lastQueryBox.HalfExtents = halfExtents;
             m_lastQueryTransform = MatrixD.CreateFromQuaternion(quaternion);
             m_lastQueryTransform.Translation = translation;
             ProfilerShort.End();
 
             MyCubeGrid touchingGrid;
-            return TestPlacementAreaInternal(null, ref settings, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode);
+            return TestPlacementAreaInternal(null, ref settingsCopy, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode);
+        }
+
+        public static bool TestVoxelPlacement(MyCubeBlockDefinition blockDefinition, MyGridPlacementSettings settingsCopy, bool dynamicBuildMode, MatrixD worldMatrix, BoundingBoxD localAabb)
+        {
+            // Override Voxel penetration settings if block has definition of it.
+            if (blockDefinition.VoxelPlacement != null)
+            {
+                settingsCopy.VoxelPlacement = dynamicBuildMode ? blockDefinition.VoxelPlacement.Value.DynamicMode : blockDefinition.VoxelPlacement.Value.StaticMode;
+            }
+
+            if (settingsCopy.VoxelPlacement.Value.PlacementMode == VoxelPlacementMode.None)
+            {
+                return false;
+            }
+
+            if (settingsCopy.VoxelPlacement.Value.PlacementMode != VoxelPlacementMode.Both)
+            {
+                bool result = IsAabbInsideVoxel(worldMatrix, localAabb, settingsCopy);
+
+                if (settingsCopy.VoxelPlacement.Value.PlacementMode == VoxelPlacementMode.InVoxel)
+                    result = !result;
+
+                if (result)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         #region Private
@@ -1688,6 +2016,12 @@ namespace Sandbox.Game.Entities
 
             //we need new material for every HSV and texture combination, therefore we need to create new materials for each model
             List<MyExportModel.Material> newModelMaterials = CreateMaterialsForModel(materials, colorMaskHSV, renderModel);
+
+            //GK: extract model is obsolete functionallity. Maybe remove or refactor? Exporting useful mostly for creating prefab files
+            if (newModelMaterials.Count == 0)
+            {
+                return;
+            }
 
             for (int i = 0; i < modelVerticesCount; ++i)
             {
@@ -1735,37 +2069,37 @@ namespace Sandbox.Game.Entities
             List<MyExportModel.Material> modelMaterials = renderModel.GetMaterials();
             foreach (var material in modelMaterials)
             {
-                string diffuseTextureName = GetDiffuseTextureName(material.DiffuseTexture);
-                bool materialFound = false;
-                foreach (var savedMaterial in materials)
-                {
-                    if (savedMaterial.Value.DiffuseTexture.Equals(diffuseTextureName, StringComparison.OrdinalIgnoreCase) &&
-                        Math.Abs(savedMaterial.Value.ColorMaskHSV.X - colorMaskHSV.X) < 0.01f &&
-                        Math.Abs(savedMaterial.Value.ColorMaskHSV.Y - colorMaskHSV.Y) < 0.01f &&
-                        Math.Abs(savedMaterial.Value.ColorMaskHSV.Z - colorMaskHSV.Z) < 0.01f)
-                    {
-                        MyExportModel.Material newMaterial = material;
-                        newMaterial.DiffuseTexture = diffuseTextureName;
-                        //each time new material is created new name for this material is assgined e.g. Material_x
-                        //but model materials have they original name so we need to swap material name with created one
-                        newMaterial.Name = savedMaterial.Value.Name;
-                        newModelMaterials.Add(newMaterial);
-                        materialFound = true;
-                        break;
-                    }
-                }
-                if (false == materialFound)
-                {
-                    materialID++;
+                //string diffuseTextureName = GetDiffuseTextureName(material.DiffuseTexture);
+                //bool materialFound = false;
+                //foreach (var savedMaterial in materials)
+                //{
+                //    if (savedMaterial.Value.DiffuseTexture.Equals(diffuseTextureName, StringComparison.OrdinalIgnoreCase) &&
+                //        Math.Abs(savedMaterial.Value.ColorMaskHSV.X - colorMaskHSV.X) < 0.01f &&
+                //        Math.Abs(savedMaterial.Value.ColorMaskHSV.Y - colorMaskHSV.Y) < 0.01f &&
+                //        Math.Abs(savedMaterial.Value.ColorMaskHSV.Z - colorMaskHSV.Z) < 0.01f)
+                //    {
+                //        MyExportModel.Material newMaterial = material;
+                //        newMaterial.DiffuseTexture = diffuseTextureName;
+                //        //each time new material is created new name for this material is assgined e.g. Material_x
+                //        //but model materials have they original name so we need to swap material name with created one
+                //        newMaterial.Name = savedMaterial.Value.Name;
+                //        newModelMaterials.Add(newMaterial);
+                //        materialFound = true;
+                //        break;
+                //    }
+                //}
+                //if (false == materialFound)
+                //{
+                //    materialID++;
 
-                    MyExportModel.Material newMaterial = material;
-                    newMaterial.Name = "material_" + materialID.ToString();                 
-                    newMaterial.ColorMaskHSV = colorMaskHSV;
-                    newMaterial.DiffuseTexture = diffuseTextureName;
-                    newMaterial.NewDiffuseTexture = newMaterial.Name + ".png";                   
-                    newModelMaterials.Add(newMaterial);
-                    materials.Add(newMaterial.Name, newMaterial);
-                }
+                //    MyExportModel.Material newMaterial = material;
+                //    newMaterial.Name = "material_" + materialID.ToString();                 
+                //    newMaterial.ColorMaskHSV = colorMaskHSV;
+                //    newMaterial.DiffuseTexture = diffuseTextureName;
+                //    newMaterial.NewDiffuseTexture = newMaterial.Name + ".png";                   
+                //    newModelMaterials.Add(newMaterial);
+                //    materials.Add(newMaterial.Name, newMaterial);
+                //}
             }
             return newModelMaterials;
         }
@@ -1778,20 +2112,30 @@ namespace Sandbox.Game.Entities
             {
                 baseTextureName = baseTextureName.Substring(0, textureName.LastIndexOf('_'));
             }
-            string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me"+ Path.GetExtension(diffuseTextureName));
-            if (File.Exists(srcDiffuseTex))
-            {
-                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName)); ;
-            }
-            srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
-            if (File.Exists(srcDiffuseTex))
-            {
-                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName)); ;
-            }
+
+                string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
+                }
+
+            // Alternative/fallback paths to texture (dx9 leftovers)
+            srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
+                }
+
+                srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
+                }
+
             return diffuseTextureName;
         }
 
-        private static MyCubePart[] GetCubeParts(MyCubeBlockDefinition block, Vector3I position, MatrixD rotation, float gridSize)
+        private static MyCubePart[] GetCubeParts(MyCubeBlockDefinition block, Vector3I position, MatrixD rotation, float gridSize, float gridScale)
         {
             //Called only on init - we can afford allocation here
             List<string> models = new List<string>();
@@ -1806,7 +2150,9 @@ namespace Sandbox.Game.Entities
             for (int i = 0; i < parts.Length; i++)
             {
                 var part = new MyCubePart();
-                part.Init(VRage.Game.Models.MyModels.GetModelOnlyData(models[i]), matrices[i]);
+                var model = VRage.Game.Models.MyModels.GetModelOnlyData(models[i]);
+                model.Rescale(gridScale);
+                part.Init(model, matrices[i], gridScale);
                 part.InstanceData.SetTextureOffset(patternOffsets[i]);
                 parts[i] = part;
             }
@@ -1844,7 +2190,7 @@ namespace Sandbox.Game.Entities
             float gridSize = targetGrid.GridSize;
             bool isStatic = targetGridIsStatic;
 
-            var worldAabb = localAabb.Transform(ref worldMatrix);
+            var worldAabb = localAabb.TransformFast(ref worldMatrix);
 
             bool entityOverlap = false;
             MyVoxelBase overlappedVoxelMap = null;
@@ -1857,13 +2203,6 @@ namespace Sandbox.Game.Entities
                 var body = entity.Physics;
                 if (body == null)
                     continue;
-
-                var voxelMap = entity as MyVoxelBase;
-                if (voxelMap != null)
-                {
-                    overlappedVoxelMap = voxelMap;
-                    continue;
-                }
 
                 var grid = entity as MyCubeGrid;
                 if (grid != null)
@@ -1901,19 +2240,15 @@ namespace Sandbox.Game.Entities
                 return true;
             }
 
-            ProfilerShort.Begin("TestVoxelOverlap");
-            bool result = TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
-            ProfilerShort.End();
-
-            return result;
+            return true;
         }
 
         private static void TestGridPlacement(ref MyGridPlacementSettings settings, ref MatrixD worldMatrix, ref MyCubeGrid touchingGrid, float gridSize, bool isStatic, ref BoundingBoxD localAABB, MyCubeBlockDefinition blockDefinition,
            MyBlockOrientation? blockOrientation, ref bool entityOverlap, ref bool touchingStaticGrid, MyCubeGrid grid)
         {
-            var worldAabb = localAABB.Transform(ref worldMatrix);
+            var worldAabb = localAABB.TransformFast(ref worldMatrix);
             var invWorldMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
-            var otherLocalAabb = worldAabb.Transform(ref invWorldMatrix);
+            var otherLocalAabb = worldAabb.TransformFast(ref invWorldMatrix);
 
             Vector3D minToWorld = Vector3D.Transform(localAABB.Min, worldMatrix);
             Vector3D maxToWorld = Vector3D.Transform(localAABB.Max, worldMatrix);
@@ -1969,8 +2304,7 @@ namespace Sandbox.Game.Entities
            ref MatrixD worldMatrix,
            out MyCubeGrid touchingGrid,
            bool dynamicBuildMode = false,
-           bool ignoreFracturedPieces = false,
-           bool testVoxels = true)
+           bool ignoreFracturedPieces = false)
         {
             ProfilerShort.Begin("TestPlacementAreaInternal");
 
@@ -1979,15 +2313,13 @@ namespace Sandbox.Game.Entities
             float gridSize = targetGrid != null ? targetGrid.GridSize : (blockDefinition != null ? MyDefinitionManager.Static.GetCubeSize(blockDefinition.CubeSize) : MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large));
             bool isStatic = targetGridIsStatic;
 
-            var worldAabb = localAabb.Transform(ref worldMatrix);
-
             bool entityOverlap = false;
             MyVoxelBase overlappedVoxelMap = null;
             bool touchingStaticGrid = false;
             foreach (var collison in m_physicsBoxQueryList)
             {
                 var entity = collison.Body.GetEntity(0) as MyEntity;
-                if (entity == null)
+                if (entity == null || entity.GetPhysicsBody() == null)
                     continue;
 
                 if (ignoreFracturedPieces && (entity is MyFracturedPiece))
@@ -1999,13 +2331,6 @@ namespace Sandbox.Game.Entities
                 var body = entity.Physics;
                 if (body != null && body.IsPhantom)
                     continue;
-
-                var voxelMap = entity as MyVoxelBase;
-                if (voxelMap != null)
-                {
-                    overlappedVoxelMap = voxelMap;
-                    continue;
-                }
 
                 var grid = entity as MyCubeGrid;
 				if (grid == null)
@@ -2055,7 +2380,7 @@ namespace Sandbox.Game.Entities
 
                 if (grid != null && ((isStatic && grid.IsStatic)
                     || (MyFakes.ENABLE_DYNAMIC_SMALL_GRID_MERGING && !isStatic && !grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)
-                    || (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && isStatic && grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)))
+                    || (/*MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL &&*/ isStatic && grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)))
                 {
                     // Small on large (or large on small) always possible
                     if (isStatic == grid.IsStatic && gridSize != grid.GridSize)
@@ -2076,9 +2401,12 @@ namespace Sandbox.Game.Entities
                     continue;
                 }
 
-
-                entityOverlap = true;
+                //if (dynamicBuildMode)
+                //{
+                    entityOverlap = true;
                 break;
+                //}
+
             }
             m_tmpResultList.Clear();
             m_physicsBoxQueryList.Clear();
@@ -2086,8 +2414,7 @@ namespace Sandbox.Game.Entities
 
             if (entityOverlap)
                 return false;
-            if (testVoxels)
-                return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
+
             return true;
         }
 
@@ -2128,39 +2455,6 @@ namespace Sandbox.Game.Entities
             return MyPhysics.IsPenetratingShapeShape(m_lastQueryBox, ref t1, shape, ref t2);
         }
 
-        private static bool TestVoxelOverlap(ref MyGridPlacementSettings settings, ref BoundingBoxD localAabb, ref MatrixD worldMatrix, ref BoundingBoxD worldAabb, ref MyVoxelBase overlappedVoxelMap, bool touchingStaticGrid)
-        {
-            ProfilerShort.Begin("VoxelOverlap");
-            try
-            {
-                if (MyFakes.GRID_IGNORE_VOXEL_OVERLAP) return true;
-
-                if (MyFakes.ENABLE_VOXEL_MAP_AABB_CORNER_TEST)
-                {
-                    return TestPlacementVoxelMapOverlap(overlappedVoxelMap, ref settings, ref localAabb, ref worldMatrix, touchingStaticGrid: touchingStaticGrid);
-                }
-                else
-                {
-                    if (overlappedVoxelMap == null)
-                    { // Havok only detects overlap with voxel map surface. This test will detect a voxel map even if we're fully inside it.
-
-                        overlappedVoxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
-                        if (overlappedVoxelMap != null)
-                        {
-                            //We have just test, if aabb is not completelly inside voxelmap
-                            if (!overlappedVoxelMap.IsOverlapOverThreshold(worldAabb))
-                                overlappedVoxelMap = null;
-                        }
-                    }
-                    return TestPlacementVoxelMapPenetration(overlappedVoxelMap, ref settings, ref localAabb, ref worldMatrix, touchingStaticGrid: touchingStaticGrid);
-                }
-            }
-            finally
-            {
-                ProfilerShort.End();
-            }
-        }
-
         public static bool TestPlacementVoxelMapOverlap(
             MyVoxelBase voxelMap,
             ref MyGridPlacementSettings settings,
@@ -2170,7 +2464,7 @@ namespace Sandbox.Game.Entities
         {
             ProfilerShort.Begin("TestPlacementVoxelMapOverlap");
 
-            var worldAabb = localAabb.Transform(ref worldMatrix);
+            var worldAabb = localAabb.TransformFast(ref worldMatrix);
 
             const int IntersectsOrInside = 1;
             const int Outside = 2;
@@ -2190,10 +2484,10 @@ namespace Sandbox.Game.Entities
             switch (overlapState)
             {
                 case IntersectsOrInside:
-                    testPassed = settings.Penetration.MaxAllowed > 0;
+                    testPassed = settings.VoxelPlacement.Value.PlacementMode == VoxelPlacementMode.Both;
                     break;
                 case Outside:
-                    testPassed = settings.Penetration.MinAllowed <= 0 || (settings.CanAnchorToStaticGrid && touchingStaticGrid);
+                    testPassed = settings.VoxelPlacement.Value.PlacementMode == VoxelPlacementMode.OutsideVoxel || (settings.CanAnchorToStaticGrid && touchingStaticGrid);
                     break;
                 default:
                     Debug.Fail("Invalid branch.");
@@ -2207,42 +2501,27 @@ namespace Sandbox.Game.Entities
 
         private static bool TestPlacementVoxelMapPenetration(
             MyVoxelBase voxelMap, 
-            ref MyGridPlacementSettings settings,
+            MyGridPlacementSettings settings,
             ref BoundingBoxD localAabb,
             ref MatrixD worldMatrix,
             bool touchingStaticGrid = false)
         {
             ProfilerShort.Begin("TestPlacementVoxelMapPenetration");
-            var worldAabb = localAabb.Transform(ref worldMatrix);
-
-            float penetrationAmountNormalized = 0f;
+            
             float penetrationRatio = 0f;
             float penetrationVolume = 0f;
             if (voxelMap != null)
             {
-                float unused;
-                penetrationAmountNormalized = voxelMap.GetVoxelContentInBoundingBox_Obsolete(worldAabb, out unused);
-                penetrationVolume = penetrationAmountNormalized * MyVoxelConstants.VOXEL_VOLUME_IN_METERS;
-                penetrationRatio = penetrationVolume / (float)worldAabb.Volume;
+                MyTuple<float,float> penetrationInfo = voxelMap.GetVoxelContentInBoundingBox_Fast(localAabb, worldMatrix);
+                penetrationVolume = (float)localAabb.Volume * penetrationInfo.Item2; // Currently not used but please leave as this data is there already and may be used in future
+                penetrationRatio = penetrationInfo.Item2;
             }
 
-            bool penetrationTestPassed = true;
-            switch (settings.Penetration.Unit)
-            {
-                case MyGridPlacementSettings.PenetrationUnitEnum.Absolute:
-                    penetrationTestPassed = penetrationVolume <= settings.Penetration.MaxAllowed &&
-                        (penetrationVolume >= settings.Penetration.MinAllowed || (settings.CanAnchorToStaticGrid && touchingStaticGrid));
-                    break;
+            bool penetrationTestPassed = penetrationRatio <= settings.VoxelPlacement.Value.MaxAllowed &&
+                (penetrationRatio >= settings.VoxelPlacement.Value.MinAllowed || (settings.CanAnchorToStaticGrid && touchingStaticGrid));
 
-                case MyGridPlacementSettings.PenetrationUnitEnum.Ratio:
-                    penetrationTestPassed = penetrationRatio <= settings.Penetration.MaxAllowed &&
-                        (penetrationRatio >= settings.Penetration.MinAllowed || (settings.CanAnchorToStaticGrid && touchingStaticGrid));
-                    break;
 
-                default:
-                    Debug.Fail("Invalid branch.");
-                    break;
-            }
+            //MyRenderProxy.DebugDrawText3D(worldMatrix.Translation, penetrationRatio.ToString(), Color.White, 1.0f, false);
 
             ProfilerShort.End();
 
@@ -2308,6 +2587,7 @@ namespace Sandbox.Game.Entities
             objectBuilder.EntityId = entityID;
             objectBuilder.Min = min;
             objectBuilder.BlockOrientation = orientation;
+            objectBuilder.BuiltBy = owner;
 
             if (definition.ContainsComputer())
             {
@@ -2344,7 +2624,7 @@ namespace Sandbox.Game.Entities
         {
             foreach (var def in MyDefinitionManager.Static.GetAllDefinitions().OfType<MyCubeBlockDefinition>())
             {
-                if (def.Id.SubtypeId == block.SubtypeId)
+                if (def.Id.SubtypeId == block.SubtypeId && String.IsNullOrEmpty(block.SubtypeId.String) == false)
                 {
                     blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(def.Id);
                     return MyObjectBuilder_CubeBlock.Upgrade(block, blockDefinition.Id.TypeId, block.SubtypeName);
@@ -2403,9 +2683,13 @@ namespace Sandbox.Game.Entities
         private static Type ChooseGridSystemsType()
         {
             Type result = typeof(MyCubeGridSystems);
+#if XB1 // XB1_ALLINONEASSEMBLY
+            ChooseGridSystemsType(ref result, MyAssembly.AllInOneAssembly);
+#else // !XB1
             ChooseGridSystemsType(ref result, MyPlugins.GameAssembly);
             ChooseGridSystemsType(ref result, MyPlugins.SandboxAssembly);
             ChooseGridSystemsType(ref result, MyPlugins.UserAssembly);
+#endif // !XB1
             return result;
         }
 
@@ -2414,7 +2698,15 @@ namespace Sandbox.Game.Entities
             if (assembly == null)
                 return;
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_ChooseGridSystemsTypeCalled == false);
+            if (m_ChooseGridSystemsTypeCalled == true)
+                return;
+            m_ChooseGridSystemsTypeCalled = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var type in assembly.GetTypes())
+#endif // !XB1
             {
                 if (typeof(MyCubeGridSystems).IsAssignableFrom(type))
                 {
@@ -2424,18 +2716,23 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public static bool ShouldBeStatic(MyCubeGrid grid)
+        static bool ShouldBeStatic(MyCubeGrid grid, MyCubeGrid.MyTestDynamicReason testReason)
         {
             if (grid.GridSizeEnum == MyCubeSize.Small && MyCubeGridSmallToLargeConnection.Static != null &&
                 MyCubeGridSmallToLargeConnection.Static.TestGridSmallToLargeConnection(grid))
                 return true;
 
-            foreach (var block in grid.GetBlocks())
+            if (testReason == MyTestDynamicReason.GridSplit)
             {
-                if (IsInVoxels(block))
-                    return true;
+                foreach (var block in grid.GetBlocks())
+                {
+                    if (IsInVoxels(block))
+                        return true;
+                }
+                return false;
             }
-            return false;
+
+            return grid.IsStatic;
         }
 
         public static bool IsInVoxels(MySlimBlock block,bool checkForPhysics = true)
@@ -2473,6 +2770,16 @@ namespace Sandbox.Game.Entities
         {
             return MyCubeGridGroups.Static.BreakLink(type, linkId, parent, child);
         }
+
+        public static void ResetInfoGizmos()
+        {
+            ShowSenzorGizmos = false;
+            ShowGravityGizmos = false;
+            ShowCenterOfMass = false;
+            ShowGridPivot = false;
+            ShowAntennaGizmos = false;
+            ShowStructuralIntegrity = false;
+    }
     }
 
     struct BlockMaterial
@@ -2489,7 +2796,6 @@ namespace Sandbox.Game.Entities
             public string Name;
             public int FirstTri;
             public int LastTri;
-            public string DiffuseTexture;
             public string NormalTexture;
             public bool IsGlass;
             public Vector3 ColorMaskHSV;
@@ -2552,7 +2858,6 @@ namespace Sandbox.Game.Entities
                                 Name = materialName,
                                 FirstTri = mesh.IndexStart / 3,
                                 LastTri = mesh.IndexStart / 3 + mesh.TriCount - 1,
-                                DiffuseTexture = mesh.Material.DiffuseTexture,
                                 IsGlass = mesh.Material.DrawTechnique == MyMeshDrawTechnique.GLASS,
                             });
                         }

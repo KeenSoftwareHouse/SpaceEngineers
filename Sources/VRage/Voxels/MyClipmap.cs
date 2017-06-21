@@ -7,6 +7,7 @@ using VRage.Collections;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.Library;
 
 namespace VRage.Voxels
 {
@@ -55,8 +56,8 @@ namespace VRage.Voxels
 
         public static bool UseCache = true;
         public static bool NeedsResetCache = false;
-        public static LRUCache<UInt64, CellData> CellsCache;
-        protected static Dictionary<UInt64, CellData> PendingCacheCellData = new Dictionary<UInt64, CellData>();
+        public static LRUCache<UInt64, MyClipmap_CellData> CellsCache;
+        protected static Dictionary<UInt64, MyClipmap_CellData> PendingCacheCellData = new Dictionary<UInt64, MyClipmap_CellData>();
         protected static int ClippingCacheHits = 0;
         protected static int ClippingCacheMisses = 0;
 
@@ -64,6 +65,8 @@ namespace VRage.Voxels
         public static bool UseLodCut = true;
         public static bool UseQueries = true;
         private PruningFunc m_prunningFunc = null;
+
+        public MatrixD WorldMatrix { get { return m_worldMatrix; } }
 
         public MyClipmap(uint id, MyClipmapScaleEnum scaleGroup, MatrixD worldMatrix, Vector3I sizeLod0, IMyClipmapCellHandler cellProvider, Vector3D massiveCenter, float massiveRadius, PruningFunc prunningFunc)
         {
@@ -160,7 +163,7 @@ namespace VRage.Voxels
 
             LastCameraPosition = cameraPos;
 
-            if (!Environment.Is64BitProcess)
+            if (!MyEnvironment.Is64BitProcess)
                 UseCache = false;
 
             if (NeedsResetCache)
@@ -306,6 +309,12 @@ namespace VRage.Voxels
         void ResetClipping()
         {
             m_updateClippingFrustum = true;
+        }
+
+        public void RequestMergeAll()
+        {
+            for (int lodIndex = 0; lodIndex < m_lodLevels.Length; ++lodIndex)
+                m_lodLevels[lodIndex].RequestMergeAll();
         }
 
         public bool IsDitheringInProgress()

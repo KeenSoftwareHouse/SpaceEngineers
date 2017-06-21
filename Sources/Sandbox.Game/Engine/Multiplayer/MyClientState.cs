@@ -1,5 +1,7 @@
-﻿using Sandbox.Engine.Utils;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Replication;
@@ -9,11 +11,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.Entities.Planet;
 using VRage;
 using VRage.Game.Entity;
 using VRage.Library.Collections;
 using VRage.Network;
 using VRageMath;
+using VRage.Library.Utils;
 
 namespace Sandbox.Engine.Multiplayer
 {
@@ -22,52 +26,89 @@ namespace Sandbox.Engine.Multiplayer
     /// </summary>
     public abstract class MyClientState : MyClientStateBase
     {
+        public readonly Dictionary<long, HashSet<long>> KnownSectors = new Dictionary<long, HashSet<long>>();
+
         public enum MyContextKind
         {
             None = 0,
             Terminal = 1,
             Inventory = 2,
             Production = 3,
+            Building = 4,
         }
 
         /// <summary>
         /// Client point of interest, used on server to replicate nearby entities
         /// </summary>
-        public Vector3D Position { get; protected set; }
         public MyContextKind Context { get; protected set; }
         public MyEntity ContextEntity { get; protected set; }
 
-        public override void Serialize(BitStream stream)
+        MyTimeSpan m_currentServerTimeStamp = MyTimeSpan.Zero;
+
+        private MyEntity m_positionEntityServer;
+
+        public override Vector3D Position
+        {
+            get
+            {
+                return m_positionEntityServer != null ? m_positionEntityServer.WorldMatrix.Translation : base.Position;
+            }
+            protected set { base.Position = value; }
+        }
+
+        public override void Serialize(BitStream stream, bool outOfOrder)
         {
             if (stream.Writing)
                 Write(stream);
             else
-                Read(stream);
+                Read(stream, outOfOrder);
         }
 
-        protected virtual MyEntity GetControlledEntity()
+        public override void Update()
         {
-            if (MySession.Static.HasAdminRights && MySession.Static.CameraController == MySpectatorCameraController.Static
-                && MySpectatorCameraController.Static.SpectatorCameraMovement == MySpectatorCameraMovementEnum.UserControlled)
-                return null;
+            MyEntity controlledEntity;
+            bool hasControl;
+            GetControlledEntity(out controlledEntity, out hasControl);
+            if (hasControl && controlledEntity != null)
+                controlledEntity.ApplyLastControls();
+        }
 
-            return MySession.Static.ControlledEntity != null ? MySession.Static.ControlledEntity.Entity.GetTopMostParent() : null;
+        protected virtual void GetControlledEntity(out MyEntity controlledEntity, out bool hasControl)
+        {
+            controlledEntity = null;
+            hasControl = false;
+            if (MySession.Static.HasCreativeRights && MySession.Static.CameraController == MySpectatorCameraController.Static
+                && (MySpectatorCameraController.Static.SpectatorCameraMovement == MySpectatorCameraMovementEnum.UserControlled ||
+                MySpectatorCameraController.Static.SpectatorCameraMovement == MySpectatorCameraMovementEnum.Orbit))
+                return;
+
+            controlledEntity = MySession.Static.TopMostControlledEntity;
+            if (controlledEntity == null)
+                return;
+
+            var controllingPlayer = Sync.Players.GetControllingPlayer(controlledEntity);
+            hasControl = MySession.Static.LocalHumanPlayer == controllingPlayer;
         }
 
         private void Write(BitStream stream)
         {
-            // TODO: Make sure sleeping, server controlled entities are not moving locally (or they can be but eventually their position should be corrected)
-            MyEntity controlledEntity = GetControlledEntity();
+            WritePlanetSectors(stream);
 
-            WriteShared(stream, controlledEntity);
+            // TODO: Make sure sleeping, server controlled entities are not moving locally (or they can be but eventually their position should be corrected)
+            MyEntity controlledEntity;
+            bool hasControl;
+            GetControlledEntity(out controlledEntity, out hasControl);
+
+            WriteShared(stream, controlledEntity, hasControl);
             if (controlledEntity != null)
             {
                 WriteInternal(stream, controlledEntity);
-                WritePhysics(stream, controlledEntity);
+                controlledEntity.SerializeControls(stream);
+                //WritePhysics(stream, controlledEntity);
             }
         }
 
-        private void Read(BitStream stream)
+        private void Read(BitStream stream, bool outOfOrder)
         {
             MyNetworkClient sender;
             if (!Sync.Clients.TryGetClient(EndpointId.Value, out sender))
@@ -76,12 +117,14 @@ namespace Sandbox.Engine.Multiplayer
                 return;
             }
 
+            ReadPlanetSectors(stream);
+
             MyEntity controlledEntity;
             ReadShared(stream, sender, out controlledEntity);
             if (controlledEntity != null)
             {
                 ReadInternal(stream, sender, controlledEntity);
-                ReadPhysics(stream, sender, controlledEntity);
+                controlledEntity.DeserializeControls(stream, outOfOrder);
             }
         }
 
@@ -93,7 +136,7 @@ namespace Sandbox.Engine.Multiplayer
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="validControlledEntity"></param>
-        private void WriteShared(BitStream stream, MyEntity controlledEntity)
+        private void WriteShared(BitStream stream, MyEntity controlledEntity, bool hasControl)
         {
             stream.WriteBool(controlledEntity != null);
             if (controlledEntity == null)
@@ -104,6 +147,7 @@ namespace Sandbox.Engine.Multiplayer
             else
             {
                 stream.WriteInt64(controlledEntity.EntityId);
+                stream.WriteBool(hasControl);
             }
         }
 
@@ -116,16 +160,23 @@ namespace Sandbox.Engine.Multiplayer
             {
                 Vector3D pos = Vector3D.Zero;
                 stream.Serialize(ref pos); // 24B
+                m_positionEntityServer = null;
                 Position = pos;
             }
             else
             {
                 var entityId = stream.ReadInt64();
+                bool hasControl = stream.ReadBool();
                 MyEntity entity;
                 if (!MyEntities.TryGetEntityById(entityId, out entity))
+                {
+                    m_positionEntityServer = null;
                     return;
+                }
 
-                Position = entity.WorldMatrix.Translation;
+                m_positionEntityServer = entity;
+                if(!hasControl)
+                    return;
 
                 // TODO: Obsolete check?
                 MySyncEntity syncEntity = entity.SyncObject as MySyncEntity;
@@ -135,38 +186,87 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-        private void WritePhysics(BitStream stream, MyEntity controlledEntity)
+        private const int PlanetMagic = 0x42424242;
+
+        protected void WritePlanetSectors(BitStream stream)
         {
-            IMyReplicable player = MyExternalReplicable.FindByObject(controlledEntity);
-            if (player == null)
+            stream.WriteInt32(PlanetMagic);
+
+            var planets = MyPlanets.GetPlanets();
+
+            // Planets are not enabled if session component is not loaded.
+            if (planets == null)
             {
-                stream.WriteBool(false);
+                stream.WriteInt32(0);
                 return;
             }
 
-            var stateGroup = player.FindStateGroup<MyEntityPhysicsStateGroup>();
-            if (stateGroup == null)
-            {
+            stream.WriteInt32(planets.Count);
 
-                stream.WriteBool(false);
-                return;
-            }
-            bool isResponsible = stateGroup.ResponsibleForUpdate(new EndpointId(Sync.MyId));
-            stream.WriteBool(isResponsible);
-            if (isResponsible)
+            foreach (var planet in planets)
             {
-                stateGroup.Serialize(stream, null, 0, 65535);
+                stream.WriteInt64(planet.EntityId);
+
+                MyPlanetEnvironmentComponent env = planet.Components.Get<MyPlanetEnvironmentComponent>();
+
+                var syncLod = env.EnvironmentDefinition.SyncLod;
+
+                foreach (var provider in env.Providers)
+                {
+                    foreach (var sector in provider.LogicalSectors)
+                        if (sector.MinLod <= syncLod)
+                        {
+                            stream.WriteInt64(sector.Id);
+                        }
+                }
+
+                // don't know how many in advance so I will use ~0 termination instead of count.
+                stream.WriteInt64(~0);
             }
         }
 
-        private void ReadPhysics(BitStream stream, MyNetworkClient sender, MyEntity controlledEntity)
+        protected void ReadPlanetSectors(BitStream stream)
         {
-            var stateGroup = MyExternalReplicable.FindByObject(controlledEntity).FindStateGroup<MyEntityPhysicsStateGroup>();
-            bool hasPhysics = stream.ReadBool();
-            if (hasPhysics && stateGroup.ResponsibleForUpdate(new EndpointId(sender.SteamUserId)))
+            KnownSectors.Clear();
+
+            if (stream.ReadInt32() != PlanetMagic)
             {
-                stateGroup.Serialize(stream, null, 0, 65535);
+                throw new BitStreamException("Wrong magic when reading planet sectors from client state.");
+            }
+
+            int count = stream.ReadInt32();
+
+            for (int i = 0; i < count; i++)
+            {
+                long p = stream.ReadInt64();
+                Debug.Assert(p != ~0);
+
+                HashSet<long> sectids = new HashSet<long>();
+
+                if (KnownSectors.ContainsKey(p))
+                    KnownSectors[p] = sectids;
+                else
+                    KnownSectors.Add(p, sectids);
+
+                while (true)
+                {
+                    long sectorid = stream.ReadInt64();
+                    if (sectorid == ~0) break;
+
+                    sectids.Add(sectorid);
+                }
             }
         }
+
+        public override IMyReplicable ControlledReplicable
+        {
+            get 
+            {
+                MyPlayer player = this.GetPlayer();
+                if (player == null) return null;
+                MyCharacter controlledCharacter = player.Character;
+                return controlledCharacter != null ? MyExternalReplicable.FindByObject(controlledCharacter) : null; 
+            }
+        }
     }
 }

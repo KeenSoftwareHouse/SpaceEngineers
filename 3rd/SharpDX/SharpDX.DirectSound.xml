@@ -521,7 +521,7 @@
             <unmanaged>HRESULT IDirectSoundCaptureBuffer::Lock([In] unsigned int dwOffset,[In] unsigned int dwBytes,[Out] void** ppvAudioPtr1,[Out] unsigned int* pdwAudioBytes1,[Out] void** ppvAudioPtr2,[Out, Optional] unsigned int* pdwAudioBytes2,[In] unsigned int dwFlags)</unmanaged>	
             <unmanaged-short>IDirectSoundCaptureBuffer::Lock</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.DirectSound.CaptureBufferBase.Start(SharpDX.Bool)">
+        <member name="M:SharpDX.DirectSound.CaptureBufferBase.Start(SharpDX.Mathematics.Interop.RawBool)">
             <summary>	
             The Start method begins capturing data into the buffer. If the buffer is already capturing, the method has no effect.	
             </summary>	
@@ -2083,11 +2083,11 @@
             <unmanaged>HRESULT IDirectSound3DBuffer::GetConeAngles([Out] unsigned int* pdwInsideConeAngle,[Out] unsigned int* pdwOutsideConeAngle)</unmanaged>	
             <unmanaged-short>IDirectSound3DBuffer::GetConeAngles</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.DirectSound.SoundBuffer3D.GetConeOrientation(SharpDX.Vector3@)">
+        <member name="M:SharpDX.DirectSound.SoundBuffer3D.GetConeOrientation(SharpDX.Mathematics.Interop.RawVector3@)">
             <summary>	
             The GetConeOrientation method retrieves the orientation of the sound projection cone.	
             </summary>	
-            <param name="vOrientationRef"><dd> Address of a <see cref="T:SharpDX.Vector3"/> structure that receives the orientation of the sound projection cone. The vector information represents the center of the sound cone. </dd></param>	
+            <param name="vOrientationRef"><dd> Address of a <see cref="T:SharpDX.Mathematics.Interop.RawVector3"/> structure that receives the orientation of the sound projection cone. The vector information represents the center of the sound cone. </dd></param>	
             <returns><p>If the method succeeds, the return value is DS_OK. If the method fails, the return value may be DSERR_INVALIDPARAM.</p></returns>	
             <remarks>	
             <p>The values returned are not necessarily the same as those set by using the SetConeOrientation method. DirectSound normalizes orientation vectors so that all axes have a magnitude of less than or equal to 1.0.</p>	
@@ -2150,11 +2150,11 @@
             <unmanaged>HRESULT IDirectSound3DBuffer::GetMode([Out] unsigned int* pdwMode)</unmanaged>	
             <unmanaged-short>IDirectSound3DBuffer::GetMode</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.DirectSound.SoundBuffer3D.GetPosition(SharpDX.Vector3@)">
+        <member name="M:SharpDX.DirectSound.SoundBuffer3D.GetPosition(SharpDX.Mathematics.Interop.RawVector3@)">
             <summary>	
             The GetPosition method retrieves the position of the sound source.	
             </summary>	
-            <param name="vPositionRef"><dd> Address of a <see cref="T:SharpDX.Vector3"/> structure that receives the position of the sound buffer. </dd></param>	
+            <param name="vPositionRef"><dd> Address of a <see cref="T:SharpDX.Mathematics.Interop.RawVector3"/> structure that receives the position of the sound buffer. </dd></param>	
             <returns><p>If the method succeeds, the return value is DS_OK. If the method fails, the return value may be DSERR_INVALIDPARAM.</p></returns>	
             <remarks>	
             <p>By default, distance units are meters, but the units can be changed by using the SetDistanceFactor method.</p>	
@@ -2164,11 +2164,11 @@
             <unmanaged>HRESULT IDirectSound3DBuffer::GetPosition([Out] D3DVECTOR* pvPosition)</unmanaged>	
             <unmanaged-short>IDirectSound3DBuffer::GetPosition</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.DirectSound.SoundBuffer3D.GetVelocity(SharpDX.Vector3@)">
+        <member name="M:SharpDX.DirectSound.SoundBuffer3D.GetVelocity(SharpDX.Mathematics.Interop.RawVector3@)">
             <summary>	
             The GetVelocity method retrieves the velocity of the sound source.	
             </summary>	
-            <param name="vVelocityRef"><dd> Address of a <see cref="T:SharpDX.Vector3"/> structure that receives the sound buffer's velocity, in meters per second by default. </dd></param>	
+            <param name="vVelocityRef"><dd> Address of a <see cref="T:SharpDX.Mathematics.Interop.RawVector3"/> structure that receives the sound buffer's velocity, in meters per second by default. </dd></param>	
             <returns><p>If the method succeeds, the return value is DS_OK. If the method fails, the return value may be DSERR_INVALIDPARAM.</p></returns>	
             <remarks>	
             <p>Velocity is used for Doppler effects only. It does not actually move the buffer. For more information, see Doppler Effect.</p> <p>The default unit of measurement is meters per second, but this can be changed by using the SetDistanceFactor method.</p>	
@@ -5723,12 +5723,12 @@
             <unmanaged>HRESULT IDirectSound3DListener::GetDopplerFactor([Out] float* pflDopplerFactor)</unmanaged>	
             <unmanaged-short>IDirectSound3DListener::GetDopplerFactor</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.DirectSound.SoundListener3D.GetOrientation(SharpDX.Vector3@,SharpDX.Vector3@)">
+        <member name="M:SharpDX.DirectSound.SoundListener3D.GetOrientation(SharpDX.Mathematics.Interop.RawVector3@,SharpDX.Mathematics.Interop.RawVector3@)">
             <summary>	
             The GetOrientation method retrieves the orientation of the listener's head.	
             </summary>	
-            <param name="vOrientFrontRef"><dd> Address of a <see cref="T:SharpDX.Vector3"/> structure that receives the listener's front orientation vector. </dd></param>	
-            <param name="vOrientTopRef"><dd> Address of a <see cref="T:SharpDX.Vector3"/> structure that receives the listener's top orientation vector. </dd></param>	
+            <param name="vOrientFrontRef"><dd> Address of a <see cref="T:SharpDX.Mathematics.Interop.RawVector3"/> structure that receives the listener's front orientation vector. </dd></param>	
+            <param name="vOrientTopRef"><dd> Address of a <see cref="T:SharpDX.Mathematics.Interop.RawVector3"/> structure that receives the listener's top orientation vector. </dd></param>	
             <returns><p>If the method succeeds, the return value is DS_OK. If the method fails, the return value may be DSERR_INVALIDPARAM.</p></returns>	
             <remarks>	
             <p>The front vector points in the direction of the listener's nose, and the top vector points up from the top of the listener's head. By default, the front vector is (0,0,1.0) and the top vector is (0,1.0,0).</p> <p>The values returned are not necessarily the same as those set by using SetOrientation. DirectSound normalizes orientation vectors so that they are at right angles and have a magnitude of less than or equal to 1.0.</p>	
@@ -5738,11 +5738,11 @@
             <unmanaged>HRESULT IDirectSound3DListener::GetOrientation([Out] D3DVECTOR* pvOrientFront,[Out] D3DVECTOR* pvOrientTop)</unmanaged>	
             <unmanaged-short>IDirectSound3DListener::GetOrientation</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.DirectSound.SoundListener3D.GetPosition(SharpDX.Vector3@)">
+        <member name="M:SharpDX.DirectSound.SoundListener3D.GetPosition(SharpDX.Mathematics.Interop.RawVector3@)">
             <summary>	
             The GetPosition method retrieves the listener's position.	
             </summary>	
-            <param name="vPositionRef"><dd> Address of a <see cref="T:SharpDX.Vector3"/> structure that receives the listener's position vector. </dd></param>	
+            <param name="vPositionRef"><dd> Address of a <see cref="T:SharpDX.Mathematics.Interop.RawVector3"/> structure that receives the listener's position vector. </dd></param>	
             <returns><p>If the method succeeds, the return value is DS_OK. If the method fails, the return value may be DSERR_INVALIDPARAM.</p></returns>	
             <remarks>	
             <p>By default, measurement units are meters, but this can be changed by calling the SetDistanceFactor method.</p>	
@@ -5766,11 +5766,11 @@
             <unmanaged>HRESULT IDirectSound3DListener::GetRolloffFactor([Out] float* pflRolloffFactor)</unmanaged>	
             <unmanaged-short>IDirectSound3DListener::GetRolloffFactor</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.DirectSound.SoundListener3D.GetVelocity(SharpDX.Vector3@)">
+        <member name="M:SharpDX.DirectSound.SoundListener3D.GetVelocity(SharpDX.Mathematics.Interop.RawVector3@)">
             <summary>	
             The GetVelocity method retrieves the listener's velocity.	
             </summary>	
-            <param name="vVelocityRef"><dd> Address of a <see cref="T:SharpDX.Vector3"/> structure that receives the listener's velocity. </dd></param>	
+            <param name="vVelocityRef"><dd> Address of a <see cref="T:SharpDX.Mathematics.Interop.RawVector3"/> structure that receives the listener's velocity. </dd></param>	
             <returns><p>If the method succeeds, the return value is DS_OK. If the method fails, the return value may be DSERR_INVALIDPARAM.</p></returns>	
             <remarks>	
             <p>Velocity is used only for calculating Doppler effect. It does not change the listener's position. To move the listener, use the SetPosition method.</p> <p>The default velocity is (0,0,0).</p> <p>By default, measurement units are meters per second, but this can be changed by calling the SetDistanceFactor method.</p>	

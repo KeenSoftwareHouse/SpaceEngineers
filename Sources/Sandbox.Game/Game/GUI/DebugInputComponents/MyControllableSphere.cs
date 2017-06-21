@@ -11,6 +11,8 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -25,6 +27,8 @@ namespace Sandbox.Game.Entities
         private MyControllerInfo m_info = new MyControllerInfo();
         public MyControllerInfo ControllerInfo { get { return m_info; } }
 
+        private MyToolbar m_toolbar;
+
         #endregion
 
         #region Init
@@ -33,6 +37,8 @@ namespace Sandbox.Game.Entities
         {
             ControllerInfo.ControlAcquired += OnControlAcquired;
             ControllerInfo.ControlReleased += OnControlReleased;
+
+            m_toolbar = new MyToolbar(ToolbarType);
         }
 
         public void Init()
@@ -49,6 +55,7 @@ namespace Sandbox.Game.Entities
 
             Render.SkipIfTooSmall = false;
             Save = false;
+
 
         }
         #endregion
@@ -181,6 +188,21 @@ namespace Sandbox.Game.Entities
         }
 
         public void UseFinished()
+        {
+
+        }
+
+        public void PickUp()
+        {
+
+        }
+
+        public void PickUpContinues()
+        {
+
+        }
+
+        public void PickUpFinished()
         {
 
         }
@@ -392,9 +414,17 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        MatrixD IMyCameraController.GetViewMatrix()
+        public MyToolbar Toolbar
         {
-            return GetViewMatrix();
+            get
+            {
+                return m_toolbar;
+            }
+        }
+
+        void IMyCameraController.ControlCamera(MyCamera currentCamera)
+        {
+            currentCamera.SetViewMatrix(GetViewMatrix());
         }
 
         void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
@@ -442,6 +472,11 @@ namespace Sandbox.Game.Entities
         }
 
         bool IMyCameraController.HandleUse()
+        {
+            return false;
+        }
+
+        bool IMyCameraController.HandlePickUp()
         {
             return false;
         }

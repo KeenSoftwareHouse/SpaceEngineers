@@ -2,6 +2,8 @@
 using ProtoBuf;
 using VRage.ModAPI;
 using VRage.Serialization;
+using System.Xml.Serialization;
+using System.Collections.Generic;
 
 namespace VRage.Game
 {
@@ -10,6 +12,8 @@ namespace VRage.Game
     public class MyObjectBuilder_CompoundCubeBlock : MyObjectBuilder_CubeBlock
     {
         [ProtoMember]
+        [DynamicItem(typeof(MyObjectBuilderDynamicSerializer), true)]
+        [XmlArrayItem("MyObjectBuilder_CubeBlock", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_CubeBlock>))]
         public MyObjectBuilder_CubeBlock[] Blocks;
 
         [ProtoMember]

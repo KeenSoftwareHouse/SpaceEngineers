@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ProtoBuf;
 using System.Xml.Serialization;
 using System.ComponentModel;
@@ -143,7 +144,8 @@ namespace VRage.Game
             {"Astronaut_Green",  new SerializableVector3(0.333f, -0.33f, -0.05f)},
             {"Astronaut_Red",    new SerializableVector3(0f, 0f, 0.05f)},
             {"Astronaut_White",  new SerializableVector3(0f, -0.8f, 0.6f)},
-            {"Astronaut_Yellow", new SerializableVector3(0.122f, 0.05f, 0.46f)}
+            {"Astronaut_Yellow", new SerializableVector3(0.122f, 0.05f, 0.46f)},
+            {"Engineer_suit_no_helmet", new SerializableVector3(-100.0f, -100.0f, -100.0f)} // invalid color, just reuse existing
         };
 
         [ProtoMember]
@@ -166,6 +168,9 @@ namespace VRage.Game
 
         [ProtoMember, DefaultValue(true)]
         public bool DampenersEnabled = true;
+
+        [ProtoMember, DefaultValue(1f)]
+        public float CharacterGeneralDamageModifier = 1f;
 
         [ProtoMember]
         public long? UsingLadder;
@@ -227,8 +232,8 @@ namespace VRage.Game
         public ulong PlayerSteamId = 0;
         [ProtoMember]
         public int PlayerSerialId = 0;
-
+        
         [ProtoMember]
-        public bool IsPromoted;
+        public bool NeedsOxygenFromSuit;
     }
 }

@@ -43,12 +43,14 @@ namespace Sandbox.Game.Screens.Helpers
 
         void JoinGame_LobbyUpdate(bool success, Lobby lobby, ulong memberOrLobby)
         {
+            VRage.Profiler.ProfilerShort.Begin("JoinGame_LobbyUpdate");
             if (lobby.LobbyId == m_lobby.LobbyId)
             {
                 SteamAPI.Instance.Matchmaking.LobbyDataUpdate -= m_dataUpdateHandler;
                 var handler = OnSuccess;
                 if (handler != null) handler(lobby);
             }
+            VRage.Profiler.ProfilerShort.End();
         }
     }
 }

@@ -5,14 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using ParallelTasks;
 using VRage;
 using VRage.Collections;
 using VRage.Game.Components;
 using VRage.Generics;
 using VRage.Library.Collections;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
+using VRage.Library;
+using VRage.Profiler;
+using VRage.Voxels;
+using VRageRender.Voxels;
+using VRageRender.Utils;
 using IPrioritizedWork = ParallelTasks.IPrioritizedWork;
 using IWork = ParallelTasks.IWork;
 using Parallel = ParallelTasks.Parallel;
@@ -66,8 +71,7 @@ namespace Sandbox.Engine.Voxels
 
         private static readonly MyConcurrentSortableQueue<MyPrecalcJob> m_sortedJobs = new MyConcurrentSortableQueue<MyPrecalcJob>();
         private static readonly List<MyPrecalcJob> m_addedJobs = new List<MyPrecalcJob>();
-        private static readonly MyDynamicObjectPool<Work> m_workPool = new MyDynamicObjectPool<Work>(1);
-        private static int m_worksInUse;
+        private static MyDynamicObjectPool<Work> m_workPool;
         private static MyPrecalcComponent m_instance;
 
         internal static readonly HashSet<MyVoxelPhysicsBody> PhysicsWithInvalidCells = new HashSet<MyVoxelPhysicsBody>();
@@ -84,7 +88,7 @@ namespace Sandbox.Engine.Voxels
 
         public static void EnqueueBack(MyPrecalcJob job)
         {
-            if(MyFakes.PRIORITIZE_PRECALC_JOBS)
+            if (MyFakes.PRIORITIZE_PRECALC_JOBS)
             {
                 ProfilerShort.Begin("SortedJobs.Add");
                 m_addedJobs.Add(job);
@@ -116,7 +120,7 @@ namespace Sandbox.Engine.Voxels
         {
             m_instance = this;
 
-            if (Environment.ProcessorCount <= 2)
+            if (MyEnvironment.ProcessorCount <= 2)
             { // throttle down precalc on worker threads when it could hurt Update and Render thread.
                 MyFakes.MAX_PRECALC_TIME_IN_MILLIS = 6f;
             }
@@ -125,6 +129,7 @@ namespace Sandbox.Engine.Voxels
                 MyFakes.MAX_PRECALC_TIME_IN_MILLIS = 14f;
             }
 
+            m_workPool = new MyDynamicObjectPool<Work>(Parallel.Scheduler.ThreadCount);
         }
 
         public override bool UpdatedBeforeInit()
@@ -174,19 +179,18 @@ namespace Sandbox.Engine.Voxels
                         job.DebugDraw(new Color((shade - p) / shade, 0.0f, p / shade, (max - xi) / max));
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 { }
             }
 
-            if (m_sortedJobs.Count > 0 && m_worksInUse < Parallel.Scheduler.ThreadCount)
-            { // no upper bound on these, as there should be just a few high priority jobs
-                for (int i = 0; i < Parallel.Scheduler.ThreadCount; ++i)
+            if (m_sortedJobs.Count > 0)
+            {
+                while (m_workPool.Count > 0)
                 {
                     var work = m_workPool.Allocate();
                     work.Queue = m_sortedJobs;
                     work.Priority = WorkPriority.Low;
                     work.MaxPrecalcTime = (long)MyFakes.MAX_PRECALC_TIME_IN_MILLIS;
-                    ++m_worksInUse;
 
                     if (MULTITHREADED)
                         Parallel.Start(work, work.CompletionCallback);
@@ -200,7 +204,11 @@ namespace Sandbox.Engine.Voxels
 
             foreach (var physics in PhysicsWithInvalidCells)
             {
-                MyPrecalcJobPhysicsBatch.Start(physics, ref physics.InvalidCells);
+                for (int lod = 0; lod < physics.InvalidCells.Length; lod++)
+                {
+                    if (physics.InvalidCells[lod].Count > 0 && physics.RunningBatchTask[lod] == null)
+                        MyPrecalcJobPhysicsBatch.Start(physics, ref physics.InvalidCells[lod], lod);
+                }
             }
             PhysicsWithInvalidCells.Clear();
 
@@ -311,6 +319,7 @@ namespace Sandbox.Engine.Voxels
 
             private void OnComplete()
             {
+                ProfilerShort.Begin("MyPrecalcComponent - Complete");
                 foreach (var finished in m_finishedList)
                 {
                     finished.OnCompleteDelegate();
@@ -318,7 +327,7 @@ namespace Sandbox.Engine.Voxels
                 Queue = null;
                 m_finishedList.Clear();
                 m_workPool.Deallocate(this);
-                --m_worksInUse;
+                ProfilerShort.End();
             }
 
             public WorkPriority Priority
@@ -327,7 +336,7 @@ namespace Sandbox.Engine.Voxels
                 set { m_workPriority = value; }
             }
 
-            void IWork.DoWork()
+            void IWork.DoWork(ParallelTasks.WorkData workData = null)
             {
                 m_timer.Start();
                 MyPrecalcJob work;
@@ -369,6 +378,7 @@ namespace Sandbox.Engine.Voxels
             public MyWorkTracker<MyCellCoord, MyPrecalcJobPhysicsPrefetch> Tracker;
             public MyCellCoord Id;
         }
+
 
     }
 

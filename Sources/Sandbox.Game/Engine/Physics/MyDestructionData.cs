@@ -20,6 +20,9 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using VRage.Game.Components;
 using VRage.Game.Models;
+using VRage.Profiler;
+using VRageRender.Fractures;
+using VRageRender.Utils;
 
 namespace Sandbox
 {
@@ -140,9 +143,9 @@ namespace Sandbox
                     BlockShapePool.Preallocate();
             }
 
-            foreach (var enviroment in MyDefinitionManager.Static.GetEnvironmentItemDefinitions())
+            foreach (var def in MyDefinitionManager.Static.GetAllDefinitions<MyPhysicalModelDefinition>())
             {
-                LoadModelDestruction(enviroment.Model, enviroment, Vector3.One, false, true);
+                LoadModelDestruction(def.Model, def, Vector3.One, false, true);
             }
         }
 
@@ -358,6 +361,8 @@ namespace Sandbox
         {
             var model = VRage.Game.Models.MyModels.GetModelOnlyData(modelName);
 
+            if (model.HavokBreakableShapes != null) return;
+
             bool dontCreateFracturePieces = false;
             MyCubeBlockDefinition blockDefinition = modelDef as MyCubeBlockDefinition;
             if (blockDefinition != null)
@@ -570,9 +575,7 @@ namespace Sandbox
             {
                 m_physicalMaterials = new Dictionary<string, MyPhysicalMaterialDefinition>();
                 foreach (var physMat in MyDefinitionManager.Static.GetPhysicalMaterialDefinitions())
-                {
                     m_physicalMaterials.Add(physMat.Id.SubtypeName, physMat);
-                }
 
                 m_physicalMaterials["Default"] = new MyPhysicalMaterialDefinition()
                 {
@@ -580,13 +583,8 @@ namespace Sandbox
                     HorisontalTransmissionMultiplier = 1,
                     HorisontalFragility = 2,
                     CollisionMultiplier = 1.4f,
-                    SupportMultiplier = 1.5f             
+                    SupportMultiplier = 1.5f,
                 };
-            }
-
-            if(MyPerGameSettings.Destruction == false)
-            {
-              return m_physicalMaterials["Default"];
             }
 
             if (!string.IsNullOrEmpty(physicalMaterial))
@@ -604,17 +602,17 @@ namespace Sandbox
             //MyLog.Default.WriteLine("WARNING: " + modelDef.Id.SubtypeName + " has no physical material specified, trying to autodetect from name");
 
 
-            if (modelDef.Id.SubtypeName.Contains("Stone"))
+            if (modelDef.Id.SubtypeName.Contains("Stone") && m_physicalMaterials.ContainsKey("Stone"))
             {
                 return m_physicalMaterials["Stone"];
             }
 
-            if (modelDef.Id.SubtypeName.Contains("Wood"))
+            if (modelDef.Id.SubtypeName.Contains("Wood") && m_physicalMaterials.ContainsKey("Wood"))
             {
                 return m_physicalMaterials["Wood"];
             }
 
-            if (modelDef.Id.SubtypeName.Contains("Timber"))
+            if (modelDef.Id.SubtypeName.Contains("Timber") && m_physicalMaterials.ContainsKey("Timber"))
             {
                 return m_physicalMaterials["Wood"];
             }

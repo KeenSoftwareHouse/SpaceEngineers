@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Animations;
 
 namespace VRage.Game
 {
@@ -49,7 +49,17 @@ namespace VRage.Game
             LimitAngle
         }
 
-        IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyEmitterPropertiesEnum)).Length];
+        [ThreadStatic]
+        IMyConstProperty[] m_propertiesInternal;
+        IMyConstProperty[] m_properties
+        {
+            get
+            {
+                if (m_propertiesInternal == null)
+                    m_propertiesInternal = new IMyConstProperty[Enum.GetValues(typeof(MyEmitterPropertiesEnum)).Length];
+                return m_propertiesInternal;
+            }
+        }
 
         public MyParticleEmitterType Type
         {
@@ -162,7 +172,7 @@ namespace VRage.Game
             return property;
         }
 
-        public void CalculateStartPosition(float elapsedTime, MatrixD worldMatrix, Vector3D userAxisScale, float userScale, out Vector3D startOffset, out Vector3D startPosition)
+        public void CalculateStartPosition(float elapsedTime, MatrixD worldMatrix, Vector3 userAxisScale, float userScale, out Vector3D startOffset, out Vector3D startPosition)
         {
             Vector3 currentOffsetUntransformed;
             Offset.GetInterpolatedValue<Vector3>(elapsedTime, out currentOffsetUntransformed);
@@ -174,7 +184,7 @@ namespace VRage.Game
             Size.GetInterpolatedValue<float>(elapsedTime, out currentSize);
             currentSize *= MyUtils.GetRandomFloat(RadiusMin, RadiusMax) * userScale;
 
-            Vector3D currentAxisScale = userAxisScale * AxisScale;
+            Vector3 currentAxisScale = userAxisScale * AxisScale;
 
             Vector3 localPos = Vector3.Zero;
             Vector3D worldOffset;
@@ -309,15 +319,28 @@ namespace VRage.Game
 
         public void Serialize(XmlWriter writer)
         {
-            writer.WriteStartElement("ParticleEmitter");
-            writer.WriteAttributeString("version", Version.ToString(CultureInfo.InvariantCulture));
+            writer.WriteElementString("Version", Version.ToString(CultureInfo.InvariantCulture));
+            writer.WriteStartElement("Properties");
 
             foreach (IMyConstProperty property in m_properties)
             {
+                writer.WriteStartElement("Property");
+
+                writer.WriteAttributeString("Name", property.Name);
+
+                writer.WriteAttributeString("Type", property.BaseValueType);
+
+                PropertyAnimationType animType = PropertyAnimationType.Const;
+                if (property.Animated)
+                    animType = property.Is2D ? PropertyAnimationType.Animated2D : PropertyAnimationType.Animated;
+                writer.WriteAttributeString("AnimationType", animType.ToString());
+
                 property.Serialize(writer);
+
+                writer.WriteEndElement();//property
             }
 
-            writer.WriteEndElement(); //ParticleEmitter
+            writer.WriteEndElement(); //Properties
         }
 
         public void Deserialize(XmlReader reader)
@@ -357,6 +380,20 @@ namespace VRage.Game
             }
 
             reader.ReadEndElement(); //ParticleEmitter
+        }
+
+        public void DeserializeFromObjectBuilder(ParticleEmitter emitter)
+        {
+            foreach (GenerationProperty property in emitter.Properties)
+            {
+                for (int i = 0; i < m_properties.Length; i++)
+                {
+                    if (m_properties[i].Name.Equals(property.Name))
+                    {
+                        m_properties[i].DeserializeFromObjectBuilder(property);
+                    }
+                }
+            }
         }
 
         void DeserializeV0(XmlReader reader)

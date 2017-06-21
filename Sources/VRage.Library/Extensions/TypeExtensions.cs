@@ -9,6 +9,15 @@ namespace VRage
 {
     public static class MemberHelper<T>
     {
+#if XB1
+        // Not suported on XB1 version
+
+        //public static Func<T,TValue> GetMember<TValue>(Func<T,TValue> selector)
+        //{
+        //    Debug.Assert(false, "Check this is working properly");
+        //    return selector;
+        //}
+#else
         /// <summary>
         ///  Gets the memberinfo of field/property on instance class.
         /// </summary>
@@ -26,10 +35,20 @@ namespace VRage
 
             return me.Member;
         }
+#endif
     }
 
     public static class MemberHelper
     {
+#if XB1
+    // Not suported on XB1 version
+
+    //public static Func<TValue> GetMember<TValue>(Func<TValue> selector)
+    //{
+    //    return selector;
+    //}
+
+#else
         /// <summary>
         /// Gets the memberinfo of field/property on static class.
         /// </summary>
@@ -47,6 +66,7 @@ namespace VRage
 
             return me.Member;
         }
+#endif
     }
 
     public static class TypeExtensions
@@ -56,11 +76,11 @@ namespace VRage
             return type.IsValueType && !type.IsPrimitive && !type.IsEnum && type != typeof(decimal);
         }
 
-        public static IEnumerable<MemberInfo> GetDataMembers(this Type t, bool fields, bool properties, bool nonPublic, bool inherited, bool @static, bool instance, bool read, bool write)
+        public static IEnumerable<MemberInfo> GetDataMembers(this Type t, bool fields, bool properties, bool nonPublic, bool inherited, bool _static, bool instance, bool read, bool write)
         {
             var flags = BindingFlags.DeclaredOnly | BindingFlags.Public;
             if (nonPublic) flags |= BindingFlags.NonPublic;
-            if (@static) flags |= BindingFlags.Static;
+            if (_static) flags |= BindingFlags.Static;
             if (instance) flags |= BindingFlags.Instance;
 
             IEnumerable<MemberInfo> members = t.GetMembers(flags);

@@ -4,6 +4,11 @@
         <name>SharpDX.DirectInput</name>
     </assembly>
     <members>
+        <member name="T:SharpDX.Win32Native">
+            <summary>
+            Internal class to interact with Native Message
+            </summary>
+        </member>
         <member name="T:SharpDX.DirectInput.AssemblyDoc">
             <summary>
             The <see cref="A:SharpDX.DirectInput"/> assembly provides managed DirectInput API.
@@ -297,7 +302,7 @@
             </td></tr> <tr><td><see cref="M:SharpDX.DirectInput.Device.SendDeviceData(System.Int32,SharpDX.DirectInput.ObjectData[],System.Int32@,System.Int32)"/> </td><td>Sends data to a device that accepts output. 	
             </td></tr> <tr><td><see cref="M:SharpDX.DirectInput.Device.SendForceFeedbackCommand(SharpDX.DirectInput.ForceFeedbackCommand)"/> </td><td>Sends a command to the device's force-feedback system.	
             </td></tr> <tr><td><see cref="M:SharpDX.DirectInput.Device.SetActionMap(SharpDX.DirectInput.ActionFormat@,System.String,System.Int32)"/> </td><td>Sets the data format for a device and maps application-defined actions to device objects.	
-            </td></tr> <tr><td><see cref="M:SharpDX.DirectInput.Device.SetCooperativeLevel(System.Windows.Forms.Control,SharpDX.DirectInput.CooperativeLevel)"/> </td><td>Establishes the cooperative level for this instance of the device.	
+            </td></tr> <tr><td><see cref="M:SharpDX.DirectInput.Device.SetCooperativeLevel(System.IntPtr,SharpDX.DirectInput.CooperativeLevel)"/> </td><td>Establishes the cooperative level for this instance of the device.	
             </td></tr> <tr><td><see cref="M:SharpDX.DirectInput.Device.SetDataFormat(SharpDX.DirectInput.DataFormat)"/> </td><td>Sets the data format for the DirectInput device.	
             </td></tr> <tr><td><see cref="M:SharpDX.DirectInput.Device.SetEventNotification(System.IntPtr)"/> </td><td>Specifies an event that is to be set when the device state changes.	
             </td></tr> <tr><td><see cref="M:SharpDX.DirectInput.Device.SetProperty(System.IntPtr,System.IntPtr)"/> </td><td>Sets properties that define the device behavior.	
@@ -414,27 +419,12 @@
             </summary>
             <returns>A <see cref = "T:SharpDX.Result" /> object describing the result of the operation.</returns>
         </member>
-        <member name="M:SharpDX.DirectInput.Device.RunControlPanel(System.Windows.Forms.Control)">
+        <member name="M:SharpDX.DirectInput.Device.RunControlPanel(System.IntPtr)">
             <summary>
             Runs the DirectInput control panel associated with this device. If the device does not have a control panel associated with it, the default device control panel is launched.
             </summary>
-            <param name="parent">The parent control.</param>
+            <param name="parentHwnd">The parent control.</param>
             <returns>A <see cref = "T:SharpDX.Result" /> object describing the result of the operation.</returns>
-        </member>
-        <member name="M:SharpDX.DirectInput.Device.SetCooperativeLevel(System.Windows.Forms.Control,SharpDX.DirectInput.CooperativeLevel)">
-            <summary>	
-            Requests the cooperative level for this instance of the input device. The cooperative level determines how this instance of the device interacts with other instances of the device and the rest of the system.	
-            </summary>	
-            <param name="control">Window control to be associated with the device. This parameter must be a valid top-level window handle that belongs to the process. The window associated with the device must not be destroyed while it is still active in a DirectInput device.</param>	
-            <param name="level">Flags that specify the cooperative level to associate with the input device.</param>	
-            <returns>If the method succeeds, the return value is <see cref="F:SharpDX.DirectInput.ResultCode.Ok"/>. If the method fails, a <see cref="T:SharpDX.SharpDXException"/> is raised with the following error code values: <see cref="F:SharpDX.DirectInput.ResultCode.InvalidParam"/>, <see cref="F:SharpDX.DirectInput.ResultCode.NotInitialized"/>, <see cref="F:SharpDX.Result.Handle"/>.</returns>	
-            <remarks>	
-            <para>Applications cannot specify <see cref="F:SharpDX.DirectInput.CooperativeLevel.Foreground"/> and <see cref="F:SharpDX.DirectInput.CooperativeLevel.Background"/> at the same time. This apply as well to <see cref="F:SharpDX.DirectInput.CooperativeLevel.Exclusive"/> and <see cref="F:SharpDX.DirectInput.CooperativeLevel.NonExclusive"/>.</para>
-             <para>When the mouse is acquired with exclusive access, the mouse pointer is removed from the screen until the device is unacquired.</para>	
-             <para>Applications that select the background exclusive mode cooperative level are not guaranteed to retain access to the device if another application requests exclusive access. When a background exclusive mode application loses access, calls to DirectInput device methods will fail and return <see cref="F:SharpDX.DirectInput.ResultCode.NotAcquired"/>. The application can regain access to the device by manually unacquiring the device and reacquiring it.</para>	
-             <para>Applications must call this method before acquiring the device by using the <see cref="T:SharpDX.DirectInput.Device"/> method.</para>	
-            </remarks>	
-            <unmanaged>HRESULT IDirectInputDevice8W::SetCooperativeLevel([In] HWND arg0,[In] DISCL arg1)</unmanaged>	
         </member>
         <member name="M:SharpDX.DirectInput.Device.SetNotification(System.Threading.WaitHandle)">
             <summary>
@@ -563,7 +553,7 @@
             <param name="arg1"><dd> Address of a structure that receives the current state of the device. The format of the data is established by a prior call to the <see cref="M:SharpDX.DirectInput.Device.SetDataFormat(SharpDX.DirectInput.DataFormat)"/> method.  </dd></param>	
             <returns><p>If the method succeeds, the return value is <see cref="F:SharpDX.DirectInput.ResultCode.Ok"/>. If the method fails, the return value can be one of the following error values: <see cref="F:SharpDX.DirectInput.ResultCode.InputLost"/>, <see cref="F:SharpDX.DirectInput.ResultCode.InvalidParam"/>, <see cref="F:SharpDX.DirectInput.ResultCode.NotAcquired"/>, <see cref="F:SharpDX.DirectInput.ResultCode.NotInitialized"/>, E_PENDING.</p></returns>	
             <remarks>	
-            <p>Before device data can be obtained, set the cooperative level by using the <see cref="M:SharpDX.DirectInput.Device.SetCooperativeLevel(System.Windows.Forms.Control,SharpDX.DirectInput.CooperativeLevel)"/> method, then set the data format by using <see cref="M:SharpDX.DirectInput.Device.SetDataFormat(SharpDX.DirectInput.DataFormat)"/>, and acquire the device by using the <see cref="T:SharpDX.DirectInput.Device"/> Interface method.</p> <p>The five predefined data formats require corresponding device state structures according to the following table:</p> <table> <tr><th>Data format	
+            <p>Before device data can be obtained, set the cooperative level by using the <see cref="M:SharpDX.DirectInput.Device.SetCooperativeLevel(System.IntPtr,SharpDX.DirectInput.CooperativeLevel)"/> method, then set the data format by using <see cref="M:SharpDX.DirectInput.Device.SetDataFormat(SharpDX.DirectInput.DataFormat)"/>, and acquire the device by using the <see cref="T:SharpDX.DirectInput.Device"/> Interface method.</p> <p>The five predefined data formats require corresponding device state structures according to the following table:</p> <table> <tr><th>Data format	
             </th><th>State structure	
             </th></tr> <tr><td> c_dfDIMouse </td><td>DIMOUSESTATE </td></tr> <tr><td> c_dfDIMouse2 </td><td>DIMOUSESTATE2 </td></tr> <tr><td> c_dfDIKeyboard </td><td>array of 256 bytes	
             </td></tr> <tr><td> c_dfDIJoystick </td><td>DIJOYSTATE </td></tr> <tr><td> c_dfDIJoystick2 </td><td>DIJOYSTATE2 </td></tr> </table> <p>For example, if you passed the c_dfDIMouse format to the <see cref="M:SharpDX.DirectInput.Device.SetDataFormat(SharpDX.DirectInput.DataFormat)"/> method, you must pass a DIMOUSESTATE structure to the <see cref="M:SharpDX.DirectInput.Device.GetDeviceState(System.Int32,System.IntPtr)"/> method.</p>	
@@ -2550,7 +2540,7 @@ Flags describing other attributes of the data format.
         </member>
         <member name="T:SharpDX.DirectInput.CooperativeLevel">
             <summary>	
-Flags that specify the cooperative level to associate with the input device. This flag is used by <see cref="M:SharpDX.DirectInput.Device.SetCooperativeLevel(System.Windows.Forms.Control,SharpDX.DirectInput.CooperativeLevel)"/> method.
+Flags that specify the cooperative level to associate with the input device. This flag is used by <see cref="!:Device.SetCooperativeLevel(System.Windows.Forms.Control,SharpDX.DirectInput.CooperativeLevel)"/> method.
 </summary>	
             <msdn-id>ee416848</msdn-id>	
             <unmanaged>DISCL</unmanaged>	
@@ -3141,7 +3131,7 @@ First-person action game device. The following subtypes are defined.
             .	
             .	
             .	
-            </pre><p>The following callback function is called once for each effect in the file or until it returns DIENUM_STOP. Note that because the <see cref="F:SharpDX.DirectInput.EffectFileFlags.ModidyIfNeeded"/> flag was passed, the effect parameters may have been modified in lpdife-&gt;lpDiEffect. The callback creates the effect with these modified parameters.</p><pre> <see cref="T:SharpDX.Bool"/> CALLBACK EnumEffectsInFileProc(LPCDIFILEEFFECT lpdife,  LPVOID pvRef) { <see cref="T:SharpDX.Result"/>     hr; static int  i; hr = g_lpdid-&gt;CreateEffect(lpdife-&gt;GuidEffect,  lpdife-&gt;lpDiEffect, &amp;pEff[i],  <c>null</c>); if (FAILED(hr)) { // Error handling } if (++i &gt; 2) return DIENUM_STOP; else return DIENUM_CONTINUE;	
+            </pre><p>The following callback function is called once for each effect in the file or until it returns DIENUM_STOP. Note that because the <see cref="F:SharpDX.DirectInput.EffectFileFlags.ModidyIfNeeded"/> flag was passed, the effect parameters may have been modified in lpdife-&gt;lpDiEffect. The callback creates the effect with these modified parameters.</p><pre> <see cref="T:SharpDX.Mathematics.Interop.RawBool"/> CALLBACK EnumEffectsInFileProc(LPCDIFILEEFFECT lpdife,  LPVOID pvRef) { <see cref="T:SharpDX.Result"/>     hr; static int  i; hr = g_lpdid-&gt;CreateEffect(lpdife-&gt;GuidEffect,  lpdife-&gt;lpDiEffect, &amp;pEff[i],  <c>null</c>); if (FAILED(hr)) { // Error handling } if (++i &gt; 2) return DIENUM_STOP; else return DIENUM_CONTINUE;	
             }	
             </pre>	
             </summary>	
@@ -6125,10 +6115,6 @@ First-person action game device. The following subtypes are defined.
             <summary>Constant Pause.</summary>
             <unmanaged>DIBUTTON_BASEBALLB_PAUSE</unmanaged>
         </member>
-        <member name="F:SharpDX.DirectInput.BaseballBattingControls.BackLink">
-            <summary>Constant BackLink.</summary>
-            <unmanaged>DIBUTTON_BASEBALLB_BACK_LINK</unmanaged>
-        </member>
         <member name="F:SharpDX.DirectInput.BaseballBattingControls.Burst">
             <summary>Constant Burst.</summary>
             <unmanaged>DIBUTTON_BASEBALLB_BURST</unmanaged>
@@ -6140,6 +6126,10 @@ First-person action game device. The following subtypes are defined.
         <member name="F:SharpDX.DirectInput.BaseballBattingControls.Contact">
             <summary>Constant Contact.</summary>
             <unmanaged>DIBUTTON_BASEBALLB_CONTACT</unmanaged>
+        </member>
+        <member name="F:SharpDX.DirectInput.BaseballBattingControls.BackLink">
+            <summary>Constant BackLink.</summary>
+            <unmanaged>DIBUTTON_BASEBALLB_BACK_LINK</unmanaged>
         </member>
         <member name="F:SharpDX.DirectInput.BaseballBattingControls.Menu">
             <summary>Constant Menu.</summary>
@@ -8127,10 +8117,6 @@ First-person action game device. The following subtypes are defined.
             <summary>Constant Reverse.</summary>
             <unmanaged>DIBUTTON_MECHA_REVERSE</unmanaged>
         </member>
-        <member name="F:SharpDX.DirectInput.MechanicalFightingControls.Menu">
-            <summary>Constant Menu.</summary>
-            <unmanaged>DIBUTTON_MECHA_MENU</unmanaged>
-        </member>
         <member name="F:SharpDX.DirectInput.MechanicalFightingControls.Pause">
             <summary>Constant Pause.</summary>
             <unmanaged>DIBUTTON_MECHA_PAUSE</unmanaged>
@@ -8154,6 +8140,10 @@ First-person action game device. The following subtypes are defined.
         <member name="F:SharpDX.DirectInput.MechanicalFightingControls.SlowerLink">
             <summary>Constant SlowerLink.</summary>
             <unmanaged>DIBUTTON_MECHA_SLOWER_LINK</unmanaged>
+        </member>
+        <member name="F:SharpDX.DirectInput.MechanicalFightingControls.Menu">
+            <summary>Constant Menu.</summary>
+            <unmanaged>DIBUTTON_MECHA_MENU</unmanaged>
         </member>
         <member name="F:SharpDX.DirectInput.MechanicalFightingControls.Target">
             <summary>Constant Target.</summary>
@@ -8811,13 +8801,13 @@ First-person action game device. The following subtypes are defined.
             <summary>Constant Scancode.</summary>
             <unmanaged>DIPROP_SCANCODE</unmanaged>
         </member>
-        <member name="F:SharpDX.DirectInput.PropertyGuids.Joystickid">
-            <summary>Constant Joystickid.</summary>
-            <unmanaged>DIPROP_JOYSTICKID</unmanaged>
-        </member>
         <member name="F:SharpDX.DirectInput.PropertyGuids.Granularity">
             <summary>Constant Granularity.</summary>
             <unmanaged>DIPROP_GRANULARITY</unmanaged>
+        </member>
+        <member name="F:SharpDX.DirectInput.PropertyGuids.Joystickid">
+            <summary>Constant Joystickid.</summary>
+            <unmanaged>DIPROP_JOYSTICKID</unmanaged>
         </member>
         <member name="F:SharpDX.DirectInput.PropertyGuids.InstanceName">
             <summary>Constant InstanceName.</summary>
@@ -10123,6 +10113,10 @@ First-person action game device. The following subtypes are defined.
             <summary>Constant SteerRightLink.</summary>
             <unmanaged>DIBUTTON_DRIVINGT_STEER_RIGHT_LINK</unmanaged>
         </member>
+        <member name="F:SharpDX.DirectInput.TankDrivingControls.Fire">
+            <summary>Constant Fire.</summary>
+            <unmanaged>DIBUTTON_DRIVINGT_FIRE</unmanaged>
+        </member>
         <member name="F:SharpDX.DirectInput.TankDrivingControls.GlanceLeftLink">
             <summary>Constant GlanceLeftLink.</summary>
             <unmanaged>DIBUTTON_DRIVINGT_GLANCE_LEFT_LINK</unmanaged>
@@ -10130,10 +10124,6 @@ First-person action game device. The following subtypes are defined.
         <member name="F:SharpDX.DirectInput.TankDrivingControls.RotateLeftLink">
             <summary>Constant RotateLeftLink.</summary>
             <unmanaged>DIBUTTON_DRIVINGT_ROTATE_LEFT_LINK</unmanaged>
-        </member>
-        <member name="F:SharpDX.DirectInput.TankDrivingControls.Fire">
-            <summary>Constant Fire.</summary>
-            <unmanaged>DIBUTTON_DRIVINGT_FIRE</unmanaged>
         </member>
         <member name="F:SharpDX.DirectInput.TankDrivingControls.Pause">
             <summary>Constant Pause.</summary>

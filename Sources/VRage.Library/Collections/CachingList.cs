@@ -11,7 +11,7 @@ namespace VRage.Collections
     /// List wrapper that allows for addition and removal even during enumeration.
     /// Done by caching changes and allowing explicit application using Apply* methods.
     /// </summary>
-    public class CachingList<T> : IEnumerable<T>
+    public class CachingList<T> : IReadOnlyList<T>
     {
         List<T> m_list = new List<T>();
         List<T> m_toAdd = new List<T>();
@@ -54,6 +54,22 @@ namespace VRage.Collections
                 m_list.Remove(entity);
                 m_toRemove.Remove(entity);
             }
+        }
+
+        /// <summary>
+        /// Immediately removes an element at the specified index.
+        /// </summary>
+        /// <param name="index">Index of the element to remove immediately.</param>
+        public void RemoveAtImmediately(int index)
+        {
+            if (index < 0 || index >= m_list.Count) return;
+            m_list.RemoveAt(index);
+        }
+
+        public void Clear()
+        {
+            for (int i = 0; i < m_list.Count; i++)
+                Remove(m_list[i]);
         }
 
         public void ClearImmediate()

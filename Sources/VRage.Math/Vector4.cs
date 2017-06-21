@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Globalization;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace VRageMath
 {
@@ -7,7 +11,11 @@ namespace VRageMath
     /// Defines a vector with four components.
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct Vector4 : IEquatable<Vector4>
+#else // XB1
+    public struct Vector4 : IEquatable<Vector4>, IMySetGetMemberDataHelper
+#endif // XB1
     {
         public static Vector4 Zero = new Vector4();
         public static Vector4 One = new Vector4(1f, 1f, 1f, 1f);
@@ -1252,5 +1260,61 @@ namespace VRageMath
             result.Z = value1.Z * num;
             result.W = value1.W * num;
         }
+
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return X;
+                    case 1:
+                        return Y;
+                    case 2:
+                        return Z;
+                    case 3:
+                        return W;
+                    default:
+                        throw new Exception("Index out of bounds");
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        X = value;
+                        break;
+                    case 1:
+                        Y = value;
+                        break;
+                    case 2:
+                        Z = value;
+                        break;
+                    case 3:
+                        W = value;
+                        break;
+                    default:
+                        throw new Exception("Index out of bounds");
+                }
+            }
+        }
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name == "X")
+                return X;
+            if (m.Name == "Y")
+                return Y;
+            if (m.Name == "Z")
+                return Z;
+            if (m.Name == "W")
+                return W;
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 }

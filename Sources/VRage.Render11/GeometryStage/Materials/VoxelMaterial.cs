@@ -11,7 +11,6 @@ using System.Text;
 using VRage.Generics;
 
 using VRageMath;
-using VRageRender.Resources;
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;
@@ -24,6 +23,8 @@ using Color = VRageMath.Color;
 using SharpDX.D3DCompiler;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
 
 namespace VRageRender
 {
@@ -32,75 +33,43 @@ namespace VRageRender
     {
         // texturing part
 
-        internal MyStringId ColorMetalXZnY_Texture;
-        internal MyStringId ColorMetalpY_Texture;
-        internal MyStringId NormalGlossXZnY_Texture;
-        internal MyStringId NormalGlossY_Texture;
-        internal MyStringId ExtXZnY_Texture;
-        internal MyStringId ExtY_Texture;
-        
-        internal MyTextureArray ColorMetalArray;
-        internal MyTextureArray NormalGlossArray;
-        internal MyTextureArray ExtArray;
+        internal string[] ColorMetalXZnY_Filepaths;
+        internal string[] ColorMetalY_Filepaths;
+        internal string[] NormalGlossXZnY_Filepaths;
+        internal string[] NormalGlossY_Filepaths;
+        internal string[] ExtXZnY_Filepaths;
+        internal string[] ExtY_Filepaths;
 
         internal static void RequestResources(ref MyVoxelMaterialDetailSet set)
         {
-            MyTextures.GetTexture(set.ColorMetalXZnY_Texture, null, MyTextureEnum.COLOR_METAL);
-            MyTextures.GetTexture(set.ColorMetalpY_Texture, null, MyTextureEnum.COLOR_METAL);
+            MyFileTextureManager texManager = MyManagers.FileTextures;
+            foreach (var filepath in set.ColorMetalXZnY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.COLOR_METAL);
+            foreach (var filepath in set.ColorMetalY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.COLOR_METAL);
 
-            MyTextures.GetTexture(set.NormalGlossXZnY_Texture, null, MyTextureEnum.NORMALMAP_GLOSS);
-            MyTextures.GetTexture(set.NormalGlossY_Texture, null, MyTextureEnum.NORMALMAP_GLOSS);
+            foreach (var filepath in set.NormalGlossXZnY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.NORMALMAP_GLOSS);
+            foreach (var filepath in set.NormalGlossY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.NORMALMAP_GLOSS);
 
-            MyTextures.GetTexture(set.ExtXZnY_Texture, null, MyTextureEnum.EXTENSIONS);
-            MyTextures.GetTexture(set.ExtY_Texture, null, MyTextureEnum.EXTENSIONS);
-        }
-
-        internal static void ReleaseResources(ref MyVoxelMaterialDetailSet set)
-        {
-            if (set.ColorMetalArray != null)
-            {
-                set.ColorMetalArray.Dispose();
-                set.NormalGlossArray.Dispose();
-                set.ExtArray.Dispose();
-
-                set.ColorMetalArray = null;
-                set.NormalGlossArray = null;
-                set.ExtArray = null;
-            }
-        }
-
-        internal static void PrepareArrays(ref MyVoxelMaterialDetailSet set)
-        {
-            set.ColorMetalArray = new MyTextureArray(
-                    new[] { 
-                        MyTextures.GetTexture(set.ColorMetalXZnY_Texture, null, MyTextureEnum.COLOR_METAL),
-                        MyTextures.GetTexture(set.ColorMetalpY_Texture, null, MyTextureEnum.COLOR_METAL)
-                    }); 
-            set.NormalGlossArray = new MyTextureArray(
-                    new[] { 
-                        MyTextures.GetTexture(set.NormalGlossXZnY_Texture, null, MyTextureEnum.NORMALMAP_GLOSS),
-                        MyTextures.GetTexture(set.NormalGlossY_Texture, null, MyTextureEnum.NORMALMAP_GLOSS)
-                    });
-            set.ExtArray = new MyTextureArray(
-                    new[] { 
-                        MyTextures.GetTexture(set.ExtXZnY_Texture, null, MyTextureEnum.EXTENSIONS),
-                        MyTextures.GetTexture(set.ExtY_Texture, null, MyTextureEnum.EXTENSIONS) 
-                    });
+            foreach (var filepath in set.ExtXZnY_Filepaths) 
+                texManager.GetTexture(filepath, MyFileTextureEnum.EXTENSIONS);
+            foreach (var filepath in set.ExtY_Filepaths)
+                texManager.GetTexture(filepath, MyFileTextureEnum.EXTENSIONS);
         }
     }
 
     struct MyVoxelMaterial1
     {
-        internal MyVoxelMaterialDetailSet Near;
-        internal MyVoxelMaterialDetailSet Far1;
-        internal MyVoxelMaterialDetailSet Far2;
+        internal MyVoxelMaterialDetailSet Resource;
 
         // foliage 
         internal string FoliageArray_Texture;
         internal string FoliageArray_NormalTexture;
 
-        internal MyTextureArray FoliageColorTextureArray;
-        internal MyTextureArray FoliageNormalTextureArray;
+        internal IFileArrayTexture FoliageColorTextureArray;
+        internal IFileArrayTexture FoliageNormalTextureArray;
 
         internal Vector2 FoliageScale;
         internal float FoliageDensity;
@@ -122,18 +91,36 @@ namespace VRageRender
         internal int I0;
         internal int I1;
         internal int I2;
+        internal bool IsFillingMaterialCB;
 
-        internal MyVoxelMaterialTriple(int i0, int i1, int i2)
+        internal MyVoxelMaterialTriple(int i0, int i1, int i2, bool isFillingMaterialCB)
         {
             I0 = i0;
             I1 = i1;
             I2 = i2;
+            IsFillingMaterialCB = isFillingMaterialCB;
         }
 
         internal bool IsMultimaterial()
         {
             return I1 > -1 || I2 > -1;
         }
+
+        private class comp : IEqualityComparer<MyVoxelMaterialTriple>
+        {
+            public bool Equals(MyVoxelMaterialTriple x, MyVoxelMaterialTriple y)
+            {
+                return x.I0 == y.I0 && x.I1 == y.I1 && x.I2 == y.I2 && x.IsFillingMaterialCB == y.IsFillingMaterialCB;
+            }
+
+            public int GetHashCode(MyVoxelMaterialTriple obj)
+            {
+                int hashIsFillingMaterialCB = obj.IsFillingMaterialCB ? 1 << 24 : 0;
+                return (obj.I0 << 16 | obj.I1 << 8 | obj.I2).GetHashCode() ^ hashIsFillingMaterialCB;
+            }
+        }
+
+        public static readonly IEqualityComparer<MyVoxelMaterialTriple> Comparer = new comp();
     }
 
     struct MaterialFoliageConstantsElem
@@ -380,7 +367,7 @@ namespace VRageRender
 
     //        if(isSingleMaterial)
     //        {
-    //            bindings = MyShaderMaterialReflection.CreateBindings(MyVoxelMesh.SINGLE_MATERIAL_TAG);
+    //            bindings = MyShaderMaterialReflection.CreateBindings(MyVoxelMesh.TRIPLANAR_SINGLE_MATERIAL_TAG);
 
     //            bindings.SetFloat("highfreq_scale", material0.HighFreqScale);
     //            bindings.SetFloat("lowfreq_scale", material0.LowFreqScale);
@@ -393,7 +380,7 @@ namespace VRageRender
     //        }
     //        else
     //        {
-    //            bindings = MyShaderMaterialReflection.CreateBindings(MyVoxelMesh.MULTI_MATERIAL_TAG);
+    //            bindings = MyShaderMaterialReflection.CreateBindings(MyVoxelMesh.TRIPLANAR_MULTI_MATERIAL_TAG);
 
     //            bindings.SetFloat4("material_factors[0]", new Vector4(material0.HighFreqScale, material0.LowFreqScale, material0.TransitionRange, material0.HasFoliage ? 1 : 0));
     //            bindings.SetTexture("ColorMetal_XZnY_pY[0]", material0.ColorMetalArray.ShaderView);

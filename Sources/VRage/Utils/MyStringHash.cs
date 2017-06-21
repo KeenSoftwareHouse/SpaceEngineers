@@ -17,7 +17,7 @@ namespace VRage.Utils
     /// we know about any collision early and not from rare and random crash reports.
     /// </summary>
     [ProtoBuf.ProtoContract]
-    public struct MyStringHash
+    public struct MyStringHash : IEquatable<MyStringHash>
     {
         public static readonly MyStringHash NullOrEmpty;
 

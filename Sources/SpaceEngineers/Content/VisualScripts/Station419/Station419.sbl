@@ -1,0 +1,412 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Localization xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Id>8715113990822297600</Id>
+  <Language>English</Language>
+  <Context>Station419</Context>
+  <ResourceName>Station419</ResourceName>
+  <Default>true</Default>
+  <Entries>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:string">Airlock_QLLine1</Key>
+        <Value xsi:type="xsd:string">Aquire spare oxygen and hydrogen bottles from highlighted generator</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Airlock_QLLine2</Key>
+        <Value xsi:type="xsd:string">Cycle the airlock by using nearby button panel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Airlock_QLLine3</Key>
+        <Value xsi:type="xsd:string">Exit the station</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Airlock_QLTitle</Key>
+        <Value xsi:type="xsd:string">Leave the station through airlock</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_Build</Key>
+        <Value xsi:type="xsd:string">You will also have to build some completely new conveyor tubes ([ {0} ] key).</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_Completed1</Key>
+        <Value xsi:type="xsd:string">Cargo/Gatling connection completed. Turret will now automaticaly supply itself with ammo.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_Completed2</Key>
+        <Value xsi:type="xsd:string">Cargo/Connector connection completed. You can now retrieve items in connector from large cargo.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_Completed3</Key>
+        <Value xsi:type="xsd:string">Connectors connection completed. You can now use any connector for unloading items from ships.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_Completed4</Key>
+        <Value xsi:type="xsd:string">Refinery/Reactor connection completed. Reactor will now be supplied with uranium ingots automaticaly.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_GPS</Key>
+        <Value xsi:type="xsd:string">Unused Grindable Conveyor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_GPS_Cargo</Key>
+        <Value xsi:type="xsd:string">Damaged Conveyor Tubes</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_GPS_Connector</Key>
+        <Value xsi:type="xsd:string">Missing Conveyor Tubes</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_GPS_Reactor</Key>
+        <Value xsi:type="xsd:string">Missing Conveyor Tube</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_Hint</Key>
+        <Value xsi:type="xsd:string">There is unused conveyor section that can be grinded down for components.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_QLLine1</Key>
+        <Value xsi:type="xsd:string">Large cargo container &lt;=&gt; Gatling Turret</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_QLLine2</Key>
+        <Value xsi:type="xsd:string">Large cargo container &lt;=&gt; Base connector</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_QLLine3</Key>
+        <Value xsi:type="xsd:string">Base connector &lt;=&gt; Refinery connector</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_QLLine4</Key>
+        <Value xsi:type="xsd:string">Refinery &lt;=&gt; Reactor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_QLTitle</Key>
+        <Value xsi:type="xsd:string">Fix listed conveyor connections in the base</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_Quest1</Key>
+        <Value xsi:type="xsd:string">This base was originally connected with conveyors.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Conveyors_Quest2</Key>
+        <Value xsi:type="xsd:string">Some parts are damaged now and they must be fixed.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene1_Chair</Key>
+        <Value xsi:type="xsd:string">You can also use cockpits or seat to recharge your energy.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene1_Chair2</Key>
+        <Value xsi:type="xsd:string">This one also has nice view to the space void.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene1_Cryo</Key>
+        <Value xsi:type="xsd:string">Get into these cryochambers when you wish to quit to preserve yourself</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene1_MedBay</Key>
+        <Value xsi:type="xsd:string">Use this medbay to respawn, heal, recharge and change appearance</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene1_Proceed</Key>
+        <Value xsi:type="xsd:string">Now is time to proceed to airlock.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene1_Welcome</Key>
+        <Value xsi:type="xsd:string">Welcome to Station #419 start guide</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Antenna</Key>
+        <Value xsi:type="xsd:string">Station antenna</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Ending</Key>
+        <Value xsi:type="xsd:string">Most of these areas are in bad shape. It is up to you to get it in working order.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Gatling</Key>
+        <Value xsi:type="xsd:string">Primary defense turret</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Mining</Key>
+        <Value xsi:type="xsd:string">Main mining area with ore detector</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Missile</Key>
+        <Value xsi:type="xsd:string">Secondary defense turret</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Production</Key>
+        <Value xsi:type="xsd:string">Production and refining area</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Reactor</Key>
+        <Value xsi:type="xsd:string">Primary energy production area</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Ship</Key>
+        <Value xsi:type="xsd:string">Small ship hangar with damaged miner ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Solar</Key>
+        <Value xsi:type="xsd:string">Secondary energy production and storage area</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Storage</Key>
+        <Value xsi:type="xsd:string">Main storage area</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Tank</Key>
+        <Value xsi:type="xsd:string">Hydrogen storage</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Cutscene2_Welcome</Key>
+        <Value xsi:type="xsd:string">Welcome to station #419, engineer. Lets look at the station sectors.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_Furnace</Key>
+        <Value xsi:type="xsd:string">Blast furnace is operational. It will process basic ores like iron faster then refinery.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_GPS_Furnace</Key>
+        <Value xsi:type="xsd:string">Blast Furnace</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_GPS_Storage</Key>
+        <Value xsi:type="xsd:string">Large Cargo Container</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_Hint</Key>
+        <Value xsi:type="xsd:string">If you aim welder/grinder on some block you can find out what components you need.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_QLLine1</Key>
+        <Value xsi:type="xsd:string">Repair blast furnace</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_QLLine2</Key>
+        <Value xsi:type="xsd:string">Repair large cargo container</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_QLTitle</Key>
+        <Value xsi:type="xsd:string">Repair blast furnace and large cargo container</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_Quest1</Key>
+        <Value xsi:type="xsd:string">Now is time to repair some usefull systems. Namely blast furnace and main storage container.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_Quest2</Key>
+        <Value xsi:type="xsd:string">You can get all necessary components from marked location.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">FirstBaseRepair_Storage</Key>
+        <Value xsi:type="xsd:string">Cargo container is operational. This will be your main storage place for a long time.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GeneralGPS_Storage</Key>
+        <Value xsi:type="xsd:string">Storage Access</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Gravity_About1</Key>
+        <Value xsi:type="xsd:string">Gravity generator will create artificial gravity.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Gravity_About2</Key>
+        <Value xsi:type="xsd:string">Artificial gravity does not affect ships (unless using artificial mass block)</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Gravity_GPS</Key>
+        <Value xsi:type="xsd:string">Gravity Generator</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Gravity_QLLine1</Key>
+        <Value xsi:type="xsd:string">Activate generator by using button panel nearby</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Gravity_QLTitle</Key>
+        <Value xsi:type="xsd:string">Turn on gravity in the base</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Gravity_Quest</Key>
+        <Value xsi:type="xsd:string">Begin station repairs by activating gravity generator</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Intro_Hint</Key>
+        <Value xsi:type="xsd:string">Do you want to activate tutorial guide? Use highlighted panel to decide.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Intro_Hint2</Key>
+        <Value xsi:type="xsd:string">You may need to use jetpack ([ {0} ] key) to get anywhere</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Intro_Outcome1</Key>
+        <Value xsi:type="xsd:string">Tutorial Activated</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Intro_Outcome2</Key>
+        <Value xsi:type="xsd:string">Tutorial Disabled, station changed to normal state</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Intro_QuestlogLine1</Key>
+        <Value xsi:type="xsd:string">Press left button to activate tutorial guide that will help you with the beginings</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Intro_QuestlogLine2</Key>
+        <Value xsi:type="xsd:string">Press right button to disable this guide</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Intro_QuestlogTitle</Key>
+        <Value xsi:type="xsd:string">Choose if you want tutorial or not</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Reactor_GPS_Reactor</Key>
+        <Value xsi:type="xsd:string">Station Reactor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Reactor_GPS_Spare</Key>
+        <Value xsi:type="xsd:string">Unused Reactor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Reactor_QLLine1</Key>
+        <Value xsi:type="xsd:string">Equip grinder ([ {0} ] key) and grind unused reactor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Reactor_QLLine2</Key>
+        <Value xsi:type="xsd:string">Equip welder ([ {0} ] key) and weld damaged reactor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Reactor_QLTitle</Key>
+        <Value xsi:type="xsd:string">Repair station reactor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Reactor_Quest1</Key>
+        <Value xsi:type="xsd:string">Base is powered from batteries and solar panels for now.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Reactor_Quest2</Key>
+        <Value xsi:type="xsd:string">Next step will be to get station reactor up and running so you have more stable power source</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Reactor_Quest3</Key>
+        <Value xsi:type="xsd:string">There is unused reactor you can grind for spare parts.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_GPS</Key>
+        <Value xsi:type="xsd:string">Refinery</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_Outcome</Key>
+        <Value xsi:type="xsd:string">Good, this will last for some time. Still, mine some uranium from time to time.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_Processing1</Key>
+        <Value xsi:type="xsd:string">Refinery will now process all ores from left to right.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_Processing2</Key>
+        <Value xsi:type="xsd:string">You can re-arange the order when necessary (some ores are processed very slowly).</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_QLLine1</Key>
+        <Value xsi:type="xsd:string">Bring uranium ore to the refinery</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_QLLine2</Key>
+        <Value xsi:type="xsd:string">Take uranium ingots and bring them to the reactor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_QLTitle</Key>
+        <Value xsi:type="xsd:string">Refuel your reactor with uranium ingots</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_Quest1</Key>
+        <Value xsi:type="xsd:string">Good, you now have enough uranium ore for now.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_Quest2</Key>
+        <Value xsi:type="xsd:string">Bring the mined ore to the refinery and place it inside.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_Quest3</Key>
+        <Value xsi:type="xsd:string">If you have mined other resources, you can place them after the uranium.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_Quest4</Key>
+        <Value xsi:type="xsd:string">There is now enough processed uranium ingots in the refinery.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Refinery_Quest5</Key>
+        <Value xsi:type="xsd:string">Take it and place it into the reactor.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_GPS</Key>
+        <Value xsi:type="xsd:string">Mining Ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_QLLine1</Key>
+        <Value xsi:type="xsd:string">Repair all highlighted blocks: {0}/{1}</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_QLLine2</Key>
+        <Value xsi:type="xsd:string">Repair cockpit</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_QLLine3</Key>
+        <Value xsi:type="xsd:string">Resupply the ship with fuel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_QLLine4</Key>
+        <Value xsi:type="xsd:string">Unlock the landing gear from button panel nearby</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_QLTitle</Key>
+        <Value xsi:type="xsd:string">Repair the mining ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_Quest</Key>
+        <Value xsi:type="xsd:string">Now you are prepared to get your mining ship working.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Uranium_GPS</Key>
+        <Value xsi:type="xsd:string">Ore Detector</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Uranium_QLLine1</Key>
+        <Value xsi:type="xsd:string">Activate ore detector</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Uranium_QLLine2</Key>
+        <Value xsi:type="xsd:string">Equip drill ([ {0} ] key) and use it to drill uranium ore</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Uranium_QLLine3</Key>
+        <Value xsi:type="xsd:string">Ore collected: {0}kg  ({1}kg required)</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Uranium_QLTitle</Key>
+        <Value xsi:type="xsd:string">Aquire sufficient amount of uranium</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Uranium_Quest1</Key>
+        <Value xsi:type="xsd:string">Nuclear reactor needs uranium ingots to provide power.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Uranium_Quest2</Key>
+        <Value xsi:type="xsd:string">Next step is to pick up a drill and start mining some uranium.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Uranium_Quest3</Key>
+        <Value xsi:type="xsd:string">This ore detector will help you to locate the uranium ore</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_Uranium</Key>
+        <Value xsi:type="xsd:string">Now you need to bring some fuel for the ship (you can take it from station reactor).</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">ShipRepair_QLLine5</Key>
+        <Value xsi:type="xsd:string">Enter the cockpit</Value>
+      </item>
+    </dictionary>
+  </Entries>
+</MyObjectBuilder_Localization>

@@ -1,33 +1,29 @@
 ﻿#region Using
 
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Blocks;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Gui;
-using Sandbox.Game.GUI;
-using Sandbox.Game.Localization;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.SessionComponents;
-using Sandbox.Game.World;
-using Sandbox.Graphics.GUI;
-using SpaceEngineers.Game.Players;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Sandbox;
+using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Gui;
+using Sandbox.Game.GUI;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
+using Sandbox.Graphics.GUI;
+using SpaceEngineers.Game.Entities.Blocks;
+using SpaceEngineers.Game.World;
 using VRage;
+using VRage.Audio;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -35,7 +31,7 @@ using VRageMath;
 
 #endregion
 
-namespace Sandbox.Game.Gui
+namespace SpaceEngineers.Game.GUI
 {
     [StaticEventOwner]
     public class MyGuiScreenMedicals : MyGuiScreenBase
@@ -47,13 +43,15 @@ namespace Sandbox.Game.Gui
             public float OxygenLevel;
             public long OwnerId;
             public Vector3D PrefferedCameraPosition;
-            public Vector3D MedicalRoomPos;
+            public Vector3D MedicalRoomPosition;
+            public Vector3D MedicalRoomUp;
+            public Vector3 MedicalRoomVelocity;
         }
 
         #region Fields
 
         MyGuiControlLabel m_labelNoRespawn;
-        StringBuilder m_noRespawnHeader=new StringBuilder();
+        StringBuilder m_noRespawnHeader = new StringBuilder();
         MyGuiControlTable m_respawnsTable;
         MyGuiControlButton m_respawnButton;
         MyGuiControlButton m_refreshButton;
@@ -62,18 +60,22 @@ namespace Sandbox.Game.Gui
         MyGuiControlMultilineText m_multilineRespawnWhenShipReady;
         MyRespawnShipDefinition m_selectedRespawnShip;
 
-        public static StringBuilder NoRespawnText { //get { return Static.m_noRespawnText.Text; } 
-            set { if (Static!=null) 
-                Static.m_noRespawnText.Text = value; 
-            } 
-        }
-        public static int ItemsInTable { 
-            get 
+        public static StringBuilder NoRespawnText
+        { //get { return Static.m_noRespawnText.Text; } 
+            set
             {
-                if (Static == null || Static.m_respawnsTable==null)
+                if (Static != null)
+                    Static.m_noRespawnText.Text = value;
+            }
+        }
+        public static int ItemsInTable
+        {
+            get
+            {
+                if (Static == null || Static.m_respawnsTable == null)
                     return 0;
                 return Static.m_respawnsTable.RowsCount;
-            } 
+            }
         }
 
         public static MyGuiScreenMedicals Static { get; private set; }
@@ -95,10 +97,7 @@ namespace Sandbox.Game.Gui
 
             RecreateControls(true);
 
-            if(MySandboxGame.IsPaused == false)
-            {
-                MySandboxGame.UserPauseToggle();
-            }
+            MySandboxGame.PausePush();
         }
 
         public override string GetFriendlyName()
@@ -108,10 +107,7 @@ namespace Sandbox.Game.Gui
 
         protected override void OnClosed()
         {
-            if (MySandboxGame.IsPaused)
-            {
-                MySandboxGame.UserPauseToggle();
-            }
+            MySandboxGame.PausePop();
             base.OnClosed();
         }
 
@@ -125,8 +121,33 @@ namespace Sandbox.Game.Gui
 
             if (MyInput.Static.IsNewKeyPressed(MyKeys.Escape))
             {
-                MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
-                MyGuiScreenMainMenu.AddMainMenu();
+                if (!MyInput.Static.IsAnyShiftKeyPressed())
+                {
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
+                    MyGuiSandbox.AddScreen(new MyGuiScreenMainMenu());
+                }
+                else
+                {
+
+                    if (m_respawnsTable.SelectedRow.UserData == null || m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo == null)
+                    {
+                        MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator, null, new Vector3D(1000000)); //just somewhere out of the game area to see our beautiful skybox
+                        return;
+                    }
+
+                    var medicalRoom = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
+
+                    MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator, null, medicalRoom.PrefferedCameraPosition);
+                    MySpectatorCameraController.Static.SetTarget(medicalRoom.MedicalRoomPosition, medicalRoom.MedicalRoomUp);
+                    MySpectatorCameraController.Static.Velocity = medicalRoom.MedicalRoomVelocity;
+
+                    Close();
+                }
+            }
+
+            if (MyInput.Static.IsNewKeyPressed(MyKeys.Enter))
+            {
+                onRespawnClick(m_respawnButton);
             }
         }
 
@@ -212,21 +233,21 @@ namespace Sandbox.Game.Gui
         {
             m_respawnsTable.Clear();
 
-            RefreshMedicalRooms();       
+            RefreshMedicalRooms();
         }
 
         private void RefreshMedicalRooms()
         {
             ulong playerSteamId = MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.Id.SteamId : Sync.MyId;
-            MyMultiplayer.RaiseStaticEvent(s => RefreshMedicalRooms_Implementation, MySession.Static.LocalPlayerId, playerSteamId); 
+            MyMultiplayer.RaiseStaticEvent(s => RefreshMedicalRooms_Implementation, MySession.Static.LocalPlayerId, playerSteamId);
         }
 
         private void RefreshSpawnShips()
         {
-            if(MySession.Static.CreativeMode)
-            {
-                return;
-            }
+            //if (MySession.Static.CreativeMode)
+            //{
+            //    return;
+            //}
             var respawnShips = MyDefinitionManager.Static.GetRespawnShipDefinitions();
             foreach (var pair in respawnShips)
             {
@@ -249,7 +270,7 @@ namespace Sandbox.Game.Gui
             var row = new MyGuiControlTable.Row();
             row.AddCell(new MyGuiControlTable.Cell(text: MyTexts.GetString(MySpaceTexts.SpawnInSpaceSuit)));
             row.AddCell(new MyGuiControlTable.Cell(text: MyTexts.GetString(MySpaceTexts.ScreenMedicals_RespawnShipReady)));
-            
+
             m_respawnsTable.Add(row);
         }
 
@@ -309,7 +330,7 @@ namespace Sandbox.Game.Gui
             GetAvailableMedicalRooms(playerId, m_medicalRooms);
 
             MyMultiplayer.RaiseStaticEvent(s => RefreshMedicalRoomsResponse_Implementation, m_medicalRooms, new EndpointId(steamId));
-           
+
         }
 
         static void GetAvailableMedicalRooms(long playerId, List<MyMedicalRoomInfo> medicalRooms)
@@ -325,32 +346,35 @@ namespace Sandbox.Game.Gui
                     if (medicalRoom != null)
                     {
                         medicalRoom.UpdateIsWorking();
-                        
+
                         if (medicalRoom.IsWorking)
                         {
                             if (medicalRoom.HasPlayerAccess(playerId) || medicalRoom.SetFactionToSpawnee)
                             {
                                 MyMedicalRoomInfo info = new MyMedicalRoomInfo();
                                 info.MedicalRoomId = medicalRoom.EntityId;
-                                info.MedicalRoomName = medicalRoom.CustomName.ToString();
+                                info.MedicalRoomName = medicalRoom.CustomName != null ? medicalRoom.CustomName.ToString() : (medicalRoom.Name != null ? medicalRoom.Name : medicalRoom.ToString());
                                 info.OxygenLevel = medicalRoom.GetOxygenLevel();
                                 info.OwnerId = medicalRoom.IDModule.Owner;
 
-                                Vector3D medRoomPosition = (Vector3D)medicalRoom.PositionComp.GetPosition();
+                                Vector3D medRoomPosition = medicalRoom.PositionComp.GetPosition();
                                 Vector3D preferredCameraPosition = medRoomPosition + medicalRoom.WorldMatrix.Up * 20 + medicalRoom.WorldMatrix.Right * 20 + medicalRoom.WorldMatrix.Forward * 20;
                                 Vector3D? cameraPosition = MyEntities.FindFreePlace(preferredCameraPosition, 1);
-                              
+
                                 if (!cameraPosition.HasValue)
                                     cameraPosition = preferredCameraPosition;
 
                                 info.PrefferedCameraPosition = cameraPosition.Value;
-                                info.MedicalRoomPos = medRoomPosition;
+                                info.MedicalRoomPosition = medRoomPosition;
+                                info.MedicalRoomUp = medicalRoom.PositionComp.WorldMatrix.Up;
+                                if (medicalRoom.CubeGrid.Physics != null)
+                                    info.MedicalRoomVelocity = medicalRoom.CubeGrid.Physics.LinearVelocity;
 
                                 medicalRooms.Add(info);
                             }
                         }
                     }
-                    
+
                 }
             }
         }
@@ -364,7 +388,7 @@ namespace Sandbox.Game.Gui
         void RefreshMedicalRooms(List<MyMedicalRoomInfo> medicalRooms)
         {
             m_respawnsTable.Clear();
-           
+
             foreach (var medRoom in medicalRooms)
             {
                 var row = new MyGuiControlTable.Row(medRoom);
@@ -384,11 +408,17 @@ namespace Sandbox.Game.Gui
                 m_respawnsTable.Add(row);
             }
 
-            if (!MySession.Static.Settings.DisableRespawnShips)
+            
+            if (MySession.Static.CreativeMode)
+            {
+                AddRespawnInSuit();
+            }
+            else
+            if ((MySession.Static.Settings.EnableRespawnShips && !MySession.Static.Settings.Scenario))
             {
                 RefreshSpawnShips();
                 AddRespawnInSuit();
-            }
+            }               
 
             if (m_respawnsTable.RowsCount > 0)
             {
@@ -425,34 +455,8 @@ namespace Sandbox.Game.Gui
                 RefreshRespawnPoints();//because medical rooms are not powered when the map starts
             }
 
-            if (m_respawnsTable.SelectedRow != null && MySession.Static.GetCameraControllerEnum() !=  MyCameraControllerEnum.Entity)
-            {
-                MyMedicalRoomInfo userData = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
 
-                if (userData != null)
-                {
-                    m_respawnButton.Enabled = false;
-                    MyMedicalRoom medicalRoom;
-                    if (MyEntities.TryGetEntityById<MyMedicalRoom>(userData.MedicalRoomId,out medicalRoom))
-                    {
-                        m_respawnButton.Enabled = true;
-                        Vector3D medRoomPosition = (Vector3D)medicalRoom.PositionComp.GetPosition();
-                        Vector3D preferredCameraPosition = medRoomPosition + medicalRoom.WorldMatrix.Up * 20 + medicalRoom.WorldMatrix.Right * 20 + medicalRoom.WorldMatrix.Forward * 20;
-                        Vector3D? cameraPosition = MyEntities.FindFreePlace(preferredCameraPosition, 1);
-
-                        if (!cameraPosition.HasValue)
-                            cameraPosition = preferredCameraPosition;
-
-                        MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator, null, cameraPosition.Value);
-                        MySpectatorCameraController.Static.Target = medRoomPosition;
-
-                    }
-                }
-               
-            }
-                
-
-            if (m_labelNoRespawn.Text==null)
+            if (m_labelNoRespawn.Text == null)
                 m_labelNoRespawn.Visible = false;
             else
                 m_labelNoRespawn.Visible = true;
@@ -466,25 +470,55 @@ namespace Sandbox.Game.Gui
                 Static.CloseScreen();
         }
 
-        private int m_lastTimeSec=-1;
+
+        public override bool HandleInputAfterSimulation()
+        {
+            if (m_respawnsTable.SelectedRow != null && MySession.Static.GetCameraControllerEnum() != MyCameraControllerEnum.Entity)
+            {
+                MyMedicalRoomInfo userData = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
+
+                if (userData != null)
+                {
+                    m_respawnButton.Enabled = false;
+                    MyMedicalRoom medicalRoom;
+                    if (MyEntities.TryGetEntityById<MyMedicalRoom>(userData.MedicalRoomId, out medicalRoom))
+                    {
+                        m_respawnButton.Enabled = true;
+                        Vector3D medRoomPosition = (Vector3D)medicalRoom.PositionComp.GetPosition();
+                        Vector3D preferredCameraPosition = medRoomPosition + medicalRoom.WorldMatrix.Up * 20 + medicalRoom.WorldMatrix.Right * 20 + medicalRoom.WorldMatrix.Forward * 20;
+                        Vector3D? cameraPosition = MyEntities.FindFreePlace(preferredCameraPosition, 1);
+
+                        if (!cameraPosition.HasValue)
+                            cameraPosition = preferredCameraPosition;
+
+                        MySpectatorCameraController.Static.Position = cameraPosition.Value;
+                        MySpectatorCameraController.Static.SetTarget(medRoomPosition, medicalRoom.WorldMatrix.Up);                        
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private int m_lastTimeSec = -1;
         public static void SetNoRespawnText(StringBuilder text, int timeSec)
         {
-            if (Static!=null)
+            if (Static != null)
                 Static.SetNoRespawnTexts(text, timeSec);
         }
         public void SetNoRespawnTexts(StringBuilder text, int timeSec)
         {
             NoRespawnText = text;
-            if (timeSec!=m_lastTimeSec)
+            if (timeSec != m_lastTimeSec)
             {
                 m_lastTimeSec = timeSec;
-                int minutes=timeSec/60;
-                m_noRespawnHeader.Clear().AppendFormat(MyTexts.GetString(MySpaceTexts.ScreenMedicals_NoRespawnPlaceHeader), minutes, timeSec-minutes*60);
+                int minutes = timeSec / 60;
+                m_noRespawnHeader.Clear().AppendFormat(MyTexts.GetString(MySpaceTexts.ScreenMedicals_NoRespawnPlaceHeader), minutes, timeSec - minutes * 60);
                 m_labelNoRespawn.Text = m_noRespawnHeader.ToString();
             }
         }
         #endregion
-     
+
         #region Event handling
 
         private void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
@@ -502,7 +536,7 @@ namespace Sandbox.Game.Gui
                 var medicalRoom = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
 
                 MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator, null, medicalRoom.PrefferedCameraPosition);
-                MySpectatorCameraController.Static.Target = medicalRoom.MedicalRoomPos;
+                MySpectatorCameraController.Static.SetTarget(medicalRoom.MedicalRoomPosition, medicalRoom.MedicalRoomUp);
             }
             else
             {
@@ -523,10 +557,10 @@ namespace Sandbox.Game.Gui
                 else
                 {
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                       canHideOthers : false,
+                                       canHideOthers: false,
                                        buttonType: MyMessageBoxButtonsType.OK,
                                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionNotReady),
-                                       messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextNotReady)));                                    
+                                       messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextNotReady)));
                 }
             }
         }
@@ -541,11 +575,11 @@ namespace Sandbox.Game.Gui
             if (userData == null)
             {
                 CheckPermaDeathAndRespawn(null);
-            } 
+            }
             else if (userData is MyRespawnShipDefinition)
             {
                 var respawnShip = userData as MyRespawnShipDefinition;
-                if (MySpaceRespawnComponent.Static.GetRespawnCooldownSeconds(MySession.Static.LocalHumanPlayer.Id, respawnShip.Id.SubtypeName) != 0) 
+                if (MySpaceRespawnComponent.Static.GetRespawnCooldownSeconds(MySession.Static.LocalHumanPlayer.Id, respawnShip.Id.SubtypeName) != 0)
                     return;
 
                 CheckPermaDeathAndRespawn(respawnShip.Id.SubtypeName);
@@ -584,7 +618,7 @@ namespace Sandbox.Game.Gui
 
         private void RespawnAtMedicalRoom(long medicalId)
         {
-            MyPlayerCollection.RespawnRequest(joinGame: MySession.Static.LocalCharacter == null, newPlayer: false, respawnEntityId: medicalId, shipPrefabId: null);
+            MyPlayerCollection.RespawnRequest(joinGame: MySession.Static.LocalCharacter == null, newIdentity: false, respawnEntityId: medicalId, shipPrefabId: null);
             CloseScreen();
         }
 
@@ -610,9 +644,9 @@ namespace Sandbox.Game.Gui
         {
             var identity = Sync.Players.TryGetIdentity(MySession.Static.LocalPlayerId);
             Debug.Assert(identity != null, "Could not get local player identity! This should not happen!");
-            bool newPlayer = identity == null || identity.FirstSpawnDone;
+            bool newIdentity = identity == null || identity.FirstSpawnDone;
 
-            MyPlayerCollection.RespawnRequest(MySession.Static.LocalCharacter == null, newPlayer, 0, shipPrefabId);
+            MyPlayerCollection.RespawnRequest(MySession.Static.LocalCharacter == null, newIdentity, 0, shipPrefabId);
             CloseScreen();
         }
 
@@ -621,7 +655,7 @@ namespace Sandbox.Game.Gui
             RefreshRespawnPoints();
         }
 
-        #endregion        
-  
+        #endregion
+
     }
 }

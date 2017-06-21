@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
@@ -17,13 +15,13 @@ using Sandbox.Graphics.GUI;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using Sandbox.Game.GameSystems;
 using System.Diagnostics;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Voxels;
 
 namespace Sandbox.Game.SessionComponents
 {
@@ -226,8 +224,8 @@ namespace Sandbox.Game.SessionComponents
             base.HandleInput();
 
             var context = BuildMode ? MySpaceBindingCreator.CX_VOXEL : MySpaceBindingCreator.CX_CHARACTER;
-          
-            if (MyInput.Static.IsNewKeyPressed(MyKeys.H) && MyInput.Static.IsAnyCtrlKeyPressed())
+
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.VOXEL_HAND_SETTINGS))    //MyControlsSpace.TERMINAL
                 MyScreenManager.AddScreen(new MyGuiScreenVoxelHandSetting());
          
             // rotation
@@ -293,6 +291,13 @@ namespace Sandbox.Game.SessionComponents
                 CurrentShape.CutOut(m_currentVoxelMap);
             }
 
+            var scrolldir = Math.Sign(MyInput.Static.DeltaMouseScrollWheelValue());
+            if (scrolldir != 0 && MyInput.Static.IsAnyCtrlKeyPressed())
+            {
+                var delta = (float)CurrentShape.GetBoundaries().HalfExtents.Length() * 0.5f; //Take into account size of brush when zooming
+                SetBrushZoom(m_position + scrolldir * delta);
+            }
+
             if (phys != null && m_editing != edited)
             {
                 phys.QueueInvalidate = edited;
@@ -353,7 +358,7 @@ namespace Sandbox.Game.SessionComponents
                 return;
 
             var position = MySession.Static.IsCameraUserControlledSpectator() ? camera.Position : character.GetHeadMatrix(true).Translation;
-            var targetPosition = position + (Vector3D)camera.ForwardVector * Math.Max(2 * CurrentShape.GetBoundaries().Transform(camera.ViewMatrix).HalfExtents.Z, m_position);
+            var targetPosition = position + (Vector3D)camera.ForwardVector * Math.Max(2 * CurrentShape.GetBoundaries().TransformFast(camera.ViewMatrix).HalfExtents.Z, m_position);
 
             var vmap = m_currentVoxelMap;
 
@@ -428,7 +433,7 @@ namespace Sandbox.Game.SessionComponents
 
                     foreach (var entity in m_foundElements)
                     {
-                        if (MyVoxelBase.IsForbiddenEntity(entity))
+                        if (!(entity is MyCharacter) && MyVoxelBase.IsForbiddenEntity(entity))
                         {
                             worldMatrix = entity.PositionComp.WorldMatrix;
                             box = (BoundingBoxD)entity.PositionComp.LocalAABB;
@@ -446,7 +451,7 @@ namespace Sandbox.Game.SessionComponents
                 }
             }
             CurrentShape.Draw(ref ShapeColor);
-            if (MyHud.MinimalHud == false)
+            if (!MyHud.MinimalHud && !MyHud.CutsceneHud)
             {
                 DrawMaterial();
             }
@@ -895,7 +900,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return true; } }
         public string SubtypeName { get { return "Box"; } }
 
@@ -1016,7 +1021,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE + MySessionComponentVoxelHand.VOXEL_HALF; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return true; } }
         public string SubtypeName { get { return "Capsule"; } }
 
@@ -1150,7 +1155,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE * 4.5f; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return true; } }
         public string SubtypeName { get { return "Ramp"; } }
 
@@ -1255,7 +1260,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE + MySessionComponentVoxelHand.VOXEL_HALF; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return false; } }
         public string SubtypeName { get { return "Sphere"; } }
 
@@ -1365,7 +1370,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE/4; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return false; } }
         public string SubtypeName { get { return "Ellipsoid"; } }
 
@@ -1510,7 +1515,7 @@ namespace Sandbox.Game.SessionComponents
         {
             m_painting = true;
 
-            var max =  m_shape.Boundaries.Transform(m_transform).Center;
+            var max =  m_shape.Boundaries.TransformFast(m_transform).Center;
 
             switch (m_axis.SelectedKey)
             {
@@ -1528,7 +1533,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.GRID_SIZE; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 10f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return true; } }
         public string SubtypeName { get { return "AutoLevel"; } }
 

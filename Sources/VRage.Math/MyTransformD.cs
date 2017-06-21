@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Serialization;
 
 namespace VRageMath
 {
     public struct MyTransformD
     {
+        [Serialize(MyPrimitiveFlags.Normalized)]
         public Quaternion Rotation;
         public Vector3D Position;
         public MatrixD TransformMatrix

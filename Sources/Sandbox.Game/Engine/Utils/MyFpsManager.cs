@@ -3,7 +3,7 @@ using Sandbox.Game.World;
 
 namespace Sandbox.Engine.Utils
 {
-    static class MyFpsManager
+    public static class MyFpsManager
     {
         static long m_lastTime = 0;
         static uint m_fpsCounter = 0;
@@ -103,7 +103,8 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        public static void Reset(){
+        public static void Reset()
+        {
             m_maxSessionFPS = 0;
             m_minSessionFPS = int.MaxValue;
             m_fpsCounter = 0;

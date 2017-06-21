@@ -4,9 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using VRage.Import;
+using VRage.Render11.Common;
+using VRage.Render11.GeometryStage;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
-using VRageRender.Resources;
+using VRageRender.Import;
+using VRageRender.Messages;
 using Matrix = VRageMath.Matrix;
 using Vector3 = VRageMath.Vector3;
 using Vector4 = VRageMath.Vector4;
@@ -14,23 +18,23 @@ using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
-    [StructLayout(LayoutKind.Explicit, Size=96)]
+    [StructLayout(LayoutKind.Sequential, Pack=1)]
     internal struct MyObjectDataCommon
     {
-        [FieldOffset(0)]internal Vector4 m_row0;
-        [FieldOffset(16)]internal Vector4 m_row1;
-        [FieldOffset(32)]internal Vector4 m_row2;
+        internal Vector4 m_row0;
+        internal Vector4 m_row1;
+        internal Vector4 m_row2;
 
-        [FieldOffset(48)]internal Vector3 KeyColor;
-        [FieldOffset(60)]internal float CustomAlpha;
+        internal Vector3 KeyColor;
+        internal float CustomAlpha;
 
-        [FieldOffset(64)]internal Vector3 ColorMul;
-        [FieldOffset(76)]internal float Emissive;
+        internal Vector3 ColorMul;
+        internal float Emissive;
 
-        [FieldOffset(80)]internal uint MaterialIndex;
-        [FieldOffset(84)]internal MyMaterialFlags MaterialFlags;
-        [FieldOffset(88)]internal uint DepthBias;
-        [FieldOffset(92)]internal float __padding;
+        internal uint LOD;
+        internal uint DepthBias;
+        internal MyMaterialFlags MaterialFlags;
+        float __Padding;
 
         internal Matrix LocalMatrix
         {
@@ -132,7 +136,7 @@ namespace VRageRender
     enum MyMaterialFlags : uint
     {
         NONE = 0,
-        RGB_COLORING = 1,
+        NO_KEYCOLOR = 2
     }
 
     struct MyPerMaterialData
@@ -164,36 +168,70 @@ namespace VRageRender
 
         internal static readonly Dictionary<uint, HashSet<MyEntityMaterialKey>> EntityDisabledMaterials = new Dictionary<uint, HashSet<MyEntityMaterialKey>>();
 
-        internal static void Init()
+        static MyScene()
         {
             int treeCount = SeparateGeometry ? Enum.GetValues(typeof(MyRenderableTrees)).Length : 1;
             m_renderableTrees = new MyDynamicAABBTreeD[treeCount];
             for (int treeIndex = 0; treeIndex < treeCount; ++treeIndex)
                 m_renderableTrees[treeIndex] = new MyDynamicAABBTreeD(MyRender11Constants.PRUNNING_EXTENSION);
         }
-    }
 
-    struct MyMaterialTextureSwap
-    {
-        internal string MaterialSlot;
-        internal MyStringId TextureName;
+        public static void Clear()
+        {
+            DynamicRenderablesDBVH.Clear();
+            if (SeparateGeometry)
+                StaticRenderablesDBVH.Clear();
+
+            GroupsDBVH.Clear();
+            FoliageDBVH.Clear();
+
+            EntityDisabledMaterials.Clear();
+        }
     }
 
     class MyModelProperties
     {
         internal static readonly float DefaultEmissivity = 0;
         internal static readonly Vector3 DefaultColorMul = Vector3.One;
-        internal static readonly int MaxCustomTextures = 32;
-        internal static int CustomTextures = 0;
 
         internal float Emissivity = DefaultEmissivity;
         internal Vector3 ColorMul = DefaultColorMul;
+        
+        public void AddTextureChange(MyTextureChange textureChange)
+        {
+            AddTextureChanges(new MyTextureChange[] { textureChange });
+        }
 
-        //internal MyMaterialTextureSwap? TextureSwap = null;
-        internal List<MyMaterialTextureSwap> TextureSwaps = null;
+        public void AddTextureChanges(IEnumerable<MyTextureChange> textureChanges)
+        {
+            if (TextureSwaps == null)
+            {
+                TextureSwaps = new List<MyTextureChange>(textureChanges);
+            }
+            else
+            {
+                foreach (var s in textureChanges)
+                {
+                    bool swapped = false;
+                    for (int i = 0; i < TextureSwaps.Count; ++i)
+                    {
+                        if (TextureSwaps[i].TextureType == s.TextureType)
+                        {
+                            TextureSwaps[i] = s;
+                            swapped = true;
+                            break;
+                        }
+                    }
 
-        internal MyMaterialProxyId CustomMaterialProxy = MyMaterialProxyId.NULL;
-        internal RwTexId CustomRenderedTexture = RwTexId.NULL;
+                    if (!swapped)
+                    {
+                        TextureSwaps.Add(s);
+                    }
+                }
+            }
+        }
+
+        internal List<MyTextureChange> TextureSwaps = null;
     }
 
     class MyRenderableComponent : MyActorComponent
@@ -233,6 +271,7 @@ namespace VRageRender
         protected bool m_colorEmissivityDirty = false;
         internal Dictionary<MyEntityMaterialKey, MyModelProperties> ModelProperties;
         protected bool m_isGenericInstance = false;
+        private bool m_perInstanceLods = true;
 
         internal int m_voxelLod;
         internal byte m_depthBias;
@@ -247,7 +286,9 @@ namespace VRageRender
         private bool IsLodTransitionInProgress { get { return m_lodTransitionState != 0; } }
         private int LodTransitionProxyIndex { get { return m_lodTransitionState > 0 ? m_lod : m_lod - 1; } }
 
-        internal bool IsRenderedStandAlone { get { return m_isRenderedStandalone; } set { SetStandaloneRendering(value); } }        
+        internal bool IsRenderedStandAlone { get { return m_isRenderedStandalone; } set { SetStandaloneRendering(value); } }
+
+        float m_globalEmissivity;
         #endregion
 
         #region Memory
@@ -294,6 +335,8 @@ namespace VRageRender
             m_depthBias = 0;
             m_additionalFlags = 0;
 
+            m_globalEmissivity = 0;
+
             ModelProperties = new Dictionary<MyEntityMaterialKey, MyModelProperties>(MyEntityMaterialKey.Comparer);
 
             MyRender11.PendingComponentsToUpdate.Add(this);
@@ -319,12 +362,9 @@ namespace VRageRender
 
         internal void SetLocalAabbToModelLod(int lod)
         {
-            bool isMergedMesh = MyMeshes.IsMergedVoxelMesh(Mesh);
-            var bb = !isMergedMesh ? MyMeshes.GetLodMesh(Mesh, lod).Info.BoundingBox : MyMeshes.GetMergedLodMesh(Mesh, 0).Info.BoundingBox;
-            if(bb.HasValue)
-            {
-                Owner.SetLocalAabb(bb.Value);
-            }
+            var boundingBox = Mesh.GetBoundingBox(lod);
+            if (boundingBox.HasValue)
+                Owner.SetLocalAabb(boundingBox.Value);
         }
 
         internal void SetModel(MeshId mesh)
@@ -334,6 +374,13 @@ namespace VRageRender
             SetLocalAabbToModelLod(0);
 
             Owner.MarkRenderDirty();
+        }
+
+        public void SetGlobalEmissivity(float emissivity)
+        {
+            m_globalEmissivity = emissivity;
+            m_colorEmissivityDirty = true;
+            MyRender11.PendingComponentsToUpdate.Add(this);
         }
 
         // for now
@@ -371,18 +418,30 @@ namespace VRageRender
             if (m_lods == null)
                 return;
 
-            foreach (var lod in m_lods)
+            for (int it = 0; it < m_lods.Length; it++)
             {
+                var lod = m_lods[it];
                 if (lod.RenderableProxies == null)
                     continue;
+
 
                 foreach (var renderableProxy in lod.RenderableProxies)
                 {
                     renderableProxy.WorldMatrix = Owner.WorldMatrix;
-                    renderableProxy.CommonObjectData.KeyColor = m_keyColor;
+
+                    UpdateKeyColor(ref renderableProxy.CommonObjectData, m_keyColor);
                     renderableProxy.CommonObjectData.DepthBias = m_depthBias;
+                    renderableProxy.CommonObjectData.LOD = (uint)it;
                 }
             }
+        }
+
+        internal void UpdateKeyColor(ref MyObjectDataCommon data, Vector3 keyColor)
+        {
+            data.KeyColor = keyColor;
+            if (keyColor.X.IsZero() && keyColor.Y.IsEqual(-1) && keyColor.Z.IsEqual(-1))
+                data.MaterialFlags |= MyMaterialFlags.NO_KEYCOLOR;
+            else data.MaterialFlags &= ~MyMaterialFlags.NO_KEYCOLOR;
         }
 
         internal override void OnMatrixChange()
@@ -420,6 +479,7 @@ namespace VRageRender
                 Owner.MarkRenderDirty();
 
                 m_isGenericInstance = m_instancing == InstancingId.NULL ? false : MyInstancing.Instancings.Data[m_instancing.Index].Type == MyRenderInstanceBufferType.Generic;
+                m_perInstanceLods = m_instancing == InstancingId.NULL ? false : MyInstancing.Instancings.Data[m_instancing.Index].PerInstanceLods;
             }
         }
 
@@ -446,7 +506,7 @@ namespace VRageRender
             return Mesh;
         }
 
-        protected void SetLodPartShaders(int lodNum, int proxyIndex, MyShaderUnifiedFlags appendedFlags)
+        private void SetLodPartShaders(int lodNum, int proxyIndex, MyShaderUnifiedFlags appendedFlags)
         {
             Debug.Assert(!MyMeshes.IsVoxelMesh(Mesh));
 
@@ -460,29 +520,62 @@ namespace VRageRender
                 flags |= MyShaderUnifiedFlags.DITHERED_LOD;
             if (partId.Info.Material.Info.Facing == MyFacingEnum.Impostor)
                 flags |= MyShaderUnifiedFlags.ALPHA_MASK_ARRAY;
+            MyMeshMaterialInfo info = partId.Info.Material.Info;
+            if (info.GeometryTextureRef.IsUsed && MyRender11.Settings.UseGeometryArrayTextures)
+                flags |= MyShaderUnifiedFlags.USE_TEXTURE_INDICES;
+
+            switch (partId.Info.Material.Info.Technique)
+            {
+                case MyMeshDrawTechnique.DECAL:
+                case MyMeshDrawTechnique.DECAL_NOPREMULT:
+                    flags |= MyShaderUnifiedFlags.STATIC_DECAL;
+                    break;
+                case MyMeshDrawTechnique.DECAL_CUTOUT:
+                    flags |= MyShaderUnifiedFlags.STATIC_DECAL_CUTOUT;
+                    break;
+            }                
 
             if (DebrisEntityVoxelMaterial.ContainsKey(Owner.ID))
-                technique = MyVoxelMesh.SINGLE_MATERIAL_TAG;
+                technique = MyMeshDrawTechnique.VOXELS_DEBRIS;
 
-            MyStringId shaderMaterial = MyStringId.GetOrCompute(MapTechniqueToShaderMaterial(technique));
+            MyStringId shaderMaterial = MyMaterialShaders.MapTechniqueToShaderMaterial(technique);
 
             var renderableProxy = lod.RenderableProxies[proxyIndex];
 
-            renderableProxy.DepthShaders = MyMaterialShaders.Get(
-                shaderMaterial,
-                MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_DEPTH_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MyShaderUnifiedFlags.DEPTH_ONLY | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum) | flags);
+            AssignShadersToProxy(renderableProxy, shaderMaterial, lod.VertexLayout1, lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum) | flags);
+        }
+
+        protected void AssignShadersToProxy(MyRenderableProxy renderableProxy, MyStringId shaderMaterial, VertexLayoutId vertexLayoutId, MyShaderUnifiedFlags shaderFlags)
+        {
+            MyFileTextureEnum textureTypes = MyFileTextureEnum.UNSPECIFIED;
+            MyMeshDrawTechnique technique = MyMeshDrawTechnique.MESH;
+            if (renderableProxy.Material != MyMeshMaterialId.NULL)
+            {
+                textureTypes = renderableProxy.Material.Info.TextureTypes;
+                technique = renderableProxy.Material.Info.Technique;
+            }
+
+            Debug.Assert(renderableProxy != null, "Renderable proxy cannot be null!");
             renderableProxy.Shaders = MyMaterialShaders.Get(
                 shaderMaterial,
-                MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_OPAQUE_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum) | flags);
+                MyMaterialShaders.MapTechniqueToDefaultPass(technique),
+                vertexLayoutId,
+                shaderFlags, textureTypes);
+            renderableProxy.DepthShaders = MyMaterialShaders.Get(
+                shaderMaterial,
+                MyMaterialShaders.DEPTH_PASS_ID,
+                vertexLayoutId,
+                shaderFlags | MyShaderUnifiedFlags.DEPTH_ONLY, textureTypes);
+            renderableProxy.HighlightShaders = MyMaterialShaders.Get(
+                shaderMaterial,
+                MyMaterialShaders.HIGHLIGHT_PASS_ID,
+                vertexLayoutId,
+                shaderFlags, textureTypes);
             renderableProxy.ForwardShaders = MyMaterialShaders.Get(
                 shaderMaterial,
-                MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_FORWARD_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum) | flags);
+                MyMaterialShaders.FORWARD_PASS_ID,
+                vertexLayoutId,
+                shaderFlags, textureTypes);
         }
         
         protected void SetLodShaders(int lodNum, MyShaderUnifiedFlags appendedFlags)
@@ -560,7 +653,6 @@ namespace VRageRender
             Debug.Assert(partCount > 0);
 
             lod.AllocateProxies(partCount);
-            MyArrayHelpers.InitOrReserve(ref lod.HighlightShaders, partCount);
 
             for (int partIndex = 0; partIndex < partCount; ++partIndex )
                 CreateRenderableProxyForPart(lodNum, partIndex, GetConstantBufferSize(lod, skinningEnabled), skinningMatrices);
@@ -578,14 +670,14 @@ namespace VRageRender
             var voxelMaterialId = -1;
             if (DebrisEntityVoxelMaterial.ContainsKey(Owner.ID))
             {
-                technique = MyVoxelMesh.SINGLE_MATERIAL_TAG;
+                technique = MyMeshDrawTechnique.VOXEL_MAP_SINGLE;
                 voxelMaterialId = (int)DebrisEntityVoxelMaterial[Owner.ID];
             }
 
             lod.RenderableProxies[partIndex].CommonObjectData.Emissive = MyModelProperties.DefaultEmissivity;
             lod.RenderableProxies[partIndex].CommonObjectData.ColorMul = MyModelProperties.DefaultColorMul;
-            lod.RenderableProxies[partIndex].CommonObjectData.MaterialFlags = MapTechniqueToMaterialFlags(technique);
             lod.RenderableProxies[partIndex].CommonObjectData.DepthBias = m_depthBias;
+            lod.RenderableProxies[partIndex].CommonObjectData.LOD = (uint)lodIndex;
             lod.RenderableProxies[partIndex].NonVoxelObjectData.Facing = (byte)partId.Info.Material.Info.Facing;
             lod.RenderableProxies[partIndex].NonVoxelObjectData.WindScaleAndFreq = partId.Info.Material.Info.WindScaleAndFreq;
 
@@ -600,19 +692,16 @@ namespace VRageRender
                 lod.RenderableProxies[partIndex].NonVoxelObjectData.CenterOffset = Vector3.Zero;
             }
 
-            MyStringId shaderMaterial = MyStringId.GetOrCompute(MapTechniqueToShaderMaterial(technique));
-
-            lod.RenderableProxies[partIndex].WorldMatrix = Owner.WorldMatrix;
-            lod.RenderableProxies[partIndex].Mesh = lodMesh;
-
-            SetLodPartShaders(lodIndex, partIndex, MyShaderUnifiedFlags.NONE);
-            lod.HighlightShaders[partIndex] = MyMaterialShaders.Get(
-                shaderMaterial,
-                MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_HIGHLIGHT_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique));
+            MyStringId shaderMaterial = MyMaterialShaders.MapTechniqueToShaderMaterial(technique);
 
             var partInfo = partId.Info;
+            lod.RenderableProxies[partIndex].WorldMatrix = Owner.WorldMatrix;
+            lod.RenderableProxies[partIndex].Mesh = lodMesh;
+            lod.RenderableProxies[partIndex].Material = partInfo.Material;
+            lod.RenderableProxies[partIndex].UnusedMaterials = partInfo.UnusedMaterials ?? new HashSet<string>();
+
+            SetLodPartShaders(lodIndex, partIndex, MyShaderUnifiedFlags.NONE);
+
             MyDrawSubmesh submesh = new MyDrawSubmesh
             {
                 BaseVertex = partInfo.BaseVertex,
@@ -625,17 +714,17 @@ namespace VRageRender
 
             if (voxelMaterialId != -1)
             {
-                submesh.MaterialId = MyVoxelMaterials1.GetMaterialProxyId(new MyVoxelMaterialTriple(voxelMaterialId, -1, -1));
+                bool isFillingMaterialCB = technique == MyMeshDrawTechnique.VOXELS_DEBRIS;
+                submesh.MaterialId = MyVoxelMaterials1.GetMaterialProxyId(new MyVoxelMaterialTriple(voxelMaterialId, -1, -1, isFillingMaterialCB));
             }
 
             lod.RenderableProxies[partIndex].DrawSubmesh = submesh;
 
             var sectionSubmeshes = new MyDrawSubmesh[partId.Info.SectionSubmeshCount];
-            int sectionCount = lodMesh.Info.SectionsNum;
             int subsectionIndex = 0;
-            for (int idx1 = 0; idx1 < sectionCount; idx1++)
+            foreach (var sectionName in lodMesh.Info.SectionNames)
             {
-                var section = MyMeshes.GetMeshSection(Mesh, lodIndex, idx1);
+                var section = MyMeshes.GetMeshSection(Mesh, lodIndex, sectionName);
                 MyMeshSectionPartInfo1[] meshes = section.Info.Meshes;
                 for (int idx2 = 0; idx2 < meshes.Length; idx2++)
                 {
@@ -658,11 +747,6 @@ namespace VRageRender
 
             lod.RenderableProxies[partIndex].SectionSubmeshes = sectionSubmeshes;
 
-            if (technique == "GLASS")
-            {
-                lod.RenderableProxies[partIndex].DrawSubmesh.IndexCount = 0;
-            }
-
             lod.RenderableProxies[partIndex].SkinningMatrices = skinningMatrices;
 
             lod.RenderableProxies[partIndex].ObjectBuffer = MyCommon.GetObjectCB(objectConstantsSize);
@@ -673,7 +757,6 @@ namespace VRageRender
             lod.RenderableProxies[partIndex].Parent = this;
             lod.RenderableProxies[partIndex].Lod = lodIndex;
             lod.RenderableProxies[partIndex].Instancing = m_instancing;
-            lod.RenderableProxies[partIndex].Material = partInfo.Material.Info.Name;
 
             AnyDrawOutsideViewDistance |= (lod.RenderableProxies[partIndex].Flags & MyRenderableProxyFlags.DrawOutsideViewDistance) != 0;
 
@@ -684,9 +767,23 @@ namespace VRageRender
 
             ulong sortingKey = 0;
 
+            ulong decalBit;
+            switch(technique)
+            {
+                case MyMeshDrawTechnique.DECAL:
+                case MyMeshDrawTechnique.DECAL_NOPREMULT:
+                case MyMeshDrawTechnique.DECAL_CUTOUT:
+                    decalBit = 1;
+                    break;
+                default:
+                    decalBit = 0;
+                    break;
+            }
+
+            My64BitValueHelper.SetBits(ref sortingKey, 38, 1, decalBit);
             My64BitValueHelper.SetBits(ref sortingKey, 36, 2, (ulong)lod.RenderableProxies[partIndex].Type);
             My64BitValueHelper.SetBits(ref sortingKey, 32, 4, (ulong)lod.RenderableProxies[partIndex].PerMaterialIndex);
-            My64BitValueHelper.SetBits(ref sortingKey, 26, 6, (ulong)MyShaderMaterial.GetID(MapTechniqueToShaderMaterial(technique)));
+            My64BitValueHelper.SetBits(ref sortingKey, 26, 6, (ulong)MyShaderMaterial.GetID(MyMaterialShaders.MapTechniqueToShaderMaterial(technique).String));
             My64BitValueHelper.SetBits(ref sortingKey, 20, 6, (ulong)lod.VertexShaderFlags);
             My64BitValueHelper.SetBits(ref sortingKey, 14, 6, (ulong)lod.VertexLayout1.Index);
             My64BitValueHelper.SetBits(ref sortingKey, 7, 7, (ulong)lod.RenderableProxies[partIndex].Mesh.Index);
@@ -728,36 +825,11 @@ namespace VRageRender
 
         internal bool RebuildRenderProxies()
         {
-            bool notReady = Mesh == MeshId.NULL;
-            bool notNeeded = !Owner.RenderDirty;
-            if(notReady)
+            bool ready = Mesh != MeshId.NULL;
+            if(!ready)
                 return false;
 
-            if(notNeeded)
-            {
-                // If it is needed, the other branch will do this
-                if (m_colorEmissivityDirty && IsRendered)
-                {
-                    m_colorEmissivityDirty = false;
-                    foreach (var property in ModelProperties)
-                    {
-                        foreach(var lod in m_lods)
-                        {
-                            foreach(var renderableProxy in lod.RenderableProxies)
-                            {
-                                if (renderableProxy.Material == property.Key.Material)
-                                {
-                                    renderableProxy.CommonObjectData.Emissive = property.Value.Emissivity;
-                                    renderableProxy.CommonObjectData.ColorMul = property.Value.ColorMul;
-                                }
-                            }
-                        }
-                    }
-                }
-                return true;
-            }
-
-            if(!Owner.m_localAabb.HasValue)
+            if (!Owner.LocalAabb.HasValue)
             {
                 SetLocalAabbToModelLod(0);
             }
@@ -826,7 +898,7 @@ namespace VRageRender
 
             float currentDistance = CalculateViewerDistance();
             bool isInstancingGeneric = m_instancing == InstancingId.NULL ? false : MyInstancing.Instancings.Data[m_instancing.Index].Type == MyRenderInstanceBufferType.Generic;
-            if (MyRenderSettings.PerInstanceLods && isInstancingGeneric)
+            if (MyRender11.Settings.PerInstanceLods && isInstancingGeneric)
             {
                 m_lod = m_lods.Length - 1;
             }
@@ -895,48 +967,78 @@ namespace VRageRender
                                 var meshMat = part.Info.Material;
                                 var info = meshMat.Info;
 
+                                if (info.GeometryTextureRef.IsUsed)
+                                {
+                                    string errorMessage =
+                                        string.Format(
+                                            "Material '{0}' needs to be added into Environment.sbc into ChangeableMaterial", part.Info.Material.Info.Name);
+                                    MyRenderProxy.Fail(errorMessage);
+                                }
+
                                 foreach (var s in property.Value.TextureSwaps)
                                 {
-                                    switch (s.MaterialSlot)
+                                    switch (s.TextureType)
                                     {
-                                        case "NormalGlossTexture":
-                                            info.NormalGloss_Texture = s.TextureName;
+                                        case MyTextureType.NormalGloss:
+                                            info.NormalGloss_Texture = MyResourceUtils.GetTextureFullPath(s.TextureName);
                                             break;
-                                        case "AddMapsTexture":
-                                            info.Extensions_Texture = s.TextureName;
+                                        case MyTextureType.Extensions:
+                                            info.Extensions_Texture = MyResourceUtils.GetTextureFullPath(s.TextureName);
                                             break;
-                                        case "AlphamaskTexture":
-                                            info.Alphamask_Texture = s.TextureName;
+                                        case MyTextureType.Alphamask:
+                                            info.Alphamask_Texture = MyResourceUtils.GetTextureFullPath(s.TextureName);
+                                            break;
+                                        case MyTextureType.ColorMetal:
+                                            info.ColorMetal_Texture = MyResourceUtils.GetTextureFullPath(s.TextureName);
                                             break;
                                         default:
-                                            info.ColorMetal_Texture = s.TextureName;
-                                            break;
+                                            throw new Exception();
                                     }
                                 }
 
                                 proxy.DrawSubmesh.MaterialId = MyMeshMaterials1.GetProxyId(MyMeshMaterials1.GetMaterialId(ref info));
                             }
+                        }
+                    }
+                }
+            }
 
-                            else if (property.Value.CustomRenderedTexture != RwTexId.NULL)
+
+            // If it is needed, the other branch will do this
+            if (m_colorEmissivityDirty && IsRendered && m_lods != null)
+            {
+                m_colorEmissivityDirty = false;
+
+        		foreach(var lod in m_lods)
+                        foreach (var renderableProxy in lod.RenderableProxies)
+                        {
+                            renderableProxy.CommonObjectData.Emissive = m_globalEmissivity;
+                            renderableProxy.CommonObjectData.ColorMul = MyModelProperties.DefaultColorMul;
+                        }
+
+                foreach (var property in ModelProperties)
+                {
+                    foreach (var lod in m_lods)
+                    {
+                        foreach (var renderableProxy in lod.RenderableProxies)
+                        {
+                            if (renderableProxy.UnusedMaterials != null && renderableProxy.UnusedMaterials.Contains(property.Key.Material.String))
                             {
-                                MyMaterialProxyId matProxy = property.Value.CustomMaterialProxy;
-                                if (matProxy == MyMaterialProxyId.NULL)
-                                {
-                                    matProxy = MyMaterials1.AllocateProxy();
-                                    property.Value.CustomMaterialProxy = matProxy;
-
-                                    MyMaterials1.ProxyPool.Data[matProxy.Index] = MyMaterials1.ProxyPool.Data[proxy.DrawSubmesh.MaterialId.Index];
-                                    MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.SRVs = (ShaderResourceView[])MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.SRVs.Clone();
-                                    MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.SRVs[0] = property.Value.CustomRenderedTexture.ShaderView;
-                                    MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.Version = (int)Owner.ID;
-                                }
-
-                                proxy.DrawSubmesh.MaterialId = matProxy;
+                                string errorMessage =
+                                    string.Format(
+                                    "Material '{0}' needs to be added to environment.sbc into changeable materials", property.Key.Material.String);
+                                MyRenderProxy.Assert(false, errorMessage);
+                            }
+                            if (renderableProxy.Material.Info.Name == property.Key.Material)
+                            {
+                                renderableProxy.CommonObjectData.Emissive = property.Value.Emissivity;
+                                renderableProxy.CommonObjectData.ColorMul = property.Value.ColorMul;
                             }
                         }
                     }
                 }
             }
+
             m_colorEmissivityDirty = false;
             Owner.MarkRenderClean();
             return true;
@@ -944,7 +1046,7 @@ namespace VRageRender
 
         public void UpdateColorEmissivity(int lod, string materialName, Color diffuse, float emissivity)
         {
-            var key = new MyEntityMaterialKey { LOD = lod, Material = X.TEXT(materialName) };
+            var key = new MyEntityMaterialKey { LOD = lod, Material = X.TEXT_(materialName) };
             MyModelProperties properties;
             if (!ModelProperties.TryGetValue(key, out properties))
             {
@@ -971,32 +1073,6 @@ namespace VRageRender
             m_lods = null;
         }
 
-        internal void FreeCustomRenderTextures(MyEntityMaterialKey key)
-        {
-            var prop = ModelProperties[key];
-            if (prop.CustomMaterialProxy != MyMaterialProxyId.NULL)
-            {
-                MyMaterials1.FreeProxy(prop.CustomMaterialProxy);
-                prop.CustomMaterialProxy = MyMaterialProxyId.NULL;
-            }
-
-            if (prop.CustomRenderedTexture != RwTexId.NULL)
-            {
-                MyRwTextures.Destroy(prop.CustomRenderedTexture);
-                prop.CustomRenderedTexture = RwTexId.NULL;
-                --MyModelProperties.CustomTextures;
-            }
-
-        }
-
-        void FreeCustomRenderTextures()
-        {
-            foreach (var prop in ModelProperties)
-            {
-                FreeCustomRenderTextures(prop.Key);
-            }
-        }
-
         protected virtual void UpdateProxiesCustomAlpha()
         {
             if (m_lods == null)
@@ -1011,7 +1087,7 @@ namespace VRageRender
                 {
                     float value = 0;
 
-                    if (m_objectDithering != 0 || (renderableProxy.Instancing != InstancingId.NULL && renderableProxy.Instancing.Info.Type == MyRenderInstanceBufferType.Cube))
+                    if (m_objectDithering != 0)
                     {
                         value = m_objectDithering;
                     }
@@ -1021,7 +1097,8 @@ namespace VRageRender
                         // This is done so that when blending between two lod levels, one pixel will be from current lod
                         // and the other from the next lod and there are no missing pixels.
                         // Could not use negative because that currently means hologram rendering.
-                        value = (renderableProxy.Lod == m_lod ? Math.Abs(m_lodTransitionState) : (2.0f - Math.Abs(m_lodTransitionState)));
+                        // SL: Moved inversed dithering to values of 2 to 3 instead of 1 to 2 to make sure the values don't overlap
+                        value = (renderableProxy.Lod == m_lod ? Math.Abs(m_lodTransitionState) : (3.0f - Math.Abs(m_lodTransitionState)));
                     }
 
                     renderableProxy.CommonObjectData.CustomAlpha = value;
@@ -1037,7 +1114,7 @@ namespace VRageRender
 
         internal void UpdateInstanceLods()
         {
-            if (MyRenderSettings.PerInstanceLods && m_isGenericInstance)
+            if (MyRender11.Settings.PerInstanceLods && m_perInstanceLods && m_isGenericInstance)
                 UpdatePerInstanceLods(CalculateViewerDistance());
         }
         internal virtual void UpdateLodState()
@@ -1061,7 +1138,7 @@ namespace VRageRender
             {
                 float delta = MyLodUtils.GetTransitionDelta(Math.Abs(distanceFromCamera - m_lodTransitionStartDistance), m_lodTransitionState, m_lod);
                 m_lodTransitionState = Math.Sign(m_lodTransitionState) * (Math.Abs(m_lodTransitionState) + delta);
-
+                
                 if (Math.Abs(m_lodTransitionState) >= 1)
                 {
                     m_lod = m_lodTransitionState > 0 ? m_lod + 1 : m_lod - 1;
@@ -1088,16 +1165,24 @@ namespace VRageRender
                             lod = lodIndex;
                     }
 
-                    if (lod != m_lod && (!MyRenderSettings.PerInstanceLods || !m_isGenericInstance || lod == m_lods.Length - 1))
+                    if (lod != m_lod && (!MyRender11.Settings.PerInstanceLods || !m_isGenericInstance || lod == m_lods.Length - 1))
                     {
-                        m_lodTransitionState = lod < m_lod ? -0.001f : 0.001f;
-                        m_lodTransitionStartDistance = distanceFromCamera;
-                        m_lodBorder = true;
+                        if (m_objectDithering != 0.0f) // if dithering is enabled, there is no transition
+                        {
+                            m_lod = lod;
+                            SetProxiesForCurrentLod();
+                        }
+                        else
+                        {
+                            m_lodTransitionState = lod < m_lod ? -0.001f : 0.001f;
+                            m_lodTransitionStartDistance = distanceFromCamera;
+                            m_lodBorder = true;
 
-                        SetProxiesForCurrentLod();
-                        UpdateProxiesCustomAlpha();
-                        SetLodShaders(m_lod, MyShaderUnifiedFlags.DITHERED_LOD);
-                        SetLodShaders(lod, MyShaderUnifiedFlags.DITHERED_LOD);
+                            SetProxiesForCurrentLod();
+                            UpdateProxiesCustomAlpha();
+                            SetLodShaders(m_lod, MyShaderUnifiedFlags.DITHERED_LOD);
+                            SetLodShaders(lod, MyShaderUnifiedFlags.DITHERED_LOD);
+                        }
                     }
                 }
             }
@@ -1106,7 +1191,7 @@ namespace VRageRender
         private bool CheckDistanceCulling(float distance)
         {
             bool isCulled = false;
-            if ((!AnyDrawOutsideViewDistance && distance > MyEnvironment.FarClipping) || (m_lods == null || m_lods.Length < 1))
+            if ((!AnyDrawOutsideViewDistance && distance > MyRender11.Environment.Matrices.FarClipping) || (m_lods == null || m_lods.Length < 1))
             {
                 isCulled = true;
             }
@@ -1148,7 +1233,7 @@ namespace VRageRender
                             break;
                     }
 
-                    Vector3D.Transform(ref corner, ref MyEnvironment.ViewProjectionD, out corner);
+                    Vector3D.Transform(ref corner, ref MyRender11.Environment.Matrices.ViewProjectionD, out corner);
                     maxX = Math.Max(maxX, corner.X);
                     minX = Math.Min(minX, corner.X);
                     maxY = Math.Max(maxY, corner.Y);
@@ -1188,7 +1273,7 @@ namespace VRageRender
                 for (int instanceIndex = 0; instanceIndex < capacity; ++instanceIndex)
                 {
                     Vector3D position = (Vector3D)instanceInfo.Positions[instanceIndex] + translation;
-                    double distanceToCameraSquared = (position - MyEnvironment.CameraPosition).LengthSquared();
+                    double distanceToCameraSquared = (position - MyRender11.Environment.Matrices.CameraPosition).LengthSquared();
 
                     bool oldIsInstanceFar = instanceLodComponent.IsFar(m_instancing, instanceIndex);
                     bool isInstanceFar = distanceToCameraSquared > lodDistanceSquared * lastLodMultiplierSq;
@@ -1253,7 +1338,7 @@ namespace VRageRender
 
                                     newProxy.CommonObjectData = oldProxy.CommonObjectData;
                                     newProxy.CommonObjectData.LocalMatrix = newProxy.WorldMatrix;
-                                    newProxy.CommonObjectData.KeyColor = new Vector3(instanceInfo.InstanceData[instanceIndex].ColorMaskHSV.ToVector4());
+                                    UpdateKeyColor(ref newProxy.CommonObjectData, new Vector3(instanceInfo.InstanceData[instanceIndex].ColorMaskHSV.ToVector4()));
 
                                     newProxy.NonVoxelObjectData.Facing = 0;
                                     newProxy.NonVoxelObjectData.WindScaleAndFreq = partId.Info.Material.Info.WindScaleAndFreq;
@@ -1275,6 +1360,7 @@ namespace VRageRender
                                     newProxy.Parent = instanceLodComponent;
                                     newProxy.Material = originalProxy.Material;
 
+                                    var textureTypes = originalProxy.Material.Info.TextureTypes;
                                     var depthFlags = m_lods[lodIndex].VertexShaderFlags | MyShaderUnifiedFlags.DEPTH_ONLY | MyShaderUnifiedFlags.DITHERED_LOD | MapTechniqueToShaderMaterialFlags(technique);
                                     var shaderFlags = m_lods[lodIndex].VertexShaderFlags | MyShaderUnifiedFlags.DITHERED_LOD | MapTechniqueToShaderMaterialFlags(technique);
                                     var forwardFlags = m_lods[lodIndex].VertexShaderFlags | MyShaderUnifiedFlags.DITHERED_LOD | MapTechniqueToShaderMaterialFlags(technique);
@@ -1282,21 +1368,28 @@ namespace VRageRender
                                     shaderFlags &= ~MyShaderUnifiedFlags.USE_GENERIC_INSTANCING;
                                     forwardFlags &= ~MyShaderUnifiedFlags.USE_GENERIC_INSTANCING;
 
-                                    newProxy.DepthShaders = MyMaterialShaders.Get(
-                                        X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                                        X.TEXT(MyGeometryRenderer.DEFAULT_DEPTH_PASS),
-                                        m_lods[lodIndex].VertexLayout1,
-                                        depthFlags);
+                                    MyStringId shaderMaterial = MyMaterialShaders.MapTechniqueToShaderMaterial(technique);
+
                                     newProxy.Shaders = MyMaterialShaders.Get(
-                                        X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                                        X.TEXT(MyGeometryRenderer.DEFAULT_OPAQUE_PASS),
+                                        shaderMaterial,
+                                        MyMaterialShaders.MapTechniqueToDefaultPass(technique),
                                         m_lods[lodIndex].VertexLayout1,
-                                        shaderFlags);
+                                        shaderFlags, textureTypes);
+                                    newProxy.DepthShaders = MyMaterialShaders.Get(
+                                        shaderMaterial,
+                                        MyMaterialShaders.DEPTH_PASS_ID,
+                                        m_lods[lodIndex].VertexLayout1,
+                                        depthFlags, textureTypes);
+                                    newProxy.HighlightShaders = MyMaterialShaders.Get(
+                                        shaderMaterial,
+                                        MyMaterialShaders.HIGHLIGHT_PASS_ID,
+                                        m_lods[lodIndex].VertexLayout1,
+                                        shaderFlags, textureTypes);
                                     newProxy.ForwardShaders = MyMaterialShaders.Get(
-                                        X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                                        X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS),
+                                        shaderMaterial,
+                                        MyMaterialShaders.FORWARD_PASS_ID,
                                         m_lods[lodIndex].VertexLayout1,
-                                        forwardFlags);
+                                        forwardFlags, textureTypes);
 
                                     lodSortingKeys[proxyIndex] = m_lods[lodIndex].SortingKeys[proxyIndex];
                                     aabb.Include((BoundingBoxD)originalProxy.Mesh.Info.BoundingBox.Value);
@@ -1324,7 +1417,6 @@ namespace VRageRender
 
         internal override void OnRemove(MyActor owner)
         {
-            FreeCustomRenderTextures();
             DebrisEntityVoxelMaterial.Remove(owner.ID);
             DeallocateLodProxies();
 
@@ -1376,24 +1468,6 @@ namespace VRageRender
             return Owner.CalculateCameraDistance();
         }
 
-        internal static readonly string DEFAULT_MATERIAL_TAG = "standard";
-        internal static readonly string ALPHA_MASKED_MATERIAL_TAG = "alpha_masked";
-
-        internal static string MapTechniqueToShaderMaterial(string technique)
-        {
-            switch (technique)
-            {
-                case MyVoxelMesh.SINGLE_MATERIAL_TAG:
-                case MyVoxelMesh.MULTI_MATERIAL_TAG:
-                    return technique;
-                case "ALPHA_MASKED":
-                case "FOLIAGE":
-                    return ALPHA_MASKED_MATERIAL_TAG;
-                default:
-                    return DEFAULT_MATERIAL_TAG;
-            }
-        }
-
         internal static bool IsSortingOrderBackToFront(MyMaterialType type)
         {
             switch(type)
@@ -1405,28 +1479,26 @@ namespace VRageRender
             }
         }
 
-        internal static void FillPerMaterialData(ref MyPerMaterialData perMaterialData, string technique)
+        internal static void FillPerMaterialData(ref MyPerMaterialData perMaterialData, MyMeshDrawTechnique technique)
         {
             perMaterialData.Type = 0;
 
             switch(technique)
             {
-                case "FOLIAGE":
+                case MyMeshDrawTechnique.FOLIAGE:
                     perMaterialData.Type = MyMaterialTypeEnum.FOLIAGE;
                     break;
             }
         }
 
-        internal static MyShaderUnifiedFlags MapTechniqueToShaderMaterialFlags(string technique)
+        internal static MyShaderUnifiedFlags MapTechniqueToShaderMaterialFlags(MyMeshDrawTechnique technique)
         {
 			MyShaderUnifiedFlags flags = MyShaderUnifiedFlags.USE_SHADOW_CASCADES;
             switch(technique)
             {
-                case "ALPHA_MASKED":
+                case MyMeshDrawTechnique.ALPHA_MASKED:
+                case MyMeshDrawTechnique.FOLIAGE:
 					flags |= MyShaderUnifiedFlags.ALPHA_MASKED;
-					break;
-                case "FOLIAGE":
-					flags |= MyShaderUnifiedFlags.ALPHA_MASKED;// | MyShaderUnifiedFlags.FOLIAGE;
 					break;
                 default:
 					flags |= MyShaderUnifiedFlags.NONE;
@@ -1436,36 +1508,25 @@ namespace VRageRender
 			return flags;
         }
 
-        internal static MyMaterialFlags MapTechniqueToMaterialFlags(string technique)
-        {
-            switch(technique)
-            {
-                case "CLOTH":
-                    return MyMaterialFlags.RGB_COLORING;
-            }
-
-            return MyMaterialFlags.NONE;
-        }
-
-        internal static MyRenderableProxyFlags MapTechniqueToRenderableFlags(string technique)
+        internal static MyRenderableProxyFlags MapTechniqueToRenderableFlags(MyMeshDrawTechnique technique)
         {
             switch (technique)
             {
-                case "ALPHA_MASKED":
-                case "FOLIAGE":
-				case "CLOUD_LAYER":
+                case MyMeshDrawTechnique.ALPHA_MASKED:
+                case MyMeshDrawTechnique.FOLIAGE:
+                case MyMeshDrawTechnique.CLOUD_LAYER:
                     return MyRenderableProxyFlags.DisableFaceCulling;
                 default:
                     return MyRenderableProxyFlags.DepthSkipTextures;
             }
         }
 
-        internal static MyMaterialType MapTechniqueToMaterialType(string technique)
+        internal static MyMaterialType MapTechniqueToMaterialType(MyMeshDrawTechnique technique)
         {
             switch (technique)
             {
-                case "ALPHA_MASKED":
-                case "FOLIAGE":
+                case MyMeshDrawTechnique.ALPHA_MASKED:
+                case MyMeshDrawTechnique.FOLIAGE:
                     return MyMaterialType.ALPHA_MASKED;
                 default:
                     return MyMaterialType.OPAQUE;

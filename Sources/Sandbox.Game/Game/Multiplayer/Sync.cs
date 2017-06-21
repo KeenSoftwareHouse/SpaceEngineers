@@ -85,7 +85,7 @@ namespace Sandbox.Game.Multiplayer
                 }
                 else
                 {                 
-                    return ServerSimulationRatio / MyPhysics.SimulationRatio;
+                    return (float)Math.Round(ServerSimulationRatio / MyPhysics.SimulationRatio,2);
                 }
             }
         }

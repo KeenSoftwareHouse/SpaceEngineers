@@ -22,6 +22,7 @@ using VRage.Library.Utils;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.Entities.Blocks;
 using VRage.Game;
+using VRage.Profiler;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -43,7 +44,7 @@ namespace Sandbox.Graphics.GUI
         private MyGuiControlLabel m_transferToLabel;
         private MyGuiControlButton m_npcButton;
 
-        List<MySyncGrid.MySingleOwnershipRequest> m_requests = new List<MySyncGrid.MySingleOwnershipRequest>();
+        List<MyCubeGrid.MySingleOwnershipRequest> m_requests = new List<MyCubeGrid.MySingleOwnershipRequest>();
 
         bool m_askForConfirmation = true;
         bool m_canChangeShareMode = true;
@@ -118,7 +119,7 @@ namespace Sandbox.Graphics.GUI
                     MyGuiControlButtonStyleEnum.Tiny,
                     new Vector2(0.1f, 0.1f),
                     null, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER, MyTexts.GetString(MyCommonTexts.AddNewNPC), new StringBuilder("+"),
-                    MyGuiConstants.DEFAULT_TEXT_SCALE, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, MyGuiControlHighlightType.WHEN_ACTIVE, true,
+                    MyGuiConstants.DEFAULT_TEXT_SCALE, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, MyGuiControlHighlightType.WHEN_ACTIVE,
                     OnNewNpcClick, GuiSounds.MouseClick, 0.75f);
                 Elements.Add(m_npcButton);
             }
@@ -165,7 +166,7 @@ namespace Sandbox.Graphics.GUI
 
             if (m_currentBlocks.Length > 0)
             {
-                m_currentBlocks[0].PropertiesChanged += block_PropertiesChanged;
+                m_currentBlocks[0].PropertiesChanged -= block_PropertiesChanged;
             }
 
             foreach (var block in m_currentBlocks)
@@ -239,7 +240,7 @@ namespace Sandbox.Graphics.GUI
                 foreach (var block in m_currentBlocks)
                 {
                     var type = block.GetType();
-                    foreach (var control in MyTerminalControlFactory.GetControls(block.GetType()))
+                    foreach(var control in MyTerminalControls.Static.GetControls(block))
                     {
                         int num;
                         m_tmpControlDictionary.TryGetValue(control, out num);
@@ -404,9 +405,9 @@ namespace Sandbox.Graphics.GUI
                  {
                      if (block.IDModule != null)
                      {
-                         if (shareMode >= 0 && (block.OwnerId == MySession.Static.LocalPlayerId))
+                         if (shareMode >= 0 && (block.OwnerId == MySession.Static.LocalPlayerId || MySession.Static.IsUserSpaceMaster(MySession.Static.LocalHumanPlayer.Client.SteamUserId)))
                          {
-                             m_requests.Add(new MySyncGrid.MySingleOwnershipRequest()
+                             m_requests.Add(new MyCubeGrid.MySingleOwnershipRequest()
                              {
                                  BlockId = block.EntityId,
                                  Owner = block.IDModule.Owner
@@ -417,7 +418,7 @@ namespace Sandbox.Graphics.GUI
                  }
 
                  if (m_requests.Count > 0)
-                     MySyncGrid.ChangeOwnersRequest(shareMode, m_requests, MySession.Static.LocalPlayerId);
+                     MyCubeGrid.ChangeOwnersRequest(shareMode, m_requests, MySession.Static.LocalPlayerId);
              }
 
             m_canChangeShareMode = true;
@@ -454,9 +455,9 @@ namespace Sandbox.Graphics.GUI
                                 {
                                     if (block.IDModule != null)
                                     {
-                                        if (block.OwnerId == 0 || block.OwnerId == MySession.Static.LocalPlayerId)
+                                        if (block.OwnerId == 0 || block.OwnerId == MySession.Static.LocalPlayerId || MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
                                         {
-                                            m_requests.Add(new MySyncGrid.MySingleOwnershipRequest()
+                                            m_requests.Add(new MyCubeGrid.MySingleOwnershipRequest()
                                             {
                                                 BlockId = block.EntityId,
                                                 Owner = ownerKey
@@ -467,18 +468,18 @@ namespace Sandbox.Graphics.GUI
 
                                 if (m_requests.Count > 0)
                                 {
-                                    if (MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(ownerKey)) 
+                                    if (MySession.Static.IsUserSpaceMaster(MySession.Static.LocalHumanPlayer.Client.SteamUserId) && Sync.Players.IdentityIsNpc(ownerKey)) 
                                     {
-                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests, MySession.Static.LocalPlayerId);
+                                        MyCubeGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests, MySession.Static.LocalPlayerId);
                                     }
                                     else if (MySession.Static.LocalPlayerId == ownerKey)
                                     {
                                         // this should not be changed to No share, without approval from a designer, see ticket https://app.asana.com/0/64822442925263/64356719169418
-                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests, MySession.Static.LocalPlayerId);
+                                        MyCubeGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests, MySession.Static.LocalPlayerId);
                                     }
                                     else
                                     {
-                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests, MySession.Static.LocalPlayerId);
+                                        MyCubeGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests, MySession.Static.LocalPlayerId);
                                     }
                                 }
                             }
@@ -541,7 +542,7 @@ namespace Sandbox.Graphics.GUI
 
             if (!propertyMixed)
             {
-                if (owner.Value == MySession.Static.LocalPlayerId)
+                if (owner.Value == MySession.Static.LocalPlayerId || MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
                 {
                     m_shareModeCombobox.Enabled = true;
                 }
@@ -557,7 +558,7 @@ namespace Sandbox.Graphics.GUI
                 }
                 else
                 {
-                    m_transferToCombobox.Enabled = owner.Value == MySession.Static.LocalPlayerId;
+                    m_transferToCombobox.Enabled = owner.Value == MySession.Static.LocalPlayerId || MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals);
                     m_ownerLabel.TextEnum = MySpaceTexts.BlockOwner_Me;
                     if (owner.Value != MySession.Static.LocalPlayerId)
                     {

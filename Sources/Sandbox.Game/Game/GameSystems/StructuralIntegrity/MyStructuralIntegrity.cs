@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using ConstraintKey = VRage.MyTuple<Sandbox.Game.Entities.Cube.MySlimBlock, Sandbox.Game.Entities.Cube.MySlimBlock>;
 using Sandbox.Game.World;
@@ -127,7 +126,7 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
                     }
                 }
 
-                m_cubeGrid.TestDynamic = true;
+                m_cubeGrid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
             }
         }
 

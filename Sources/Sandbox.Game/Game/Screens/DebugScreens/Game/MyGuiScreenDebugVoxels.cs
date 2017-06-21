@@ -23,11 +23,15 @@ using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
+using VRageRender.Voxels;
 using Path = System.IO.Path;
 using SearchOption = VRage.FileSystem.MySearchOption;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+
+#if !XB1
+
     [MyDebugScreen("Game", "Voxels")]
     public class MyGuiScreenDebugVoxels : MyGuiScreenDebugBase
     {
@@ -124,18 +128,16 @@ namespace Sandbox.Game.Screens.DebugScreens
             m_currentPosition.Y += 0.01f;
 
             //AddCheckBox("Geometry cell debug draw", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_VOXEL_GEOMETRY_CELL));
-            AddCheckBox("Freeze terrain queries", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.FreezeTerrainQueries));
-            AddCheckBox("Debug render clipmap cells", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DebugRenderClipmapCells));
-            AddCheckBox("Debug render merged cells", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DebugRenderMergedCells));
-            AddCheckBox("Debug clipmap lod colors", () => MyRenderSettings.DebugClipmapLodColor, (value) => MyRenderSettings.DebugClipmapLodColor = value);
+            AddCheckBox("Freeze terrain queries", MyRenderProxy.Settings.FreezeTerrainQueries, (x) => MyRenderProxy.Settings.FreezeTerrainQueries = x.IsChecked);
+            AddCheckBox("Debug render clipmap cells", MyRenderProxy.Settings.DebugRenderClipmapCells, (x) => MyRenderProxy.Settings.DebugRenderClipmapCells = x.IsChecked);
+            AddCheckBox("Wireframe", MyRenderProxy.Settings.Wireframe, (x) => MyRenderProxy.Settings.Wireframe = x.IsChecked);
+            AddCheckBox("Debug clipmap lod colors", MyRenderProxy.Settings.DebugClipmapLodColor, (x) => MyRenderProxy.Settings.DebugClipmapLodColor = x.IsChecked);
             AddCheckBox("Enable physics shape discard", null, MemberHelper.GetMember(() => MyFakes.ENABLE_VOXEL_PHYSICS_SHAPE_DISCARDING));
-            AddCheckBox("Wireframe", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Wireframe));
-            //AddCheckBox("Green background", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.ShowGreenBackground));
+            //AddCheckBox("Green background", MyRenderProxy.Settings.ShowGreenBackground, (x) => MyRenderProxy.Settings.ShowGreenBackground = x.IsChecked);
             AddCheckBox("Use triangle cache", this, MemberHelper.GetMember(() => UseTriangleCache));
             AddCheckBox("Use lod cutting", null, MemberHelper.GetMember(() => MyClipmap.UseLodCut));
             AddCheckBox("Use storage cache", null, MemberHelper.GetMember(() => MyStorageBase.UseStorageCache));
             AddCheckBox("Use dithering", null, MemberHelper.GetMember(() => MyClipmap.UseDithering));
-            AddCheckBox("Use voxel merging", () => MyRenderProxy.Settings.EnableVoxelMerging, (x) => { VoxelMergeChanged(x); });
             AddCheckBox("Use queries", null, MemberHelper.GetMember(() => MyClipmap.UseQueries));
             AddCheckBox("Voxel AO", null, MemberHelper.GetMember(() => MyFakes.ENABLE_VOXEL_COMPUTED_OCCLUSION));
             
@@ -233,12 +235,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             }
         }
 
-        private void VoxelMergeChanged(bool newValue)
-        {
-            MyRenderProxy.Settings.EnableVoxelMerging = newValue;
-            MyRenderProxy.ResetMergedVoxels();
-        }
-
         private void ResetAll(MyGuiControlBase sender)
         {
             var instances = MySession.Static.VoxelMaps.Instances;
@@ -256,22 +252,11 @@ namespace Sandbox.Game.Screens.DebugScreens
             }
         }
 
-        private void ResetPart(MyGuiControlBase sender)
+        protected override void ValueChanged(MyGuiControlBase sender)
         {
-            var instances = MySession.Static.VoxelMaps.Instances;
-            foreach (var voxelMap in instances)
-            {
-                if (!(voxelMap is MyVoxelPhysics))
-                {
-                    var octree = voxelMap.Storage as MyOctreeStorage;
-                    var worldAabb = voxelMap.PositionComp.WorldAABB;
-                    BoundingBoxD resetAabb;
-                    resetAabb.Min = worldAabb.Min + worldAabb.Size * 0.25f;
-                    resetAabb.Max = worldAabb.Max - worldAabb.Size * 0.25f;
-                    if (octree != null)
-                        octree.ResetOutsideBorders(voxelMap, resetAabb);
-                }
-            }
+            MyRenderProxy.SetSettingsDirty();
         }
     }
+
+#endif
 }

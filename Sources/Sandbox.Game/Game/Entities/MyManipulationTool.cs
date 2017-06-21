@@ -28,6 +28,10 @@ using VRage.Game.Entity;
 using VRage.Import;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Profiler;
+using VRage.Serialization;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities
 {
@@ -251,7 +255,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            public override void OnMotion(HkRigidBody rbo, float step)
+            public override void OnMotion(HkRigidBody rbo, float step, bool fromParent)
             {
                 // Do nothing
             }
@@ -340,7 +344,7 @@ namespace Sandbox.Game.Entities
             return status == MyGunStatusEnum.OK;
         }
 
-        public void Shoot(MyShootActionEnum action, VRageMath.Vector3 direction, string gunAction)
+        public void Shoot(MyShootActionEnum action, VRageMath.Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             m_enabled = false;
 
@@ -447,7 +451,7 @@ namespace Sandbox.Game.Entities
             UpdateManipulation();
         }
 
-        public void DrawHud(Sandbox.ModAPI.Interfaces.IMyCameraController camera, long playerId)
+        public void DrawHud(IMyCameraController camera, long playerId)
         {
         }
 
@@ -501,7 +505,7 @@ namespace Sandbox.Game.Entities
             if (!fromServer && !CanManipulate(characterMovementState))
                 return false;
 
-            if (!CanManipulateEntity(otherEntity))
+            if (!CanManipulateEntity(otherEntity, fromServer: fromServer))
             {
                 Debug.Assert(!fromServer, "Desync!");
                 return false;
@@ -1219,7 +1223,7 @@ namespace Sandbox.Game.Entities
                 {
                     if (m_fixedConstraintData != null && !MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
-                        float t = (float)(currentTimeDelta.Miliseconds / constraintPrepareTime.Miliseconds);
+                        float t = (float)(currentTimeDelta.Milliseconds / constraintPrepareTime.Milliseconds);
                         t *= t;
                         t *= t; //pow4
                         float value = t * fixedConstraintMaxValue;
@@ -1303,7 +1307,7 @@ namespace Sandbox.Game.Entities
 
                 if (rotation != null)
                 {
-                    MyMultiplayer.RaiseStaticEvent(s => MyManipulationTool.OnRotateManipulatedEntity, EntityId, rotation.Value.ToVector4());
+                    MyMultiplayer.RaiseStaticEvent(s => MyManipulationTool.OnRotateManipulatedEntity, EntityId, rotation.Value);
                 }
             }
         }
@@ -1330,16 +1334,23 @@ namespace Sandbox.Game.Entities
                 if (m_otherEntity is MyCubeGrid)
                 {
                     var grid = m_otherEntity as MyCubeGrid;
-                    // Use logical group which does not include grids connected with ropes
-                    var group = MyCubeGridGroups.Static.Logical.GetGroup(grid);
-                    if (group != null)
+                    var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
+
+                    m_tmpEntities.Clear();
+                    var otherSphere = m_otherEntity.PositionComp.WorldVolume;
+                    MyGamePruningStructure.GetAllEntitiesInSphere(ref otherSphere, m_tmpEntities, MyEntityQueryType.Dynamic);
+
+                    foreach (var entity in m_tmpEntities)
                     {
-                        foreach (var node in group.Nodes)
-                        {
-                            if (CheckManipulatedObjectPenetration(node.NodeData, null, Owner, m_constraintInitialized))
-                                return true;
-                        }
+                        var otherGrid = entity as MyCubeGrid;
+                        if (otherGrid == null) continue;
+                        if (MyCubeGridGroups.Static.Logical.GetGroup(otherGrid) != gridGroup) continue;
+
+                        if (CheckManipulatedObjectPenetration(otherGrid, null, Owner, m_constraintInitialized))
+                            return true;
                     }
+
+                    m_tmpEntities.Clear();
                 }
                 else
                 {
@@ -1372,7 +1383,7 @@ namespace Sandbox.Game.Entities
                     var entity = collision.GetCollisionEntity();
                     if (entity == otherEntity)
                         continue;
-                    else if (entity == owner && owner.IsRealPlayer())
+                    else if (entity == owner && owner.IsPlayer)
                         return true;
 
                     if (constraintInitialized)
@@ -1431,9 +1442,9 @@ namespace Sandbox.Game.Entities
             return null;
         }
 
-        private static bool CanManipulateEntity(MyEntity entity)
+        private static bool CanManipulateEntity(MyEntity entity, bool fromServer = false)
         {
-            if (entity.Physics == null || entity.Physics.RigidBody == null || entity.Physics.IsStatic)
+            if (entity.Physics == null || entity.Physics.RigidBody == null || (!fromServer && entity.Physics.IsStatic))
                 return false;
             else if (entity is MyInventoryBagEntity) // currently only loot bags..
                 return false;
@@ -1510,6 +1521,19 @@ namespace Sandbox.Game.Entities
         int IMyUseObject.RenderObjectID
         {
             get { return Render.RenderObjectIDs != null ? (int)Render.RenderObjectIDs[0] : 0; }
+        }
+
+        void IMyUseObject.SetRenderID(uint id)
+        {
+        }
+
+        int IMyUseObject.InstanceID
+        {
+            get { return -1; }
+        }
+
+        void IMyUseObject.SetInstanceID(int id)
+        {
         }
 
         bool IMyUseObject.ShowOverlay
@@ -1721,15 +1745,19 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        [Event, Reliable, Server(ExceptLocal = true), BroadcastExcept]
-        static void OnRotateManipulatedEntity(long entityId, Vector4 rot)
+        [Event, Reliable, Server, BroadcastExcept]
+        static void OnRotateManipulatedEntity(long entityId, [Serialize(MyPrimitiveFlags.Normalized)] Quaternion rotation)
         {
-            Quaternion quaternion = new Quaternion(rot.X, rot.Y, rot.Z, rot.W);
+            if (MyEventContext.Current.IsLocallyInvoked)
+                return;
+
             MyManipulationTool manipulationTool;
             if (MyEntities.TryGetEntityById(entityId, out manipulationTool))
             {
-                manipulationTool.RotateManipulatedEntity(ref quaternion);
+                manipulationTool.RotateManipulatedEntity(ref rotation);
             }
         }
+
+        public void UpdateSoundEmitter(){ }
     }
 }

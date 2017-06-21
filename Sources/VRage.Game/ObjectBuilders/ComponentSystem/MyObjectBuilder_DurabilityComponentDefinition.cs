@@ -33,6 +33,6 @@ namespace VRage.Game.ObjectBuilders.ComponentSystem
         public string SoundCue = null;
 
         [ProtoMember]
-        public float TimedDamage = 0.0f;
+        public float DamageOverTime = 0.0f;
     }
 }

@@ -17,6 +17,8 @@ using System.Collections.Specialized;
 
 namespace LitJson
 {
+#if !XB1
+
     public enum JsonType
     {
         None,
@@ -57,4 +59,5 @@ namespace LitJson
         string ToJson ();
         void   ToJson (JsonWriter writer);
     }
+#endif
 }

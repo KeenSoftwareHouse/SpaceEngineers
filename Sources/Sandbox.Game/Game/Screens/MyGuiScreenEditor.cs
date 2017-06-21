@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRage;
 using VRage.Utils;
 using VRage.Compiler;
@@ -15,12 +17,16 @@ using VRageMath;
 
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Blocks;
 using VRage;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Game.Screens;
+using Sandbox.ModAPI.Ingame;
 using VRage.Game;
+using VRage.Game.ModAPI;
+using VRage.Scripting;
 
 namespace Sandbox.Game.Gui
 {
@@ -30,8 +36,25 @@ namespace Sandbox.Game.Gui
         private static Vector2 m_editorWindowSize = new Vector2(1.0f, 0.9f);
         private static Vector2 m_editorDescSize = new Vector2(0.94f, 0.73f);
 
-        const string CODE_WRAPPER_BEFORE = "using System;\nusing System.Collections.Generic;\nusing VRageMath;\nusing VRage.Game;\nusing System.Text;\nusing Sandbox.ModAPI.Interfaces;\nusing Sandbox.ModAPI.Ingame;\nusing Sandbox.Game.EntityComponents;\nusing VRage.Game.Components;\nusing VRage.Collections;\nVRage.Game.ObjectBuilders.Definition;\npublic class Program: MyGridProgram\n{\n";
+        #region Old Scripting System
+        const string CODE_WRAPPER_BEFORE = "using System;\n" +
+                                           "using System.Collections.Generic;\n" +
+                                           "using VRageMath;\n" +
+                                           "using VRage.Game;\n" +
+                                           "using System.Text;\n" +
+                                           "using Sandbox.ModAPI.Interfaces;\n" +
+                                           "using Sandbox.ModAPI.Ingame;\n" +
+                                           "using Sandbox.Game.EntityComponents;\n" +
+                                           "using VRage.Game.Components;\n" +
+                                           "using VRage.Collections;\n" +
+                                           "using VRage.Game.ObjectBuilders.Definitions;\n" +
+                                           "using VRage.Game.ModAPI.Ingame;\n" +
+                                           "using SpaceEngineers.Game.ModAPI.Ingame;\n" +
+                                           "public class Program: MyGridProgram\n" +
+                                           "{\n";
         const string CODE_WRAPPER_AFTER = "\n}";
+        #endregion
+
         private MyGuiControlButton m_openWorkshopButton;
         private MyGuiControlButton m_checkCodeButton;
         private MyGuiControlButton m_saveChanges;
@@ -137,18 +160,47 @@ namespace Sandbox.Game.Gui
             Assembly assembly = null;
             if (CompileProgram(code, m_compilerErrors, ref assembly))
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                   styleEnum: MyMessageBoxStyleEnum.Info,
-                   buttonType: MyMessageBoxButtonsType.OK,
-                   messageText: MyTexts.Get(MySpaceTexts.ProgrammableBlock_Editor_CompilationOk),
-                   canHideOthers: false));
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS && m_compilerErrors.Count > 0)
+                {
+                    var messageBuilder = new StringBuilder();
+                    foreach (var message in m_compilerErrors)
+                    {
+                        messageBuilder.Append(message);
+                        messageBuilder.Append('\n');
+                    }
+                    var errorListScreen = new MyGuiScreenMission(missionTitle: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationOk),
+                        currentObjectivePrefix: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationOkWarningList),
+                        currentObjective: "",
+                        description: messageBuilder.ToString(),
+                        canHideOthers: false,
+                        enableBackgroundFade: true,
+                        style: MyMissionScreenStyleEnum.BLUE);
+
+                    MyScreenManager.AddScreen(errorListScreen);
+                }
+                else
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                        styleEnum: MyMessageBoxStyleEnum.Info,
+                        buttonType: MyMessageBoxButtonsType.OK,
+                        messageText: MyTexts.Get(MySpaceTexts.ProgrammableBlock_Editor_CompilationOk),
+                        canHideOthers: false));
+                }
             }
             else
             {
-                string compilerErrors = "";
-                foreach (var error in m_compilerErrors)
+                string compilerErrors;
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS && m_compilerErrors.Count > 0)
                 {
-                    compilerErrors += FormatError(error) + "\n";
+                    compilerErrors = string.Join("\n", m_compilerErrors);
+                }
+                else
+                {
+                    compilerErrors = "";
+                    foreach (var error in m_compilerErrors)
+                    {
+                        compilerErrors += FormatError(error) + "\n";
+                    }
                 }
                 var errorListScreen = new MyGuiScreenMission(missionTitle: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailed),
                 currentObjectivePrefix: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorList),
@@ -206,16 +258,34 @@ namespace Sandbox.Game.Gui
             return error;
         }
 
-        public static bool CompileProgram(string program, List<string> errors,ref Assembly assembly)
+        public static bool CompileProgram(string program, List<string> errors, ref Assembly assembly)
         {
-            if (program != null && program.Length > 0)
+#if !XB1
+            if (!string.IsNullOrEmpty(program))
             {
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+                {
+                    var messageList = new List<MyScriptCompiler.Message>();
+                    assembly = MyScriptCompiler.Static.Compile(
+                        MyApiTarget.Ingame,
+                        Path.Combine(MyFileSystem.UserDataPath, "EditorCode.dll"),
+                        MyScriptCompiler.Static.GetIngameScript(program, "Program", typeof(MyGridProgram).Name),
+                        messageList).Result;
+                    errors.Clear();
+                    errors.AddRange(messageList.OrderByDescending(m => m.Severity).Select(m => m.Text));
+
+                    return assembly != null;
+                }
+
                 string finalCode = CODE_WRAPPER_BEFORE + program + CODE_WRAPPER_AFTER;
                 if (true == IlCompiler.CompileStringIngame(Path.Combine(MyFileSystem.UserDataPath, "IngameScript.dll"), new string[] { finalCode }, out assembly, errors))
                 {
                     return true;
                 }
             }
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "No scripts on XB1");
+#endif // XB1
             return false;
         }
 
@@ -245,7 +315,11 @@ namespace Sandbox.Game.Gui
             }
             if (programData != null)
             {
+#if XB1
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
                 SetDescription(Regex.Replace(programData, "\r\n", " \n"));
+#endif // !XB1
                 m_lineCounter.Text = string.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_LineNo), m_editorWindow.GetCurrentCarriageLine(), m_editorWindow.GetTotalNumLines());
                 EnableButtons();
             }

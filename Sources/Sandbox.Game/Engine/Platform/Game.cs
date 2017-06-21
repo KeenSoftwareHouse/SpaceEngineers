@@ -21,6 +21,8 @@ using Sandbox.Engine.Physics;
 using Sandbox.Game;
 using System.IO;
 using VRage.Collections;
+using VRage.Profiler;
+using VRageRender.Utils;
 
 namespace Sandbox.Engine.Platform
 {
@@ -42,8 +44,9 @@ namespace Sandbox.Engine.Platform
 
         private MyTimeSpan m_drawTime;
         private MyTimeSpan m_updateTime;
+        private ulong m_updateCounter = 0;
 
-        const float TARGET_MS_PER_FRAME = 1000 / 60.0f;
+        const double TARGET_MS_PER_FRAME = 1000 / 60.0;
 
         const int NUM_FRAMES_FOR_DROP = 5;
 
@@ -61,15 +64,6 @@ namespace Sandbox.Engine.Platform
 
         MyQueue<long> m_lastFrameTiming = new MyQueue<long>(NUM_FRAMES_FOR_DROP);
 
-        /// <summary>
-        /// This should be never called, it's here only for temporal compatibility
-        /// </summary>
-        public MyTimeSpan GetNewTimestamp()
-        {
-            // TODO: OP! Remove, this is hack for temporal compatibility
-            return m_gameTimer.Elapsed;
-        }
-
         public MyTimeSpan DrawTime
         {
             get
@@ -83,9 +77,22 @@ namespace Sandbox.Engine.Platform
         {
             get
             {
-               // Debug.Assert(Thread.CurrentThread == UpdateThread);
                 return m_updateTime;
             }
+        }
+
+        public MyTimeSpan SimulationTime
+        {
+            get
+            {
+                return MyTimeSpan.FromMilliseconds(m_updateCounter * TARGET_MS_PER_FRAME);
+            }
+        }
+
+        public double TimerMultiplier
+        {
+            get { return m_gameTimer.Multiplier; }
+            set { m_gameTimer.Multiplier = value; }
         }
 
         private bool isFirstUpdateDone;
@@ -101,7 +108,7 @@ namespace Sandbox.Engine.Platform
         MyTimer.TimerEventHandler m_handler;
 
 
-        public static float SimulationRatio { get { return TARGET_MS_PER_FRAME / m_targetMs; } }
+        public static float SimulationRatio { get { return (float)TARGET_MS_PER_FRAME / m_targetMs; } }
 
         static long m_lastFrameTime = 0;
 
@@ -156,7 +163,12 @@ namespace Sandbox.Engine.Platform
 
         #region Public Methods and Operators
 
-        FixedLoop m_renderLoop = new FixedLoop(Stats.Generic, "WaitForUpdate");
+        readonly FixedLoop m_renderLoop = new FixedLoop(Stats.Generic, "WaitForUpdate");
+
+        public void SetNextFrameDelayDelta(int delta)
+        {
+            m_renderLoop.SetNextFrameDelayDelta(delta);
+        }
 
         /// <summary>
         /// Exits the game.
@@ -182,7 +194,11 @@ namespace Sandbox.Engine.Platform
             }
             catch (SEHException exception)
             {
+#if !XB1
                 MyLog.Default.WriteLine("SEHException caught. Error code: " + exception.ErrorCode.ToString());
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "System.Runtime.InteropServices.ExternalException.ErrorCode not supported on XB1");
+#endif // XB1
                 throw exception;
             }
         }
@@ -196,6 +212,12 @@ namespace Sandbox.Engine.Platform
 
             FrameTimeTicks = MyPerformanceCounter.ElapsedTicks - beforeUpdate;
 
+            if (MyFakes.PRECISE_SIM_SPEED)
+            {
+                long currentTicks = Math.Min(Math.Max(m_renderLoop.TickPerFrame, UpdateCurrentFrame()), 10 * m_renderLoop.TickPerFrame);
+                m_targetMs = (float)Math.Max(TARGET_MS_PER_FRAME,MyPerformanceCounter.TicksToMs(currentTicks));
+            }
+
             if (EnableSimSpeedLocking && MyFakes.ENABLE_SIMSPEED_LOCKING)
             {
                 Lock(beforeUpdate);
@@ -205,14 +227,14 @@ namespace Sandbox.Engine.Platform
         private void Lock(long beforeUpdate)
         {
             //maximum sim speed can be 1.0 minimum 0.01, during loading there can be peaks more than 100 ms and we dont want to lock sim speed to such values
-            long currentValue = Math.Min(Math.Max(m_renderLoop.TickPerFrame, UpdateCurrentFrame()),10*m_renderLoop.TickPerFrame);
+            long currentTicks = Math.Min(Math.Max(m_renderLoop.TickPerFrame, UpdateCurrentFrame()), 10 * m_renderLoop.TickPerFrame);
 
-            m_currentMin = Math.Max(currentValue, m_currentMin);
+            m_currentMin = Math.Max(currentTicks, m_currentMin);
             m_currentFrameIncreaseTime += m_targetMs;
 
-            if (currentValue > m_targetTicks)
+            if (currentTicks > m_targetTicks)
             {
-                m_targetTicks = currentValue;
+                m_targetTicks = currentTicks;
                 m_currentFrameIncreaseTime = 0;
                 m_currentMin = 0;
                 m_targetMs = (float)MyPerformanceCounter.TicksToMs(m_targetTicks);
@@ -236,7 +258,7 @@ namespace Sandbox.Engine.Platform
             long remainingTicksTowait = MyPerformanceCounter.ElapsedTicks - beforeUpdate;
             var remainingTimeToWait = MyTimeSpan.FromTicks(m_targetTicks - remainingTicksTowait);
 
-            int waitMs = (int)(remainingTimeToWait.Miliseconds - 0.1);
+            int waitMs = (int)(remainingTimeToWait.Milliseconds - 0.1);
             if (waitMs > 0 && !EnableMaxSpeed)
             {
 
@@ -312,6 +334,11 @@ namespace Sandbox.Engine.Platform
             //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Default, "Update Start");
 
             m_updateTime = m_gameTimer.Elapsed;
+            m_updateCounter++;
+
+            if (VRage.MyCompilationSymbols.EnableNetworkPacketTracking)
+                System.Diagnostics.Debug.WriteLine("----- Tick # " + m_updateTime.Milliseconds);
+
             Update();
             ProfilerShort.End();
 
@@ -330,6 +357,7 @@ namespace Sandbox.Engine.Platform
             }
 
             ProfilerShort.Commit();
+            MySimpleProfiler.Commit();
             //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Default, "Update End");
         }
 

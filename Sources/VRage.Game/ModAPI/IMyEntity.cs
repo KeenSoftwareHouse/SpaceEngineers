@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
@@ -89,6 +90,8 @@ namespace VRage.ModAPI
 
 		DrawOutsideViewDistance = 1 << 18,
 
+        IsGamePrunningStructureObject = 1 << 19,
+
         Default = EntityFlags.Visible | EntityFlags.SkipIfTooSmall | EntityFlags.Save | EntityFlags.NeedsResolveCastShadow | EntityFlags.InvalidateOnMove,
     }
 
@@ -107,7 +110,7 @@ namespace VRage.ModAPI
     }
     #endregion
 
-    public interface IMyEntity
+    public interface IMyEntity : Game.ModAPI.Ingame.IMyEntity
     {
         //Components
         MyEntityComponentContainer Components { get; }
@@ -117,7 +120,14 @@ namespace VRage.ModAPI
         MyEntityComponentBase GameLogic { get; set; }
         MyHierarchyComponentBase Hierarchy { get; set; }
         MySyncComponentBase SyncObject { get; }
-
+        
+        /// <summary>
+        /// Custom storage for mods. Shared with all mods.
+        /// </summary>
+        /// <remarks>Not synced, but saved with blueprints.
+        /// Only use set accessor if value is null.
+        /// </remarks>
+        MyModStorageComponentBase Storage { get; set; }
 
         //Entity core
         EntityFlags Flags { get; set; }
@@ -147,7 +157,8 @@ namespace VRage.ModAPI
         Matrix LocalMatrix { get; set; }
         void SetLocalMatrix(VRageMath.Matrix localMatrix, object source = null);
         void GetChildren(List<IMyEntity> children, Func<IMyEntity, bool> collect = null);
-
+        MyEntitySubpart GetSubpart(string name);
+        bool TryGetSubpart(string name, out MyEntitySubpart subpart);
 
 
         //Render
@@ -167,7 +178,23 @@ namespace VRage.ModAPI
         void DebugDraw();
         void DebugDrawInvalidTriangles();
         void EnableColorMaskForSubparts(bool enable);
-        void SetColorMaskForSubparts(VRageMath.Vector3 colorMaskHsv);  
+        void SetColorMaskForSubparts(VRageMath.Vector3 colorMaskHsv);
+
+        /// <summary>
+        /// Sets the emissive value of a specific emissive material on entity.
+        /// </summary>
+        /// <param name="emissiveName">The name of the emissive material (ie. "Emissive0")</param>
+        /// <param name="emissivity">Level of emissivity (0 is off, 1 is full brightness)</param>
+        /// <param name="emissivePartColor">Color to emit</param>
+        void SetEmissiveParts(string emissiveName, Color emissivePartColor, float emissivity);
+
+        /// <summary>
+        /// Sets the emissive value of a specific emissive material on all entity subparts.
+        /// </summary>
+        /// <param name="emissiveName">The name of the emissive material (ie. "Emissive0")</param>
+        /// <param name="emissivity">Level of emissivity (0 is off, 1 is full brightness).</param>
+        /// <param name="emissivePartColor">Color to emit</param>
+        void SetEmissivePartsForSubparts(string emissiveName, Color emissivePartColor, float emissivity);
 
 
         //Scene 
@@ -182,19 +209,15 @@ namespace VRage.ModAPI
         MatrixD GetViewMatrix();
         MatrixD GetWorldMatrixNormalizedInv();
         void SetWorldMatrix(VRageMath.MatrixD worldMatrix, object source = null);
-        VRageMath.BoundingBoxD WorldAABB { get; }
-        VRageMath.BoundingBoxD WorldAABBHr { get; }
-        VRageMath.MatrixD WorldMatrix { get; set; }
+        new VRageMath.MatrixD WorldMatrix { get; set; }
         VRageMath.MatrixD WorldMatrixInvScaled { get; }
         VRageMath.MatrixD WorldMatrixNormalizedInv { get; }
-        VRageMath.BoundingSphereD WorldVolume { get; }
-        VRageMath.BoundingSphereD WorldVolumeHr { get; }
-        VRageMath.Vector3D GetPosition();
         void SetPosition(VRageMath.Vector3D pos);
 
 
 
         //Model 
+        bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? tri, IntersectionFlags flags);
         Vector3? GetIntersectionWithLineAndBoundingSphere(ref LineD line, float boundingSphereRadiusMultiplier);
         bool GetIntersectionWithSphere(ref BoundingSphereD sphere);
         void GetTrianglesIntersectingSphere(ref BoundingSphereD sphere, Vector3? referenceNormalVector, float? maxAngle, System.Collections.Generic.List<MyTriangle_Vertex_Normals> retTriangles, int maxNeighbourTriangles);

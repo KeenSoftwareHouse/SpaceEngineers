@@ -1,6 +1,5 @@
 ﻿#region Using
 
-using Sandbox.Common;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,7 @@ namespace Sandbox.Graphics
 
     public struct MyFontDescription
     {
-        public MyFontEnum Id;
+        public string Id;
         public string Path;
         public bool IsDebug;
     }
@@ -37,19 +36,33 @@ namespace Sandbox.Graphics
     public static class MyGuiManager
     {
 
+#if !XB1
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
+#endif // !XB1
 
         private static Vector2 vector2Zero = Vector2.Zero;
         private static Rectangle? nullRectangle;
 
         public static int TotalTimeInMilliseconds;
 
-        public static VRageMath.MatrixD Camera;
-        public static VRageMath.MatrixD CameraView;
+        public static MatrixD Camera 
+        {
+            get { return m_camera.WorldMatrix; }
+        }
+
+        public static VRageMath.MatrixD CameraView
+        {
+            get { return m_camera.ViewMatrix; }
+        }
 
         public const int FAREST_TIME_IN_PAST = -60 * 1000;
 
+        private static VRage.Game.Utils.MyCamera m_camera;
+        public static void SetCamera(VRage.Game.Utils.MyCamera camera)
+        {
+            m_camera = camera;
+        }
 
 
         //  Textures for GUI elements such as screen background, etc... for wide or tall screens and backgrounds
@@ -106,7 +119,9 @@ namespace Sandbox.Graphics
 
         static string m_mouseCursorTexture;
         //        static MyTexture2D m_mouseCursorArrowTexture;
+#if !XB1
         static System.Drawing.Bitmap m_mouseCursorBitmap;
+#endif
 
         static List<MyGuiTextureScreen> m_backgroundScreenTextures;
 
@@ -115,7 +130,7 @@ namespace Sandbox.Graphics
         static bool m_fullScreenHudEnabled = false;
         public static bool FullscreenHudEnabled { get { return m_fullScreenHudEnabled; } set { m_fullScreenHudEnabled = value; } }
 
-        static Dictionary<int, VRageRender.MyFont> m_fontsById = new Dictionary<int, VRageRender.MyFont>();
+        static Dictionary<MyStringHash, VRageRender.MyFont> m_fontsById = new Dictionary<MyStringHash, VRageRender.MyFont>();
 
         //static MyEffectSpriteBatchOriginal m_spriteEffect;
 
@@ -156,7 +171,11 @@ namespace Sandbox.Graphics
         /// </summary>
         static MyGuiManager()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            MyGuiControlsFactory.RegisterDescriptorsFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             MyGuiControlsFactory.RegisterDescriptorsFromAssembly(Assembly.GetCallingAssembly());
+#endif // !XB1
         }
 
         /// <summary>
@@ -167,19 +186,25 @@ namespace Sandbox.Graphics
 
         }
 
+        public static bool FontExists(string font)
+        {
+            return m_fontsById.ContainsKey(MyStringHash.GetOrCompute(font));
+        }
+
         public static void LoadContent(MyFontDescription[] fonts)
         {
             VRageRender.MyRenderProxy.Log.WriteLine("MyGuiManager2.LoadContent() - START");
             VRageRender.MyRenderProxy.Log.IncreaseIndent();
 
             var path = Path.Combine(MyFileSystem.ContentPath, Path.Combine("Textures", "GUI", "MouseCursorHW.png"));
+#if !XB1
             using (var stream = MyFileSystem.OpenRead(path))
             {
                 m_mouseCursorBitmap = System.Drawing.Bitmap.FromStream(stream) as System.Drawing.Bitmap;
             }
+            SetHWCursorBitmap(m_mouseCursorBitmap);
+#endif
             SetMouseCursorTexture(MyGuiConstants.CURSOR_ARROW);
-            SetHWCursorBitmap(m_mouseCursorBitmap);            
-
            
             m_backgroundScreenTextures = new List<MyGuiTextureScreen>
             {
@@ -190,8 +215,8 @@ namespace Sandbox.Graphics
 
             foreach (var font in fonts)
             {
-                m_fontsById[(int)font.Id] = new VRageRender.MyFont(font.Path);
-                VRageRender.MyRenderProxy.CreateFont((int)font.Id, font.Path, font.IsDebug);
+                m_fontsById[MyStringHash.GetOrCompute(font.Id)] = new VRageRender.MyFont(font.Path);
+                VRageRender.MyRenderProxy.CreateFont((int)MyStringHash.GetOrCompute(font.Id), font.Path, font.IsDebug);
             }
 
             VRageRender.MyRenderProxy.PreloadTextures(@"Textures\GUI\Icons", true);
@@ -260,57 +285,75 @@ namespace Sandbox.Graphics
 
         #region Measure and Draw String
 
-        //  Draws string (string builder) at specified position
-        //  normalizedPosition -> X and Y are within interval <0..1>
-        //  scale -> scale for original texture, it's not in pixel/texels, but multiply of original size. E.g. 1 means unchanged size, 2 means double size. Scale is uniform, preserves aspect ratio.
-        //  RETURN: Method returns size of the string in normalized coordinates.
+
+        /// <summary>Draws string (string builder) at specified position</summary>
+        /// <param name="normalizedCoord">and Y are within interval [0,1]></param>
+        /// <param name="scale">Scale for original texture, it's not in pixel/texels,
+        /// but multiply of original size. E.g. 1 means unchanged size, 2 means double size.
+        /// Scale is uniform, preserves aspect ratio.</param>
+        /// <param name="useFullClientArea">True uses full client rectangle. False limits to GUI rectangle</param>
         public static void DrawString(
-            MyFontEnum font,
+            string font,
             StringBuilder text,
             Vector2 normalizedCoord,
             float scale,
             Color? colorMask             = null,
             MyGuiDrawAlignEnum drawAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-            bool fullscreen              = false,
+            bool useFullClientArea       = false,
             float maxTextWidth           = float.PositiveInfinity)
         {
             var size             = MeasureString(font, text, scale);
             size.X               = Math.Min(maxTextWidth, size.X);
             var topLeft          = MyUtils.GetCoordTopLeftFromAligned(normalizedCoord, size, drawAlign);
-            Vector2 screenCoord  = GetScreenCoordinateFromNormalizedCoordinate(topLeft, fullscreen);
+            Vector2 screenCoord  = GetScreenCoordinateFromNormalizedCoordinate(topLeft, useFullClientArea);
             float screenScale    = scale * m_safeScreenScale;
             float screenMaxWidth = GetScreenSizeFromNormalizedSize(new Vector2(maxTextWidth, 0f)).X;
 
+#if DEBUG_TEXT_SIZE
+            DebugTextSize(text, ref size);
+#endif
+
             VRageRender.MyRenderProxy.DrawString(
-                (int)font,
+                (int)MyStringHash.Get(font),
                 screenCoord,
                 colorMask ?? new Color(MyGuiConstants.LABEL_TEXT_COLOR),
-                text,
+                text.ToString(),
                 screenScale,
                 screenMaxWidth);
         }
 
-        public static Vector2 MeasureString(MyFontEnum font, StringBuilder text, float scale)
+        public static Vector2 MeasureString(string font, StringBuilder text, float scale)
         {
             //  Fix the scale for screen resolution
             float fixedScale = scale * m_safeScreenScale;
-            Vector2 sizeInPixelsScaled = m_fontsById[(int)font].MeasureString(text, fixedScale);
+            Vector2 sizeInPixelsScaled = m_fontsById[MyStringHash.Get(font)].MeasureString(text, fixedScale);
             return GetNormalizedSizeFromScreenSize(sizeInPixelsScaled);
         }
 
-        internal static int ComputeNumCharsThatFit(MyFontEnum font, StringBuilder text, float scale, float maxTextWidth)
+        internal static int ComputeNumCharsThatFit(string font, StringBuilder text, float scale, float maxTextWidth)
         {
             float fixedScale = scale * m_safeScreenScale;
             float screenMaxWidth = GetScreenSizeFromNormalizedSize(new Vector2(maxTextWidth, 0f)).X;
-            return m_fontsById[(int)font].ComputeCharsThatFit(text, fixedScale, screenMaxWidth);
+            return m_fontsById[MyStringHash.Get(font)].ComputeCharsThatFit(text, fixedScale, screenMaxWidth);
         }
 
-        public static float GetFontHeight(MyFontEnum font, float scale)
+        public static float GetFontHeight(string font, float scale)
         {
             //  Fix the scale for screen resolution
             float fixedScale = scale * m_safeScreenScale * MyRenderGuiConstants.FONT_SCALE;
-            Vector2 sizeInPixelsScaled = new Vector2(0.0f, fixedScale* m_fontsById[(int)font].LineHeight);
+            Vector2 sizeInPixelsScaled = new Vector2(0.0f, fixedScale * m_fontsById[MyStringHash.Get(font)].LineHeight);
             return GetNormalizedSizeFromScreenSize(sizeInPixelsScaled).Y;
+        }
+
+        static HashSet<String> m_sizes = new HashSet<string>();
+
+        [Conditional("DEBUG")]
+        private static void DebugTextSize(StringBuilder text, ref Vector2 size)
+        {
+            string str = text.ToString();
+            bool inserted = m_sizes.Add(str);
+            if (inserted)
+                Console.WriteLine("Text = \"" + str + "\", Width = " + size.X);
         }
 
         #endregion
@@ -325,7 +368,7 @@ namespace Sandbox.Graphics
         public static void DrawSprite(string texture, Rectangle rectangle, Color color, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
-            DrawSprite(texture, ref destination, false, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f, waitTillLoaded);
+            DrawSprite(texture, ref destination, false, ref nullRectangle, color, 0f, ref vector2Zero, SpriteEffects.None, 0f, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
@@ -341,7 +384,7 @@ namespace Sandbox.Graphics
                 return;
 
             var destination = new RectangleF(destinationRectangle.X, destinationRectangle.Y, destinationRectangle.Width, destinationRectangle.Height);
-            DrawSprite(texture, ref destination, false, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f, waitTillLoaded);
+            DrawSprite(texture, ref destination, false, ref nullRectangle, color, 0f, ref vector2Zero, SpriteEffects.None, 0f, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
@@ -356,34 +399,34 @@ namespace Sandbox.Graphics
         public static void DrawSprite(string texture, Vector2 position, Color color, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(position.X, position.Y, 1f, 1f);
-            DrawSprite(texture, ref destination, true, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f, waitTillLoaded);
+            DrawSprite(texture, ref destination, true, ref nullRectangle, color, 0f, ref vector2Zero, SpriteEffects.None, 0f, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
-        public static void DrawSpriteBatch(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
+        public static void DrawSpriteBatch(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
             DrawSprite(texture, position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth, waitTillLoaded);
         }
 
-        public static void DrawSprite(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
+        public static void DrawSprite(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(position.X, position.Y, scale.X, scale.Y);
             DrawSprite(texture, ref destination, true, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
-        public static void DrawSpriteBatch(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
+        public static void DrawSpriteBatch(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
             DrawSprite(texture, position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth, waitTillLoaded);
         }
 
-        static void DrawSprite(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
+        static void DrawSprite(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(position.X, position.Y, scale, scale);
             DrawSprite(texture, ref destination, true, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth, waitTillLoaded);
         }
 
-        static void DrawSprite(string texture, ref RectangleF destination, bool scaleDestination, ref Rectangle? sourceRectangle, Color color, float rotation, ref Vector2 origin, VRageRender.Graphics.SpriteEffects effects, float depth, bool waitTillLoaded = true)
+        static void DrawSprite(string texture, ref RectangleF destination, bool scaleDestination, ref Rectangle? sourceRectangle, Color color, float rotation, ref Vector2 origin, SpriteEffects effects, float depth, bool waitTillLoaded = true)
         {
             VRageRender.MyRenderProxy.DrawSprite(texture, ref destination, scaleDestination, ref sourceRectangle, color, rotation, Vector2.UnitX, ref origin, effects, depth, waitTillLoaded);
         }
@@ -418,20 +461,19 @@ namespace Sandbox.Graphics
             DrawSprite(texture, new Rectangle((int)screenCoord.X, (int)screenCoord.Y, (int)screenSize.X, (int)screenSize.Y), color, waitTillLoaded);
         }
 
-        //  Draws sprite batch at specified position
-        //  normalizedPosition -> X and Y are within interval <0..1>
-        //  size -> size of destination rectangle (normalized). Don't forget that it may be distorted by aspect ration, so rectangle size [1,1] can make larger wide than height on your screen.
-        //  rotation -> angle in radians. Rotation is always around "origin" coordinate
-        //  originNormalized -> the origin of the sprite. Specify (0,0) for the upper-left corner.
-        //  RETURN: Method returns rectangle where was sprite/texture drawn in normalized coordinates
-
-        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, Vector2 normalizedSize, Color color, MyGuiDrawAlignEnum drawAlign, bool fullscreen = false, bool waitTillLoaded = true)
+        /// <summary>Draws sprite batch at specified position</summary>
+        /// <param name="normalizedCoord">X and Y are within interval [0,1]</param>
+        /// <param name="normalizedSize">size of destination rectangle (normalized).
+        /// Don't forget that it may be distorted by aspect ration, so rectangle size
+        /// [1,1] can make larger wide than height on your screen.</param>
+        /// <param name="useFullClientArea">True uses full client rectangle. False limits to GUI rectangle</param>
+        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, Vector2 normalizedSize, Color color, MyGuiDrawAlignEnum drawAlign, bool useFullClientArea = false, bool waitTillLoaded = true)
         {
             if (string.IsNullOrEmpty(texture))
                 return;
 
-            Vector2 screenCoord = GetScreenCoordinateFromNormalizedCoordinate(normalizedCoord, fullscreen);
-            Vector2 screenSize = GetScreenSizeFromNormalizedSize(normalizedSize, fullscreen);
+            Vector2 screenCoord = GetScreenCoordinateFromNormalizedCoordinate(normalizedCoord, useFullClientArea);
+            Vector2 screenSize = GetScreenSizeFromNormalizedSize(normalizedSize, useFullClientArea);
             screenCoord = MyUtils.GetCoordAligned(screenCoord, screenSize, drawAlign);
 
             var rect = new Rectangle((int)screenCoord.X, (int)screenCoord.Y, (int)screenSize.X, (int)screenSize.Y);
@@ -467,7 +509,7 @@ namespace Sandbox.Graphics
             VRageRender.MyRenderProxy.DrawSprite(texture, normalizedCoord, normalizedSize, color, drawAlign, rotation, Vector2.UnitX, 1, null, waitTillLoaded: waitTillLoaded);
         }
 
-        static void DrawSprite(string texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
+        static void DrawSprite(string texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(destinationRectangle.X, destinationRectangle.Y, destinationRectangle.Width, destinationRectangle.Height);
             DrawSprite(texture, ref destination, false, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth, waitTillLoaded);
@@ -518,17 +560,21 @@ namespace Sandbox.Graphics
             return GetNormalizedSizeFromScreenSize(sizeScaled);
         }
 
-        //  Convertes normalized size <0..1> to screen size (pixels)
-        public static Vector2 GetScreenSizeFromNormalizedSize(Vector2 normalizedSize, bool fullscreen = false)
+        /// <summary>Convertes normalized size [0,1] to screen size (pixels)</summary>
+        /// <param name="useFullClientArea">True uses full client rectangle. False limits to GUI rectangle</param>
+        public static Vector2 GetScreenSizeFromNormalizedSize(Vector2 normalizedSize, bool useFullClientArea = false)
         {
-            return fullscreen ? new Vector2((m_safeFullscreenRectangle.Width + 1) * normalizedSize.X, m_safeFullscreenRectangle.Height * normalizedSize.Y)
-                              : new Vector2((m_safeGuiRectangle.Width + 1) * normalizedSize.X, m_safeGuiRectangle.Height * normalizedSize.Y);
+            if (useFullClientArea)
+                return new Vector2((m_safeFullscreenRectangle.Width + 1) * normalizedSize.X, m_safeFullscreenRectangle.Height * normalizedSize.Y);
+            else
+                return new Vector2((m_safeGuiRectangle.Width + 1) * normalizedSize.X, m_safeGuiRectangle.Height * normalizedSize.Y);
         }
 
-        //  Convertes normalized coodrinate <0..1> to screen coordinate (pixels)
-        public static Vector2 GetScreenCoordinateFromNormalizedCoordinate(Vector2 normalizedCoord, bool fullscreen = false)
+        /// <summary>Convertes normalized coodrinate [0,1] to screen coordinate (pixels)</summary>
+        /// <param name="useFullClientArea">True uses full client rectangle. False limits to GUI rectangle</param>
+        public static Vector2 GetScreenCoordinateFromNormalizedCoordinate(Vector2 normalizedCoord, bool useFullClientArea = false)
         {
-            if (fullscreen)
+            if (useFullClientArea)
             {
                 return new Vector2(
                     m_safeFullscreenRectangle.Left + m_safeFullscreenRectangle.Width * normalizedCoord.X,
@@ -568,7 +614,9 @@ namespace Sandbox.Graphics
         //  Convertes screen size (pixels) to normalized size <0..1>
         public static Vector2 GetNormalizedSizeFromScreenSize(Vector2 screenSize)
         {
-            return new Vector2(screenSize.X / (float)m_safeGuiRectangle.Width, screenSize.Y / (float)m_safeGuiRectangle.Height);
+            float x = m_safeGuiRectangle.Width != 0 ? screenSize.X / (float)m_safeGuiRectangle.Width : 0;
+            float y = m_safeGuiRectangle.Height != 0 ? screenSize.Y / (float)m_safeGuiRectangle.Height : 0;
+            return new Vector2(x, y);
         }
 
         //  This is for HUD, therefore not GUI normalized coordinates
@@ -711,6 +759,12 @@ namespace Sandbox.Graphics
             m_minMouseCoordFullscreenHud = GetNormalizedCoordinateFromScreenCoordinate(new Vector2(m_fullscreenRectangle.Left, m_fullscreenRectangle.Top));
             m_maxMouseCoordFullscreenHud = GetNormalizedCoordinateFromScreenCoordinate(new Vector2(m_fullscreenRectangle.Left + m_fullscreenRectangle.Width, m_fullscreenRectangle.Top + m_fullscreenRectangle.Height));
 
+#if XB1
+            //XB1_TODO: error: 'VRage.Input.IMyInput' does not contain a definition for 'SetMouseLimits'
+            //XB1_TODO: MyInput.Static.SetMouseLimits( new Vector2(m_safeFullscreenRectangle.Left, m_safeFullscreenRectangle.Top),
+            //XB1_TODO:    new Vector2(m_safeFullscreenRectangle.Left + m_safeFullscreenRectangle.Width, m_safeFullscreenRectangle.Top + m_safeFullscreenRectangle.Height) );
+#endif
+
             //  Normalized coordinates where width is always 1.0 and height something like 0.8
             //  Don't confuse with GUI normalized coordinates. They are different.
             //  HUD - get normalized screen size -> width is always 1.0, but height depends on aspect ratio, so usualy it is 0.8 or something.
@@ -718,9 +772,10 @@ namespace Sandbox.Graphics
             m_hudSizeHalf = m_hudSize / 2.0f;
         }
 
-
+#if !XB1
         public static void SetHWCursorBitmap(System.Drawing.Bitmap b)
         {
+
             System.Windows.Forms.Form f = System.Windows.Forms.Control.FromHandle(MyInput.Static.WindowHandle) as System.Windows.Forms.Form;
             if (f != null)
             {
@@ -728,6 +783,7 @@ namespace Sandbox.Graphics
                 f.Invoke(new Action(() => f.Cursor = new System.Windows.Forms.Cursor(b.GetHicon())));
             }
         }
+#endif
 
 
 
@@ -735,9 +791,6 @@ namespace Sandbox.Graphics
         public static void Update(int totalTimeInMS)
         {
             TotalTimeInMilliseconds = totalTimeInMS;
-
-            MyTransparentGeometry.Camera = MyGuiManager.Camera;
-            MyTransparentGeometry.CameraView = MyGuiManager.CameraView;      
         }
 
 

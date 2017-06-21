@@ -17,7 +17,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Engine.Physics;
-using Sandbox.Common.Components;
+
 using Sandbox.Game.Multiplayer;
 using VRage;
 using VRage.Utils;
@@ -47,7 +47,7 @@ namespace Sandbox.Game.Components
 
             if (MyDebugDrawSettings.DEBUG_DRAW_GRID_DIRTY_BLOCKS)
             {
-                MyTimeSpan delay = MyTimeSpan.FromMiliseconds(1500);
+                MyTimeSpan delay = MyTimeSpan.FromMilliseconds(1500);
                 using (m_tmpRemoveList.GetClearToken())
                 {
                     foreach (var b in m_dirtyBlocks)
@@ -73,7 +73,7 @@ namespace Sandbox.Game.Components
 
         List<Havok.HkBodyCollision> m_penetrations = new List<Havok.HkBodyCollision>();
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_FIXED_BLOCK_QUERIES)
             {
@@ -161,8 +161,8 @@ namespace Sandbox.Game.Components
 
                 foreach (var bone in m_cubeGrid.Skeleton.Bones)
                 {
-                    var bonePos = (bone.Key / (float)m_cubeGrid.Skeleton.BoneDensity) * gridRender.GridSize + bone.Value;
-                    bonePos -= new Vector3(gridRender.GridSize / m_cubeGrid.Skeleton.BoneDensity);
+                    var bonePos = (bone.Key / (float)MyGridSkeleton.BoneDensity) * gridRender.GridSize + bone.Value;
+                    bonePos -= new Vector3(gridRender.GridSize / MyGridSkeleton.BoneDensity);
                     Vector3 pos = Vector3.Transform(bonePos, (Matrix)m_cubeGrid.PositionComp.WorldMatrix);
                     MyRenderProxy.DebugDrawSphere(pos, 0.05f, Color.Red.ToVector3(), 0.5f, false, true);
                     if ((cameraPos - pos).LengthSquared() < 200.0f)
@@ -232,16 +232,16 @@ namespace Sandbox.Game.Components
                             if (cubeBlock.FatBlock is MyCompoundCubeBlock)
                             {
                                 foreach (var b in (cubeBlock.FatBlock as MyCompoundCubeBlock).GetBlocks())
-                                    integrity += b.Integrity;
+                                    integrity += b.Integrity * b.BlockDefinition.MaxIntegrityRatio;
                             }
                             else
-                                integrity = cubeBlock.Integrity;
+                                integrity = cubeBlock.Integrity * cubeBlock.BlockDefinition.MaxIntegrityRatio;
                             MyRenderProxy.DebugDrawText3D(m_cubeGrid.GridIntegerToWorld(cubeBlock.Position), ((int)integrity).ToString(), Color.White, m_cubeGrid.GridSizeEnum == MyCubeSize.Large ? 0.65f : 0.5f, false);
                         }
                     }
             }
 
-            return base.DebugDraw();
+            base.DebugDraw();
         }
 
         private void DebugDrawMountPoints(MySlimBlock block)
@@ -283,7 +283,7 @@ namespace Sandbox.Game.Components
             MyCubeGridRenderData data = gridRender.RenderData;
             foreach (var cell in data.Cells)
             {
-                HashSet<MyCubePart> parts = cell.Value.CubeParts;
+                var parts = cell.Value.CubeParts;
                 foreach (var part in parts)
                 {
                     MyModel model = part.Model;

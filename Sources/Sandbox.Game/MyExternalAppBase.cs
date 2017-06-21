@@ -12,6 +12,9 @@ using VRage.Utils;
 using Sandbox.Definitions;
 using Sandbox.Game.World;
 using VRage.Game;
+using VRage.ObjectBuilders;
+using VRage.Profiler;
+using VRageRender.ExternalApp;
 
 namespace Sandbox.AppCode
 {
@@ -43,7 +46,11 @@ namespace Sandbox.AppCode
 
             if (game == null)
             {
+#if !XB1
                 Static = new MySandboxExternal(this, services, null, windowHandle);
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
             }
             else
             {
@@ -154,12 +161,30 @@ namespace Sandbox.AppCode
 
         public MyParticleGeneration AllocateGeneration()
         {
-            return MyParticlesManager.GenerationsPool.Allocate();
+            MyParticleGeneration generation;
+            MyParticlesManager.GenerationsPool.AllocateOrCreate(out generation);
+            return generation;
+        }
+
+        public MyParticleGPUGeneration AllocateGPUGeneration()
+        {
+            MyParticleGPUGeneration gpuGeneration;
+            MyParticlesManager.GPUGenerationsPool.AllocateOrCreate(out gpuGeneration);
+            return gpuGeneration;
         }
 
         public MyParticleLight AllocateParticleLight()
         {
-            return MyParticlesManager.LightsPool.Allocate();
+            MyParticleLight particleLight;
+            MyParticlesManager.LightsPool.AllocateOrCreate(out particleLight);
+            return particleLight;
+        }
+
+        public MyParticleSound AllocateParticleSound()
+        {
+            MyParticleSound sound;
+            MyParticlesManager.SoundsPool.AllocateOrCreate(out sound);
+            return sound;
         }
 
         public MyParticleEffect CreateLibraryEffect()
@@ -183,11 +208,16 @@ namespace Sandbox.AppCode
             MyParticlesLibrary.RemoveParticleEffect(ID);
         }
 
-        public IEnumerable<MyParticleEffect> GetLibraryEffects()
+        public IReadOnlyDictionary<int, MyParticleEffect> GetLibraryEffects()
         {
             return MyParticlesLibrary.GetParticleEffects();
         }
 
+        public IReadOnlyDictionary<string, MyParticleEffect> GetParticleEffectsByName()
+        {
+            return MyParticlesLibrary.GetParticleEffectsByName();
+        }
+        
 
         public void SaveParticlesLibrary(string file)
         {
@@ -196,7 +226,35 @@ namespace Sandbox.AppCode
 
         public void LoadParticlesLibrary(string file)
         {
-            MyParticlesLibrary.Deserialize(file);
+            if(file.Contains(".mwl"))
+                MyParticlesLibrary.Deserialize(file);
+            else
+            {
+                ProfilerShort.Begin("Verify Integrity");
+                MyDataIntegrityChecker.HashInFile(file);
+                MyObjectBuilder_Definitions builder = null;
+
+                ProfilerShort.BeginNextBlock("Parse");
+                MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_Definitions>(file, out builder);
+
+                if (builder == null || builder.ParticleEffects == null)
+                {
+                    return;
+                }
+                else
+                {
+                    MyParticlesLibrary.Close();
+                    foreach (var classDef in builder.ParticleEffects)
+                    {
+                        MyParticleEffect effect = MyParticlesManager.EffectsPool.Allocate();
+                        effect.DeserializeFromObjectBuilder(classDef);
+                        MyParticlesLibrary.AddParticleEffect(effect);
+                    }
+                }
+
+                //definitionBuilders.Add(new Tuple<MyObjectBuilder_Definitions, string>(builder, file));
+                ProfilerShort.End();
+            }
         }
 
         public void FlushParticles()

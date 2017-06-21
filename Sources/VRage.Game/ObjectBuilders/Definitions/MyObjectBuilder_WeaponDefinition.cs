@@ -18,7 +18,7 @@ namespace VRage.Game
             public string ShootSoundName;
 
             [XmlAttribute]
-            public int BurstFireRate;
+            public int ShotsInBurst;
         }
 
         [ProtoContract]
@@ -45,6 +45,12 @@ namespace VRage.Game
         public string ReloadSoundName = null;
 
         [ProtoMember]
+        public string SecondarySoundName = null;
+
+        [ProtoMember]
+        public string PhysicalMaterial = "Metal";
+
+        [ProtoMember]
         public float DeviateShotAngle = 0;
 
         [ProtoMember]
@@ -53,8 +59,34 @@ namespace VRage.Game
         [ProtoMember]
         public int MuzzleFlashLifeSpan = 0;
 
+        [ProtoMember]
+        public int ReloadTime = 2000;
+
         [XmlArrayItem("AmmoMagazine")]
         [ProtoMember]
         public WeaponAmmoMagazine[] AmmoMagazines;
+
+        [XmlArrayItem("Effect")]
+        [ProtoMember]
+        public WeaponEffect[] Effects;
+
+        [ProtoMember]
+        public bool UseDefaultMuzzleFlash = true;
+
+        [ProtoContract]
+        public class WeaponEffect
+        {
+            [XmlAttribute, ProtoMember]
+            public string Action = "";
+
+            [XmlAttribute, ProtoMember]
+            public string Dummy = "";
+
+            [XmlAttribute, ProtoMember]
+            public string Particle = "";
+
+            [XmlAttribute, ProtoMember]
+            public bool Loop = false;
+        }
     }
 }

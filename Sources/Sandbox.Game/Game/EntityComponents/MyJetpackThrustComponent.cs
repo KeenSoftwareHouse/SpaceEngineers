@@ -1,62 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Character.Components;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.World;
-using VRage.Game.Components;
-using VRageMath;
-using VRage;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Engine.Physics;
+using Sandbox.Game.World;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using VRage;
 using VRage.Game;
+using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Profiler;
+using VRageMath;
 
 namespace Sandbox.Game.EntityComponents
 {
-    class MyJetpackThrustComponent : MyEntityThrustComponent
+    internal class MyJetpackThrustComponent : MyEntityThrustComponent
     {
         public new MyCharacter Entity { get { return base.Entity as MyCharacter; } }
         public MyCharacter Character { get { return Entity; } }
         public MyCharacterJetpackComponent Jetpack { get { return Character.JetpackComp; } }
 
-        protected override void UpdateThrusts()
+        protected override void UpdateThrusts(bool enableDampers)
         {
-            base.UpdateThrusts();
+            base.UpdateThrusts(enableDampers);
 
             ProfilerShort.Begin("MyJetpackThrustComponent.UpdateThrusts");
             if (Character != null &&
                 Character.Physics != null &&
-                Jetpack.TurnedOn &&
-                (MySession.Static.LocalCharacter == Character || 
-                 MySession.Static.ControlledEntity == Character ||
-                 MySandboxGame.IsDedicated ||
-                (MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Entity && (MySector.MainCamera.IsInFrustum(Character.PositionComp.WorldAABB) ||
-                (Character.PositionComp.GetPosition() - MySector.MainCamera.Position).LengthSquared() < 100f))))
+                Jetpack.TurnedOn)
             {
-                if (FinalThrust.LengthSquared() > 0.001f)
+                if (FinalThrust.LengthSquared() > 0.0001f)
                 {
                     if (Character.Physics.IsInWorld)
                     {
                         Character.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, FinalThrust, null, null);
 
-                        if (MyPerGameSettings.EnableMultiplayerVelocityCompensation)
+                        Vector3 velocity = Character.Physics.LinearVelocity;
+                        float maxCharacterSpeedRelativeToShip = Math.Max(Character.Definition.MaxSprintSpeed, Math.Max(Character.Definition.MaxRunSpeed, Character.Definition.MaxBackrunSpeed));
+                        float maxSpeed = (MyGridPhysics.ShipMaxLinearVelocity() + maxCharacterSpeedRelativeToShip);
+                        if (velocity.LengthSquared() > maxSpeed * maxSpeed)
                         {
-                            Vector3 velocity = Character.Physics.LinearVelocity;
-                            float maxCharacterSpeedRelativeToShip = Math.Max(Character.Definition.MaxSprintSpeed, Math.Max(Character.Definition.MaxRunSpeed, Character.Definition.MaxBackrunSpeed));
-                            float maxSpeed = (MyGridPhysics.ShipMaxLinearVelocity() + maxCharacterSpeedRelativeToShip) * (Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio);
-                            if (velocity.LengthSquared() > maxSpeed * maxSpeed)
-                            {
-                                velocity.Normalize();
-                                velocity *= maxSpeed;
-                                Character.Physics.LinearVelocity = velocity;
-                            }
+                            velocity.Normalize();
+                            velocity *= maxSpeed;
+                            Character.Physics.LinearVelocity = velocity;
                         }
                     }
                 }
@@ -161,10 +154,11 @@ namespace Sandbox.Game.EntityComponents
         {
         }
 
-        override protected Vector3 ApplyThrustModifiers(ref MyDefinitionId fuelType, ref Vector3 thrust, ref Vector3 thrustOverride, MyResourceSinkComponentBase resourceSink)
+        protected override Vector3 ApplyThrustModifiers(ref MyDefinitionId fuelType, ref Vector3 thrust, ref Vector3 thrustOverride, MyResourceSinkComponentBase resourceSink)
         {
             thrust += thrustOverride;
-            if (MySession.Static.IsAdminModeEnabled == false || MySession.Static.LocalCharacter != Character)
+            if (Character.ControllerInfo.Controller == null || MySession.Static.CreativeToolsEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false ||
+                (MySession.Static.LocalCharacter != Character && Sync.IsServer == false))
             {
                 thrust *= resourceSink.SuppliedRatioByType(fuelType);
             }

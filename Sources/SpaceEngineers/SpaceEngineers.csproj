@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{5CD034C8-A242-4BD6-94F4-F20C655A69E8}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -8,9 +8,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Sandbox</RootNamespace>
     <AssemblyName>SpaceEngineers</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <ApplicationIcon>SpaceEngineers.ico</ApplicationIcon>
     <Thumbnail>GameThumbnail.png</Thumbnail>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -23,10 +25,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -75,6 +75,7 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\Bin64\</OutputPath>
@@ -87,6 +88,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'">
     <OutputPath>$(SolutionDir)Output\Bin\</OutputPath>
@@ -99,6 +101,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'">
     <OutputPath>$(SolutionDir)Output\Bin64\</OutputPath>
@@ -109,6 +112,48 @@
     <NoStdLib>true</NoStdLib>
     <PlatformTarget>x64</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1;XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1;XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -163,21 +208,50 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="App.config" />
+    <None Include="Content\Data\Audio_gui.sbc" />
+    <None Include="Content\Data\Audio_music.sbc" />
+    <None Include="Content\Data\Audio_player.sbc" />
+    <None Include="Content\Data\Audio_shipSounds.sbc" />
     <None Include="Content\Data\Characters_animals.sbc" />
+    <None Include="Content\Data\Decals.sbc" />
+    <None Include="Content\Data\DefinitionsToPreload.sbc" />
+    <None Include="Content\Data\DroneBehaviors.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\EntityComponents.sbc">
       <SubType>Designer</SubType>
     </None>
     <None Include="Content\Data\EntityContainers.sbc">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Content\Data\Environment\EnvironmentModules.sbc" />
+    <None Include="Content\Data\Environment\VoxelMapCollections.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Environment\PhysicalModelCollections.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Environment\PhysicalModels_Trees.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Environment\PhysicalModels_Bushes.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Environment\VoxelMapCollections.sbc" />
     <None Include="Content\Data\GoodAIControlHandTools.sbc" />
-    <None Include="Content\Data\AmmoMagazines.sbc" />
-    <None Include="Content\Data\Ammos.sbc" />
+    <None Include="Content\Data\AmmoMagazines.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Ammos.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Animations.sbc" />
     <None Include="Content\Data\Audio.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\BlockCategories.sbc" />
+    <None Include="Content\Data\BlockCategories.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\BlueprintClasses.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -191,7 +265,9 @@
     <None Include="Content\Data\Components.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\Configuration.sbc" />
+    <None Include="Content\Data\Configuration.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\ContainerTypes.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -219,6 +295,7 @@
     <None Include="Content\Data\MaterialProperties.sbc">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Content\Data\Particles.sbc" />
     <None Include="Content\Data\PhysicalItems.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -275,11 +352,18 @@
     <None Include="Content\Data\Scenarios.sbx">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\Screens\CubeBuilder.gsc" />
+    <None Include="Content\Data\Screens\CubeBuilder.gsc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Screens\CubeBuilderBar.gsc" />
-    <None Include="Content\Data\Screens\DialogAmount.gsc" />
-    <None Include="Content\Data\Screens\JoinScreen.gsc" />
+    <None Include="Content\Data\Screens\DialogAmount.gsc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Screens\JoinScreen.gsc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Screens\MedicalsScreen.gsc" />
+    <None Include="Content\Data\ShipSoundGroups.sbc" />
     <None Include="Content\Data\SoundBlock.sbc" />
     <None Include="Content\Data\SpawnGroups.sbc">
       <SubType>Designer</SubType>
@@ -287,6 +371,7 @@
     <None Include="Content\Data\Stats.sbc">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Content\Data\ShadowTextureSets.sbc" />
     <None Include="Content\Data\TransparentMaterials.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -314,6 +399,12 @@
     <None Include="steam_appid.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Data\Localization\MyVRTexts.resx">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Localization\VRDataTexts.resx">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
@@ -340,6 +431,10 @@
       <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>
       <Name>VRage.Render11</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1C814936-C9A7-4FAF-B543-28F021D98B6C}</Project>
       <Name>VRage</Name>
@@ -352,9 +447,9 @@
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
-      <Project>{1713E6CD-808A-4A44-9532-04771499BB01}</Project>
-      <Name>VRage.Render</Name>
+    <ProjectReference Include="..\XB1Interface\XB1Interface.csproj" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
+      <Project>{b6068a9d-54a1-425a-9dfb-87fd9ec5e822}</Project>
+      <Name>XB1Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -385,7 +480,6 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
   </ImportGroup>
@@ -394,18 +488,13 @@
     <!-- Recreate content dir -->
     <RemoveDir Directories="$(OutDir)..\Content" ContinueOnError="true" />
     <MakeDir Directories="$(OutDir)..\Content" />
-    <!-- Link Effects and Shaders from Render projects to SpaceEngineers\Content dir -->
-    <RemoveDir Directories="$(ProjectDir)Content\Shaders" ContinueOnError="true" />
-    <RemoveDir Directories="$(ProjectDir)Content\Effects2" ContinueOnError="true" />
-    <Exec Command="mklink /J &quot;$(ProjectDir)Content\Shaders&quot; &quot;..\VRage.Render11\Shaders" IgnoreExitCode="true" />
-    <Exec Command="mklink /J &quot;$(ProjectDir)Content\Effects2&quot; &quot;..\VRage.Render\Effects2" IgnoreExitCode="true" />
     <!-- Link Data and Effects from original source (always from source location) -->
+    <RemoveDir Directories="$(OutDir)..\Content\Shaders" ContinueOnError="true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data&quot; &quot;$(ProjectDir)Content\Data&quot;" IgnoreExitCode="true" Condition="$(DataFromSources)==true" />
-    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Effects2&quot; &quot;$(ProjectDir)Content\Effects2&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
-    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Shaders&quot; &quot;$(ProjectDir)Content\Shaders&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
+    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Shaders&quot; &quot;..\VRage.Render11\Shaders&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
     <!-- This will create link for common texts -->
     <RemoveDir Directories="$(OutDir)..\Content\Data\Localization\Common" ContinueOnError="true" />
-    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data\Localization\Common&quot; $(ProjectDir)..\VRage.Game\Content\Data\Localization" IgnoreExitCode="true" />
+    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data\Localization\Common&quot; &quot;$(ProjectDir)..\VRage.Game\Content\Data\Localization&quot;" IgnoreExitCode="true" />
     <!-- Link the rest of content subdirs (on GitHub, this is linked from Steam; on SVN this is linked from source location) -->
     <ItemGroup>
       <ContentSubdirs Include="$([System.IO.Directory]::GetDirectories(&quot;$(ContentPath)&quot;))" />

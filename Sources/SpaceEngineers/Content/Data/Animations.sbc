@@ -547,15 +547,13 @@
         <TypeId>AnimationDefinition</TypeId>
         <SubtypeId>HelmetOpen</SubtypeId>
       </Id>
-      <DisplayName>Open Helmet</DisplayName>
-      <Description>Open Helmet</Description>
+      <DisplayName>DisplayName_OpenHelmet</DisplayName>
+      <Description>Description_OpenHelmet</Description>
       <Icon>Textures\GUI\Icons\Animations\HelmetOpen.dds</Icon>
       <AnimationModel>Models\Characters\Animations\helmet_open.mwm</AnimationModel>
       <ClipIndex>0</ClipIndex>
       <InfluenceArea>HelmetGlass</InfluenceArea>
-      <Public>true</Public>
-      <AllowInCockpit>true</AllowInCockpit>
-      <AllowWithWeapon>true</AllowWithWeapon>
+      <Public>false</Public>
     </Animation>
 
     <Animation>
@@ -563,15 +561,13 @@
         <TypeId>AnimationDefinition</TypeId>
         <SubtypeId>HelmetClose</SubtypeId>
       </Id>
-      <DisplayName>Close Helmet</DisplayName>
-      <Description>Close Helmet</Description>
+      <DisplayName>DisplayName_CloseHelmet</DisplayName>
+      <Description>Description_CloseHelmet</Description>
       <Icon>Textures\GUI\Icons\Animations\HelmetClose.dds</Icon>
       <AnimationModel>Models\Characters\Animations\helmet_close.mwm</AnimationModel>
       <ClipIndex>0</ClipIndex>
       <InfluenceArea>HelmetGlass</InfluenceArea>
-      <Public>true</Public>
-      <AllowInCockpit>true</AllowInCockpit>
-      <AllowWithWeapon>true</AllowWithWeapon>
+      <Public>false</Public>
     </Animation>
 
 

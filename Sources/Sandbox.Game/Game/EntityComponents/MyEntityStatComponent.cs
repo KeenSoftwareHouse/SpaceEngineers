@@ -19,97 +19,45 @@ using VRage.Game.Entity;
 using VRage;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
+using VRage.Game.ModAPI;
+using VRage.Network;
 
 namespace Sandbox.Game.Components
 {
-	[PreloadRequired]
+    [StaticEventOwner]
     [MyComponentType(typeof(MyEntityStatComponent))]
     [MyComponentBuilder(typeof(MyObjectBuilder_EntityStatComponent))]
 	public class MyEntityStatComponent : MyEntityComponentBase
 	{
 		#region Sync
-		#region Sync messages
 
-		[ProtoContract]
-		struct StatInfo
-		{
-			[ProtoMember]
-			public MyStringHash StatId;
-
-			[ProtoMember]
-			public float Amount;
-
-			[ProtoMember]
-			public float RegenLeft;
-		}
-
-		[ProtoContract]
-		[MessageId(2154, P2PMessageEnum.Reliable)]
-		struct EntityStatChangedMsg
-		{
-			[ProtoMember]
-			public long EntityId;
-
-			[ProtoMember]
-			public List<StatInfo> ChangedStats;
-		}
-
-		[ProtoContract]
-		[MessageId(2155, P2PMessageEnum.Reliable)]
-		struct StatActionRequestMsg
-		{
-			[ProtoMember]
-			public long EntityId;
-		}
-
-		[ProtoContract]
-		[MessageId(2156, P2PMessageEnum.Reliable)]
-		struct StatActionMsg
-		{
-			[ProtoMember]
-			public long EntityId;
-
-			[ProtoMember]
-			public Dictionary<string, MyStatLogic.MyStatAction> StatActions;
-		}
-
-		#endregion
-
-
-		#region Sync callbacks
-
-		static MyEntityStatComponent()
-		{
-			MySyncLayer.RegisterMessage<EntityStatChangedMsg>(OnStatChangedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-			MySyncLayer.RegisterMessage<EntityStatChangedMsg>(OnStatChangedMessage, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-			MySyncLayer.RegisterMessage<StatActionRequestMsg>(OnStatActionRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-			MySyncLayer.RegisterMessage<StatActionMsg>(OnStatActionMessage, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-		}
+        struct StatInfo
+        {
+            public MyStringHash StatId;
+            public float Amount;
+            public float RegenLeft;
+        }
 
 		public void RequestStatChange(MyEntityStat stat)
 		{
-			EntityStatChangedMsg msg = new EntityStatChangedMsg();
-			msg.EntityId = Entity.EntityId;
-			msg.ChangedStats = new List<StatInfo>();
+            List<StatInfo> changedStats = new List<StatInfo>();
+            changedStats.Add(new StatInfo() { StatId = stat.StatId, Amount = stat.Value });	// Regen left not used
 
-			msg.ChangedStats.Add(new StatInfo() { StatId = stat.StatId, Amount = stat.Value });	// Regen left not used
-
-			MySession.Static.SyncLayer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            MyMultiplayer.RaiseStaticEvent(s => MyEntityStatComponent.OnStatChangedRequest, Entity.EntityId, changedStats);
 		}
 
-		private static void OnStatChangedRequest(ref EntityStatChangedMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+		private static void OnStatChangedRequest(long entityId, List<StatInfo> changedStats)
 		{
-			Debug.Assert(Sync.IsServer);
-
 			MyEntity entity;
-			if (!MyEntities.TryGetEntityById(msg.EntityId, out entity))
+            if (!MyEntities.TryGetEntityById(entityId, out entity))
 				return;
 
 			MyEntityStatComponent statComp = null;
 			if (!entity.Components.TryGet<MyEntityStatComponent>(out statComp))
 				return;
 
-			foreach (var statChange in msg.ChangedStats)
+            foreach (var statChange in changedStats)
 			{
 				MyEntityStat localStat;
 				if (!statComp.TryGetStat(statChange.StatId, out localStat))
@@ -122,30 +70,28 @@ namespace Sandbox.Game.Components
 		{
 			Debug.Assert(Sync.IsServer);
 
-			EntityStatChangedMsg msg = new EntityStatChangedMsg();
-			msg.EntityId = Entity.EntityId;
-			msg.ChangedStats = new List<StatInfo>();
-
+            List<StatInfo> changedStats = new List<StatInfo>();
 			foreach (var stat in stats)
 			{
 				stat.CalculateRegenLeftForLongestEffect();
-				msg.ChangedStats.Add(new StatInfo() { StatId = stat.StatId, Amount = stat.Value, RegenLeft = stat.StatRegenLeft, });
+                changedStats.Add(new StatInfo() { StatId = stat.StatId, Amount = stat.Value, RegenLeft = stat.StatRegenLeft, });
 			}
 
-			MySession.Static.SyncLayer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            MyMultiplayer.RaiseStaticEvent(s => MyEntityStatComponent.OnStatChangedMessage, Entity.EntityId, changedStats);
 		}
 
-		private static void OnStatChangedMessage(ref EntityStatChangedMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        private static void OnStatChangedMessage(long entityId, List<StatInfo> changedStats)
 		{
 			MyEntity entity;
-			if (!MyEntities.TryGetEntityById(msg.EntityId, out entity))
+            if (!MyEntities.TryGetEntityById(entityId, out entity))
 				return;
 
 			MyEntityStatComponent statComp = null;
 			if (!entity.Components.TryGet<MyEntityStatComponent>(out statComp))
 				return;
 
-			foreach (var statChange in msg.ChangedStats)
+            foreach (var statChange in changedStats)
 			{
 				MyEntityStat localStat;
 				if (!statComp.TryGetStat(statChange.StatId, out localStat))
@@ -155,52 +101,43 @@ namespace Sandbox.Game.Components
 			}
 		}
 
-		private void RequestStatActions()
+        [Event, Reliable, Server]
+		private static void OnStatActionRequest(long entityId)
 		{
-			StatActionRequestMsg msg = new StatActionRequestMsg()
-			{
-					EntityId = Entity.EntityId,
-			};
-
-			MySession.Static.SyncLayer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-		}
-
-		private static void OnStatActionRequest(ref StatActionRequestMsg msg, MyNetworkClient sender)
-		{
-			Debug.Assert(Sync.IsServer);
 			MyEntity entity = null;
-			if(!MyEntities.TryGetEntityById(msg.EntityId, out entity))
+            if (!MyEntities.TryGetEntityById(entityId, out entity))
 				return;
 
 			MyEntityStatComponent statComponent = null;
 			if (!entity.Components.TryGet<MyEntityStatComponent>(out statComponent))
 				return;
 
-			StatActionMsg actionMsg = new StatActionMsg()
-			{
-				EntityId = msg.EntityId,
-				StatActions = new Dictionary<string, MyStatLogic.MyStatAction>(),
-			};
+            var statActions = new Dictionary<string, MyStatLogic.MyStatAction>();
 
 			foreach(var script in statComponent.m_scripts)
 			{
 				foreach(var actionPair in script.StatActions)
 				{
-                    if (!actionMsg.StatActions.ContainsKey(actionPair.Key))
-					    actionMsg.StatActions.Add(actionPair.Key, actionPair.Value);
+                    if (!statActions.ContainsKey(actionPair.Key))
+                        statActions.Add(actionPair.Key, actionPair.Value);
 				}
 			}
 
-			MySession.Static.SyncLayer.SendMessage(ref actionMsg, sender.SteamUserId, MyTransportMessageEnum.Success);
+            if (MyEventContext.Current.IsLocallyInvoked)
+            {
+                OnStatActionMessage(entityId, statActions);
+            }
+            else
+            {
+                MyMultiplayer.RaiseStaticEvent(s => MyEntityStatComponent.OnStatActionMessage, entityId, statActions, MyEventContext.Current.Sender);
+            }
 		}
 
-		private static void OnStatActionMessage(ref StatActionMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnStatActionMessage(long entityId, Dictionary<string, MyStatLogic.MyStatAction> statActions)
 		{
-			if (msg.StatActions == null)
-				return;
-
 			MyEntity entity = null;
-			if (!MyEntities.TryGetEntityById(msg.EntityId, out entity))
+            if (!MyEntities.TryGetEntityById(entityId, out entity))
 				return;
 
 			MyEntityStatComponent statComponent = null;
@@ -209,7 +146,7 @@ namespace Sandbox.Game.Components
 
 			MyStatLogic script = new MyStatLogic();
 			script.Init(entity as IMyCharacter, statComponent.m_stats, "LocalStatActionScript");
-			foreach(var actionPair in msg.StatActions)
+            foreach (var actionPair in statActions)
 			{
 				script.AddAction(actionPair.Key, actionPair.Value);
 			}
@@ -217,7 +154,6 @@ namespace Sandbox.Game.Components
 			statComponent.m_scripts.Add(script);
 		}
 
-		#endregion
 		#endregion
 
 		private Dictionary<MyStringHash, MyEntityStat> m_stats;
@@ -237,7 +173,7 @@ namespace Sandbox.Game.Components
 
 		#region Serialization
 
-		public override MyObjectBuilder_ComponentBase Serialize()
+		public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
 		{
 			var baseBuilder = base.Serialize();
 			var builder = baseBuilder as MyObjectBuilder_CharacterStatComponent;
@@ -327,8 +263,15 @@ namespace Sandbox.Game.Components
             MyEntityStatComponentDefinition entityStatDefinition = definition as MyEntityStatComponentDefinition;
             Debug.Assert(entityStatDefinition != null);
 
-            if (entityStatDefinition == null || !entityStatDefinition.Enabled || MySession.Static == null || (!entityStatDefinition.AvailableInSurvival && MySession.Static.SurvivalMode))
+            if (entityStatDefinition == null || !entityStatDefinition.Enabled || MySession.Static == null ||
+                (!entityStatDefinition.AvailableInSurvival && MySession.Static.SurvivalMode))
+            {
+                if (Sync.IsServer) // Only init scripts on server
+                {
+                    m_statActionsRequested = true;
+                }
                 return;
+            }
 
             foreach (var statId in entityStatDefinition.Stats)
             {
@@ -372,7 +315,7 @@ namespace Sandbox.Game.Components
 
             if(!m_statActionsRequested)
             {
-                RequestStatActions();   // Only request the stat actions from the server
+                MyMultiplayer.RaiseStaticEvent(s => MyEntityStatComponent.OnStatActionRequest, Entity.EntityId);
                 m_statActionsRequested = true;
             }
 

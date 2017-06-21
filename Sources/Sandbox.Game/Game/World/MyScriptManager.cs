@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
@@ -24,45 +23,68 @@ using VRage.ObjectBuilders;
 using Sandbox.Game.Components;
 using VRage.Game;
 using VRage.Game.Definitions;
+using VRage.Game.ObjectBuilder;
+using VRage.Scripting;
 
 namespace Sandbox.Game.World
 {
-    [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate,1000,typeof(MyObjectBuilder_ScriptManager))]
-    class MyScriptManager : MySessionComponentBase
+    public class MyScriptManager
     {
         public static MyScriptManager Static;
         string[] Separators = new string[] { " " };
-       
+
+        public readonly Dictionary<MyModContext, HashSet<MyStringId>> ScriptsPerMod = new Dictionary<MyModContext, HashSet<MyStringId>>();
+
         public Dictionary<MyStringId, Assembly> Scripts = new Dictionary<MyStringId, Assembly>(MyStringId.Comparer);
         public Dictionary<Type, HashSet<Type>> EntityScripts = new Dictionary<Type, HashSet<Type>>(); //Binds object builder type with Game Logic component type
         public Dictionary<Tuple<Type, string>, HashSet<Type>> SubEntityScripts = new Dictionary<Tuple<Type, string>, HashSet<Type>>();
-		public Dictionary<string, Type> StatScripts = new Dictionary<string, Type>();
+        public Dictionary<string, Type> StatScripts = new Dictionary<string, Type>();
         public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(MyStringId.Comparer); //Ingame script is just game logic component
         public Dictionary<MyStringId, StringBuilder> InGameScriptsCode = new Dictionary<MyStringId, StringBuilder>(MyStringId.Comparer);
         private List<string> m_errors = new List<string>();
+        private List<MyScriptCompiler.Message> m_messages = new List<MyScriptCompiler.Message>();
         private List<string> m_cachedFiles = new List<string>();
         static Dictionary<string, bool> testFiles = new Dictionary<string, bool>();
 
-        public override void LoadData()
+        public void LoadData()
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyScriptManager.LoadData");
             MySandboxGame.Log.WriteLine("MyScriptManager.LoadData() - START");
             MySandboxGame.Log.IncreaseIndent();
-            base.LoadData();
             Static = this;
             Scripts.Clear();
             EntityScripts.Clear();
             SubEntityScripts.Clear();
-            if(Sync.IsServer)
-                LoadScripts(MyFileSystem.ContentPath);
-            LoadScripts(MySession.Static.CurrentPath);
-            ReadScripts(MySession.Static.CurrentPath);
-            foreach (var mod in MySession.Static.Mods)
-                LoadScripts(Path.Combine(MyFileSystem.ModsPath, mod.Name), mod.Name);
+            if (Sync.IsServer)
+            {
+                LoadScripts(MyFileSystem.ContentPath, MyModContext.BaseGame);
+            }
+            if (MySession.Static.CurrentPath != null)
+            {
+                LoadScripts(MySession.Static.CurrentPath, MyModContext.BaseGame);
+            }
+            if (MySession.Static.Mods != null)
+            {
+                foreach (var mod in MySession.Static.Mods)
+                {
+                    var mc = new MyModContext();
+                    mc.Init(mod);
+                    LoadScripts(Path.Combine(MyFileSystem.ModsPath, mod.Name), mc);
+                }
+            }
+
             foreach (var ass in Scripts.Values)
             {
-                MySession.Static.RegisterComponentsFromAssembly(ass);
+#if XB1 // XB1_ALLINONEASSEMBLY
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#else // !XB1
+                if (MyFakes.ENABLE_TYPES_FROM_MODS) // Highly experimental!
+                {
+                    MyGlobalTypeMetadata.Static.RegisterAssembly(ass);
+                }
+
                 MySandboxGame.Log.WriteLine(string.Format("Script loaded: {0}", ass.FullName));
+#endif // !XB1
             }
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MyScriptManager.LoadData() - END");
@@ -70,13 +92,18 @@ namespace Sandbox.Game.World
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
-        private void LoadScripts(string path, string modName = null)
+        private void LoadScripts(string path, MyModContext mod = null)
         {
+#if XB1
+#if !XB1_SKIPASSERTFORNOW
+			System.Diagnostics.Debug.Assert(false, "Unsupported runtime script compilation on XB1.");
+#endif // !XB1_SKIPASSERTFORNOW
+#else
             if (!MyFakes.ENABLE_SCRIPTS)
                 return;
 
             var fsPath = Path.Combine(path, "Data", "Scripts");
-            var scriptFiles = MyFileSystem.GetFiles(fsPath, "*.cs" );//, searchOption: VRage.FileSystem.SearchOption.TopDirectoryOnly);
+            var scriptFiles = MyFileSystem.GetFiles(fsPath, "*.cs");//, searchOption: VRage.FileSystem.SearchOption.TopDirectoryOnly);
             try
             {
                 if (scriptFiles.Count() == 0)
@@ -102,22 +129,24 @@ namespace Sandbox.Game.World
                     files.Add(scriptFile);
                 else
                 {
-                    Compile(files, string.Format("{0}_{1}", modName, scriptDir), isZip);
+                    Compile(files, string.Format("{0}_{1}", mod.ModId, scriptDir), isZip, mod);
                     files.Clear();
                     scriptDir = split[split.Length - 2];
                     files.Add(scriptFile);
                 }
             }
-            Compile(files.ToArray(),Path.Combine(MyFileSystem.ModsPath,string.Format("{0}_{1}",modName,scriptDir)), isZip);
+            Compile(files.ToArray(), Path.Combine(MyFileSystem.ModsPath, string.Format("{0}_{1}", mod.ModId, scriptDir)), isZip, mod);
             files.Clear();
+#endif
         }
 
-        private void Compile(IEnumerable<string> scriptFiles, string assemblyName, bool zipped)
+        private void Compile(IEnumerable<string> scriptFiles, string assemblyName, bool zipped, MyModContext context)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "Unsupported runtime script compilation on XB1.");
+#else
             Assembly assembly = null;
             bool compiled = false;
-            var c = new MyModContext();
-            c.Init(assemblyName, assemblyName);
             if (zipped)
             {
                 var tmp = Path.GetTempPath();
@@ -140,53 +169,88 @@ namespace Sandbox.Game.World
                     catch (Exception e)
                     {
                         MySandboxGame.Log.WriteLine(e);
-                        MyDefinitionErrors.Add(c, string.Format("Cannot load {0}",Path.GetFileName(file)) , TErrorSeverity.Error);
-                        MyDefinitionErrors.Add(c, e.Message, TErrorSeverity.Error);
+                        MyDefinitionErrors.Add(context, string.Format("Cannot load {0}", Path.GetFileName(file)), TErrorSeverity.Error);
+                        MyDefinitionErrors.Add(context, e.Message, TErrorSeverity.Error);
                     }
                 }
-                compiled = IlCompiler.CompileFileModAPI(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+                {
+                    assembly = MyScriptCompiler.Static.Compile(MyApiTarget.Mod, assemblyName, m_cachedFiles.Select(file => new Script(file, IlCompiler.UpdateCompatibility(file))), m_messages).Result;
+                    compiled = assembly != null;
+                }
+                else
+                {
+                    compiled = IlCompiler.CompileFileModAPI(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                    m_messages.AddRange(m_errors.Select(m => new MyScriptCompiler.Message(TErrorSeverity.Error, m)));
+                }
             }
             else
             {
-                compiled = IlCompiler.CompileFileModAPI(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+                {
+                    assembly = MyScriptCompiler.Static.Compile(MyApiTarget.Mod, assemblyName, scriptFiles.Select(file => new Script(file, IlCompiler.UpdateCompatibility(file))), m_messages).Result;
+                    compiled = assembly != null;
+                }
+                else
+                {
+                    compiled = IlCompiler.CompileFileModAPI(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                    m_messages.AddRange(m_errors.Select(m => new MyScriptCompiler.Message(TErrorSeverity.Error, m)));
+                }
             }
             Debug.Assert(compiled == (assembly != null), "Compile results inconsistency!");
-            if(assembly != null && compiled)
-                AddAssembly(MyStringId.GetOrCompute(assemblyName), assembly);
+            if (assembly != null && compiled)
+                AddAssembly(context, MyStringId.GetOrCompute(assemblyName), assembly);
             else
             {
-                MyDefinitionErrors.Add(c, string.Format("Compilation of {0} failed:", assemblyName), TErrorSeverity.Error);
+                MyDefinitionErrors.Add(context, string.Format("Compilation of {0} failed:", assemblyName), TErrorSeverity.Error);
                 MySandboxGame.Log.IncreaseIndent();
-				foreach (var error in m_errors)
-				{
-					MyDefinitionErrors.Add(c, error.ToString(), TErrorSeverity.Error);
-					Debug.Assert(false, error.ToString());
-				}
+                foreach (var message in m_messages)
+                {
+                    MyDefinitionErrors.Add(context, message.Text, message.Severity);
+                    Debug.Assert(message.Severity != TErrorSeverity.Error, message.Text);
+                }
                 MySandboxGame.Log.DecreaseIndent();
                 m_errors.Clear();
             }
             m_cachedFiles.Clear();
+#endif
         }
 
-        private void AddAssembly(MyStringId myStringId, Assembly assembly)
+        private void AddAssembly(MyModContext context, MyStringId myStringId, Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#else // !XB1
             if (Scripts.ContainsKey(myStringId))
             {
                 MySandboxGame.Log.WriteLine(string.Format("Script already in list {0}", myStringId.ToString()));
                 Debug.Fail(string.Format("Script already in list {0}", myStringId.ToString()));
                 return;
             }
+            HashSet<MyStringId> names;
+            if (!ScriptsPerMod.TryGetValue(context, out names))
+            {
+                names = new HashSet<MyStringId>();
+                ScriptsPerMod.Add(context, names);
+            }
+
+            names.Add(myStringId);
+
             Scripts.Add(myStringId, assembly);
             foreach (var type in assembly.GetTypes())
             {
                 MyConsole.AddCommand(new MyCommandScript(type));
             }
-            TryAddEntityScripts(assembly);
-			AddStatScripts(assembly);
+            TryAddEntityScripts(context, assembly);
+            AddStatScripts(assembly);
+#endif // !XB1
         }
 
-        private void TryAddEntityScripts(Assembly assembly)
+        private void TryAddEntityScripts(MyModContext context, Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#else // !XB1
             var gameLogicType = typeof(MyGameLogicComponent);
             var builderType = typeof(MyObjectBuilder_Base);
             foreach (var type in assembly.GetTypes())
@@ -211,9 +275,7 @@ namespace Sandbox.Game.World
                                     }
                                     else
                                     {
-                                        var c = new MyModContext();
-                                        c.Init(assembly.FullName, assembly.FullName);
-                                        MyDefinitionErrors.Add(c, "Possible entity type script logic collision", TErrorSeverity.Warning);
+                                        MyDefinitionErrors.Add(context, "Possible entity type script logic collision", TErrorSeverity.Warning);
                                     }
 
                                     SubEntityScripts[new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)].Add(type);
@@ -230,9 +292,7 @@ namespace Sandbox.Game.World
                                 }
                                 else
                                 {
-                                    var c = new MyModContext();
-                                    c.Init(assembly.FullName, assembly.FullName);
-                                    MyDefinitionErrors.Add(c, "Possible entity type script logic collision", TErrorSeverity.Warning);
+                                    MyDefinitionErrors.Add(context, "Possible entity type script logic collision", TErrorSeverity.Warning);
                                 }
 
                                 EntityScripts[descriptor.EntityBuilderType].Add(type);
@@ -245,10 +305,14 @@ namespace Sandbox.Game.World
                     }
                 }
             }
+#endif // !XB1
         }
 
 		private void AddStatScripts(Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#else // !XB1
 			var logicType = typeof(MyStatLogic);
             foreach (var type in assembly.GetTypes())
             {
@@ -264,10 +328,17 @@ namespace Sandbox.Game.World
 					}
 				}
 			}
+#endif // !XB1
 		}
 
         public bool CompileIngameScript(MyStringId id, StringBuilder errors)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+            return false;
+#else // !XB1
+            // TODO: Not in use. Remove when Roslyn scripts are activated
+
             if (!MyFakes.ENABLE_SCRIPTS)
                 return false;
             Assembly assembly;
@@ -288,6 +359,7 @@ namespace Sandbox.Game.World
                 }
             }
             return false;
+#endif // !XB1
 
         }
 
@@ -299,6 +371,10 @@ namespace Sandbox.Game.World
 
         private bool CallScriptInternal(string message)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+            return false;
+#else // !XB1
             Assembly ass;
             if (IlCompiler.Buffer.Length > 0)
             {
@@ -319,7 +395,7 @@ namespace Sandbox.Game.World
             var parts = message.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length < 3)
             {
-                MyAPIGateway.Utilities.ShowNotification("Not enought parameters for script please provide following paramaters : Sriptname Classname MethodName",5000);
+                MyAPIGateway.Utilities.ShowNotification("Not enough parameters for script please provide following paramaters : Sriptname Classname MethodName",5000);
                 return false;
             }
             if (!Scripts.ContainsKey(MyStringId.TryGet(parts[1])))
@@ -382,11 +458,11 @@ namespace Sandbox.Game.World
                 return true;
             }
             return false;
+#endif // !XB1
         }
 
-        protected override void UnloadData()
+        protected void UnloadData()
         {
-            base.UnloadData();
             Scripts.Clear();
             InGameScripts.Clear();
             InGameScriptsCode.Clear();
@@ -394,9 +470,8 @@ namespace Sandbox.Game.World
             m_scriptsToSave.Clear();
         }
 
-        public override void SaveData()
+        public void SaveData()
         {
-            base.SaveData();
             WriteScripts(MySession.Static.CurrentPath);
         }
 
@@ -452,20 +527,36 @@ namespace Sandbox.Game.World
                 MySandboxGame.Log.WriteLine(e);
             }
         }
-        //variables for scripts:
-        public override void Init(MyObjectBuilder_SessionComponent sessionComponentBuilder)
-        {
-            base.Init(sessionComponentBuilder);
 
-            var ob = (MyObjectBuilder_ScriptManager)sessionComponentBuilder;
-            MyAPIUtilities.Static.Variables = ob.variables.Dictionary;
-        }
-        public override MyObjectBuilder_SessionComponent GetObjectBuilder()
+        //variables for scripts:
+        public void Init(MyObjectBuilder_ScriptManager scriptBuilder)
         {
-            MyObjectBuilder_ScriptManager ob = (MyObjectBuilder_ScriptManager)base.GetObjectBuilder();
-            ob.variables.Dictionary = MyAPIUtilities.Static.Variables;
+            if (scriptBuilder != null)
+                MyAPIUtilities.Static.Variables = scriptBuilder.variables.Dictionary;
+
+            LoadData();
+        }
+
+        public MyObjectBuilder_ScriptManager GetObjectBuilder()
+        {
+            MyObjectBuilder_ScriptManager ob = new MyObjectBuilder_ScriptManager { variables = { Dictionary = MyAPIUtilities.Static.Variables } };
             return ob;
         }
 
+        public Type GetScriptType(MyModContext context, string qualifiedTypeName)
+        {
+            HashSet<MyStringId> scripts;
+            if (!ScriptsPerMod.TryGetValue(context, out scripts)) return null;
+
+            foreach (var script in scripts)
+            {
+                var ass = Scripts[script];
+
+                var t = ass.GetType(qualifiedTypeName);
+                if (t != null) return t;
+            }
+
+            return null;
+        }
     }
 }

@@ -10,6 +10,15 @@ using System.Runtime.CompilerServices;
 
 namespace ProtoBuf
 {
+#if XB1 // XB1_NOPROTOBUF
+    public class ProtoMemberAttribute : Attribute
+    {
+    }
+
+    public class ProtoPartialMemberAttribute : ProtoMemberAttribute
+    {
+    }
+#else // !XB1
     /// <summary>
     /// Declares a member to be used in protocol-buffer serialization, using
     /// the given Tag. A DataFormat may be used to optimise the serialization
@@ -22,6 +31,8 @@ namespace ProtoBuf
         , IComparable
 #if !NO_GENERICS
         , IComparable<ProtoMemberAttribute>
+#else
+		, IComparable
 #endif
 
     {
@@ -41,6 +52,21 @@ namespace ProtoBuf
             return result;
         }
 
+#if UNSHARPER_TMP
+        /// <summary>
+        /// Creates a new ProtoMemberAttribute instance.
+        /// </summary>
+        /// <param name="tag">Specifies the unique tag used to identify this member within the type.</param>
+        public ProtoMemberAttribute(int tag = 1)
+            : this(false, tag)
+        { }
+
+        internal ProtoMemberAttribute(bool forced, [CallerLineNumber]int tag = 1)
+        {
+            if (tag <= 0 && !forced) throw new ArgumentOutOfRangeException("tag");
+            this.tag = tag;
+        }
+#else
         /// <summary>
         /// Creates a new ProtoMemberAttribute instance.
         /// </summary>
@@ -54,6 +80,7 @@ namespace ProtoBuf
             if (tag <= 0 && !forced) throw new ArgumentOutOfRangeException("tag");
             this.tag = tag;
         }
+#endif
 
 #if !NO_RUNTIME
         internal MemberInfo Member;
@@ -219,9 +246,14 @@ namespace ProtoBuf
         /// <param name="tag">Specifies the unique tag used to identify this member within the type.</param>
         /// <param name="memberName">Specifies the member to be serialized.</param>
         public ProtoPartialMemberAttribute(int tag, string memberName)
+#if FALSE
             : base(tag)
+#endif
         {
+#if UNSHARPER_TMP
+#else
             if (Helpers.IsNullOrEmpty(memberName)) throw new ArgumentNullException("memberName");
+#endif
             this.memberName = memberName;
         }
         /// <summary>
@@ -230,4 +262,5 @@ namespace ProtoBuf
         public string MemberName { get { return memberName; } }
         private readonly string memberName;
     }
+#endif // !XB1
 }

@@ -5,6 +5,7 @@ using System.Text;
 using Sandbox.ModAPI;
 using Sandbox.Game.World;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -29,6 +30,24 @@ namespace Sandbox.Game.Multiplayer
         IMyFaction IMyFactionCollection.TryGetPlayerFaction(long playerId)
         {
             return TryGetPlayerFaction(playerId);
+        }
+
+        IMyFaction IMyFactionCollection.TryGetFactionByTag(string tag)
+        {
+            return TryGetFactionByTag(tag);
+        }
+
+        IMyFaction IMyFactionCollection.TryGetFactionByName(string name)
+        {
+            foreach (var entry in m_factions)
+            {
+                var faction = entry.Value;
+
+                if (string.Equals(name, faction.Name, StringComparison.OrdinalIgnoreCase))
+                    return faction;
+            }
+
+            return null;
         }
 
         void IMyFactionCollection.AddPlayerToFaction(long playerId, long factionId)

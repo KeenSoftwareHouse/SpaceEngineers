@@ -1,10 +1,8 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Lights;
 using Sandbox.Game.World;
+using Sandbox.Game.Weapons;
 using Sandbox.Graphics;
 using System;
 using System.Collections.Generic;
@@ -18,14 +16,15 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Utils;
 using VRage.ModAPI;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game;
+using VRageRender;
 
 namespace Sandbox.Game.Components
 {
     class MyRenderComponentCharacter : MyRenderComponentSkinnedEntity
     {
-		private MyStringHash m_characterMaterial = MyStringHash.GetOrCompute("Character");
+		private readonly MyStringHash m_characterMaterial = MyStringHash.GetOrCompute("Character");
 	    private int m_lastWalkParticleCheckTime;
 	    private int m_walkParticleSpawnCounterMs = 1000;
 	    private const int m_walkParticleGravityDelay = 10000;
@@ -80,7 +79,7 @@ namespace Sandbox.Game.Components
 		    }
 
 		    var character = Entity as MyCharacter;
-		    if (character.JetpackComp != null && character.JetpackComp.Running)
+            if (character.JetpackRunning)
 		    {
 			    m_walkParticleSpawnCounterMs = m_walkParticleJetpackOffDelay;
 			    return;
@@ -148,14 +147,13 @@ namespace Sandbox.Game.Components
         #region lights properties
 
         MyLight m_light;
-        MyLight m_leftGlare;
-        MyLight m_rightGlare;
+        Vector3D m_leftGlarePosition;
+        Vector3D m_rightGlarePosition;
         int m_leftLightIndex = -1;
         int m_rightLightIndex = -1;
         Matrix m_reflectorAngleMatrix;
         float m_oldReflectorAngle = -1;
         Vector3 m_lightLocalPosition;
-        float m_lightGlareSize = 0.0f;
 
         #endregion
 
@@ -175,18 +173,11 @@ namespace Sandbox.Game.Components
             base.Draw();
 
             MyCharacter character = m_skinnedEntity as MyCharacter;
-
-            Matrix headMatrix = character.GetHeadMatrix(false);
-
-            
             Vector3 position = m_light.Position;
             Vector3 forwardVector = m_light.ReflectorDirection;
-            Vector3 leftVector = headMatrix.Left;
-            Vector3 upVector = headMatrix.Up;
 
             float reflectorLength = MyCharacter.REFLECTOR_BILLBOARD_LENGTH * 0.4f * 0.16f;
             float reflectorThickness = MyCharacter.REFLECTOR_BILLBOARD_THICKNESS * 0.08f;
-            //float reflectorRadiusForAdditive = 0.25f;//0.65f;
 
             Vector3 color = new Vector3(m_light.ReflectorColor);
 
@@ -194,91 +185,47 @@ namespace Sandbox.Game.Components
             var dot = Vector3.Dot(Vector3.Normalize(MySector.MainCamera.Position - glarePosition), forwardVector);
             float angle = 1 - Math.Abs(dot);
             float alphaGlareAlphaBlended = (float)Math.Pow(1 - angle, 2);
-            float alphaGlareAdditive = (float)Math.Pow(1 - angle, 2);
             float alphaCone = (1 - (float)Math.Pow(1 - angle, 30)) * 0.5f;
 
             float reflectorRadiusForAlphaBlended = MathHelper.Lerp(0.1f, 0.5f, alphaGlareAlphaBlended); //3.5f;
 
             //  Multiply alpha by reflector level (and not the color), because if we multiply the color and let alpha unchanged, reflector cune will be drawn as very dark cone, but still visible
             var reflectorLevel = character.CurrentLightPower;
-            m_light.ReflectorIntensity = reflectorLevel;
-
             alphaCone *= reflectorLevel * 0.2f;
             alphaGlareAlphaBlended *= reflectorLevel * 0.1f;
-            alphaGlareAdditive *= reflectorLevel * 0.8f;
 
             float distance = Vector3.Distance(character.PositionComp.GetPosition(), MySector.MainCamera.Position);
 
-            if (!character.IsInFirstPersonView && distance < MyCharacter.LIGHT_GLARE_MAX_DISTANCE && reflectorLevel > 0)
+            if ((character != MySession.Static.LocalCharacter || !character.IsInFirstPersonView) && 
+                distance < MyCharacter.LIGHT_GLARE_MAX_DISTANCE && reflectorLevel > 0 &&
+                m_leftLightIndex != -1 && m_rightLightIndex != -1)
             {
                 float alpha = MathHelper.Clamp((MyCharacter.LIGHT_GLARE_MAX_DISTANCE - 10.0f) / distance, 0, 1);
 
-                if (reflectorLength > 0 && reflectorThickness > 0)
+                if (reflectorLength > 0 && reflectorThickness > 0 && alpha > 0)
                 {
-                    if (m_leftGlare != null)
-                    {
-                        MyTransparentGeometry.AddLineBillboard("ReflectorConeCharacter", new Vector4(color, 1.0f) * alphaCone * alpha,
-                            m_leftGlare.Position,
-                                                     m_leftGlare.ReflectorDirection, reflectorLength, reflectorThickness);
-                    }
-
-                    if (m_rightGlare != null)
-                    {
-                        MyTransparentGeometry.AddLineBillboard("ReflectorConeCharacter", new Vector4(color, 1.0f) * alphaCone * alpha,
-                            m_rightGlare.Position,
-                                                     m_rightGlare.ReflectorDirection, reflectorLength, reflectorThickness);
-                    }
+                    MyTransparentGeometry.AddLineBillboard("ReflectorConeCharacter", new Vector4(color, 1.0f) * alphaCone * alpha,
+                        m_leftGlarePosition, m_light.ReflectorDirection, reflectorLength, reflectorThickness, MyBillboard.BlenType.AdditiveBottom);
+                    MyTransparentGeometry.AddLineBillboard("ReflectorConeCharacter", new Vector4(color, 1.0f) * alphaCone * alpha,
+                        m_rightGlarePosition, m_light.ReflectorDirection, reflectorLength, reflectorThickness, MyBillboard.BlenType.AdditiveBottom);
                 }
 
-                if (m_leftGlare != null)
+                if (dot > 0)
                 {
                     MyTransparentGeometry.AddPointBillboard("ReflectorGlareAlphaBlended", new Vector4(color, 1.0f) * alphaGlareAlphaBlended * alpha,
-                                                  m_leftGlare.Position, reflectorRadiusForAlphaBlended * 0.3f, 0);
-                }
-
-                if (m_rightGlare != null)
-                {
+                        m_leftGlarePosition, reflectorRadiusForAlphaBlended * 0.3f, 0, -1, MyBillboard.BlenType.AdditiveTop);
                     MyTransparentGeometry.AddPointBillboard("ReflectorGlareAlphaBlended", new Vector4(color, 1.0f) * alphaGlareAlphaBlended * alpha,
-                                                  m_rightGlare.Position, reflectorRadiusForAlphaBlended * 0.3f, 0);
+                        m_rightGlarePosition, reflectorRadiusForAlphaBlended * 0.3f, 0, -1, MyBillboard.BlenType.AdditiveTop);
                 }
             }
 
             DrawJetpackThrusts(character.UpdateCalled());
 
-            if (character.Hierarchy.Parent != null)
-            {
-                if (m_leftGlare != null && m_leftGlare.LightOn == true)
-                {
-                    m_leftGlare.LightOn = false;
-                    m_leftGlare.GlareOn = false;
-                    m_leftGlare.UpdateLight();
-                }
-
-                if (m_rightGlare != null && m_rightGlare.LightOn == true)
-                {
-                    m_rightGlare.LightOn = false;
-                    m_rightGlare.GlareOn = false;
-                    m_rightGlare.UpdateLight();
-                }
-            }
-            else
-            {
-                if (m_leftGlare != null && m_leftGlare.LightOn == false)
-                {
-                    m_leftGlare.LightOn = true;
-                    m_leftGlare.GlareOn = true;
-                    m_leftGlare.UpdateLight();
-                }
-
-                if (m_rightGlare != null && m_rightGlare.LightOn == true)
-                {
-                    m_rightGlare.LightOn = true;
-                    m_rightGlare.GlareOn = true;
-                    m_rightGlare.UpdateLight();
-                }
-            }
-
-            if (MySession.Static.ControlledEntity == character)
+            //Maybe this check is not needed at all? In every case we want the DrawBlood effect when damaged
+            if ( MySession.Static.ControlledEntity == character ||
+                 MySession.Static.ControlledEntity is MyCockpit && ((MyCockpit)MySession.Static.ControlledEntity).Pilot == character ||
+                 MySession.Static.ControlledEntity is MyLargeTurretBase && ((MyLargeTurretBase)MySession.Static.ControlledEntity).Pilot == character
+                )
             {
                 if (character.IsDead && character.CurrentRespawnCounter > 0)
                 {
@@ -319,10 +266,19 @@ namespace Sandbox.Game.Components
             Rectangle? source = null;
 
             VRageRender.MyRenderProxy.DrawSprite("Textures\\Gui\\Blood.dds", ref dest, false, ref source, new Color(new Vector4(1, 1, 1, alpha)), 0,
-                new Vector2(1, 0), ref Vector2.Zero, VRageRender.Graphics.SpriteEffects.None, 0);
+                new Vector2(1, 0), ref Vector2.Zero, SpriteEffects.None, 0);
         }
 
         #region character lights
+        
+        public static float JETPACK_LIGHT_INTENSITY_BASE = 0f;
+        public static float JETPACK_LIGHT_INTENSITY_LENGTH = 200f;
+        public static float JETPACK_LIGHT_RANGE_RADIUS = 1.8f;
+        public static float JETPACK_LIGHT_RANGE_LENGTH = 0.6f;
+        public static float JETPACK_GLARE_INTENSITY_BASE = 0.0f;
+        public static float JETPACK_GLARE_INTENSITY_LENGTH = 15.0f;
+        public static float JETPACK_GLARE_SIZE_RADIUS = 2.4f;
+        public static float JETPACK_GLARE_SIZE_LENGTH = 0.2f;
 
         private void DrawJetpackThrusts(bool updateCalled)
         {
@@ -346,7 +302,7 @@ namespace Sandbox.Game.Components
             {
 	            Vector3D position = Vector3D.Zero;
 
-                if ((jetpack.TurnedOn && jetpack.IsPowered) && !character.IsInFirstPersonView)
+                if ((jetpack.TurnedOn && jetpack.IsPowered) && (!character.IsInFirstPersonView ||character != MySession.Static.LocalCharacter))
                 {
                     var thrustMatrix = (MatrixD)thrust.ThrustMatrix * Container.Entity.PositionComp.WorldMatrix;
                     Vector3D forward = Vector3D.TransformNormal(thrust.Forward, thrustMatrix);
@@ -373,12 +329,13 @@ namespace Sandbox.Game.Components
                         }
 
                         //  We move polyline particle backward, because we are stretching ball texture and it doesn't look good if stretched. This will hide it.
-                        MyTransparentGeometry.AddLineBillboard(thrust.ThrustMaterial, thrust.Light.Color * alphaCone, position /*- forward * thrust.ThrustLength * 0.25f*/,
-                            GetRenderObjectID(), ref worldToLocal, forward, thrust.ThrustLength, thrust.ThrustThickness);
+                        MyTransparentGeometry.AddLineBillboard(thrust.ThrustMaterial, thrust.Light.Color * alphaCone * strength, position,
+                            GetRenderObjectID(), ref worldToLocal, forward, thrust.ThrustLength, thrust.ThrustThickness, MyBillboard.BlenType.AdditiveBottom);
                     }
 
                     if (thrust.ThrustRadius > 0)
-                        MyTransparentGeometry.AddPointBillboard(thrust.ThrustMaterial, thrust.Light.Color, position, GetRenderObjectID(), ref worldToLocal, thrust.ThrustRadius, 0);
+                        MyTransparentGeometry.AddPointBillboard(thrust.ThrustMaterial, thrust.Light.Color, position, GetRenderObjectID(), ref worldToLocal, 
+                            thrust.ThrustRadius, 0, -1, MyBillboard.BlenType.AdditiveBottom);
                 }
                 else
                 {
@@ -391,23 +348,22 @@ namespace Sandbox.Game.Components
                     if (thrust.ThrustRadius > 0)
                     {
                         thrust.Light.LightOn = true;
-                        thrust.Light.Intensity = 1.3f + thrust.ThrustLength * 1.2f;
+                        thrust.Light.Intensity = JETPACK_LIGHT_INTENSITY_BASE + thrust.ThrustLength * JETPACK_LIGHT_INTENSITY_LENGTH;
 
-                        thrust.Light.Range = thrust.ThrustRadius * 7f + thrust.ThrustLength / 10;
-
+                        thrust.Light.Range = thrust.ThrustRadius * JETPACK_LIGHT_RANGE_RADIUS + thrust.ThrustLength * JETPACK_LIGHT_RANGE_LENGTH;
                         thrust.Light.Position = Vector3D.Transform(position, MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix));
                         thrust.Light.ParentID = GetRenderObjectID();
 
                         thrust.Light.GlareOn = true;
 
-                        thrust.Light.GlareIntensity = 0.5f + thrust.ThrustLength * 4;
+                        thrust.Light.GlareIntensity = JETPACK_GLARE_INTENSITY_BASE + thrust.ThrustLength * JETPACK_GLARE_INTENSITY_LENGTH;
 
                         thrust.Light.GlareMaterial = "GlareJetpack";
                         thrust.Light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
 
-                        thrust.Light.GlareSize = (thrust.ThrustRadius * 2.4f + thrust.ThrustLength * 0.2f) * thrust.ThrustGlareSize;
+                        thrust.Light.GlareSize = (thrust.ThrustRadius * JETPACK_GLARE_SIZE_RADIUS + thrust.ThrustLength * JETPACK_GLARE_SIZE_LENGTH) * thrust.ThrustGlareSize;
 
-                        thrust.Light.GlareQuerySize = 0.3f;
+                        thrust.Light.GlareQuerySize = 0.1f;
                         thrust.Light.UpdateLight();
                     }
                     else
@@ -467,75 +423,41 @@ namespace Sandbox.Game.Components
         {
             m_light = MyLights.AddLight();
 
-            m_lightGlareSize = definition.LightGlareSize;
+            m_light.Start(MyLight.LightTypeEnum.PointLight | MyLight.LightTypeEnum.Spotlight, 0.5f);
 
-            m_light.Start(MyLight.LightTypeEnum.PointLight | MyLight.LightTypeEnum.Spotlight, 1.5f);
-            m_light.ShadowDistance = 20;
-            m_light.ReflectorFalloff = 5;
-            m_light.LightOwner = MyLight.LightOwnerEnum.SmallShip;
+            /// todo: defaults should be supplied from Environemnt.sbc
+            m_light.GlossFactor = 0;
+            m_light.DiffuseFactor = 3.14f;
             m_light.UseInForwardRender = true;
-            m_light.ReflectorTexture = definition.ReflectorTexture;
-            m_light.Range = 1;
+            m_light.LightOwner = MyLight.LightOwnerEnum.SmallShip;
+            m_light.ShadowDistance = 20;
+            m_light.ReflectorFalloff = 10;
 
-            MyCharacterBone leftGlareBone = null;
-            if (definition.LeftLightBone != String.Empty) leftGlareBone = m_skinnedEntity.AnimationController.FindBone(definition.LeftLightBone, out m_leftLightIndex);
-            if (leftGlareBone != null)
-            {
-                m_leftGlare = MyLights.AddLight();
-                m_leftGlare.Start(MyLight.LightTypeEnum.None, 1.5f);
-                m_leftGlare.LightOn = false;
-                m_leftGlare.LightOwner = MyLight.LightOwnerEnum.SmallShip;
-                m_leftGlare.UseInForwardRender = false;
-                m_leftGlare.GlareOn = true;
-                m_leftGlare.GlareQuerySize = 0.2f;
-                m_leftGlare.GlareType = VRageRender.Lights.MyGlareTypeEnum.Directional;
-                m_leftGlare.GlareMaterial = definition.LeftGlare;
-            }
+            m_light.ReflectorTexture = "Textures\\Lights\\dual_reflector_2.dds";
+            m_light.ReflectorColor = MyCharacter.REFLECTOR_COLOR;
+            m_light.ReflectorConeMaxAngleCos = MyCharacter.REFLECTOR_CONE_ANGLE;
+            m_light.ReflectorRange = MyCharacter.REFLECTOR_RANGE;
+            m_light.ReflectorGlossFactor = MyCharacter.REFLECTOR_GLOSS_FACTOR;
+            m_light.ReflectorDiffuseFactor = MyCharacter.REFLECTOR_DIFFUSE_FACTOR;
+            m_light.Color = MyCharacter.POINT_COLOR;
+            m_light.SpecularColor = new Vector3(MyCharacter.POINT_COLOR_SPECULAR);
+            m_light.Range = MyCharacter.POINT_LIGHT_RANGE;
 
-            MyCharacterBone rightGlareBone = null;
-            if (definition.RightLightBone != String.Empty) rightGlareBone = m_skinnedEntity.AnimationController.FindBone(definition.RightLightBone, out m_rightLightIndex);
-            if (rightGlareBone != null)
-            {
-                m_rightGlare = MyLights.AddLight();
-                m_rightGlare.Start(MyLight.LightTypeEnum.None, 1.5f);
-                m_rightGlare.LightOn = false;
-                m_rightGlare.LightOwner = MyLight.LightOwnerEnum.SmallShip;
-                m_rightGlare.UseInForwardRender = false;
-                m_rightGlare.GlareOn = true;
-                m_rightGlare.GlareQuerySize = 0.2f;
-                m_rightGlare.GlareType = VRageRender.Lights.MyGlareTypeEnum.Directional;
-                m_rightGlare.GlareMaterial = definition.RightGlare;
-            }
+            m_skinnedEntity.AnimationController.FindBone(definition.LeftLightBone, out m_leftLightIndex);
+
+            m_skinnedEntity.AnimationController.FindBone(definition.RightLightBone, out m_rightLightIndex);
         }
 
         public void UpdateLightProperties(float currentLightPower)
         {
             if (m_light != null)
             {
-                m_light.ReflectorRange = MyCharacter.REFLECTOR_RANGE;
-                m_light.ReflectorColor = MyCharacter.REFLECTOR_COLOR;
                 m_light.ReflectorIntensity = MyCharacter.REFLECTOR_INTENSITY * currentLightPower;
-
-                m_light.Color = MyCharacter.POINT_COLOR;
-                m_light.SpecularColor = new Vector3(MyCharacter.POINT_COLOR_SPECULAR);
-                m_light.Range = MyCharacter.POINT_LIGHT_RANGE;
                 m_light.Intensity = MyCharacter.POINT_LIGHT_INTENSITY * currentLightPower;
 
                 //MyTrace.Send(TraceWindow.Default, m_currentLightPower.ToString());
 
                 m_light.UpdateLight();
-
-                if (m_leftGlare != null)
-                {
-                    m_leftGlare.GlareIntensity = m_light.Intensity;
-                    m_leftGlare.UpdateLight();
-                }
-
-                if (m_rightGlare != null)
-                {
-                    m_rightGlare.GlareIntensity = m_light.Intensity;
-                    m_rightGlare.UpdateLight();
-                }
             }
         }
 
@@ -558,73 +480,48 @@ namespace Sandbox.Game.Components
 
                 m_light.ReflectorDirection = Vector3.Transform(headMatrix.Forward, m_reflectorAngleMatrix);
                 m_light.ReflectorUp = headMatrix.Up;
-                m_light.ReflectorTexture = "Textures\\Lights\\dual_reflector_2.dds";
-                m_light.ReflectorColor = MyCharacter.REFLECTOR_COLOR;
-                m_light.UpdateReflectorRangeAndAngle(MyCharacter.REFLECTOR_CONE_ANGLE, MyCharacter.REFLECTOR_RANGE);
                 m_light.Position = Vector3D.Transform(m_lightLocalPosition, headMatrixAnim);
                 m_light.UpdateLight();
 
                 Matrix[] boneMatrices = character.BoneAbsoluteTransforms;
 
-                if (m_leftGlare != null)
+                if (m_leftLightIndex != -1)
                 {
                     MatrixD leftGlareMatrix = m_reflectorAngleMatrix * MatrixD.Normalize(boneMatrices[m_leftLightIndex]) * m_skinnedEntity.PositionComp.WorldMatrix;
-
-                    m_leftGlare.Position = leftGlareMatrix.Translation;
-                    m_leftGlare.Range = 1;
-                    m_leftGlare.ReflectorDirection = -leftGlareMatrix.Up;//, m_reflectorAngleMatrix);
-                    m_leftGlare.ReflectorUp = leftGlareMatrix.Forward;
-                    m_leftGlare.GlareIntensity = m_light.Intensity;
-                    m_leftGlare.GlareSize = m_lightGlareSize;
-                    m_leftGlare.GlareQuerySize = 0.1f;
-                    m_leftGlare.GlareMaxDistance = MyCharacter.LIGHT_GLARE_MAX_DISTANCE;
-                    m_leftGlare.UpdateLight();
+                    m_leftGlarePosition = leftGlareMatrix.Translation;
                 }
 
-                if (m_rightGlare != null)
+                if (m_rightLightIndex != -1)
                 {
                     MatrixD rightGlareMatrix = m_reflectorAngleMatrix * MatrixD.Normalize(boneMatrices[m_rightLightIndex]) * m_skinnedEntity.PositionComp.WorldMatrix;
-                    m_rightGlare.Position = rightGlareMatrix.Translation;
-                    m_rightGlare.Range = 1;
-                    m_rightGlare.ReflectorDirection = -rightGlareMatrix.Up;
-                    m_rightGlare.ReflectorUp = rightGlareMatrix.Forward;
-                    m_rightGlare.GlareIntensity = m_light.Intensity;
-                    m_rightGlare.GlareSize = m_lightGlareSize;
-                    m_rightGlare.GlareQuerySize = 0.1f;
-                    m_rightGlare.GlareMaxDistance = MyCharacter.LIGHT_GLARE_MAX_DISTANCE;
-                    m_rightGlare.UpdateLight();
+                    m_rightGlarePosition = rightGlareMatrix.Translation;
                 }
             }
         }
 
         public void UpdateLight(float lightPower, bool updateRenderObject)
         {
-            if (lightPower <= 0.0f)
-            {
-                m_light.ReflectorOn = false;
-                m_light.LightOn = false;
-            }
-            else
-            {
-                m_light.ReflectorOn = true;
-                m_light.LightOn = true;
-            }
+            if (m_light == null)
+                return;
 
+            bool enabled = (lightPower > 0.0f);
+            if (m_light.LightOn != enabled)
+            {
+                m_light.ReflectorOn = enabled;
+                m_light.LightOn = enabled;
+            }
             if (updateRenderObject)
             {
                 UpdateLightPosition();
 
                 VRageRender.MyRenderProxy.UpdateModelProperties(
-                RenderObjectIDs[0],
-                0,
-                Model.AssetName,
-                -1,
-                "Light",
-                null,
-                null,
-                null,
-                null,
-                lightPower);
+                    RenderObjectIDs[0],
+                    0,
+                    -1,
+                    "Light",
+                    null,
+                    null,
+                    null);
 
                 UpdateLightProperties(lightPower);
             }
@@ -666,16 +563,6 @@ namespace Sandbox.Game.Components
             {
                 MyLights.RemoveLight(m_light);
                 m_light = null;
-            }
-            if (m_leftGlare != null)
-            {
-                MyLights.RemoveLight(m_leftGlare);
-                m_leftGlare = null;
-            }
-            if (m_rightGlare != null)
-            {
-                MyLights.RemoveLight(m_rightGlare);
-                m_rightGlare = null;
             }
 
             foreach (var thrust in m_jetpackThrusts)

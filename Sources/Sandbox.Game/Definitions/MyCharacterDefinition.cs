@@ -40,12 +40,15 @@ namespace Sandbox.Definitions
         public string SpineBone;
         public float BendMultiplier1st;
         public float BendMultiplier3rd;
-        public bool NeedsOxygen;
+        public bool UsesAtmosphereDetector;
+        public bool UsesReverbDetector;
+        [Obsolete("Dont ever use again.")]
+        public bool NeedsOxygen;        // handled in myobjectbuilder_character
         public float OxygenConsumptionMultiplier;
         public float OxygenConsumption;
         public float PressureLevelForLowDamage;
         public float DamageAmountAtZeroPressure;
-        public string HelmetVariation;
+        //public string HelmetVariation;
         public bool LoopingFootsteps;
         public bool VisibleOnHud;
         public bool UsableByPlayer;
@@ -59,10 +62,17 @@ namespace Sandbox.Definitions
         public string CrouchDownSoundName;
         public string CrouchUpSoundName;
         public string PainSoundName;
+        public string SuffocateSoundName;
         public string DeathSoundName;
+        public string DeathBySuffocationSoundName;
         public string IronsightActSoundName;
         public string IronsightDeactSoundName;
         public string FastFlySoundName;
+        public string HelmetOxygenNormalSoundName;
+        public string HelmetOxygenLowSoundName;
+        public string HelmetOxygenCriticalSoundName;
+        public string HelmetOxygenNoneSoundName;
+        public string MovementSoundName;
 
         // Bones for foot placement IK
         public bool FeetIKEnabled = false;
@@ -153,6 +163,8 @@ namespace Sandbox.Definitions
         public string AnimationController = null;
 
         public float? MaxForce = null;
+        // align with support (terrain) - useful for animals
+        public MyEnumCharacterRotationToSupport RotationToSupport = MyEnumCharacterRotationToSupport.None;
 
         /// <summary>
         /// VRAGE TODO: TEMPORARY!
@@ -198,24 +210,33 @@ namespace Sandbox.Definitions
             LeftAnkleBoneName = builder.LeftAnkleBoneName;
             RightHipBoneName = builder.RightHipBoneName;
             RightKneeBoneName = builder.RightKneeBoneName;
-            RightAnkleBoneName = builder.RightAnkleBoneName;     
+            RightAnkleBoneName = builder.RightAnkleBoneName;
+            UsesAtmosphereDetector = builder.UsesAtmosphereDetector;
+            UsesReverbDetector = builder.UsesReverbDetector;
             NeedsOxygen = builder.NeedsOxygen;
             OxygenConsumptionMultiplier = builder.OxygenConsumptionMultiplier;
             OxygenConsumption = builder.OxygenConsumption;
             PressureLevelForLowDamage = builder.PressureLevelForLowDamage;
             DamageAmountAtZeroPressure = builder.DamageAmountAtZeroPressure;
             RagdollDataFile = builder.RagdollDataFile;
-            HelmetVariation = builder.HelmetVariation;
+            //HelmetVariation = builder.HelmetVariation;
             JumpSoundName = builder.JumpSoundName;
             JetpackIdleSoundName = builder.JetpackIdleSoundName;
             JetpackRunSoundName = builder.JetpackRunSoundName;
             CrouchDownSoundName = builder.CrouchDownSoundName;
             CrouchUpSoundName = builder.CrouchUpSoundName;
             PainSoundName = builder.PainSoundName;
+            SuffocateSoundName = builder.SuffocateSoundName;
             DeathSoundName = builder.DeathSoundName;
+            DeathBySuffocationSoundName = builder.DeathBySuffocationSoundName;
             IronsightActSoundName = builder.IronsightActSoundName;
             IronsightDeactSoundName = builder.IronsightDeactSoundName;
             FastFlySoundName = builder.FastFlySoundName;
+            HelmetOxygenNormalSoundName = builder.HelmetOxygenNormalSoundName;
+            HelmetOxygenLowSoundName = builder.HelmetOxygenLowSoundName;
+            HelmetOxygenCriticalSoundName = builder.HelmetOxygenCriticalSoundName;
+            HelmetOxygenNoneSoundName = builder.HelmetOxygenNoneSoundName;
+            MovementSoundName = builder.MovementSoundName;
             LoopingFootsteps = builder.LoopingFootsteps;
             VisibleOnHud = builder.VisibleOnHud;
             UsableByPlayer = builder.UsableByPlayer;
@@ -223,6 +244,7 @@ namespace Sandbox.Definitions
             InitialAnimation = builder.InitialAnimation;
             PhysicalMaterial = builder.PhysicalMaterial;
             JumpForce = builder.JumpForce;
+            RotationToSupport = builder.RotationToSupport;
 
             FeetIKSettings = new Dictionary<MyCharacterMovementEnum,MyFeetIKSettings>();
             if (builder.IKSettings != null)
@@ -356,19 +378,23 @@ namespace Sandbox.Definitions
             ob.RightUpperarmBone = RightUpperarmBone;
             ob.SpineBone = SpineBone;
             ob.MaterialsDisabledIn1st = MaterialsDisabledIn1st;
+            ob.UsesAtmosphereDetector = UsesAtmosphereDetector;
+            ob.UsesReverbDetector = UsesReverbDetector;
             ob.NeedsOxygen = NeedsOxygen;
             ob.OxygenConsumptionMultiplier = OxygenConsumptionMultiplier;
             ob.OxygenConsumption = OxygenConsumption;
             ob.PressureLevelForLowDamage = PressureLevelForLowDamage;
             ob.DamageAmountAtZeroPressure = DamageAmountAtZeroPressure;
-            ob.HelmetVariation = HelmetVariation;
+            //ob.HelmetVariation = HelmetVariation;
             ob.JumpSoundName = JumpSoundName;
             ob.JetpackIdleSoundName = JetpackIdleSoundName;
             ob.JetpackRunSoundName = JetpackRunSoundName;
             ob.CrouchDownSoundName = CrouchDownSoundName;
             ob.CrouchUpSoundName = CrouchUpSoundName;
+            ob.SuffocateSoundName = SuffocateSoundName;
             ob.PainSoundName = PainSoundName;
             ob.DeathSoundName = DeathSoundName;
+            ob.DeathBySuffocationSoundName = DeathBySuffocationSoundName;
             ob.IronsightActSoundName = IronsightActSoundName;
             ob.IronsightDeactSoundName = IronsightDeactSoundName;
             ob.LoopingFootsteps = LoopingFootsteps;
@@ -426,6 +452,7 @@ namespace Sandbox.Definitions
             ob.DeadBodyShape = DeadBodyShape;
             ob.AnimationController = AnimationController;
             ob.MaxForce = MaxForce;
+            ob.RotationToSupport = RotationToSupport;
 
             return ob;
         }

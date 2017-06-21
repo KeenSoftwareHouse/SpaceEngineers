@@ -43,6 +43,7 @@ One way to contribute changes is to send a GitHub [Pull Request](https://help.gi
 - Using the GitHub program, you can easily **submit contributions** back up to your **fork**.
 - Do not **commit to master**, for each feature **create new branch**.
 - When you're ready to send the changes to the Keen Software House for review, simply create a [Pull Request](https://help.github.com/articles/using-pull-requests).
+- Following [Coding rules](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Coding-rules) will help us lower the time needed to process the PR and merge it thus increase the amount of PRs that can be merged
 
 **Advanced topics:**
 - You can update your master branch by executing:

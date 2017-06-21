@@ -52,7 +52,11 @@ namespace Sandbox
                 IsActive = SteamAPI != null;
                 if (SteamSDK.SteamAPI.RestartIfNecessary(AppId))
                 {
+#if !XB1
                     Environment.Exit(0);
+#else // XB1
+                    System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
                 }
 
                 if (IsActive)

@@ -1,24 +1,14 @@
-﻿using Sandbox.Common.AI;
-using Sandbox.Engine.Physics;
-using Sandbox.Game.AI;
+﻿using Sandbox.Game.AI;
 using Sandbox.Game.AI.Actions;
-using Sandbox.Game.AI.Logic;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Game;
+using VRage.Game.AI;
 using VRage.Game.Entity;
-using VRage.Trace;
 using VRage.Utils;
 using VRageMath;
 
@@ -63,7 +53,7 @@ namespace SpaceEngineers.Game.AI
             }
             else
             {
-                return MyBehaviorTreeState.SUCCESS;
+                return MyBehaviorTreeState.NOT_TICKED;
             }
         }
 
@@ -82,7 +72,7 @@ namespace SpaceEngineers.Game.AI
             }
             else
             {
-                return MyBehaviorTreeState.SUCCESS;
+                return MyBehaviorTreeState.NOT_TICKED;
             }
         }
 
@@ -100,8 +90,26 @@ namespace SpaceEngineers.Game.AI
             if (!success) return MyBehaviorTreeState.FAILURE;
 
             Vector3D pos = teleportPos.Translation;
+
+            //GR: Added simple check so burrowing (and Teleport) functions should happen only when on Voxel physics.
+            //Not sure though if this check should be somewhere else (e.g. behaviour Tree)
+            //Check position of Teleport if is clear
+            var resultOnTeleportPos = Sandbox.Engine.Physics.MyPhysics.CastRay(pos + 3 * Bot.AgentEntity.WorldMatrix.Up, pos - 3 * Bot.AgentEntity.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
+            if (resultOnTeleportPos != null)
+            {
+                return MyBehaviorTreeState.NOT_TICKED;
+            }
+
+            //GR: Also check current position of spider if on CubeGrid do not teleport
+            var resultOnSpiderPos = Sandbox.Engine.Physics.MyPhysics.CastRay(Bot.AgentEntity.WorldMatrix.Translation - 3 * Bot.AgentEntity.WorldMatrix.Up, Bot.AgentEntity.WorldMatrix.Translation + 3 * Bot.AgentEntity.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
+            if (resultOnSpiderPos != null && (resultOnSpiderPos as VRage.Game.ModAPI.IHitInfo).HitEntity != Bot.AgentEntity)
+            {
+                resultOnSpiderPos = Sandbox.Engine.Physics.MyPhysics.CastRay(Bot.AgentEntity.WorldMatrix.Translation - 3 * Bot.AgentEntity.WorldMatrix.Up, Bot.AgentEntity.WorldMatrix.Translation + 3 * Bot.AgentEntity.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
+                return MyBehaviorTreeState.NOT_TICKED;
+            }
+
             float radius = (float)Bot.AgentEntity.PositionComp.WorldVolume.Radius;
-            var planet = MyGravityProviderSystem.GetNearestPlanet(pos);
+            var planet = MyGamePruningStructure.GetClosestPlanet(pos);
             if (planet != null)
             {
                 planet.CorrectSpawnLocation(ref pos, radius);
@@ -201,11 +209,16 @@ namespace SpaceEngineers.Game.AI
                 var character = entity as MyCharacter;
                 var grid = entity as MyCubeGrid;
 
-                if (character != null)
+                if (character != null && character.ControllerInfo != null)
                 {
                     var faction = MySession.Static.Factions.GetPlayerFaction(character.ControllerInfo.ControllingIdentityId);
                     if (myFaction != null && faction == myFaction) continue;
                     if (character.IsDead) continue;
+
+                    //if character fly up exclude him from targets
+                    var result = Sandbox.Engine.Physics.MyPhysics.CastRay(character.WorldMatrix.Translation - 3 * character.WorldMatrix.Up, character.WorldMatrix.Translation + 3 * character.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                    if (result == null || (result as VRage.Game.ModAPI.IHitInfo).HitEntity == character)
+                        continue;
 
                     entityPriority = 1;
 
@@ -278,17 +291,17 @@ namespace SpaceEngineers.Game.AI
             priority.IntValue = bestPriority;
 
             // CH: TODO: This is temporary. Remove it!
-            if (outTarget.TargetType == MyAiTargetEnum.CUBE)
-            {
-                MyEntity outGrid;
-                MyEntities.TryGetEntityById(outTarget.EntityId.Value, out outGrid);
-                Debug.Assert(outGrid != null);
-                var grid = outGrid as MyCubeGrid;
-                MySlimBlock block = grid.GetCubeBlock(outTarget.BlockPosition);
-                Debug.Assert(block != null);
+            //if (outTarget.TargetType == MyAiTargetEnum.CUBE)
+            //{
+            //    MyEntity outGrid;
+            //    MyEntities.TryGetEntityById(outTarget.EntityId.Value, out outGrid);
+            //    Debug.Assert(outGrid != null);
+            //    var grid = outGrid as MyCubeGrid;
+            //    MySlimBlock block = grid.GetCubeBlock(outTarget.BlockPosition);
+            //    Debug.Assert(block != null);
 
-                //MyTrace.Send(TraceWindow.Ai, "TARGETTING CUBE: " + grid.ToString() + " " + block.ToString());
-            }
+            //    //MyTrace.Send(TraceWindow.Ai, "TARGETTING CUBE: " + grid.ToString() + " " + block.ToString());
+            //}
 
             return retval;
         }

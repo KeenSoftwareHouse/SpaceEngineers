@@ -1,4 +1,6 @@
-﻿#region Using
+﻿
+
+#region Using
 
 using Havok;
 using Sandbox.Common.ObjectBuilders;
@@ -20,6 +22,9 @@ using VRage.Game.Entity;
 using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 #endregion
 
@@ -113,7 +118,11 @@ namespace Sandbox.Game.Gui
                     () => "Prioritize: " + (MyFakes.PRIORITIZE_PRECALC_JOBS ? "On" : "Off"),
                     () => { MyFakes.PRIORITIZE_PRECALC_JOBS = !MyFakes.PRIORITIZE_PRECALC_JOBS; return true; });
                 m_dbgComponents.Clear();
+#if XB1 // XB1_ALLINONEASSEMBLY
+                foreach (var t in MyAssembly.GetTypes())
+#else // !XB1
                 foreach (var t in Assembly.GetExecutingAssembly().GetTypes())
+#endif // !XB1
                 {
                     if (t.IsSubclassOf(typeof(MyRenderComponentBase)))
                         continue;
@@ -260,7 +269,7 @@ namespace Sandbox.Game.Gui
                         }
                         VRageRender.MyRenderProxy.DebugDrawText2D(pos, sb.ToString(), Color.White, 0.7f);
                         pos.Y += 20;
-                        if (hitEntity != null)
+                        if (hitEntity != null && hitEntity.GetPhysicsBody() != null)
                         {
                             VRageRender.MyRenderProxy.DebugDrawText2D(pos, string.Format("Weld: {0}", hitEntity.GetPhysicsBody().WeldInfo.Children.Count), Color.White, 0.7f);
                         }
@@ -488,6 +497,15 @@ namespace Sandbox.Game.Gui
                 }
 
                 DrawBodyInfo();
+
+                //var pos2 = MySector.MainCamera.Position;
+                //var sphere = new BoundingSphereD(pos2, 1000);
+                //var lst = new List<MyEntity>();
+                //MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere,lst);
+                //foreach(var ent in MyEntities.GetEntities())
+                //    if(!lst.Contains(ent))
+                //        ent.Close();
+
                 //if (!MySandboxGame.Static.IsRunning)
                 //    return;
                 //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.1f, 0.1f), "Destruction: " + (MyPerGameSettings.Destruction ? "ON" : "OFF"), Color.Red, 1);

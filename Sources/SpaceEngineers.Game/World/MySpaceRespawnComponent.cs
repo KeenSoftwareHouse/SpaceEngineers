@@ -1,68 +1,45 @@
-﻿using ProtoBuf;
-using Sandbox;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using Sandbox.Game;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
-using Sandbox.Graphics.GUI;
-using SteamSDK;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using VRage;
+using ProtoBuf;
+using Sandbox;
+using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Replication;
+using Sandbox.Game.SessionComponents;
+using Sandbox.Game.World;
+using Sandbox.Graphics.GUI;
+using SpaceEngineers.Game.Entities.Blocks;
+using SpaceEngineers.Game.GUI;
+using SteamSDK;
 using VRage.Collections;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Library.Utils;
+using VRage.Network;
 using VRage.Utils;
 using VRageMath;
-using VRageRender;
-using Sandbox.Game.SessionComponents;
-using VRage.Game.Components;
-using VRage.Network;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.Replication;
-using VRage.Game;
-using VRage.Game.Entity;
+using Sandbox.Engine.Networking;
+using Sandbox.Game;
 
-namespace SpaceEngineers.Game.Players
+namespace SpaceEngineers.Game.World
 {
-    [PreloadRequired]
     [StaticEventOwner]
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
     public class MySpaceRespawnComponent : MyRespawnComponentBase
     {
-        [ProtoContract]
         struct RespawnCooldownEntry
         {
-            [ProtoMember]
             public int ControllerId;
-
-            [ProtoMember]
             public string ShipId;
-
-            [ProtoMember]
             public int RelativeRespawnTime;
-        }
-
-        [MessageId(9384, P2PMessageEnum.Reliable)]
-        struct SyncCooldownRequestMessage { }
-
-        [ProtoContract]
-        [MessageId(9385, P2PMessageEnum.Reliable)]
-        struct SyncCooldownResponseMessage
-        {
-            [ProtoMember]
-            public RespawnCooldownEntry[] RespawnTimes;
         }
 
         int m_lastUpdate;
@@ -98,15 +75,11 @@ namespace SpaceEngineers.Game.Players
 
         static MySpaceRespawnComponent()
         {
-            MySyncLayer.RegisterMessage<SyncCooldownRequestMessage>(OnSyncCooldownRequest, MyMessagePermissions.ToServer);
-            MySyncLayer.RegisterMessage<SyncCooldownResponseMessage>(OnSyncCooldownResponse, MyMessagePermissions.FromServer);
         }
 
         public void RequestSync()
         {
-            var msg = new SyncCooldownRequestMessage();
-
-            Sync.Layer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => OnSyncCooldownRequest);
         }
 
         public override void InitFromCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
@@ -183,24 +156,34 @@ namespace SpaceEngineers.Game.Players
             Sync.Players.RespawnComponent = null;
         }
 
-        static void OnSyncCooldownRequest(ref SyncCooldownRequestMessage msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void OnSyncCooldownRequest()
         {
-            MySpaceRespawnComponent.Static.SyncCooldownToPlayer(sender.SteamUserId);
+            if (MyEventContext.Current.IsLocallyInvoked)
+            {
+                MySpaceRespawnComponent.Static.SyncCooldownToPlayer(Sync.MyId, true);
+            }
+            else
+            {
+                MySpaceRespawnComponent.Static.SyncCooldownToPlayer(MyEventContext.Current.Sender.Value, false);
+            }
+
         }
 
-        static void OnSyncCooldownResponse(ref SyncCooldownResponseMessage msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        static void OnSyncCooldownResponse(List<RespawnCooldownEntry> entries)
         {
-            msg = MySpaceRespawnComponent.Static.SyncCooldownResponse(msg);
+            MySpaceRespawnComponent.Static.SyncCooldownResponse(entries);
         }
 
-        private SyncCooldownResponseMessage SyncCooldownResponse(SyncCooldownResponseMessage msg)
+        private void SyncCooldownResponse(List<RespawnCooldownEntry> entries)
         {
             int currentTime = MySandboxGame.TotalTimeInMilliseconds;
 
             // msg.respawnTimes can be null, if the server sent empty list
-            if (msg.RespawnTimes != null)
+            if (entries != null)
             {
-                foreach (var respawnTime in msg.RespawnTimes)
+                foreach (var respawnTime in entries)
                 {
                     var controllerId = new MyPlayer.PlayerId() { SteamId = Sync.MyId, SerialId = respawnTime.ControllerId };
                     var key = new RespawnKey() { ControllerId = controllerId, RespawnShipId = respawnTime.ShipId };
@@ -210,10 +193,9 @@ namespace SpaceEngineers.Game.Players
             }
 
             m_synced = true;
-            return msg;
         }
 
-        public void SyncCooldownToPlayer(ulong steamId)
+        public void SyncCooldownToPlayer(ulong steamId, bool isLocal)
         {
             int currentTime = MySandboxGame.TotalTimeInMilliseconds;
 
@@ -231,10 +213,15 @@ namespace SpaceEngineers.Game.Players
                 m_tmpRespawnTimes.Add(syncEntry);
             }
 
-            SyncCooldownResponseMessage response = new SyncCooldownResponseMessage();
-            response.RespawnTimes = m_tmpRespawnTimes.ToArray();
+            if (isLocal)
+            {
+                OnSyncCooldownResponse(m_tmpRespawnTimes);
+            }
+            else
+            {
+                MyMultiplayer.RaiseStaticEvent(s => OnSyncCooldownResponse, m_tmpRespawnTimes, new EndpointId(steamId));
+            }
 
-            Sync.Layer.SendMessage(ref response, steamId);
             m_tmpRespawnTimes.Clear();
         }
 
@@ -335,11 +322,13 @@ namespace SpaceEngineers.Game.Players
 
         private void OnLocalRespawnRequest()
         {
+           
             if (MyFakes.SHOW_FACTIONS_GUI)
             {
                 ulong playerId = MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.Id.SteamId : Sync.MyId;
                 int serialId = MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.Id.SerialId : 0;
                 MyMultiplayer.RaiseStaticEvent(s => RespawnRequest_Implementation, playerId, serialId);
+
             }
             else
             {
@@ -353,6 +342,13 @@ namespace SpaceEngineers.Game.Players
             var playerId = new MyPlayer.PlayerId(steamPlayerId, serialId);
             var player = Sync.Players.GetPlayerById(playerId);
 
+            if (MyScenarioSystem.Static != null && 
+                (MyScenarioSystem.Static.GameState == MyScenarioSystem.MyState.JoinScreen || MyScenarioSystem.Static.GameState == MyScenarioSystem.MyState.WaitingForClients) ||
+                player == null)
+            {
+                return;
+            }
+            LoadRespawnShip(player);
             if(false == TryFindCryoChamberCharacter(player))
             {
                 MyMultiplayer.RaiseStaticEvent(s => ShowMedicalScreen_Implementation, new EndpointId(steamPlayerId));
@@ -378,8 +374,7 @@ namespace SpaceEngineers.Game.Players
                     {
                         if (cryoChamber.TryToControlPilot(player))
                         {
-                            MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(cryoChamber.CubeGrid), new EndpointId(player.Id.SteamId));
-                            MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(cryoChamber.Pilot), new EndpointId(player.Id.SteamId));
+                            MyMultiplayer.RaiseStaticEvent(x => MySession.SetSpectatorPositionFromServer, cubeGrid.PositionComp.GetPosition(), new EndpointId(player.Id.SteamId));
                             return true;
                         }
                     }
@@ -392,7 +387,8 @@ namespace SpaceEngineers.Game.Players
         [Event, Reliable, Client]
         static void ShowMedicalScreen_Implementation()
         {
-            MyGuiSandbox.AddScreen(new MyGuiScreenMedicals());
+            if(!MyCampaignManager.Static.IsCampaignRunning)
+                MyGuiSandbox.AddScreen(new MyGuiScreenMedicals());
         }
 
         public override bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition, VRage.ObjectBuilders.SerializableDefinitionId? botDefinitionId)
@@ -406,7 +402,8 @@ namespace SpaceEngineers.Game.Players
                 return false;
 
             Vector3D currentPosition = Vector3D.Zero;
-            if (player != null && player.Character != null) currentPosition = player.Character.PositionComp.GetPosition();
+            if (player != null && player.Character != null) 
+                currentPosition = player.Character.PositionComp.GetPosition();
 
             if (TryFindCryoChamberCharacter(player))
             {
@@ -420,7 +417,13 @@ namespace SpaceEngineers.Game.Players
 
             if (!spawnAsNewPlayer)
             {
-                if (spawnPosition.HasValue)
+                if (respawnShipId != null)
+                {
+                    SpawnAtShip(player, respawnShipId, botDefinition);
+                    return true;
+                }
+
+                if (spawnPosition.HasValue && player != null)
                 {
                     Vector3D gravity = MyGravityProviderSystem.CalculateTotalGravityInPoint(spawnPosition.Value);
                     if (Vector3D.IsZero(gravity))
@@ -429,7 +432,7 @@ namespace SpaceEngineers.Game.Players
                         gravity.Normalize();
                     Vector3D perpendicular;
                     gravity.CalculatePerpendicularVector(out perpendicular);
-                    player.SpawnAt(MatrixD.CreateWorld(spawnPosition.Value, perpendicular, -gravity), Vector3.Zero, null, botDefinition, true );
+                    player.SpawnAt(MatrixD.CreateWorld(spawnPosition.Value, perpendicular, -gravity), Vector3.Zero, null, botDefinition, true);
 
                     return true;
                 }
@@ -439,7 +442,7 @@ namespace SpaceEngineers.Game.Players
                 if (medicalRoomId == 0 || !MyFakes.SHOW_FACTIONS_GUI)
                 {
                     List<MyRespawnComponent> respawns = null;
-                    var nearestRespawn = GetNearestRespawn(currentPosition, out respawns, MySession.Static.CreativeMode ? (long?)null : player.Identity.IdentityId);
+                    var nearestRespawn = GetNearestRespawn(currentPosition, out respawns, MySession.Static.CreativeMode ? (long?)null : (player != null ? player.Identity.IdentityId : (long?)null));
                     if (joinGame && respawns.Count > 0)
                     {
                         foundRespawn = respawns[MyRandom.Instance.Next(0, respawns.Count)];
@@ -467,13 +470,15 @@ namespace SpaceEngineers.Game.Players
                 if (MySession.Static.Settings.PermanentDeath.Value)
                 {
                     var oldIdentity = Sync.Players.TryGetPlayerIdentity(playerId);
-                    resetIdentity = oldIdentity.FirstSpawnDone;
+                    if (oldIdentity != null)
+                        resetIdentity = oldIdentity.FirstSpawnDone;
                 }
 
                 if (player == null)
                 {
-                    var identity = Sync.Players.CreateNewIdentity(player.DisplayName);
-                    player = Sync.Players.CreateNewPlayer(identity, playerId, player.DisplayName);
+                    //TODO: Cannot use Displayname if player is null...
+                    var identity = Sync.Players.CreateNewIdentity(playerId.SteamId.ToString());
+                    player = Sync.Players.CreateNewPlayer(identity, playerId, playerId.SteamId.ToString());
                     resetIdentity = false;
                 }
 
@@ -494,11 +499,6 @@ namespace SpaceEngineers.Game.Players
 
         private void SpawnInRespawn(MyPlayer player, MyRespawnComponent respawn, MyBotDefinition botDefinition)
         {
-            if (MySession.Static.Settings.EnableOxygen)
-            {
-                player.Identity.ChangeToOxygenSafeSuit();
-            }
-
             if (respawn.Entity == null)
             {
                 Debug.Assert(false, "Respawn does not have entity!");
@@ -525,7 +525,7 @@ namespace SpaceEngineers.Game.Players
             {
                 pos = respawn.GetSpawnPosition(respawn.Entity.WorldMatrix);
             }
-                
+
             Vector3 velocity = parent.Physics.GetVelocityAtPoint(pos.Translation);
 
             MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(parent), new EndpointId(player.Id.SteamId));
@@ -540,6 +540,10 @@ namespace SpaceEngineers.Game.Players
                 if (medRoom.ForceSuitChangeOnRespawn)
                 {
                     player.Character.ChangeModelAndColor(medRoom.RespawnSuitName, player.Character.ColorMask);
+                    if (MySession.Static.Settings.EnableOxygen && player.Character.OxygenComponent != null && player.Character.OxygenComponent.NeedsOxygenFromSuit)
+                    {
+                        player.Character.OxygenComponent.SwitchHelmet();
+                    }
                 }
             }
         }
@@ -610,17 +614,13 @@ namespace SpaceEngineers.Game.Players
         public void SpawnAsNewPlayer(MyPlayer player, Vector3D currentPosition, string respawnShipId, bool resetIdentity, MyBotDefinition botDefinition)
         {
             Debug.Assert(Sync.IsServer, "Calling SpawnAsNewPlayer on client!");
+            Debug.Assert(player != null, "Spawning with empty player!");
             Debug.Assert(player.Identity != null, "Spawning with empty identity!");
-            if (!Sync.IsServer || player.Identity == null) return;
+            if (!Sync.IsServer || player == null || player.Identity == null) return;
 
             if (resetIdentity)
             {
                 ResetPlayerIdentity(player);
-            }
-
-            if (MySession.Static.Settings.EnableOxygen)
-            {
-                player.Identity.ChangeToOxygenSafeSuit();
             }
 
             if (respawnShipId != null)
@@ -631,6 +631,11 @@ namespace SpaceEngineers.Game.Players
             {
                 SpawnInSuit(player, null, botDefinition);
             }
+
+            if (MySession.Static != null && player.Character != null && MySession.Static.Settings.EnableOxygen && player.Character.OxygenComponent != null && player.Character.OxygenComponent.NeedsOxygenFromSuit)
+            {
+                player.Character.OxygenComponent.SwitchHelmet();
+            }
         }
 
         public void SpawnAtShip(MyPlayer player, string respawnShipId, MyBotDefinition botDefinition)
@@ -640,42 +645,93 @@ namespace SpaceEngineers.Game.Players
 
             ResetRespawnCooldown(player.Id);
             if (Sync.MultiplayerActive)
-                SyncCooldownToPlayer(player.Id.SteamId);
+                SyncCooldownToPlayer(player.Id.SteamId, player.Id.SteamId == Sync.MyId);
 
-            MyCharacter character = null;
-            MyCockpit cockpit = null;
             List<MyCubeGrid> respawnGrids = new List<MyCubeGrid>();
 
             var respawnShipDef = MyDefinitionManager.Static.GetRespawnShipDefinition(respawnShipId);
             MyPrefabDefinition prefabDef = respawnShipDef.Prefab;
 
             // Deploy ship
-            Vector3 direction;
-            Vector3D position;
-            GetSpawnPosition(prefabDef.BoundingSphere.Radius, out direction, out position);
+            Vector3D position = Vector3D.Zero;
+            float planetSpawnHeightRatio = 0.3f;
+            float spawnRangeMin = 500f;
+            float spawnRangeMax = 650f;
+            if (prefabDef.CubeGrids != null && prefabDef.CubeGrids.Length > 0)
+            {
+                MyObjectBuilder_CubeGrid firstGrid = prefabDef.CubeGrids[0];
+                if (firstGrid.UsePositionForSpawn && !MyEntities.IsWorldLimited())
+                {
+                    position = new Vector3D(
+                        firstGrid.PositionAndOrientation.Value.Position.x,
+                        firstGrid.PositionAndOrientation.Value.Position.y,
+                        firstGrid.PositionAndOrientation.Value.Position.z);
+                }
+
+                planetSpawnHeightRatio = MyMath.Clamp(firstGrid.PlanetSpawnHeightRatio, 0.05f, 0.95f); // Clamped to prevent crazy data
+                spawnRangeMin = firstGrid.SpawnRangeMin;
+                spawnRangeMax = firstGrid.SpawnRangeMax;
+            }
+            Vector3D forward = Vector3.Forward;
+            Vector3D up = Vector3D.Up;
+
+            GetSpawnPosition(prefabDef.BoundingSphere.Radius, ref position, out forward, out up, planetSpawnHeightRatio, spawnRangeMin, spawnRangeMax);
+
+            Stack<Action> callback = new Stack<Action>();
+            callback.Push(delegate() { PutPlayerInRespawnGrid(player, respawnGrids, botDefinition); });
+
             MyPrefabManager.Static.SpawnPrefab(
                 respawnGrids,
                 prefabDef.Id.SubtypeName,
                 position,
-                -direction,
-                Vector3.CalculatePerpendicularVector(-direction),
-                spawningOptions: Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection,
-                updateSync: true);
+                forward,
+                up,
+                spawningOptions: VRage.Game.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection,
+                updateSync: true,
+                callbacks: callback);
+        }
 
-            // Find cockpit
-            foreach (var grid in respawnGrids)
+        private void PutPlayerInRespawnGrid(MyPlayer player, List<MyCubeGrid> respawnGrids, MyBotDefinition botDefinition)
+        {
+            MyCharacter character = null;
+            MyCockpit cockpit = null;
+
+            // Find cockpits
+            List<MyCockpit> shipCockpits = new List<MyCockpit>();
+            foreach (MyCubeGrid grid in respawnGrids)
             {
-                foreach (var block in grid.GetBlocks())
+                foreach (MyCockpit gridCockpit in grid.GetFatBlocks<MyCockpit>())
                 {
-                    if (block.FatBlock is MyCockpit)
-                    {
-                        cockpit = (MyCockpit)block.FatBlock;
-                        break;
-                    }
+                    // Ignore non-functional cockpits
+                    if (!gridCockpit.IsFunctional)
+                        continue;
+                    shipCockpits.Add(gridCockpit);
                 }
-                if (cockpit != null) break;
             }
-            System.Diagnostics.Debug.Assert(cockpit != null, "character is spawning in ship without cockpit !");
+
+            // First sort cockpits by order: Ship controlling cockpits set to main, then ship controlling cockpits not set to main, lastly whatever remains, e.g. CryoChambers and Passenger Seats
+            if (shipCockpits.Count > 1)
+            {
+                shipCockpits.Sort(delegate(MyCockpit cockpitA, MyCockpit cockpitB)
+                {
+                    int controlCompare = cockpitB.EnableShipControl.CompareTo(cockpitA.EnableShipControl);
+                    if (controlCompare != 0) return controlCompare;
+
+                    int mainCompare = cockpitB.IsMainCockpit.CompareTo(cockpitA.IsMainCockpit);
+                    if (mainCompare != 0) return mainCompare;
+
+                    return 0;
+                });
+            }
+
+            // Finally, select the most important cockpit
+            if (shipCockpits.Count > 0)
+                cockpit = shipCockpits[0];
+
+            // No cockpit on grid. It's not good, but it's safe.
+            // Can be caused by modded respawn ship, wrongly loaded definition (not probably), 
+            // or not spawned RS because of blocked place (because of grid spawn paralelization).
+            //System.Diagnostics.Debug.Assert(cockpit != null, "Character is spawning in ship without cockpit!");
 
             // Create character
             MatrixD matrix = MatrixD.Identity;
@@ -690,14 +746,16 @@ namespace SpaceEngineers.Game.Players
             }
 
             character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, botDefinition, cockpit: cockpit, playerSteamId: player.Id.SteamId);
-   
+
             CloseRespawnShip(player);
             foreach (var respawnGrid in respawnGrids)
             {
                 respawnGrid.ChangeGridOwnership(player.Identity.IdentityId, MyOwnershipShareModeEnum.None);
                 respawnGrid.IsRespawnGrid = true;
+                respawnGrid.m_playedTime = 0;
                 player.RespawnShip.Add(respawnGrid.EntityId);
             }
+            //SaveRespawnShip(player);
 
             if (cockpit != null)
             {
@@ -712,13 +770,16 @@ namespace SpaceEngineers.Game.Players
             else
             {
                 character.SetPlayer(player);
-                Sync.Players.SetPlayerToCockpit(player, cockpit);
+                Sync.Players.SetControlledEntity(player.Id, cockpit);
+               // Sync.Players.SetPlayerToCockpit(player, cockpit);
             }
             Sync.Players.RevivePlayer(player);
         }
 
         public override void AfterRemovePlayer(MyPlayer player)
         {
+            //SaveRespawnShip(player);
+            //TODOA - save respawn ship and remove it from space
             CloseRespawnShip(player);
         }
 
@@ -748,61 +809,146 @@ namespace SpaceEngineers.Game.Players
             player.RespawnShip.Clear();
         }
 
+        private static void SaveRespawnShip(MyPlayer player)
+        {
+            if (!MySession.Static.Settings.RespawnShipDelete)
+                return;
+
+            System.Diagnostics.Debug.Assert(player.RespawnShip != null, "Saving a null respawn ship");
+            if (player.RespawnShip == null) return;
+
+            MyCubeGrid oldHome;
+            if (MyEntities.TryGetEntityById<MyCubeGrid>(player.RespawnShip[0], out oldHome))
+            {
+                ulong sizeInBytes = 0;
+                string sessionPath = MySession.Static.CurrentPath;
+                Console.WriteLine(sessionPath);
+                string fileName = "RS_" + player.Client.SteamUserId + ".sbr";
+                ParallelTasks.Parallel.Start(delegate()
+                {
+                    MyLocalCache.SaveRespawnShip((MyObjectBuilder_CubeGrid)oldHome.GetObjectBuilder(), sessionPath, fileName, out sizeInBytes);
+                });
+            }
+        }
+
+        private static void LoadRespawnShip(MyPlayer player)
+        {
+            ulong playerID = player.Client.SteamUserId;
+            string fileName = "RS_" + playerID;
+
+
+        }
+
         private void SpawnInSuit(MyPlayer player, MyEntity spawnedBy, MyBotDefinition botDefinition)
         {
-            Vector3 direction;
-            Vector3D position;
-            GetSpawnPosition(10, out direction, out position);
+            Vector3D position = Vector3D.Zero;
+            Vector3D forward = Vector3D.Forward;
+            Vector3D up = Vector3D.Up;
+            GetSpawnPosition(10, ref position, out forward, out up);
 
             //Create character
-            Matrix matrix = Matrix.CreateWorld(position, direction, Vector3.Up);
-            MyCharacter character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, botDefinition, playerSteamId:player.Id.SteamId);
+            Matrix matrix = Matrix.CreateWorld(position, forward, up);
+            MyCharacter character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, botDefinition, playerSteamId: player.Id.SteamId);
 
             Sync.Players.SetPlayerCharacter(player, character, spawnedBy);
             Sync.Players.RevivePlayer(player);
         }
 
-        public static void GetSpawnPosition(float collisionRadius, out Vector3 direction, out Vector3D position)
+        /// <summary>
+        /// Returns a position adjusted for planets that should be safe to spawn at given the radius and position.
+        /// </summary>
+        /// <param name="collisionRadius">The radius of the object that is trying to spawn.</param>
+        /// <param name="position">The position the object would like to spawn at.</param>
+        /// <param name="forward">(Out) The forward vector the object should spawn with.</param>
+        /// <param name="up">(Out) The up vector the object should spawn with.</param>
+        /// <param name="planetAtmosphereRatio">The ratio within the planet's max radius and atmosphere radius you are positioned in.</param>
+        /// <param name="randomRangeMin">The minimum randomized distance that is added.</param>
+        /// <param name="randomRangeMax">The minimum randomized distance that is added.</param>
+        private static void GetSpawnPositionNearPlanet(MyPlanet planet, float collisionRadius, ref Vector3D position, out Vector3D forward, out Vector3D up, float planetAtmosphereRatio = 0.3f, float randomRangeMin = 500, float randomRangeMax = 650)
         {
-            float distance = 0;
+            // Position us at a desirable height on the planet
+            // Roughl halfway the planet's upper atmosphere and outer radius
+            float randomHeightAdjustment = MyUtils.GetRandomFloat(randomRangeMin, randomRangeMax);
+            float height = planet.MaximumRadius + planetAtmosphereRatio * (planet.AtmosphereRadius - planet.MaximumRadius) + randomHeightAdjustment;
 
-            foreach (var entity in MyEntities.GetEntities())
+            // Compute random position
+            position = planet.PositionComp.WorldVolume.Center + MyUtils.GetRandomVector3Normalized() * height;
+            Vector3D? freePlace = MyEntities.FindFreePlace(position, collisionRadius);
+            int numAttempts = 1;
+
+            // While we have no valid spawn position, try again 3 more times
+            while (!freePlace.HasValue && numAttempts <= 3)
             {
-                // Include only voxels
-                if (entity is MyVoxelMap)
-                {
-                    distance = (float)MathHelper.Max(distance, entity.PositionComp.WorldVolume.Center.Length() + entity.PositionComp.WorldVolume.Radius);
-                }
+                position = planet.PositionComp.WorldVolume.Center + MyUtils.GetRandomVector3Normalized() * height;
+                freePlace = MyEntities.FindFreePlace(position, collisionRadius);
+                numAttempts += 1;
             }
 
-            // 500 - 650m from last voxel
-            distance += MyUtils.GetRandomFloat(500, 650);
-            
+            // If we have a valid position, use it
+            if (freePlace.HasValue)
+                position = freePlace.Value;
+
+            // Return orientation perpendicular to planet surface
+            Vector3 gravityAtPosition = MyGravityProviderSystem.CalculateNaturalGravityInPoint(position);
+            if (Vector3.IsZero(gravityAtPosition)) // If we are somehow randomized outside of gravity range, make sure some orientation is used
+                gravityAtPosition = Vector3.Up;
+
+            Vector3D normalizedGravityVector = Vector3D.Normalize(gravityAtPosition);
+            forward = Vector3.CalculatePerpendicularVector(-normalizedGravityVector);
+            up = -normalizedGravityVector;
+        }
+
+        /// <summary>
+        /// Returns a position that should be safe to spawn at given the radius and position.
+        /// </summary>
+        /// <param name="collisionRadius">The radius of the object that is trying to spawn.</param>
+        /// <param name="position">The position the object would like to spawn at.</param>
+        /// <param name="forward">(Out) The forward vector the object should spawn with.</param>
+        /// <param name="up">(Out) The up vector the object should spawn with.</param>
+        /// <param name="planetSpawnHeightRatio">The ratio within the planet's max radius and atmosphere radius you are positioned in.</param>
+        /// <param name="randomRangeMin">The minimum randomized distance that is added.</param>
+        /// <param name="randomRangeMax">The minimum randomized distance that is added.</param>
+        public static void GetSpawnPosition(float collisionRadius, ref Vector3D position, out Vector3D forward, out Vector3D up, float planetSpawnHeightRatio = 0.3f, float randomRangeMin = 500, float randomRangeMax = 650)
+        {
+            // Are we spawning near a planet?
+            MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(position);
+            if (planet != null)
+            {
+                GetSpawnPositionNearPlanet(planet, collisionRadius, ref position, out forward, out up, planetSpawnHeightRatio, randomRangeMin, randomRangeMax);
+                return;
+            }
+
+            // Old logic, testing for asteroids and other objects
+            double distance = 0;
+            foreach (var entity in MyEntities.GetEntities())
+            {
+                MyVoxelMap voxelMap = entity as MyVoxelMap;
+
+                // Only test against voxels
+                if (entity == null) continue;
+
+                distance = MathHelper.Max(distance, entity.PositionComp.WorldVolume.Center.Length() + entity.PositionComp.WorldVolume.Radius);
+            }
+
+            // Random range from last voxel
+            distance += MyUtils.GetRandomFloat(randomRangeMin, randomRangeMax);
+
             if (MyEntities.IsWorldLimited())
                 distance = Math.Min(distance, MyEntities.WorldSafeHalfExtent());
             else
                 distance = Math.Min(distance, 20000); // limited spawn area in infinite worlds
 
-            direction = MyUtils.GetRandomVector3Normalized();
-            var searchPosition = MyEntities.FindFreePlace((Vector3D)(direction * distance), collisionRadius);
-            if (!searchPosition.HasValue)
-                searchPosition = (Vector3D)(direction * distance); // Spawn in existing place (better than crash)
+            // Compute random position
+            forward = MyUtils.GetRandomVector3Normalized();
+            up = Vector3D.CalculatePerpendicularVector(forward);
+            Vector3D randomizedPosition = position + (forward * distance);
 
-            Vector3D globalPoint = (Vector3D)searchPosition;
-            position = globalPoint;
+            // Test if we can spawn here
+            Vector3D? searchPosition = MyEntities.FindFreePlace(randomizedPosition, collisionRadius);
+            if (searchPosition.HasValue)
+                randomizedPosition = searchPosition.Value;
 
-            if (MyGravityProviderSystem.CalculateNaturalGravityInPoint(globalPoint) != null && MyGravityProviderSystem.CalculateNaturalGravityInPoint(globalPoint).Length() != 0)
-            {
-                MyPlanet planet = MyGravityProviderSystem.GetStrongestGravityWell(globalPoint);
-                double multiplier = planet.MaximumRadius / globalPoint.Length();
-                globalPoint *= multiplier;
-                Vector3D closestPoint = planet.GetClosestSurfacePointGlobal(ref globalPoint) * 1.25;
-                searchPosition = MyEntities.FindFreePlace(closestPoint, collisionRadius);
-                if (searchPosition.HasValue)
-                    position = searchPosition.Value;
-            }
-            else
-                position = searchPosition.Value;
+            position = randomizedPosition;
         }
 
         public override MyIdentity CreateNewIdentity(string identityName, MyPlayer.PlayerId playerId, string modelName)
@@ -820,8 +966,8 @@ namespace SpaceEngineers.Game.Players
         {
             return MyMedicalRoom.AvailableMedicalRoomsCount(player.Identity.IdentityId);
         }
-        public override bool IsInRespawnScreen() 
-        { 
+        public override bool IsInRespawnScreen()
+        {
             return MyGuiScreenMedicals.Static != null && MyGuiScreenMedicals.Static.State == MyGuiScreenState.OPENED;
         }
         public override void CloseRespawnScreen()

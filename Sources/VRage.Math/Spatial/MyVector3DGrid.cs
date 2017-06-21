@@ -29,7 +29,7 @@ namespace VRageMath.Spatial
             private int m_previousIndex;
             private int m_storageIndex;
 
-            private Vector3I.RangeIterator m_rangeIterator;
+            private Vector3I_RangeIterator m_rangeIterator;
 
             public Enumerator(MyVector3DGrid<T> parent, ref Vector3D point, double dist)
             {
@@ -41,7 +41,7 @@ namespace VRageMath.Spatial
                 Vector3I start = Vector3I.Floor((point - offset) * parent.m_divisor);
                 Vector3I end = Vector3I.Floor((point + offset) * parent.m_divisor);
 
-                m_rangeIterator = new Vector3I.RangeIterator(ref start, ref end);
+                m_rangeIterator = new Vector3I_RangeIterator(ref start, ref end);
 
                 m_previousIndex = -1;
                 m_storageIndex = -1;

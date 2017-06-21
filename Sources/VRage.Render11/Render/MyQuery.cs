@@ -1,53 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX;
-using SharpDX.Direct3D;
+﻿using System.Collections.Generic;
 using SharpDX.Direct3D11;
-using VRageMath;
-using RectangleF = VRageMath.RectangleF;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Color = VRageMath.Color;
-using Matrix = VRageMath.Matrix;
-using BoundingSphere = VRageMath.BoundingSphere;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRageRender.Vertex;
-using VRageMath.PackedVector;
 using VRage.Collections;
 using System.Diagnostics;
-
+using System.Management.Instrumentation;
+using VRage.Render11.Common;
 
 
 namespace VRageRender
 {
-    static class MyQueryFactory
+    internal static class MyQueryFactory
     {
-        internal const int MaxFramesLag = 8;
-        internal const int MaxTimestampQueries = 4096;
-        internal static MyConcurrentPool<MyQuery> m_disjointQueries;
-        internal static MyConcurrentPool<MyQuery> m_timestampQueries;
-        
-        internal static List<MyOcclusionQuery> m_pool;
+        internal const int MAX_FRAMES_LAG = 8;
+        private const int MAX_TIMESTAMP_QUERIES = 4096;
+        private static readonly MyConcurrentPool<MyQuery> m_disjointQueries;
+        private static readonly MyConcurrentPool<MyQuery> m_timestampQueries;
+
+        private static readonly List<MyOcclusionQuery> m_pool = new List<MyOcclusionQuery>();
 
         static MyQueryFactory()
         {
-            m_disjointQueries = new MyConcurrentPool<MyQuery>(MaxFramesLag, true);
-            m_timestampQueries = new MyConcurrentPool<MyQuery>(MaxTimestampQueries, true);
+            m_disjointQueries = new MyConcurrentPool<MyQuery>(MAX_FRAMES_LAG, true);
+            m_timestampQueries = new MyConcurrentPool<MyQuery>(MAX_TIMESTAMP_QUERIES, true);
         }
 
-        internal static MyOcclusionQuery CreateOcclusionQuery()
+        internal static MyOcclusionQuery CreateOcclusionQuery(string debugName)
         {
             if (m_pool.Count > 0)
             {
                 var item = m_pool[m_pool.Count - 1];
                 m_pool.RemoveAt(m_pool.Count - 1);
+                item.DebugName = debugName;
                 return item;
             }
 
-            return new MyOcclusionQuery();
+            return new MyOcclusionQuery(debugName);
+        }
+
+        internal static void RelaseOcclusionQuery(MyOcclusionQuery q)
+        {
+            m_pool.Add(q);
         }
 
         internal static MyQuery CreateTimestampQuery()
@@ -89,8 +80,7 @@ namespace VRageRender
 
                 m_type = type;
 
-                var desc = new QueryDescription();
-                desc.Type = type;
+                var desc = new QueryDescription {Type = type};
                 m_query = new Query(MyRender11.Device, desc);
             }
         }
@@ -101,46 +91,59 @@ namespace VRageRender
         }
     }
 
-    class MyOcclusionQuery
+    internal class MyOcclusionQuery: MyImmediateRC
     {
-        Query m_query;
+        private readonly Query m_query;
+        internal bool Running { get; private set; }
+        private bool Ignore;
 
-        internal MyOcclusionQuery()
+        internal string DebugName { set { m_query.DebugName = value; } }
+
+        internal MyOcclusionQuery(string debugName)
         {
-            var desc = new QueryDescription();
-            desc.Type = QueryType.Occlusion;
-            m_query = new Query(MyRender11.Device, desc);
+            var desc = new QueryDescription {Type = QueryType.Occlusion};
+            m_query = new Query(MyRender11.Device, desc) {DebugName = debugName};
+            Running = false;
         }
 
         internal void Destroy()
         {
-            MyQueryFactory.m_pool.Add(this);
+            Ignore = Running;
+            MyQueryFactory.RelaseOcclusionQuery(this);
         }
 
         internal void Begin()
         {
-            MyRender11.DeviceContext.Begin(m_query);
+            if (!Ignore)
+            {
+                RC.Begin(m_query);
+                Running = true;
+            }
         }
 
         internal void End()
         {
-            MyRender11.DeviceContext.End(m_query);
+            if (!Ignore)
+                RC.End(m_query);
         }
 
-        internal bool GetResult(out int num, bool stalling = false)
+        internal long GetResult(bool stalling = false)
         {
+            long num;
             if (!stalling)
             {
-                return MyRender11.DeviceContext.GetData(m_query, AsynchronousFlags.DoNotFlush, out num);
+                if (!RC.GetData(m_query, AsynchronousFlags.DoNotFlush, out num))
+                    num = -1;
             }
             else
             {
-                while (!MyRender11.DeviceContext.GetData(m_query, AsynchronousFlags.None, out num))
+                while (!RC.GetData(m_query, AsynchronousFlags.None, out num))
                 {
                     System.Threading.Thread.Sleep(1);
                 }
-                return true;
             }
+            Running = Ignore = false;
+            return num;
         }
     }
 }

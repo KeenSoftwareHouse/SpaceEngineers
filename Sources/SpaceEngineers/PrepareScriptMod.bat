@@ -112,6 +112,9 @@ echo     ^</Reference^>>> %scriptProjectFile%
 echo     ^<Reference Include="VRage.Game"^>>>%scriptProjectFile%
 echo       ^<HintPath^>%appdir%\VRage.Game.dll^</HintPath^>>>%scriptProjectFile%
 echo     ^</Reference^>>> %scriptProjectFile%
+echo     ^<Reference Include="VRage.Render"^>>>%scriptProjectFile%
+echo       ^<HintPath^>%appdir%\VRage.Render.dll^</HintPath^>>>%scriptProjectFile%
+echo     ^</Reference^>>> %scriptProjectFile%
 echo     ^<Reference Include="SpaceEngineers.ObjectBuilders"^>>>%scriptProjectFile%
 echo       ^<HintPath^>%appdir%\SpaceEngineers.ObjectBuilders.dll^</HintPath^>>>%scriptProjectFile%
 echo     ^</Reference^>>> %scriptProjectFile%
@@ -184,7 +187,7 @@ echo using System.Text;>>%scriptFile%
 echo using System.Threading.Tasks;>>%scriptFile%
 
 echo using Sandbox.Common;>>%scriptFile%
-echo using Sandbox.Common.Components;>>%scriptFile%
+echo using VRage.Game.Components;>>%scriptFile%
 echo using Sandbox.Common.ObjectBuilders;>>%scriptFile%
 echo using Sandbox.Definitions;>>%scriptFile%
 echo using Sandbox.Engine;>>%scriptFile%

@@ -12,8 +12,10 @@ using System.Text;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Game.Definitions;
+using VRage.Game.SessionComponents;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Win32;
 
@@ -24,6 +26,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         #region InterOp
         private IntPtr m_toolWindowHandle = IntPtr.Zero;
 
+#if !XB1
         public bool TryGetValidToolWindow(out IntPtr windowHandle)
         {
             windowHandle = IntPtr.Zero;
@@ -35,11 +38,15 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         private void SendSelectedTreeForDebug(MyBehaviorTree behaviorTree)
         {
+            if (MySessionComponentExtDebug.Static == null)
+                return;
             DebugSelectedTreeHashSent = true;
             DebugCurrentBehaviorTree = behaviorTree.BehaviorTreeName;
-            var msg = new MyCopyDataStructures.SelectedTreeMsg() { BehaviorTreeName = behaviorTree.BehaviorTreeName };
-            WinApi.SendMessage<MyCopyDataStructures.SelectedTreeMsg>(ref msg, m_toolWindowHandle);
-           // WinApi.PostMessage(m_toolWindowHandle, MyWMCodes.BEHAVIOR_TOOL_SELECT_TREE, new IntPtr(behaviorTree.BehaviorTreeName.GetHashCode()), IntPtr.Zero);
+            var msg = new MyExternalDebugStructures.SelectedTreeMsg()
+            {
+                BehaviorTreeName = behaviorTree.BehaviorTreeName
+            };
+            MySessionComponentExtDebug.Static.SendMessageToClients(msg);
         }
 
         private void SendDataToTool(IMyBot bot, MyPerTreeBotMemory botTreeMemory)
@@ -62,6 +69,7 @@ namespace Sandbox.Game.AI.BehaviorTree
             }
             WinApi.PostMessage(m_toolWindowHandle, MyWMCodes.BEHAVIOR_TOOL_END_SENDING_DATA, IntPtr.Zero, IntPtr.Zero);
         }
+#endif // !XB1
         #endregion
       
         public const int UPDATE_COUNTER = 10;
@@ -146,7 +154,7 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         public void Update()
         {
-            VRage.ProfilerShort.Begin("Behaviors update");
+            ProfilerShort.Begin("Behaviors update");
             foreach (var bt in m_BTDataByName.Values)
             {
                 var behaviorTree = bt.BehaviorTree;
@@ -168,7 +176,8 @@ namespace Sandbox.Game.AI.BehaviorTree
 
                         if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION && DebugBot == data.Bot && !DebugBreakDebugging && MyDebugDrawSettings.DEBUG_DRAW_BOTS)
                         {
-                            VRage.ProfilerShort.Begin("Sending debug data");
+#if !XB1
+                            ProfilerShort.Begin("Sending debug data");
                             if (TryGetValidToolWindow(out m_toolWindowHandle))
                             {
                                 if (!DebugSelectedTreeHashSent || m_toolWindowHandle != DebugLastWindowHandle
@@ -176,12 +185,13 @@ namespace Sandbox.Game.AI.BehaviorTree
                                     SendSelectedTreeForDebug(behaviorTree);
                                 SendDataToTool(data.Bot, data.Bot.BotMemory.CurrentTreeBotMemory);
                             }
-                            VRage.ProfilerShort.End();
+                            ProfilerShort.End();
+#endif // !XB1
                         }
                     }
                 }
             }
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         public bool AssignBotToBehaviorTree(string behaviorName, IMyBot bot)

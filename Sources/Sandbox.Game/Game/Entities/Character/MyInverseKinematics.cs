@@ -7,12 +7,17 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Engine.Utils;
 using Havok;
 using Sandbox.Engine.Physics;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game.Entity;
+using VRage.Utils;
 
 
 namespace Sandbox.Game.Entities.Character
 {
+    /// <summary>
+    /// OBSOLETE CLASS, DO NOT USE IT, PREFER MyAnimationInverseKinematics from VRage.
+    /// </summary>
+    [Obsolete]
     public static class MyInverseKinematics
     {
         public struct CastHit
@@ -350,108 +355,165 @@ namespace Sandbox.Game.Entities.Character
             return true;
         }
 
-        public static bool SolveTwoJointsIkCCD(ref Vector3 desiredEnd, MyCharacterBone firstBone, MyCharacterBone secondBone, MyCharacterBone endBone, ref Matrix finalTransform, Matrix WorldMatrix, MyCharacterBone finalBone = null, bool allowFinalBoneTranslation = true)
+        public static bool SolveTwoJointsIkCCD(MyCharacterBone[] characterBones, int firstBoneIndex, int secondBoneIndex, int endBoneIndex, 
+            ref Matrix finalTransform, ref MatrixD worldMatrix, MyCharacterBone finalBone = null, bool allowFinalBoneTranslation = true)
         {
-            Vector3D rootPos, curEnd, targetVector, curVector, crossResult;
-            double cosAngle, turnAngle;
-            List<MyCharacterBone> bones = new List<MyCharacterBone>();
-            bones.Add(firstBone);
-            bones.Add(secondBone);
-            bones.Add(endBone);
+            if (finalBone == null)
+                return false;
 
-          
+            Vector3 desiredEnd = finalTransform.Translation;
+            //VRageRender.MyRenderProxy.DebugDrawSphere(Vector3D.Transform(desiredEnd, worldMatrix), 0.015f, Color.LightGoldenrodYellow, 1, false);
+            Vector3 rootPos, curEnd;
+            Vector3 curVector;
+            double cosAngle, turnAngle;
+
             int tries = 0;
             int maxTries = 50;
-            float stopDistance = 0.00001f;
-            float gain = 0.6f;
+            float stopDistanceSq = 0.005f * 0.005f;
+            float gain = 0.65f;
 
-            curEnd = Vector3.Zero;
-
-            do
+            MyCharacterBone firstBone = characterBones[firstBoneIndex];
+            MyCharacterBone secondBone = characterBones[secondBoneIndex];
+            MyCharacterBone endBone = characterBones[endBoneIndex];
+                
+            //unsafe
             {
-                foreach (MyCharacterBone bone in bones.Reverse<MyCharacterBone>())
+                //int* boneIndices = stackalloc int[3];
+                int[] boneIndices = new int[3];
+                boneIndices[2] = firstBoneIndex;
+                boneIndices[1] = secondBoneIndex;
+                boneIndices[0] = endBoneIndex;
+                curEnd = Vector3.Zero;
+
+                for (int i = 0; i < 3; i++)
                 {
-                    // first recalculate current final transformation
-                    endBone.ComputeAbsoluteTransform();
-
-                    // compute the position of the root
-                    Matrix currentMatrix = bone.AbsoluteTransform;
-                    rootPos = (Vector3D)currentMatrix.Translation;  // this is this bone root position
-                    curEnd = (Vector3D)endBone.AbsoluteTransform.Translation;   // this is our current end of the final bone                  
-
-                    // get the difference from desired and and current final position
-                    double distance = Vector3D.DistanceSquared(curEnd, desiredEnd);
-
-                    // see if i'm already close enough
-                    if (distance > stopDistance)
-                    {
-                        // create the vector to the current effector posm this is the difference vector
-                        curVector = curEnd - rootPos;
-                        // create the desired effector position vector
-                        targetVector = desiredEnd - rootPos;
-
-                        // normalize the vectors (expensive, requires a sqrt)
-                        curVector.Normalize();
-                        targetVector.Normalize();
-
-                        // the dot product gives me the cosine of the desired angle
-                        cosAngle = curVector.Dot(targetVector);
-
-                        // if the dot product returns 1.0, i don't need to rotate as it is 0 degrees
-                        if (cosAngle < 1.0)
-                        {
-                            // use the cross product to check which way to rotate
-                            crossResult = curVector.Cross(targetVector);
-                            crossResult.Normalize();
-                            turnAngle = System.Math.Acos(cosAngle);	// get the angle
-
-                            // get the matrix needed to rotate to the desired position
-                            Matrix rotation = Matrix.CreateFromAxisAngle((Vector3)crossResult, (float)turnAngle * gain);
-
-                            // get the absolute matrix rotation ie - rotation including all the bones before
-                            Matrix absoluteTransform = Matrix.Normalize(currentMatrix).GetOrientation() * rotation;
-
-                            // compute just the local matrix for the bone - need to multiply with inversion ot its parent matrix and original bind transform      
-
-                            Matrix parentMatrix = Matrix.Identity;
-                            if (bone.Parent != null) parentMatrix = bone.Parent.AbsoluteTransform;
-                            parentMatrix = Matrix.Normalize(parentMatrix); // may have different scale
-
-                            Matrix localTransform = Matrix.Multiply(absoluteTransform, Matrix.Invert(bone.BindTransform * parentMatrix));
-
-                            // now change the current matrix rotation                           
-                            bone.Rotation = Quaternion.CreateFromRotationMatrix(localTransform);
-
-                            // and recompute the transformation
-                            bone.ComputeAbsoluteTransform();
-                        }
-                    }
-
+                    var bone = characterBones[boneIndices[i]];
+                    Vector3 tempTranslation = bone.BindTransform.Translation;
+                    Quaternion tempRotation = Quaternion.CreateFromRotationMatrix(bone.BindTransform);
+                    bone.SetCompleteTransform(ref tempTranslation, ref tempRotation);
+                    bone.ComputeAbsoluteTransform();
                 }
 
-                // quit if i am close enough or been running long enough
-            } while (tries++ < maxTries &&
-                Vector3D.DistanceSquared(curEnd, desiredEnd) > stopDistance);
+                endBone.ComputeAbsoluteTransform();
+                curEnd = endBone.AbsoluteTransform.Translation;
+                float initialDistSqInv = 1 / (float)Vector3D.DistanceSquared(curEnd, desiredEnd);
+
+                do
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        var bone = characterBones[boneIndices[i]];
+
+                        // first recalculate current final transformation
+                        endBone.ComputeAbsoluteTransform();
+
+                        // compute the position of the root
+                        Matrix currentMatrix = bone.AbsoluteTransform;
+                        rootPos = currentMatrix.Translation; // this is this bone root position
+                        Vector3 lastEnd = curEnd;
+                        curEnd = endBone.AbsoluteTransform.Translation;
+                            // this is our current end of the final bone                  
+
+                        // get the difference from desired and and current final position
+                        double distanceSq = Vector3D.DistanceSquared(curEnd, desiredEnd);
+                        
+                        //{
+                        //    Color c = Color.FromNonPremultiplied(new Vector4(4 * (float) (distanceSq),
+                        //        1 - 4 * (float) (distanceSq), 0, 1));
+                        //    VRageRender.MyRenderProxy.DebugDrawLine3D(
+                        //        Vector3D.Transform(lastEnd, worldMatrix),
+                        //        Vector3D.Transform(curEnd, worldMatrix), c, c, false);
+                        //}
+
+                        // see if i'm already close enough
+                        if (distanceSq > stopDistanceSq)
+                        {
+                            // create the vector to the current effector posm this is the difference vector
+                            curVector = curEnd - rootPos;
+                            // create the desired effector position vector
+                            var targetVector = desiredEnd - rootPos;
+
+                            // normalize the vectors (expensive, requires a sqrt)
+                            // MZ: we don't need to do that
+                            // curVector.Normalize();
+                            // targetVector.Normalize();
+
+                            double curVectorLenSq = curVector.LengthSquared();
+                            double targetVectorLenSq = targetVector.LengthSquared();
+
+                            // the dot product gives me the cosine of the desired angle
+                            // cosAngle = curVector.Dot(targetVector);
+
+                            double dotCurTarget = curVector.Dot(targetVector);
+
+                            // if the dot product returns 1.0, i don't need to rotate as it is 0 degrees
+                            // MZ: yes, but when does this happen to be exactly 1???
+                            // if (cosAngle < 1.0)
+                            if (dotCurTarget < 0 || dotCurTarget * dotCurTarget < curVectorLenSq * targetVectorLenSq * (1 - MyMathConstants.EPSILON))
+                            {
+                                // use the cross product to check which way to rotate
+                                //var rotationAxis = curVector.Cross(targetVector);
+                                //rotationAxis.Normalize();
+                                //turnAngle = System.Math.Acos(cosAngle); // get the angle
+
+                                // get the matrix needed to rotate to the desired position
+                                //Matrix rotation = Matrix.CreateFromAxisAngle((Vector3) rotationAxis,
+                                //    (float) turnAngle * gain);
+
+                                // get the absolute matrix rotation ie - rotation including all the bones before
+                                Matrix rotation;
+                                float weight = 1 / (initialDistSqInv * (float)distanceSq + 1);
+                                Vector3 weightedTarget = Vector3.Lerp(curVector, targetVector, weight);
+                                Matrix.CreateRotationFromTwoVectors(ref curVector, ref weightedTarget, out rotation);
+                                Matrix absoluteTransform = Matrix.Normalize(currentMatrix).GetOrientation() * rotation;
+
+                                // MZ: faster
+                                
+                                // compute just the local matrix for the bone - need to multiply with inversion ot its parent matrix and original bind transform      
+
+                                Matrix parentMatrix = Matrix.Identity;
+                                if (bone.Parent != null) parentMatrix = bone.Parent.AbsoluteTransform;
+                                parentMatrix = Matrix.Normalize(parentMatrix); // may have different scale
+
+                                Matrix localTransform = Matrix.Multiply(absoluteTransform,
+                                    Matrix.Invert(bone.BindTransform * parentMatrix));
+
+                                // now change the current matrix rotation                           
+                                bone.Rotation = Quaternion.CreateFromRotationMatrix(localTransform);
+
+                                // and recompute the transformation
+                                bone.ComputeAbsoluteTransform();
+                            }
+                        }
+
+                    }
+
+                    // quit if i am close enough or been running long enough
+                } while (tries++ < maxTries &&
+                         Vector3D.DistanceSquared(curEnd, desiredEnd) > stopDistanceSq);
+            }
 
             // solve the last bone
-            if (finalBone != null && finalTransform.IsValid())
+            if (finalTransform.IsValid())
             {
-                //MatrixD absoluteTransformEnd = finalBone.AbsoluteTransform * finalTransform; // this is our local final transform ( rotation)
-
                 // get the related transformation to original binding posefirstBoneAbsoluteTransform
                 MatrixD localTransformRelated;
 
-                if (allowFinalBoneTranslation) localTransformRelated = finalTransform * MatrixD.Invert((MatrixD)finalBone.BindTransform * finalBone.Parent.AbsoluteTransform);
-                else localTransformRelated = finalTransform.GetOrientation() * MatrixD.Invert((MatrixD)finalBone.BindTransform * finalBone.Parent.AbsoluteTransform);
+                if (allowFinalBoneTranslation) 
+                    localTransformRelated = finalTransform * MatrixD.Invert((MatrixD)finalBone.BindTransform * finalBone.Parent.AbsoluteTransform);
+                else
+                    localTransformRelated = finalTransform.GetOrientation() * MatrixD.Invert((MatrixD)finalBone.BindTransform * finalBone.Parent.AbsoluteTransform);
 
-                //localTransformRelated = Matrix.Normalize(localTransformRelated);
+                // localTransformRelated = Matrix.Normalize(localTransformRelated);
                 // from there get the rotation and translation
                 finalBone.Rotation = Quaternion.CreateFromRotationMatrix(Matrix.Normalize((Matrix)localTransformRelated.GetOrientation()));
-                if (allowFinalBoneTranslation) finalBone.Translation = (Vector3)localTransformRelated.Translation;
+                if (allowFinalBoneTranslation) 
+                    finalBone.Translation = (Vector3)localTransformRelated.Translation;
+
                 finalBone.ComputeAbsoluteTransform();
             }
 
-            return Vector3D.DistanceSquared(curEnd, desiredEnd) <= stopDistance;
+            return true;//Vector3D.DistanceSquared(curEnd, desiredEnd) <= stopDistanceSq;
         }
 
 

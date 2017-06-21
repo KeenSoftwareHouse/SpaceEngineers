@@ -17,7 +17,7 @@
             <p>An <strong><see cref="T:SharpDX.Direct3D11.Effect"/></strong> interface manages a set of state objects, resources, and shaders for implementing a rendering effect.</p>	
             </summary>	
             <remarks>	
-            <p>An effect is created by calling <strong><see cref="M:SharpDX.Direct3D11.D3DX11Effects.CreateEffectFromMemory(System.IntPtr,SharpDX.PointerSize,System.Int32,SharpDX.Direct3D11.Device,SharpDX.Direct3D11.Effect)"/></strong>.</p><p>The effect system groups the information required for rendering into an effect which contains:  state objects for assigning state changes in groups, resources for supplying input data and storing output data,  and programs that control how the rendering is done called shaders.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p><p><strong>Note</strong>??</p><p>If you call <strong>QueryInterface</strong> on an <strong><see cref="T:SharpDX.Direct3D11.Effect"/></strong> object to retrieve the <strong><see cref="T:SharpDX.ComObject"/></strong> interface, <strong>QueryInterface</strong> returns E_NOINTERFACE. To work around this issue, use the following code:</p><pre> <see cref="T:SharpDX.ComObject"/>* pIUnknown = (<see cref="T:SharpDX.ComObject"/>*)pEffect; pIUnknown-&gt;AddRef();	
+            <p>An effect is created by calling <strong>D3DX11CreateEffectFromMemory</strong>.</p><p>The effect system groups the information required for rendering into an effect which contains:  state objects for assigning state changes in groups, resources for supplying input data and storing output data,  and programs that control how the rendering is done called shaders.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p><p><strong>Note</strong>??</p><p>If you call <strong>QueryInterface</strong> on an <strong><see cref="T:SharpDX.Direct3D11.Effect"/></strong> object to retrieve the <strong><see cref="T:SharpDX.ComObject"/></strong> interface, <strong>QueryInterface</strong> returns E_NOINTERFACE. To work around this issue, use the following code:</p><pre> <see cref="T:SharpDX.ComObject"/>* pIUnknown = (<see cref="T:SharpDX.ComObject"/>*)pEffect; pIUnknown-&gt;AddRef();	
             </pre>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11Effect']/*"/>	
@@ -25,13 +25,14 @@
             <unmanaged>ID3DX11Effect</unmanaged>	
             <unmanaged-short>ID3DX11Effect</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.Effect.#ctor(SharpDX.Direct3D11.Device,System.Byte[],SharpDX.D3DCompiler.EffectFlags)">
+        <member name="M:SharpDX.Direct3D11.Effect.#ctor(SharpDX.Direct3D11.Device,System.Byte[],SharpDX.D3DCompiler.EffectFlags,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:SharpDX.Direct3D11.Effect"/> class.
             </summary>
             <param name="device">The device.</param>
             <param name="effectByteCode">The effect byte code.</param>
             <param name="fxFlags">Effect compile options</param>
+            <param name="srcName">Name of the effect source file.</param>
         </member>
         <member name="M:SharpDX.Direct3D11.Effect.#ctor(System.IntPtr)">
             <summary>
@@ -68,7 +69,7 @@
             <param name="deviceOut"><dd>  <p>A reference to an <strong><see cref="T:SharpDX.Direct3D11.Device"/></strong>.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
-            <p>An effect is created for a specific device, by calling a function such as <strong><see cref="M:SharpDX.Direct3D11.D3DX11Effects.CreateEffectFromMemory(System.IntPtr,SharpDX.PointerSize,System.Int32,SharpDX.Direct3D11.Device,SharpDX.Direct3D11.Effect)"/></strong>.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
+            <p>An effect is created for a specific device, by calling a function such as <strong>D3DX11CreateEffectFromMemory</strong>.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11Effect::GetDevice']/*"/>	
             <msdn-id>ff476835</msdn-id>	
@@ -240,7 +241,7 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11Effect::CloneEffect']/*"/>	
             <msdn-id>ff476830</msdn-id>	
-            <unmanaged>HRESULT ID3DX11Effect::CloneEffect([In] unsigned int Flags,[In] ID3DX11Effect** ppClonedEffect)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11Effect::CloneEffect([In] unsigned int Flags,[Out] ID3DX11Effect** ppClonedEffect)</unmanaged>	
             <unmanaged-short>ID3DX11Effect::CloneEffect</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.Effect.Optimize">
@@ -287,7 +288,7 @@
             <p>Get the device that created the effect.</p>	
             </summary>	
             <remarks>	
-            <p>An effect is created for a specific device, by calling a function such as <strong><see cref="M:SharpDX.Direct3D11.D3DX11Effects.CreateEffectFromMemory(System.IntPtr,SharpDX.PointerSize,System.Int32,SharpDX.Direct3D11.Device,SharpDX.Direct3D11.Effect)"/></strong>.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
+            <p>An effect is created for a specific device, by calling a function such as <strong>D3DX11CreateEffectFromMemory</strong>.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11Effect::GetDevice']/*"/>	
             <msdn-id>ff476835</msdn-id>	
@@ -899,15 +900,15 @@
             <p>Set data.</p>	
             </summary>	
             <param name="dataRef"><dd>  <p>A reference to the variable.</p> </dd></param>	
-            <param name="offset"><dd>  <p>The offset (in bytes) from the beginning of the reference to the data.</p> </dd></param>	
-            <param name="count"><dd>  <p>The number of bytes to set.</p> </dd></param>	
+            <param name="byteOffset"><dd>  <p>The offset (in bytes) from the beginning of the reference to the data.</p> </dd></param>	
+            <param name="byteCount"><dd>  <p>The number of bytes to set.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p>This method does no conversion or type checking; it is therefore a very quick way to access array items.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectVariable::SetRawValue']/*"/>	
             <msdn-id>ff476816</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectVariable::SetRawValue([In] const void* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectVariable::SetRawValue([In, Buffer] const void* pData,[In] unsigned int ByteOffset,[In] unsigned int ByteCount)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVariable::SetRawValue</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectVariable.GetRawValue(System.IntPtr,System.Int32,System.Int32)">
@@ -915,15 +916,15 @@
             <p>Get data.</p>	
             </summary>	
             <param name="dataRef"><dd>  <p>A reference to the variable.</p> </dd></param>	
-            <param name="offset"><dd>  <p>The offset (in bytes) from the beginning of the reference to the data.</p> </dd></param>	
-            <param name="count"><dd>  <p>The number of bytes to get.</p> </dd></param>	
+            <param name="byteOffset"><dd>  <p>The offset (in bytes) from the beginning of the reference to the data.</p> </dd></param>	
+            <param name="byteCount"><dd>  <p>The number of bytes to get.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p>This method does no conversion or type checking; it is therefore a very quick way to access array items.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectVariable::GetRawValue']/*"/>	
             <msdn-id>ff476813</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectVariable::GetRawValue([In] void* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectVariable::GetRawValue([Out, Buffer] void* pData,[In] unsigned int ByteOffset,[In] unsigned int ByteCount)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVariable::GetRawValue</unmanaged-short>	
         </member>
         <member name="P:SharpDX.Direct3D11.EffectVariable.IsValid">
@@ -1000,18 +1001,19 @@
             The result of the conversion.
             </returns>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectBlendVariable.GetBlendState(System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectBlendVariable.GetBlendState(System.Int32,SharpDX.Direct3D11.BlendState@)">
             <summary>	
             <p>Get a reference to a blend-state interface.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of blend-state interfaces. If there is only one blend-state interface, use 0.</p> </dd></param>	
-            <returns><dd>  <p>The address of a reference to a blend-state interface (see <strong><see cref="T:SharpDX.Direct3D11.BlendState"/></strong>).</p> </dd></returns>	
+            <param name="stateOut"><dd>  <p>The address of a reference to a blend-state interface (see <strong><see cref="T:SharpDX.Direct3D11.BlendState"/></strong>).</p> </dd></param>	
+            <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectBlendVariable::GetBlendState']/*"/>	
             <msdn-id>ff476655</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectBlendVariable::GetBlendState([In] unsigned int Index,[Out] ID3D11BlendState** ppBlendState)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectBlendVariable::GetBlendState([In] unsigned int Index,[Out] ID3D11BlendState** ppState)</unmanaged>	
             <unmanaged-short>ID3DX11EffectBlendVariable::GetBlendState</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectBlendVariable.SetBlendState(System.Int32,SharpDX.Direct3D11.BlendState)">
@@ -1019,14 +1021,14 @@
             <p>Sets an effect's blend-state.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of blend-state interfaces. If there is only one blend-state interface, use 0.</p> </dd></param>	
-            <param name="blendStateRef"><dd>  <p>A reference to an <strong><see cref="T:SharpDX.Direct3D11.BlendState"/></strong> interface containing the blend-state to set.</p> </dd></param>	
+            <param name="stateRef"><dd>  <p>A reference to an <strong><see cref="T:SharpDX.Direct3D11.BlendState"/></strong> interface containing the blend-state to set.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectBlendVariable::SetBlendState']/*"/>	
             <msdn-id>ff476656</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectBlendVariable::SetBlendState([In] unsigned int Index,[In] ID3D11BlendState* pBlendState)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectBlendVariable::SetBlendState([In] unsigned int Index,[In] ID3D11BlendState* pState)</unmanaged>	
             <unmanaged-short>ID3DX11EffectBlendVariable::SetBlendState</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectBlendVariable.UndoSetBlendState(System.Int32)">
@@ -1048,14 +1050,14 @@
             <p>Get a reference to a blend-state variable.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of blend-state descriptions. If there is only one blend-state variable in the effect, use 0.</p> </dd></param>	
-            <param name="blendDescRef"><dd>  <p>A reference to a blend-state description (see <strong><see cref="T:SharpDX.Direct3D11.BlendStateDescription"/></strong>).</p> </dd></param>	
+            <param name="descRef"><dd>  <p>A reference to a blend-state description (see <strong><see cref="T:SharpDX.Direct3D11.BlendStateDescription"/></strong>).</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p>Effect variables are saved in memory in the backing store; when a technique is applied, the values in the backing store are copied to the device.  Backing store data can used to recreate the variable when necessary.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectBlendVariable::GetBackingStore']/*"/>	
             <msdn-id>ff476654</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectBlendVariable::GetBackingStore([In] unsigned int Index,[Out] D3D11_BLEND_DESC* pBlendDesc)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectBlendVariable::GetBackingStore([In] unsigned int Index,[Out] D3D11_BLEND_DESC* pDesc)</unmanaged>	
             <unmanaged-short>ID3DX11EffectBlendVariable::GetBackingStore</unmanaged-short>	
         </member>
         <member name="T:SharpDX.Direct3D11.EffectDepthStencilVariable">
@@ -1092,18 +1094,19 @@
             The result of the conversion.
             </returns>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectDepthStencilVariable.GetDepthStencilState(System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectDepthStencilVariable.GetDepthStencilState(System.Int32,SharpDX.Direct3D11.DepthStencilState@)">
             <summary>	
             <p>Get a reference to a depth-stencil interface.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of depth-stencil interfaces. If there is only one depth-stencil interface, use 0.</p> </dd></param>	
-            <returns><dd>  <p>The address of a reference to a blend-state interface (see <strong><see cref="T:SharpDX.Direct3D11.DepthStencilState"/></strong>).</p> </dd></returns>	
+            <param name="stateOut"><dd>  <p>The address of a reference to a blend-state interface (see <strong><see cref="T:SharpDX.Direct3D11.DepthStencilState"/></strong>).</p> </dd></param>	
+            <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectDepthStencilVariable::GetDepthStencilState']/*"/>	
             <msdn-id>ff476679</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectDepthStencilVariable::GetDepthStencilState([In] unsigned int Index,[Out] ID3D11DepthStencilState** ppDepthStencilState)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectDepthStencilVariable::GetDepthStencilState([In] unsigned int Index,[Out] ID3D11DepthStencilState** ppState)</unmanaged>	
             <unmanaged-short>ID3DX11EffectDepthStencilVariable::GetDepthStencilState</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectDepthStencilVariable.SetDepthStencilState(System.Int32,SharpDX.Direct3D11.DepthStencilState)">
@@ -1111,14 +1114,14 @@
             <p>Sets the depth stencil state.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of depth-stencil interfaces. If there is only one depth-stencil interface, use 0.</p> </dd></param>	
-            <param name="depthStencilStateRef"><dd>  <p>Pointer to an <strong><see cref="T:SharpDX.Direct3D11.DepthStencilState"/></strong> interface containing the new depth stencil state.</p> </dd></param>	
+            <param name="stateRef"><dd>  <p>Pointer to an <strong><see cref="T:SharpDX.Direct3D11.DepthStencilState"/></strong> interface containing the new depth stencil state.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectDepthStencilVariable::SetDepthStencilState']/*"/>	
             <msdn-id>ff476680</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectDepthStencilVariable::SetDepthStencilState([In] unsigned int Index,[In] ID3D11DepthStencilState* pDepthStencilState)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectDepthStencilVariable::SetDepthStencilState([In] unsigned int Index,[In] ID3D11DepthStencilState* pState)</unmanaged>	
             <unmanaged-short>ID3DX11EffectDepthStencilVariable::SetDepthStencilState</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectDepthStencilVariable.UndoSetDepthStencilState(System.Int32)">
@@ -1135,18 +1138,19 @@
             <unmanaged>HRESULT ID3DX11EffectDepthStencilVariable::UndoSetDepthStencilState([In] unsigned int Index)</unmanaged>	
             <unmanaged-short>ID3DX11EffectDepthStencilVariable::UndoSetDepthStencilState</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectDepthStencilVariable.GetBackingStore(System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectDepthStencilVariable.GetBackingStore(System.Int32,SharpDX.Direct3D11.DepthStencilStateDescription@)">
             <summary>	
             <p>Get a reference to a variable that contains depth-stencil state.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of depth-stencil-state descriptions. If there is only one depth-stencil variable in the effect, use 0.</p> </dd></param>	
-            <returns><dd>  <p>A reference to a depth-stencil-state description (see <strong><see cref="T:SharpDX.Direct3D11.DepthStencilStateDescription"/></strong>).</p> </dd></returns>	
+            <param name="descRef"><dd>  <p>A reference to a depth-stencil-state description (see <strong><see cref="T:SharpDX.Direct3D11.DepthStencilStateDescription"/></strong>).</p> </dd></param>	
+            <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p>Effect variables are saved in memory in the backing store; when a technique is applied, the values in the backing store are copied to the device.  Backing store data can used to recreate the variable when necessary.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectDepthStencilVariable::GetBackingStore']/*"/>	
             <msdn-id>ff476678</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectDepthStencilVariable::GetBackingStore([In] unsigned int Index,[Out] D3D11_DEPTH_STENCIL_DESC* pDepthStencilDesc)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectDepthStencilVariable::GetBackingStore([In] unsigned int Index,[Out] D3D11_DEPTH_STENCIL_DESC* pDesc)</unmanaged>	
             <unmanaged-short>ID3DX11EffectDepthStencilVariable::GetBackingStore</unmanaged-short>	
         </member>
         <member name="T:SharpDX.Direct3D11.EffectDepthStencilViewVariable">
@@ -1234,7 +1238,7 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectDepthStencilViewVariable::GetDepthStencil']/*"/>	
             <msdn-id>ff476683</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectDepthStencilViewVariable::GetDepthStencil([In] ID3D11DepthStencilView** ppResource)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectDepthStencilViewVariable::GetDepthStencil([Out] ID3D11DepthStencilView** ppResource)</unmanaged>	
             <unmanaged-short>ID3DX11EffectDepthStencilViewVariable::GetDepthStencil</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectDepthStencilViewVariable.SetDepthStencilArray(SharpDX.Direct3D11.DepthStencilView[],System.Int32,System.Int32)">
@@ -1254,6 +1258,22 @@
             <unmanaged-short>ID3DX11EffectDepthStencilViewVariable::SetDepthStencilArray</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectDepthStencilViewVariable.SetDepthStencilArray(SharpDX.ComArray{SharpDX.Direct3D11.DepthStencilView},System.Int32,System.Int32)">
+            <summary>	
+            <p>Set an array of depth-stencil-view resources.</p>	
+            </summary>	
+            <param name="resourcesOut"><dd>  <p>A reference to an array of depth-stencil-view interfaces. See <strong><see cref="T:SharpDX.Direct3D11.DepthStencilView"/></strong>.</p> </dd></param>	
+            <param name="offset"><dd>  <p>The zero-based array index to set the first interface.</p> </dd></param>	
+            <param name="count"><dd>  <p>The number of elements in the array.</p> </dd></param>	
+            <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
+            <remarks>	
+            <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
+            </remarks>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectDepthStencilViewVariable::SetDepthStencilArray']/*"/>	
+            <msdn-id>ff476686</msdn-id>	
+            <unmanaged>HRESULT ID3DX11EffectDepthStencilViewVariable::SetDepthStencilArray([In, Buffer] ID3D11DepthStencilView** ppResources,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged-short>ID3DX11EffectDepthStencilViewVariable::SetDepthStencilArray</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Direct3D11.EffectDepthStencilViewVariable.SetDepthStencilArray(System.IntPtr,System.Int32,System.Int32)">
             <summary>	
             <p>Set an array of depth-stencil-view resources.</p>	
             </summary>	
@@ -1440,7 +1460,7 @@
              Transposing a matrix will rearrange the data order from row-column order to column-row order (or vice versa). 	
             </remarks>	
             <param name="count"> The number of matrices in the array to get. </param>
-            <returns>Returns an array of transposed <see cref="T:SharpDX.Matrix"/>. </returns>
+            <returns>Returns an array of transposed <see cref="T:SharpDX.Mathematics.Interop.RawMatrix"/>. </returns>
             <unmanaged>HRESULT ID3D11EffectMatrixVariable::GetMatrixTransposeArray([Out, Buffer] float* pData,[None] int Offset,[None] int Count)</unmanaged>
         </member>
         <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixTransposeArray``1(System.Int32,System.Int32)">
@@ -1452,7 +1472,7 @@
             </remarks>	
             <param name="offset"> The offset (in number of matrices) between the start of the array and the first matrix to get. </param>
             <param name="count"> The number of matrices in the array to get. </param>
-            <returns>Returns an array of transposed <see cref="T:SharpDX.Matrix"/>. </returns>
+            <returns>Returns an array of transposed <see cref="T:SharpDX.Mathematics.Interop.RawMatrix"/>. </returns>
             <unmanaged>HRESULT ID3D11EffectMatrixVariable::GetMatrixTransposeArray([Out, Buffer] float* pData,[None] int Offset,[None] int Count)</unmanaged>
         </member>
         <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.#ctor(System.IntPtr)">
@@ -1470,7 +1490,7 @@
             The result of the conversion.
             </returns>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrix(SharpDX.Matrix@)">
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrix(SharpDX.Mathematics.Interop.RawMatrix@)">
             <summary>	
             <p>Set a floating-point matrix.</p>	
             </summary>	
@@ -1484,7 +1504,7 @@
             <unmanaged>HRESULT ID3DX11EffectMatrixVariable::SetMatrix([In] const SHARPDX_MATRIX* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectMatrixVariable::SetMatrix</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrix(SharpDX.Matrix@)">
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrix(SharpDX.Mathematics.Interop.RawMatrix@)">
             <summary>	
             <p>Get a matrix.</p>	
             </summary>	
@@ -1498,7 +1518,7 @@
             <unmanaged>HRESULT ID3DX11EffectMatrixVariable::GetMatrix([Out] SHARPDX_MATRIX* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectMatrixVariable::GetMatrix</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrixArray(SharpDX.Matrix[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrixArray(SharpDX.Mathematics.Interop.RawMatrix[],System.Int32,System.Int32)">
             <summary>	
             <p>Set an array of floating-point matrices.</p>	
             </summary>	
@@ -1514,7 +1534,7 @@
             <unmanaged>HRESULT ID3DX11EffectMatrixVariable::SetMatrixArray([In, Buffer] const SHARPDX_MATRIX* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectMatrixVariable::SetMatrixArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixArray(SharpDX.Matrix[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixArray(SharpDX.Mathematics.Interop.RawMatrix[],System.Int32,System.Int32)">
             <summary>	
             <p>Get an array of matrices.</p>	
             </summary>	
@@ -1530,7 +1550,31 @@
             <unmanaged>HRESULT ID3DX11EffectMatrixVariable::GetMatrixArray([Out, Buffer] SHARPDX_MATRIX* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectMatrixVariable::GetMatrixArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrixTranspose(SharpDX.Matrix@)">
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrixPointerArray(System.Single[],System.Int32,System.Int32)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="dataOut">No documentation.</param>	
+            <param name="offset">No documentation.</param>	
+            <param name="count">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectMatrixVariable::SetMatrixPointerArray']/*"/>	
+            <unmanaged>HRESULT ID3DX11EffectMatrixVariable::SetMatrixPointerArray([In, Buffer] const float** ppData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged-short>ID3DX11EffectMatrixVariable::SetMatrixPointerArray</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixPointerArray(System.Single[],System.Int32,System.Int32)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="dataOut">No documentation.</param>	
+            <param name="offset">No documentation.</param>	
+            <param name="count">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectMatrixVariable::GetMatrixPointerArray']/*"/>	
+            <unmanaged>HRESULT ID3DX11EffectMatrixVariable::GetMatrixPointerArray([Out, Buffer] float** ppData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged-short>ID3DX11EffectMatrixVariable::GetMatrixPointerArray</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrixTranspose(SharpDX.Mathematics.Interop.RawMatrix@)">
             <summary>	
             <p>Transpose and set a floating-point matrix.</p>	
             </summary>	
@@ -1544,7 +1588,7 @@
             <unmanaged>HRESULT ID3DX11EffectMatrixVariable::SetMatrixTranspose([In] const SHARPDX_MATRIX* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectMatrixVariable::SetMatrixTranspose</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixTranspose(SharpDX.Matrix@)">
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixTranspose(SharpDX.Mathematics.Interop.RawMatrix@)">
             <summary>	
             <p>Transpose and get a floating-point matrix.</p>	
             </summary>	
@@ -1558,7 +1602,7 @@
             <unmanaged>HRESULT ID3DX11EffectMatrixVariable::GetMatrixTranspose([Out] SHARPDX_MATRIX* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectMatrixVariable::GetMatrixTranspose</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrixTransposeArray(SharpDX.Matrix[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrixTransposeArray(SharpDX.Mathematics.Interop.RawMatrix[],System.Int32,System.Int32)">
             <summary>	
             <p>Transpose and set an array of floating-point matrices.</p>	
             </summary>	
@@ -1574,7 +1618,7 @@
             <unmanaged>HRESULT ID3DX11EffectMatrixVariable::SetMatrixTransposeArray([In, Buffer] const SHARPDX_MATRIX* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectMatrixVariable::SetMatrixTransposeArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixTransposeArray(SharpDX.Matrix[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixTransposeArray(SharpDX.Mathematics.Interop.RawMatrix[],System.Int32,System.Int32)">
             <summary>	
             <p>Transpose and get an array of floating-point matrices.</p>	
             </summary>	
@@ -1589,6 +1633,30 @@
             <msdn-id>ff476701</msdn-id>	
             <unmanaged>HRESULT ID3DX11EffectMatrixVariable::GetMatrixTransposeArray([Out, Buffer] SHARPDX_MATRIX* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectMatrixVariable::GetMatrixTransposeArray</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.SetMatrixTransposePointerArray(System.Single[],System.Int32,System.Int32)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="dataOut">No documentation.</param>	
+            <param name="offset">No documentation.</param>	
+            <param name="count">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectMatrixVariable::SetMatrixTransposePointerArray']/*"/>	
+            <unmanaged>HRESULT ID3DX11EffectMatrixVariable::SetMatrixTransposePointerArray([In, Buffer] const float** ppData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged-short>ID3DX11EffectMatrixVariable::SetMatrixTransposePointerArray</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Direct3D11.EffectMatrixVariable.GetMatrixTransposePointerArray(System.Single[],System.Int32,System.Int32)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="dataOut">No documentation.</param>	
+            <param name="offset">No documentation.</param>	
+            <param name="count">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectMatrixVariable::GetMatrixTransposePointerArray']/*"/>	
+            <unmanaged>HRESULT ID3DX11EffectMatrixVariable::GetMatrixTransposePointerArray([Out, Buffer] float** ppData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged-short>ID3DX11EffectMatrixVariable::GetMatrixTransposePointerArray</unmanaged-short>	
         </member>
         <member name="T:SharpDX.Direct3D11.EffectPass">
             <summary>	
@@ -1796,7 +1864,7 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectPass::ComputeStateBlockMask']/*"/>	
             <msdn-id>ff476708</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectPass::ComputeStateBlockMask([In] D3DX11_STATE_BLOCK_MASK* pStateBlockMask)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectPass::ComputeStateBlockMask([InOut] D3DX11_STATE_BLOCK_MASK* pStateBlockMask)</unmanaged>	
             <unmanaged-short>ID3DX11EffectPass::ComputeStateBlockMask</unmanaged-short>	
         </member>
         <member name="P:SharpDX.Direct3D11.EffectPass.IsValid">
@@ -1948,8 +2016,8 @@
             </summary>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='D3DX11_PASS_DESC::IAInputSignatureSize']/*"/>	
             <msdn-id>ff476319</msdn-id>	
-            <unmanaged>SIZE_T IAInputSignatureSize</unmanaged>	
-            <unmanaged-short>SIZE_T IAInputSignatureSize</unmanaged-short>	
+            <unmanaged>unsigned int IAInputSignatureSize</unmanaged>	
+            <unmanaged-short>unsigned int IAInputSignatureSize</unmanaged-short>	
         </member>
         <member name="F:SharpDX.Direct3D11.EffectPassDescription.StencilReference">
             <summary>	
@@ -2058,18 +2126,19 @@
             The result of the conversion.
             </returns>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectRasterizerVariable.GetRasterizerState(System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectRasterizerVariable.GetRasterizerState(System.Int32,SharpDX.Direct3D11.RasterizerState@)">
             <summary>	
             <p>Get a reference to a rasterizer interface.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of rasterizer interfaces. If there is only one rasterizer interface, use 0.</p> </dd></param>	
-            <returns><dd>  <p>The address of a reference to a rasterizer interface (see <strong><see cref="T:SharpDX.Direct3D11.RasterizerState"/></strong>).</p> </dd></returns>	
+            <param name="stateOut"><dd>  <p>The address of a reference to a rasterizer interface (see <strong><see cref="T:SharpDX.Direct3D11.RasterizerState"/></strong>).</p> </dd></param>	
+            <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectRasterizerVariable::GetRasterizerState']/*"/>	
             <msdn-id>ff476721</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectRasterizerVariable::GetRasterizerState([In] unsigned int Index,[Out] ID3D11RasterizerState** ppRasterizerState)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectRasterizerVariable::GetRasterizerState([In] unsigned int Index,[Out] ID3D11RasterizerState** ppState)</unmanaged>	
             <unmanaged-short>ID3DX11EffectRasterizerVariable::GetRasterizerState</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectRasterizerVariable.SetRasterizerState(System.Int32,SharpDX.Direct3D11.RasterizerState)">
@@ -2077,14 +2146,14 @@
             <p>Sets the rasterizer state.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of rasterizer interfaces. If there is only one rasterizer interface, use 0. </p> </dd></param>	
-            <param name="rasterizerStateRef"><dd>  <p>Pointer to an <strong><see cref="T:SharpDX.Direct3D11.RasterizerState"/></strong> interface.</p> </dd></param>	
+            <param name="stateRef"><dd>  <p>Pointer to an <strong><see cref="T:SharpDX.Direct3D11.RasterizerState"/></strong> interface.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectRasterizerVariable::SetRasterizerState']/*"/>	
             <msdn-id>ff476722</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectRasterizerVariable::SetRasterizerState([In] unsigned int Index,[In] ID3D11RasterizerState* pRasterizerState)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectRasterizerVariable::SetRasterizerState([In] unsigned int Index,[In] ID3D11RasterizerState* pState)</unmanaged>	
             <unmanaged-short>ID3DX11EffectRasterizerVariable::SetRasterizerState</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectRasterizerVariable.UndoSetRasterizerState(System.Int32)">
@@ -2106,14 +2175,14 @@
             <p>Get a reference to a variable that contains rasteriser state.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of rasteriser-state descriptions. If there is only one rasteriser variable in the effect, use 0.</p> </dd></param>	
-            <param name="rasterizerDescRef"><dd>  <p>A reference to a rasteriser-state description (see <strong><see cref="T:SharpDX.Direct3D11.RasterizerStateDescription"/></strong>).</p> </dd></param>	
+            <param name="descRef"><dd>  <p>A reference to a rasteriser-state description (see <strong><see cref="T:SharpDX.Direct3D11.RasterizerStateDescription"/></strong>).</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p>Effect variables are saved in memory in the backing store; when a technique is applied, the values in the backing store are copied to the device.  Backing store data can used to recreate the variable when necessary.</p><p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectRasterizerVariable::GetBackingStore']/*"/>	
             <msdn-id>ff476720</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectRasterizerVariable::GetBackingStore([In] unsigned int Index,[Out] D3D11_RASTERIZER_DESC* pRasterizerDesc)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectRasterizerVariable::GetBackingStore([In] unsigned int Index,[Out] D3D11_RASTERIZER_DESC* pDesc)</unmanaged>	
             <unmanaged-short>ID3DX11EffectRasterizerVariable::GetBackingStore</unmanaged-short>	
         </member>
         <member name="T:SharpDX.Direct3D11.EffectRenderTargetViewVariable">
@@ -2236,6 +2305,22 @@
             <unmanaged>HRESULT ID3DX11EffectRenderTargetViewVariable::SetRenderTargetArray([In, Buffer] ID3D11RenderTargetView** ppResources,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectRenderTargetViewVariable::SetRenderTargetArray</unmanaged-short>	
         </member>
+        <member name="M:SharpDX.Direct3D11.EffectRenderTargetViewVariable.SetRenderTargetArray(System.IntPtr,System.Int32,System.Int32)">
+            <summary>	
+            <p>Set an array of render-targets.</p>	
+            </summary>	
+            <param name="resourcesOut"><dd>  <p>Set an array of render-target-view interfaces. See <strong><see cref="T:SharpDX.Direct3D11.RenderTargetView"/></strong>.</p> </dd></param>	
+            <param name="offset"><dd>  <p>The zero-based array index to store the first interface.</p> </dd></param>	
+            <param name="count"><dd>  <p>The number of elements in the array.</p> </dd></param>	
+            <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
+            <remarks>	
+            <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
+            </remarks>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectRenderTargetViewVariable::SetRenderTargetArray']/*"/>	
+            <msdn-id>ff476728</msdn-id>	
+            <unmanaged>HRESULT ID3DX11EffectRenderTargetViewVariable::SetRenderTargetArray([In, Buffer] ID3D11RenderTargetView** ppResources,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged-short>ID3DX11EffectRenderTargetViewVariable::SetRenderTargetArray</unmanaged-short>	
+        </member>
         <member name="M:SharpDX.Direct3D11.EffectRenderTargetViewVariable.GetRenderTargetArray(SharpDX.Direct3D11.RenderTargetView[],System.Int32,System.Int32)">
             <summary>	
             <p>Get an array of render-targets.</p>	
@@ -2334,14 +2419,14 @@
             <p>Get a reference to a variable that contains sampler state.</p>	
             </summary>	
             <param name="index"><dd>  <p>Index into an array of sampler descriptions. If there is only one sampler variable in the effect, use 0.</p> </dd></param>	
-            <param name="samplerDescRef"><dd>  <p>A reference to a sampler description (see <strong><see cref="T:SharpDX.Direct3D11.SamplerStateDescription"/></strong>).</p> </dd></param>	
+            <param name="descRef"><dd>  <p>A reference to a sampler description (see <strong><see cref="T:SharpDX.Direct3D11.SamplerStateDescription"/></strong>).</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectSamplerVariable::GetBackingStore']/*"/>	
             <msdn-id>ff476730</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectSamplerVariable::GetBackingStore([In] unsigned int Index,[Out] D3D11_SAMPLER_DESC* pSamplerDesc)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectSamplerVariable::GetBackingStore([In] unsigned int Index,[Out] D3D11_SAMPLER_DESC* pDesc)</unmanaged>	
             <unmanaged-short>ID3DX11EffectSamplerVariable::GetBackingStore</unmanaged-short>	
         </member>
         <member name="T:SharpDX.Direct3D11.EffectScalarVariable">
@@ -2630,7 +2715,7 @@
             <unmanaged>HRESULT ID3DX11EffectScalarVariable::GetIntArray([Out, Buffer] int* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectScalarVariable::GetIntArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.SetBool(SharpDX.Bool)">
+        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.SetBool(SharpDX.Mathematics.Interop.RawBool)">
             <summary>	
             <p>Set a boolean variable.</p>	
             </summary>	
@@ -2644,7 +2729,7 @@
             <unmanaged>HRESULT ID3DX11EffectScalarVariable::SetBool([In] const BOOL Value)</unmanaged>	
             <unmanaged-short>ID3DX11EffectScalarVariable::SetBool</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.GetBool(SharpDX.Bool@)">
+        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.GetBool(SharpDX.Mathematics.Interop.RawBool@)">
             <summary>	
             <p>Get a boolean variable.</p>	
             </summary>	
@@ -2658,7 +2743,7 @@
             <unmanaged>HRESULT ID3DX11EffectScalarVariable::GetBool([Out] BOOL* pValue)</unmanaged>	
             <unmanaged-short>ID3DX11EffectScalarVariable::GetBool</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.SetBoolArray(SharpDX.Bool[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.SetBoolArray(SharpDX.Mathematics.Interop.RawBool[],System.Int32,System.Int32)">
             <summary>	
             <p>Set an array of boolean variables.</p>	
             </summary>	
@@ -2674,7 +2759,7 @@
             <unmanaged>HRESULT ID3DX11EffectScalarVariable::SetBoolArray([In, Buffer] const BOOL* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectScalarVariable::SetBoolArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.GetBoolArray(SharpDX.Bool[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.GetBoolArray(SharpDX.Mathematics.Interop.RawBool[],System.Int32,System.Int32)">
             <summary>	
             <p>Get an array of boolean variables.</p>	
             </summary>	
@@ -2915,6 +3000,22 @@
             <unmanaged>HRESULT ID3DX11EffectShaderResourceVariable::SetResourceArray([In, Buffer] ID3D11ShaderResourceView** ppResources,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectShaderResourceVariable::SetResourceArray</unmanaged-short>	
         </member>
+        <member name="M:SharpDX.Direct3D11.EffectShaderResourceVariable.SetResourceArray(System.IntPtr,System.Int32,System.Int32)">
+            <summary>	
+            <p>Set an array of shader resources.</p>	
+            </summary>	
+            <param name="resourcesOut"><dd>  <p>The address of an array of shader-resource-view interfaces. See <strong><see cref="T:SharpDX.Direct3D11.ShaderResourceView"/></strong>.</p> </dd></param>	
+            <param name="offset"><dd>  <p>The zero-based array index to get the first interface.</p> </dd></param>	
+            <param name="count"><dd>  <p>The number of elements in the array.</p> </dd></param>	
+            <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
+            <remarks>	
+            <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
+            </remarks>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectShaderResourceVariable::SetResourceArray']/*"/>	
+            <msdn-id>ff476751</msdn-id>	
+            <unmanaged>HRESULT ID3DX11EffectShaderResourceVariable::SetResourceArray([In, Buffer] ID3D11ShaderResourceView** ppResources,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged-short>ID3DX11EffectShaderResourceVariable::SetResourceArray</unmanaged-short>	
+        </member>
         <member name="M:SharpDX.Direct3D11.EffectShaderResourceVariable.GetResourceArray(SharpDX.Direct3D11.ShaderResourceView[],System.Int32,System.Int32)">
             <summary>	
             <p>Get an array of shader resources.</p>	
@@ -3114,7 +3215,7 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectUnorderedAccessViewVariable::GetUnorderedAccessView']/*"/>	
             <msdn-id>ff476784</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectUnorderedAccessViewVariable::GetUnorderedAccessView([In] ID3D11UnorderedAccessView** ppResource)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectUnorderedAccessViewVariable::GetUnorderedAccessView([Out] ID3D11UnorderedAccessView** ppResource)</unmanaged>	
             <unmanaged-short>ID3DX11EffectUnorderedAccessViewVariable::GetUnorderedAccessView</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectUnorderedAccessViewVariable.Set(SharpDX.Direct3D11.UnorderedAccessView[],System.Int32,System.Int32)">
@@ -3134,6 +3235,22 @@
             <unmanaged-short>ID3DX11EffectUnorderedAccessViewVariable::SetUnorderedAccessViewArray</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectUnorderedAccessViewVariable.Set(SharpDX.ComArray{SharpDX.Direct3D11.UnorderedAccessView},System.Int32,System.Int32)">
+            <summary>	
+            <p>Set an array of unordered-access-views.</p>	
+            </summary>	
+            <param name="resourcesOut"><dd>  <p>An array of <strong><see cref="T:SharpDX.Direct3D11.UnorderedAccessView"/></strong> references.</p> </dd></param>	
+            <param name="offset"><dd>  <p>Index of the first unordered-access-view.</p> </dd></param>	
+            <param name="count"><dd>  <p>Number of elements in the array.</p> </dd></param>	
+            <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
+            <remarks>	
+            <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
+            </remarks>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectUnorderedAccessViewVariable::SetUnorderedAccessViewArray']/*"/>	
+            <msdn-id>ff476787</msdn-id>	
+            <unmanaged>HRESULT ID3DX11EffectUnorderedAccessViewVariable::SetUnorderedAccessViewArray([In, Buffer] ID3D11UnorderedAccessView** ppResources,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
+            <unmanaged-short>ID3DX11EffectUnorderedAccessViewVariable::SetUnorderedAccessViewArray</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Direct3D11.EffectUnorderedAccessViewVariable.Set(System.IntPtr,System.Int32,System.Int32)">
             <summary>	
             <p>Set an array of unordered-access-views.</p>	
             </summary>	
@@ -3206,7 +3323,7 @@
             <returns>a four-component vector. </returns>
             <unmanaged>HRESULT ID3D11EffectVectorVariable::GetFloatVector([Out, Buffer] BOOL* pData)</unmanaged>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Int4[])">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawInt4[])">
             <summary>	
             Set an array of four-component vectors that contain integer data.	
             </summary>	
@@ -3214,7 +3331,7 @@
             <returns>Returns one of the following {{Direct3D 10 Return Codes}}. </returns>
             <unmanaged>HRESULT ID3D11EffectVectorVariable::SetIntVectorArray([In, Buffer] int* pData,[None] int Offset,[None] int Count)</unmanaged>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Vector4[])">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawVector4[])">
             <summary>	
             Set an array of four-component vectors that contain floating-point data.	
             </summary>	
@@ -3249,7 +3366,7 @@
             <returns>Returns one of the following {{Direct3D 10 Return Codes}}. </returns>
             <unmanaged>HRESULT ID3D11EffectVectorVariable::SetFloatVector([In] float* pData)</unmanaged>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Vector2)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawVector2)">
             <summary>	
             Set a two-component vector that contains floating-point data.	
             </summary>	
@@ -3257,7 +3374,7 @@
             <returns>Returns one of the following {{Direct3D 10 Return Codes}}. </returns>
             <unmanaged>HRESULT ID3D11EffectVectorVariable::SetFloatVector([In] float* pData)</unmanaged>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Vector3)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawVector3)">
             <summary>	
             Set a three-component vector that contains floating-point data.	
             </summary>	
@@ -3265,7 +3382,7 @@
             <returns>Returns one of the following {{Direct3D 10 Return Codes}}. </returns>
             <unmanaged>HRESULT ID3D11EffectVectorVariable::SetFloatVector([In] float* pData)</unmanaged>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Color4)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawColor4)">
             <summary>	
             Set a four-component color that contains floating-point data.	
             </summary>	
@@ -3273,7 +3390,7 @@
             <returns>Returns one of the following {{Direct3D 10 Return Codes}}. </returns>
             <unmanaged>HRESULT ID3D11EffectVectorVariable::SetFloatVector([In] float* pData)</unmanaged>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Color4[])">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawColor4[])">
             <summary>	
             Set an array of four-component color that contain floating-point data.	
             </summary>	
@@ -3328,7 +3445,7 @@
             The result of the conversion.
             </returns>
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Bool4)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawBool4)">
             <summary>	
             <p>Set a four-component vector that contains boolean data.</p>	
             </summary>	
@@ -3342,7 +3459,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::SetBoolVector([In] const SHARPDX_BOOL4* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::SetBoolVector</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Int4)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawInt4)">
             <summary>	
             <p>Set a four-component vector that contains integer data.</p>	
             </summary>	
@@ -3356,7 +3473,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::SetIntVector([In] const SHARPDX_INT4* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::SetIntVector</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(System.Single)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(System.Single[])">
             <summary>	
             <p>Set a four-component vector that contains floating-point data.</p>	
             </summary>	
@@ -3367,10 +3484,10 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectVectorVariable::SetFloatVector']/*"/>	
             <msdn-id>ff476826</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectVectorVariable::SetFloatVector([In] const float* pData)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectVectorVariable::SetFloatVector([In, Buffer] const float* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::SetFloatVector</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetBoolVector(SharpDX.Bool4@)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetBoolVector(SharpDX.Mathematics.Interop.RawBool4@)">
             <summary>	
             <p>Get a four-component vector that contains boolean data.</p>	
             </summary>	
@@ -3384,7 +3501,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::GetBoolVector([Out] SHARPDX_BOOL4* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::GetBoolVector</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetIntVector(SharpDX.Int4@)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetIntVector(SharpDX.Mathematics.Interop.RawInt4@)">
             <summary>	
             <p>Get a four-component vector that contains integer data.</p>	
             </summary>	
@@ -3398,7 +3515,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::GetIntVector([Out] SHARPDX_INT4* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::GetIntVector</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetFloatVector(SharpDX.Vector4@)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetFloatVector(SharpDX.Mathematics.Interop.RawVector4@)">
             <summary>	
             <p>Get a four-component vector that contains floating-point data.</p>	
             </summary>	
@@ -3412,7 +3529,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::GetFloatVector([Out] SHARPDX_VECTOR4* pData)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::GetFloatVector</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Bool4[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawBool4[],System.Int32,System.Int32)">
             <summary>	
             <p>Set an array of four-component vectors that contain boolean data.</p>	
             </summary>	
@@ -3428,7 +3545,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::SetBoolVectorArray([In, Buffer] const SHARPDX_BOOL4* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::SetBoolVectorArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Int4[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawInt4[],System.Int32,System.Int32)">
             <summary>	
             <p>Set an array of four-component vectors that contain integer data.</p>	
             </summary>	
@@ -3444,7 +3561,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::SetIntVectorArray([In, Buffer] const SHARPDX_INT4* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::SetIntVectorArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Vector4[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.Set(SharpDX.Mathematics.Interop.RawVector4[],System.Int32,System.Int32)">
             <summary>	
             <p>Set an array of four-component vectors that contain floating-point data.</p>	
             </summary>	
@@ -3460,7 +3577,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::SetFloatVectorArray([In, Buffer] const SHARPDX_VECTOR4* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::SetFloatVectorArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetBoolVectorArray(SharpDX.Bool4[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetBoolVectorArray(SharpDX.Mathematics.Interop.RawBool4[],System.Int32,System.Int32)">
             <summary>	
             <p>Get an array of four-component vectors that contain boolean data.</p>	
             </summary>	
@@ -3476,7 +3593,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::GetBoolVectorArray([Out, Buffer] SHARPDX_BOOL4* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::GetBoolVectorArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetIntVectorArray(SharpDX.Int4[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetIntVectorArray(SharpDX.Mathematics.Interop.RawInt4[],System.Int32,System.Int32)">
             <summary>	
             <p>Get an array of four-component vectors that contain integer data.</p>	
             </summary>	
@@ -3492,7 +3609,7 @@
             <unmanaged>HRESULT ID3DX11EffectVectorVariable::GetIntVectorArray([Out, Buffer] SHARPDX_INT4* pData,[In] unsigned int Offset,[In] unsigned int Count)</unmanaged>	
             <unmanaged-short>ID3DX11EffectVectorVariable::GetIntVectorArray</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetFloatVectorArray(SharpDX.Vector4[],System.Int32,System.Int32)">
+        <member name="M:SharpDX.Direct3D11.EffectVectorVariable.GetFloatVectorArray(SharpDX.Mathematics.Interop.RawVector4[],System.Int32,System.Int32)">
             <summary>	
             <p>Get an array of four-component vectors that contain floating-point data.</p>	
             </summary>	
@@ -3550,14 +3667,9 @@
             <summary>	
             Functions	
             </summary>	
-            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='SharpDX.Direct3D11.D3DX11Effects']/*"/>	
+            <!-- Failed to insert some or all of included XML --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='SharpDX.Direct3D11.D3DX11Effects']/*"/>	
         </member>
-        <member name="F:SharpDX.Direct3D11.D3DX11Effects.DllHandle0_">
-            <summary>
-            DLLs loaders
-            </summary>
-        </member>
-        <member name="M:SharpDX.Direct3D11.D3DX11Effects.CreateEffectFromMemory(System.IntPtr,SharpDX.PointerSize,System.Int32,SharpDX.Direct3D11.Device,SharpDX.Direct3D11.Effect)">
+        <member name="M:SharpDX.Direct3D11.D3DX11Effects.CreateEffectFromMemory(System.IntPtr,SharpDX.PointerSize,System.Int32,SharpDX.Direct3D11.Device,SharpDX.Direct3D11.Effect,System.String)">
             <summary>	
             <p>Creates an effect from a binary effect or file.</p>	
             </summary>	
@@ -3566,13 +3678,14 @@
             <param name="fXFlags"><dd>  <p>No effect flags exist. Set to zero.</p> </dd></param>	
             <param name="deviceRef"><dd>  <p>Pointer to the <strong><see cref="T:SharpDX.Direct3D11.Device"/></strong> on which to create Effect resources.</p> </dd></param>	
             <param name="effectOut"><dd>  <p>Address of the newly created <strong><see cref="T:SharpDX.Direct3D11.Effect"/></strong> interface.</p> </dd></param>	
+            <param name="srcName">No documentation.</param>	
             <returns><p>The return value is one of the values listed in Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??You must use Effects 11 source to build  your effects-type application. For more info about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
-            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='D3DX11CreateEffectFromMemory']/*"/>	
+            <!-- Failed to insert some or all of included XML --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='D3DX11CreateEffectFromMemory']/*"/>	
             <msdn-id>ff476273</msdn-id>	
-            <unmanaged>HRESULT D3DX11CreateEffectFromMemory([In] const void* pData,[In] SIZE_T DataLength,[In] unsigned int FXFlags,[In] ID3D11Device* pDevice,[Out, Fast] ID3DX11Effect** ppEffect)</unmanaged>	
+            <unmanaged>HRESULT D3DX11CreateEffectFromMemory([In, Buffer] const void* pData,[In] SIZE_T DataLength,[In] unsigned int FXFlags,[In] ID3D11Device* pDevice,[Out, Fast] ID3DX11Effect** ppEffect,[In, Optional] const char* srcName)</unmanaged>	
             <unmanaged-short>D3DX11CreateEffectFromMemory</unmanaged-short>	
         </member>
         <member name="T:SharpDX.Direct3D11.EffectClassInstanceVariable">
@@ -3613,7 +3726,7 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectClassInstanceVariable::GetClassInstance']/*"/>	
             <msdn-id>ff476659</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectClassInstanceVariable::GetClassInstance([In] ID3D11ClassInstance** ppClassInstance)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectClassInstanceVariable::GetClassInstance([Out] ID3D11ClassInstance** ppClassInstance)</unmanaged>	
             <unmanaged-short>ID3DX11EffectClassInstanceVariable::GetClassInstance</unmanaged-short>	
         </member>
         <member name="P:SharpDX.Direct3D11.EffectClassInstanceVariable.ClassInstance">
@@ -3627,7 +3740,7 @@
             <msdn-id>ff476659</msdn-id>	
             <unmanaged>GetClassInstance</unmanaged>	
             <unmanaged-short>GetClassInstance</unmanaged-short>	
-            <unmanaged>HRESULT ID3DX11EffectClassInstanceVariable::GetClassInstance([In] ID3D11ClassInstance** ppClassInstance)</unmanaged>
+            <unmanaged>HRESULT ID3DX11EffectClassInstanceVariable::GetClassInstance([Out] ID3D11ClassInstance** ppClassInstance)</unmanaged>
         </member>
         <member name="T:SharpDX.Direct3D11.EffectConstantBuffer">
             <summary>	
@@ -3924,7 +4037,7 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectInterfaceVariable::GetClassInstance']/*"/>	
             <msdn-id>ff476695</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectInterfaceVariable::GetClassInstance([In] ID3DX11EffectClassInstanceVariable** ppEffectClassInstance)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectInterfaceVariable::GetClassInstance([Out] ID3DX11EffectClassInstanceVariable** ppEffectClassInstance)</unmanaged>	
             <unmanaged-short>ID3DX11EffectInterfaceVariable::GetClassInstance</unmanaged-short>	
         </member>
         <member name="P:SharpDX.Direct3D11.EffectInterfaceVariable.ClassInstance">
@@ -3938,7 +4051,7 @@
             <msdn-id>ff476695</msdn-id>	
             <unmanaged>GetClassInstance / SetClassInstance</unmanaged>	
             <unmanaged-short>GetClassInstance</unmanaged-short>	
-            <unmanaged>HRESULT ID3DX11EffectInterfaceVariable::GetClassInstance([In] ID3DX11EffectClassInstanceVariable** ppEffectClassInstance)</unmanaged>
+            <unmanaged>HRESULT ID3DX11EffectInterfaceVariable::GetClassInstance([Out] ID3DX11EffectClassInstanceVariable** ppEffectClassInstance)</unmanaged>
         </member>
         <member name="T:SharpDX.Direct3D11.EffectShaderVariable">
             <summary>	
@@ -4028,14 +4141,14 @@
             <p>Get a hull shader.</p>	
             </summary>	
             <param name="shaderIndex"><dd>  <p>Index of the shader.</p> </dd></param>	
-            <param name="pSOut"><dd>  <p>A reference to an <strong><see cref="T:SharpDX.Direct3D11.HullShader"/></strong> reference that will be set to the hull shader on return.</p> </dd></param>	
+            <param name="hSOut"><dd>  <p>A reference to an <strong><see cref="T:SharpDX.Direct3D11.HullShader"/></strong> reference that will be set to the hull shader on return.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectShaderVariable::GetHullShader']/*"/>	
             <msdn-id>ff476756</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectShaderVariable::GetHullShader([In] unsigned int ShaderIndex,[In] ID3D11HullShader** ppPS)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectShaderVariable::GetHullShader([In] unsigned int ShaderIndex,[Out] ID3D11HullShader** ppHS)</unmanaged>	
             <unmanaged-short>ID3DX11EffectShaderVariable::GetHullShader</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectShaderVariable.GetDomainShader(System.Int32,SharpDX.Direct3D11.DomainShader@)">
@@ -4043,14 +4156,14 @@
             <p>Get a domain shader.</p>	
             </summary>	
             <param name="shaderIndex"><dd>  <p>Index of the domain shader.</p> </dd></param>	
-            <param name="pSOut"><dd>  <p>Pointer to an <strong><see cref="T:SharpDX.Direct3D11.DomainShader"/></strong> reference that will be set to the domain shader on return.</p> </dd></param>	
+            <param name="dSOut"><dd>  <p>Pointer to an <strong><see cref="T:SharpDX.Direct3D11.DomainShader"/></strong> reference that will be set to the domain shader on return.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectShaderVariable::GetDomainShader']/*"/>	
             <msdn-id>ff476754</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectShaderVariable::GetDomainShader([In] unsigned int ShaderIndex,[In] ID3D11DomainShader** ppPS)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectShaderVariable::GetDomainShader([In] unsigned int ShaderIndex,[Out] ID3D11DomainShader** ppDS)</unmanaged>	
             <unmanaged-short>ID3DX11EffectShaderVariable::GetDomainShader</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectShaderVariable.GetComputeShader(System.Int32,SharpDX.Direct3D11.ComputeShader@)">
@@ -4058,14 +4171,14 @@
             <p>Get a compute shader.</p>	
             </summary>	
             <param name="shaderIndex"><dd>  <p>Index of the compute shader.</p> </dd></param>	
-            <param name="pSOut"><dd>  <p>Pointer to an <strong><see cref="T:SharpDX.Direct3D11.ComputeShader"/></strong> reference that will be set to the compute shader on return.</p> </dd></param>	
+            <param name="cSOut"><dd>  <p>Pointer to an <strong><see cref="T:SharpDX.Direct3D11.ComputeShader"/></strong> reference that will be set to the compute shader on return.</p> </dd></param>	
             <returns><p>Returns one of the following Direct3D 11 Return Codes.</p></returns>	
             <remarks>	
             <p><strong>Note</strong>??The DirectX SDK does not supply any compiled binaries for effects. You must use Effects 11 source to build  your effects-type application. For more information about using Effects 11 source, see Differences Between Effects 10 and Effects 11.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectShaderVariable::GetComputeShader']/*"/>	
             <msdn-id>ff476753</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectShaderVariable::GetComputeShader([In] unsigned int ShaderIndex,[In] ID3D11ComputeShader** ppPS)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectShaderVariable::GetComputeShader([In] unsigned int ShaderIndex,[Out] ID3D11ComputeShader** ppCS)</unmanaged>	
             <unmanaged-short>ID3DX11EffectShaderVariable::GetComputeShader</unmanaged-short>	
         </member>
         <member name="M:SharpDX.Direct3D11.EffectShaderVariable.GetInputSignatureElementDescription(System.Int32,System.Int32)">
@@ -4111,7 +4224,7 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectShaderVariable::GetPatchConstantSignatureElementDesc']/*"/>	
             <msdn-id>ff476759</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectShaderVariable::GetPatchConstantSignatureElementDesc([In] unsigned int ShaderIndex,[In] unsigned int Element,[In] D3D11_SIGNATURE_PARAMETER_DESC* pDesc)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectShaderVariable::GetPatchConstantSignatureElementDesc([In] unsigned int ShaderIndex,[In] unsigned int Element,[Out] D3D11_SIGNATURE_PARAMETER_DESC* pDesc)</unmanaged>	
             <unmanaged-short>ID3DX11EffectShaderVariable::GetPatchConstantSignatureElementDesc</unmanaged-short>	
         </member>
         <member name="T:SharpDX.Direct3D11.EffectTechnique">
@@ -4235,7 +4348,7 @@
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3DX11EffectTechnique::ComputeStateBlockMask']/*"/>	
             <msdn-id>ff476767</msdn-id>	
-            <unmanaged>HRESULT ID3DX11EffectTechnique::ComputeStateBlockMask([In] D3DX11_STATE_BLOCK_MASK* pStateBlockMask)</unmanaged>	
+            <unmanaged>HRESULT ID3DX11EffectTechnique::ComputeStateBlockMask([InOut] D3DX11_STATE_BLOCK_MASK* pStateBlockMask)</unmanaged>	
             <unmanaged-short>ID3DX11EffectTechnique::ComputeStateBlockMask</unmanaged-short>	
         </member>
         <member name="P:SharpDX.Direct3D11.EffectTechnique.IsValid">

@@ -10,6 +10,8 @@ using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Game.Components;
 using VRage.ModAPI;
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.World
 {
@@ -20,7 +22,7 @@ namespace Sandbox.Game.World
             get { return VoxelMaps; }
         }
 
-        ModAPI.Interfaces.IMyCameraController IMySession.CameraController
+        IMyCameraController IMySession.CameraController
         {
             get { return CameraController; }
         }
@@ -179,6 +181,11 @@ namespace Sandbox.Game.World
         short IMySession.MaxFloatingObjects
         {
             get { return MaxFloatingObjects; }
+        }
+
+        short IMySession.MaxBackupSaves
+        {
+            get { return MaxBackupSaves; }
         }
 
         short IMySession.MaxPlayers
@@ -420,6 +427,23 @@ namespace Sandbox.Game.World
         {
             get { return MySession.Static.Gpss; }
         }
+        
+        bool IMySession.IsUserAdmin( ulong steamId )
+        {
+            return MySession.Static.IsUserAdmin( steamId );
+        }
+        
+        [Obsolete("Use GetUserPromoteLevel")]
+        bool IMySession.IsUserPromoted( ulong steamId )
+        {
+            return MySession.Static.IsUserSpaceMaster( steamId );
+        }
+
+        [Obsolete("Use HasCreativeRights")]
+        bool IMySession.HasAdminPrivileges
+        {
+            get { return HasCreativeRights; }
+        }
 
         event Action IMySession.OnSessionReady
         {
@@ -431,6 +455,21 @@ namespace Sandbox.Game.World
         {
             add { MySession.OnLoading += value; }
             remove { MySession.OnLoading -= value; }
+        }
+
+        MyPromoteLevel IMySession.PromoteLevel
+        {
+            get { return PromoteLevel; }
+        }
+
+        MyPromoteLevel IMySession.GetUserPromoteLevel(ulong steamId)
+        {
+            return GetUserPromoteLevel(steamId);
+        }
+
+        bool IMySession.HasCreativeRights
+        {
+            get { return HasCreativeRights; }
         }
     }
 }

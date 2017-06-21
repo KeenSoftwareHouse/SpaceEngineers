@@ -1,5 +1,6 @@
 ﻿using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.SessionComponents;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,21 +28,23 @@ namespace Sandbox.Game.Entities.Inventory
 
         public MyFixedPoint GetItemAmountCombined(MyInventoryBase inventory, MyDefinitionId contentId)
         {
+            if (inventory == null)
+                return 0;
+
             int amount = 0;
             var group = MyDefinitionManager.Static.GetGroupForComponent(contentId, out amount);
             if (group == null)
             {
-                MyComponentSubstitutionDefinition substitutions;
-                if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(contentId, out substitutions))
-                {                    
-                    foreach (var providingComponent in substitutions.ProvidingComponents)
-                    {
-                        amount += (int)inventory.GetItemAmount(providingComponent.Key) / providingComponent.Value;
-                    }
-                    return amount;
-                }
+                //MyComponentSubstitutionDefinition substitutions;
+                //if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(contentId, out substitutions))
+                //{
+                //    foreach (var providingComponent in substitutions.ProvidingComponents)
+                //    {
+                //        amount += (int)inventory.GetItemAmount(providingComponent.Key) / providingComponent.Value;
+                //    }
+                //}
 
-                return inventory.GetItemAmount(contentId);
+                return amount + inventory.GetItemAmount(contentId, substitute: true);
             }
             else
             {
@@ -66,27 +69,35 @@ namespace Sandbox.Game.Entities.Inventory
                 int neededAmount = item.Value;
 
                 MyComponentGroupDefinition group = null;
-                
                 group = MyDefinitionManager.Static.GetGroupForComponent(item.Key, out itemValue);
                 if (group == null)
                 {
                     MyFixedPoint itemAmount;
-                    // Checking if this component is not provided by the group
-                    MyComponentSubstitutionDefinition substitutions;
-                    if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(item.Key, out substitutions))
+
+                    if (MySessionComponentEquivalency.Static != null && MySessionComponentEquivalency.Static.HasEquivalents(item.Key))
                     {
-                        int providedAmount;
-                        if (!substitutions.IsProvidedByComponents(m_componentCounts, out providedAmount))
-                        {
-                            result = false;
-                            break;
-                        }
-                        else if (providedAmount < neededAmount)
+                        if (!MySessionComponentEquivalency.Static.IsProvided(m_componentCounts, item.Key, item.Value))
                         {
                             result = false;
                             break;
                         }
                     }
+                    // Checking if this component is not provided by the group
+                    //MyComponentSubstitutionDefinition substitutions;
+                    //if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(item.Key, out substitutions))
+                    //{
+                    //    int providedAmount;
+                    //    if (!substitutions.IsProvidedByComponents(m_componentCounts, out providedAmount))
+                    //    {
+                    //        result = false;
+                    //        break;
+                    //    }
+                    //    else if (providedAmount < neededAmount)
+                    //    {
+                    //        result = false;
+                    //        break;
+                    //    }
+                    //}
                     else if (!m_componentCounts.TryGetValue(item.Key, out itemAmount))
                     {
                         result = false;
@@ -96,7 +107,7 @@ namespace Sandbox.Game.Entities.Inventory
                     {
                         result = false;
                         break;
-                    }                    
+                    }
                 }
                 else
                 {
@@ -163,20 +174,23 @@ namespace Sandbox.Game.Entities.Inventory
                 // The component does not belong to any component group => we are looking exactly for the given component
                 if (group == null)
                 {
-                    MyComponentSubstitutionDefinition substitutionDefinition = null;
-                    if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(material.Key, out substitutionDefinition))
+                    if (MySessionComponentEquivalency.Static != null && MySessionComponentEquivalency.Static.HasEquivalents(material.Key))
                     {
-                        int amountToRemove = material.Value;
-                        foreach (var entry in substitutionDefinition.ProvidingComponents)
+                        var eqGroup = MySessionComponentEquivalency.Static.GetEquivalents(material.Key);
+                        if (eqGroup != null)
                         {
-                            if (amountToRemove > 0)
+                            int amountToRemove = material.Value;
+                            foreach (var element in eqGroup)
                             {
-                                var removed = inventory.RemoveItemsOfType(amountToRemove * entry.Value, entry.Key);
-                                amountToRemove -= (int)removed;
-                            }
-                            else
-                            {
-                                break;
+                                if (amountToRemove > 0)
+                                {
+                                    var removed = inventory.RemoveItemsOfType(amountToRemove, element);
+                                    amountToRemove -= (int)removed;
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -185,6 +199,36 @@ namespace Sandbox.Game.Entities.Inventory
                         inventory.RemoveItemsOfType(material.Value, material.Key);
                         continue;
                     }
+
+
+                    //MyComponentSubstitutionDefinition substitutionDefinition = null;
+                    //if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(material.Key, out substitutionDefinition))
+                    //{
+                    //    int amountToRemove = material.Value;
+                    //    foreach (var entry in substitutionDefinition.ProvidingComponents)
+                    //    {
+                    //        if (amountToRemove > 0)
+                    //        {
+                    //            var removed = inventory.RemoveItemsOfType(amountToRemove * entry.Value, entry.Key);
+                    //            amountToRemove -= (int)removed;
+                    //        }
+                    //        else
+                    //        {
+                    //            break;
+                    //        }
+                    //    }
+
+                    //    if (amountToRemove > 0)
+                    //    {
+                    //        var removed = inventory.RemoveItemsOfType(amountToRemove, material.Key);
+                    //        amountToRemove -= (int)removed;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    inventory.RemoveItemsOfType(material.Value, material.Key);
+                    //    continue;
+                    //}
                 }
                 else
                 {

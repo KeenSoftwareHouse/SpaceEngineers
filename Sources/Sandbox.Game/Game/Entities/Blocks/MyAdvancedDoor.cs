@@ -23,11 +23,13 @@ using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AdvancedDoor))]
-    public class MyAdvancedDoor : MyFunctionalBlock, ModAPI.IMyDoor
+    public class MyAdvancedDoor : MyDoorBase, ModAPI.IMyAdvancedDoor
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
@@ -51,11 +53,9 @@ namespace Sandbox.Game.Entities
         private int m_sequenceCount = 0;
         private int m_subpartCount = 0;
 
-        private readonly Sync<bool> m_open;
-
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         public override float DisassembleRatio
@@ -66,8 +66,14 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public MyAdvancedDoor()
+        public MyAdvancedDoor() : base()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_open = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            //GR: added to base class do not use here
+            //CreateTerminalControls();
+
             m_subparts.Clear();
             m_subpartIDs.Clear();
             m_currentOpening.Clear();
@@ -86,28 +92,13 @@ namespace Sandbox.Game.Entities
 
         private void UpdateEmissivity()
         {
-			if (Enabled && ResourceSink != null && ResourceSink.IsPowered)
+            if (Enabled && ResourceSink != null && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Green, Color.White);
                 OnStateChange();
             }
             else
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White);
-        }
-
-        public bool Open
-        {
-            get
-            {
-                return m_open;
-            }
-            set
-            {
-				if (m_open != value && Enabled && ResourceSink.IsPowered)
-                {
-                    m_open.Value = value;
-                }
-            }
         }
 
         public bool FullyClosed
@@ -167,16 +158,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        static MyAdvancedDoor()
-        {
-            var open = new MyTerminalControlOnOffSwitch<MyAdvancedDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
-            open.Getter = (x) => x.Open;
-            open.Setter = (x, v) => x.SetOpenRequest(v, x.OwnerId);
-            open.EnableToggleAction();
-            open.EnableOnOffActions();
-            MyTerminalControlFactory.AddControl(open);
-        }
-
         private void OnStateChange()
         {
             for (int i = 0; i < m_openingSequence.Count; i++)
@@ -232,7 +213,7 @@ namespace Sandbox.Game.Entities
             sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
             sinkComp.Update();
 
-			if (!Enabled || !ResourceSink.IsPowered)
+            if (!Enabled || !ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
                 UpdateDoorPosition();
 
             OnStateChange();
@@ -298,7 +279,7 @@ namespace Sandbox.Game.Entities
                     if (((MyAdvancedDoorDefinition)BlockDefinition).Subparts[i].PivotPosition == null)
                     {
                         // ...try to get pivot from Model...
-                        VRage.Import.MyModelBone bone = foundPart.Model.Bones.First(b => !b.Name.Contains("Root"));
+                        MyModelBone bone = foundPart.Model.Bones.First(b => !b.Name.Contains("Root"));
 
                         if (bone != null)
                             m_hingePosition.Add(bone.Transform.Translation);
@@ -354,7 +335,7 @@ namespace Sandbox.Game.Entities
             {
                 m_currentOpening.Add(0f);
                 m_currentSpeed.Add(0f);
-                m_emitter.Add(new MyEntity3DSoundEmitter(this));
+                m_emitter.Add(new MyEntity3DSoundEmitter(this, true));
 
                 // make sure maxOpen is always positive and invert accordingly
                 if (m_openingSequence[i].MaxOpen < 0f)
@@ -434,19 +415,18 @@ namespace Sandbox.Game.Entities
 
         private void StartSound(int emitterId, MySoundPair cuePair)
         {
-            if ((m_emitter[emitterId].Sound != null) && (m_emitter[emitterId].Sound.IsPlaying) && (m_emitter[emitterId].SoundId == cuePair.SoundId))
+            if ((m_emitter[emitterId].Sound != null) && (m_emitter[emitterId].Sound.IsPlaying) && (m_emitter[emitterId].SoundId == cuePair.Arcade || m_emitter[emitterId].SoundId == cuePair.Realistic))
                 return;
 
             m_emitter[emitterId].StopSound(true);
             m_emitter[emitterId].PlaySingleSound(cuePair);
         }
 
-        public override void UpdateBeforeSimulation100()
+        public override void UpdateSoundEmitters()
         {
-            base.UpdateBeforeSimulation100();
-
             for (int i = 0; i < m_emitter.Count; i++)
-                m_emitter[i].Update();
+                if(m_emitter[i] != null)
+                    m_emitter[i].Update();
         }
 
         public override void UpdateAfterSimulation()
@@ -485,7 +465,7 @@ namespace Sandbox.Game.Entities
                     m_currentSpeed[i] = 0f;
                 }
 
-				if (Enabled && ResourceSink != null && ResourceSink.IsPowered && m_currentSpeed[i] != 0)
+                if (Enabled && ResourceSink != null && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && m_currentSpeed[i] != 0)
                 {
                     string soundName = "";
                     if (Open)
@@ -537,7 +517,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateCurrentOpening()
         {
-			if (Enabled && ResourceSink != null && ResourceSink.IsPowered)
+            if (Enabled && ResourceSink != null && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
 
@@ -712,22 +692,6 @@ namespace Sandbox.Game.Entities
         {
             add { DoorStateChanged += value; }
             remove { DoorStateChanged -= value; }
-        }
-
-        public void SetOpenRequest(bool open, long identityId)
-        {
-            MyMultiplayer.RaiseEvent(this, x => x.OpenRequest, open, identityId);
-        }
-
-        [Event, Reliable, Server]
-        void OpenRequest(bool open, long identityId)
-        {
-            VRage.Game.MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(identityId);
-
-            if (relation.IsFriendly())
-            {
-                m_open.Value = open;
-            }
         }
     }
 }

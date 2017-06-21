@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Localization xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Id>0</Id>
+  <Language>English</Language>
+  <Context>Mission02</Context>
+  <ResourceName>OfficialCampaign01M2</ResourceName>
+  <Default>true</Default>
+  <Entries>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Outro1</Key>
+        <Value xsi:type="xsd:string">Engineer, I owe you an apology, we didn't realise that a Sol Cooperative representative was aboard the station when we attacked.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Outro2</Key>
+        <Value xsi:type="xsd:string">I speak on behalf of the Independent Terran Workers, we were employed by R.O.S. to build and operate the facility you just left.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Outro3</Key>
+        <Value xsi:type="xsd:string">The company discovered an artefact of unknown origin but instead of reporting it, concealed its existence and attacked our workers, killing many of us, all to maintain its deceit.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Outro4</Key>
+        <Value xsi:type="xsd:string">We rose up to fight back and now seek to recover this artefact to deny the corporation from exploiting it to further increase their power.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Outro5</Key>
+        <Value xsi:type="xsd:string">We insist you come aboard our ship, we need to show you the actions of the corporation personally.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BaseStart</Key>
+        <Value xsi:type="xsd:string">Explore the base. Find a way deeper into the facility.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BlastDoorClosed</Key>
+        <Value xsi:type="xsd:string">The security system has sealed the blast door! There must be another route.. accessing schematics..  get to the elevator!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_ControlTower</Key>
+        <Value xsi:type="xsd:string">You have located the control tower. The security lockdown can be lifted from here.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Detection</Key>
+        <Value xsi:type="xsd:string">Detected local energy signature, it appears to be an additional ROS facility but I have no official record of its existence.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_ElevatorBroken</Key>
+        <Value xsi:type="xsd:string">The elevator is not responding to controls.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_ElevatorLocked</Key>
+        <Value xsi:type="xsd:string">The elevator is currently locked. Finding control room is recommended.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Excavation1</Key>
+        <Value xsi:type="xsd:string">The projector is displaying a scan of some kind of artefact, they must have excavated from this location and moved it elsewhere.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Excavation2</Key>
+        <Value xsi:type="xsd:string">Warning: Security drone AI has been activated!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_InfoAboutEscapeShip</Key>
+        <Value xsi:type="xsd:string">[go to escape ship text]</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Investigation</Key>
+        <Value xsi:type="xsd:string">Investigation recommended, additional information could be contained within that may shed light on the conflict.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Landing</Key>
+        <Value xsi:type="xsd:string">Moon landing complete, scanning...</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_LandingGearsWarning</Key>
+        <Value xsi:type="xsd:string">Warning, landing gears are currently locked.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_NoHydrogenBottle</Key>
+        <Value xsi:type="xsd:string">It is recommended to take hydrogen bottle as well. Hydrogen is requiered for personal jetpack.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_NoOxygenBottle</Key>
+        <Value xsi:type="xsd:string">It is recommended to take oxygen bottle as well. It can be crucial to survival in space.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_PitBottom</Key>
+        <Value xsi:type="xsd:string">There is surely an explanation for why they built this, I think the answer lies in these tunnels.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_PitDrones</Key>
+        <Value xsi:type="xsd:string">Automated defense drone. Their AI is currently offline.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_PitTop</Key>
+        <Value xsi:type="xsd:string">The main shaft is now accessible, I wonder why it goes so deep?</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Start1</Key>
+        <Value xsi:type="xsd:string">It is recommended to equip yourself with backup oxygen and hydrogen bottles.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Start2</Key>
+        <Value xsi:type="xsd:string">There are spare bottles in that cargo container in the floor.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Welder</Key>
+        <Value xsi:type="xsd:string">This welder tool is much more powerful than your currnet one.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ControlTower</Key>
+        <Value xsi:type="xsd:string">Control Tower</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ControlTowerPanel</Key>
+        <Value xsi:type="xsd:string">Control Panel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Elevator</Key>
+        <Value xsi:type="xsd:string">Elevator</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_EscapeShip</Key>
+        <Value xsi:type="xsd:string">Escape Ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Excavation</Key>
+        <Value xsi:type="xsd:string">Excavation Site</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ExitCoords</Key>
+        <Value xsi:type="xsd:string">Nav. Comp. Coordinates</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_MineEntrance</Key>
+        <Value xsi:type="xsd:string">Mine Entrance</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_MoonBase</Key>
+        <Value xsi:type="xsd:string">Moon Base Lobby</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Hint_HowToDragAndDrop</Key>
+        <Value xsi:type="xsd:string">Or you can drag the items from the right inventory to yours.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Hint_HowToLeaveSeat</Key>
+        <Value xsi:type="xsd:string">Use [ {0} ] key to exit the seat.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Hint_HowToLight</Key>
+        <Value xsi:type="xsd:string">You can use [ {0} ] key to toggle your headlight.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Hint_HowToRetrieveAnItem</Key>
+        <Value xsi:type="xsd:string">Double click an item to move it to your inventory.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Hint_HowToUseInventory</Key>
+        <Value xsi:type="xsd:string">Look at the square access port and press [ {0} ] to open inventory.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Hint_HowToUseJetpack</Key>
+        <Value xsi:type="xsd:string">You can enable/disable jetpack by pressing [ {0} ].</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Hint_HowToggleLandingGears</Key>
+        <Value xsi:type="xsd:string">Use [ {0} ] to unlock/lock landing gears.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_ExtractionSite1</Key>
+        <Value xsi:type="xsd:string">We are finally ready to</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_ExtractionSite2</Key>
+        <Value xsi:type="xsd:string">begin the extraction.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_ExtractionSite3</Key>
+        <Value xsi:type="xsd:string">It will be much easier</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_ExtractionSite4</Key>
+        <Value xsi:type="xsd:string">to study the artefact at</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCDPanel_ExtractionSite5</Key>
+        <Value xsi:type="xsd:string">the main base.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Bottles</Key>
+        <Value xsi:type="xsd:string">Prepare to Leave the Escape Pod</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Bottles_Drag</Key>
+        <Value xsi:type="xsd:string">Double click or drag all items from the inventory on the right to your personal inventory on the left.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Bottles_Escape</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ], [ {1} ] or [ Escape ] to close the screen.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Bottles_OpenInventory</Key>
+        <Value xsi:type="xsd:string">Access the floor cargo ([ {0} ] or [ {1} ] key).</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Bottles_Seat</Key>
+        <Value xsi:type="xsd:string">Exit passenger seat by pressing [ {0} ].</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_EnterBase</Key>
+        <Value xsi:type="xsd:string">Investigate the Nearby Structure</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_EnterBase_Controls1</Key>
+        <Value xsi:type="xsd:string">Use character movement keys to fly.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_EnterBase_Controls2</Key>
+        <Value xsi:type="xsd:string">Use [ {0} ] to ascend and [ {1} ] to descend.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_EnterBase_Controls3</Key>
+        <Value xsi:type="xsd:string">Use [ {0} ] and [ {1} ] keys to roll left or right.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_EnterBase_GoTo</Key>
+        <Value xsi:type="xsd:string">Go to the highlighted coordinates</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_EnterBase_Jetpack</Key>
+        <Value xsi:type="xsd:string">Toggle your jetpack on/off by pressing [ {0} ].</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_LocateTower</Key>
+        <Value xsi:type="xsd:string">Gain Access to the Facility</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_LocateTower_Base</Key>
+        <Value xsi:type="xsd:string">Enter the base through the highlighted doors.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_LocateTower_Open</Key>
+        <Value xsi:type="xsd:string">Use the Button Panel to release the security lockdown.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_LocateTower_Tower</Key>
+        <Value xsi:type="xsd:string">Go to the control tower.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_Descent</Key>
+        <Value xsi:type="xsd:string">Go Deeper into the Facility.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_Descent_Elevator</Key>
+        <Value xsi:type="xsd:string">Enter the elevator.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_Descent_UseElevator</Key>
+        <Value xsi:type="xsd:string">Use the Button Panel to activate the elevator.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_Descent_WaitForIt</Key>
+        <Value xsi:type="xsd:string">Wait for the elevator reach its destination.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_ExcavationSite</Key>
+        <Value xsi:type="xsd:string">Locate Excavation Site</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_ExcavationSite_ActivateProjector</Key>
+        <Value xsi:type="xsd:string">Use the Button Panel to activate the projector.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_ExcavationSite_Explore</Key>
+        <Value xsi:type="xsd:string">Search for the excavation site in one of these tunnels.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_ExcavationSite_Light</Key>
+        <Value xsi:type="xsd:string">Use [ {0} ] key to toggle your suit light on/off.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_ExcavationSite_Located</Key>
+        <Value xsi:type="xsd:string">Location of site was found and has been marked with GPS</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_Escape</Key>
+        <Value xsi:type="xsd:string">Escape the Tunnels</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_Escape_Drones</Key>
+        <Value xsi:type="xsd:string">The security drones are activating.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_Escape_Fight</Key>
+        <Value xsi:type="xsd:string">Fight or flee from the drones, get back to the main shaft.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_Escape_GPS</Key>
+        <Value xsi:type="xsd:string">Exit coordinates are marked with GPS.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_Elevator</Key>
+        <Value xsi:type="xsd:string">Escape Using the Elevator</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest07_Elevator_BlastDoor</Key>
+        <Value xsi:type="xsd:string">Use the Button Panel to activate the elevator.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_Maintenance</Key>
+        <Value xsi:type="xsd:string">Enter the Maintenance Corridor</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_Maintenance_Elevator</Key>
+        <Value xsi:type="xsd:string">I've put the elevator into diagnostic mode, it will go to the maintenance access subfloor.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest08_Maintenance_Quest</Key>
+        <Value xsi:type="xsd:string">Get through this tunnel, it leads to a backup ship hangar.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_EscapeShip</Key>
+        <Value xsi:type="xsd:string">Escape Using the Ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_EscapeShip_Enter</Key>
+        <Value xsi:type="xsd:string">Enter the ships cockpit by pressing [ {0} ]</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_EscapeShip_Gears</Key>
+        <Value xsi:type="xsd:string">Unlock landing gears by pressing [ {0} ]</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest09_EscapeShip_Power</Key>
+        <Value xsi:type="xsd:string">Turn on power by pressing [ {0} ]</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_End</Key>
+        <Value xsi:type="xsd:string">Fly to the given coordinates.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_End_Movement</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ]  to fly out of the hangar.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest10_End_Quest</Key>
+        <Value xsi:type="xsd:string">Use the same controls for your jetpack to fly the ship.</Value>
+      </item>
+    </dictionary>
+  </Entries>
+</MyObjectBuilder_Localization>

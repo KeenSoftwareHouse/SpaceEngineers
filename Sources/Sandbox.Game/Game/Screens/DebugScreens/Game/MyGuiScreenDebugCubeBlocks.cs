@@ -16,6 +16,8 @@ using VRage.Game;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1
+
     [MyDebugScreen("Game", "Cube Blocks")]
     class MyGuiScreenDebugCubeBlocks : MyGuiScreenDebugBase
     {
@@ -175,4 +177,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             MyDefinitionManager.Static.Save("CubeBlocks_*.*");
         }
     }
+
+#endif
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
-using SharpDX.Toolkit.Graphics;
+
 using VRage;
 using VRage.Utils;
 using VRageMath;
+using SharpDX.Toolkit.Graphics;
+using VRage.Profiler;
 
 namespace Sandbox.Engine.Voxels
 {

@@ -1,5 +1,4 @@
-﻿using Sandbox.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +14,7 @@ namespace Sandbox.Graphics.GUI
         public StringBuilder Text { get; private set; }
         public Color NormalColor { get; private set; }
         public Color HighlightColor { get; private set; }
-        public MyFontEnum Font { get; private set; }
+        public string Font { get; private set; }
         public Vector2 Offset { get; private set; }
         public float ScaleWithLanguage { get; private set; }
         public Vector2 Size { get; private set; }
@@ -38,7 +37,7 @@ namespace Sandbox.Graphics.GUI
             String text,
             Color? normalColor    = null,
             Color? highlightColor = null,
-            MyFontEnum font       = MyFontEnum.White,
+            string font = MyFontEnum.White,
             float textScale       = MyGuiConstants.COLORED_TEXT_DEFAULT_TEXT_SCALE,
             Vector2? offset       = null)
         {

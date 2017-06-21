@@ -10,6 +10,8 @@ using VRage.Audio;
 using VRage.Utils;
 using VRageMath;
 using VRage.Game.Components;
+using VRage.Game;
+using VRage.Data.Audio;
 
 namespace Sandbox.Game.SessionComponents
 {
@@ -29,6 +31,11 @@ namespace Sandbox.Game.SessionComponents
 
         private int m_planetRecalculationIntervalInSpace = 300;
         private int m_planetRecalculationIntervalOnPlanet = 300;
+        private float m_volumeModifier = 1f;
+        private static float m_volumeModifierTarget = 1f;
+        private float m_volumeOriginal = 1f;
+        private const float VOLUME_CHANGE_SPEED = 0.25f;
+        public float VolumeModifierGlobal = 1f;
 
         private MyPlanetEnvironmentalSoundRule[] m_nearestSoundRules;
 
@@ -56,31 +63,39 @@ namespace Sandbox.Game.SessionComponents
             if (MySandboxGame.IsDedicated)
                 return;
 
+            if (m_volumeModifier != m_volumeModifierTarget)
+            {
+                if (m_volumeModifier < m_volumeModifierTarget)
+                    m_volumeModifier = MyMath.Clamp(m_volumeModifier + MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * VOLUME_CHANGE_SPEED, 0f, m_volumeModifierTarget);
+                else
+                    m_volumeModifier = MyMath.Clamp(m_volumeModifier - MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * VOLUME_CHANGE_SPEED, m_volumeModifierTarget, 1f);
+                if (m_sound != null && m_sound.IsPlaying)
+                    m_sound.SetVolume(m_volumeOriginal * m_volumeModifier * VolumeModifierGlobal);
+            }
+
             long currentFrame = MySession.Static.GameplayFrameCounter;
             if (currentFrame >= m_nextPlanetRecalculation)
             {
                 Planet = FindNearestPlanet(MySector.MainCamera.Position);
-                if (Planet == null)
-                {
+                if(Planet == null)
                     m_nextPlanetRecalculation = currentFrame + m_planetRecalculationIntervalInSpace;
-                    return;
-                }
-                m_nextPlanetRecalculation = currentFrame + m_planetRecalculationIntervalOnPlanet;
+                else
+                    m_nextPlanetRecalculation = currentFrame + m_planetRecalculationIntervalOnPlanet;
             }
 
-            if (currentFrame%7 != 0 || Planet == null || Planet.Provider == null)
+            if (Planet == null || Planet.Provider == null || (MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound && Planet.HasAtmosphere == false))
             {
-                if(Planet == null && m_sound != null)
-                    PlaySound(new MyCueId());
+                if (m_sound != null)
+                    m_sound.Stop(true);
                 return;
             }
-
             Vector3D localPosition = MySector.MainCamera.Position - Planet.PositionComp.GetPosition();
             double distanceToCenter = localPosition.Length();
 
-            float height = Planet.Provider.Shape.DistanceToRatio((float) distanceToCenter);
+            float height = Planet.Provider.Shape.DistanceToRatio((float)distanceToCenter);
 
-            if (height < 0) return;
+            if (height < 0)
+                return;
 
             Vector3D gravity = -localPosition / distanceToCenter;
 
@@ -99,9 +114,10 @@ namespace Sandbox.Game.SessionComponents
 
         private static MyPlanet FindNearestPlanet(Vector3D worldPosition)
         {
-            MyPlanet foundPlanet = MyGravityProviderSystem.GetNearestPlanet(worldPosition);
-            if (foundPlanet != null && !((IMyGravityProvider)foundPlanet).IsPositionInRange(worldPosition))
-                foundPlanet = null;
+            BoundingBoxD bb = new BoundingBoxD(worldPosition, worldPosition);
+            MyPlanet foundPlanet = MyGamePruningStructure.GetClosestPlanet(ref bb);
+            if (foundPlanet != null && foundPlanet.AtmosphereAltitude > Vector3D.Distance(worldPosition, foundPlanet.PositionComp.GetPosition()))
+                return null;
 
             return foundPlanet;
         }
@@ -135,15 +151,16 @@ namespace Sandbox.Game.SessionComponents
 
         private void PlaySound(MyCueId sound)
         {
-
             if (m_sound == null || !m_sound.IsPlaying)
             {
                 m_sound = MyAudio.Static.PlaySound(sound);
-                if(!sound.IsNull)
+                if (!sound.IsNull)
                     m_effect = MyAudio.Static.ApplyEffect(m_sound, m_fadeIn, null);
                 if (m_effect != null)
                     m_sound = m_effect.OutputSound;
             }
+            else if (m_effect != null && m_effect.Finished && sound.IsNull)
+                m_sound.Stop(true);
             else if (m_sound.CueEnum != sound)
             {
                 if (m_effect != null && !m_effect.Finished)
@@ -151,18 +168,33 @@ namespace Sandbox.Game.SessionComponents
                     //m_effect.SetPositionRelative(1f);
                     m_effect.AutoUpdate = true;
                 }
-                if(!sound.IsNull)
+                if (sound.IsNull)
+                    m_effect = MyAudio.Static.ApplyEffect(m_sound, m_fadeOut, null, 5000f);
+                else
                     m_effect = MyAudio.Static.ApplyEffect(m_sound, m_crossFade, new MyCueId[] { sound }, 5000f);
+
                 if (m_effect != null && !m_effect.Finished)
                 {
                     m_effect.AutoUpdate = true;
                     m_sound = m_effect.OutputSound;
                 }
-                else
-                {
-                    m_effect = MyAudio.Static.ApplyEffect(m_sound, m_fadeOut, null, 5000f);
-                }
             }
+            if (m_sound != null)
+            {
+                MySoundData data = MyAudio.Static.GetCue(sound);
+                m_volumeOriginal = data != null ? data.Volume :1f;
+                m_sound.SetVolume(m_volumeOriginal * m_volumeModifier * VolumeModifierGlobal);
+            }
+        }
+
+        public static void SetAmbientOn()
+        {
+            m_volumeModifierTarget = 1f;
+        }
+
+        public static void SetAmbientOff()
+        {
+            m_volumeModifierTarget = 0f;
         }
 
         public override bool IsRequiredByGame { get { return base.IsRequiredByGame && MyFakes.ENABLE_PLANETS; }}

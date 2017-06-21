@@ -126,7 +126,7 @@ namespace VRage.Noise
                 m_seed = value;
 
                 // Generate new random permutations with this seed.
-                System.Random random = new System.Random(m_seed);
+                System.Random random = new System.Random(VRage.Library.Utils.MyRandom.DisableRandomSeed ? 1 : m_seed);
 
                 for (int i = 0; i < 256; i++)
                 {

@@ -1,18 +1,13 @@
-﻿using ProtoBuf;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Localization;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Game.World.Generator;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +17,6 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRage.Library.Utils;
 using VRage.FileSystem;
@@ -30,15 +24,21 @@ using VRage.ObjectBuilders;
 using VRage.Network;
 using VRage.Serialization;
 using System.Diagnostics;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
 using VRage.Game;
-using VRageRender;
+using Sandbox.Game.SessionComponents.Clipboard;
+using VRage.Game.Entity;
+using VRage.Voxels;
+using VRageRender.Messages;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Gui
 {
     [StaticEventOwner]
     class MyGuiScreenDebugSpawnMenu : MyGuiScreenDebugBase
     {
-        struct SpawnAsteroidInfo
+        public struct SpawnAsteroidInfo
         {
             [Serialize(MyObjectFlags.Nullable)]
             public string Asteroid;
@@ -90,7 +90,7 @@ namespace Sandbox.Game.Gui
             return "MyGuiScreenDebugSpawnMenu";
         }
 
-        private static SpawnAsteroidInfo m_lastAsteroidInfo;
+        public static SpawnAsteroidInfo m_lastAsteroidInfo;
 
         static MyGuiScreenDebugSpawnMenu()
         {
@@ -290,6 +290,23 @@ namespace Sandbox.Game.Gui
             m_errorLabel.Visible = false;
             CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_SpawnObject, OnSpawnPhysicalObject);
 
+            MyCharacterDetectorComponent comp;
+            MyTerminalBlock detected = null;
+            bool enableButton = false;
+
+            if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Components.TryGet(out comp) && comp.UseObject != null)
+                detected = comp.DetectedEntity as MyTerminalBlock;
+           
+            string name = "-";
+            if (detected != null && detected.HasInventory && detected.HasLocalPlayerAccess())
+            {
+                name = detected.CustomName.ToString();
+                enableButton = true;
+            }
+
+            AddLabel(MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_CurrentTarget) + name, Color.White.ToVector4(), m_scale);
+            CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_SpawnTargeted, OnSpawnIntoContainer, enableButton);
+
             m_currentPosition.Y += separatorSize;
         }
 
@@ -362,7 +379,7 @@ namespace Sandbox.Game.Gui
             obj.Item.Amount = amount;
             obj.Item.PhysicalContent = builder;
 
-            MyCubeBuilder.Static.ActivateFloatingObjectClipboard(obj, Vector3.Zero, 1f);
+            MyClipboardComponent.Static.ActivateFloatingObjectClipboard(obj, Vector3.Zero, 1f);
         }
 
         private MyGuiControlButton CreateDebugButton(float usableWidth, MyStringId text, Action<MyGuiControlButton> onClick, bool enabled = true, MyStringId? tooltip = null)
@@ -414,6 +431,58 @@ namespace Sandbox.Game.Gui
 
             SpawnFloatingObjectPreview();
             CloseScreenNow();
+        }
+
+        private void OnSpawnIntoContainer(MyGuiControlButton myGuiControlButton)
+        {
+            if (!IsValidAmount())
+            {
+                m_errorLabel.Visible = true;
+                return;
+            }
+
+            MyCharacterDetectorComponent comp;
+
+            if (MySession.Static.LocalCharacter == null || !MySession.Static.LocalCharacter.Components.TryGet(out comp))
+                return;
+
+            MyTerminalBlock entity = comp.DetectedEntity as MyTerminalBlock;
+
+            if (entity == null || !entity.HasInventory)
+                return;
+
+            SerializableDefinitionId itemId = m_physicalItemDefinitions[(int)m_physicalObjectCombobox.GetSelectedKey()].Id;
+
+            if (Sync.IsServer)
+                SpawnIntoContainer_Implementation(m_amount, itemId, entity.EntityId, MySession.Static.LocalPlayerId);
+            else
+                MyMultiplayer.RaiseStaticEvent(x => SpawnIntoContainer_Implementation, m_amount, itemId, entity.EntityId, MySession.Static.LocalPlayerId);
+        }
+
+        [Event, Reliable, Server]
+        private static void SpawnIntoContainer_Implementation(long amount, SerializableDefinitionId item, long entityId, long playerId)
+        {
+            if (!MyEventContext.Current.IsLocallyInvoked && !MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
+            {
+                MyEventContext.ValidationFailed();
+                return;
+            }
+
+            MyEntity entity;
+            if (!MyEntities.TryGetEntityById(entityId, out entity))
+                return;
+
+            if(!entity.HasInventory || !((MyTerminalBlock)entity).HasPlayerAccess(playerId))
+                return;
+
+            MyInventory inventory = entity.GetInventory();
+
+            if(!inventory.CheckConstraint(item))
+                return;
+
+            MyFixedPoint itemAmt = (MyFixedPoint)Math.Min(amount, (decimal)inventory.ComputeAmountThatFits(item));
+
+            inventory.AddItems(itemAmt, (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(item));
         }
 
         private void OnLoadAsteroid(MyGuiControlButton obj)
@@ -508,13 +577,13 @@ namespace Sandbox.Game.Gui
                     IsProcedural = false
                 };
 
-                MyCubeBuilder.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
+                MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
             }
         }
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 2), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         private void SpawnProceduralAsteroid(int seed, float radius)
@@ -534,10 +603,31 @@ namespace Sandbox.Game.Gui
                 ProceduralRadius = radius,
             };
 
-            MyCubeBuilder.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
+            MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
         }
 
-        private static String MakeStorageName(String storageNameBase)
+        public static void RecreateAsteroidBeforePaste(float dragVectorLength){
+            var seed = m_lastAsteroidInfo.RandomSeed;
+            var radius = m_lastAsteroidInfo.ProceduralRadius;
+            var storageNameBase = "ProcAsteroid" + "-" + seed + "r" + radius;
+            var storageName = MyGuiScreenDebugSpawnMenu.MakeStorageName(storageNameBase);
+
+            MyStorageBase storage = null;
+            if (m_lastAsteroidInfo.IsProcedural)
+                storage = CreateProceduralAsteroidStorage(seed, radius);
+            else
+            {
+                bool oldValue = MyStorageBase.UseStorageCache;
+                MyStorageBase.UseStorageCache = false;
+                storage = CreateAsteroidStorage(m_lastAsteroidInfo.Asteroid, seed);
+                MyStorageBase.UseStorageCache = oldValue;
+            }
+            var builder = CreateAsteroidObjectBuilder(storageName);
+
+            MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, dragVectorLength);
+        }
+
+        public static String MakeStorageName(String storageNameBase)
         {
             String storageName = storageNameBase;
 
@@ -604,7 +694,7 @@ namespace Sandbox.Game.Gui
         private void CreateSlider(float usableWidth, float min, float max, ref MyGuiControlSlider slider)
         {
             slider = AddSlider(String.Empty, 5, min, max, null);
-            slider.Size = new Vector2(400f/MyGuiConstants.GUI_OPTIMAL_SIZE.X, slider.Size.Y);
+            slider.Size = new Vector2(400f / MyGuiConstants.GUI_OPTIMAL_SIZE.X, slider.Size.Y);
             slider.LabelDecimalPlaces = 4;
 
             slider.DebugScale = m_sliderDebugScale;
@@ -619,7 +709,7 @@ namespace Sandbox.Game.Gui
         static public void SpawnAsteroid(Vector3D pos)
         {
             m_lastAsteroidInfo.Position = pos;
-            if (MySession.Static.HasAdminRights || MySession.Static.CreativeMode)
+            if (MySession.Static.HasCreativeRights || MySession.Static.CreativeMode)
             {
                 MyMultiplayer.RaiseStaticEvent(s => SpawnAsteroid, m_lastAsteroidInfo);
             }
@@ -628,7 +718,7 @@ namespace Sandbox.Game.Gui
         [Event, Reliable, Server]
         static void SpawnAsteroid(SpawnAsteroidInfo asteroidInfo)
         {
-            if (MySession.Static.CreativeMode || MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value))
+            if (MySession.Static.CreativeMode || MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
             {
                 MyStorageBase storage;
                 string storageName;
@@ -655,6 +745,7 @@ namespace Sandbox.Game.Gui
                 pastedVoxelMap.Init(storageName, storage, asteroidInfo.Position - storage.Size * 0.5f);
                 MyEntities.Add(pastedVoxelMap);
                 MyEntities.RaiseEntityCreated(pastedVoxelMap);
+                pastedVoxelMap.IsReadyForReplication = true;
             }
         }
 
@@ -762,6 +853,7 @@ namespace Sandbox.Game.Gui
             planetInitArguments.SpherizeWithDistance = true;
             planetInitArguments.Generator = planetDefinition;
             planetInitArguments.UserCreated = true;
+            planetInitArguments.InitializeComponents = true;
 
             planet.Init(planetInitArguments);
 
@@ -774,7 +866,7 @@ namespace Sandbox.Game.Gui
                 ProceduralRadius = size,
             };
 
-            MyCubeBuilder.Static.ActivateVoxelClipboard(planet.GetObjectBuilder(), storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
+            MyClipboardComponent.Static.ActivateVoxelClipboard(planet.GetObjectBuilder(), storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
         }
 
         public static void SpawnPlanet(Vector3D pos)
@@ -785,14 +877,17 @@ namespace Sandbox.Game.Gui
         [Event, Reliable, Server]
         static void SpawnPlanet_Server(string planetName, float size, int seed, Vector3D pos)
         {
-            var storageNameBase = planetName + "-" + seed + "d" + size;
+            if (MySession.Static.CreativeMode || MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerCreativeRights(MyEventContext.Current.Sender.Value))
+            {
+                var storageNameBase = planetName + "-" + seed + "d" + size;
 
-            var storageName = MakeStorageName(storageNameBase);
+                var storageName = MakeStorageName(storageNameBase);
 
-            MyWorldGenerator.AddPlanet(storageNameBase, planetName, planetName, pos, seed, size, MyRandom.Instance.NextLong(), userCreated: true);
+                MyWorldGenerator.AddPlanet(storageNameBase, planetName, planetName, pos, seed, size, MyRandom.Instance.NextLong(), userCreated: true);
 
-            if (MySession.Static.RequiresDX < 11)
-                MySession.Static.RequiresDX = 11;
+                if (MySession.Static.RequiresDX < 11)
+                    MySession.Static.RequiresDX = 11;
+            }
         }
 
         #endregion
@@ -850,7 +945,7 @@ namespace Sandbox.Game.Gui
                 string name = MakeStorageName("MyEmptyVoxelMap");
 
                 var builder = CreateAsteroidObjectBuilder(name);
-                MyCubeBuilder.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
+                MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
 
                 CloseScreenNow();
             });

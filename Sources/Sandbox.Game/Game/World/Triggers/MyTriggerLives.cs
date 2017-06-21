@@ -11,6 +11,7 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Utils;
+using VRage.Library;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -62,7 +63,7 @@ namespace Sandbox.Game.World.Triggers
         private StringBuilder m_progress = new StringBuilder();
         public override StringBuilder GetProgress()
         {
-            m_progress.Clear().AppendFormat(MySpaceTexts.ScenarioProgressLimitedLives,LivesLeft).Append(Environment.NewLine);
+            m_progress.Clear().AppendFormat(MySpaceTexts.ScenarioProgressLimitedLives,LivesLeft).Append(MyEnvironment.NewLine);
             return m_progress;
         }
         //OB:

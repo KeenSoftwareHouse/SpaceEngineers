@@ -1,4 +1,5 @@
-﻿#if !NO_RUNTIME
+﻿#if !XB1 // XB1_NOPROTOBUF
+#if !NO_RUNTIME
 
 namespace ProtoBuf.Serializers
 {
@@ -8,3 +9,4 @@ namespace ProtoBuf.Serializers
     }
 }
 #endif
+#endif // !XB1

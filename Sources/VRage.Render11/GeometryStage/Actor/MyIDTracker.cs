@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace VRageRender
 {
@@ -15,7 +12,7 @@ namespace VRageRender
 
         static readonly Dictionary<uint, MyIDTracker<T>> m_dict = new Dictionary<uint, MyIDTracker<T>>();
 
-        static internal T FindByID(uint id)
+        internal static T FindByID(uint id)
         {
             MyIDTracker<T> result;
             if (m_dict.TryGetValue(id, out result))

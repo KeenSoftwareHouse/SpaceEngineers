@@ -1,9 +1,5 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageRender.Resources;
+﻿using VRage.Render11.Common;
+using VRage.Render11.Resources;
 
 namespace VRageRender
 {
@@ -16,43 +12,42 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_copyPs = MyShaders.CreatePs("postprocess_copy.hlsl");
-            m_clearAlphaPs = MyShaders.CreatePs("postprocess_clear_alpha.hlsl");
+            m_copyPs = MyShaders.CreatePs("Postprocess/PostprocessCopy.hlsl");
+            m_clearAlphaPs = MyShaders.CreatePs("Postprocess/PostprocessClearAlpha.hlsl");
         }
 
-        internal static void Run(MyBindableResource destination, MyBindableResource source, MyViewport? customViewport = null)
+        internal static void Run(IRtvBindable destination, ISrvBindable source, bool alphaBlended = false, MyViewport? customViewport = null)
         {
-            var context = MyRender11.DeviceContext;
-        
-            context.OutputMerger.BlendState = null;
+            if (alphaBlended)
+                RC.SetBlendState(MyBlendStateManager.BlendAlphaPremult);
+            else
+                RC.SetBlendState(null);
             //context.Rasterizer.SetViewport(0, 0, MyRender.ViewportResolution.X, MyRender.ViewportResolution.Y);
 
-            context.InputAssembler.InputLayout = null;
-            context.PixelShader.Set(m_copyPs);
+            RC.SetInputLayout(null);
+            RC.PixelShader.Set(m_copyPs);
         
             //context.OutputMerger.SetTargets(null as DepthStencilView, target);
             //context.PixelShader.SetShaderResource(0, resource);
         
-            RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, destination);
-            RC.BindSRV(0, source);
+            RC.SetRtv(destination);
+            RC.PixelShader.SetSrv(0, source);
 
-            MyScreenPass.DrawFullscreenQuad(customViewport ?? new MyViewport(destination.GetSize().X, destination.GetSize().Y));
+            MyScreenPass.DrawFullscreenQuad(customViewport ?? new MyViewport(destination.Size.X, destination.Size.Y));
         }
 
-        internal static void ClearAlpha(MyBindableResource destination)
+        internal static void ClearAlpha(IRtvBindable destination)
         {
-            var context = MyRender11.DeviceContext;
+            RC.SetBlendState(MyBlendStateManager.BlendAdditive);
 
-            context.OutputMerger.BlendState = MyRender11.BlendAdditive;
+            RC.SetInputLayout(null);
+            RC.PixelShader.Set(m_clearAlphaPs);
 
-            context.InputAssembler.InputLayout = null;
-            context.PixelShader.Set(m_clearAlphaPs);
+            RC.SetRtv(destination);
 
-            RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, destination);
+            MyScreenPass.DrawFullscreenQuad(new MyViewport(destination.Size.X, destination.Size.Y));
 
-            MyScreenPass.DrawFullscreenQuad(new MyViewport(destination.GetSize().X, destination.GetSize().Y));
-
-            context.OutputMerger.BlendState = null;
+            RC.SetBlendState(null);
         }
     }
 }

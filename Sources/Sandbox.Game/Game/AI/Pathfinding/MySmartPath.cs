@@ -9,12 +9,12 @@ using VRage;
 using VRage.Algorithms;
 using VRage.Collections;
 using VRage.Game.Entity;
-using VRageMath;
+using VRage.Profiler;using VRage.ModAPI;using VRageMath;
 using VRageRender;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
-    public class MySmartPath : IMyHighLevelPrimitiveObserver
+    public class MySmartPath : IMyHighLevelPrimitiveObserver, IMyPath
     {
         private MyPathfinding m_pathfinding;
 
@@ -39,7 +39,7 @@ namespace Sandbox.Game.AI.Pathfinding
         private const float TRANSITION_RADIUS = 1.0f;
 
         public IMyDestinationShape Destination { get { return m_goal.Destination; } }
-        public MyEntity EndEntity { get { return m_goal.EndEntity; } }
+        public IMyEntity EndEntity { get { return m_goal.EndEntity; } }
 
         public bool IsValid
         {
@@ -94,17 +94,21 @@ namespace Sandbox.Game.AI.Pathfinding
             m_goal = goal;
 
             ProfilerShort.Begin("Find start primitive");
+            ProfilerShort.Begin("FindClosestPrimitive");
             m_currentPrimitive = m_pathfinding.FindClosestPrimitive(start, highLevel: false);
             if (m_currentPrimitive != null)
             {
+                ProfilerShort.BeginNextBlock("GetHighLevelPrimitive");
                 m_hlBegin = m_currentPrimitive.GetHighLevelPrimitive();
                 Debug.Assert(m_hlBegin != null, "Start primitive did not have a high-level primitive!");
 
                 if (m_hlBegin != null && !m_pathNodes.Contains(m_hlBegin))
                 {
+                    ProfilerShort.BeginNextBlock("ObservePrimitive");
                     m_hlBegin.Parent.ObservePrimitive(m_hlBegin, this);
                 }
             }
+            ProfilerShort.End();
             ProfilerShort.End();
 
             if (m_currentPrimitive == null)
@@ -149,12 +153,7 @@ namespace Sandbox.Game.AI.Pathfinding
             Init(newStart, previousGoal);
         }
 
-        public void Dispose()
-        {
-            Invalidate();
-        }
-
-        public bool GetNextTarget(Vector3D currentPosition, out Vector3D targetWorld, out float radius, out MyEntity relativeEntity)
+        public bool GetNextTarget(Vector3D currentPosition, out Vector3D targetWorld, out float radius, out IMyEntity relativeEntity)
         {
             bool shouldReinit = false;
 

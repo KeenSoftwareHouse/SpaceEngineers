@@ -38,7 +38,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (!MyEntities.MemoryLimitReachedReport && !MySandboxGame.IsPaused)
             {
                 MySessionComponentVoxelHand.Static.Enabled = false;
-                MyCubeBuilder.Static.StartNewGridPlacement(cubeSize, isStatic);
+                MyCubeBuilder.Static.StartStaticGridPlacement(cubeSize, isStatic);
                 var character = MySession.Static.LocalCharacter;
 
                 Debug.Assert(character != null);
@@ -52,11 +52,12 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override bool Activate()
         {
-            if(Definition.Id.SubtypeId == CreateSmallShip)
-                CreateGrid(MyCubeSize.Small, false);
-            else if(Definition.Id.SubtypeId == CreateLargeShip)
-                CreateGrid(MyCubeSize.Large, false);
-            else if (Definition.Id.SubtypeId == CreateStation)
+            //if(Definition.Id.SubtypeId == CreateSmallShip)
+            //    CreateGrid(MyCubeSize.Small, false);
+            //else if(Definition.Id.SubtypeId == CreateLargeShip)
+            //    CreateGrid(MyCubeSize.Large, false);
+            //else 
+            if (Definition.Id.SubtypeId == CreateStation)
                 CreateGrid(MyCubeSize.Large, true);
 
             return false;

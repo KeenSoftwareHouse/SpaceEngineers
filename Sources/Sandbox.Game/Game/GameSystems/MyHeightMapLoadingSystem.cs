@@ -11,17 +11,18 @@ using Sandbox.Engine.Voxels;
 using Sandbox.Engine.Voxels.Planet;
 using SharpDX;
 using SharpDX.DXGI;
-using SharpDX.Toolkit.Graphics;
 using VRage;
 using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Utils;
 using VRageMath;
 using Quaternion = VRageMath.Quaternion;
-using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
 using VRage.Game.Components;
+using SharpDX.Toolkit.Graphics;
+using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
 using VRage.Game.Definitions;
 using VRage.Game;
+using VRage.Profiler;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -53,15 +54,11 @@ namespace Sandbox.Game.GameSystems
 
         private static void PreloadCrashingData()
         {
-
-            MyParticleEffect effect;
+            /*MyParticleEffect effect;
             if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Collision_Meteor, out effect))
             {
-                effect.SetPreload(1f);
-                effect.UserScale = 1.0f;
                 effect.WorldMatrix = MatrixD.CreateFromTransformScale(Quaternion.Identity, Vector3D.Zero, Vector3D.One);
-                effect.Stop();
-            }
+            }*/
 
             ListReader<MyDebrisDefinition> debrisDefinitions = MyDefinitionManager.Static.GetDebrisDefinitions();
             foreach (var definition in debrisDefinitions)
@@ -175,6 +172,7 @@ namespace Sandbox.Game.GameSystems
                             MyDebug.FailRelease(String.Format("Heighmap texture {0}: Invalid format {1} (expecting R16_UNorm or R8_UNorm).", fullPath, buffer.Format));
                         }
                         buffer = null;
+                        image.Dispose();
                     }
                 }
                 m_heightMaps[fullPath] = value;
@@ -243,8 +241,8 @@ namespace Sandbox.Game.GameSystems
                         MyLog.Default.WriteLine(err);
                         return null;
                     }
-
                     value = new MyHeightDetailTexture(buffer.GetPixels<byte>(), (uint)buffer.Height);
+                    image.Dispose();
                 }
             }
             m_detailTextures[path] = value;
@@ -294,7 +292,7 @@ namespace Sandbox.Game.GameSystems
             }
 
             maps = new MyCubemap[4];
-
+            
             MyCubemapData<byte>[] tmpMaps = new MyCubemapData<byte>[4 * 6];
 
             byte[][] streams = new byte[4][];
@@ -358,8 +356,8 @@ namespace Sandbox.Game.GameSystems
                             streams[2] = streams[0];
                             streams[0] = tmp;
                         }
-
                         ReadChannelsFromImage(streams, buffer);
+                        texture.Dispose();
                     }
                 }
 
@@ -410,6 +408,7 @@ namespace Sandbox.Game.GameSystems
                         }
 
                         ReadChannelsFromImage(streams, buffer);
+                        texture.Dispose();
                     }
                 }
 

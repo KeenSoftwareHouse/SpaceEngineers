@@ -13,7 +13,6 @@ using VRage;
 using VRage.FileSystem;
 using VRage.Input;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 

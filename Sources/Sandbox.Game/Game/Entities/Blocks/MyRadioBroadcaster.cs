@@ -14,7 +14,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    class MyRadioBroadcaster : MyDataBroadcaster
+    public class MyRadioBroadcaster : MyDataBroadcaster
     {
         public Action OnBroadcastRadiusChanged;
         

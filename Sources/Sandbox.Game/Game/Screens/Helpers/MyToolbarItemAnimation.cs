@@ -16,6 +16,7 @@ using Sandbox.Game.Entities.Character;
 using VRage.Game;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.Entity;
+using VRage.Utils;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -42,15 +43,22 @@ namespace Sandbox.Game.Screens.Helpers
 
             if (controlledObject != null)
             {
-                controlledObject.AddCommand(new MyAnimationCommand()
+                if (controlledObject.UseNewAnimationSystem)
                 {
-                    AnimationSubtypeName = animationDefinition.Id.SubtypeName,
-                    BlendTime = 0.2f,
-                    PlaybackCommand = MyPlaybackCommand.Play,
-                    FrameOption = animationDefinition.Loop ? MyFrameOption.Loop : MyFrameOption.PlayOnce,
-                    TimeScale = 1
-                },
-                true);
+                    controlledObject.TriggerCharacterAnimationEvent(animationDefinition.Id.SubtypeName.ToLower(), true);
+                }
+                else
+                {
+                    controlledObject.AddCommand(new MyAnimationCommand()
+                    {
+                        AnimationSubtypeName = animationDefinition.Id.SubtypeName,
+                        BlendTime = 0.2f,
+                        PlaybackCommand = MyPlaybackCommand.Play,
+                        FrameOption = animationDefinition.Loop ? MyFrameOption.Loop : MyFrameOption.PlayOnce,
+                        TimeScale = 1
+                    },
+                        true);
+                }
             }
 
             return true;

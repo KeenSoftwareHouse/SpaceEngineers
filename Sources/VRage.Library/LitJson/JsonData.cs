@@ -19,6 +19,7 @@ using System.IO;
 
 namespace LitJson
 {
+#if !XB1
     public class JsonData : IJsonWrapper, IEquatable<JsonData>
     {
         #region Fields
@@ -402,52 +403,52 @@ namespace LitJson
         #endregion
 
 
-        #region Explicit Conversions
-        public static explicit operator Boolean (JsonData data)
-        {
-            if (data.type != JsonType.Boolean)
-                throw new InvalidCastException (
-                    "Instance of JsonData doesn't hold a double");
+        //#region Explicit Conversions
+        //public static explicit operator Boolean (JsonData data)
+        //{
+        //    if (data.type != JsonType.Boolean)
+        //        throw new InvalidCastException (
+        //            "Instance of JsonData doesn't hold a double");
 
-            return data.inst_boolean;
-        }
+        //    return data.inst_boolean;
+        //}
 
-        public static explicit operator Double (JsonData data)
-        {
-            if (data.type != JsonType.Double)
-                throw new InvalidCastException (
-                    "Instance of JsonData doesn't hold a double");
+        //public static explicit operator Double (JsonData data)
+        //{
+        //    if (data.type != JsonType.Double)
+        //        throw new InvalidCastException (
+        //            "Instance of JsonData doesn't hold a double");
 
-            return data.inst_double;
-        }
+        //    return data.inst_double;
+        //}
 
-        public static explicit operator Int32 (JsonData data)
-        {
-            if (data.type != JsonType.Int)
-                throw new InvalidCastException (
-                    "Instance of JsonData doesn't hold an int");
+        //public static explicit operator Int32 (JsonData data)
+        //{
+        //    if (data.type != JsonType.Int)
+        //        throw new InvalidCastException (
+        //            "Instance of JsonData doesn't hold an int");
 
-            return data.inst_int;
-        }
+        //    return data.inst_int;
+        //}
 
-        public static explicit operator Int64 (JsonData data)
-        {
-            if (data.type != JsonType.Long)
-                throw new InvalidCastException (
-                    "Instance of JsonData doesn't hold an int");
+        //public static explicit operator Int64 (JsonData data)
+        //{
+        //    if (data.type != JsonType.Long)
+        //        throw new InvalidCastException (
+        //            "Instance of JsonData doesn't hold an int");
 
-            return data.inst_long;
-        }
+        //    return data.inst_long;
+        //}
 
-        public static explicit operator String (JsonData data)
-        {
-            if (data.type != JsonType.String)
-                throw new InvalidCastException (
-                    "Instance of JsonData doesn't hold a string");
+        //public static explicit operator String (JsonData data)
+        //{
+        //    if (data.type != JsonType.String)
+        //        throw new InvalidCastException (
+        //            "Instance of JsonData doesn't hold a string");
 
-            return data.inst_string;
-        }
-        #endregion
+        //    return data.inst_string;
+        //}
+        //#endregion
 
 
         #region ICollection Methods
@@ -995,4 +996,5 @@ namespace LitJson
             list_enumerator.Reset ();
         }
     }
+#endif
 }

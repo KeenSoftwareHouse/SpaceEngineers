@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
 
 namespace VRage.Game
 {
@@ -23,7 +25,7 @@ namespace VRage.Game
     }
 
     [ProtoContract]
-    public class MyPlanetMaterialDefinition
+    public class MyPlanetMaterialDefinition : ICloneable
     {
         [ProtoMember]
         [XmlAttribute(AttributeName = "Material")]
@@ -60,6 +62,19 @@ namespace VRage.Game
                 else return null;
             }
         }
+
+        public object Clone()
+        {
+            MyPlanetMaterialDefinition clone = new MyPlanetMaterialDefinition();
+            clone.Material = Material;
+            clone.Value = Value;
+            clone.MaxDepth = MaxDepth;
+            if (Layers != null)
+                clone.Layers = Layers.Clone() as MyPlanetMaterialLayer[];
+            else
+                clone.Layers = null;
+            return clone;
+        }
     }
 
     /**
@@ -71,19 +86,19 @@ namespace VRage.Game
      * This means after the maths are done that what we have is the *sine*, so the latitude is stored as the sine.
      */
     [ProtoContract]
-    public class MyPlanetMaterialPlacementRule : MyPlanetMaterialDefinition
+    public class MyPlanetMaterialPlacementRule : MyPlanetMaterialDefinition, ICloneable
     {
         [ProtoMember]
-        public MyRangeValue Height = new MyRangeValue(0, 1);
+        public SerializableRange Height = new SerializableRange(0, 1);
 
         [ProtoMember]
-        public MyReflectiveRangeValue Latitude = new MyReflectiveRangeValue(-90, 90);
+        public SymetricSerializableRange Latitude = new SymetricSerializableRange(-90, 90);
 
         [ProtoMember]
-        public MyRangeValue Longitude = new MyRangeValue(-180, 180);
+        public SerializableRange Longitude = new SerializableRange(-180, 180);
 
         [ProtoMember]
-        public MyRangeValue Slope = new MyRangeValue(0, 90);
+        public SerializableRange Slope = new SerializableRange(0, 90);
 
         public override bool IsRule { get { return true; } }
 
@@ -118,22 +133,28 @@ namespace VRage.Game
             return Height.ValueBetween(height) && Latitude.ValueBetween(latitude)
                    && Slope.ValueBetween(slope);
         }
+
+        public object Clone()
+        {
+            MyPlanetMaterialPlacementRule clonedRule = new MyPlanetMaterialPlacementRule(this);
+            return clonedRule;
+        }
     }
 
     [ProtoContract]
-    public class MyPlanetSurfaceRule
+    public class MyPlanetSurfaceRule : ICloneable
     {
         [ProtoMember]
-        public MyRangeValue Height = new MyRangeValue(0, 1);
+        public SerializableRange Height = new SerializableRange(0, 1);
 
         [ProtoMember]
-        public MyReflectiveRangeValue Latitude = new MyReflectiveRangeValue(-90, 90);
+        public SymetricSerializableRange Latitude = new SymetricSerializableRange(-90, 90);
 
         [ProtoMember]
-        public MyRangeValue Longitude = new MyRangeValue(-180, 180);
+        public SerializableRange Longitude = new SerializableRange(-180, 180);
 
         [ProtoMember]
-        public MyRangeValue Slope = new MyRangeValue(0, 90);
+        public SerializableRange Slope = new SerializableRange(0, 90);
 
         /**
          * Check that a rule matches terrain properties.
@@ -147,6 +168,16 @@ namespace VRage.Game
             return Height.ValueBetween(height) && Latitude.ValueBetween(latitude) && Longitude.ValueBetween(longitude)
                          && Slope.ValueBetween(slope);
         }
+
+        public object Clone()
+        {
+            MyPlanetSurfaceRule clonedRule = new MyPlanetSurfaceRule();
+            clonedRule.Height = Height;
+            clonedRule.Latitude = Latitude;
+            clonedRule.Longitude = Longitude;
+            clonedRule.Slope = Slope;
+            return clonedRule;
+        }
     }
 
     /**
@@ -154,7 +185,7 @@ namespace VRage.Game
      */
     [XmlType("MaterialGroup")]
     [ProtoContract]
-    public class MyPlanetMaterialGroup
+    public class MyPlanetMaterialGroup : ICloneable
     {
         [ProtoMember]
         [XmlAttribute(AttributeName = "Value")]
@@ -167,6 +198,17 @@ namespace VRage.Game
         [ProtoMember]
         [XmlElement("Rule")]
         public MyPlanetMaterialPlacementRule[] MaterialRules;
+
+        public object Clone()
+        {
+            MyPlanetMaterialGroup clonedGroup = new MyPlanetMaterialGroup();
+            clonedGroup.Value = Value;
+            clonedGroup.Name = Name;
+            clonedGroup.MaterialRules = new MyPlanetMaterialPlacementRule[MaterialRules.Length];
+            for (int i = 0; i < MaterialRules.Length; i++)
+                clonedGroup.MaterialRules[i] = MaterialRules[i].Clone() as MyPlanetMaterialPlacementRule;
+            return clonedGroup;
+        }
     }
 
     [ProtoContract]
@@ -240,7 +282,7 @@ namespace VRage.Game
         public float Scale;
 
         [ProtoMember]
-        public MyRangeValue Slope;
+        public SerializableRange Slope;
 
         [ProtoMember]
         public float Transition;
@@ -295,16 +337,28 @@ namespace VRage.Game
     public class MySerializablePlanetEnvironmentalSoundRule
     {
         [ProtoMember]
-        public MyRangeValue Height = new MyRangeValue(0, 1);
+        public SerializableRange Height = new SerializableRange(0, 1);
 
         [ProtoMember]
-        public MyReflectiveRangeValue Latitude = new MyReflectiveRangeValue(-90, 90);
+        public SymetricSerializableRange Latitude = new SymetricSerializableRange(-90, 90);
 
         [ProtoMember]
-        public MyRangeValue SunAngleFromZenith = new MyRangeValue(0, 180);
+        public SerializableRange SunAngleFromZenith = new SerializableRange(0, 180);
 
         [ProtoMember]
         public string EnvironmentSound;
+    }
+
+    [ProtoContract]
+    public class MyMusicCategory
+    {
+        [ProtoMember]
+        [XmlAttribute(AttributeName = "Category")]
+        public string Category;
+
+        [ProtoMember]
+        [XmlAttribute(AttributeName = "Frequency")]
+        public float Frequency = 1.0f;
     }
 
     #region Environment Item Data
@@ -379,192 +433,16 @@ namespace VRage.Game
     #endregion
 
     [ProtoContract]
-    public struct MyRangeValue
-    {
-        [ProtoMember]
-        [XmlAttribute(AttributeName = "Min")]
-        public float Min;
-        [ProtoMember]
-        [XmlAttribute(AttributeName = "Max")]
-        public float Max;
-
-        public MyRangeValue(float min, float max)
-        {
-            Max = max;
-            Min = min;
-        }
-
-        public bool ValueBetween(float value)
-        {
-            return value >= Min && value <= Max;
-        }
-
-        public override string ToString()
-        {
-            return String.Format("Range[{0}, {1}]", Min, Max);
-        }
-
-        /**
-         * When the range is an angle this method changes it to the cosines of the angle.
-         * 
-         * The angle is expected to be in degrees.
-         * 
-         * Also beware that cosine is a decreasing function in [0,90], for that reason the minimum and maximum are swaped.
-         * 
-         */
-        public void ConvertToCosine()
-        {
-            float oldMax = Max;
-            Max = (float)Math.Cos(Min * Math.PI / 180);
-            Min = (float)Math.Cos(oldMax * Math.PI / 180);
-        }
-
-        /**
-         * When the range is an angle this method changes it to the sines of the angle.
-         * 
-         * The angle is expected to be in degrees.
-         */
-        public void ConvertToSine()
-        {
-            Max = (float)Math.Sin(Max * Math.PI / 180);
-            Min = (float)Math.Sin(Min * Math.PI / 180);
-        }
-
-        public void ConvertToCosineLongitude()
-        {
-            Max = MathHelper.MonotonicCosine((float)(Max * Math.PI / 180));
-            Min = MathHelper.MonotonicCosine((float)(Min * Math.PI / 180));
-        }
-
-        public string ToStringAsin()
-        {
-            return String.Format("Range[{0}, {1}]", MathHelper.ToDegrees(Math.Asin(Min)), MathHelper.ToDegrees(Math.Asin(Max)));
-        }
-
-        public string ToStringAcos()
-        {
-            return String.Format("Range[{0}, {1}]", MathHelper.ToDegrees(Math.Acos(Min)), MathHelper.ToDegrees(Math.Acos(Max)));
-        }
-
-        public string ToStringLongitude()
-        {
-            return String.Format("Range[{0}, {1}]", MathHelper.ToDegrees(MathHelper.MonotonicAcos(Min)), MathHelper.ToDegrees(MathHelper.MonotonicAcos(Max)));
-        }
-    }
-
-    /**
-     * Reflective because it can be reflected to the oposite range.
-     * 
-     * Structs not inheriting from structs is stupid.
-     */
-    public struct MyReflectiveRangeValue
-    {
-        [ProtoMember]
-        [XmlAttribute(AttributeName = "Min")]
-        public float Min;
-
-        [ProtoMember]
-        [XmlAttribute(AttributeName = "Max")]
-        public float Max;
-
-        // Need this to force true to default.
-        private bool m_notMirror;
-
-        [ProtoMember]
-        [XmlAttribute(AttributeName = "Mirror")]
-        public bool Mirror
-        {
-            get { return !m_notMirror; }
-            set { m_notMirror = !value; }
-        }
-
-        public MyReflectiveRangeValue(float min, float max, bool mirror = true)
-        {
-            Max = max;
-            Min = min;
-            m_notMirror = !mirror;
-        }
-
-        public bool ValueBetween(float value)
-        {
-            if (!m_notMirror)
-                value = Math.Abs(value);
-            return value >= Min && value <= Max;
-        }
-
-        public override string ToString()
-        {
-            return String.Format("{0}[{1}, {2}]", Mirror ? "MirroredRange" : "Range", Min, Max);
-        }
-
-        /**
-         * When the range is an angle this method changes it to the cosines of the angle.
-         * 
-         * The angle is expected to be in degrees.
-         * 
-         * Also beware that cosine is a decreasing function in [0,90], for that reason the minimum and maximum are swaped.
-         * 
-         */
-        public void ConvertToCosine()
-        {
-            float oldMax = Max;
-            Max = (float)Math.Cos(Min * Math.PI / 180);
-            Min = (float)Math.Cos(oldMax * Math.PI / 180);
-        }
-
-        /**
-         * When the range is an angle this method changes it to the sines of the angle.
-         * 
-         * The angle is expected to be in degrees.
-         */
-        public void ConvertToSine()
-        {
-            Max = (float)Math.Sin(Max * Math.PI / 180);
-            Min = (float)Math.Sin(Min * Math.PI / 180);
-        }
-
-        public void ConvertToCosineLongitude()
-        {
-            Max = CosineLongitude(Max);
-            Min = CosineLongitude(Min);
-        }
-
-        private static float CosineLongitude(float angle)
-        {
-            float val;
-            if (angle > 0)
-            {
-                val = 2 - (float)Math.Cos(angle * Math.PI / 180);
-            }
-            else
-            {
-                val = (float)Math.Cos(angle * Math.PI / 180);
-            }
-            return val;
-        }
-
-        public string ToStringAsin()
-        {
-            return String.Format("Range[{0}, {1}]", MathHelper.ToDegrees(Math.Asin(Min)), MathHelper.ToDegrees(Math.Asin(Max)));
-        }
-
-        public string ToStringAcos()
-        {
-            return String.Format("Range[{0}, {1}]", MathHelper.ToDegrees(Math.Acos(Min)), MathHelper.ToDegrees(Math.Acos(Max)));
-        }
-    }
-
-    [ProtoContract]
     public class MyAtmosphereColorShift
     {
         [ProtoMember]
-        public MyRangeValue R = new MyRangeValue();
+        public SerializableRange R = new SerializableRange();
 
         [ProtoMember]
-        public MyRangeValue G = new MyRangeValue();
+        public SerializableRange G = new SerializableRange();
 
         [ProtoMember]
-        public MyRangeValue B = new MyRangeValue();
+        public SerializableRange B = new SerializableRange();
     }
 
     [ProtoContract]
@@ -614,16 +492,16 @@ namespace VRage.Game
         public List<MyCloudLayerSettings> CloudLayers = null;
 
         [ProtoMember]
-        public MyRangeValue? HillParams;
+        public SerializableRange? HillParams;
 
         [ProtoMember]
         public float? GravityFalloffPower;
 
         [ProtoMember]
-        public MyRangeValue? MaterialsMaxDepth;
+        public SerializableRange? MaterialsMaxDepth;
 
         [ProtoMember]
-        public MyRangeValue? MaterialsMinDepth;
+        public SerializableRange? MaterialsMinDepth;
 
         [ProtoMember]
         public MyAtmosphereColorShift HostileAtmosphereColorShift;
@@ -662,6 +540,10 @@ namespace VRage.Game
         public MySerializablePlanetEnvironmentalSoundRule[] SoundRules;
 
         [ProtoMember]
+        [XmlArrayItem("MusicCategory")]
+        public List<MyMusicCategory> MusicCategories = null;
+
+        [ProtoMember]
         [XmlArrayItem("Ore")]
         public MyPlanetOreMapping[] OreMappings;
 
@@ -685,6 +567,8 @@ namespace VRage.Game
 
         [ProtoMember]
         public string InheritFrom;
+
+        public SerializableDefinitionId? Environment;
     }
 
 }

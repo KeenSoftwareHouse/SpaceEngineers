@@ -1,11 +1,9 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Graphics.GUI;
-using System;
 using VRage.Game;
 using VRage.Utils;
+using VRageRender.Utils;
 
 namespace Sandbox.Engine.Utils
 {
@@ -13,7 +11,6 @@ namespace Sandbox.Engine.Utils
     {
         //  If true, then debug draw rendering is enabled
         public static bool ENABLE_DEBUG_DRAW = false;
-        public static bool ENABLE_DX11_RENDERER = false;
 
         // These debug draw constants can be set via the in-game debug menu
         public static bool DEBUG_DRAW_ENTITY_IDS = false;
@@ -108,7 +105,7 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_FLORA_SPAWNED_ITEMS = false;
         public static bool DEBUG_DRAW_ENTITY_COMPONENTS = false;
         public static bool DEBUG_DRAW_GRIDS_DECAY = false;
-        public static bool DEBUG_DRAW_ADDITIONAL_ENVIRONMENTAL_LIGHTS = false;
+        public static bool DEBUG_DRAW_ENTITY_STATISTICS = false;
 
         public static MyWEMDebugDrawMode DEBUG_DRAW_NAVMESHES = MyWEMDebugDrawMode.NONE;
         internal static MyVoxelDebugDrawMode DEBUG_DRAW_VOXELS_MODE = MyVoxelDebugDrawMode.None;
@@ -118,6 +115,7 @@ namespace Sandbox.Engine.Utils
 
         // Put various debug draw here. If this cathegory becomes cluttered, create a separate one.
         public static bool DEBUG_DRAW_MISCELLANEOUS = false;
+        public static bool DEBUG_DRAW_METEORITS_DIRECTIONS = false;
 
         //Destruction
         public static bool BREAKABLE_SHAPE_CHILD_COUNT = false;
@@ -149,5 +147,20 @@ namespace Sandbox.Engine.Utils
 
         public static float DEBUG_DRAW_MODEL_DUMMIES_DISTANCE = 0f;
         public static bool DEBUG_DRAW_PLANET_SECTORS = false;
+        public static bool DEBUG_DRAW_PARTICLES = false;
+
+        // Regrowth System
+        public static bool DEBUG_DRAW_REGROWTH_ACTIVE_MODULES = false;
+        public static bool DEBUG_DRAW_REGROWTH_INTERACTABLE_ENTITIES = false;
+        public static bool DEBUG_DRAW_REGROWTH_GROWTHSTEPS = false;
+        public static bool DEBUG_DRAW_REGROWTH_EVENT_PROGRESS = false;
+
+        public static bool DEBUG_DRAW_DECAY = false;
+
+        public static bool DEBUG_DRAW_OWNERSHIP_CURRENT_SECTOR = false;
+        public static bool DEBUG_DRAW_OWNERSHIP_CURRENT_ANGLES = false;
+        public static bool DEBUG_DRAW_OWNERSHIP_SECTOR_ANGLES = false;
+        public static int DEBUG_DRAW_OWNERSHIP_DRAW_DISTANCE = 1000;
+        public static bool DEBUG_DRAW_OWNERSHIP_SECTORS_STATUS = false;
     }
 }

@@ -20,7 +20,7 @@ using VRage.Game.Entity;
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_AmmoMagazine))]
-    class MyAmmoMagazine : MyBaseInventoryItemEntity
+    public class MyAmmoMagazine : MyBaseInventoryItemEntity
     {
         public MyAmmoMagazine()
         {

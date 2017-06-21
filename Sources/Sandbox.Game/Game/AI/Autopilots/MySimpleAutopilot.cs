@@ -16,8 +16,11 @@ namespace Sandbox.Game.AI
     [MyAutopilotType(typeof(MyObjectBuilder_SimpleAutopilot))]
     class MySimpleAutopilot : MyAutopilotBase
     {
+        private static readonly int SHIP_LIFESPAN_MILLISECONDS = 30 * 60 * 1000; //30 minutes
+
         private Vector3D m_destination;
         private Vector3 m_direction;
+        private int m_spawnTime;
 
         public MySimpleAutopilot() : this(Vector3.Zero, Vector3.One) { }
 
@@ -25,6 +28,7 @@ namespace Sandbox.Game.AI
         {
             m_destination = destination;
             m_direction = direction;
+            m_spawnTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
 
         public override MyObjectBuilder_AutopilotBase GetObjectBuilder()
@@ -43,6 +47,7 @@ namespace Sandbox.Game.AI
 
             m_destination = ob.Destination;
             m_direction = ob.Direction;
+            m_spawnTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
 
         protected override void OnShipControllerChanged()
@@ -52,12 +57,10 @@ namespace Sandbox.Game.AI
         {
             if (ShipController == null) return;
 
-            if ((ShipController.PositionComp.GetPosition() - m_destination).Dot(m_direction) > 0.0f)
+            int lifeTime = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_spawnTime;
+            if (lifeTime > SHIP_LIFESPAN_MILLISECONDS)
             {
-                BoundingBox playerBox = new BoundingBox(Vector3.MaxValue, Vector3.MinValue);
-                MyEntities.GetInflatedPlayerBoundingBox(ref playerBox, MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS);
-
-                if (playerBox.Contains(ShipController.PositionComp.GetPosition()) != ContainmentType.Contains)
+                if (!IsPlayerNearby())
                 {
                     var shipGroup = MyCubeGridGroups.Static.Logical.GetGroup(ShipController.CubeGrid);
                     foreach (var node in shipGroup.Nodes)
@@ -66,6 +69,28 @@ namespace Sandbox.Game.AI
                     }
                 }
             }
+
+            if ((ShipController.PositionComp.GetPosition() - m_destination).Dot(m_direction) > 0.0f)
+            {
+                if (!IsPlayerNearby())
+                {
+                    var shipGroup = MyCubeGridGroups.Static.Logical.GetGroup(ShipController.CubeGrid);
+                    foreach (var node in shipGroup.Nodes)
+                    {
+                        node.NodeData.SyncObject.SendCloseRequest();
+                    }
+                }
+            }
+        }
+
+        private bool IsPlayerNearby()
+        {
+            BoundingBox playerBox = new BoundingBox(Vector3.MaxValue, Vector3.MinValue);
+            MyEntities.GetInflatedPlayerBoundingBox(ref playerBox, MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS);
+
+            if (playerBox.Contains(ShipController.PositionComp.GetPosition()) == ContainmentType.Contains)
+                return true;
+            return false;
         }
 
         public override void DebugDraw()
@@ -85,6 +110,7 @@ namespace Sandbox.Game.AI
             MyRenderProxy.DebugDrawLine3D(halfPoint, destination, Color.Red, Color.Red, false);
             MyRenderProxy.DebugDrawSphere(currentPoint, 0.01f, Color.Orange.ToVector3(), 1.0f, false);
             MyRenderProxy.DebugDrawSphere(currentPoint + m_direction * 0.015f, 0.005f, Color.Yellow.ToVector3(), 1.0f, false);
+            MyRenderProxy.DebugDrawText3D(origin, "Remaining time: " + (SHIP_LIFESPAN_MILLISECONDS-MySandboxGame.TotalGamePlayTimeInMilliseconds + m_spawnTime), Color.Red, 1, false);
         }
     }
 }

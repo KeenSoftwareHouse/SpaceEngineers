@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.ModAPI
 {
-    public interface IMyMotorSuspension : Sandbox.ModAPI.Ingame.IMyMotorSuspension
+    public interface IMyMotorSuspension : Sandbox.ModAPI.Ingame.IMyMotorSuspension, ModAPI.IMyMotorBase
     {
     }
 }

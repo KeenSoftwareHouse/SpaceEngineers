@@ -6,6 +6,7 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Common;
+using Sandbox.Game.World;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
@@ -13,6 +14,9 @@ using VRage.ModAPI;
 using VRageMath;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRageRender.Import;
+using VRage.Game.ModAPI;
+using Sandbox.Game.World;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {
@@ -53,6 +57,11 @@ namespace SpaceEngineers.Game.Entities.UseObjects
             }
         }
 
+        public override int InstanceID
+        {
+            get { return -1; }
+        }
+
         public override bool ShowOverlay
         {
             get { return true; }
@@ -71,7 +80,7 @@ namespace SpaceEngineers.Game.Entities.UseObjects
             if (block != null)
             {
                 var relation = block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-                if (!relation.IsFriendly())
+                if (!relation.IsFriendly() && !MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
                 {
                     if (user.ControllerInfo.IsLocallyHumanControlled())
                     {
@@ -81,16 +90,26 @@ namespace SpaceEngineers.Game.Entities.UseObjects
                 }
             }
 
+            //by Gregory: on use action the button pressed should be checked because on use action we will always get only Inventory TODO: refactor somehow
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TERMINAL))
+                MyGuiScreenTerminal.Show(MyTerminalPageEnum.ControlPanel, user, Entity);
+            else
+                MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, Entity);
+            
+            /*
             switch (actionEnum)
             {
                 case UseActionEnum.OpenInventory:
+                    MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, Entity);
+                    break;
                 case UseActionEnum.OpenTerminal:
                     MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, Entity);
                     break;
                 default:
-                    //MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, Block);
+                    //MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, Entity);
                     break;
             }
+            */
         }
 
         public override MyActionDescription GetActionInfo(UseActionEnum actionEnum)

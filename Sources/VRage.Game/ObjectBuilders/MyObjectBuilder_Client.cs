@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace VRage.Game
 {
@@ -11,6 +12,7 @@ namespace VRage.Game
         public ulong SteamId;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)] 
         public string Name;
 
         [ProtoMember]

@@ -80,6 +80,12 @@ namespace Sandbox.Game.Gui
             {
                 if (SelectedEntity != null)
                 {
+                    if (SelectedEntity is MyCubeGrid)
+                    {
+                        var shape = (HkGridShape)((MyPhysicsBody)SelectedEntity.Physics).GetShape();
+                        shape.DebugDraw = false;
+                    }
+
                     ((MyEntity)SelectedEntity).ClearDebugRenderComponents();
                     SelectedEntity = null;
                 }
@@ -96,6 +102,13 @@ namespace Sandbox.Game.Gui
                             if (body == null || body.Layer == MyPhysics.CollisionLayers.NoCollisionLayer)
                                 continue;
                             SelectedEntity = hit.HkHitInfo.GetHitEntity();
+                            if (SelectedEntity is MyCubeGrid)
+                            {
+                                var shape = (HkGridShape)((MyPhysicsBody) SelectedEntity.Physics).GetShape();
+                                shape.DebugRigidBody = body;
+                                shape.DebugDraw = true;
+                            }
+                            break;
                         }
                     }
 
@@ -104,7 +117,12 @@ namespace Sandbox.Game.Gui
         }
         public MyHonzaInputComponent()
         {
+#if !XB1
             m_components = new MyDebugComponent[] { new DefaultComponent(), new PhysicsComponent(), new LiveWatchComponent() };
+#else
+            // HACK: [vicent] third debug component replaced by "dummy one?"
+            m_components = new MyDebugComponent[] { new DefaultComponent(), new PhysicsComponent(), new DefaultComponent() };
+#endif
         }
     }
 }

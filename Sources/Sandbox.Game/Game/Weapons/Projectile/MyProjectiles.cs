@@ -38,6 +38,7 @@ namespace Sandbox.Game.Weapons
             {
                 m_projectiles.DeallocateAll();
             }
+            m_projectiles = null;
         }
 
         //  Add new projectile to the list  
@@ -49,30 +50,30 @@ namespace Sandbox.Game.Weapons
 
             newProjectile.Start(
                 ammoDefinition,
-                user.IgnoreEntity,
+                user.IgnoreEntities,
                 origin,
                 initialVelocity,
                 directionNormalized,
                 user.Weapon
                 );
-            newProjectile.OwnerEntity = user.Owner != null ? user.Owner : user.IgnoreEntity;
+            newProjectile.OwnerEntity = user.Owner ?? (user.IgnoreEntities != null && user.IgnoreEntities.Length > 0 ? user.IgnoreEntities[0] : null);
             newProjectile.OwnerEntityAbsolute = owner;
         }
 
-        public static void AddShrapnel(MyProjectileAmmoDefinition ammoDefinition, MyEntity ignoreEntity, Vector3 origin, Vector3 initialVelocity, Vector3 directionNormalized, bool groupStart, float thicknessMultiplier, float trailProbability, MyEntity weapon, MyEntity ownerEntity = null, float projectileCountMultiplier = 1)
+        public static void AddShrapnel(MyProjectileAmmoDefinition ammoDefinition, MyEntity[] ignoreEntities, Vector3 origin, Vector3 initialVelocity, Vector3 directionNormalized, bool groupStart, float thicknessMultiplier, float trailProbability, MyEntity weapon, MyEntity ownerEntity = null, float projectileCountMultiplier = 1)
         {
             MyProjectile newProjectile;
             m_projectiles.AllocateOrCreate(out newProjectile);
 
             newProjectile.Start(
                 ammoDefinition,
-                ignoreEntity,
+                ignoreEntities,
                 origin,
                 initialVelocity,
                 directionNormalized,
                 weapon
                 );
-            newProjectile.OwnerEntity = ownerEntity != null ? ownerEntity : ignoreEntity; 
+            newProjectile.OwnerEntity = ownerEntity ?? (ignoreEntities != null && ignoreEntities.Length > 0 ? ignoreEntities[0] : null); 
         }
 
         //  Not used apparently

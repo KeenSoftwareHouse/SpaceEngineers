@@ -4,6 +4,8 @@
 using System;
 using System.Threading;
 
+// This class has bugs, don't use it!
+// TODO: Make this obsolete, can't do it ATM because other things are using it.
 class Deque<T>
 {
     private const int INITIAL_SIZE = 32;

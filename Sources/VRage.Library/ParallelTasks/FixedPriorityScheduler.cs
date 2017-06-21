@@ -8,23 +8,7 @@ using VRage.Collections;
 
 namespace ParallelTasks
 {
-    /// <summary>
-    /// These values are indices into array of queues which is searched starting at 0.
-    /// </summary>
-    public enum WorkPriority
-    {
-        VeryHigh,
-        High,
-        Normal,
-        Low,
-        VeryLow,
-    }
-
-    public interface IPrioritizedWork : IWork
-    {
-        WorkPriority Priority { get; }
-    }
-
+#if !UNSHARPER
     public class FixedPriorityScheduler : IWorkScheduler
     {
         private readonly MyConcurrentQueue<Task>[] m_taskQueuesByPriority;
@@ -119,9 +103,9 @@ namespace ParallelTasks
 
             private void WorkerLoop(object o)
             {
-                Task task = new Task();
                 while (true)
                 {
+                    Task task;
                     if (m_scheduler.TryGetTask(out task))
                     {
                         task.DoWork();
@@ -136,4 +120,7 @@ namespace ParallelTasks
             }
         }
     }
+
+#endif //UNSHARPER
+
 }

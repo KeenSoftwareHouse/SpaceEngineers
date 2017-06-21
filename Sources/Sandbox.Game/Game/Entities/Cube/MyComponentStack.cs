@@ -15,6 +15,7 @@ using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities.Cube;
 using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {
@@ -108,7 +109,10 @@ namespace Sandbox.Game.Entities
                 {
                     bool oldFunctional = IsFunctional;
                     m_buildIntegrity = value;
-                    CheckFunctionalState(oldFunctional);
+                    if (m_buildIntegrity > 0.0f)
+                    {
+                        CheckFunctionalState(oldFunctional);
+                    }
                 }
             }
         }
@@ -262,7 +266,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public bool CanContinueBuild(MyInventory inventory, MyConstructionStockpile stockpile)
+        public bool CanContinueBuild(MyInventoryBase inventory, MyConstructionStockpile stockpile)
         {
             if (IsFullIntegrity)
                 return false;
@@ -282,7 +286,7 @@ namespace Sandbox.Game.Entities
                 return true;
             }
 
-            if (inventory != null && inventory.GetItemAmount(componentDefinition.Id) > 0)
+            if (inventory != null && MyCubeBuilder.BuildComponent.GetItemAmountCombined(inventory, componentDefinition.Id) > 0)
             {
                 return true;
             }
@@ -508,6 +512,10 @@ namespace Sandbox.Game.Entities
             Debug.Assert(!IsDestroyed, "Applying damage to an already destroyed stack. Block should have been removed.");
 
             UnmountInternal(damage, outputStockpile, true);
+
+            float buildIntegrityRatio = BuildIntegrity / Integrity; // Save the original build integrity ratio
+            // Following function calls CheckFunctionalState itself
+            UpdateBuildIntegrityDown(buildIntegrityRatio);
         }
 
 		private float GetDeconstructionEfficiency(int groupIndex, bool useDefault)

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Profiler;
+﻿using System.Text;
 using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Vertex;
+using VRageRender;
+using VRageRender.Profiler;
 
-namespace VRageRender.Profiler
+namespace VRage.Render11.Profiler.Internal
 {
-    class MyRenderProfilerDX11 : MyRenderProfilerRendering
+#if !XB1 // XB1_NOPROFILER
+    internal class MyRenderProfilerDX11 : MyRenderProfilerRendering
     {
         private MyRenderProfilerLineBatch m_lineBatch;
 
@@ -21,17 +17,17 @@ namespace VRageRender.Profiler
 
         public override Vector2 MeasureText(StringBuilder text, float scale)
         {
-            return MySpritesRenderer.MeasureText(text, scale);
+            return MyDebugTextHelpers.MeasureText(text, scale);
         }
 
         public override float DrawText(Vector2 screenCoord, StringBuilder text, Color color, float scale)
         {
-            return MySpritesRenderer.DrawText(screenCoord, text, color, scale);
+            return MyDebugTextHelpers.DrawText(screenCoord, text, color, scale);
         }
 
         public override float DrawTextShadow(Vector2 screenCoord, StringBuilder text, Color color, float scale)
         {
-            return MySpritesRenderer.DrawTextShadow(screenCoord, text, color, scale);
+            return MyDebugTextHelpers.DrawTextShadow(screenCoord, text, color, scale);
         }
 
         public override void DrawOnScreenLine(Vector3 v0, Vector3 v1, Color color)
@@ -55,9 +51,9 @@ namespace VRageRender.Profiler
             m_lineBatch.End();
 
             //GetRenderProfiler().StartProfilingBlock("MySpritesRenderer.Draw");
-            MyLinesRenderer.Draw(MyRender11.Backbuffer, null);
+            MyLinesRenderer.Draw(MyRender11.Backbuffer, true);
             //MyCommon.UpdateFrameConstants();
-            MySpritesRenderer.Draw(MyRender11.Backbuffer.m_RTV, new MyViewport(ViewportSize.X, ViewportSize.Y));
+            MySpritesRenderer.Draw(MyRender11.Backbuffer, new MyViewport(ViewportSize.X, ViewportSize.Y));
             //GetRenderProfiler().EndProfilingBlock();
 
             //GetRenderProfiler().StartProfilingBlock("MyLinesRenderer.Draw");
@@ -65,4 +61,9 @@ namespace VRageRender.Profiler
             //GetRenderProfiler().EndProfilingBlock();
         }
     }
+#else // XB1
+    class MyRenderProfilerDX11 : MyRenderProfilerRendering
+    {
+    }
+#endif // XB1
 }

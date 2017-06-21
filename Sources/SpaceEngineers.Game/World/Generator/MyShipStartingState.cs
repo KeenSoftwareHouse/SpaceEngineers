@@ -1,17 +1,10 @@
-﻿using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using System.Diagnostics;
 using Sandbox.Definitions;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using SpaceEngineers.Game.Players;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Game;
 using VRageMath;
 
-namespace SpaceEngineers.Game.World
+namespace SpaceEngineers.Game.World.Generator
 {
     [MyWorldGenerator.StartingStateType(typeof(MyObjectBuilder_WorldGeneratorPlayerStartingState_RespawnShip))]
     public class MyRespawnShipState : MyWorldGeneratorStartingStateBase

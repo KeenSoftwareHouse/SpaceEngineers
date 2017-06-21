@@ -10,6 +10,9 @@ namespace Sandbox.Definitions
 	public class MyTimerBlockDefinition : MyCubeBlockDefinition
 	{
 		public MyStringHash ResourceSinkGroup;
+        public string TimerSoundStart;
+        public string TimerSoundMid;
+        public string TimerSoundEnd;
 
 		protected override void Init(MyObjectBuilder_DefinitionBase builder)
 		{
@@ -19,6 +22,10 @@ namespace Sandbox.Definitions
 			Debug.Assert(timerBuilder != null);
 
 			ResourceSinkGroup = MyStringHash.GetOrCompute(timerBuilder.ResourceSinkGroup);
+
+            TimerSoundStart = timerBuilder.TimerSoundStart;
+            TimerSoundMid = timerBuilder.TimerSoundMid;
+            TimerSoundEnd = timerBuilder.TimerSoundEnd;
 		}
 	}
 }

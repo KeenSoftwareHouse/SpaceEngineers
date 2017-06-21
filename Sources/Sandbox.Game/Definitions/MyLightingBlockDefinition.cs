@@ -10,6 +10,7 @@ namespace Sandbox.Definitions
     public class MyLightingBlockDefinition : MyCubeBlockDefinition
     {
         public MyBounds LightRadius;
+        public MyBounds LightReflectorRadius;
         public MyBounds LightFalloff;
         public MyBounds LightIntensity;
         public MyBounds BlinkIntervalSeconds;
@@ -29,8 +30,9 @@ namespace Sandbox.Definitions
             BlinkIntervalSeconds = ob.LightBlinkIntervalSeconds;
             BlinkLenght = ob.LightBlinkLenght;
             BlinkOffset = ob.LightBlinkOffset;
-            LightRadius        = ob.LightRadius;
-            LightFalloff       = ob.LightFalloff;
+            LightRadius = ob.LightRadius;
+            LightReflectorRadius = ob.LightReflectorRadius;
+            LightFalloff = ob.LightFalloff;
             LightIntensity     = ob.LightIntensity;
 	        ResourceSinkGroup = MyStringHash.GetOrCompute(ob.ResourceSinkGroup);
             RequiredPowerInput = ob.RequiredPowerInput;

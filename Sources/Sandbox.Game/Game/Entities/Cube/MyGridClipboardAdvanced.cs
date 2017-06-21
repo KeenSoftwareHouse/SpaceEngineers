@@ -16,20 +16,20 @@ using VRageMath;
 using VRageRender;
 using VRage.ModAPI;
 using VRage;
+using VRage.Audio;
 using VRage.Library.Utils;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 
 namespace Sandbox.Game.Entities.Cube
 {
     /// <summary>
     /// Enhanced clipboard which supports dynamic placing, allow rotation of static grid.
     /// </summary>
-    class MyGridClipboardAdvanced : MyGridClipboard
+    public class MyGridClipboardAdvanced : MyGridClipboard
     {
         private static List<Vector3D> m_tmpCollisionPoints = new List<Vector3D>();
-
-        protected List<MyCubeGrid> m_touchingGrids = new List<MyCubeGrid>();
 
         protected bool m_dynamicBuildAllowed;
 
@@ -55,7 +55,13 @@ namespace Sandbox.Game.Entities.Cube
             if (!IsActive || !m_visible)
                 return;
 
-            UpdateHitEntity(false);
+            // If there is no hit then hide
+            bool hit = UpdateHitEntity(false);
+            if (MyFakes.ENABLE_VR_BUILDING && !hit)
+            {
+                Hide();
+                return;
+            }
 
             if (!m_visible)
             {
@@ -88,9 +94,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override void Activate()
+        public override void Activate(Action callback = null)
         {
-            base.Activate();
+            base.Activate(callback);
             SetupDragDistance();
         }
 
@@ -162,7 +168,10 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                result = PasteGridsInStaticMode(buildInventory, deactivate);
+                if (MyFakes.ENABLE_VR_BUILDING)
+                    result = PasteGridInternal(buildInventory: buildInventory, deactivate: deactivate);
+                else
+                    result = PasteGridsInStaticMode(buildInventory, deactivate);
             }
 
             return result;
@@ -190,13 +199,6 @@ namespace Sandbox.Game.Entities.Cube
 
         private bool PasteGridsInStaticMode(MyInventoryBase buildInventory, bool deactivate)
         {
-            MatrixD firstGridMatrix = GetFirstGridOrientationMatrix();
-            MatrixD inverseFirstGridMatrix = Matrix.Invert(firstGridMatrix);
-
-            List<MatrixD> previewMatrices = new List<MatrixD>();
-            foreach (var previewGrid in PreviewGrids)
-                previewMatrices.Add(previewGrid.WorldMatrix);
-
             {
                 // First grid is forced static
                 MyObjectBuilder_CubeGrid originalCopiedGrid = CopiedGrids[0];
@@ -314,7 +316,7 @@ namespace Sandbox.Game.Entities.Cube
             origBlock.Min = Vector3I.Min(tMin, tMax);
         }
 
-        protected new void UpdatePastePosition()
+        protected override void UpdatePastePosition()
         {
             m_pastePositionPrevious = m_pastePosition;
 
@@ -350,8 +352,8 @@ namespace Sandbox.Game.Entities.Cube
 
                 MatrixD pasteMatrix = GetPasteMatrix();
                 Vector3 dragVectorGlobal = pasteMatrix.Forward * m_dragDistance;
-                var gridSettings = m_settings.GetGridPlacementSettings(PreviewGrids[0]);
-                if (!TrySnapToSurface(gridSettings.Mode))
+                var gridSettings = m_settings.GetGridPlacementSettings(PreviewGrids[0].GridSizeEnum);
+                if (!TrySnapToSurface(gridSettings.SnapMode))
                 {
                     m_pastePosition = pasteMatrix.Translation + dragVectorGlobal;
 
@@ -362,15 +364,18 @@ namespace Sandbox.Game.Entities.Cube
                     IsSnapped = true;
                 }
 
-                double gridSize = PreviewGrids[0].GridSize;
-                if (m_settings.StaticGridAlignToCenter)
-                    m_pastePosition = Vector3I.Round(m_pastePosition / gridSize) * gridSize;
-                else
-                    m_pastePosition = Vector3I.Round(m_pastePosition / gridSize + 0.5) * gridSize - 0.5 * gridSize;
+                if (!MyFakes.ENABLE_VR_BUILDING)
+                {
+                    double gridSize = PreviewGrids[0].GridSize;
+                    if (m_settings.StaticGridAlignToCenter)
+                        m_pastePosition = Vector3I.Round(m_pastePosition / gridSize) * gridSize;
+                    else
+                        m_pastePosition = Vector3I.Round(m_pastePosition / gridSize + 0.5) * gridSize - 0.5 * gridSize;
+                }
             }
         }
 
-        internal void SetDragDistance(float dragDistance)
+        public void SetDragDistance(float dragDistance)
         {
             m_dragDistance = dragDistance;
         }
@@ -385,8 +390,6 @@ namespace Sandbox.Game.Entities.Cube
         {
             Vector3D? freePlacementIntersectionPoint = null;
             buildAllowed = false;
-
-            float gridSize = PreviewGrids[0].GridSize;
 
             double shortestDistance = double.MaxValue;
             double? currentRayInts = MyCubeBuilder.GetCurrentRayIntersection();
@@ -591,7 +594,7 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if (!m_dynamicBuildAllowed)
                     {
-                        var settings = m_settings.GetGridPlacementSettings(grid, false);
+                        var settings = m_settings.GetGridPlacementSettings(grid.GridSizeEnum, false);
 
                         BoundingBoxD localAabb = (BoundingBoxD)grid.PositionComp.LocalAABB;
                         MatrixD worldMatrix = grid.WorldMatrix;
@@ -618,9 +621,9 @@ namespace Sandbox.Game.Entities.Cube
                 else
                 { //not dynamic building mode
 
-                    if (i == 0 && m_hitEntity is MyCubeGrid && IsSnapped && SnapMode == MyGridPlacementSettings.SnapMode.Base6Directions)
+                    if (i == 0 && m_hitEntity is MyCubeGrid && IsSnapped && SnapMode == SnapMode.Base6Directions)
                     {
-                        var settings = grid.GridSizeEnum == MyCubeSize.Large ? MyPerGameSettings.BuildingSettings.LargeStaticGrid : MyPerGameSettings.BuildingSettings.SmallStaticGrid;
+                        var settings = grid.GridSizeEnum == MyCubeSize.Large ? MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.LargeStaticGrid : MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.SmallStaticGrid;
 
                         var hitGrid = m_hitEntity as MyCubeGrid;
 
@@ -671,8 +674,8 @@ namespace Sandbox.Game.Entities.Cube
                         // Check with grid settings
                         {
                             MyCubeGrid touchingGrid = null;
-                            var settings = i == 0 ? (grid.GridSizeEnum == MyCubeSize.Large ? MyPerGameSettings.BuildingSettings.LargeStaticGrid : MyPerGameSettings.BuildingSettings.SmallStaticGrid)
-                                : MyPerGameSettings.BuildingSettings.GetGridPlacementSettings(grid);
+                            var settings = i == 0 ? (grid.GridSizeEnum == MyCubeSize.Large ? MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.LargeStaticGrid : MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.SmallStaticGrid)
+                                : MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.GetGridPlacementSettings(grid.GridSizeEnum);
 
                             if (grid.IsStatic)
                             {
@@ -735,7 +738,7 @@ namespace Sandbox.Game.Entities.Cube
                         // Check connectivity with touching grid
                         if (retval && m_touchingGrids[i] != null)
                         {
-                            var settings = grid.GridSizeEnum == MyCubeSize.Large ? MyPerGameSettings.BuildingSettings.LargeStaticGrid : MyPerGameSettings.BuildingSettings.SmallStaticGrid;
+                            var settings = grid.GridSizeEnum == MyCubeSize.Large ? MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.LargeStaticGrid : MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.SmallStaticGrid;
                             retval = retval && TestGridPlacementOnGrid(grid, ref settings, m_touchingGrids[i]);
                         }
 
@@ -746,7 +749,7 @@ namespace Sandbox.Game.Entities.Cube
                                 bool smallStaticGrid = grid.GridSizeEnum == MyCubeSize.Small && grid.IsStatic;
                                 if (smallStaticGrid || !grid.IsStatic)
                                 {
-                                    var settings = i == 0 ? m_settings.GetGridPlacementSettings(grid, false) : MyPerGameSettings.BuildingSettings.SmallStaticGrid;
+                                    var settings = i == 0 ? m_settings.GetGridPlacementSettings(grid.GridSizeEnum, false) : MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.SmallStaticGrid;
                                     bool localRetVal = true;
 
                                     foreach (var block in grid.CubeBlocks)
@@ -764,7 +767,7 @@ namespace Sandbox.Game.Entities.Cube
                                 }
                                 else if (m_touchingGrids[i] == null)
                                 {
-                                    var settings = m_settings.GetGridPlacementSettings(grid, i == 0 ? true : grid.IsStatic);
+                                    var settings = m_settings.GetGridPlacementSettings(grid.GridSizeEnum, i == 0 ? true : grid.IsStatic);
 
                                     MyCubeGrid touchingGridLocal = null;
 
@@ -946,12 +949,20 @@ namespace Sandbox.Game.Entities.Cube
             return MyCubeGrid.TestPlacementAreaCubeNoAABBInflate(block.CubeGrid, ref settings, block.Min, block.Max, block.Orientation, block.BlockDefinition, out touchingGrid, ignoredEntity: block.CubeGrid);
         }
 
-        protected static bool TestBlockPlacementArea(MySlimBlock block, ref MyGridPlacementSettings settings, bool dynamicMode)
+        protected static bool TestVoxelPlacement(MySlimBlock block, ref MyGridPlacementSettings settings, bool dynamicMode)
         {
             var localAabb = BoundingBoxD.CreateInvalid();
             localAabb.Include(block.Min * block.CubeGrid.GridSize - block.CubeGrid.GridSize / 2);
             localAabb.Include(block.Max * block.CubeGrid.GridSize + block.CubeGrid.GridSize / 2);
-            return MyCubeGrid.TestBlockPlacementArea(block.BlockDefinition, block.Orientation, block.CubeGrid.WorldMatrix, ref settings, localAabb, dynamicMode, ignoredEntity: block.CubeGrid);
+            return MyCubeGrid.TestVoxelPlacement(block.BlockDefinition, settings, dynamicMode, block.CubeGrid.WorldMatrix, localAabb);
+        }
+
+        protected static bool TestBlockPlacementArea(MySlimBlock block, ref MyGridPlacementSettings settings, bool dynamicMode, bool testVoxel = true)
+        {
+            var localAabb = BoundingBoxD.CreateInvalid();
+            localAabb.Include(block.Min * block.CubeGrid.GridSize - block.CubeGrid.GridSize / 2);
+            localAabb.Include(block.Max * block.CubeGrid.GridSize + block.CubeGrid.GridSize / 2);
+            return MyCubeGrid.TestBlockPlacementArea(block.BlockDefinition, block.Orientation, block.CubeGrid.WorldMatrix, ref settings, localAabb, dynamicMode, block.CubeGrid, testVoxel);
         }
 
         private void UpdatePreview()
@@ -976,6 +987,9 @@ namespace Sandbox.Game.Entities.Cube
             //}
 
             string lineMaterial = m_canBePlaced ? "GizmoDrawLine" : "GizmoDrawLineRed";
+            if (MyFakes.ENABLE_VR_BUILDING && m_canBePlaced)
+                return;
+
             Color white = Color.White;
 
             foreach (var grid in PreviewGrids)
@@ -1025,8 +1039,8 @@ namespace Sandbox.Game.Entities.Cube
         public override void MoveEntityCloser()
         {
             base.MoveEntityCloser();
-            if (m_dragDistance < MyCubeBuilder.MIN_BLOCK_BUILDING_DISTANCE)
-                m_dragDistance = MyCubeBuilder.MIN_BLOCK_BUILDING_DISTANCE;
+            if (m_dragDistance < MyCubeBuilder.CubeBuilderDefinition.MinBlockBuildingDistance)
+                m_dragDistance = MyCubeBuilder.CubeBuilderDefinition.MinBlockBuildingDistance;
         }
     }
 }

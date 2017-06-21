@@ -27,6 +27,7 @@ namespace Sandbox.Game.Gui
             ProceduralLow = -1,
             ProceduralNormal = -2,
             ProceduralHigh = -3,
+            ProceduralNone = -4,
         }
 
         MyGuiScreenWorldSettings m_parent;
@@ -63,6 +64,9 @@ namespace Sandbox.Game.Gui
                         return;
                     case (int)AsteroidAmountEnum.Many:
                         m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.Many);
+                        return;
+                    case (int)AsteroidAmountEnum.ProceduralNone:
+                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.ProceduralNone);
                         return;
                     case (int)AsteroidAmountEnum.ProceduralLow:
                         m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.ProceduralLow);
@@ -131,17 +135,26 @@ namespace Sandbox.Game.Gui
 
             m_asteroidAmountCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsAsteroidAmount));
 
-            m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Normal, MySpaceTexts.WorldSettings_AsteroidAmountNormal);
-            m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.More, MySpaceTexts.WorldSettings_AsteroidAmountLarge);
-            if (Environment.Is64BitProcess)
-                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+//            m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Normal, MySpaceTexts.WorldSettings_AsteroidAmountNormal);
+//            m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.More, MySpaceTexts.WorldSettings_AsteroidAmountLarge);
+//#if XB1
+//            m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+//#else // !XB1
+//            if (Environment.Is64BitProcess)
+//                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+//#endif // !XB1
 
             if (MyFakes.ENABLE_ASTEROID_FIELDS)
             {
+                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralNone, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNone);
                 m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralLow, MySpaceTexts.WorldSettings_AsteroidAmountProceduralLow);
                 m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralNormal, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNormal);
+#if XB1
+                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+#else // !XB1
                 if (Environment.Is64BitProcess)
                     m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+#endif // !XB1
             }
 
             m_asteroidAmountLabel = MakeLabel(MySpaceTexts.Asteroid_Amount);
@@ -197,7 +210,8 @@ namespace Sandbox.Game.Gui
 
         void grassDensitySlider_ValueChanged(MyGuiControlSlider slider)
         {
-            MyRenderProxy.Settings.GrassDensityFactor = slider.Value;
+            MyRenderProxy.Settings.User.GrassDensityFactor = slider.Value;
+            MyRenderProxy.SetSettingsDirty();
         }
 
         void m_asteroidAmountCombo_ItemSelected()
@@ -243,6 +257,27 @@ namespace Sandbox.Game.Gui
         protected new MyGuiControlLabel AddCaption(MyStringId textEnum, Vector4? captionTextColor = null, Vector2? captionOffset = null, float captionScale = MyGuiConstants.DEFAULT_TEXT_SCALE)
         {
             return AddCaption(MyTexts.GetString(textEnum), captionTextColor: captionTextColor, captionOffset: captionOffset, captionScale: captionScale);
-        }    
+        }
+
+        public static float ConvertAsteroidAmountToDensity(AsteroidAmountEnum @enum)
+        {
+            switch (@enum)
+            {
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNone:
+                    return 0.00f;
+                    break;
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow:
+                    return 0.25f;
+                    break;
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal:
+                    return 0.35f;
+                    break;
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh:
+                    return 0.50f;
+                    break;
+            }
+
+            return 0f;
+        }
     }
 }

@@ -24,6 +24,6 @@ namespace VRage.Game
         public int TextBoxAlign;
 
         [ProtoMember]
-        public MyFontEnum Font;
+        public string Font;
     }
 }

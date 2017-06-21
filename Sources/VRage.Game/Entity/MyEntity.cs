@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -13,6 +14,9 @@ using VRage.Game.Models;
 using VRage.Game.Gui;
 using VRage.Game.Utils;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Library.Collections;
+using VRage.Profiler;
+using VRage.Network;
 
 #endregion
 
@@ -60,6 +64,9 @@ namespace VRage.Game.Entity
         // server velocities
         public Vector3 m_serverLinearVelocity;
         public Vector3 m_serverAngularVelocity;
+
+        public bool m_positionResetFromServer;
+        public bool SentFromServer;
 
         MyRenderComponentBase m_render;
         public MyRenderComponentBase Render
@@ -122,6 +129,8 @@ namespace VRage.Game.Entity
         public bool StaticForPruningStructure = false;
         public int TargetPruningProxyId = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
+        bool m_raisePhysicsCalled = false;
+
         #endregion
 
         #region Properties
@@ -172,6 +181,10 @@ namespace VRage.Game.Entity
 
         public MySyncComponentBase SyncObject { get { return m_syncObject; } protected set { Components.Add<MySyncComponentBase>(value); } }
 
+        private MyModStorageComponentBase m_storage;
+
+        public MyModStorageComponentBase Storage { get { return m_storage; } set { Components.Add<MyModStorageComponentBase>(value); } }
+
         //Only debug property, use only for asserts, not for game logic.
         //Consider as being called after delete in C++
         public bool Closed { get; protected set; }
@@ -201,6 +214,42 @@ namespace VRage.Game.Entity
                     Flags |= EntityFlags.Save;
                 else
                     Flags &= ~EntityFlags.Save;
+            }
+        }
+
+        bool m_isPreview = false;
+        public bool IsPreview
+        {
+            get
+            {
+                return m_isPreview;
+            }
+            set
+            {
+                m_isPreview = value;
+            }
+        }
+
+        bool m_isreadyForReplication = false;
+        public Dictionary<IMyReplicable, Action> ReadyForReplicationAction = new Dictionary<IMyReplicable, Action>();
+
+        // Indicates whether the entity finished initialization and can be replicated for clients
+        public bool IsReadyForReplication
+        {
+            get { return m_isreadyForReplication; }
+            set 
+            {
+                m_isreadyForReplication = value;
+
+                // Add your replicable to priority updates once done. Kind of hacky implementation. Should be remade when possible
+                if (m_isreadyForReplication && ReadyForReplicationAction.Count > 0)
+                {
+                    foreach (var action in ReadyForReplicationAction.Values)
+                    {
+                        action();
+                    }
+                    ReadyForReplicationAction.Clear();
+                }
             }
         }
 
@@ -411,6 +460,17 @@ namespace VRage.Game.Entity
             }
         }
 
+        public string DebugName
+        {
+            get
+            {
+                string name = m_displayName ?? Name;
+                if (name == null)
+                    name = "";
+                return name + " (" + GetType().Name + ", " + EntityId.ToString() + ")";
+            }
+        }
+
         public Dictionary<string, MyEntitySubpart> Subparts
         {
             get;
@@ -485,6 +545,10 @@ namespace VRage.Game.Entity
             {
                 OnInventoryComponentAdded(c as MyInventoryBase);
             }
+            else if ((typeof(MyModStorageComponentBase)).IsAssignableFrom(t))
+            {
+                m_storage = c as MyModStorageComponentBase;
+            }
         }
 
         void Components_ComponentRemoved(Type t, MyEntityComponentBase c)
@@ -508,6 +572,10 @@ namespace VRage.Game.Entity
             {
                 OnInventoryComponentRemoved(c as MyInventoryBase);
             }
+            else if ((typeof(MyModStorageComponentBase)).IsAssignableFrom(t))
+            {
+                m_storage = null;
+            }
         }
 
         protected virtual MySyncComponentBase OnCreateSync()
@@ -519,6 +587,16 @@ namespace VRage.Game.Entity
         public void CreateSync()
         {
             SyncObject = OnCreateSync();
+        }
+
+        public MyEntitySubpart GetSubpart(string name)
+        {
+            return Subparts[name];
+        }
+
+        public bool TryGetSubpart(string name, out MyEntitySubpart subpart)
+        {
+            return Subparts.TryGetValue(name, out subpart);
         }
 
         #region Update
@@ -551,7 +629,9 @@ namespace VRage.Game.Entity
         /// </summary>
         public virtual void UpdateBeforeSimulation10()
         {
+            ProfilerShort.Begin(m_gameLogic.GetType().Name);
             m_gameLogic.UpdateBeforeSimulation10();
+            ProfilerShort.End();
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
         }
         public virtual void UpdateAfterSimulation10()
@@ -597,6 +677,11 @@ namespace VRage.Game.Entity
             {
                 Physics.SetSpeeds(m_serverLinearVelocity, m_serverAngularVelocity);
             }
+        }
+
+        public virtual void SetWorldMatrix(MatrixD worldMatrix, bool forceUpdate = false, bool updateChildren = true)
+        {
+            if (PositionComp != null) PositionComp.SetWorldMatrix(worldMatrix, null, forceUpdate, updateChildren );
         }
 
         #endregion
@@ -826,8 +911,15 @@ namespace VRage.Game.Entity
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
 
+            // If this is just an Entity
+            if (GetType() == typeof(MyEntity))
+            {
+                Flags |= EntityFlags.Save | EntityFlags.IsGamePrunningStructureObject;
+                PositionComp.LocalVolume = new BoundingSphere(Vector3.Zero, 0.5f);
+            }
+
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("AddToGamePruningStructure");
-            if (Parent == null)
+            if (Parent == null || (Flags & EntityFlags.IsGamePrunningStructureObject) != 0)
                 AddToGamePruningStructureExtCallBack(this);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
@@ -835,7 +927,10 @@ namespace VRage.Game.Entity
 
             foreach (var child in Hierarchy.Children)
             {
-                child.Container.Entity.OnAddedToScene(source);
+                if (!child.Container.Entity.InScene)
+                {
+                    child.Container.Entity.OnAddedToScene(source);
+                }
             }
 
             MyProceduralWorldGeneratorTrackEntityExtCallback(this);
@@ -843,7 +938,6 @@ namespace VRage.Game.Entity
             MyWeldingGroupsAddNodeExtCallback(this);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
-
 
         public virtual void OnRemovedFromScene(object source)
         {
@@ -910,6 +1004,11 @@ namespace VRage.Game.Entity
         //jn:TODO this should be on Physics component
         public void RaisePhysicsChanged()
         {
+            if (m_raisePhysicsCalled)
+            {
+                return;
+            }
+            m_raisePhysicsCalled = true;
             // TODO: JanN, this should be done cleaner imho
             if (!InScene)
             {
@@ -928,9 +1027,19 @@ namespace VRage.Game.Entity
                 }
                 m_tmpOnPhysicsChanged.Clear();
             }
+            m_raisePhysicsCalled = false;
         }
 
         #region Drawing, objectbuilder, init & close
+
+        /// <summary>
+        /// DONT USE THIS METHOD, EVER!
+        /// </summary>
+        /// <param name="id"></param>
+        public void HackyComponentInitByMiroPleaseDontUseEver(MyDefinitionId id)
+        {
+            InitComponentsExtCallback(Components, id.TypeId, id.SubtypeId, null);
+        }
 
         public virtual void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -957,15 +1066,31 @@ namespace VRage.Game.Entity
                 if (objectBuilder.PositionAndOrientation.HasValue)
                 {
                     var posAndOrient = objectBuilder.PositionAndOrientation.Value;
-                    MatrixD matrix = MatrixD.CreateWorld(posAndOrient.Position, posAndOrient.Forward, posAndOrient.Up);
-                    MyUtils.AssertIsValid(matrix);
 
+                    //GR: Check for NaN values and remove them (otherwise there will be problems wilth clusters)
+                    if (posAndOrient.Position.x.IsValid() == false)
+                    {
+                        posAndOrient.Position.x = 0.0f;
+                    }
+                    if (posAndOrient.Position.y.IsValid() == false)
+                    {
+                        posAndOrient.Position.y = 0.0f;
+                    }
+                    if (posAndOrient.Position.z.IsValid() == false)
+                    {
+                        posAndOrient.Position.z = 0.0f;
+                    }
+
+                    MatrixD matrix = MatrixD.CreateWorld(posAndOrient.Position, posAndOrient.Forward, posAndOrient.Up);
+                    //if (matrix.IsValid())
+                    //    MatrixD.Rescale(ref matrix, scale);
+                    MyUtils.AssertIsValid(matrix);
                     PositionComp.SetWorldMatrix((MatrixD)matrix);
                     ClampToWorld();
                 }
 
                 this.Name = objectBuilder.Name;
-                this.Render.PersistentFlags = objectBuilder.PersistentFlags;
+                this.Render.PersistentFlags = objectBuilder.PersistentFlags & ~VRage.ObjectBuilders.MyPersistentEntityFlags2.InScene;
 
                 // This needs to be called after Entity has it's valid EntityID so components when are initiliazed or added to container, they get valid EntityID
                 InitComponentsExtCallback(this.Components, DefinitionId.Value.TypeId, DefinitionId.Value.SubtypeId, objectBuilder.ComponentContainer);
@@ -975,7 +1100,7 @@ namespace VRage.Game.Entity
                 AllocateEntityID();
             }
 
-            this.InScene = false;
+            Debug.Assert(!this.InScene, "Entity is in scene after creation!");
 
             MyEntitiesInterface.SetEntityName(this, false);
 
@@ -1040,27 +1165,32 @@ namespace VRage.Game.Entity
                 parentObject.Hierarchy.AddChild(this, false, false);
             }
 
+            if (PositionComp.Scale == null)
             PositionComp.Scale = scale;
 
             AllocateEntityID();
             ProfilerShort.End();
         }
 
-        public void RefreshModels(string model, string modelCollision)
+        public virtual void RefreshModels(string model, string modelCollision)
         {
+            float scale = PositionComp.Scale.GetValueOrDefault(1.0f);
             if (model != null)
             {
                 Render.ModelStorage = VRage.Game.Models.MyModels.GetModelOnlyData(model);
                 var renderModel = Render.GetModel();
-                PositionComp.LocalVolumeOffset = renderModel == null ? Vector3.Zero : renderModel.BoundingSphere.Center;
-            }
+                PositionComp.LocalVolumeOffset = renderModel == null ? Vector3.Zero : renderModel.BoundingSphere.Center * scale;
+             }
 
             if (modelCollision != null)
                 m_modelCollision = VRage.Game.Models.MyModels.GetModelOnlyData(modelCollision);
 
             if (Render.ModelStorage != null)
             {
-                this.PositionComp.LocalAABB = Render.GetModel().BoundingBox;
+                var localAABB = Render.GetModel().BoundingBox;
+                localAABB.Min = localAABB.Min * scale;
+                localAABB.Max = localAABB.Max * scale;
+                this.PositionComp.LocalAABB = localAABB;
 
                 bool idAllocationState = MyEntityIdentifier.AllocationSuspended;
                 try
@@ -1099,10 +1229,16 @@ namespace VRage.Game.Entity
                         MyEntitySubpart subpart = new MyEntitySubpart();
                         subpart.Render.EnableColorMaskHsv = Render.EnableColorMaskHsv;
                         subpart.Render.ColorMaskHsv = Render.ColorMaskHsv;
-                        subpart.Init(null, data.File, this, null);
+                        // First rescale model
+                        var subPartModel = MyModels.GetModelOnlyData(data.File);
+                        if (subPartModel != null && Model != null)
+                            subPartModel.Rescale(Model.ScaleFactor);
+
+                        subpart.Init(null, data.File, this, PositionComp.Scale);
 
                         // Set this to false becase no one else is responsible for rendering subparts
                         subpart.Render.NeedsDrawFromParent = false;
+                        subpart.Render.PersistentFlags = Render.PersistentFlags & ~MyPersistentEntityFlags2.InScene;
 
                         subpart.PositionComp.LocalMatrix = data.InitialTransform;
                         Subparts[data.Name] = subpart;
@@ -1115,13 +1251,6 @@ namespace VRage.Game.Entity
                 {
                     MyEntityIdentifier.AllocationSuspended = idAllocationState;
                 }
-
-                if (Render.GetModel().GlassData != null)
-                {
-                    Render.NeedsDraw = true;
-                    Render.NeedsDrawFromParent = true;
-                }
-
             }
             else
             {   //entities without model has box with side length = 1 by default
@@ -1137,9 +1266,16 @@ namespace VRage.Game.Entity
         /// </summary>
         public void Delete()
         {
+            if(Closed)
+                return;
+
             Close();
             BeforeDelete();
-            GameLogic.Close();
+            if(GameLogic != null)
+            {
+                GameLogic.Close();
+            }
+
             //doesnt work in parallel update
             //Debug.Assert(MySandboxGame.IsMainThread(), "Entity.Close() called not from Main Thread!");
             Debug.Assert(MyEntitiesInterface.IsUpdateInProgress() == false, "Do not close entities directly in Update*, use MarkForClose() instead");
@@ -1160,10 +1296,6 @@ namespace VRage.Game.Entity
             //OnPositionChanged = null;
 
             CallAndClearOnClosing();
-
-            // hide decals - decals of children are already hidden, see above
-            if (this.Render.RenderObjectIDs.Length > 0)
-                VRageRender.MyRenderProxy.HideDecals(this.Render.RenderObjectIDs[0], Vector3.Zero, 0);
 
             MyEntitiesInterface.RemoveName(this);
             MyEntitiesInterface.RemoveFromClosedEntities(this);
@@ -1322,6 +1454,30 @@ namespace VRage.Game.Entity
 
         }
 
+        public void SetEmissiveParts(string emissiveName, Color emissivePartColor, float emissivity)
+        {
+            UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], emissiveName, emissivePartColor, emissivity);
+        }
+
+        public void SetEmissivePartsForSubparts(string emissiveName, Color emissivePartColor, float emissivity)
+        {
+            if (Subparts != null)
+            {
+                foreach (var subPart in Subparts)
+                {
+                    subPart.Value.SetEmissiveParts(emissiveName, emissivePartColor, emissivity);
+                }
+            }
+        }
+
+        protected static void UpdateNamedEmissiveParts(uint renderObjectId, string emissiveName, Color emissivePartColor, float emissivity)
+        {
+            if (renderObjectId != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
+            {
+                VRageRender.MyRenderProxy.UpdateColorEmissivity(renderObjectId, 0, emissiveName, emissivePartColor, emissivity);
+            }
+        }
+
         #endregion
 
         public override string ToString()
@@ -1440,5 +1596,21 @@ namespace VRage.Game.Entity
 
         // VRAGE TODO: Delegates helping us to move MyEntity to VRage.Game. See above.
         public static Action<MyComponentContainer, MyObjectBuilderType, MyStringHash, MyObjectBuilder_ComponentContainer> InitComponentsExtCallback = null;
+
+        // VRAGE TODO: Delegates helping us to move MyEntity to VRage.Game. See above.
+        public static Func<MyObjectBuilder_EntityBase, bool, MyEntity> MyEntitiesCreateFromObjectBuilderExtCallback = null; 
+
+        public virtual void SerializeControls(BitStream stream)
+        {
+            stream.WriteBool(false);
+        }
+        public virtual void DeserializeControls(BitStream stream, bool outOfOrder)
+        {
+            var valid = stream.ReadBool();
+            Debug.Assert(!valid);
+        }
+        public virtual void ApplyLastControls()
+        {
+        }
     }
 }

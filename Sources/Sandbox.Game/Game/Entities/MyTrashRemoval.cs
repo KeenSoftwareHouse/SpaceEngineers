@@ -32,8 +32,22 @@ namespace Sandbox.Game.Entities
             { MyTrashRemovalFlags.DistanceFromPlayer,  MyCommonTexts.ScreenDebugAdminMenu_DistanceFromPlayer},
         };
 
+        // Enable trash preview
         public static bool PreviewEnabled = false;
-        public static MyTrashRemovalSettings PreviewSettings = MyTrashRemovalSettings.Default;
+
+        //Trash settings
+        public static MyTrashRemovalSettings PreviewSettings= MyTrashRemovalSettings.Default;
+
+        public static int REMOVAL_INTERVAL_MINIMUM_S = 10;
+        public static int REMOVAL_INTERVAL_MAXIMUM_S = 3600;
+
+        //Trash action interval
+        public static int CurrentRemovalInterval = 10;
+
+        //Is trash paused?
+        public static bool RemovalPaused = false;
+
+        public static MyTrashRemovalOperation TrashOperation = MyTrashRemovalOperation.Remove;
 
         public static string GetName(MyTrashRemovalFlags flag)
         {
@@ -61,7 +75,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        // Temporary method
         public static int Calculate(MyTrashRemovalSettings settings)
         {
             int num = 0;
@@ -139,9 +152,13 @@ namespace Sandbox.Game.Entities
 
             if (grid.Physics != null)
             {
-                isAccelerating = grid.Physics.AngularAcceleration.AbsMax() > 0.05f || grid.Physics.LinearAcceleration.AbsMax() > 0.05f;
                 isStationary = grid.Physics.AngularVelocity.AbsMax() < 0.05f && grid.Physics.LinearVelocity.AbsMax() < 0.05f;
+                isAccelerating = !isStationary && (grid.Physics.AngularAcceleration.AbsMax() > 0.05f || grid.Physics.LinearAcceleration.AbsMax() > 0.05f);
                 isLinearMoving = !isAccelerating && !isStationary;
+            }
+            else
+            {
+                return MyTrashRemovalFlags.Default;
             }
 
             if (!settings.HasFlag(MyTrashRemovalFlags.Stationary) && isStationary)
@@ -163,7 +180,10 @@ namespace Sandbox.Game.Entities
                 if (!settings.HasFlag(MyTrashRemovalFlags.Controlled) && grid.GridSystems.ControlSystem.IsControlled)
                     return MyTrashRemovalFlags.Controlled;
 
-                if (!settings.HasFlag(MyTrashRemovalFlags.WithProduction) && grid.GridSystems.ControlSystem.IsControlled)
+                if(!settings.HasFlag(MyTrashRemovalFlags.WithProduction) &&
+                    (grid.BlocksCounters.GetValueOrDefault(typeof(MyObjectBuilder_ProductionBlock)) > 0 ||
+                    grid.BlocksCounters.GetValueOrDefault(typeof(MyObjectBuilder_Assembler)) > 0 ||
+                    grid.BlocksCounters.GetValueOrDefault(typeof(MyObjectBuilder_Refinery)) > 0))
                     return MyTrashRemovalFlags.WithProduction;
             }
 

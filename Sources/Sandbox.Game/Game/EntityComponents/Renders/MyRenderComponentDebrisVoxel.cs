@@ -6,7 +6,7 @@ using VRageRender;
 using VRageMath;
 
 using Sandbox.Game.Entities.Debris;
-using Sandbox.Common.Components;
+
 using VRage.Utils;
 
 namespace Sandbox.Game.Components

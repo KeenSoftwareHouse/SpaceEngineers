@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,8 @@ using VRage.FileSystem;
 
 namespace VRage.Trace
 {
+
+#if !UNSHARPER
     class MyWintraceWrapper : ITrace
     {
         static Type m_winTraceType;
@@ -90,4 +93,7 @@ namespace VRage.Trace
             }
         }
     }
+
+#endif
 }
+#endif // !XB1

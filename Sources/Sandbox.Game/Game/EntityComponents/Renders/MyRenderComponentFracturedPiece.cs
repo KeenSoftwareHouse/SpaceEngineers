@@ -1,5 +1,5 @@
 ﻿using Havok;
-using Sandbox.Common.Components;
+
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
@@ -10,6 +10,7 @@ using VRage.Import;
 using VRageMath;
 using VRageMath.PackedVector;
 using VRageRender;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Components
 {

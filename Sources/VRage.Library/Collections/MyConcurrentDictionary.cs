@@ -135,6 +135,18 @@ namespace VRage.Collections
             }
         }
 
+        public TValue GetValueOrDefault(TKey key, TValue defaultValue)
+        {
+            TValue val;
+            return TryGetValue(key, out val) ? val : defaultValue;
+        }
+
+        public KeyValuePair<TKey, TValue> FirstPair()
+        {
+            var e = GetEnumerator();
+            e.MoveNext();
+            return e.Current;
+        }
 
         private class EWrapper : IEnumerator<KeyValuePair<TKey, TValue>>
         {

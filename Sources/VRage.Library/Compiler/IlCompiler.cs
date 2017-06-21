@@ -1,7 +1,9 @@
 ﻿using Microsoft.CSharp;
 using System;
+using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,83 +11,174 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using VRage.FileSystem;
+#if UNSHARPER
+using System.Diagnostics;
+#endif
+
 
 namespace VRage.Compiler
 {
+#if XB1
+	[Unsharper.UnsharperDisableReflection()]
+	public class IlCompiler
+	{
+		static IlCompiler()
+		{
+
+		}
+        public static string[] UpdateCompatibility(string[] files)
+		{
+			Debug.Assert(false); return null;
+		}
+        public static bool CompileFileModAPI(string assemblyName, string[] files, out Assembly assembly, List<string> errors)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+
+        public static bool CompileStringIngame(string assemblyName, string[] source, out Assembly assembly, List<string> errors)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+        private static bool CheckResultInternal(ref Assembly assembly, List<string> errors, CompilerResults result,bool isIngameScript)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+        public static bool Compile(string assemblyName, string[] fileContents, out Assembly assembly, List<string> errors, bool isIngameScript)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+        public static bool Compile(string[] instructions, out Assembly assembly,bool isIngameScript, bool wrap = true)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+		public static StringBuilder Buffer = new StringBuilder();
+	}
+#else
     public class IlCompiler
     {
+        // TODO: Move the compatibility stuff into its own system once the Roslyn scripts have been integrated.
+
         public static System.CodeDom.Compiler.CompilerParameters Options;
+
+        /// <summary>
+        /// Usings that will be added to scripts before compilation. Those usings will replace default ones.
+        /// </summary>
+        public static string CompatibilityUsings = "using VRage;\r\n"
+                                                 + "using VRage.Game.Components;\r\n"
+                                                 + "using VRage.ObjectBuilders;\r\n"
+                                                 + "using VRage.ModAPI;\r\n"
+                                                 + "using VRage.Game.ModAPI;\r\n"
+                                                 + "using Sandbox.Common.ObjectBuilders;\r\n"
+                                                 + "using VRage.Game;\r\n"
+                                                 + "using Sandbox.ModAPI;\r\n"
+                                                 + "using VRage.Game.ModAPI.Interfaces;\r\n"
+                                                 + "using SpaceEngineers.Game.ModAPI;\r\n";
 
         private static CSharpCodeProvider m_cp = new CSharpCodeProvider();
         private static IlReader m_reader = new IlReader();
         static Dictionary<string, string> m_compatibilityChanges = new Dictionary<string, string>() {
-        {"using VRage.Common.Voxels;", "" },
-        {"VRage.Common.Voxels.", "" },
-        {"Sandbox.ModAPI.IMyEntity","VRage.ModAPI.IMyEntity"},
-        {"Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase","VRage.ObjectBuilders.MyObjectBuilder_EntityBase"},
-        {"Sandbox.Common.MyEntityUpdateEnum","VRage.ModAPI.MyEntityUpdateEnum"},
-        {"using Sandbox.Common.ObjectBuilders.Serializer;",""},
-        {"Sandbox.Common.ObjectBuilders.Serializer.",""},
-        {"Sandbox.Common.MyMath","VRageMath.MyMath"},
-        {"Sandbox.Common.ObjectBuilders.VRageData.SerializableVector3I","VRage.SerializableVector3I"},
-        {"VRage.Components","VRage.Game.Components"},
-        {"using Sandbox.Common.ObjectBuilders.VRageData;",""},
-        {"Sandbox.Common.ObjectBuilders.MyOnlineModeEnum","VRage.Game.MyOnlineModeEnum"},
-        {"Sandbox.Common.ObjectBuilders.Definitions.MyDamageType","VRage.Game.MyDamageType"},
-        {"Sandbox.Common.ObjectBuilders.VRageData.SerializableBlockOrientation","VRage.Game.SerializableBlockOrientation"},
-        {"Sandbox.Common.MySessionComponentDescriptor","VRage.Game.Components.MySessionComponentDescriptor"},
-        {"Sandbox.Common.MyUpdateOrder","VRage.Game.Components.MyUpdateOrder"},
-        {"Sandbox.Common.MySessionComponentBase","VRage.Game.Components.MySessionComponentBase"},
-        {"Sandbox.Common.MyFontEnum","VRage.Game.MyFontEnum"},
-        {"Sandbox.Common.MyRelationsBetweenPlayerAndBlock","VRage.Game.MyRelationsBetweenPlayerAndBlock"}};
-
+            {"using VRage.Common.Voxels;", "" },
+            {"VRage.Common.Voxels.", "" },
+            {"Sandbox.ModAPI.IMyEntity","VRage.ModAPI.IMyEntity"},
+            {"Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase","VRage.ObjectBuilders.MyObjectBuilder_EntityBase"},
+            {"Sandbox.Common.MyEntityUpdateEnum","VRage.ModAPI.MyEntityUpdateEnum"},
+            {"using Sandbox.Common.ObjectBuilders.Serializer;",""},
+            {"Sandbox.Common.ObjectBuilders.Serializer.",""},
+            {"Sandbox.Common.MyMath","VRageMath.MyMath"},
+            {"Sandbox.Common.ObjectBuilders.VRageData.SerializableVector3I","VRage.SerializableVector3I"},
+            {"VRage.Components","VRage.Game.Components"},
+            {"using Sandbox.Common.ObjectBuilders.VRageData;",""},
+            {"Sandbox.Common.ObjectBuilders.MyOnlineModeEnum","VRage.Game.MyOnlineModeEnum"},
+            {"Sandbox.Common.ObjectBuilders.Definitions.MyDamageType","VRage.Game.MyDamageType"},
+            {"Sandbox.Common.ObjectBuilders.VRageData.SerializableBlockOrientation","VRage.Game.SerializableBlockOrientation"},
+            {"Sandbox.Common.MySessionComponentDescriptor","VRage.Game.Components.MySessionComponentDescriptor"},
+            {"Sandbox.Common.MyUpdateOrder","VRage.Game.Components.MyUpdateOrder"},
+            {"Sandbox.Common.MySessionComponentBase","VRage.Game.Components.MySessionComponentBase"},
+            {"Sandbox.Common.MyFontEnum","VRage.Game.MyFontEnum"},
+            {"Sandbox.Common.MyRelationsBetweenPlayerAndBlock","VRage.Game.MyRelationsBetweenPlayerAndBlock"},
+            {"Sandbox.Common.Components","VRage.Game.Components"},
+            {"using Sandbox.Common.Input;",""},
+            {"using Sandbox.Common.ModAPI;",""},
+        };
+        
         static IlCompiler()
         {
-            Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", "Sandbox.Game.dll", "Sandbox.Common.dll", "Sandbox.Graphics.dll", "VRage.dll", "VRage.Library.dll", "VRage.Math.dll", "VRage.Game.dll", "System.Core.dll", "System.dll", "SpaceEngineers.ObjectBuilders.dll" /*, "Microsoft.CSharp.dll" */});
+            Options = new System.CodeDom.Compiler.CompilerParameters(new string[] {
+                "System.Xml.dll"
+                , "Sandbox.Game.dll"
+                , "Sandbox.Common.dll"
+                , "Sandbox.Graphics.dll"
+                , "VRage.dll"
+                , "VRage.Library.dll"
+                , "VRage.Math.dll"
+                , "VRage.Game.dll"
+                , "VRage.Render.dll"
+                , "System.Core.dll"
+                , "System.dll"
+                , "SpaceEngineers.ObjectBuilders.dll"
+                , "SpaceEngineers.Game.dll"
+                //, "Microsoft.CSharp.dll"
+            });
             Options.GenerateInMemory = true;
-            //Options.IncludeDebugInformation = true;
         }
-
+        
         public static string[] UpdateCompatibility(string[] files)
         {
             string[] sources = new string[files.Length];
             for (int i = 0; i < files.Length; ++i)
             {
-                using (Stream stream = MyFileSystem.OpenRead(files[i]))
+                var filename = files[i];
+                sources[i] = UpdateCompatibility(filename);
+            }
+            return sources;
+        }
+        
+        public static string UpdateCompatibility(string filename)
+        {
+            using (Stream stream = MyFileSystem.OpenRead(filename))
+            {
+                if (stream != null)
                 {
-                    if (stream != null)
+                    using (StreamReader sr = new StreamReader(stream))
                     {
-                        using (StreamReader sr = new StreamReader(stream))
+                        string source = sr.ReadToEnd();
+                        Debug.Assert(CompatibilityUsings != null, "Compatibility usings can't be null");
+                        source = source.Insert(0, CompatibilityUsings);
+
+                        foreach (var value in m_compatibilityChanges)
                         {
-                            string source = sr.ReadToEnd();
-                            source = source.Insert(0, "using VRage;\r\nusing VRage.Game.Components;\r\nusing VRage.ObjectBuilders;\r\nusing VRage.ModAPI;\r\nusing Sandbox.Common.ObjectBuilders;\r\nusing VRage.Game;\r\n");
-                            foreach (var value in m_compatibilityChanges)
-                            {
-                                source = source.Replace(value.Key,value.Value);
-                            }
-                            sources[i] = source;
+                            source = source.Replace(value.Key, value.Value);
                         }
+                        return source;
                     }
                 }
             }
-            return sources;
+            return null;
         }
 
         public static bool CompileFileModAPI(string assemblyName, string[] files, out Assembly assembly, List<string> errors)
         {
             Options.OutputAssembly = assemblyName;
             Options.GenerateInMemory = true;
+            Options.TempFiles = new TempFileCollection(null, false);
+            Options.IncludeDebugInformation = false;
             string[] sources = UpdateCompatibility(files);
             var result = m_cp.CompileAssemblyFromSource(Options, sources);
             return CheckResultInternal(out assembly, errors, result, false);
         }
-
+        
         public static bool CompileStringIngame(string assemblyName, string[] source, out Assembly assembly, List<string> errors)
         {
             Options.OutputAssembly = assemblyName;
             Options.GenerateInMemory = true;
             Options.GenerateExecutable = false;
             Options.IncludeDebugInformation = false;
+            Options.TempFiles = new TempFileCollection(null, false);
             var result = m_cp.CompileAssemblyFromSource(Options, source);
             return CheckResultInternal(out assembly, errors, result,true);
         }
@@ -113,7 +206,7 @@ namespace VRage.Compiler
             }
             var tmpAssembly = result.CompiledAssembly;
             Type failedType;
-            var dic = new Dictionary<Type, List<MemberInfo>>();
+            var dic = new Dictionary<Type, HashSet<MemberInfo>>();
             foreach (var t in tmpAssembly.GetTypes()) //allows calls inside assembly
                 dic.Add(t, null);
 
@@ -152,6 +245,7 @@ namespace VRage.Compiler
         public static bool Compile(string assemblyName, string[] fileContents, out Assembly assembly, List<string> errors, bool isIngameScript)
         {
             Options.OutputAssembly = assemblyName;
+            Options.TempFiles = new TempFileCollection(null, false);
             var result = m_cp.CompileAssemblyFromSource(Options, fileContents);
             return CheckResultInternal(out assembly, errors, result,isIngameScript);
         }
@@ -166,12 +260,13 @@ namespace VRage.Compiler
                 m_cache.AppendFormat(invokeWrapper, instructions);
             else
                 m_cache.Append(instructions[0]);
+            Options.TempFiles = new TempFileCollection(null, false);
             var result = m_cp.CompileAssemblyFromSource(Options, m_cache.ToString());
             if (result.Errors.HasErrors)
                 return false;
             assembly = result.CompiledAssembly;
             Type failedType;
-            var dic = new Dictionary<Type, List<MemberInfo>>();
+            var dic = new Dictionary<Type, HashSet<MemberInfo>>();
             foreach (var t in assembly.GetTypes()) //allows calls inside assembly
                 dic.Add(t, null);
             foreach (var t in assembly.GetTypes())
@@ -191,4 +286,5 @@ namespace VRage.Compiler
         private const String invokeWrapper = "public static class wrapclass{{ public static object run() {{ {0} return null;}} }}";
         public static StringBuilder Buffer = new StringBuilder();    
     }
+#endif
 }

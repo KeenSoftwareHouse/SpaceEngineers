@@ -1,0 +1,420 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Definition xsi:type="AnimationControllerDefinition">
+    <Id>
+      <TypeId>MyObjectBuilder_AnimationControllerDefinition</TypeId>
+      <SubtypeId>Space_spider</SubtypeId>
+    </Id>
+	<FootIkChains>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_1_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_2_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_3_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_1_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_2_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_3_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+    </FootIkChains>
+	<IkIgnoredBones>
+	  <Bone>HeadDummy</Bone>
+	  <Bone>ThirdCameraDummy</Bone>
+	</IkIgnoredBones>
+    <Layers>
+      <Layer>
+        <Name>Body</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>Body</StateMachine>
+        <InitialSMNode>UnderGround</InitialSMNode>
+      </Layer>
+    </Layers>
+    <StateMachines>
+      <StateMachine>
+        <Name>Body</Name>
+        <Nodes>
+          <Node>
+            <Name>Death</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>212</X>
+                  <Y>-9</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Spider\SE_spider_Death.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2015_rotated180</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-306</X>
+              <Y>64</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>-343</X>
+              <Y>-101</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
+            <Name>Idle</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>312</X>
+                  <Y>-7</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Wildlife\SE_spider_Walk.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2012_rotated180</AnimationName>
+                <Loop>true</Loop>
+                <Speed>0</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-720</X>
+              <Y>-372</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Walk</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>286</X>
+                  <Y>-7</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Wildlife\SE_spider_Walk.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2015_rotated180</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-306</X>
+              <Y>-368</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>DeBurrowing</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>192</X>
+                  <Y>0</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Spider\SE_spider_DeBurrowing.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2012_rotated180</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-737</X>
+              <Y>-245</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Burrowing</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>285</X>
+                  <Y>-46</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Spider\SE_spider_Burrowing.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2015_rotated180</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-524</X>
+              <Y>-168</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Attack</Name>
+            <StateMachineName>Attack</StateMachineName>
+            <EdPos>
+              <X>-306</X>
+              <Y>-256</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>UnderGround</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>259</X>
+                  <Y>-8</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Spider\SE_spider_DeBurrowing.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2012_rotated180</AnimationName>
+                <Loop>true</Loop>
+                <Speed>-0</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-738</X>
+              <Y>-76</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="Any" To="Death" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="dead" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Idle" To="Walk" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="0.1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Walk" To="Idle" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="0.05" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="DeBurrowing" To="Idle" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="burrow" From="Any" To="Burrowing" TimeInSec="0.2" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Attack" From="Any" To="Attack/Attack" TimeInSec="0.2" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Deburrow" From="UnderGround" To="DeBurrowing" TimeInSec="0.2" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Deburrow" From="Burrowing" To="DeBurrowing" TimeInSec="0.2" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="UnderGround" To="Walk" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="0.3" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Attack/Any" To="Idle" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Attack/Any" To="Walk" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="0.3" />
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.7" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>Attack</Name>
+        <Nodes>
+          <Node>
+            <Name>Attack_Bite</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>249</X>
+                  <Y>-11</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Spider\SE_spider_Attack_Bite.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2012_rotated180</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-322</X>
+              <Y>43</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Attack_FrontLegs</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>329</X>
+                  <Y>-20</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Spider\SE_spider_Attack_FrontLegs.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2012_rotated180</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>245</X>
+              <Y>66</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Attack_Stinger</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>277</X>
+                  <Y>-34</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Spider\SE_spider_Attack_Stinger.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2012_rotated180</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-38</X>
+              <Y>-92</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Attack</Name>
+            <EdPos>
+              <X>-8</X>
+              <Y>58</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>193</X>
+              <Y>-66</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="Attack" To="Attack_Bite" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@randomstable" Op="Less" Rhs="0.3333" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Attack" To="Attack_Stinger" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@randomstable" Op="Less" Rhs="0.6666" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Attack" To="Attack_FrontLegs" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+  </Definition>
+</Definitions>

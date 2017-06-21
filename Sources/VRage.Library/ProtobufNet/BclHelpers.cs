@@ -1,8 +1,15 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOPROTOBUF
+using System;
 using System.Reflection;
+
+#if XB1
+using System.Diagnostics;
+#endif
+
 namespace ProtoBuf
 {
-    internal enum TimeSpanScale
+	[Unsharper.UnsharperDisableReflection()]
+	internal enum TimeSpanScale
     {
         Days = 0,
         Hours = 1,
@@ -310,6 +317,7 @@ namespace ProtoBuf
         /// <summary>
         /// Parses a Guid from a protobuf stream
         /// </summary>
+		[Unsharper.UnsharperDisableReflection()]
         public static Guid ReadGuid(ProtoReader source)
         {
             ulong low = 0, high = 0;
@@ -485,6 +493,11 @@ namespace ProtoBuf
         /// </summary>
         public static void WriteNetObject(object value, ProtoWriter dest, int key, NetObjectOptions options)
         {
+
+#if XB1
+			Debug.Assert(false);
+#else
+
 #if FEAT_IKVM
             throw new NotSupportedException();
 #else
@@ -539,6 +552,9 @@ namespace ProtoBuf
             }
             ProtoWriter.EndSubItem(token, dest);
 #endif
+
+#endif //XB1
         }
     }
 }
+#endif // !XB1

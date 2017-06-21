@@ -27,7 +27,7 @@ namespace VRage.Collections
                 using (m_lock.Acquire())
                 {
                     return m_set.Count;
-                };
+                }
             }
         }
 
@@ -36,7 +36,7 @@ namespace VRage.Collections
             using (m_lock.Acquire())
             {
                 m_set.Clear();
-            };
+            }
         }
 
         public void Add(T instance)
@@ -44,7 +44,7 @@ namespace VRage.Collections
             using (m_lock.Acquire())
             {
                 m_set.Add(instance);
-            };
+            }
         }
 
         public void Remove(T value)
@@ -52,7 +52,7 @@ namespace VRage.Collections
             using (m_lock.Acquire())
             {
                 m_set.Remove(value);
-            };
+            }
         }
 
         public bool Contains(T value)
@@ -61,7 +61,7 @@ namespace VRage.Collections
             using (m_lock.Acquire())
             {
                 isContained = m_set.Contains(value);
-            };
+            }
             return isContained;
         }
 

@@ -182,8 +182,7 @@ namespace Sandbox.Game.Gui
 
         public override void HandleInput(bool receivedFocusInThisUpdate)
         {
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.USE) ||
-                (MyInput.Static.IsNewKeyPressed(MyKeys.H) && MyInput.Static.IsAnyCtrlKeyPressed()))
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.VOXEL_HAND_SETTINGS))    // or MyControlsSpace.TERMINAL
             {
                 CloseScreen();
             }

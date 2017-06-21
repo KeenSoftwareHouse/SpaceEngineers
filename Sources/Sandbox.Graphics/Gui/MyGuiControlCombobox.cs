@@ -1,5 +1,4 @@
-﻿using Sandbox.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -27,8 +26,8 @@ namespace Sandbox.Graphics.GUI
         #region Styles
         public class StyleDefinition
         {
-            public MyFontEnum ItemFontHighlight;
-            public MyFontEnum ItemFontNormal;
+            public string ItemFontHighlight;
+            public string ItemFontNormal;
             public string ItemTextureHighlight;
 
             /// <summary>
@@ -217,7 +216,7 @@ namespace Sandbox.Graphics.GUI
         private RectangleF m_openedArea;
         private RectangleF m_openedItemArea;
 
-        private MyFontEnum m_selectedItemFont;
+        private string m_selectedItemFont;
 
         private MyGuiCompositeTexture m_scrollbarTexture;
         private Vector4 m_textColor;
@@ -1167,6 +1166,15 @@ namespace Sandbox.Graphics.GUI
             }            
             base.ShowToolTip();
             m_toolTip = tempTooltip;
+        }
+
+        public void ApplyStyle(StyleDefinition style)
+        {
+            if (style != null)
+            {
+                m_styleDef = style;
+                RefreshInternals();
+            }
         }
     }
 }

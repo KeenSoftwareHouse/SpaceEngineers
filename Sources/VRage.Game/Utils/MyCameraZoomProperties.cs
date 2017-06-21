@@ -23,7 +23,7 @@ namespace VRage.Game.Utils
         MyCameraZoomOperationType m_zoomType = MyCameraZoomOperationType.NoZoom;
         
         float m_FOV; // Current fov
-        float m_FOVForNearObjects;
+        //float m_FOVForNearObjects;  // not used anymore
         float m_zoomLevel; //    Fov ratio
 
         MyCamera m_camera;
@@ -76,7 +76,8 @@ namespace VRage.Game.Utils
             m_zoomLevel = 1 - m_currentZoomTime / ZoomTime;
 
             m_FOV = ApplyToFov ? MathHelper.Lerp(FIELD_OF_VIEW_MIN, m_camera.FieldOfView, m_zoomLevel) : m_camera.FieldOfView;
-            m_FOVForNearObjects = ApplyToFov ? MathHelper.Lerp(FIELD_OF_VIEW_MIN, m_camera.FieldOfViewForNearObjects, m_zoomLevel) : m_camera.FieldOfViewForNearObjects;
+            // not used anymore
+            //m_FOVForNearObjects = ApplyToFov ? MathHelper.Lerp(FIELD_OF_VIEW_MIN, m_camera.FieldOfViewForNearObjects, m_zoomLevel) : m_camera.FieldOfViewForNearObjects;
         }
 
         //reset zoom
@@ -108,10 +109,11 @@ namespace VRage.Game.Utils
             return MyMath.Clamp(m_FOV, MyMathConstants.EPSILON, (float)Math.PI - MyMathConstants.EPSILON);
         }
 
-        public float GetFOVForNearObjects()
-        {
-            return MyMath.Clamp(m_FOVForNearObjects, MyMathConstants.EPSILON, (float)Math.PI - MyMathConstants.EPSILON);
-        }
+        // not used anymore
+        //public float GetFOVForNearObjects()
+        //{
+        //    return MyMath.Clamp(m_FOVForNearObjects, MyMathConstants.EPSILON, (float)Math.PI - MyMathConstants.EPSILON);
+        //}
 
         public bool IsZooming()
         {

@@ -10,7 +10,6 @@ using VRage.Import;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
-using VRageRender.Resources;
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
@@ -73,7 +72,7 @@ namespace VRageRender
 
         //    fixed (ushort* ptr = indicesArray)
         //    {
-        //        meshInfo.IB = MyHwBuffers.CreateIndexBuffer(indicesArray.Length, Format.R16_UInt, new IntPtr(ptr));
+        //        meshInfo.IB = MyManagers.Buffers.CreateIndexBuffer(indicesArray.Length, Format.R16_UInt, new IntPtr(ptr));
         //    }
         //    meshInfo.Indices = indicesArray;
 
@@ -92,12 +91,12 @@ namespace VRageRender
 
         //    fixed (MyVertexFormatPositionHalf4* ptr = positionsArray)
         //    {
-        //        meshInfo.VB[0] = MyHwBuffers.CreateVertexBuffer(verticesNum, sizeof(MyVertexFormatPositionHalf4), new IntPtr(ptr));
+        //        meshInfo.VB[0] = MyManagers.Buffers.CreateVertexBuffer(verticesNum, sizeof(MyVertexFormatPositionHalf4), new IntPtr(ptr));
 
         //    }
         //    fixed (MyVertexFormatTexcoordNormalTangent* ptr = vArray)
         //    {
-        //        meshInfo.VB[1] = MyHwBuffers.CreateVertexBuffer(verticesNum, sizeof(MyVertexFormatTexcoordNormalTangent), new IntPtr(ptr));
+        //        meshInfo.VB[1] = MyManagers.Buffers.CreateVertexBuffer(verticesNum, sizeof(MyVertexFormatTexcoordNormalTangent), new IntPtr(ptr));
         //    }
         //    meshInfo.VertexPositions = positionsArray;
         //    meshInfo.VertexExtendedData = vArray;

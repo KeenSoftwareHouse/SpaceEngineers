@@ -12,7 +12,6 @@ using VRage.Library.Collections;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Replication;
-using VRage.Voxels;
 using VRageMath;
 
 
@@ -21,6 +20,11 @@ namespace Sandbox.Game.Replication
     class MyMeteorReplicable : MyEntityReplicableBaseEvent<MyMeteor>
     {
         #region IMyReplicable Implementation
+
+        public MyMeteorReplicable()
+        {
+            m_baseVisibility = 5000;
+        }
  
         public override void OnDestroy()
         {

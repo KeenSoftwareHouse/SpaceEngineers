@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRageMath.PackedVector;
 
 namespace VRageMath
 {
@@ -30,6 +31,13 @@ namespace VRageMath
             Y = xyz.Y;
             Z = xyz.Z;
             W = w;
+        }
+
+        public static explicit operator Byte4(Vector4I xyzw)
+        {
+            Byte4 b4;
+            b4 = new Byte4(xyzw.X, xyzw.Y, xyzw.Z, xyzw.W);
+            return b4;
         }
 
         public class EqualityComparer : IEqualityComparer<Vector4I>, IComparer<Vector4I>
@@ -64,6 +72,46 @@ namespace VRageMath
         public override string ToString()
         {
             return X + ", " + Y + ", " + Z + ", " + W;
+        }
+
+        public int this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return X;
+                    case 1:
+                        return Y;
+                    case 2:
+                        return Z;
+                    case 3:
+                        return W;
+                    default:
+                        throw new Exception("Index out of bounds");
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        X = value;
+                        break;
+                    case 1:
+                        Y = value;
+                        break;
+                    case 2:
+                        Z = value;
+                        break;
+                    case 3:
+                        W = value;
+                        break;
+                    default:
+                        throw new Exception("Index out of bounds");
+                }
+            }
         }
     }
 }

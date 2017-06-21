@@ -46,6 +46,9 @@ namespace Sandbox.Common.ObjectBuilders
         public bool DetectStations = false;
 
         [ProtoMember]
+        public bool DetectSubgrids = false;
+
+        [ProtoMember]
         public bool IsActive = false;
 
         [ProtoMember]

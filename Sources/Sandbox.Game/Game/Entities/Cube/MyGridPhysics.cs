@@ -1,7 +1,6 @@
 ﻿#region Usings
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -18,6 +17,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Networking;
 using VRage;
 using VRage.Collections;
 using VRage.Utils;
@@ -32,17 +33,16 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Replication;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ModAPI;
+using VRage.Network;
+using VRage.Profiler;
+
 #endregion
 
 namespace Sandbox.Game.Entities.Cube
 {
     public partial class MyGridPhysics : MyPhysicsBody
     {
-        public struct BoundingBoxI
-        {
-            public Vector3I Min, Max;
-        }
-
         struct ExplosionInfo
         {
             public Vector3D Position;
@@ -72,12 +72,12 @@ namespace Sandbox.Game.Entities.Cube
 
         public static float LargeShipMaxLinearVelocity()
         {
-            return Math.Max(0, Math.Min(MAX_SHIP_SPEED, MyDefinitionManager.Static.EnvironmentDefinition.LargeShipMaxSpeed));
+            return Math.Max(0, Math.Min(MAX_SHIP_SPEED, MySector.EnvironmentDefinition.LargeShipMaxSpeed));
         }
 
         public static float SmallShipMaxLinearVelocity()
         {
-            return Math.Max(0, Math.Min(MAX_SHIP_SPEED, MyDefinitionManager.Static.EnvironmentDefinition.SmallShipMaxSpeed));
+            return Math.Max(0, Math.Min(MAX_SHIP_SPEED, MySector.EnvironmentDefinition.SmallShipMaxSpeed));
         }
 
         public static float GetShipMaxAngularVelocity(MyCubeSize size)
@@ -87,14 +87,14 @@ namespace Sandbox.Game.Entities.Cube
 
         public static float GetLargeShipMaxAngularVelocity()
         {
-            return Math.Max(0, Math.Min(LargeShipMaxAngularVelocityLimit, MyDefinitionManager.Static.EnvironmentDefinition.LargeShipMaxAngularSpeedInRadians));
+            return Math.Max(0, Math.Min(LargeShipMaxAngularVelocityLimit, MySector.EnvironmentDefinition.LargeShipMaxAngularSpeedInRadians));
         }
 
         public static float GetSmallShipMaxAngularVelocity()
         {
             if(MyFakes.TESTING_VEHICLES)
                 return float.MaxValue;
-            return Math.Max(0, Math.Min(SmallShipMaxAngularVelocityLimit, MyDefinitionManager.Static.EnvironmentDefinition.SmallShipMaxAngularSpeedInRadians));
+            return Math.Max(0, Math.Min(SmallShipMaxAngularVelocityLimit, MySector.EnvironmentDefinition.SmallShipMaxAngularSpeedInRadians));
         }
 
         public int DisableGravity = 0;
@@ -132,11 +132,13 @@ namespace Sandbox.Game.Entities.Cube
             // List of dirty blocks
             public HashSet<Vector3I> DirtyBlocks = new HashSet<Vector3I>();
 
+            internal PredictiveDestructionData PredictionData;
 
             public void Clear()
             {
                 DirtyParts.Clear();
                 DirtyBlocks.Clear();
+                PredictionData = null;
             }
         }
 
@@ -155,11 +157,17 @@ namespace Sandbox.Game.Entities.Cube
             m_grid = grid;
             m_shape = shape;
             DeformationRatio = m_grid.GridSizeEnum == MyCubeSize.Large ? LargeGridDeformationRatio : SmallGridDeformationRatio;
-            MaterialType = MyMaterialType.SHIP;
+            MaterialType = MyMaterialType.METAL;
             CreateBody();
 
             if (MyFakes.ENABLE_PHYSICS_HIGH_FRICTION)
                 Friction = MyFakes.PHYSICS_HIGH_FRICTION;
+
+            // Setup predictive destruction members
+            if (!Sync.IsServer)
+            {
+                InitPredictiveDestruction();
+            }
         }
 
         public float DeformationRatio;
@@ -304,6 +312,10 @@ namespace Sandbox.Game.Entities.Cube
                 //highly improves performance (2.5* + earlier going to sleep)
                 return HkBreakOffLogicResult.DoNotBreakOff;
             }
+
+            //TODO: hotfix, fixes unbreakable welded ships but it should be enough to set it once in a proper place
+            if(WeldInfo.Children.Count > 0)
+                HavokWorld.BreakOffPartsUtil.MarkEntityBreakable(RigidBody, Shape.BreakImpulse);
             return HkBreakOffLogicResult.UseLimit;
         }
 
@@ -317,6 +329,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             if(MyPerGameSettings.Destruction)
             {
+                if(IsStatic)
                 Shape.FindConnectionsToWorld();
             }
             base.Activate(world, clusterObjectID);
@@ -328,6 +341,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (MyPerGameSettings.Destruction)
             {
+                if (IsStatic)
                 Shape.FindConnectionsToWorld();
             }
             base.ActivateBatch(world, clusterObjectID);
@@ -400,20 +414,15 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             }
 
-
             MyGridContactInfo info = new MyGridContactInfo(ref value, m_grid);
 
             var myBody = RigidBody;// value.Base.BodyA.GetEntity() == m_grid.Components ? value.Base.BodyA : value.Base.BodyB;
-
-            // CH: DEBUG
-
 
             if (info.CollidingEntity is Sandbox.Game.Entities.Character.MyCharacter || info.CollidingEntity.MarkedForClose)
                 return;
 
             if (MyFakes.LANDING_GEAR_IGNORE_DAMAGE_CONTACTS && MyCubeGridGroups.Static.NoContactDamage.HasSameGroupAndIsGrid(otherEntity, thisEntity))
                 return;
-
 
             ProfilerShort.Begin("Grid contact point callback");
             bool hitVoxel = info.CollidingEntity is MyVoxelMap || info.CollidingEntity is MyVoxelPhysics;
@@ -444,7 +453,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            if (doSparks && value.SeparatingVelocity > 2.0f && value.ContactProperties.WasUsed && !m_lastContacts.ContainsKey(value.ContactPointId) && info.EnableParticles)
+            if (doSparks && Math.Abs(value.SeparatingVelocity) > 2.0f && value.ContactProperties.WasUsed && !m_lastContacts.ContainsKey(value.ContactPointId) && info.EnableParticles)
             {
                 ProfilerShort.Begin("AddCollisionEffect");
                 m_lastContacts[value.ContactPointId] = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -473,10 +482,10 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
         }
 
-        private static Vector3 GetGridPosition(HkContactPointEvent value, MyCubeGrid grid, int body)
+        private static Vector3 GetGridPosition(HkContactPoint contactPoint, HkRigidBody gridBody, MyCubeGrid grid, int body)
         {
-            var position = value.ContactPoint.Position + (body == 0 ? 0.1f : -0.1f) * value.ContactPoint.Normal;
-            var local = Vector3.Transform(position, Matrix.Invert(value.Base.GetRigidBody(body).GetRigidBodyMatrix()));
+            var position = contactPoint.Position + (body == 0 ? 0.1f : -0.1f) * contactPoint.Normal;
+            var local = Vector3.Transform(position, Matrix.Invert(gridBody.GetRigidBodyMatrix()));
             return local;
         }
 
@@ -520,7 +529,9 @@ namespace Sandbox.Game.Entities.Cube
             //if (separatingVelocity < 2)
             //    return false;
             var otherEntity = pt.CollidingBody.GetEntity(0);
-            if (otherEntity is MyEnvironmentItems) //jn:HACK
+            if (otherEntity is Sandbox.Game.WorldEnvironment.MyEnvironmentSector) //jn:HACK //ab:HACK
+                return false;
+            if (otherEntity.GetTopMostParent() == Entity)
                 return false;
             pt.ContactPosition = ClusterToWorld(pt.ContactPoint.Position);
 
@@ -672,9 +683,13 @@ namespace Sandbox.Game.Entities.Cube
 
         private bool PerformDeformation(ref HkBreakOffPointInfo pt, bool fromBreakParts, float separatingVelocity, MyEntity otherEntity)
         {
+            if (!m_grid.BlocksDestructionEnabled)
+                return false;
+            
             ProfilerShort.Begin("PerformDeformation");
 
-            Debug.Assert(Sync.IsServer, "Function PerformDeformation should not be called from client");
+            if (!Sync.IsServer && CurrentChange == null)
+                BeginPredictiveDestruction();
 
             var mass = this.Mass;
             if (IsStatic)
@@ -717,7 +732,10 @@ namespace Sandbox.Game.Entities.Cube
             var len = velAtPoint.Normalize();
             Vector3 normal;
             if (len > 5)
-                normal = Vector3D.TransformNormal(velAtPoint, invWorld) * pt.ContactPointDirection;
+            {
+                normal = Vector3.TransformNormal(velAtPoint, invWorld) * pt.ContactPointDirection;
+                normal.Normalize();
+            }
             else
                 normal = pt.ContactPointDirection * pt.ContactPoint.Normal;
             int destroyed = ApplyDeformation(deformationOffset, softAreaPlanar, softAreaVertical, pos, normal, MyDamageType.Deformation, attackerId: otherEntity != null ? otherEntity.EntityId : 0);
@@ -729,23 +747,27 @@ namespace Sandbox.Game.Entities.Cube
                 RigidBody.Gravity = Vector3.Zero;
                 DisableGravity = 1;
             }
-            if (explosionRadius > 0 && deformationOffset > m_grid.GridSize / 2 && destroyed != 0)
+            if (Sync.IsServer)
             {
-                var info = new ExplosionInfo()
+                if (explosionRadius > 0 && deformationOffset > m_grid.GridSize / 2 && destroyed != 0)
                 {
-                    Position = pt.ContactPosition + pt.ContactPointDirection * pt.ContactPoint.Normal * explosionRadius * 0.5f,
-                    //ExplosionType = destroyed ? MyExplosionTypeEnum.GRID_DESTRUCTION : MyExplosionTypeEnum.GRID_DEFORMATION,
-                    ExplosionType = MyExplosionTypeEnum.GRID_DESTRUCTION,
-                    Radius = explosionRadius,
-                    ShowParticles = (otherEntity is MyVoxelPhysics) == false && (otherEntity is MyTrees) == false,
-                    GenerateDebris = true
-                };
-                m_explosions.Add(info);
-            }
-            else
-            {
-                //cannot be here since its onlyexecuted on server
-                //AddCollisionEffect(pt.ContactPoint.Position, normal);
+                    var info = new ExplosionInfo()
+                    {
+                        Position =
+                            pt.ContactPosition + pt.ContactPointDirection * pt.ContactPoint.Normal * explosionRadius * 0.5f,
+                        //ExplosionType = destroyed ? MyExplosionTypeEnum.GRID_DESTRUCTION : MyExplosionTypeEnum.GRID_DEFORMATION,
+                        ExplosionType = MyExplosionTypeEnum.GRID_DESTRUCTION,
+                        Radius = explosionRadius,
+                        ShowParticles = (otherEntity is MyVoxelPhysics) == false && (otherEntity is MyTrees) == false,
+                        GenerateDebris = true
+                    };
+                    m_explosions.Add(info);
+                }
+                else
+                {
+                    //cannot be here since its onlyexecuted on server
+                    //AddCollisionEffect(pt.ContactPoint.Position, normal);
+                }
             }
             ProfilerShort.End();
             return destroyed != 0;
@@ -760,12 +782,15 @@ namespace Sandbox.Game.Entities.Cube
         /// <param name="offsetThreshold">When deformation offset for bone is lower then threshold, it won't move the bone at all or do damage</param>
         public int ApplyDeformation(float deformationOffset, float softAreaPlanar, float softAreaVertical, Vector3 localPos, Vector3 localNormal, MyStringHash damageType, float offsetThreshold = 0, float lowerRatioLimit = 0, long attackerId = 0)
         {
+            if (!m_grid.BlocksDestructionEnabled)
+                return 0;
+
             int blocksDeformed = 0;
             offsetThreshold /= m_grid.GridSizeEnum == MyCubeSize.Large ? 1 : 5;
-            float roundSize = m_grid.GridSize / m_grid.Skeleton.BoneDensity;
+            float roundSize = m_grid.GridSize / MyGridSkeleton.BoneDensity;
             Vector3I roundedPos = Vector3I.Round((localPos + new Vector3(m_grid.GridSize / 2)) / roundSize);
             Vector3I gridPos = Vector3I.Round((localPos + new Vector3(m_grid.GridSize / 2)) / m_grid.GridSize);
-            Vector3I gridOffset = roundedPos - gridPos * m_grid.Skeleton.BoneDensity;
+            Vector3I gridOffset = roundedPos - gridPos * MyGridSkeleton.BoneDensity;
 
             float breakOffset = m_grid.GridSize * 0.7f;
             float breakOffsetDestruction = breakOffset;
@@ -833,27 +858,45 @@ namespace Sandbox.Game.Entities.Cube
                                 var block = m_grid.GetCubeBlock(offset);
                                 if (block != null)
                                 {
-                                    if (block.UseDamageSystem)
+                                    if (Sync.IsServer)
                                     {
-                                        damageInfo.Amount = 1;
-                                        MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
-                                        if (damageInfo.Amount == 0f)
-                                            continue;
+                                        if (block.UseDamageSystem)
+                                        {
+                                            damageInfo.Amount = 1;
+                                            MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+                                            if (damageInfo.Amount == 0f)
+                                                continue;
+                                        }
+
+                                        minDeformationRatio = Math.Min(minDeformationRatio, block.DeformationRatio);
+
+                                        if (Math.Max(lowerRatioLimit, block.DeformationRatio) * deformation > breakOffsetDestruction)
+                                        {
+                                            ProfilerShort.Begin("Remove destroyed blocks");
+                                            min = Vector3I.Min(min, block.Min - Vector3I.One);
+                                            max = Vector3I.Max(max, block.Max + Vector3I.One);
+                                            isDirty = true;
+                                            m_grid.RemoveDestroyedBlock(block);
+                                            ProfilerShort.End();
+                                            destructionDone = true;
+                                            blocksDeformed++;
+                                        }
                                     }
-
-                                    minDeformationRatio = Math.Min(minDeformationRatio, block.DeformationRatio);
-
-                                    if (Math.Max(lowerRatioLimit, block.DeformationRatio) * deformation > breakOffsetDestruction)
+                                    else
                                     {
-                                        ProfilerShort.Begin("Remove destroyed blocks");
-                                        min = Vector3I.Min(min, block.Min - Vector3I.One);
-                                        max = Vector3I.Max(max, block.Max + Vector3I.One);
-                                        isDirty = true;
-                                        m_grid.RemoveDestroyedBlock(block);
-                                        ProfilerShort.End();
-                                        destructionDone = true;
+                                        minDeformationRatio = Math.Min(minDeformationRatio, block.DeformationRatio);
+
+                                        if (Math.Max(lowerRatioLimit, block.DeformationRatio) * deformation > breakOffsetDestruction)
+                                        {
+                                            ProfilerShort.Begin("Remove destroyed blocks");
+                                            min = Vector3I.Min(min, block.Min - Vector3I.One);
+                                            max = Vector3I.Max(max, block.Max + Vector3I.One);
+                                            PredictRemoveCube(block);
+                                            ProfilerShort.End();
+                                            destructionDone = true;
+                                            blocksDeformed++;
+                                        }
                                     }
-                                    blocksDeformed++;
                                 }
                             }
                         }
@@ -870,7 +913,7 @@ namespace Sandbox.Game.Entities.Cube
             if (!destructionDone)
             {
                 //m_debugBones.Clear();
-                var boneDensity = m_grid.Skeleton.BoneDensity;
+                var boneDensity = MyGridSkeleton.BoneDensity;
                 ProfilerShort.Begin("Update deformation");
                 MyOrientedBoundingBox obb = new MyOrientedBoundingBox(
                     gridPos * boneDensity + gridOffset,
@@ -885,8 +928,8 @@ namespace Sandbox.Game.Entities.Cube
                 //Vector3I maxOffset = gridPos * m_grid.Skeleton.BoneDensity + gridOffset + distBones;
                 var minOffset = Vector3I.Floor(aabb.Min);
                 var maxOffset = Vector3I.Ceiling(aabb.Max);
-                minOffset = Vector3I.Max(minOffset, m_grid.Min * m_grid.Skeleton.BoneDensity);
-                maxOffset = Vector3I.Min(maxOffset, m_grid.Max * m_grid.Skeleton.BoneDensity);
+                minOffset = Vector3I.Max(minOffset, m_grid.Min * MyGridSkeleton.BoneDensity);
+                maxOffset = Vector3I.Min(maxOffset, m_grid.Max * MyGridSkeleton.BoneDensity);
 
                 Vector3I minDirtyBone = Vector3I.MaxValue;
                 Vector3I maxDirtyBone = Vector3I.MinValue;
@@ -898,8 +941,8 @@ namespace Sandbox.Game.Entities.Cube
 
                 ProfilerShort.Begin("Deform bones");
                 Vector3 bone;
-                Vector3I baseOffset = gridPos * m_grid.Skeleton.BoneDensity;
-                float boneDensityR = 1.0f / m_grid.Skeleton.BoneDensity;
+                Vector3I baseOffset = gridPos * MyGridSkeleton.BoneDensity;
+                float boneDensityR = 1.0f / MyGridSkeleton.BoneDensity;
                 var halfGridSize = new Vector3(m_grid.GridSize * 0.5f);
 
                 ProfilerShort.CustomValue("Bone Count", m_tmpBoneList.Count, 0);
@@ -967,23 +1010,38 @@ namespace Sandbox.Game.Entities.Cube
                                 if (block != null)
                                 {
                                     ProfilerShort.Begin("Remove destroyed blocks");
-                                    m_grid.RemoveDestroyedBlock(block);
-                                    AddDirtyBlock(block);
+                                    if (Sync.IsServer)
+                                    {
+                                        m_grid.RemoveDestroyedBlock(block);
+                                        AddDirtyBlock(block);
+                                    }
+                                    else
+                                    {
+                                        AddDirtyBlock(block);
+                                        PredictRemoveCube(block);
+                                    }
                                     ProfilerShort.End();
                                     destructionDone = true;
                                     blocksDeformed++;
                                 }
                             }
                         }
-                        else if (doDeformation && Sync.IsServer)
+                        else if (doDeformation)
                         {
                             minDirtyBone = Vector3I.Min(minDirtyBone, boneIndex);
                             maxDirtyBone = Vector3I.Max(maxDirtyBone, boneIndex);
 
-                            m_grid.Skeleton.SetBone(ref boneIndex, ref bone);
-                            m_grid.AddDirtyBone(gridPos, offset);
+                            if (Sync.IsServer)
+                            {
+                                m_grid.Skeleton.SetBone(ref boneIndex, ref bone);
+                                m_grid.AddDirtyBone(gridPos, offset);
 
-                            m_grid.BonesToSend.AddInput(boneIndex);
+                                m_grid.BonesToSend.AddInput(boneIndex);
+                            }
+                            else
+                            {
+                                PredictDeformation(boneIndex, bone);
+                            }
                         }
                     }
                 }
@@ -1086,7 +1144,6 @@ namespace Sandbox.Game.Entities.Cube
                 case GridEffectType.Dust:
                     if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Collision_Meteor, out effect))
                     {
-                        effect.SetPreload(1f);
                         effect.UserScale = scale;
                         effect.WorldMatrix = MatrixD.CreateFromTransformScale(Quaternion.Identity, position, Vector3D.One);
                     }
@@ -1135,7 +1192,14 @@ namespace Sandbox.Game.Entities.Cube
                     }
                 }
             }
-            m_dirtyCubesInfo.DirtyParts.Add(new BoundingBoxI() { Min = block.Min, Max = block.Max });
+            m_dirtyCubesInfo.DirtyParts.Add(new BoundingBoxI { Min = block.Min, Max = block.Max });
+
+            // Check if this dirty block was removed or just needs updating shape.
+            if (!Sync.IsServer && m_grid.GetBlocks().Contains(block))
+            {
+                if (m_lastCubeChange.ContainsKey(block))
+                    m_lastCubeChange.Remove(block);
+            }
         }
 
         public void AddDirtyArea(Vector3I min, Vector3I max)
@@ -1196,15 +1260,21 @@ namespace Sandbox.Game.Entities.Cube
             if (m_explosions.Count > 0)
             {
                 float speed = m_grid.Physics.LinearVelocity.Length();
-                foreach (var ex in m_explosions)
+                if (Sync.IsServer)   // MP quick fix (removing client-side clang)
                 {
-                    if (m_grid.AddExplosion(ex.Position, ex.ExplosionType, ex.Radius,ex.ShowParticles,ex.GenerateDebris)/* && ex.ModelDebris*/)
+                    foreach (var ex in m_explosions)
                     {
-                        // Create model debris
-                        if (speed > 0 && ex.GenerateDebris && m_debrisPerFrame < MaxDebrisPerFrame)
+                        if (m_grid.AddExplosion(ex.Position, ex.ExplosionType, ex.Radius, ex.ShowParticles,
+                            ex.GenerateDebris) /* && ex.ModelDebris*/)
                         {
-                            MyDebris.Static.CreateDirectedDebris(ex.Position, m_grid.Physics.LinearVelocity / speed, m_grid.GridSize, m_grid.GridSize * 1.5f, 0, MathHelper.PiOver2, 6, m_grid.GridSize * 1.5f, speed);
-                            m_debrisPerFrame++;
+                            // Create model debris
+                            if (speed > 0 && ex.GenerateDebris && m_debrisPerFrame < MaxDebrisPerFrame)
+                            {
+                                MyDebris.Static.CreateDirectedDebris(ex.Position, m_grid.Physics.LinearVelocity / speed,
+                                    m_grid.GridSize, m_grid.GridSize * 1.5f, 0, MathHelper.PiOver2, 6,
+                                    m_grid.GridSize * 1.5f, speed);
+                                m_debrisPerFrame++;
+                            }
                         }
                     }
                 }
@@ -1216,6 +1286,8 @@ namespace Sandbox.Game.Entities.Cube
                 ProfilerShort.End();
                 return;
             }
+
+            bool blocksAddedOrRemoved = m_dirtyCubesInfo.DirtyBlocks.Count > 0;
 
             BoundingBox dirtyBox = BoundingBox.CreateInvalid();
             foreach (var part in m_dirtyCubesInfo.DirtyParts)
@@ -1237,13 +1309,19 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (m_dirtyCubesInfo.DirtyBlocks.Count > 0)
                 {
-                    m_shape.RefreshBlocks(WeldedRigidBody != null ? WeldedRigidBody : RigidBody, WeldedRigidBody != null ? null : RigidBody2, m_dirtyCubesInfo, BreakableBody);
+                    if (CurrentChange != null)
+                        m_dirtyCubesInfo.PredictionData = CurrentChange;
+
+                    m_shape.RefreshBlocks(WeldedRigidBody != null ? WeldedRigidBody : RigidBody, WeldedRigidBody != null ? null : RigidBody2, m_dirtyCubesInfo, BreakableBody, blocksAddedOrRemoved);
                     if (RigidBody.IsActive && !HavokWorld.ActiveRigidBodies.Contains(RigidBody))
                     {
                         HavokWorld.ActiveRigidBodies.Add(RigidBody);
                     }
                     physicsChanged = true;
                 }
+
+                if (CurrentChange != null)
+                    EndPredictiveDestruction();
 
                 if (m_dirtyCubesInfo.DirtyParts.Count > 0)
                 {
@@ -1459,6 +1537,19 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             Shape.DebugDraw();
+
+            var gridSize = m_grid.GridSize;
+
+            if (!Sync.IsServer)
+            {
+                using (var batch = MyRenderProxy.DebugDrawBatchAABB(m_grid.WorldMatrix, new Color(Color.Green, .1f), true, true))
+                    foreach (var cube in m_lastCubeChange.Keys)
+                    {
+                        var bb = new BoundingBoxD(cube.Min * gridSize - gridSize / 2, cube.Max * gridSize + gridSize / 2);
+                        batch.Add(ref bb);
+                    }
+            }
+
             base.DebugDraw();
         }
 
@@ -1499,31 +1590,53 @@ namespace Sandbox.Game.Entities.Cube
 
         public void ConvertToDynamic(bool doubledKinematic)
         {
-            RigidBody.UpdateMotionType(HkMotionType.Dynamic);
-            RigidBody.Quality = HkCollidableQualityType.Moving;
-            if (WeldedRigidBody != null && WeldedRigidBody.Quality == HkCollidableQualityType.Fixed)
+            Flags = doubledKinematic ? RigidBodyFlag.RBF_DOUBLED_KINEMATIC : RigidBodyFlag.RBF_DEFAULT;
+            bool convert = true;
+            if (IsWelded || WeldInfo.Children.Count > 0)
             {
-                WeldedRigidBody.UpdateMotionType(HkMotionType.Dynamic);
-                WeldedRigidBody.Quality = HkCollidableQualityType.Moving;
+                if (WeldedRigidBody != null && WeldedRigidBody.Quality == HkCollidableQualityType.Fixed)
+                {
+                    WeldedRigidBody.UpdateMotionType(HkMotionType.Dynamic);
+                    WeldedRigidBody.Quality = HkCollidableQualityType.Moving;
+
+                    if (doubledKinematic && !MyPerGameSettings.Destruction)
+                    {
+                        WeldedRigidBody.Layer = MyPhysics.CollisionLayers.DynamicDoubledCollisionLayer;
+                    }
+                    else
+                    {
+                        WeldedRigidBody.Layer = MyPhysics.CollisionLayers.DefaultCollisionLayer;
+                    }
+                }
+                var group = MyWeldingGroups.Static.GetGroup((MyEntity)Entity);
+                group.GroupData.UpdateParent((MyEntity)(WeldInfo.Parent != null ? WeldInfo.Parent.Entity : Entity));
+                convert &= WeldInfo.Parent == null;
             }
 
-            if (doubledKinematic && !MyPerGameSettings.Destruction)
-            {
-                Flags = RigidBodyFlag.RBF_DOUBLED_KINEMATIC;
-                RigidBody.Layer = MyPhysics.CollisionLayers.DynamicDoubledCollisionLayer;
-                SetupRigidBody2();
-            }
-            else
-            {
-                Flags = RigidBodyFlag.RBF_DEFAULT;   
-                RigidBody.Layer = MyPhysics.CollisionLayers.DefaultCollisionLayer;
-            }
             UpdateMass();
-            ActivateCollision();
-            HavokWorld.RefreshCollisionFilterOnEntity(RigidBody);
-            RigidBody.Activate();
-            if (RigidBody.InWorld)
-                HavokWorld.RigidBodyActivated(RigidBody);
+            if (convert)
+            {
+                RigidBody.UpdateMotionType(HkMotionType.Dynamic);
+                RigidBody.Quality = HkCollidableQualityType.Moving;
+
+
+                if (doubledKinematic && !MyPerGameSettings.Destruction)
+                {
+                    Flags = RigidBodyFlag.RBF_DOUBLED_KINEMATIC;
+                    RigidBody.Layer = MyPhysics.CollisionLayers.DynamicDoubledCollisionLayer;
+                    SetupRigidBody2();
+                }
+                else
+                {
+                    Flags = RigidBodyFlag.RBF_DEFAULT;
+                    RigidBody.Layer = MyPhysics.CollisionLayers.DefaultCollisionLayer;
+                }
+                ActivateCollision();
+                HavokWorld.RefreshCollisionFilterOnEntity(RigidBody);
+                RigidBody.Activate();
+                if (RigidBody.InWorld)
+                    HavokWorld.RigidBodyActivated(RigidBody);
+            }
         }
 
         private void SetupRigidBody2()
@@ -1537,35 +1650,227 @@ namespace Sandbox.Game.Entities.Cube
 
         public void ConvertToStatic()
         {
-            RigidBody.UpdateMotionType(HkMotionType.Fixed);
-            RigidBody.Quality = HkCollidableQualityType.Fixed;
-            if (WeldedRigidBody != null && WeldedRigidBody.Quality != HkCollidableQualityType.Fixed)
+            Flags = RigidBodyFlag.RBF_STATIC;
+            bool convert = true;
+            if (IsWelded || WeldInfo.Children.Count > 0)
             {
-                WeldedRigidBody.UpdateMotionType(HkMotionType.Fixed);
-                WeldedRigidBody.Quality = HkCollidableQualityType.Fixed;
+                if (WeldedRigidBody != null && WeldedRigidBody.Quality != HkCollidableQualityType.Fixed)
+                {
+                    WeldedRigidBody.UpdateMotionType(HkMotionType.Fixed);
+                    WeldedRigidBody.Quality = HkCollidableQualityType.Fixed;
+                    WeldedRigidBody.Layer = MyPhysics.CollisionLayers.StaticCollisionLayer;
+                }
+
+                var group = MyWeldingGroups.Static.GetGroup((MyEntity)Entity);
+                group.GroupData.UpdateParent((MyEntity)(WeldInfo.Parent != null ? WeldInfo.Parent.Entity : Entity));
+                convert &= WeldInfo.Parent == null;
             }
 
-            RigidBody.Layer = MyPhysics.CollisionLayers.StaticCollisionLayer;
-
             UpdateMass();
-            ActivateCollision();
-            HavokWorld.RefreshCollisionFilterOnEntity(RigidBody);
-            RigidBody.Activate();
-            if (RigidBody.InWorld)
-                HavokWorld.RigidBodyActivated(RigidBody);
-
-            if(RigidBody2  != null)
+            if (convert)
             {
-                if(RigidBody2.InWorld)
+                RigidBody.UpdateMotionType(HkMotionType.Fixed);
+                RigidBody.Quality = HkCollidableQualityType.Fixed;
+                RigidBody.Layer = MyPhysics.CollisionLayers.StaticCollisionLayer;
+
+                ActivateCollision();
+                HavokWorld.RefreshCollisionFilterOnEntity(RigidBody);
+                RigidBody.Activate();
+                if (RigidBody.InWorld)
+                    HavokWorld.RigidBodyActivated(RigidBody);
+            }
+
+            if (RigidBody2 != null)
+            {
+                if (RigidBody2.InWorld)
                 {
                     HavokWorld.RemoveRigidBody(RigidBody2);
                 }
-                RigidBody2.Dispose();       
+                RigidBody2.Dispose();
             }
 
             RigidBody2 = null;
-
         }
+
+
+        #region Predictive Destruction
+
+        // Not using this yet
+        private Dictionary<Vector3I, int> m_lastBoneChange;
+        private Dictionary<MySlimBlock, int> m_lastCubeChange;
+
+        private Dictionary<int, PredictiveDestructionData> m_predictiveChanges;
+
+        internal PredictiveDestructionData CurrentChange;
+
+        internal class PredictiveDestructionData : HeapItem<long>
+        {
+            private static int m_nextPredictiveChangeId;
+
+            internal readonly int Id;
+
+            internal MyGridPhysics Physics;
+
+            internal long Timestamp;
+
+            internal Dictionary<Vector3I, Vector3> OriginalSkeleton;
+
+            internal HashSet<MySlimBlock> RemovedCubes;
+
+            private bool m_expired;
+
+            internal PredictiveDestructionData(MyGridPhysics physics)
+            {
+                Timestamp = DateTime.Now.Ticks;
+                OriginalSkeleton = new Dictionary<Vector3I, Vector3>();
+                RemovedCubes = new HashSet<MySlimBlock>();
+                Physics = physics;
+                Id = m_nextPredictiveChangeId++;
+            }
+
+            public static long ExpirationTime
+            {
+                get
+                {
+                    var replication = MyMultiplayer.ReplicationLayer as MyReplicationClient;
+                    if (replication != null)
+                        return replication.Ping.Ticks * 2;
+                    return 500 * TimeSpan.TicksPerMillisecond;
+                }
+            }
+
+            public void Expire()
+            {
+                var tmp = Physics.m_blocksInContact;
+
+                foreach (var change in Physics.m_lastCubeChange)
+                {
+                    if (change.Value == Id)
+                    {
+                        tmp.Add(change.Key);
+                    }
+                }
+
+                BoundingBoxI bonesRange = BoundingBoxI.CreateInvalid();
+
+                foreach (var bone in OriginalSkeleton)
+                {
+                    int index;
+                    if (Physics.m_lastBoneChange.TryGetValue(bone.Key, out index) && index == Id)
+                    {
+                        var key = bone.Key;
+                        var value = bone.Value;
+                        Physics.m_grid.Skeleton.SetBone(ref key, ref value);
+
+                        Physics.m_lastBoneChange.Remove(key);
+                        Physics.m_grid.AddDirtyBone(Vector3I.Zero, key);
+
+                        bonesRange.Include(key);
+                    }
+                }
+
+                if (bonesRange.IsValid)
+                {
+                    var boneDensityR = 1.0f / MyGridSkeleton.BoneDensity;
+
+                    bonesRange.Min = Vector3I.Floor(bonesRange.Min * boneDensityR - Vector3.One * boneDensityR);
+                    bonesRange.Max = Vector3I.Ceiling(bonesRange.Max * boneDensityR + Vector3.One * boneDensityR);
+
+                    Physics.m_dirtyCubesInfo.DirtyParts.Add(bonesRange);
+                }
+
+                foreach (var fix in tmp)
+                {
+                    Physics.m_lastCubeChange.Remove(fix);
+                    Physics.AddDirtyBlock(fix);
+                }
+                tmp.Clear();
+
+                Physics.m_predictiveChanges.Remove(Id);
+                m_expired = true;
+            }
+
+            ~PredictiveDestructionData()
+            {
+                Debug.Assert(m_expired);
+            }
+        }
+
+        /// <summary>
+        /// Update what bones we have from server.
+        /// 
+        /// If any of those positions was predicted we clear the predicted value and update our data so it does not get reset.
+        /// </summary>
+        /// <param name="min">Min bone range</param>
+        /// <param name="max">Max bone range (inclusive)</param>
+        internal void OnReceiveBones(Vector3I min, Vector3I max)
+        {
+            Vector3I pos;
+            for (pos.X = min.X; pos.X <= max.X; ++pos.X)
+                for (pos.Y = min.Y; pos.Y <= max.Y; ++pos.Y)
+                    for (pos.Z = min.Z; pos.Z <= max.Z; ++pos.Z)
+                    {
+                        // This is enough to clear our local references so it does not get undone.
+                        m_lastBoneChange.Remove(pos);
+                    }
+        }
+
+        private void InitPredictiveDestruction()
+        {
+            m_predictiveChanges = new Dictionary<int, PredictiveDestructionData>();
+            m_lastBoneChange = new Dictionary<Vector3I, int>();
+            m_lastCubeChange = new Dictionary<MySlimBlock, int>();
+            if (m_shape != null)
+                m_shape.SetDisabledBlocks(m_lastCubeChange);
+        }
+
+        private void PredictRemoveCube(MySlimBlock cube)
+        {
+            Debug.Assert(CurrentChange != null);
+            m_lastCubeChange[cube] = CurrentChange.Id;
+        }
+
+        private void PredictDeformation(Vector3I bone, Vector3 value)
+        {
+            // Store the original bone instead.
+            int lastChange;
+            if (m_lastBoneChange.TryGetValue(bone, out lastChange))
+            {
+                var change = m_predictiveChanges[lastChange];
+
+                CurrentChange.OriginalSkeleton[bone] = change.OriginalSkeleton[bone];
+            }
+            else
+            {
+                Vector3 previous;
+                m_grid.Skeleton.GetBone(ref bone, out previous);
+                CurrentChange.OriginalSkeleton[bone] = previous;
+            }
+
+            m_grid.Skeleton.SetBone(ref bone, ref value);
+            m_grid.AddDirtyBone(Vector3I.Zero, bone);
+            m_lastBoneChange[bone] = CurrentChange.Id;
+        }
+
+        private void BeginPredictiveDestruction()
+        {
+            Debug.Assert(!Sync.IsServer);
+
+            var change = new PredictiveDestructionData(this);
+
+            m_predictiveChanges.Add(change.Id, change);
+
+            CurrentChange = change;
+        }
+
+        private void EndPredictiveDestruction()
+        {
+            MySession.Static.GetComponent<MyCubeGrids>().EnqueueCorrectionExpiration(CurrentChange);
+
+            CurrentChange = null;
+        }
+
+        #endregion
 
     }
 }

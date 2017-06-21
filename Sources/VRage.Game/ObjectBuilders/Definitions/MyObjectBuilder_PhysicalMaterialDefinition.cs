@@ -8,6 +8,9 @@ namespace VRage.Game
     public class MyObjectBuilder_PhysicalMaterialDefinition : MyObjectBuilder_DefinitionBase
     {
         [ProtoMember]
+        public bool Transparent = false;
+
+        [ProtoMember]
         public float Density = 32000;
 
         [ProtoMember]
@@ -21,8 +24,5 @@ namespace VRage.Game
 
         [ProtoMember]
         public float CollisionMultiplier = 1;
-
-        [ProtoMember]
-        public string DamageDecal = null;
     }
 }

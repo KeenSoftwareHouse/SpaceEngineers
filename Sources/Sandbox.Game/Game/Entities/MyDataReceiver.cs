@@ -11,10 +11,11 @@ using System.Text;
 using VRageMath;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities
 {
-    abstract class MyDataReceiver : MyEntityComponentBase
+    public abstract class MyDataReceiver : MyEntityComponentBase
     {
         protected List<MyDataBroadcaster> m_broadcastersInRange = new List<MyDataBroadcaster>();
         protected HashSet<MyDataBroadcaster> m_relayedBroadcasters = new HashSet<MyDataBroadcaster>();
@@ -37,9 +38,29 @@ namespace Sandbox.Game.Entities
             return GetGridRadioReceivers(grid, MySession.Static.LocalPlayerId);
         }
 
+        //Returns radio receivers on <grid> and any logicaly connected grids <playerId> has acces to
         public static HashSet<MyDataReceiver> GetGridRadioReceivers(MyCubeGrid grid, long playerId)
         {
             HashSet<MyDataReceiver> output = new HashSet<MyDataReceiver>();
+
+            var group = MyCubeGridGroups.Static.Logical.GetGroup(grid);
+            if (group == null)
+            {
+                CollectRecieversFromGrid(grid, playerId, output);
+            }
+            else
+            {
+                foreach (var node in group.Nodes)
+                {
+                    CollectRecieversFromGrid(node.NodeData, playerId, output);
+                }
+            }
+            return output;
+        }
+
+        //Collects data recievers from single grid <playerId> has acces to
+        private static void CollectRecieversFromGrid(MyCubeGrid grid, long playerId, HashSet<MyDataReceiver> output)
+        {
             foreach (var block in grid.GetFatBlocks())
             {
                 MyDataReceiver receiver;
@@ -48,12 +69,12 @@ namespace Sandbox.Game.Entities
                     MyIDModule module;
                     if ((block as IMyComponentOwner<MyIDModule>).GetComponent(out module))
                     {
-                        if ((block as MyTerminalBlock).HasPlayerAccess(playerId) && module.Owner != 0)
+                        //AB in broadcast window I need to access to all antenas in range
+                        //if ((block as MyTerminalBlock).HasPlayerAccess(playerId) && module.Owner != 0)
                             output.Add(receiver);
                     }
                 }
             }
-            return output;
         }
 
         protected HashSet<long> m_relayerGrids = new HashSet<long>();
@@ -79,15 +100,15 @@ namespace Sandbox.Game.Entities
             if (!MyFakes.ENABLE_RADIO_HUD || !Enabled)
                 return;
 
-            VRage.ProfilerShort.Begin("Relay");
+            ProfilerShort.Begin("Relay");
             MyDataBroadcaster radioBroadcaster;
             if (Entity.Components.TryGet<MyDataBroadcaster>(out radioBroadcaster))
             {
                 relayedBroadcasters.Add(radioBroadcaster);
             }
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
 
-            VRage.ProfilerShort.Begin("UpdateBroadcasters");
+            ProfilerShort.Begin("UpdateBroadcasters");
             //add all from same grid:
             MyCubeGrid grid = Entity.GetTopMostParent() as MyCubeGrid;
             if (grid != null && !gridsQueued.Contains(grid.EntityId)) //astronaut has no grid
@@ -110,9 +131,9 @@ namespace Sandbox.Game.Entities
                                 MyDataReceiver radioReceiver;
                                 if (broadcaster.Container.TryGet<MyDataReceiver>(out radioReceiver))
                                 {
-                                    VRage.ProfilerShort.Begin("UpdateReceiver");
+                                    ProfilerShort.Begin("UpdateReceiver");
                                     radioReceiver.UpdateBroadcastersInRange(relayedBroadcasters, localPlayerId, gridsQueued);
-                                    VRage.ProfilerShort.End();
+                                    ProfilerShort.End();
 
                                 }
                             }
@@ -120,11 +141,11 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
 
-            VRage.ProfilerShort.Begin("GetAllBroadcastersInMyRange");
+            ProfilerShort.Begin("GetAllBroadcastersInMyRange");
             GetAllBroadcastersInMyRange(ref relayedBroadcasters, localPlayerId, gridsQueued);
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         abstract protected void GetAllBroadcastersInMyRange(ref HashSet<MyDataBroadcaster> relayedBroadcasters, long localPlayerId, HashSet<long> gridsQueued);
@@ -153,7 +174,7 @@ namespace Sandbox.Game.Entities
 
         public void UpdateHud(bool showMyself = false)
         {
-            if (MySandboxGame.IsDedicated || MyHud.MinimalHud)
+            if (MySandboxGame.IsDedicated || MyHud.MinimalHud || MyHud.CutsceneHud)
                 return;
 
             Clear();
@@ -163,6 +184,10 @@ namespace Sandbox.Game.Entities
                 MyEntity entity = (MyEntity)broadcaster.Entity;
                 if (entity != null)
                 {
+                    //Also ignore entity if it is preview entity or else it will update hud
+                    if (entity.GetTopMostParent() is MyCubeGrid && entity.GetTopMostParent().IsPreview)
+                        continue;
+
                     if (!showMyself && entity == Entity)
                         continue; //do not show myself
 
@@ -194,6 +219,29 @@ namespace Sandbox.Game.Entities
                                 if (!MyHud.HackingMarkers.MarkerEntities.ContainsKey(hudParamsEntity))
                                     MyHud.LocationMarkers.RegisterMarker(hudParamsEntity, hudParams);
                         }
+                    }
+                }
+            }
+
+            //manually draw markers for players that are out of range or have broadcasting turned off
+            if (MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.ShowPlayers))
+            {
+                foreach (var player in MySession.Static.Players.GetOnlinePlayers())
+                {
+                    MyCharacter character = player.Character;
+                    if (character == null)
+                        continue;
+                    
+                    var hudParams = character.GetHudParams(false);
+                    foreach (var param in hudParams)
+                    {
+                        MyEntity hudEntity = (MyEntity)param.Entity;
+                        if (m_entitiesOnHud.Contains(hudEntity))
+                            continue;
+
+                        m_entitiesOnHud.Add(hudEntity);
+
+                        MyHud.LocationMarkers.RegisterMarker(hudEntity, param);
                     }
                 }
             }

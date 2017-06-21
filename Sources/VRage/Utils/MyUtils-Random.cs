@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Library.Utils;
 using VRageMath;
 
 namespace VRage.Utils
@@ -12,17 +13,30 @@ namespace VRage.Utils
         [ThreadStatic]
         static Random m_secretRandom;
 
+        [ThreadStatic]
+        static MyRandom m_secretRandomVRage = new MyRandom();
+
         static Random m_random
         {
             get
             {
                 if (m_secretRandom == null)
                 {
-                    m_secretRandom = new Random();
+                    if (VRage.Library.Utils.MyRandom.DisableRandomSeed)
+                    {
+                        m_secretRandom = new Random(1);
+                    }
+                    else
+                    {
+                        m_secretRandom = new Random();
+                    }
                 }
                 return m_secretRandom;
             }
         }
+
+
+        
 
         public static int GetRandomInt(int maxValue)
         {
@@ -214,10 +228,21 @@ namespace VRage.Utils
             return (float)m_random.NextDouble();
         }
 
+        public static float GetRandomFloat(int hash)
+        {
+            return m_secretRandomVRage.NextFloat(hash);
+        }
+
         //  Return random float in range <minValue...maxValue>
         public static float GetRandomFloat(float minValue, float maxValue)
         {
-            return (float)m_random.NextDouble() * (maxValue - minValue) + minValue;
+            return VRage.Library.Utils.MyRandom.Instance.NextFloat() * (maxValue - minValue) + minValue;
+        }
+
+        //  Return random float in range <minValue...maxValue>
+        public static float GetRandomFloat(int hash, float minValue, float maxValue)
+        {
+            return VRage.Library.Utils.MyRandom.Instance.NextFloat(hash) * (maxValue - minValue) + minValue;
         }
 
         //  Return random double in range <minValue...maxValue>

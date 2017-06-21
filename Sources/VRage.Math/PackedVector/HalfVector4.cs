@@ -5,7 +5,8 @@ namespace VRageMath.PackedVector
     /// <summary>
     /// Packed vector type containing four 16-bit floating-point values.
     /// </summary>
-    public struct HalfVector4 : IPackedVector<ulong>, IPackedVector, IEquatable<HalfVector4>
+	[Unsharper.UnsharperDisableReflection()]
+	public struct HalfVector4 : IPackedVector<ulong>, IPackedVector, IEquatable<HalfVector4>
     {
         public ulong PackedValue;
 
@@ -31,6 +32,11 @@ namespace VRageMath.PackedVector
         public HalfVector4(Vector4 vector)
         {
             this.PackedValue = HalfVector4.PackHelper(vector.X, vector.Y, vector.Z, vector.W);
+        }
+
+        public HalfVector4(HalfVector3 vector3, ushort w)
+        {
+            this.PackedValue = vector3.ToHalfVector4().PackedValue | (ulong) w << 48;
         }
 
         /// <summary>

@@ -24,6 +24,13 @@ namespace VRage.Audio
             Static.LoadData(initParams, sounds, effects);
         }
 
+        //GR: Use Reload data on uload Session in order to load only GUI relate cues (about 56 where all cues are about 602)
+        //This saves 300 MB of memory when exiting to main menu
+        public static void ReloadData(ListReader<MySoundData> sounds, ListReader<MyAudioEffect> effects)
+        {
+            Static.ReloadData(sounds, effects);
+        }
+
         public static void UnloadData()
         {
             if (Static != null)
@@ -32,5 +39,7 @@ namespace VRage.Audio
                 Static = null;
             }
         }
+
+        public static readonly int MAX_SAMPLE_RATE = 48000;
     }
 }

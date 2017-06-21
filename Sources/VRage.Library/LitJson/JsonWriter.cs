@@ -18,13 +18,15 @@ using System.Text;
 
 namespace LitJson
 {
+#if !XB1
+
     internal enum Condition
     {
         InArray,
         InObject,
         NotAProperty,
         Property,
-        Value
+        InValue
     }
 
     internal class WriterContext
@@ -148,7 +150,7 @@ namespace LitJson
                         "Can't add a property here");
                 break;
 
-            case Condition.Value:
+            case Condition.InValue:
                 if (! context.InArray &&
                     (! context.InObject || ! context.ExpectingValue))
                     throw new JsonException (
@@ -299,7 +301,7 @@ namespace LitJson
 
         public void Write (bool boolean)
         {
-            DoValidation (Condition.Value);
+            DoValidation (Condition.InValue);
             PutNewline ();
 
             Put (boolean ? "true" : "false");
@@ -309,7 +311,7 @@ namespace LitJson
 
         public void Write (decimal number)
         {
-            DoValidation (Condition.Value);
+            DoValidation (Condition.InValue);
             PutNewline ();
 
             Put (Convert.ToString (number, number_format));
@@ -319,7 +321,7 @@ namespace LitJson
 
         public void Write (double number)
         {
-            DoValidation (Condition.Value);
+            DoValidation (Condition.InValue);
             PutNewline ();
 
             string str = Convert.ToString (number, number_format);
@@ -334,7 +336,7 @@ namespace LitJson
 
         public void Write (int number)
         {
-            DoValidation (Condition.Value);
+            DoValidation (Condition.InValue);
             PutNewline ();
 
             Put (Convert.ToString (number, number_format));
@@ -344,7 +346,7 @@ namespace LitJson
 
         public void Write (long number)
         {
-            DoValidation (Condition.Value);
+            DoValidation (Condition.InValue);
             PutNewline ();
 
             Put (Convert.ToString (number, number_format));
@@ -354,7 +356,7 @@ namespace LitJson
 
         public void Write (string str)
         {
-            DoValidation (Condition.Value);
+            DoValidation (Condition.InValue);
             PutNewline ();
 
             if (str == null)
@@ -367,7 +369,7 @@ namespace LitJson
 
         public void Write (ulong number)
         {
-            DoValidation (Condition.Value);
+            DoValidation (Condition.InValue);
             PutNewline ();
 
             Put (Convert.ToString (number, number_format));
@@ -459,4 +461,5 @@ namespace LitJson
             context.ExpectingValue = true;
         }
     }
+#endif
 }

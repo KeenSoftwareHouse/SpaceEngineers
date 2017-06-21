@@ -4,15 +4,22 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+
 namespace VRage.Compiler
 {
+#if XB1
+#else
     public class IlChecker
     {
-        public static Dictionary<Type, List<MemberInfo>> AllowedOperands = new Dictionary<Type,List<MemberInfo>>();
-        public static Dictionary<Assembly, List<String>> AllowedNamespacesCommon = new Dictionary<Assembly, List<string>>();
-        public static Dictionary<Assembly, List<String>> AllowedNamespacesModAPI = new Dictionary<Assembly, List<string>>();
+        public static Dictionary<Type, HashSet<MemberInfo>> AllowedOperands = new Dictionary<Type, HashSet<MemberInfo>>();
+        public static Dictionary<Assembly, HashSet<String>> AllowedNamespacesCommon = new Dictionary<Assembly, HashSet<string>>();
+        public static Dictionary<Assembly, HashSet<String>> AllowedNamespacesModAPI = new Dictionary<Assembly, HashSet<string>>();
+
         static IlChecker()
         {
+            // Ensure AllowedOperands is not null
+            if (AllowedOperands == null) AllowedOperands = new Dictionary<Type, HashSet<MemberInfo>>();
+
             AllowedOperands.Add(typeof(System.Object), null);
             AllowedOperands.Add(typeof(System.IDisposable), null);
 
@@ -48,7 +55,7 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.DateTime), null);
             AllowedOperands.Add(typeof(System.TimeSpan), null);
             AllowedOperands.Add(typeof(System.Array),null);
-
+            AllowedOperands.Add(typeof(System.DateTimeOffset), null);
 
             AllowedOperands.Add(typeof(System.Xml.Serialization.XmlElementAttribute), null);
             AllowedOperands.Add(typeof(System.Xml.Serialization.XmlAttributeAttribute), null);
@@ -71,7 +78,7 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.Xml.Serialization.XmlTextAttribute), null);
             AllowedOperands.Add(typeof(System.Xml.Serialization.XmlTypeAttribute), null);
 
-            var members = new List<MemberInfo>();
+            var members = new HashSet<MemberInfo>();
             members.Add(typeof(System.Reflection.MemberInfo).GetProperty("Name").GetGetMethod());
             AllowedOperands.Add(typeof(System.Reflection.MemberInfo), members);
             AllowedOperands.Add(typeof(System.Runtime.CompilerServices.RuntimeHelpers), null);
@@ -82,19 +89,19 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.IO.TextReader), null);
             AllowedOperands.Add(typeof(System.IO.BinaryReader), null);
             AllowedOperands.Add(typeof(System.IO.BinaryWriter), null);
-            AllowedOperands.Add(typeof(System.Runtime.CompilerServices.CompilerHelper), null); // We use this in tests
-            members = new List<MemberInfo>();
+            //AllowedOperands.Add(typeof(System.Runtime.CompilerServices.CompilerHelper), null); // We use this in tests
+            members = new HashSet<MemberInfo>();
             members.Add(typeof(Type).GetMethod("GetTypeFromHandle"));
             AllowedOperands.Add(typeof(System.Type), members);
 
             var rt = typeof(Type).Assembly.GetType("System.RuntimeType");
-            AllowedOperands[rt] = new List<MemberInfo>() 
+            AllowedOperands[rt] = new HashSet<MemberInfo>() 
             {
                 rt.GetMethod("op_Inequality"),
                 rt.GetMethod("GetFields", new Type[] { typeof(System.Reflection.BindingFlags) }),
             };
 
-            AllowedOperands[typeof(Type)] = new List<MemberInfo>()
+            AllowedOperands[typeof(Type)] = new HashSet<MemberInfo>()
             {
                 typeof(Type).GetMethod("GetFields", new Type[] { typeof(System.Reflection.BindingFlags) }),
                 typeof(Type).GetMethod("IsEquivalentTo"),
@@ -103,7 +110,7 @@ namespace VRage.Compiler
             };
 
             var rtField = typeof(Type).Assembly.GetType("System.Reflection.RtFieldInfo");
-            AllowedOperands[rtField] = new List<MemberInfo>()
+            AllowedOperands[rtField] = new HashSet<MemberInfo>()
             {
                 rtField.GetMethod("UnsafeGetValue", BindingFlags.NonPublic | BindingFlags.Instance),
             };
@@ -117,10 +124,11 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.DivideByZeroException), null);
             AllowedOperands.Add(typeof(System.InvalidCastException), null);
             AllowedOperands.Add(typeof(System.IO.FileNotFoundException), null);
+            AllowedOperands.Add(typeof(NotSupportedException), null);
 
             var t = typeof(MethodInfo).Assembly.GetType("System.Reflection.RuntimeMethodInfo");
             //AllowedOperands[t] = new List<MemberInfo>() { t.GetMethod("Equals") };
-            AllowedOperands[typeof(ValueType)] = new List<MemberInfo>() 
+            AllowedOperands[typeof(ValueType)] = new HashSet<MemberInfo>() 
             { 
                 typeof(ValueType).GetMethod("Equals"), 
                 typeof(ValueType).GetMethod("GetHashCode"),
@@ -130,10 +138,14 @@ namespace VRage.Compiler
             };
 
             var env = typeof(Environment);
-            AllowedOperands[env] = new List<MemberInfo>()
+            AllowedOperands[env] = new HashSet<MemberInfo>()
             {
                 env.GetMethod("GetResourceString", BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(string), typeof(object[]) }, null),
                 env.GetMethod("GetResourceString", BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(string) }, null),
+                // NotSupportedException and CurrentManagedThreadId are required by 'yield return'
+                env.GetProperty("CurrentManagedThreadId", BindingFlags.Static | BindingFlags.Public).GetGetMethod(), 
+                env.GetProperty("NewLine", BindingFlags.Static | BindingFlags.Public).GetGetMethod(),
+                env.GetProperty("ProcessorCount", BindingFlags.Static | BindingFlags.Public).GetGetMethod(),
             };
 
             AllowedOperands[typeof(System.IO.Path)] = null;
@@ -144,27 +156,89 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.IComparable<>), null);
 
             AllowedOperands.Add(typeof(System.BitConverter), null);     // Useful for serializing custom messages/data in non-xml format
+            AllowedOperands.Add(typeof(System.FlagsAttribute), null);
         }
 
-        public static void AllowNamespaceOfTypeModAPI(Type type)
+        /// <summary>
+        /// Checks if the passed type is valid, ie. not null, assembly is not null and namespace is not null.
+        /// </summary>
+        /// <param name="type">Type to check</param>
+        /// <returns>True if type is valid, false if it isn't.</returns>
+        private static bool IsTypeValid(Type type)
         {
-            if (!AllowedNamespacesModAPI.ContainsKey(type.Assembly))
-                AllowedNamespacesModAPI.Add(type.Assembly, new List<string>());
-            AllowedNamespacesModAPI[type.Assembly].Add(type.Namespace);
+            if (type == null)
+            {
+                System.Diagnostics.Debug.Fail("Invalid type: Type is null!");
+                return false;
+            }
+
+            if (type.Assembly == null)
+            {
+                System.Diagnostics.Debug.Fail("Invalid type: Type Assembly is null! (" + type.ToString() + ")");
+                return false;
+            }
+
+            if (type.Namespace == null)
+            {
+                System.Diagnostics.Debug.Fail("Invalid type: Type Namespace is null! (" + type.ToString() + ")");
+                return false;
+            }
+
+            return true;
         }
 
-        public static void AllowNamespaceOfTypeCommon(Type type)
+        /// <summary>
+        /// Adds the namespace of the specified type to the specified dictionary.
+        /// </summary>
+        /// <param name="type">Type whose namespace needs to be added.</param>
+        /// <param name="targetDictionary">Dictionary which needs to be modified.</param>
+        /// <returns>True if it was added, false otherwise.</returns>
+        private static bool AddNamespaceOfTypeToDictionary(Type type, Dictionary<Assembly, HashSet<String>> targetDictionary)
         {
-            if (!AllowedNamespacesCommon.ContainsKey(type.Assembly))
-                AllowedNamespacesCommon.Add(type.Assembly, new List<string>());
-            AllowedNamespacesCommon[type.Assembly].Add(type.Namespace);
+            // Ensure type is valid
+            if (!IsTypeValid(type)) return false;
+            if (targetDictionary == null) return false;
+
+            if (!targetDictionary.ContainsKey(type.Assembly) || targetDictionary[type.Assembly] == null)
+                targetDictionary.Add(type.Assembly, new HashSet<string>());
+            targetDictionary[type.Assembly].Add(type.Namespace);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Allows the namespace of the type for ModAPI only.
+        /// </summary>
+        /// <param name="type">Type whose namespace needs to be whitelisted for ModAPI.</param>
+        /// <returns>True if it was added, false otherwise.</returns>
+        public static bool AllowNamespaceOfTypeModAPI(Type type)
+        {
+            // Ensure AllowedNamespacesModAPI exists
+            if (AllowedNamespacesModAPI == null) AllowedNamespacesModAPI = new Dictionary<Assembly, HashSet<string>>();
+
+            // Add namespace for assembly
+            return AddNamespaceOfTypeToDictionary(type, AllowedNamespacesModAPI);
+        }
+
+        /// <summary>
+        /// Allows the namespace of the type for both ModAPI and ingame programmable blocks.
+        /// </summary>
+        /// <param name="type">Type whose namespace needs to be whitelisted for common listing.</param>
+        /// <returns>True if it was added, false otherwise.</returns>
+        public static bool AllowNamespaceOfTypeCommon(Type type)
+        {
+            // Ensure AllowedNamespacesModAPI exists
+            if (AllowedNamespacesCommon == null) AllowedNamespacesCommon = new Dictionary<Assembly, HashSet<string>>();
+
+            // Add namespace for assembly
+            return AddNamespaceOfTypeToDictionary(type, AllowedNamespacesCommon);
         }
       
         /// <summary>
         /// Checks list of IL instructions against dangerous types
         /// </summary>
         /// <param name="dangerousTypeNames">Full names of dangerous types</param>
-        public static bool CheckIl(List<IlReader.IlInstruction> instructions, out Type failed, bool isIngameScript,Dictionary<Type, List<MemberInfo>> allowedTypes = null)
+        public static bool CheckIl(List<IlReader.IlInstruction> instructions, out Type failed, bool isIngameScript, Dictionary<Type, HashSet<MemberInfo>> allowedTypes = null)
         {
             failed = null;
             foreach (var pair in allowedTypes) //alllows calls across user scripts
@@ -224,7 +298,7 @@ namespace VRage.Compiler
             return found;
         }
 
-        private static bool CheckOperand(Type type, MemberInfo memberInfo, Dictionary<Type, List<MemberInfo>> op)
+        private static bool CheckOperand(Type type, MemberInfo memberInfo, Dictionary<Type, HashSet<MemberInfo>> op)
         {
             if (op == null)
                 return false;
@@ -266,4 +340,6 @@ namespace VRage.Compiler
             AllowedNamespacesModAPI.Clear();
         }
     }
+#endif
 }
+

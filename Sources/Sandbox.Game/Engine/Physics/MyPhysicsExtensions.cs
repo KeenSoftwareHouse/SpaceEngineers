@@ -5,7 +5,7 @@ using System.Text;
 using Havok;
 using Sandbox.Game.Entities;
 using System.Diagnostics;
-using Sandbox.Common.Components;
+
 using VRage.ModAPI;
 using VRageMath;
 using VRage.Game.Components;
@@ -100,12 +100,12 @@ namespace Sandbox.Engine.Physics
                 int i = 0;
                 for (; i < 4; i++)
                 {
-                    if (eventInfo.GetShapeKey(0, i) == uint.MaxValue)
+                    if (eventInfo.GetShapeKey(index, i) == uint.MaxValue)
                     {
                         break;
                     }
                 }
-                shapeKey = eventInfo.GetShapeKey(0, i - 1);
+                shapeKey = eventInfo.GetShapeKey(index, i - 1);
                 body = HkRigidBody.FromShape(rb.GetShape().GetContainer().GetShape(shapeKey)).GetBody();
             }
             return body;
@@ -114,6 +114,67 @@ namespace Sandbox.Engine.Physics
         public static IMyEntity GetHitEntity(this HkWorld.HitInfo hitInfo)
         {
             return hitInfo.Body.GetEntity(hitInfo.GetShapeKey(0));
+        }
+
+        public static float GetConvexRadius(this HkWorld.HitInfo hitInfo)
+        {
+            if (hitInfo.Body == null)
+                return 0;
+
+            HkShape shape = hitInfo.Body.GetShape();
+            for (int i = 0; i < HkWorld.HitInfo.ShapeKeyCount; i++)
+			{
+                var shapeKey = hitInfo.GetShapeKey(i);
+                if (HkShape.InvalidShapeKey != shapeKey) 
+                {
+                    if (!shape.IsContainer())
+                    {
+                        break;
+                    }
+                    //shape = shape.GetContainer().GetShape(shapeKey);
+                }
+                else
+                {
+                    break;
+                }
+			}
+            if (shape.ShapeType == HkShapeType.ConvexTransform || shape.ShapeType == HkShapeType.ConvexTranslate || shape.ShapeType == HkShapeType.Transform)
+                shape = shape.GetContainer().GetShape(0);
+            if (shape.ShapeType == HkShapeType.Sphere|| shape.ShapeType==HkShapeType.Capsule)
+                return 0;
+            if (!shape.IsConvex)
+                return HkConvexShape.DefaultConvexRadius;
+
+            return shape.ConvexRadius;
+        }
+
+        public static Vector3 GetFixedPosition(this MyPhysics.HitInfo hitInfo)
+        {
+            Vector3 position = hitInfo.Position;
+            float convexRadiusAdjustment = hitInfo.HkHitInfo.GetConvexRadius();
+            if (convexRadiusAdjustment != 0)
+                position += -hitInfo.HkHitInfo.Normal * convexRadiusAdjustment;
+
+            return position;
+        }
+
+        public static IEnumerable<HkShape> GetAllShapes(this HkShape shape)
+        {
+            if (shape.IsContainer())
+            {
+                var iterator = shape.GetContainer();
+                while (iterator.CurrentShapeKey != HkShape.InvalidShapeKey)
+                {
+                    foreach (var child in iterator.CurrentValue.GetAllShapes())
+                        yield return child;
+
+                    iterator.Next();
+                }
+
+                yield break;
+            }
+
+            yield return shape;
         }
 
         public static IMyEntity GetCollisionEntity(this HkBodyCollision collision)

@@ -17,7 +17,7 @@ namespace Sandbox.Game.Components
         {
             m_gravityGenerator = gravityGenerator;
         }
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_MISCELLANEOUS && m_gravityGenerator.IsWorking)
             {
@@ -28,8 +28,6 @@ namespace Sandbox.Game.Components
             {
                 VRageRender.MyRenderProxy.DebugDrawAxis(m_gravityGenerator.PositionComp.WorldMatrix, 2, false);
             }
-            return true;
-
         }
     }
 }

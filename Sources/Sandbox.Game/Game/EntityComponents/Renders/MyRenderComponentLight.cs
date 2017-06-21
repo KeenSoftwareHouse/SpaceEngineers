@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.Threading;
 
 using Sandbox.Game.Entities;
-using Sandbox.Common.Components;
+
 
 namespace Sandbox.Game.Components
 {
@@ -69,13 +69,18 @@ namespace Sandbox.Game.Components
                 VRageRender.MyRenderProxy.UpdateModelProperties(
                   RenderObjectIDs[0],
                   0,
-                  m_model.AssetName,
                   -1,
                   "Emissive",
                   null,
                   BulbColor,
+                  CurrentLightPower);
+                VRageRender.MyRenderProxy.UpdateModelProperties(
+                  RenderObjectIDs[0],
+                  0,
+                  -1,
+                  "EmissiveSpotlight",
                   null,
-                  null,
+                  BulbColor,
                   CurrentLightPower);
                 m_emissiveMaterialDirty = false;
             }

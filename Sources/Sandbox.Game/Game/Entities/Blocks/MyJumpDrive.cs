@@ -11,7 +11,6 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Ingame;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
@@ -23,6 +22,8 @@ using VRage.Utils;
 using VRageMath;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.ModAPI;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
@@ -41,7 +42,7 @@ namespace Sandbox.Game.Entities
 
         private readonly  Sync<bool> m_isRecharging;
         public bool IsJumping = false;
-        private static readonly MyGuiControlListbox m_gpsGuiControl;
+        private static MyGuiControlListbox m_gpsGuiControl;
 
         public new MyJumpDriveDefinition BlockDefinition
         {
@@ -82,7 +83,15 @@ namespace Sandbox.Game.Entities
         #region UI
         public MyJumpDrive()
         {
-            m_isRecharging.ValueChanged += x => RaisePropertiesChangedJumpDrive();
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_storedPower = SyncType.CreateAndAddProp<float>();
+            m_targetSync = SyncType.CreateAndAddProp<int?>();
+            m_jumpDistanceRatio = SyncType.CreateAndAddProp<float>();
+            m_isRecharging = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            CreateTerminalControls();
+
+            m_isRecharging.ValueChanged += x => RaisePropertiesChanged();   //GR: Maybe not needed since called every 100 frames either way
             m_targetSync.ValueChanged += x => TargetChanged();
             m_storedPower.ValidateNever();
         }
@@ -97,11 +106,14 @@ namespace Sandbox.Game.Entities
             { 
                  m_jumpTarget = null;
             }
-            RaisePropertiesChangedJumpDrive();
+            RaisePropertiesChanged();
         }
 
-        static MyJumpDrive()
+        protected override void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyJumpDrive>())
+                return;
+            base.CreateTerminalControls();
             var jumpButton = new MyTerminalControlButton<MyJumpDrive>("Jump", MySpaceTexts.BlockActionTitle_Jump, MySpaceTexts.Blank, (x) => x.RequestJump());
             jumpButton.Enabled = (x) => x.CanJump;
             jumpButton.SupportsMultipleBlocks = false;
@@ -155,6 +167,7 @@ namespace Sandbox.Game.Entities
             gpsList.ListContent = (x, list1, list2) => x.FillGpsList(list1, list2);
             gpsList.ItemSelected = (x, y) => x.SelectGps(y);
             MyTerminalControlFactory.AddControl(gpsList);
+
             if (!MySandboxGame.IsDedicated)
             {
                 m_gpsGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)gpsList.GetGuiControl()).PropertyControl;
@@ -185,12 +198,6 @@ namespace Sandbox.Game.Entities
             {
                m_targetSync.Value = null;
             }
-        }
-
-        private void OnTargetRemoved()
-        {
-           
-            RaisePropertiesChangedJumpDrive();
         }
 
         private void RequestJump()
@@ -277,7 +284,7 @@ namespace Sandbox.Game.Entities
             if (selection.Count > 0)
             {
                 m_selectedGps = (IMyGps)selection[0].UserData;
-                RaisePropertiesChangedJumpDrive();
+                RaisePropertiesChanged();
             }
         }
         #endregion
@@ -307,7 +314,7 @@ namespace Sandbox.Game.Entities
             {
                 m_jumpTarget = MySession.Static.Gpss.GetGps(ob.JumpTarget.Value);
             }
-
+ 
             m_jumpDistanceRatio.Value = ob.JumpRatio;
             m_isRecharging.Value = ob.Recharging;
 
@@ -378,6 +385,10 @@ namespace Sandbox.Game.Entities
             if (m_storedJumpTarget != null)
             {
                 m_jumpTarget = MySession.Static.Gpss.GetGps(m_storedJumpTarget.Value);
+                if (m_jumpTarget != null)
+                {
+                    m_targetSync.Value = m_jumpTarget.Hash;
+                }
             }
         }
 
@@ -395,7 +406,7 @@ namespace Sandbox.Game.Entities
             {
                 if (!IsFull && m_isRecharging)
                 {
-                    StorePower(100f * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS, ResourceSink.CurrentInput);
+                    StorePower(100f * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS, ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId));
                 }
             }
 
@@ -416,7 +427,7 @@ namespace Sandbox.Game.Entities
             MyValueFormatter.AppendWorkHoursInBestUnit(BlockDefinition.PowerNeededForJump, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_StoredPower));
             MyValueFormatter.AppendWorkHoursInBestUnit(m_storedPower, DetailedInfo);
@@ -434,25 +445,16 @@ namespace Sandbox.Game.Entities
                 float ratio = Math.Min(1.0f, (float)(maxDistance / distance));
                 DetailedInfo.Append("Current jump: " + (ratio * 100f).ToString("F2") + "%");
             }
-            RaisePropertiesChangedJumpDrive();
+            RaisePropertiesChanged();
         }
 
-        private void RaisePropertiesChangedJumpDrive()
-        {
-            int gpsFirstVisibleRow = m_gpsGuiControl != null ? m_gpsGuiControl.FirstVisibleRow : 0;
-            RaisePropertiesChanged();
-            if (m_gpsGuiControl != null && gpsFirstVisibleRow < m_gpsGuiControl.Items.Count)
-            {
-                m_gpsGuiControl.FirstVisibleRow = gpsFirstVisibleRow;
-            }
-        }
         #endregion
 
         #region Power
 
         private float ComputeRequiredPower()
         {
-            if (IsFunctional && IsWorking)
+            if (IsFunctional && IsWorking && m_isRecharging)
             {
                 if (IsFull)
                 {
@@ -540,7 +542,7 @@ namespace Sandbox.Game.Entities
                 {
                     SetEmissive(Color.Yellow, m_storedPower / BlockDefinition.PowerNeededForJump, 1.0f, force);
                 }
-				else if (ResourceSink.CurrentInput > 0f)
+                else if (ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) > 0f)
                 {
                     SetEmissive(Color.Green, m_storedPower / BlockDefinition.PowerNeededForJump, 1.0f, force);
                 }
@@ -570,15 +572,15 @@ namespace Sandbox.Game.Entities
                 {
                     if (i <= fillCount)
                     {
-                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], color, emissivity);
+                        UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], color, emissivity);
                     }
                     else
                     {
-                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 0);
+                        UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], Color.Black, 0);
                     }
                 }
 
-                VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive4", color, emissivity);
+                UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive", color, emissivity);
 
                 m_prevColor = color;
                 m_prevFillCount = fillCount;

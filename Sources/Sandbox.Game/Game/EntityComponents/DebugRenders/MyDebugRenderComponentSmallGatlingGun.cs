@@ -12,14 +12,12 @@ namespace Sandbox.Game.Components
             m_gatlingGun = gatlingGun;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             m_gatlingGun.ConveyorEndpoint.DebugDraw();
 	        var sinkComp = m_gatlingGun.Components.Get<MyResourceSinkComponent>();
 			if(sinkComp != null)
 				sinkComp.DebugDraw(m_gatlingGun.PositionComp.WorldMatrix);
-
-            return true;
         }
     }
 }

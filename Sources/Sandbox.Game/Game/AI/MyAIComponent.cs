@@ -27,6 +27,8 @@ using VRageMath;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Profiler;
+using Havok;
 
 namespace Sandbox.Game.AI
 {
@@ -70,14 +72,12 @@ namespace Sandbox.Game.AI
         }
 
         private MyBotCollection m_botCollection;
-        private MyPathfinding m_pathfinding;
+        private IMyPathfinding m_pathfinding;
         private MyBehaviorTreeCollection m_behaviorTreeCollection;
 
         public MyBotCollection Bots { get { return m_botCollection; } }
-        public MyPathfinding Pathfinding { get { return m_pathfinding; } }
+        public IMyPathfinding Pathfinding { get { return m_pathfinding; } }
         public MyBehaviorTreeCollection BehaviorTrees { get { return m_behaviorTreeCollection; } }
-
-        public MyRandom Random;
 
         private Dictionary<int, MyObjectBuilder_Bot> m_loadedBotObjectBuildersByHandle;
         private List<int> m_loadedLocalPlayers;
@@ -90,6 +90,8 @@ namespace Sandbox.Game.AI
         private Dictionary<int, AgentSpawnData> m_agentsToSpawn;
 
         private MyHudNotification m_maxBotNotification;
+        private bool m_debugDrawPathfinding = false;
+
 
         public MyAgentDefinition BotToSpawn = null;
         public MyAiCommandDefinition CommandDefinition = null;
@@ -110,7 +112,6 @@ namespace Sandbox.Game.AI
         {
             Static = this;
             BotFactory = Activator.CreateInstance(MyPerGameSettings.BotFactoryType) as MyBotFactoryBase;
-            Random = MyFakes.DEBUG_AVOID_RANDOM_AI ? new MyRandom(0): new MyRandom();
         }
 
         public override void LoadData()
@@ -128,7 +129,10 @@ namespace Sandbox.Game.AI
                     Sync.Players.PlayerRequesting += Players_PlayerRequesting;
                 }
 
-                m_pathfinding = new MyPathfinding();
+                if (MyPerGameSettings.PathfindingType != null)
+                {
+                    m_pathfinding = Activator.CreateInstance(MyPerGameSettings.PathfindingType) as IMyPathfinding;
+                }
                 m_behaviorTreeCollection = new MyBehaviorTreeCollection();
                 m_botCollection = new MyBotCollection(m_behaviorTreeCollection);
                 m_loadedLocalPlayers = new List<int>();
@@ -139,12 +143,14 @@ namespace Sandbox.Game.AI
                 m_processQueue = new MyConcurrentQueue<AgentSpawnData>();
                 m_lock = new FastResourceLock();
 
+#if !XB1
                 if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION)
                 {
                     MyMessageLoop.AddMessageHandler(MyWMCodes.BEHAVIOR_GAME_UPLOAD_TREE, OnUploadNewTree);
                     MyMessageLoop.AddMessageHandler(MyWMCodes.BEHAVIOR_GAME_STOP_SENDING, OnBreakDebugging);
                     MyMessageLoop.AddMessageHandler(MyWMCodes.BEHAVIOR_GAME_RESUME_SENDING, OnResumeDebugging);
                 }
+#endif
 
                 MyToolbarComponent.CurrentToolbar.SelectedSlotChanged += CurrentToolbar_SelectedSlotChanged;
                 MyToolbarComponent.CurrentToolbar.SlotActivated += CurrentToolbar_SlotActivated;
@@ -169,6 +175,7 @@ namespace Sandbox.Game.AI
 
             var ob = (MyObjectBuilder_AIComponent)sessionComponentBuilder;
 
+            if (ob.BotBrains != null)
             foreach (var brain in ob.BotBrains)
             {
                 m_loadedBotObjectBuildersByHandle[brain.PlayerHandle] = brain.BotBrain;
@@ -229,15 +236,98 @@ namespace Sandbox.Game.AI
                             MyFakes.DEBUG_ONE_AI_STEP = false;
                 }
 
-                m_pathfinding.Update();
-
-                ProfilerShort.Begin("MyAIComponent.Simulate()");
+                MySimpleProfiler.Begin("AI");
+                if (m_pathfinding != null)
+					m_pathfinding.Update();
+				ProfilerShort.Begin("MyAIComponent.Simulate()");
                 base.Simulate();
                 m_behaviorTreeCollection.Update();
                 m_botCollection.Update();
 
                 ProfilerShort.End();
+                MySimpleProfiler.End("AI");
             }
+        }
+
+        public void PathfindingSetDrawDebug(bool drawDebug)
+        {
+            m_debugDrawPathfinding = drawDebug;
+        }
+
+        public void PathfindingSetDrawNavmesh(bool drawNavmesh)
+        {
+            MyRDPathfinding pf = m_pathfinding as MyRDPathfinding;
+            if (pf != null)
+                pf.SetDrawNavmesh(drawNavmesh);
+        }
+
+        public Vector3D? DebugTarget
+        { get; private set; }
+
+
+        public void GenerateNavmeshTile(Vector3D? target)
+        {
+            if (target.HasValue)
+            {
+                Vector3D point = target.Value + 0.1f;
+                MyDestinationSphere destSphere = new MyDestinationSphere(ref point, 1);
+
+                var path = Static.Pathfinding.FindPathGlobal(target.Value - 0.1f, destSphere, null);
+                Vector3D nextPosition;
+                float targetRadius;
+                VRage.ModAPI.IMyEntity entity;
+                path.GetNextTarget(target.Value, out nextPosition, out targetRadius, out entity);
+            }
+
+            DebugTarget = target;
+        }
+
+        public void InvalidateNavmeshPosition(Vector3D? target)
+        {
+            if (target.HasValue)
+            {
+                var pathfinding = (MyRDPathfinding)Static.Pathfinding;
+                if(pathfinding != null)
+                {
+                    BoundingBoxD box = new BoundingBoxD(target.Value - 0.1, target.Value + 0.1);
+                    pathfinding.InvalidateArea(box);
+                }
+            }
+
+            DebugTarget = target;
+        }
+        
+
+        BoundingBoxD m_debugTargetAABB;
+        public void SetPathfindingDebugTarget(Vector3D? target)
+        {
+            MyExternalPathfinding pf = m_pathfinding as MyExternalPathfinding;
+            if (pf != null)
+                pf.SetTarget(target);
+            else
+            {
+                if (target.HasValue)
+                {
+                    //TODO: Just for debug purpose... Anything can be implemented
+
+                    m_debugTargetAABB = new MyOrientedBoundingBoxD(target.Value, new Vector3D(5, 5, 5), Quaternion.Identity).GetAABB();
+                    List<VRage.Game.Entity.MyEntity> entities = new List<VRage.Game.Entity.MyEntity>();
+                    MyGamePruningStructure.GetAllEntitiesInBox(ref m_debugTargetAABB, entities);
+                }
+            }
+
+            DebugTarget = target;
+        }
+
+
+        private void DrawDebugTarget()
+        {
+            if (DebugTarget != null)
+            {
+                VRageRender.MyRenderProxy.DebugDrawSphere(DebugTarget.Value, 0.2f, Color.Red, 0, false);
+                VRageRender.MyRenderProxy.DebugDrawAABB(m_debugTargetAABB, Color.Green);
+            }
+
         }
 
         public override void UpdateAfterSimulation()
@@ -256,9 +346,12 @@ namespace Sandbox.Game.AI
                 }
 
                 ProfilerShort.Begin("Debug draw");
-                m_pathfinding.DebugDraw();
+                if (m_debugDrawPathfinding && m_pathfinding != null) 
+                    m_pathfinding.DebugDraw();
+      
                 m_botCollection.DebugDraw();
                 DebugDrawBots();
+                DrawDebugTarget();
                 ProfilerShort.End();
             }
         }
@@ -279,18 +372,21 @@ namespace Sandbox.Game.AI
                     Sync.Players.PlayerRemoved -= Players_PlayerRemoved;
                 }
 
-                m_pathfinding.UnloadData();
+                if (m_pathfinding != null) 
+					m_pathfinding.UnloadData();
                 m_botCollection.UnloadData();
 
                 m_botCollection = null;
                 m_pathfinding = null;
 
+#if !XB1
                 if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION)
                 {
                     MyMessageLoop.RemoveMessageHandler(MyWMCodes.BEHAVIOR_GAME_UPLOAD_TREE, OnUploadNewTree);
                     MyMessageLoop.RemoveMessageHandler(MyWMCodes.BEHAVIOR_GAME_STOP_SENDING, OnBreakDebugging);
                     MyMessageLoop.RemoveMessageHandler(MyWMCodes.BEHAVIOR_GAME_RESUME_SENDING, OnResumeDebugging);
                 }
+#endif
 
                 if (MyToolbarComponent.CurrentToolbar != null)
                 {
@@ -323,9 +419,9 @@ namespace Sandbox.Game.AI
             return SpawnNewBotInternal(agentDefinition, spawnPosition, false);
         }
 
-        public int SpawnNewBot(MyAgentDefinition agentDefinition, Vector3D position)
+        public int SpawnNewBot(MyAgentDefinition agentDefinition, Vector3D position, bool createdByPlayer = true)
         {
-            return SpawnNewBotInternal(agentDefinition, position, true);
+            return SpawnNewBotInternal(agentDefinition, position, createdByPlayer);
         }
 
         public bool SpawnNewBotGroup(string type, List<AgentGroupData> groupData, List<int> outIds)
@@ -524,6 +620,10 @@ namespace Sandbox.Game.AI
             var createdByPlayer = false;
             MyBotDefinition botDefinition = null;
             AgentSpawnData spawnData = default(AgentSpawnData);
+
+            // We have to get the bot object builder and bot definition somehow
+            // Either, the bot is being spawned on this computer and the definition was saved in the spawn data
+            // or the bot is just being created from the object builder (MP bot creation, etc.), so the definition is there
             if (isBotSpawned)
             {
                 spawnData = m_agentsToSpawn[playerNumber];
@@ -640,6 +740,12 @@ namespace Sandbox.Game.AI
             }
         }
 
+        public void TrySpawnBot(MyAgentDefinition agentDefinition)
+        {
+            BotToSpawn = agentDefinition;
+            TrySpawnBot();
+        }
+
         private void CurrentToolbar_SelectedSlotChanged(MyToolbar toolbar, MyToolbar.SlotArgs args)
         {
             if (!(toolbar.SelectedItem is MyToolbarItemBot))
@@ -678,11 +784,20 @@ namespace Sandbox.Game.AI
                 cameraDir = MySector.MainCamera.WorldMatrix.Forward;
             }
 
+
             List<MyPhysics.HitInfo> hitInfos = new List<MyPhysics.HitInfo>();
 
-            MyPhysics.CastRay(cameraPos, cameraPos + cameraDir * 100, hitInfos, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
+            var line = new LineD(MySector.MainCamera.Position, MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 1000);
+
+            MyPhysics.CastRay(line.From, line.To, hitInfos, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+
+            //MyPhysics.CastRay(cameraPos, cameraPos + cameraDir * 1000, hitInfos, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
             if (hitInfos.Count == 0)
+            //return;
+            {
+                MyAIComponent.Static.SpawnNewBot(BotToSpawn, cameraPos);
                 return;
+            }
 
             MyPhysics.HitInfo? closestValidHit = null;
             foreach (var hitInfo in hitInfos)
@@ -693,18 +808,33 @@ namespace Sandbox.Game.AI
                     closestValidHit = hitInfo;
                     break;
                 }
-                else if (ent is MyVoxelMap)
+                else if (ent is MyVoxelBase)
+                {
+                    closestValidHit = hitInfo;
+                    break;
+                }
+                else if (ent is MyVoxelPhysics)
                 {
                     closestValidHit = hitInfo;
                     break;
                 }
             }
 
+            /*
             if (closestValidHit.HasValue)
             {
                 Vector3D position = closestValidHit.Value.Position;
                 MyAIComponent.Static.SpawnNewBot(BotToSpawn, position);
             }
+             */
+            Vector3D position;
+            if (closestValidHit.HasValue)
+                position = closestValidHit.Value.Position;
+            else
+                position = MySector.MainCamera.Position;
+
+            MyAIComponent.Static.SpawnNewBot(BotToSpawn, position);
+            
         }
 
         private void UseCommand()
@@ -761,11 +891,6 @@ namespace Sandbox.Game.AI
             }
         }
 
-        public double GetRandomDouble(double min, double max)
-        {
-            return Random.NextDouble() * (max - min) + min;
-        }
-
         #region Tool message handling
 
         private void OnUploadNewTree(ref Message msg)
@@ -782,8 +907,10 @@ namespace Sandbox.Game.AI
                     m_botCollection.CheckCompatibilityWithBots(behaviorTree);
                 }
                 IntPtr toolWindowHandle = IntPtr.Zero;
+#if !XB1
                 if (m_behaviorTreeCollection.TryGetValidToolWindow(out toolWindowHandle))
                     WinApi.PostMessage(toolWindowHandle, MyWMCodes.BEHAVIOR_TOOL_TREE_UPLOAD_SUCCESS, IntPtr.Zero, IntPtr.Zero);
+#endif // !XB1
             }
         }
 

@@ -8,8 +8,10 @@ using VRageMath;
 using VRageRender.Profiler;
 using Vector2 = VRageMath.Vector2;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Render11.Shader;
 using VRage.Utils;
+using VRageRender.Messages;
 
 namespace VRageRender
 {
@@ -21,7 +23,6 @@ namespace VRageRender
 
         public MyLog Log { get { return MyRender11.Log; } }
 
-        public MyRenderSettings Settings { get { return MyRender11.Settings; } }
         public MySharedData SharedData { get { return MyRender11.SharedData; } }
         public MyTimeSpan CurrentDrawTime
         {
@@ -70,18 +71,12 @@ namespace VRageRender
 
         public void ApplySettings(MyRenderDeviceSettings settings)
         {
-            MyRender11.CheckAdapterChange(ref settings);
             MyRender11.ApplySettings(settings);
         }
 
         public void Present()
         {
             MyRender11.Present();
-        }
-
-        public void ClearBackbuffer(ColorBGRA clearColor)
-        {
-            MyRender11.ClearBackbuffer(clearColor);
         }
 
         public Vector2I BackBufferResolution { get { return MyRender11.BackBufferResolution; } }
@@ -135,7 +130,20 @@ namespace VRageRender
 
         public void Draw(bool draw = true)
         {
+#if DEBUG
+            try
+            {
+                MyRender11.Draw(draw);
+            }
+            catch (Exception ex)
+            {
+                MyRender11.ProcessDebugOutput();
+                System.Diagnostics.Debug.WriteLine(ex);
+                MyRenderProxy.Assert(false, "Exception in render!\n" + ex);
+            }
+#else
             MyRender11.Draw(draw);
+#endif
         }
 
         public MyRenderProfiler GetRenderProfiler()

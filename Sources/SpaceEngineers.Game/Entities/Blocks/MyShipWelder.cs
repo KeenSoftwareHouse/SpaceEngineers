@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -30,7 +31,7 @@ using VRageRender;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ShipWelder))]
-    class MyShipWelder : MyShipToolBase, IMyShipWelder
+    public class MyShipWelder : MyShipToolBase, IMyShipWelder
     {
         private static MySoundPair METAL_SOUND = new MySoundPair("ToolLrgWeldMetal");
         private static MySoundPair IDLE_SOUND = new MySoundPair("ToolLrgWeldIdle");
@@ -49,18 +50,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
         MyParticleEffect m_particleEffect;
         MyLight m_effectLight;
 
-        static MyShipWelder()
-        {
-            if (MyFakes.ENABLE_WELDER_HELP_OTHERS)
-            {
-                var helpOthersCheck = new MyTerminalControlCheckbox<MyShipWelder>("helpOthers", MyCommonTexts.ShipWelder_HelpOthers, MyCommonTexts.ShipWelder_HelpOthers);
-                helpOthersCheck.Getter = (x) => x.HelpOthers;
-                helpOthersCheck.Setter = (x, v) => x.m_helpOthers.Value = v;
-                helpOthersCheck.EnableAction();
-                MyTerminalControlFactory.AddControl(helpOthersCheck);
-            }
-        }
-
         public bool HelpOthers
         {
             get { return m_helpOthers; }
@@ -73,7 +62,30 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 return true;
             }
         }
-        
+
+        public MyShipWelder()
+        {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_helpOthers = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            CreateTerminalControls();
+        }
+
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyShipWelder>())
+                return;
+            base.CreateTerminalControls();
+            if (MyFakes.ENABLE_WELDER_HELP_OTHERS)
+            {
+                var helpOthersCheck = new MyTerminalControlCheckbox<MyShipWelder>("helpOthers", MyCommonTexts.ShipWelder_HelpOthers, MyCommonTexts.ShipWelder_HelpOthers);
+                helpOthersCheck.Getter = (x) => x.HelpOthers;
+                helpOthersCheck.Setter = (x, v) => x.m_helpOthers.Value = v;
+                helpOthersCheck.EnableAction();
+                MyTerminalControlFactory.AddControl(helpOthersCheck);
+            }
+        }
+
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             SyncFlag = true;
@@ -122,6 +134,31 @@ namespace SpaceEngineers.Game.Entities.Blocks
             builder.HelpOthers = m_helpOthers;
             return builder;
         }
+
+        /// <summary>
+        /// Determines whether the projected grid still fits within block limits set by server after a new block is added
+        /// </summary>
+        private bool IsWithinWorldLimits(MyProjectorBase projector, string name)
+        {
+            if (!MySession.Static.EnableBlockLimits) return true;
+
+            bool withinLimits = true;
+            var identity = MySession.Static.Players.TryGetIdentity(BuiltBy);
+            if (MySession.Static.MaxBlocksPerPlayer > 0)
+            {
+                withinLimits &= BuiltBy == 0 || IDModule.GetUserRelationToOwner(BuiltBy) != MyRelationsBetweenPlayerAndBlock.Enemies; // Don't allow stolen enemy welders to build
+                withinLimits &= projector.BuiltBy == 0 || IDModule.GetUserRelationToOwner(projector.BuiltBy) != MyRelationsBetweenPlayerAndBlock.Enemies; // Don't allow welders to build from enemy projectors
+                withinLimits &= identity == null || identity.BlocksBuilt < MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier;
+            }
+            withinLimits &= MySession.Static.MaxGridSize == 0 || projector.CubeGrid.BlocksCount < MySession.Static.MaxGridSize;
+            short typeLimit = MySession.Static.GetBlockTypeLimit(name);
+            int typeBuilt;
+            if (identity != null && typeLimit > 0)
+            {
+                withinLimits &= (identity.BlockTypeBuilt.TryGetValue(name, out typeBuilt) ? typeBuilt : 0) < typeLimit;
+            }
+            return withinLimits;
+        }
         
         protected override bool Activate(HashSet<MySlimBlock> targets)
         {
@@ -133,7 +170,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             
             foreach (var block in targets)
             {
-                if (block.BuildLevelRatio == 1.0f)
+                if (block.BuildLevelRatio == 1.0f || block == SlimBlock)
                 {
                     targetCount--;
                     continue;
@@ -147,9 +184,32 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 var componentId = new MyDefinitionId(typeof(MyObjectBuilder_Component), component.Key);
                 int amount = Math.Max(component.Value - (int)this.GetInventory().GetItemAmount(componentId), 0);
                 if (amount == 0) continue;
-                
+
                 if (Sync.IsServer && UseConveyorSystem)
-                    MyGridConveyorSystem.ItemPullRequest(this, this.GetInventory(), OwnerId, componentId, component.Value);
+                {
+                    var group = MyDefinitionManager.Static.GetGroupForComponent(componentId, out amount);
+                    if (group == null)
+                    {
+                        MyComponentSubstitutionDefinition substitutions;
+                        if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(componentId, out substitutions))
+                        {
+                            foreach (var providingComponent in substitutions.ProvidingComponents)
+                            {
+                                MyFixedPoint substituionAmount = (int)component.Value / providingComponent.Value;
+                                MyGridConveyorSystem.ItemPullRequest(this, this.GetInventory(), OwnerId, providingComponent.Key, substituionAmount);
+                            }
+                        }
+                        else
+                        {
+                            MyGridConveyorSystem.ItemPullRequest(this, this.GetInventory(), OwnerId, componentId, component.Value);    
+                        }
+                    }
+                    else
+                    {
+                        MyGridConveyorSystem.ItemPullRequest(this, this.GetInventory(), OwnerId, componentId, component.Value);              
+                    }
+                    
+                }
             }
 
             if (Sync.IsServer)
@@ -157,6 +217,14 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 float coefficient = (MyShipGrinderConstants.GRINDER_COOLDOWN_IN_MILISECONDS * 0.001f) / (targetCount>0?targetCount:1);
                 foreach (var block in targets)
                 {
+                    // remove projected blocks
+                    if (block.CubeGrid.Physics == null || !block.CubeGrid.Physics.Enabled)
+                        continue;
+
+                    // Don't weld yourself
+                    if (block == SlimBlock) 
+                        continue;
+
                     if (!block.IsFullIntegrity)
                         unweldedBlocksDetected = true;
                     
@@ -177,6 +245,10 @@ namespace SpaceEngineers.Game.Entities.Blocks
             {
                 foreach (var block in targets)
                 {
+                    // Don't weld yourself
+                    if (block == SlimBlock)
+                        continue;
+
                     if (block.CanContinueBuild(this.GetInventory()))
                         welding = true;
                 }
@@ -206,14 +278,24 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
                 foreach (var info in blocks)
                 {
-                    if (MySession.Static.CreativeMode || this.GetInventory().ContainItems(1, info.hitCube.BlockDefinition.Components[0].Definition.Id))
+                    if (IsWithinWorldLimits(info.cubeProjector, info.hitCube.BlockDefinition.BlockPairName) && (MySession.Static.CreativeMode || this.GetInventory().ContainItems(1, info.hitCube.BlockDefinition.Components[0].Definition.Id)))
                     {
-                        info.cubeProjector.Build(info.hitCube, OwnerId, EntityId);
-                        welding = true;
+                        if (MySession.Static.MaxBlocksPerPlayer == 0 || BuiltBy != 0)
+                        {
+                            info.cubeProjector.Build(info.hitCube, OwnerId, EntityId, builtBy: BuiltBy);
+                            welding = true;
+                        }
+                        else if (OwnerId != 0)
+                        {
+                            info.cubeProjector.Build(info.hitCube, OwnerId, EntityId, builtBy: OwnerId);
+                            welding = true;
+                        }
                     }
                 }
             }
 
+            if (welding)
+                SetBuildingMusic(150);
 
             return welding;
         }
@@ -236,12 +318,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
                         foreach (var block in m_projectedBlock)
                         {
                             var canBuild = grid.Projector.CanBuild(block, true);
-                            if (canBuild == MyProjectorBase.BuildCheckResult.OK)
+                            if (canBuild == BuildCheckResult.OK)
                             {
                                 var cubeBlock = grid.GetCubeBlock(block.Position);
                                 if (cubeBlock != null)
                                 {
-                                    m_raycastData.Add(new MyWelder.ProjectionRaycastData(MyProjectorBase.BuildCheckResult.OK, cubeBlock, grid.Projector));
+                                    m_raycastData.Add(new MyWelder.ProjectionRaycastData(BuildCheckResult.OK, cubeBlock, grid.Projector));
                                 }
                             }
                         }
@@ -287,8 +369,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
             MyLight light = MyLights.AddLight();
             light.Start(MyLight.LightTypeEnum.PointLight, Vector3.Zero, new Vector4(1.0f, 0.8f, 0.6f, 1.0f), 2.0f, 10.0f);
             light.GlareMaterial = "GlareWelder";
-            light.GlareOn = true;
-            light.GlareQuerySize = 1;
+            light.GlareOn = light.LightOn;
+            light.GlareQuerySize = 0.4f;
             light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
             return light;
         }
@@ -321,6 +403,17 @@ namespace SpaceEngineers.Game.Entities.Blocks
             {
                 m_effectLight.Position = GetLightPosition();
                 m_effectLight.UpdateLight();
+            }
+        }
+
+        public override void UpdateAfterSimulation()
+        {
+            base.UpdateAfterSimulation();
+
+            if (!IsShooting && !IsHeatingUp)
+            {
+                // Doesn't actually do anything, switch each frame update off
+                NeedsUpdate &= ~VRage.ModAPI.MyEntityUpdateEnum.EACH_FRAME;
             }
         }
 
@@ -358,5 +451,23 @@ namespace SpaceEngineers.Game.Entities.Blocks
             else
                 m_soundEmitter.PlaySingleSound(IDLE_SOUND, true);
         }
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public override Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory(0);
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = new MyInventoryConstraint("Empty constraint");
+            return pullInformation;
+        }
+
+        public override Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }

@@ -1,6 +1,10 @@
-﻿using System.Diagnostics;
+﻿using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
+using VRageMath;
 
 namespace VRageRender
 {
@@ -9,89 +13,124 @@ namespace VRageRender
         static ComputeShaderId m_initialShader;
         static ComputeShaderId m_sumShader;
         static ComputeShaderId m_finalShader;
+        static ComputeShaderId m_skipShader;
 
-        const int m_numthreads = 8;
+        static IUavTexture m_prevLum;
 
-        internal static int NumThreads { get { return m_numthreads; } }
+        const int NUM_THREADS = 8;
 
         internal static void Init()
         {
-            var threadMacro = new[] {new ShaderMacro("NUMTHREADS", 8)};
-            m_initialShader = MyShaders.CreateCs("luminance_reduction_init.hlsl", threadMacro);
-            m_sumShader = MyShaders.CreateCs("luminance_reduction.hlsl", threadMacro);
-            m_finalShader = MyShaders.CreateCs("luminance_reduction.hlsl", new[] { new ShaderMacro("NUMTHREADS", 8), new ShaderMacro("_FINAL", null) });
+            var threadMacros = new[] { new ShaderMacro("NUMTHREADS", NUM_THREADS) };
+            m_initialShader = MyShaders.CreateCs("Postprocess/LuminanceReduction/Init.hlsl", threadMacros);
+            m_sumShader = MyShaders.CreateCs("Postprocess/LuminanceReduction/Sum.hlsl", threadMacros);
+
+            threadMacros = new[] { new ShaderMacro("NUMTHREADS", NUM_THREADS), new ShaderMacro("_FINAL", null) };
+            m_finalShader = MyShaders.CreateCs("Postprocess/LuminanceReduction/Sum.hlsl", threadMacros);
+
+            m_skipShader = MyShaders.CreateCs("Postprocess/LuminanceReduction/Skip.hlsl");
+
+            m_prevLum = MyManagers.RwTextures.CreateUav("MyLuminanceAverage.PrevLum", 1, 1, Format.R32G32_Float);
         }
 
-        internal static MyBindableResource Run(MyBindableResource uav0, MyBindableResource uav1, MyBindableResource src,
-            MyBindableResource prevLum)
+        internal static void Reset()
         {
-            var size = src.GetSize();
-            var texelsNum = size.X * size.Y;
+            MyRender11.RC.ClearUav(m_prevLum, Int4.Zero);
+        }
+
+        internal static IBorrowedUavTexture Skip()
+        {
+            IBorrowedUavTexture borrowedUav = MyManagers.RwTexturesPool.BorrowUav("MyLuminanceAverage.Skip", Format.R32G32_Float);
+            RC.ComputeShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+            RC.ComputeShader.SetUav(0, borrowedUav);
+            RC.ComputeShader.Set(m_skipShader);
+            RC.Dispatch(1, 1, 1);
+            RC.ComputeShader.SetUav(0, null);
+            //luminance_reduction_skip
+            return borrowedUav;
+        }
+
+        internal static IBorrowedUavTexture Run(ISrvBindable src)
+        {
+            IBorrowedUavTexture uav0 = MyManagers.RwTexturesPool.BorrowUav("MyLuminanceAverage.Uav0", Format.R32G32_Float);
+            IBorrowedUavTexture uav1 = MyManagers.RwTexturesPool.BorrowUav("MyLuminanceAverage.Uav1", Format.R32G32_Float);
+
+            Vector2I size = src.Size;
+            int texelsNum = size.X * size.Y;
             uint sizeX = (uint)size.X;
             uint sizeY = (uint)size.Y;
-            float adaptationFactor = MyRender11.Postprocess.EnableEyeAdaptation ? -1.0f : MyRender11.Postprocess.ConstantLuminance;
             var buffer = MyCommon.GetObjectCB(16);
             var mapping = MyMapping.MapDiscard(buffer);
             mapping.WriteAndPosition(ref sizeX);
             mapping.WriteAndPosition(ref sizeY);
             mapping.WriteAndPosition(ref texelsNum);
-            mapping.WriteAndPosition(ref adaptationFactor);
             mapping.Unmap();
 
-            RC.CSSetCB(0, MyCommon.FrameConstants);
-            RC.CSSetCB(1, MyCommon.GetObjectCB(16));
+            RC.ComputeShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+            RC.ComputeShader.SetConstantBuffer(1, MyCommon.GetObjectCB(16));
 
-            RC.BindUAV(0, uav0);
-            RC.BindSRV(0, src);
-            RC.SetCS(m_initialShader);
+            RC.ComputeShader.Set(m_initialShader);
 
-            RC.DeviceContext.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
+            IBorrowedUavTexture output = uav0;
+            ISrvBindable inputSrc = src;
+            RC.ComputeShader.SetUav(0, output);
+            RC.ComputeShader.SetSrv(0, inputSrc);
 
-            RC.SetCS(m_sumShader);
+            int threadGroupCountX = ComputeGroupCount(size.X);
+            int threadGroupCountY = ComputeGroupCount(size.Y);
+            RC.Dispatch(threadGroupCountX, threadGroupCountY, 1);
+            RC.ComputeShader.Set(m_sumShader);
+
+            IBorrowedUavTexture input;
             int i = 0;
             while (true)
             {
-                size.X = (size.X + m_numthreads - 1) / m_numthreads;
-                size.Y = (size.Y + m_numthreads - 1) / m_numthreads;
+                size.X = threadGroupCountX;
+                size.Y = threadGroupCountY;
 
-                if (size.X <= 8 && size.Y <= 8)
+                if (size.X <= NUM_THREADS && size.Y <= NUM_THREADS)
                     break;
 
-                //mapping = MyMapping.MapDiscard(MyCommon.GetObjectBuffer(16).Buffer);
-                //mapping.stream.Write(new Vector2I(size.X, size.Y));
-                //mapping.Unmap();
+                output = (i % 2 == 0) ? uav1 : uav0;
+                input = (i % 2 == 0) ? uav0 : uav1;
 
-                RC.BindUAV(0, (i % 2 == 0) ? uav1 : uav0);
-                RC.BindSRV(0, (i % 2 == 0) ? uav0 : uav1);
+                RC.ComputeShader.SetSrv(0, null);
+                RC.ComputeShader.SetUav(0, output);
+                RC.ComputeShader.SetSrv(0, input);
 
-                RC.DeviceContext.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
-
-                //might not be exactly correct if we skip this
-                var dirty = (i % 2 == 0) ? uav0 : uav1;
-                RC.DeviceContext.ClearUnorderedAccessView((dirty as IUnorderedAccessBindable).UAV, new SharpDX.Int4(0, 0, 0, 0));
+                threadGroupCountX = ComputeGroupCount(size.X);
+                threadGroupCountY = ComputeGroupCount(size.Y);
+                RC.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 
                 i++;
             }
 
-            RC.SetCS(m_finalShader);
+            RC.ComputeShader.Set(m_finalShader);
 
-            //mapping = MyMapping.MapDiscard(MyCommon.GetObjectBuffer(16).Buffer);
-            //mapping.stream.Write(new Vector2I(size.X, size.Y));
-            //mapping.stream.Write(texelsNum);
-            //mapping.Unmap();
+            output = (i % 2 == 0) ? uav1 : uav0;
+            input = (i % 2 == 0) ? uav0 : uav1;
 
-            RC.BindUAV(0, (i % 2 == 0) ? uav1 : uav0);
-            RC.BindSRVs(0, (i % 2 == 0) ? uav0 : uav1, prevLum);
+            RC.ComputeShader.SetSrv(0, null);
+            RC.ComputeShader.SetUav(0, output);
+            RC.ComputeShader.SetSrvs(0, input, m_prevLum);
 
-            RC.DeviceContext.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
+            threadGroupCountX = ComputeGroupCount(size.X);
+            threadGroupCountY = ComputeGroupCount(size.Y);
+            RC.Dispatch(threadGroupCountX, threadGroupCountY, 1);
 
-            RC.SetCS(null);
+            RC.ComputeShader.Set(null);
+            RC.ComputeShader.SetUav(0, null);
 
-            var output = (i % 2 == 0) ? uav1 : uav0;
+            // Backup the result for later process
+            RC.CopySubresourceRegion(output, 0, new ResourceRegion(0, 0, 0, 1, 1, 1), m_prevLum, 0);
 
-            RC.DeviceContext.CopySubresourceRegion(output.m_resource, 0, new ResourceRegion(0, 0, 0, 1, 1, 1), prevLum.m_resource, 0);
-
+            input.Release();
             return output;
+        }
+
+        private static int ComputeGroupCount(int dim)
+        {
+            return (dim + NUM_THREADS - 1) / NUM_THREADS;
         }
     }
 }

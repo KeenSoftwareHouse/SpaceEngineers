@@ -102,5 +102,11 @@ namespace VRage.Game
         [ProtoMember]
         [XmlElement(ElementName = "I")]
         public long IdentityIdUniqueNumber;
+        [ProtoMember]
+        [XmlAttribute("a"), DefaultValue("")]
+        public string Author;
+        [ProtoMember]
+        [XmlAttribute("f"), DefaultValue(MyFontEnum.Blue)]
+        public string Font;
     }
 }

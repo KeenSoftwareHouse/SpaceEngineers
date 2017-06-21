@@ -17,6 +17,8 @@ using System.Text;
 
 namespace LitJson
 {
+#if !XB1
+
     public enum JsonToken
     {
         None,
@@ -461,4 +463,5 @@ namespace LitJson
         }
 
     }
+#endif
 }

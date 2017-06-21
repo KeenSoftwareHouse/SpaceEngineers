@@ -5,8 +5,7 @@ namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public class MyObjectBuilder_AntennaSessionComponent : MyObjectBuilder_Base
+    public class MyObjectBuilder_AntennaSessionComponent : MyObjectBuilder_SessionComponent
     {
-        // try not to put anything here, this class is only for type safety
     }
 }

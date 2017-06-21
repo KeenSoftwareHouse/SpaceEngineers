@@ -1,4 +1,5 @@
-﻿#if FEAT_COMPILER
+﻿#if !XB1 // XB1_NOPROTOBUF
+#if FEAT_COMPILER
 using System;
 #if FEAT_IKVM
 using IKVM.Reflection.Emit;
@@ -56,3 +57,4 @@ namespace ProtoBuf.Compiler
 
 }
 #endif
+#endif // !XB1

@@ -5,22 +5,40 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using VRage.Network;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRage.Network
 {
     public abstract class MyReplicationLayerBase
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private bool m_registered = false;
+#endif // XB1
+        
         private static DBNull e = DBNull.Value;
         protected readonly MyTypeTable m_typeTable = new MyTypeTable();
 
-        protected bool ShouldServerInvokeLocally(CallSite site, EndpointId? localClientEndpoint, EndpointId recipient)
+        public Type GetType(TypeId id)
+        {
+            return m_typeTable.Get(id).Type;
+        }
+
+        public TypeId GetTypeId(Type id)
+        {
+            return m_typeTable.Get(id).TypeId;
+        }
+
+        public DateTime LastMessageFromServer { get; protected set; }
+
+        protected static bool ShouldServerInvokeLocally(CallSite site, EndpointId? localClientEndpoint, EndpointId recipient)
         {
             // Invoke locally when:
-            // A) Has server flag, but not except local flag
+            // A) Has server flag
             // B) Has client flag and recipient is serverEndpoint and server is also client (e.g. single player, normal server)
             // C) Has broadcast flag and recipient is serverEndpoint and server is also client (e.g. single player, normal server)
-            return (site.HasServerFlag && (!IsLocal || !site.HasExceptLocalFlag))
-                || (localClientEndpoint.HasValue && recipient == localClientEndpoint.Value && (site.HasClientFlag || site.HasBroadcastFlag));
+            return site.HasServerFlag || (localClientEndpoint.HasValue && recipient == localClientEndpoint.Value && (site.HasClientFlag || site.HasBroadcastFlag));
         }
 
         private bool TryGetInstanceCallSite<T>(Func<T, Delegate> callSiteGetter, T arg, out CallSite site)
@@ -36,7 +54,7 @@ namespace VRage.Network
 
         private CallSite GetCallSite<T>(Func<T, Delegate> callSiteGetter, T arg)
         {
-            Debug.Assert(callSiteGetter.Target == null, "RaiseEvent is designed for anonymous methods (no lambdas or instance methods)");
+            //Debug.Assert(callSiteGetter.Target == null, "RaiseEvent is designed for anonymous methods (no lambdas or instance methods)");
 
             CallSite site;
             if (arg == null)
@@ -135,18 +153,21 @@ namespace VRage.Network
             {
                 return;
             }
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var type in assembly.GetTypes())
+#endif // !XB1
             {
                 if (MyTypeTable.ShouldRegister(type))
                 {
                     m_typeTable.Register(type);
                 }
             }
-        }
-
-        protected virtual bool IsLocal
-        {
-            get { return true; }
         }
     }
 }

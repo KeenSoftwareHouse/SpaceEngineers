@@ -119,16 +119,19 @@ namespace VRageMath
             return vec.X == 127 && vec.Y == 127 && vec.Z == 127;
         }
 
+        private static Vector3 m_clampBoundary = new Vector3(255f);
         /// <summary>
-        /// Normalizes Vector3 into Vector4UByte, scales vector from (-range, range) to (0, 255)
+        /// Normalizes Vector3 into Vector4UByte, scales vector from (-range, range) to (0, 255).
+        /// Unsafe for values "range >= any_vec_value / 257";
         /// </summary>
         public static Vector3UByte Normalize(Vector3 vec, float range)
         {
             // Scale from (-range, range) to (-1,1):  vec / range 
             // Scale to (-0.5f, 0.5f): vec / range / 2
             // Scale to (0, 1): (vec / range / 2 + new Vector3(0.5f)
-            // Finally scale to (0, 255)
-            Vector3 v = ((vec / range / 2 + new Vector3(0.5f)) * 255.9999f);
+            // Finally scale to (0, 255) -- Clamp
+            var v = (vec / range / 2 + new Vector3(0.5f)) * 255f;
+            Vector3.Clamp(ref v, ref Vector3.Zero, ref m_clampBoundary, out v);
             return new Vector3UByte((byte)v.X, (byte)v.Y, (byte)v.Z);
         }
 

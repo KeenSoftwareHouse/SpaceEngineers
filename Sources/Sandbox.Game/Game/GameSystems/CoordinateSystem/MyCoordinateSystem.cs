@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.Components.Session;
+using VRage.Game.Definitions.SessionComponents;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Components;
 using VRage.Library.Utils;
@@ -24,6 +26,12 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate, 1000, typeof(MyObjectBuilder_CoordinateSystem)), StaticEventOwner]
     public class MyCoordinateSystem : MySessionComponentBase
     {
+
+        #region Events
+
+        public static event Action OnCoordinateChange;
+
+        #endregion
 
         #region Local Structs
 
@@ -39,13 +47,21 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
             public Quaternion Rotation;
         }
 
+        public struct CoordSystemData
+        {
+            public MyTransformD SnappedTransform;
+            public MyTransformD Origin;
+            public Vector3D LocalSnappedPos;
+        }
+
         #endregion
 
         #region Static & Const members
 
         public static MyCoordinateSystem Static;
-        private const double TOLERANCE_ANGLE = 0.0001;
-        private const double TOLERANCE_POSITION = 0.001;
+        private double m_angleTolerance = 0.0001;
+        private double m_positionTolerance = 0.001;
+        private int m_coorsSystemSize = 1000;
         
         #endregion
 
@@ -58,9 +74,9 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         private bool m_drawBoundingBox = false;
         private long m_selectedCoordSys = 0;
         private long m_lastSelectedCoordSys = 0;
-        private bool m_isSelection = false;
+        private bool m_localCoordExist = false;
         private bool m_selectionChanged = false;
-        private bool m_enabled = false;
+        private bool m_visible = false;
 
         #endregion
 
@@ -79,9 +95,14 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         /// <summary>
         /// Indicates if there is any selected coord system.
         /// </summary>
-        public bool IsSelection { get { return this.m_isSelection; } }
+        public bool LocalCoordExist { get { return this.m_localCoordExist; } }
 
-        public bool SelectionChanged { get { return this.m_selectionChanged; } }
+        //public bool SelectionChanged { get { return this.m_selectionChanged; } }
+
+        /// <summary>
+        /// Indicates if LCS graphic representation is visible.
+        /// </summary>
+        public bool Visible { get { return this.m_visible; } set { m_visible = value; } }
 
         #endregion
 
@@ -100,6 +121,7 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
         {
             base.Init(sessionComponent);
+
             var coordSysBuilder = sessionComponent as MyObjectBuilder_CoordinateSystem;
 
             this.m_lastCoordSysId = coordSysBuilder.LastCoordSysId;
@@ -110,14 +132,28 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
                 origin.Position = coordSys.Position;
                 origin.Rotation = coordSys.Rotation;
 
-                MyLocalCoordSys newCoordSys = new MyLocalCoordSys(origin);
+                MyLocalCoordSys newCoordSys = new MyLocalCoordSys(origin, m_coorsSystemSize);
                 newCoordSys.Id = coordSys.Id;
-                newCoordSys.EntityConuter = coordSys.EntityCount;
 
                 m_localCoordSystems.Add(coordSys.Id, newCoordSys);
 
             }
 
+        }
+
+        public override void InitFromDefinition(MySessionComponentDefinition definition)
+        {
+            base.InitFromDefinition(definition);
+            MyCoordinateSystemDefinition coordSysDef = definition as MyCoordinateSystemDefinition;
+
+            if (coordSysDef == null)
+            {
+                Debug.Fail("Wrong definition, something is very wrong. Check SessionComponent.sbc");
+            }
+
+            this.m_coorsSystemSize = coordSysDef.CoordSystemSize;
+            this.m_angleTolerance = coordSysDef.AngleTolerance;
+            this.m_positionTolerance = coordSysDef.PositionTolerance;
         }
 
         public override void LoadData()
@@ -188,7 +224,7 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         /// </summary>
         /// <param name="transform">Origin transform.</param>
         /// <param name="coordSysId">Coord system id.</param>
-        [Event, Reliable, Broadcast]
+        [Event, Reliable, BroadcastExcept]
         private static void CoordSysCreated_Client(MyCreateCoordSysBuffer createBuffer)
         {
             MyTransformD origin = new MyTransformD();
@@ -204,7 +240,7 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         /// <param name="coordSysId">Coord system id that should be used in creation.</param>
         private void CreateCoordSys_ClientInternal(ref MyTransformD transform, long coordSysId)
         {
-            MyLocalCoordSys localCoordSys = new MyLocalCoordSys(transform);
+            MyLocalCoordSys localCoordSys = new MyLocalCoordSys(transform, m_coorsSystemSize);
             localCoordSys.Id = coordSysId;
             m_localCoordSystems.Add(coordSysId, localCoordSys);
         }
@@ -217,10 +253,10 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         public void CreateCoordSys(MyCubeGrid cubeGrid, bool staticGridAlignToCenter, bool sync = false)
         {
             //In me this system is not working for now (will change after implementing planets there)
-            if(MyPerGameSettings.Game == GameEnum.ME_GAME)
-            {
-                return;
-            }
+            //if(MyPerGameSettings.Game == GameEnum.ME_GAME)
+            //{
+            //    return;
+            //}
             
             Debug.Assert(Sync.IsServer, "Called on client. This method should be called only on server.");
 
@@ -233,10 +269,13 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
                 origin.Position -= (origin.Rotation.Forward + origin.Rotation.Right + origin.Rotation.Up) * gridSize * 0.5f;
             }
 
-            MyLocalCoordSys localCoordSys = new MyLocalCoordSys(origin);
+            MyLocalCoordSys localCoordSys = new MyLocalCoordSys(origin, m_coorsSystemSize);
             long newId = m_lastCoordSysId++; // Just raise by one. There wont be so much id's for long to be overflooded.
             localCoordSys.Id = newId;
             m_localCoordSystems.Add(newId, localCoordSys);
+
+            if (cubeGrid.LocalCoordSystem != 0)
+                this.UnregisterCubeGrid(cubeGrid);
 
             this.RegisterCubeGrid(cubeGrid, localCoordSys);
 
@@ -316,6 +355,7 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         /// <param name="coordSys">Local coord system.</param>
         private void RegisterCubeGrid(MyCubeGrid cubeGrid, MyLocalCoordSys coordSys)
         {
+
             cubeGrid.OnClose += CubeGrid_OnClose;
             cubeGrid.OnPhysicsChanged += CubeGrid_OnPhysicsChanged;
             cubeGrid.LocalCoordSystem = coordSys.Id;
@@ -392,7 +432,7 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         /// <param name="gridSize">Grid size.</param>
         /// <param name="staticGridAlignToCenter">Is grid align to static.</param>
         /// <returns></returns>
-        public MyTransformD SnapWorldPosToClosestGrid(ref Vector3D worldPos, double gridSize, bool staticGridAlignToCenter)
+        public CoordSystemData SnapWorldPosToClosestGrid(ref Vector3D worldPos, double gridSize, bool staticGridAlignToCenter)
         {
 
             m_lastSelectedCoordSys = m_selectedCoordSys;
@@ -401,10 +441,10 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
 
             localCoordSys = this.GetClosestCoordSys(ref worldPos);
 
-            // If no coord sys found, return origin(0,0,0) with no transformation!
+            // If no coord sys found, return origin(0,0,0) with no rotation!
             if (localCoordSys == null)
             {
-                localCoordSys = new MyLocalCoordSys();
+                localCoordSys = new MyLocalCoordSys(m_coorsSystemSize);
                 m_selectedCoordSys = 0;
             }
             else
@@ -412,19 +452,23 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
 
             if (m_selectedCoordSys == 0)
             {
-                m_isSelection = false;
+                m_localCoordExist = false;
             }
             else
             {
-                m_isSelection = true;
+                m_localCoordExist = true;
             }
 
             if (m_selectedCoordSys != m_lastSelectedCoordSys)
+            {
                 m_selectionChanged = true;
+                if(OnCoordinateChange != null)
+                    OnCoordinateChange();
+            }
             else
                 m_selectionChanged = false;
 
-            //if (!m_isSelection && m_selectionChanged)
+            //if (!m_localCoordExist && m_selectionChanged)
             //{
             //    this.Disable();
             //}
@@ -432,6 +476,8 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
             //{
             //    this.Enable();
             //}
+
+            CoordSystemData coordData = new CoordSystemData();
 
             Quaternion rotation = localCoordSys.Origin.Rotation;
             Quaternion invRotation = Quaternion.Inverse(rotation);
@@ -442,13 +488,18 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
 
             MyCoordinateSystem.GetPosRoundedToGrid(ref vec, gridSize, staticGridAlignToCenter);
 
+            coordData.LocalSnappedPos = vec;
+
             vec = Vector3D.Transform(vec, rotation);
 
             MyTransformD localCoordsTransform = new MyTransformD();
             localCoordsTransform.Position = position + vec;
             localCoordsTransform.Rotation = rotation;
 
-            return localCoordsTransform;
+            coordData.SnappedTransform = localCoordsTransform;
+            coordData.Origin = localCoordSys.Origin;
+
+            return coordData;
         }
 
         /// <summary>
@@ -486,8 +537,8 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
                     double dotProductForward = Math.Abs(Vector3D.Dot(coordSys.Origin.Rotation.Forward, tranform.Forward));
                     double dotProductUp = Math.Abs(Vector3D.Dot(coordSys.Origin.Rotation.Up, tranform.Up));
 
-                    if ((dotProductForward < TOLERANCE_ANGLE || dotProductForward > 1.0 - TOLERANCE_ANGLE) &&
-                        (dotProductUp < TOLERANCE_ANGLE || dotProductUp > 1.0 - TOLERANCE_ANGLE))
+                    if ((dotProductForward < m_angleTolerance || dotProductForward > 1.0 - m_angleTolerance) &&
+                        (dotProductUp < m_angleTolerance || dotProductUp > 1.0 - m_angleTolerance))
                     {
                         
                         Vector3D relativeToOriginWorld = position - coordSys.Origin.Position;
@@ -499,9 +550,9 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
                         double yDif = Math.Abs(vec.Y % halfGridSize);
                         double zDif = Math.Abs(vec.Z % halfGridSize);
 
-                        if ((xDif < TOLERANCE_POSITION || xDif > halfGridSize - TOLERANCE_POSITION) &&
-                            (yDif < TOLERANCE_POSITION || yDif > halfGridSize - TOLERANCE_POSITION) &&
-                            (zDif < TOLERANCE_POSITION || zDif > halfGridSize - TOLERANCE_POSITION))
+                        if ((xDif < m_positionTolerance || xDif > halfGridSize - m_positionTolerance) &&
+                            (yDif < m_positionTolerance || yDif > halfGridSize - m_positionTolerance) &&
+                            (zDif < m_positionTolerance || zDif > halfGridSize - m_positionTolerance))
                             return true;
                     }
                     
@@ -522,29 +573,29 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
             this.m_drawBoundingBox = false;
         }
 
-        public void Enable()
-        {
-            this.m_enabled = true;
-        }
+        //public void Enable()
+        //{
+        //    this.m_visible = true;
+        //}
 
-        public void Disable()
-        {
-            this.m_enabled = false;
-        }
+        //public void Disable()
+        //{
+        //    this.m_visible = false;
+        //}
 
         #region Drawing
 
         public override void Draw()
         {
 
-            if (!m_enabled)
+            if (!m_visible)
                 return;
 
-            if (this.m_selectedCoordSys == 0)// && this.m_lastSelectedCoordSys != 0)
+            if (this.m_selectedCoordSys == 0)
             {
                 this.m_drawBoundingBox = false;
             }
-            else if (this.m_selectedCoordSys != 0)// && this.m_lastSelectedCoordSys == 0)
+            else if (this.m_selectedCoordSys != 0)
             {
                 this.m_drawBoundingBox = true;
             }
@@ -562,26 +613,38 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
 
             base.Draw();
 
-            if (!MyFakes.ENABLE_DEBUG_DRAW_COORD_SYS)
-                return;
+            //if (!MyFakes.ENABLE_DEBUG_DRAW_COORD_SYS)
+            //    return;
 
             // DEBUG DRAW BELOW
 
-            foreach (MyLocalCoordSys coordSys in m_localCoordSystems.Values)
+            //foreach (MyLocalCoordSys coordSys in m_localCoordSystems.Values)
+            //{
+            //    MyRenderProxy.DebugDrawSphere(coordSys.Origin.Position, 0.05f, Color.Orange, 1.0f, false);
+            //    MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.TransformMatrix.Forward, Color.Blue, Color.Blue, false);
+            //    MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.TransformMatrix.Up, Color.Green, Color.Green, false);
+            //    MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.TransformMatrix.Right, Color.Red, Color.Red, false);
+
+            //    MyRenderProxy.DebugDrawOBB(coordSys.BoundingBox, Color.Orange, 0.1f, true, false);
+            //}
+
+
+        }
+
+        /// <summary>
+        /// Gets local coordinate system indication color.
+        /// </summary>
+        /// <param name="coordSysId">Local coordinate system ID.</param>
+        /// <returns>Indication color.</returns>
+        public Color GetCoordSysColor(long coordSysId)
+        {
+            if (m_localCoordSystems.ContainsKey(coordSysId))
             {
-                MyRenderProxy.DebugDrawSphere(coordSys.Origin.Position, 0.05f, Color.Orange, 1.0f, false);
-                MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.Rotation.Forward, Color.Red, Color.Red, false);
-                MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.Rotation.Up, Color.Green, Color.Green, false);
-                MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.Rotation.Right, Color.Blue, Color.Blue, false);
-
-                MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.TransformMatrix.Forward, Color.OrangeRed, Color.OrangeRed, false);
-                MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.TransformMatrix.Up, Color.GreenYellow, Color.GreenYellow, false);
-                MyRenderProxy.DebugDrawLine3D(coordSys.Origin.Position, coordSys.Origin.Position + coordSys.Origin.TransformMatrix.Right, Color.BlueViolet, Color.BlueViolet, false);
-
-                MyRenderProxy.DebugDrawOBB(coordSys.BoundingBox, Color.Orange, 0.1f, true, false);
+                return m_localCoordSystems[coordSysId].RenderColor;
             }
 
-
+            Debug.Fail("Coord system does not exist");
+            return Color.White;
         }
 
         #endregion

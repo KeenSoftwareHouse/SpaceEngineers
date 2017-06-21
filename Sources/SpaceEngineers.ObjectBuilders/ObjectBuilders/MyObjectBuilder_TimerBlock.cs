@@ -26,6 +26,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public bool IsCountingDown;
 
+        [ProtoMember]
+        public bool Silent = false;
+
         public override void Remap(IMyRemapHelper remapHelper)
         {
             base.Remap(remapHelper);

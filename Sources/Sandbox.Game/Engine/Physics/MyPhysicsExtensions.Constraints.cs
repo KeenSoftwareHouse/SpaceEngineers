@@ -34,7 +34,7 @@ namespace Sandbox.Engine.Physics
             {
                 posB = Vector3.Transform(posB, bodyB.WeldInfo.Transform);
                 axisB = Vector3.TransformNormal(axisB, bodyB.WeldInfo.Transform);
-                axisBPerp = Vector3.TransformNormal(axisBPerp, bodyA.WeldInfo.Transform);
+                axisBPerp = Vector3.TransformNormal(axisBPerp, bodyB.WeldInfo.Transform);
             }
 
             data.SetInBodySpaceInternal(ref posA, ref posB, ref axisA, ref axisB, ref axisAPerp, ref axisBPerp);
@@ -68,7 +68,7 @@ namespace Sandbox.Engine.Physics
             {
                 posB = Vector3.Transform(posB, bodyB.WeldInfo.Transform);
                 axisB = Vector3.TransformNormal(axisB, bodyB.WeldInfo.Transform);
-                axisBPerp = Vector3.TransformNormal(axisBPerp, bodyA.WeldInfo.Transform);
+                axisBPerp = Vector3.TransformNormal(axisBPerp, bodyB.WeldInfo.Transform);
             }
 
             data.SetInBodySpaceInternal(ref posA, ref posB, ref axisA, ref axisB, ref axisAPerp, ref axisBPerp);
@@ -76,9 +76,10 @@ namespace Sandbox.Engine.Physics
 
         public static void SetInBodySpace(this HkFixedConstraintData data, Matrix pivotA, Matrix pivotB, MyPhysicsBody bodyA, MyPhysicsBody bodyB)
         {
-            if (bodyA.IsWelded)
+            if ((bodyA != null) && bodyA.IsWelded)
                 pivotA = pivotA * bodyA.WeldInfo.Transform;
-            if (bodyB.IsWelded)
+
+            if ((bodyB != null) && bodyB.IsWelded)
                 pivotB = pivotB * bodyB.WeldInfo.Transform;
 
             data.SetInBodySpaceInternal(ref pivotA, ref pivotB);

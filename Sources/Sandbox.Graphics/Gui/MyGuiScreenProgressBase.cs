@@ -12,6 +12,7 @@ namespace Sandbox.Graphics.GUI
         bool m_controlsCreated = false;
         bool m_loaded = false;
         MyStringId m_progressText;
+        string m_progressTextString;
         MyStringId? m_cancelText;
         protected MyGuiControlLabel m_progressTextLabel;
         protected MyGuiControlRotatingWheel m_rotatingWheel;
@@ -34,6 +35,19 @@ namespace Sandbox.Graphics.GUI
                 {
                     m_progressText = value;
                     m_progressTextLabel.TextEnum = value;
+                }
+            }
+        }
+
+        public String ProgressTextString
+        {
+            get { return m_progressTextString; }
+            set
+            {
+                if (m_progressTextString != value)
+                {
+                    m_progressTextString = value;
+                    m_progressTextLabel.Text = value;
                 }
             }
         }

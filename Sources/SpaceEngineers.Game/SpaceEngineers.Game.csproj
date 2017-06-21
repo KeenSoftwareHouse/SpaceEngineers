@@ -10,6 +10,8 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -20,6 +22,8 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +33,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -38,15 +43,70 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <ProjectGuid>{9F620AAB-5008-4D91-8D8F-8BE6CF26F926}</ProjectGuid>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <HavokDir>HavokWrapper_SE</HavokDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>SpaceEngineers.Game</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HavokWrapper">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(HavokWrapperFullPath)</HintPath>
+    </Reference>
     <Reference Include="SteamSDK">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\3rd\SteamSDK\$(Configuration)\$(Platform)\SteamSDK.dll</HintPath>
@@ -60,16 +120,53 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Achievements\MyAchievement_DeathWish.cs" />
+    <Compile Include="Achievements\MyAchievement_Explorer.cs" />
+    <Compile Include="Achievements\MyAchievement_GiantLeapForMankind.cs" />
+    <Compile Include="Achievements\MyAchievement_GoingGreen.cs" />
+    <Compile Include="Achievements\MyAchievement_ColorBlind.cs" />
+    <Compile Include="Achievements\MyAchievement_IHaveGotPresentForYou.cs" />
+    <Compile Include="Achievements\MyAchievement_LostInSpace.cs" />
+    <Compile Include="Achievements\MyAchievement_MasterEngineer.cs" />
+    <Compile Include="Achievements\MyAchievement_Monolith.cs" />
+    <Compile Include="Achievements\MyAchievement_NumberFiveIsAlive.cs" />
+    <Compile Include="Achievements\MyAchievement_DeclareWar.cs" />
+    <Compile Include="Achievements\MyAchievement_LockAndLoad.cs" />
+    <Compile Include="Achievements\MyAchievement_SmileAndWave.cs" />
+    <Compile Include="Achievements\MyAchievement_TheBiggerTheyAre.cs" />
+    <Compile Include="Achievements\MyAchievement_ToTheStars.cs" />
+    <Compile Include="Achievements\MyAchievement_TheHarderTheyFall.cs" />
+    <Compile Include="Achievements\MyAchievement_WinWin.cs" />
+    <Compile Include="Achievements\MyAchievement_PersonalityCrisis.cs" />
     <Compile Include="AI\MySpaceBotFactory.cs" />
-    <Compile Include="AI\MyCyberhoundActions.cs" />
+    <Compile Include="AI\MyWolfActions.cs" />
     <Compile Include="AI\MySpiderActions.cs" />
-    <Compile Include="AI\MyCyberhoundLogic.cs" />
+    <Compile Include="AI\MyWolfLogic.cs" />
     <Compile Include="AI\MySpiderLogic.cs" />
-    <Compile Include="AI\MyCyberhoundTarget.cs" />
+    <Compile Include="AI\MyWolfTarget.cs" />
     <Compile Include="AI\MySpiderTarget.cs" />
     <Compile Include="AI\MySpaceFaunaComponent.cs" />
+    <Compile Include="Definitions\MyDemoComponentDefinition.cs" />
+    <Compile Include="Definitions\MyUpgradeModuleDefinition.cs" />
+    <Compile Include="Entities\Blocks\MyAirVent.cs" />
+    <Compile Include="Entities\Blocks\MyButtonPanel.cs" />
+    <Compile Include="Entities\Blocks\MyControlPanel.cs" />
+    <Compile Include="Entities\Blocks\MyGravityGenerator.cs" />
+    <Compile Include="Entities\Blocks\MyGravityGeneratorBase.cs" />
+    <Compile Include="Entities\Blocks\MyGravityGeneratorSphere.cs" />
+    <Compile Include="Entities\Blocks\MyInteriorLight.cs" />
+    <Compile Include="Entities\Blocks\MyLandingGear.cs" />
     <Compile Include="Entities\Blocks\MyMedicalRoom.cs" />
+    <Compile Include="Entities\Blocks\MyOxygenFarm.cs" />
+    <Compile Include="Entities\Blocks\MyShipMergeBlock.cs" />
     <Compile Include="Entities\Blocks\MyShipWelder.cs" />
+    <Compile Include="Entities\Blocks\MySolarPanel.cs" />
+    <Compile Include="Entities\Blocks\MySoundBlock.cs" />
+    <Compile Include="Entities\Blocks\MySpaceBall.cs" />
+    <Compile Include="Entities\Blocks\MyTimerBlock.cs" />
+    <Compile Include="Entities\Blocks\MyUpgradeModule.cs" />
+    <Compile Include="Entities\Blocks\MyVirtualMass.cs" />
+    <Compile Include="Entities\Cube\MyUseObjectPanelButton.cs" />
     <Compile Include="Entities\MyPlanetSectorReplicable.cs" />
     <Compile Include="Entities\Blocks\MySpaceProjector.cs" />
     <Compile Include="Entities\MySpaceBuildComponent.cs" />
@@ -77,21 +174,77 @@
     <Compile Include="Entities\UseObjects\MyUseObjectMedicalRoom.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectWardrobe.cs" />
     <Compile Include="Entities\Weapons\MyCubePlacer.cs" />
+    <Compile Include="EntityComponents\DebugRenders\MyDebugRenderComponentGravityGenerator.cs" />
+    <Compile Include="EntityComponents\DebugRenders\MyDebugRenderComponentGravityGeneratorSphere.cs" />
+    <Compile Include="EntityComponents\DebugRenders\MyDebugRenderComponentLandingGear.cs" />
+    <Compile Include="EntityComponents\DebugRenders\MyDebugRenderComponentShipMergeBlock.cs" />
+    <Compile Include="EntityComponents\Renders\MyRenderComponentLargeTurret.cs" />
     <Compile Include="GUI\MyGuiScreenCreateOrEditFactionSpace.cs" />
     <Compile Include="GUI\MyGuiScreenMedicals.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
-    <Compile Include="GUI\MyGuiScreenOptionsVideoSpace.cs" />
+    <Compile Include="GUI\MyGuiScreenMainMenu.cs" />
+    <Compile Include="GUI\MyGuiScreenPerformanceWarnings.cs" />
+    <Compile Include="ModAPI\IMyAirVent.cs" />
+    <Compile Include="ModAPI\IMyButtonPanel.cs" />
+    <Compile Include="ModAPI\IMyControlPanel.cs" />
+    <Compile Include="ModAPI\IMyGravityGenerator.cs" />
+    <Compile Include="ModAPI\IMyGravityGeneratorBase.cs" />
+    <Compile Include="ModAPI\IMyGravityGeneratorSphere.cs" />
+    <Compile Include="ModAPI\IMyInteriorLight.cs" />
+    <Compile Include="ModAPI\IMyLandingGear.cs" />
+    <Compile Include="ModAPI\IMyLargeConveyorTurretBase.cs" />
+    <Compile Include="ModAPI\IMyLargeGatlingTurret.cs" />
+    <Compile Include="ModAPI\IMyLargeInteriorTurret.cs" />
+    <Compile Include="ModAPI\IMyLargeMissileTurret.cs" />
+    <Compile Include="ModAPI\IMyMedicalRoom.cs" />
+    <Compile Include="ModAPI\IMyOxygenFarm.cs" />
+    <Compile Include="ModAPI\IMyShipMergeBlock.cs" />
+    <Compile Include="ModAPI\IMySolarPanel.cs" />
+    <Compile Include="ModAPI\IMySoundBlock.cs" />
+    <Compile Include="ModAPI\IMySpaceBall.cs" />
+    <Compile Include="ModAPI\IMyTimerBlock.cs" />
+    <Compile Include="ModAPI\IMyUpgradeModule.cs" />
+    <Compile Include="ModAPI\IMyVirtualMass.cs" />
+    <Compile Include="ModAPI\Ingame\IMyAirVent.cs" />
+    <Compile Include="ModAPI\Ingame\IMyButtonPanel.cs" />
+    <Compile Include="ModAPI\Ingame\IMyControlPanel.cs" />
+    <Compile Include="ModAPI\Ingame\IMyGravityGenerator.cs" />
+    <Compile Include="ModAPI\Ingame\IMyGravityGeneratorBase.cs" />
+    <Compile Include="ModAPI\Ingame\IMyGravityGeneratorSphere.cs" />
+    <Compile Include="ModAPI\Ingame\IMyInteriorLight.cs" />
+    <Compile Include="ModAPI\Ingame\IMyLandingGear.cs" />
+    <Compile Include="ModAPI\Ingame\IMyLargeConveyorTurretBase.cs" />
+    <Compile Include="ModAPI\Ingame\IMyLargeGatlingTurret.cs" />
+    <Compile Include="ModAPI\Ingame\IMyLargeInteriorTurret.cs" />
+    <Compile Include="ModAPI\Ingame\IMyLargeMissileTurret.cs" />
+    <Compile Include="ModAPI\Ingame\IMyMedicalRoom.cs" />
+    <Compile Include="ModAPI\Ingame\IMyOxygenFarm.cs" />
+    <Compile Include="ModAPI\Ingame\IMyShipMergeBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMySolarPanel.cs" />
+    <Compile Include="ModAPI\Ingame\IMySoundBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMySpaceBall.cs" />
+    <Compile Include="ModAPI\Ingame\IMyTimerBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyUpgradeModule.cs" />
+    <Compile Include="ModAPI\Ingame\IMyVirtualMass.cs" />
     <Compile Include="Multiplayer\MySpaceClientState.cs" />
+    <Compile Include="MySpaceGameCustomInitialization.cs" />
+    <Compile Include="SessionComponents\DemoComponent.cs" />
     <Compile Include="SpaceEngineersGame.Secrets.cs" />
     <Compile Include="SpaceEngineersGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\MySpaceControlMenuInitializer.cs" />
     <Compile Include="VoiceChat\MyVoiceChatLogic.cs" />
+    <Compile Include="Weapons\Guns\Barrels\MyLargeGatlingBarrel.cs" />
+    <Compile Include="Weapons\Guns\Barrels\MyLargeInteriorBarrel.cs" />
+    <Compile Include="Weapons\Guns\Barrels\MyLargeMissileBarrel.cs" />
+    <Compile Include="Weapons\Guns\MyLargeConveyorTurretBase.cs" />
+    <Compile Include="Weapons\Guns\MyLargeGatlingTurret.cs" />
+    <Compile Include="Weapons\Guns\MyLargeInteriorTurret.cs" />
+    <Compile Include="Weapons\Guns\MyLargeMissileTurret.cs" />
     <Compile Include="World\Environment\MyEnvironmentalParticleLogicSpace.cs" />
     <Compile Include="World\Generator\MyShipStartingState.cs" />
     <Compile Include="World\Generator\MySpaceWorldGenerator.cs" />
-    <Compile Include="World\MySpacePlanetTrackComponent.cs" />
     <Compile Include="World\MySpaceRespawnComponent.cs" />
     <Compile Include="World\MySpaceSessionCompatHelper.cs" />
   </ItemGroup>
@@ -112,6 +265,10 @@
       <Project>{e48feb99-6814-4947-8035-8c2b4066dd9b}</Project>
       <Name>SpaceEngineers.ObjectBuilders</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Audio\VRage.Audio.csproj">
+      <Project>{F77D0A49-F011-4E8A-80C8-CBE1842BF2D4}</Project>
+      <Name>VRage.Audio</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
       <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
       <Name>VRage.Game</Name>
@@ -128,9 +285,13 @@
       <Project>{40ce67d5-c89f-4a56-ae52-85db1bea07fe}</Project>
       <Name>VRage.Math</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VRage.Network\VRage.Network.csproj">
-      <Project>{76080059-9756-4065-bce8-373e7150a8f7}</Project>
-      <Name>VRage.Network</Name>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Scripting\VRage.Scripting.csproj">
+      <Project>{47e07dc1-03cb-4668-a031-71816def8955}</Project>
+      <Name>VRage.Scripting</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
@@ -138,8 +299,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ModAPI\Blocks\" />
+    <Folder Include="ModAPI\Interfaces\" />
     <Folder Include="Players\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

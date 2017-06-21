@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.Components;
-using VRage.Game.ObjectBuilders.ComponentSystem;
+﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;
@@ -119,7 +118,7 @@ namespace Sandbox.Game.Components
                 MyTimerComponentSystem.Static.Unregister(this);
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = MyComponentFactory.CreateObjectBuilder(this) as MyObjectBuilder_TimerComponent;
             builder.Repeat = Repeat;

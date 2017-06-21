@@ -1,26 +1,19 @@
-﻿using Sandbox;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
-using Sandbox.Engine.Models;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
-using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.EnvironmentItems;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using VRage;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.Models;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
@@ -152,8 +145,6 @@ namespace Sandbox.Game.SessionComponents
         private double m_currentForestArea;
         private double m_forestsPercent;
 
-        private MyRandom m_random;
-
         private Dictionary<long, MyEnvironmentItems> m_envItems;
         private List<Area> m_forestAreas;
         private List<BoundingBoxD> m_highLevelBoxes;
@@ -246,8 +237,6 @@ namespace Sandbox.Game.SessionComponents
             m_tmpSectors = new List<Vector3I>();
 
             m_aabbTree = new MyDynamicAABBTreeD(Vector3D.Zero);
-
-            m_random = MyFakes.DEBUG_AVOID_RANDOM_AI ? new MyRandom(0): new MyRandom();
 
             // MW:TODO growing items on allowed materials
             m_allowedMaterials = new HashSet<MyStringHash>();
@@ -467,7 +456,7 @@ namespace Sandbox.Game.SessionComponents
 
                 var minLocal = Vector3I.Zero;
                 var maxLocal = Vector3I.One * 2;
-                var it = new Vector3I.RangeIterator(ref minLocal, ref maxLocal);
+                var it = new Vector3I_RangeIterator(ref minLocal, ref maxLocal);
                 while (it.IsValid())
                 {
                     var vec = it.Current;
@@ -1081,7 +1070,7 @@ namespace Sandbox.Game.SessionComponents
             desiredHalfSize.Y = 0;
 
             int areaIdx = 0;
-            int randomStartIdx = m_random.Next() % m_tmpAreas.Count;
+            int randomStartIdx = MyUtils.GetRandomInt(m_tmpAreas.Count);
             while (areaIdx < m_tmpAreas.Count)
             {
                 var spawnArea = m_tmpAreas[randomStartIdx];
@@ -1185,7 +1174,7 @@ namespace Sandbox.Game.SessionComponents
                 }
 
                 int areaIdx = 0;
-                int randomStartIdx = m_random.Next() % m_tmpAreas.Count;
+                int randomStartIdx = MyUtils.GetRandomInt(m_tmpAreas.Count);
                 while (areaIdx < m_tmpAreas.Count)
                 {
                     var spawnArea = m_tmpAreas[randomStartIdx];

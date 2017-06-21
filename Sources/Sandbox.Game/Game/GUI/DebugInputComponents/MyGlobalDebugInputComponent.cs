@@ -1,6 +1,8 @@
 ﻿#region Using
 
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
+using Sandbox.Game.SessionComponents.Clipboard;
 using Sandbox.Game.World;
 using VRage;
 using VRage.Input;
@@ -22,9 +24,9 @@ namespace Sandbox.Game.Gui
                () => "Teleport controlled object to camera position",
                delegate
                {
-                   if (MySession.Static.CameraController == MySpectator.Static && MySession.Static.ControlledEntity != null)
+                   if (MySession.Static.CameraController == MySpectator.Static)
                    {
-                       MySession.Static.ControlledEntity.Entity.GetTopMostParent().PositionComp.SetPosition(MySpectator.Static.Position);
+                       MyMultiplayer.TeleportControlledEntity(MySpectator.Static.Position);
                    }
                    return true;
                });
@@ -63,7 +65,7 @@ namespace Sandbox.Game.Gui
                () => "Save clipboard as prefab",
                delegate
                {
-                  MyCubeBuilder.Static.Clipboard.SaveClipboardAsPrefab();
+                   MyClipboardComponent.Static.Clipboard.SaveClipboardAsPrefab();
                    return true;
                });
         }

@@ -14,7 +14,7 @@ namespace Sandbox.Common.ObjectBuilders
     [System.Xml.Serialization.XmlSerializerAssembly("SpaceEngineers.ObjectBuilders.XmlSerializers")]
     public class MyObjectBuilder_ShipConnector : MyObjectBuilder_FunctionalBlock
     {
-        public const float DefaultStrength = 0.0003f;
+        public const float DefaultStrength = 0.00015f;
 
         [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
@@ -43,6 +43,12 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember, DefaultValue(DefaultStrength)]
         public float Strength = DefaultStrength;
+
+        [Serialize(MyObjectFlags.Nullable)]
+        public MyDeltaTransform? MasterToSlaveGrid;
+
+
+        public bool? IsMaster;
 
         public bool ShouldSerializeConnectedEntityId() { return ConnectedEntityId != 0; }
         public bool ShouldSerializeConnected() { return false; }

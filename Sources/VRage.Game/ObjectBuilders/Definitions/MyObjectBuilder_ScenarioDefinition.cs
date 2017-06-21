@@ -2,6 +2,7 @@
 using ProtoBuf;
 using VRageMath;
 using System.Xml.Serialization;
+using VRage.Game.Definitions;
 
 namespace VRage.Game
 {
@@ -10,6 +11,12 @@ namespace VRage.Game
     [XmlType("ScenarioDefinition")]
     public class MyObjectBuilder_ScenarioDefinition : MyObjectBuilder_DefinitionBase
     {
+        [ProtoMember]
+        public SerializableDefinitionId GameDefinition = MyGameDefinition.Default;
+
+        [ProtoMember]
+        public SerializableDefinitionId EnvironmentDefinition = new SerializableDefinitionId(typeof(MyObjectBuilder_EnvironmentDefinition), "Default");
+
         [ProtoMember]
         public AsteroidClustersSettings AsteroidClusters;
 
@@ -31,7 +38,7 @@ namespace VRage.Game
         [ProtoMember]
         [XmlArrayItem("Component")]
         public StartingItem[] CreativeModeComponents;
-        
+
         [ProtoMember]
         [XmlArrayItem("PhysicalItem")]
         public StartingPhysicalItem[] CreativeModePhysicalItems;
@@ -57,7 +64,13 @@ namespace VRage.Game
         public StartingItem[] SurvivalModeAmmoItems;
 
         [ProtoMember]
-        public SerializableBoundingBoxD WorldBoundaries;
+        public MyObjectBuilder_InventoryItem[] CreativeInventoryItems;
+
+        [ProtoMember]
+        public MyObjectBuilder_InventoryItem[] SurvivalInventoryItems;
+
+        [ProtoMember]
+        public SerializableBoundingBoxD? WorldBoundaries;
 
         [ProtoMember]
         public MyObjectBuilder_Toolbar DefaultToolbar

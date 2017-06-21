@@ -319,8 +319,39 @@ namespace VRageRender
         }
     }
 
+    class MyRenderContextAnnotation
+    {
+        SharpDX.Direct3D11.UserDefinedAnnotation m_annotation;
+
+        [Conditional("DEBUG")]
+        public void Init(DeviceContext context)
+        {
+            m_annotation = context.QueryInterface<SharpDX.Direct3D11.UserDefinedAnnotation>();
+        }
+
+        [Conditional("DEBUG")]
+        public void BeginEvent(string tag)
+        {
+            m_annotation.BeginEvent(tag);
+        }
+
+        [Conditional("DEBUG")]
+        public void EndEvent()
+        {
+            m_annotation.EndEvent();
+        }
+
+        [Conditional("DEBUG")]
+        public void SetMarker(string tag)
+        {
+            m_annotation.SetMarker(tag);
+        }
+    }
+
     class MyRenderContext
     {
+        MyRenderContextAnnotation m_annotation = new MyRenderContextAnnotation();
+
         static readonly int[] ZeroOffsets = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
         internal MyContextState State;
@@ -364,6 +395,8 @@ namespace VRageRender
             m_finished = false;
             m_joined = false;
             m_commandList = null;
+
+            m_annotation.Init(DeviceContext);
         }
 
         internal void Join()
@@ -384,6 +417,7 @@ namespace VRageRender
             {
                 m_finished = true;
                 m_commandList = DeviceContext.FinishCommandList(false);
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -420,6 +454,7 @@ namespace VRageRender
             {
                 DeviceContext.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(vb, stride, 0));
                 Stats.SetVB++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -448,7 +483,7 @@ namespace VRageRender
                     DeviceContext.InputAssembler.SetVertexBuffers(0, State.m_VBs, State.m_strides, ZeroOffsets);
                     Stats.SetVB++;
                 }
-
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -459,12 +494,14 @@ namespace VRageRender
                 State.m_IB = ib;
                 DeviceContext.InputAssembler.SetIndexBuffer(ib, format, 0);
                 Stats.SetIB++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
         internal void CSSetCB(int slot, Buffer cb)
         {
             DeviceContext.ComputeShader.SetConstantBuffer(slot, cb);
+            MyRender11.ProcessDebugOutput();
         }
 
         internal void SetCB(int slot, Buffer cb)
@@ -478,6 +515,7 @@ namespace VRageRender
                 Stats.SetCB++;
                 DeviceContext.PixelShader.SetConstantBuffer(slot, cb);
                 Stats.SetCB++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -488,6 +526,7 @@ namespace VRageRender
                 State.m_ps = ps;
                 DeviceContext.PixelShader.Set(ps);
                 Stats.SetPS++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -498,12 +537,14 @@ namespace VRageRender
                 State.m_vs = vs;
                 DeviceContext.VertexShader.Set(vs);
                 Stats.SetVS++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
         internal void SetCS(ComputeShader cs)
         {
             DeviceContext.ComputeShader.Set(cs);
+            MyRender11.ProcessDebugOutput();
         }
 
         internal void SetGS(GeometryShader gs)
@@ -513,6 +554,7 @@ namespace VRageRender
                 State.m_gs = gs;
                 DeviceContext.GeometryShader.Set(gs);
                 Stats.SetGS++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -523,6 +565,7 @@ namespace VRageRender
                 State.m_inputLayout = il;
                 DeviceContext.InputAssembler.InputLayout = il;
                 Stats.SetIL++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -533,6 +576,7 @@ namespace VRageRender
                 State.m_RS = rs;
                 DeviceContext.Rasterizer.State = rs;
                 Stats.SetRasterizerState++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -543,6 +587,7 @@ namespace VRageRender
                 State.m_BS = bs;
                 DeviceContext.OutputMerger.SetBlendState(bs, blendFactor);
                 Stats.SetBlendState++;
+                MyRender11.ProcessDebugOutput();
             }
         }
 
@@ -553,62 +598,46 @@ namespace VRageRender
                 State.m_DS = ds;
                 State.m_stencilRef = stencilRef;
                 DeviceContext.OutputMerger.SetDepthStencilState(ds, stencilRef);
+                MyRender11.ProcessDebugOutput();
             }
         }
 
-        internal void BindRawSRV(int slot, ShaderResourceView srv)
+        internal void BindRawSRV(int slot, IShaderResourceBindable srv)
         {
-            DeviceContext.VertexShader.SetShaderResource(slot, srv);
-            DeviceContext.PixelShader.SetShaderResource(slot, srv);
+            ShaderResourceView sharpSRV = srv != null ? srv.SRV : null;
+            DeviceContext.VertexShader.SetShaderResource(slot, sharpSRV);
+            DeviceContext.PixelShader.SetShaderResource(slot, sharpSRV);
 
             Stats.BindShaderResources++;
             Stats.BindShaderResources++;
+            MyRender11.ProcessDebugOutput();
         }
 
-        internal void BindRawSRV(int slot, ShaderResourceView[] srvs)
+        internal void VSBindRawSRV(int slot, IShaderResourceBindable srv)
         {
-            DeviceContext.VertexShader.SetShaderResources(slot, srvs);
-            DeviceContext.PixelShader.SetShaderResources(slot, srvs);
+            ShaderResourceView sharpSRV = srv != null ? srv.SRV : null;
+            DeviceContext.VertexShader.SetShaderResource(slot, sharpSRV);
 
             Stats.BindShaderResources++;
-            Stats.BindShaderResources++;
+            MyRender11.ProcessDebugOutput();
         }
 
-        internal void VSBindSRV(int slot, ShaderResourceView srv)
+        internal void CSBindRawSRV(int slot, IShaderResourceBindable srv)
         {
-            DeviceContext.VertexShader.SetShaderResource(slot, srv);
+            ShaderResourceView sharpSRV = srv != null ? srv.SRV : null;
+            DeviceContext.ComputeShader.SetShaderResource(slot, sharpSRV);
 
             Stats.BindShaderResources++;
-            Stats.BindShaderResources++;
+            MyRender11.ProcessDebugOutput();
         }
 
-        internal void VSBindSRV(int slot, ShaderResourceView[] srvs)
+        internal void PSBindRawSRV(int slot, IShaderResourceBindable srv)
         {
-            DeviceContext.VertexShader.SetShaderResources(slot, srvs);
+            ShaderResourceView sharpSRV = srv != null ? srv.SRV : null;
+            DeviceContext.PixelShader.SetShaderResources(slot, sharpSRV);
 
             Stats.BindShaderResources++;
-            Stats.BindShaderResources++;
-        }
-
-        internal void CSBindRawSRV(int slot, ShaderResourceView srvs)
-        {
-            DeviceContext.ComputeShader.SetShaderResource(slot, srvs);
-
-            Stats.BindShaderResources++;
-        }
-
-        internal void CSBindRawSRV(int slot, ShaderResourceView[] srvs)
-        {
-            DeviceContext.ComputeShader.SetShaderResources(slot, srvs);
-
-            Stats.BindShaderResources++;
-        }
-
-        internal void BindRawSRV(ShaderResourceView[] srvs)
-        {
-            DeviceContext.PixelShader.SetShaderResources(0, srvs);
-
-            Stats.BindShaderResources++;
+            MyRender11.ProcessDebugOutput();
         }
 
         void UnbindSRVRead(int resId)
@@ -624,6 +653,7 @@ namespace VRageRender
                 DeviceContext.ComputeShader.SetShaderResource(resourceId, null);
             }
             resourceList.Clear();
+            MyRender11.ProcessDebugOutput();
         }
 
         class KeyListComparer : IComparer<int>
@@ -637,7 +667,7 @@ namespace VRageRender
         }
 
         UnorderedAccessView[] m_tmpBuffer = new UnorderedAccessView[1];
-        internal void BindUAV(int slot, MyBindableResource UAV)
+        internal void BindUAV(int slot, MyBindableResource UAV, int initialCount = -1)
         {
             if (UAV != null)
             {
@@ -661,7 +691,10 @@ namespace VRageRender
                 ComputeShaderId.TmpUav[0] = ua.UAV;
             }
 
+            ComputeShaderId.TmpCount[0] = initialCount;
             DeviceContext.ComputeShader.SetUnorderedAccessViews(slot, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
+            ComputeShaderId.TmpCount[0] = -1;
+            MyRender11.ProcessDebugOutput();
         }
 
         internal void BindDepthRT(MyBindableResource depthStencil, DepthStencilAccess dsAccess, MyBindableResource RT)
@@ -864,6 +897,9 @@ namespace VRageRender
             DeviceContext.VertexShader.SetShaderResource(slot, State.m_SRVs[0]);
             DeviceContext.PixelShader.SetShaderResource(slot, State.m_SRVs[0]);
             DeviceContext.ComputeShader.SetShaderResource(slot, State.m_SRVs[0]);
+
+            MyRender11.ProcessDebugOutput();
+
         }
 
         MyBindableResource[] m_tmpBinds1 = new MyBindableResource[1];
@@ -928,6 +964,7 @@ namespace VRageRender
                 DeviceContext.PixelShader.SetShaderResource(slot + i, State.m_SRVs[i]);
                 DeviceContext.ComputeShader.SetShaderResource(slot + i, State.m_SRVs[i]);
             }
+            MyRender11.ProcessDebugOutput();
         }
 
         internal void BindGBufferForRead(int slot, MyGBuffer gbuffer)
@@ -963,26 +1000,42 @@ namespace VRageRender
             Array.Clear(m_tmpBinds3, 0, m_tmpBinds3.Length);
         }
 
+        /// <summary>
+        /// Bind the provided slot to SV_Target0. Useful for dual-source blending
+        /// </summary>
+        internal void BindGBufferForWrite(MyGBuffer gbuffer, MyGbufferSlot slot, DepthStencilAccess depthStencilFlags = DepthStencilAccess.ReadWrite)
+        {
+            m_tmpBinds1[0] = gbuffer.Get(slot);
+            BindDepthRTInternal(gbuffer.Get(MyGbufferSlot.DepthStencil), depthStencilFlags, m_tmpBinds1);
+
+            Array.Clear(m_tmpBinds1, 0, m_tmpBinds1.Length);
+        }
+
         internal void ClearDepthStencil(MyDepthStencil depthStencil, float depth, byte stencil)
         {
             DeviceContext.ClearDepthStencilView(depthStencil.m_DSV, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, depth, stencil);
+            MyRender11.ProcessDebugOutput();
         }
 
         internal void SetupScreenViewport()
         {
             DeviceContext.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
+            MyRender11.ProcessDebugOutput();
         }
 
         internal void Begin(MyQuery query)
         {
             DeviceContext.Begin(query.m_query);
+            MyRender11.ProcessDebugOutput();
         }
 
         internal void End(MyQuery query)
         {
             DeviceContext.End(query.m_query);
+            MyRender11.ProcessDebugOutput();
         }
 
+        //IMPORTANT: If you change anything here, also change it in BeginProfilingBlockAlways
         [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal void BeginProfilingBlock(string tag)
         {
@@ -998,8 +1051,11 @@ namespace VRageRender
             {
                 MyGpuProfiler.IC_Enqueue(info);
             }
+            // this tag will be visible in NSight because of this call:
+            m_annotation.BeginEvent(tag);
         }
 
+        //IMPORTANT: If you change anything here, also change it in EndProfilingBlockAlways
         [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal void EndProfilingBlock()
         {
@@ -1015,6 +1071,57 @@ namespace VRageRender
             {
                 MyGpuProfiler.IC_Enqueue(info);
             }
+            // this tag will be visible in NSight because of this call:
+            m_annotation.EndEvent();
+        }
+
+        /// <summary>
+        /// BeginProfilingBlock that works even when PerformanceProfilingSymbol is false
+        /// </summary>
+        internal void BeginProfilingBlockAlways(string tag)
+        {
+            var q = MyQueryFactory.CreateTimestampQuery();
+            End(q);
+            var info = new MyIssuedQuery(q, tag, MyIssuedQueryEnum.BlockStart);
+
+            if (m_deferred)
+            {
+                ProfilingQueries.m_issued.Enqueue(info);
+            }
+            else
+            {
+                MyGpuProfiler.IC_Enqueue(info);
+            }
+            // this tag will be visible in NSight because of this call:
+            m_annotation.BeginEvent(tag);
+        }
+
+        /// <summary>
+        /// EndProfilingBlock that works even when PerformanceProfilingSymbol is false
+        /// </summary>
+        internal void EndProfilingBlockAlways()
+        {
+            var q = MyQueryFactory.CreateTimestampQuery();
+            End(q);
+            var info = new MyIssuedQuery(q, "", MyIssuedQueryEnum.BlockEnd);
+
+            if (m_deferred)
+            {
+                ProfilingQueries.m_issued.Enqueue(info);
+            }
+            else
+            {
+                MyGpuProfiler.IC_Enqueue(info);
+            }
+            // this tag will be visible in NSight because of this call:
+            m_annotation.EndEvent();
+        }
+
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
+        internal void SetProfilingMarker(string tag)
+        {
+            // this tag will be visible in NSight because of this call:
+            m_annotation.SetMarker(tag);
         }
 
         internal static void OnDeviceReset()
@@ -1068,14 +1175,17 @@ namespace VRageRender
                 State.m_srvTableBindings.Get(new MyStageSrvBinding { Stage = MyShaderStage.VS, Slot = desc.StartSlot }, NO_VERSION) != desc.Version)
             {
                 State.m_srvTableBindings[new MyStageSrvBinding { Stage = MyShaderStage.VS, Slot = desc.StartSlot }] = desc.Version;
-                DeviceContext.VertexShader.SetShaderResources(desc.StartSlot, desc.SRVs);
+                for (int i = 0; i < desc.SRVs.Length; i++)
+                    DeviceContext.VertexShader.SetShaderResource(desc.StartSlot + i, desc.SRVs[i].SRV);
             }
             if ((desc.BindFlag & MyBindFlag.BIND_PS) > 0 &&
                 State.m_srvTableBindings.Get(new MyStageSrvBinding { Stage = MyShaderStage.PS, Slot = desc.StartSlot }, NO_VERSION) != desc.Version)
             {
                 State.m_srvTableBindings[new MyStageSrvBinding { Stage = MyShaderStage.PS, Slot = desc.StartSlot }] = desc.Version;
-                DeviceContext.PixelShader.SetShaderResources(desc.StartSlot, desc.SRVs);
+                for (int i = 0; i < desc.SRVs.Length; i++)
+                    DeviceContext.PixelShader.SetShaderResource(desc.StartSlot + i, desc.SRVs[i].SRV);
             }
+            MyRender11.ProcessDebugOutput();
         }
 
         internal unsafe void MoveConstants(ref MyConstantsPack desc)
@@ -1090,6 +1200,7 @@ namespace VRageRender
                 mapping.WriteAndPosition(desc.Data, 0, desc.Data.Length);
                 mapping.Unmap();
             }
+            MyRender11.ProcessDebugOutput();
         }
 
         [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
@@ -1113,6 +1224,7 @@ namespace VRageRender
                     State.m_constantBindings[key] = desc.CB;
                     DeviceContext.PixelShader.SetConstantBuffer(slot, desc.CB);
                 }
+                MyRender11.ProcessDebugOutput();
             }
             catch (Exception ex)
             {

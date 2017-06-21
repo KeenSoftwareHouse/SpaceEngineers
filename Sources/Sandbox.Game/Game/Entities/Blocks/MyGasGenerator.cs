@@ -24,16 +24,17 @@ using Sandbox.Game.EntityComponents;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
 using VRage.Game.Components;
-using IMyInventoryOwner = VRage.ModAPI.Ingame.IMyInventoryOwner;
+using IMyInventoryOwner = VRage.Game.ModAPI.Ingame.IMyInventoryOwner;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Network;
-using IMyInventory = VRage.ModAPI.Ingame.IMyInventory;
+using VRage.Sync;
+using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenGenerator))]
-    class MyGasGenerator : MyFunctionalBlock, IMyGasBlock, IMyOxygenGenerator, VRage.ModAPI.Ingame.IMyInventoryOwner, IMyEventProxy
+    public class MyGasGenerator : MyFunctionalBlock, IMyGasBlock, IMyOxygenGenerator, VRage.Game.ModAPI.Ingame.IMyInventoryOwner, IMyEventProxy
     {
         private Color? m_prevEmissiveColor = null;
         private readonly Sync<bool> m_useConveyorSystem;
@@ -47,35 +48,48 @@ namespace Sandbox.Game.Entities.Blocks
 
         readonly MyDefinitionId m_oxygenGasId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Oxygen");	// Required for oxygen MyFake checks
 
-        public bool CanProduce 
-        { 
-            get 
+        public bool CanProduce
+        {
+            get
             {
                 return (MySession.Static.Settings.EnableOxygen || !BlockDefinition.ProducedGases.TrueForAll((info) => info.Id == m_oxygenGasId))
                         && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId)
-                        && IsWorking 
-                        && Enabled 
-                        && IsFunctional; 
-            } 
+                        && IsWorking
+                        && Enabled
+                        && IsFunctional;
+            }
         }
 
         public bool AutoRefill { get; private set; }
 
-		private MyResourceSourceComponent m_sourceComp;
-		public MyResourceSourceComponent SourceComp
-		{
-			get { return m_sourceComp; }
-			set { if (Components.Contains(typeof(MyResourceSourceComponent))) Components.Remove<MyResourceSourceComponent>(); Components.Add<MyResourceSourceComponent>(value); m_sourceComp = value; }
-		}
+        private MyResourceSourceComponent m_sourceComp;
+        public MyResourceSourceComponent SourceComp
+        {
+            get { return m_sourceComp; }
+            set { if (Components.Contains(typeof(MyResourceSourceComponent))) Components.Remove<MyResourceSourceComponent>(); Components.Add<MyResourceSourceComponent>(value); m_sourceComp = value; }
+        }
 
         private new MyOxygenGeneratorDefinition BlockDefinition { get { return (MyOxygenGeneratorDefinition)base.BlockDefinition; } }
 
         #region Initialization
-        static MyGasGenerator()
+        public MyGasGenerator()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            CreateTerminalControls();
+            SourceComp = new MyResourceSourceComponent(2);
+            ResourceSink = new MyResourceSinkComponent();
+        }
+
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyGasGenerator>())
+                return;
+            base.CreateTerminalControls();
             var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyGasGenerator>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyorSystem.Getter = (x) => x.UseConveyorSystem;
-            useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem = v ;
+            useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem = v;
             useConveyorSystem.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConveyorSystem);
 
@@ -90,12 +104,6 @@ namespace Sandbox.Game.Entities.Blocks
             autoRefill.EnableAction();
             MyTerminalControlFactory.AddControl(autoRefill);
         }
-
-	    public MyGasGenerator()
-	    {
-			SourceComp = new MyResourceSourceComponent(2);
-			ResourceSink = new MyResourceSinkComponent();
-	    }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
@@ -124,14 +132,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (this.GetInventory() == null) // can be already initialized as deserialized component
             {
-                Components.Add<MyInventoryBase>( new MyInventory(
-                    BlockDefinition.InventoryMaxVolume,
-                        BlockDefinition.InventorySize,
-                        MyInventoryFlags.CanReceive,
-                        this)
-                {
-                    Constraint = BlockDefinition.InputInventoryConstraint
-                });
+                MyInventory inventory = new MyInventory(BlockDefinition.InventoryMaxVolume, BlockDefinition.InventorySize, MyInventoryFlags.CanReceive);
+                inventory.Constraint = BlockDefinition.InputInventoryConstraint;
+                Components.Add<MyInventoryBase>(inventory);
             }
             else
             {
@@ -139,13 +142,13 @@ namespace Sandbox.Game.Entities.Blocks
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
-	        m_oreConstraint = new MyInventoryConstraint(this.GetInventory().Constraint.Description, this.GetInventory().Constraint.Icon, this.GetInventory().Constraint.IsWhitelist);
+            m_oreConstraint = new MyInventoryConstraint(this.GetInventory().Constraint.Description, this.GetInventory().Constraint.Icon, this.GetInventory().Constraint.IsWhitelist);
             foreach (var id in this.GetInventory().Constraint.ConstrainedIds)
             {
                 if (id.TypeId != typeof(MyObjectBuilder_GasContainerObject))
                     m_oreConstraint.Add(id);
             }
-            
+
             if (MyFakes.ENABLE_INVENTORY_FIX)
             {
                 FixSingleInventory();
@@ -162,8 +165,8 @@ namespace Sandbox.Game.Entities.Blocks
 
             AutoRefill = generatorBuilder.AutoRefill;
 
-	       
-			
+
+
             SourceComp.Enabled = Enabled;
             if (Sync.IsServer)
                 SourceComp.OutputChanged += Source_OutputChanged;
@@ -176,14 +179,14 @@ namespace Sandbox.Game.Entities.Blocks
 
             m_lastSourceUpdate = MySession.Static.GameplayFrameCounter;
 
-	        ResourceSink.Init(BlockDefinition.ResourceSinkGroup, new MyResourceSinkInfo
-				{
-				    ResourceTypeId = MyResourceDistributorComponent.ElectricityId,
+            ResourceSink.Init(BlockDefinition.ResourceSinkGroup, new MyResourceSinkInfo
+                {
+                    ResourceTypeId = MyResourceDistributorComponent.ElectricityId,
                     MaxRequiredInput = BlockDefinition.OperationalPowerConsumption,
                     RequiredInputFunc = ComputeRequiredPower
-				});
-			ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
-			ResourceSink.Update();
+                });
+            ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+            ResourceSink.Update();
 
             UpdateEmissivity();
             UpdateText();
@@ -275,11 +278,11 @@ namespace Sandbox.Game.Entities.Blocks
             foreach (var item in items)
             {
                 var oxygenContainer = item.Content as MyObjectBuilder_GasContainerObject;
-	            if (oxygenContainer == null)
-					continue;
+                if (oxygenContainer == null)
+                    continue;
 
-	            if (oxygenContainer.GasLevel < 1f)
-		            return true;
+                if (oxygenContainer.GasLevel < 1f)
+                    return true;
             }
 
             return false;
@@ -300,7 +303,7 @@ namespace Sandbox.Game.Entities.Blocks
             ResourceSink.Update();
 
             int updatesSinceSourceUpdate = (MySession.Static.GameplayFrameCounter - m_lastSourceUpdate);
-	        foreach (var gasId in SourceComp.ResourceTypes)
+            foreach (var gasId in SourceComp.ResourceTypes)
             {
                 var tmpGasId = gasId;
                 float gasOutput = GasOutputPerUpdate(ref tmpGasId) * updatesSinceSourceUpdate;
@@ -310,8 +313,8 @@ namespace Sandbox.Game.Entities.Blocks
             if (Sync.IsServer && IsWorking)
             {
                 if (m_useConveyorSystem && this.GetInventory().VolumeFillFactor < 0.6f)
-	                MyGridConveyorSystem.PullAllRequest(this, this.GetInventory(), OwnerId, HasIce() ? this.GetInventory().Constraint : m_oreConstraint);
-             
+                    MyGridConveyorSystem.PullAllRequest(this, this.GetInventory(), OwnerId, HasIce() ? this.GetInventory().Constraint : m_oreConstraint);
+
                 if (AutoRefill && CanRefill())
                     RefillBottles();
             }
@@ -323,8 +326,8 @@ namespace Sandbox.Game.Entities.Blocks
 
             m_isProducing = m_producedSinceLastUpdate;
             m_producedSinceLastUpdate = false;
-			foreach(var gasId in SourceComp.ResourceTypes)
-				m_producedSinceLastUpdate = m_producedSinceLastUpdate || (SourceComp.CurrentOutputByType(gasId) > 0);
+            foreach (var gasId in SourceComp.ResourceTypes)
+                m_producedSinceLastUpdate = m_producedSinceLastUpdate || (SourceComp.CurrentOutputByType(gasId) > 0);
 
             m_lastSourceUpdate = MySession.Static.GameplayFrameCounter;
         }
@@ -337,27 +340,22 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (m_producedSinceLastUpdate)
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.GenerateSound.SoundId)
+                    if (m_soundEmitter.SoundId != BlockDefinition.GenerateSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.GenerateSound.Realistic)
                         m_soundEmitter.PlaySound(BlockDefinition.GenerateSound, true);
                 }
-                else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.SoundId)
+                else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.IdleSound.Realistic)
                 {
-                    if (m_soundEmitter.SoundId == BlockDefinition.GenerateSound.SoundId)
-                    {
-                        m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true, true);
-                    }
-                    else
-                    {
+                    if ((m_soundEmitter.SoundId == BlockDefinition.GenerateSound.Arcade || m_soundEmitter.SoundId == BlockDefinition.GenerateSound.Realistic) && m_soundEmitter.Loop)
+                        m_soundEmitter.StopSound(false);
+
+                    if (m_soundEmitter.IsPlaying == false)
                         m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true);
-                    }
                 }
             }
             else if (m_soundEmitter.IsPlaying)
             {
                 m_soundEmitter.StopSound(false);
             }
-
-            m_soundEmitter.Update();
         }
 
         protected override bool CheckIsWorking()
@@ -368,7 +366,7 @@ namespace Sandbox.Game.Entities.Blocks
         private float ComputeRequiredPower()
         {
             if ((!MySession.Static.Settings.EnableOxygen && BlockDefinition.ProducedGases.TrueForAll((info) => info.Id == m_oxygenGasId))
-                        || !Enabled 
+                        || !Enabled
                         || !IsFunctional)
                 return 0f;
 
@@ -378,7 +376,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             float powerConsumption = isProducing ? BlockDefinition.OperationalPowerConsumption : BlockDefinition.StandbyPowerConsumption;
 
-            return powerConsumption*m_powerConsumptionMultiplier;
+            return powerConsumption * m_powerConsumptionMultiplier;
         }
 
         void Inventory_ContentsChanged(MyInventoryBase obj)
@@ -415,9 +413,9 @@ namespace Sandbox.Game.Entities.Blocks
         void ComponentStack_IsFunctionalChanged()
         {
             SourceComp.Enabled = CanProduce;
-			ResourceSink.Update();
+            ResourceSink.Update();
             Debug.Assert(CubeGrid.GridSystems.ResourceDistributor != null, "ResourceDistributor can't be null!");
-            if(CubeGrid.GridSystems.ResourceDistributor != null)
+            if (CubeGrid.GridSystems.ResourceDistributor != null)
                 CubeGrid.GridSystems.ResourceDistributor.ConveyorSystem_OnPoweredChanged(); // Hotfix TODO
             UpdateEmissivity();
         }
@@ -426,7 +424,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.OnEnabledChanged();
             SourceComp.Enabled = CanProduce;
-			ResourceSink.Update();
+            ResourceSink.Update();
             UpdateEmissivity();
         }
 
@@ -437,7 +435,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             float updatesSinceSourceUpdate = (MySession.Static.GameplayFrameCounter - m_lastSourceUpdate);
             m_lastSourceUpdate = MySession.Static.GameplayFrameCounter;
-            float secondsSinceSourceUpdate = updatesSinceSourceUpdate*MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            float secondsSinceSourceUpdate = updatesSinceSourceUpdate * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
             foreach (var producedGas in BlockDefinition.ProducedGases)
             {
@@ -462,7 +460,7 @@ namespace Sandbox.Game.Entities.Blocks
         public override void UpdateVisual()
         {
             base.UpdateVisual();
-            
+
             UpdateEmissivity();
         }
 
@@ -477,7 +475,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 if (this.GetInventory().GetItems().Count > 0)
                 {
-	                SetEmissive(m_isProducing ? Color.Teal : Color.Green);
+                    SetEmissive(m_isProducing ? Color.Teal : Color.Green);
                 }
                 else
                 {
@@ -497,7 +495,7 @@ namespace Sandbox.Game.Entities.Blocks
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId), DetailedInfo);
 
             if (!MySession.Static.Settings.EnableOxygen)
             {
@@ -508,11 +506,11 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SetEmissive(Color color)
         {
-	        if (m_prevEmissiveColor == color)
-				return;
+            if (m_prevEmissiveColor == color)
+                return;
 
-	        UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, color, Color.White);
-	        m_prevEmissiveColor = color;
+            UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, color, Color.White);
+            m_prevEmissiveColor = color;
         }
 
         public override void OnModelChange()
@@ -578,21 +576,21 @@ namespace Sandbox.Game.Entities.Blocks
             return CanProduce;
         }
 
-	    float IceAmount()
-	    {
-	        if (MySession.Static.CreativeMode)
-	            return 10000f;
+        float IceAmount()
+        {
+            if (MySession.Static.CreativeMode)
+                return 10000f;
 
             var items = this.GetInventory().GetItems();
 
-		    MyFixedPoint amount = 0;
+            MyFixedPoint amount = 0;
             foreach (var item in items)
             {
                 if (!(item.Content is MyObjectBuilder_GasContainerObject))
-					amount += item.Amount;
+                    amount += item.Amount;
             }
 
-			return (float)amount;
+            return (float)amount;
         }
 
         bool HasIce()
@@ -606,10 +604,10 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (!(item.Content is MyObjectBuilder_GasContainerObject))
                     return true;
-                }
-	            
-            return false;
             }
+
+            return false;
+        }
 
         private void ProduceGas(ref MyDefinitionId gasId, float gasAmount)
         {
@@ -622,7 +620,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void ConsumeFuel(ref MyDefinitionId gasTypeId, float amount)
         {
-            if (!((Sync.IsServer && !CubeGrid.GridSystems.ControlSystem.IsControlled) || CubeGrid.GridSystems.ControlSystem.IsLocallyControlled))
+            if (!(Sync.IsServer && CubeGrid.GridSystems.ControlSystem != null))
                 return;
 
             if (amount <= 0f)
@@ -633,7 +631,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (MySession.Static.CreativeMode)
                 return;
 
-          //  Debug.Assert(CanProduce, "Generator asked to produce gas when it is unable to do so");
+            //  Debug.Assert(CanProduce, "Generator asked to produce gas when it is unable to do so");
 
             var items = this.GetInventory().GetItems();
             if (items.Count > 0 && amount > 0f)
@@ -644,7 +642,7 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     var item = items[index];
 
-					if (item.Content is MyObjectBuilder_GasContainerObject)
+                    if (item.Content is MyObjectBuilder_GasContainerObject)
                     {
                         index++;
                         continue;
@@ -689,10 +687,10 @@ namespace Sandbox.Game.Entities.Blocks
             return gasAmount / IceToGasRatio(ref gasId);
         }
 
-	    private float IceToGasRatio(ref MyDefinitionId gasId)
-	    {
-		    return SourceComp.DefinedOutputByType(gasId)/BlockDefinition.IceConsumptionPerSecond;
-	    }
+        private float IceToGasRatio(ref MyDefinitionId gasId)
+        {
+            return SourceComp.DefinedOutputByType(gasId) / BlockDefinition.IceConsumptionPerSecond;
+        }
 
         private float m_productionCapacityMultiplier = 1f;
         float Sandbox.ModAPI.IMyOxygenGenerator.ProductionCapacityMultiplier
@@ -726,10 +724,10 @@ namespace Sandbox.Game.Entities.Blocks
                     m_powerConsumptionMultiplier = 0.01f;
                 }
 
-				if (ResourceSink != null)
+                if (ResourceSink != null)
                 {
-					ResourceSink.SetMaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId, BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier);
-					ResourceSink.Update();
+                    ResourceSink.SetMaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId, BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier);
+                    ResourceSink.Update();
                 }
             }
         }
@@ -792,6 +790,24 @@ namespace Sandbox.Game.Entities.Blocks
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = pullInformation.Inventory.Constraint;
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
         }
 
         #endregion

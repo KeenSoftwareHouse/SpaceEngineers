@@ -4,13 +4,48 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // XB1
 using VRageMath;
 
 namespace Sandbox.Gui
 {
     public class MyWikiMarkupParser
     {
+#if XB1
+        //implementation without RegularExpressions
+        public static void ParseText(string text, ref MyGuiControlMultilineText label)
+        {
+            try
+            {
+                var substrings = text.Split(']');
+                foreach (var substring in substrings)
+                {
+                    var textAndMarkup = substring.Split('[');
+                    if (textAndMarkup.Length == 2)
+                    {
+                        label.AppendText(textAndMarkup[0]);
+                        var indexOfSpace = textAndMarkup[1].IndexOf(' ');
+                        if (indexOfSpace != -1) 
+                        {
+                            label.AppendLink(textAndMarkup[1].Substring(0, indexOfSpace), textAndMarkup[1].Substring(indexOfSpace + 1));
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.Assert(false);
+                            label.AppendText(textAndMarkup[1]);
+                        }
+                    } else {
+                        label.AppendText(substring);
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+#else // !XB1
         private static Regex m_splitRegex = new Regex("\\[.*?\\]{1,2}");
         private static Regex m_markupRegex = new Regex("(?<=\\[)(?!\\[).*?(?=\\])");
         private static Regex m_digitsRegex = new Regex("\\d+");
@@ -50,5 +85,6 @@ namespace Sandbox.Gui
             else
                 label.AppendLink(s.Value.Substring(0, s.Value.IndexOf(' ')), s.Value.Substring(s.Value.IndexOf(' ') + 1));
         }
+#endif // !XB1
     }
 }

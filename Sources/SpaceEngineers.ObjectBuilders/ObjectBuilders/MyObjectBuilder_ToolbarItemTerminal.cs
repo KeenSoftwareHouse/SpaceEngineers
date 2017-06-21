@@ -4,6 +4,7 @@ using VRage.ObjectBuilders;
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.Serialization;
+using System.Xml.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -13,8 +14,9 @@ namespace Sandbox.Common.ObjectBuilders
     public abstract class MyObjectBuilder_ToolbarItemTerminal : MyObjectBuilder_ToolbarItem
     {
         [ProtoMember]
+        [XmlElement("Action")]
         [Nullable]
-        public string Action;
+        public string _Action = null;
 
         [ProtoMember]
         public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters = new List<MyObjectBuilder_ToolbarItemActionParameter>();

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game.Components;
 using VRage.FileSystem;
 using VRage.Utils;
@@ -165,6 +165,8 @@ namespace Sandbox.Game.Entities.Character.Components
             
             RagdollMapper.SetVelocities();
 
+            RagdollMapper.SetLimitedVelocities();
+
             RagdollMapper.DebugDraw(Character.WorldMatrix);
         }
 
@@ -283,27 +285,11 @@ namespace Sandbox.Game.Entities.Character.Components
                 RagdollMapper.UpdateRagdollAfterSimulation();
 
                 if (!Character.IsCameraNear && !MyFakes.ENABLE_PERMANENT_SIMULATIONS_COMPUTATION) return;
-
-                RagdollMapper.UpdateCharacterPose(Character.IsDead ? 1.0f : 0.1f, Character.IsDead ? 1.0f : 0.0f);
-
-                RagdollMapper.DebugDraw(Character.WorldMatrix);
             }
             finally
             {
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
-
-            // save bone changes
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Save bones and pos update");
-
-            var characterBones = Character.AnimationController.CharacterBones;
-            for (int i = 0; i < characterBones.Length; i++)
-            {
-                MyCharacterBone bone = characterBones[i];
-                Character.BoneRelativeTransforms[i] = bone.ComputeBoneTransform();
-            }
-
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
         public void InitDeadBodyPhysics()
@@ -356,8 +342,7 @@ namespace Sandbox.Game.Entities.Character.Components
             if (Character.Physics != null &&
                 Character.Physics.Ragdoll != null &&
                 Character.Physics.Ragdoll.InWorld &&
-                (!Character.Physics.Ragdoll.IsKeyframed || RagdollMapper.IsPartiallySimulated) &&
-                (MyPerGameSettings.Game == GameEnum.SE_GAME) &&
+                (!Character.Physics.Ragdoll.IsKeyframed || RagdollMapper.IsPartiallySimulated)  &&
                 (IsRagdollMoving || m_gravityTimer > 0) )
             {
                 Vector3 gravity = MyGravityProviderSystem.CalculateTotalGravityInPoint(Character.PositionComp.WorldAABB.Center) + Character.GetPhysicsBody().HavokWorld.Gravity * MyPerGameSettings.CharacterGravityMultiplier;
@@ -379,6 +364,8 @@ namespace Sandbox.Game.Entities.Character.Components
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Simulate Ragdoll");
             if (!Character.IsDead || (RagdollMapper.Ragdoll != null && RagdollMapper.Ragdoll.IsSimulationActive))
                 SimulateRagdoll();
+
+            UpdateCharacterBones();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             
             if (Character.Physics != null && Character.Physics.Ragdoll != null)
@@ -392,6 +379,28 @@ namespace Sandbox.Game.Entities.Character.Components
             }
 
             CheckChangesOnCharacter();
+        }
+
+        private void UpdateCharacterBones()
+        {
+            // save bone changes
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Save bones and pos update");
+            
+            if (RagdollMapper != null && RagdollMapper.Ragdoll != null && RagdollMapper.Ragdoll.InWorld)
+            {
+                RagdollMapper.UpdateCharacterPose(Character.IsDead ? 1.0f : 0.2f, Character.IsDead ? 1.0f : 0.0f);
+                RagdollMapper.DebugDraw(Character.WorldMatrix);
+
+                var characterBones = Character.AnimationController.CharacterBones;
+                for (int i = 0; i < characterBones.Length; i++)
+                {
+                    MyCharacterBone bone = characterBones[i];
+                    bone.ComputeBoneTransform();
+                    Character.BoneRelativeTransforms[i] = bone.RelativeTransform;
+                }
+            }
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
         private void CheckChangesOnCharacter()
@@ -445,6 +454,12 @@ namespace Sandbox.Game.Entities.Character.Components
 
         public override void OnAddedToContainer()
         {
+            if (MySandboxGame.IsDedicated)
+            {
+                Container.Remove<MyCharacterRagdollComponent>();
+                return;
+            }
+
             if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("RagdollComponent.OnAddedToContainer");
             base.OnAddedToContainer();
             NeedsUpdateAfterSimulation = true;

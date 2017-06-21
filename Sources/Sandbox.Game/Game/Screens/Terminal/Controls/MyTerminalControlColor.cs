@@ -1,5 +1,4 @@
-﻿
-using Sandbox.Game.Entities.Cube;
+﻿using Sandbox.Game.Entities.Cube;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
@@ -13,13 +12,16 @@ using VRage;
 using VRage.Library.Utils;
 using Sandbox.Game.Localization;
 using VRage.Library.Collections;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlColor<TBlock> : MyTerminalValueControl<TBlock, Color>
+    class MyTerminalControlColor<TBlock> : MyTerminalValueControl<TBlock, Color>, IMyTerminalControlColor
         where TBlock : MyTerminalBlock
     {
-        public readonly MyStringId Title;
+        public MyStringId Title;
+        public MyStringId Tooltip; // Apparently not actually used
 
         private MyGuiControlColor m_color;
         private Action<MyGuiControlColor> m_changeColor;
@@ -33,7 +35,7 @@ namespace Sandbox.Game.Gui
 
         protected override MyGuiControlBase CreateGui()
         {
-            m_color = new MyGuiControlColor(MyTexts.Get(Title), 0.95f, Vector2.Zero, Color.White, Color.White, MyCommonTexts.DialogAmount_SetValueCaption, placeSlidersVertically: true);
+            m_color = new MyGuiControlColor(MyTexts.Get(Title).ToString(), 0.95f, Vector2.Zero, Color.White, Color.White, MyCommonTexts.DialogAmount_SetValueCaption, placeSlidersVertically: true);
             m_changeColor = OnChangeColor;
             m_color.OnChange += m_changeColor;
             m_color.Size = new Vector2(PREFERRED_CONTROL_WIDTH, m_color.Size.Y);
@@ -76,6 +78,32 @@ namespace Sandbox.Game.Gui
         public override Color GetMaximum(TBlock block)
         {
             return new Color(Vector4.One);
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Title
+        {
+            get
+            {
+                return Title;
+            }
+
+            set
+            {
+                Title = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Tooltip
+        {
+            get
+            {
+                return Tooltip;
+            }
+
+            set
+            {
+                Tooltip = value;
+            }
         }
     }
 }

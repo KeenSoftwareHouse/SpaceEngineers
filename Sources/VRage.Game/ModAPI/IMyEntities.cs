@@ -8,6 +8,7 @@ namespace VRage.ModAPI
     public interface IMyEntities
     {
         bool TryGetEntityById(long id, out IMyEntity entity);
+        bool TryGetEntityById(long? id, out IMyEntity entity);
         bool TryGetEntityByName(string name, out IMyEntity entity);
         bool EntityExists(string name);
         void AddEntity(IMyEntity entity, bool insertIntoScene = true);
@@ -43,7 +44,9 @@ namespace VRage.ModAPI
         IMyEntity GetIntersectionWithSphere(ref BoundingSphereD sphere, IMyEntity ignoreEntity0, IMyEntity ignoreEntity1);
         IMyEntity GetIntersectionWithSphere(ref BoundingSphereD sphere, IMyEntity ignoreEntity0, IMyEntity ignoreEntity1, bool ignoreVoxelMaps, bool volumetricTest, bool excludeEntitiesWithDisabledPhysics = false, bool ignoreFloatingObjects = true, bool ignoreHandWeapons = true);
         IMyEntity GetEntityById(long entityId);
+        IMyEntity GetEntityById(long? entityId);
         bool EntityExists(long entityId);
+        bool EntityExists(long? entityId);
         IMyEntity GetEntityByName(string name);
         void SetTypeHidden(Type type, bool hidden);
         bool IsTypeHidden(Type type);
@@ -57,10 +60,12 @@ namespace VRage.ModAPI
 
         IMyEntity GetEntity(Func<IMyEntity, bool> match);
         void GetEntities(HashSet<IMyEntity> entities, Func<IMyEntity, bool> collect = null);
-        List<IMyEntity> GetIntersectionWithSphere(ref VRageMath.BoundingSphereD sphere, IMyEntity ignoreEntity0, IMyEntity ignoreEntity1, bool ignoreVoxelMaps, bool volumetricTest);
+        List<IMyEntity> GetIntersectionWithSphere(ref BoundingSphereD sphere, IMyEntity ignoreEntity0, IMyEntity ignoreEntity1, bool ignoreVoxelMaps, bool volumetricTest);
         List<IMyEntity> GetEntitiesInAABB(ref BoundingBoxD boundingBox);
         List<IMyEntity> GetEntitiesInSphere(ref BoundingSphereD boundingSphere);
         List<IMyEntity> GetElementsInBox(ref BoundingBoxD boundingBox);
+        List<IMyEntity> GetTopMostEntitiesInSphere( ref BoundingSphereD boundingSphere);
+        List<IMyEntity> GetTopMostEntitiesInBox(ref BoundingBoxD boundingBox);
 
         // VRAGE TODO: Missing dependencies
         //void OverlapAllLineSegment(ref Line line, IEnumerable<MyLineSegmentOverlapResult<IMyEntity>> resultList);

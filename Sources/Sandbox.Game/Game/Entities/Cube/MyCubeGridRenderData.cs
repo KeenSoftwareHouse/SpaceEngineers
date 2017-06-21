@@ -5,7 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game.Models;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -18,7 +20,10 @@ namespace Sandbox.Game.Entities.Cube
         /// Cell cube count per axis (cell is 30x30x30)
         /// </summary>
         public static int SplitCellCubeCount = 30;
-        
+
+        private const int MAX_DECALS_PER_CUBE = 30;
+        private Dictionary<Vector3I, List<MyDecalPartIdentity>> m_cubeDecals = new Dictionary<Vector3I, List<MyDecalPartIdentity>>();
+
         Vector3 m_basePos;
         Dictionary<Vector3I, MyCubeGridRenderCell> m_cells = new Dictionary<Vector3I, MyCubeGridRenderCell>();
 
@@ -81,15 +86,10 @@ namespace Sandbox.Game.Entities.Cube
                 m_dirtyCells.Add(cell);
         }
 
-        // hack/optimization that prevents fast shooting turrets from cause rebuild in almost every frame
-        int m_rebuildDirtyCounter;
-        int m_nextRebuildDirtyCount;
         public void RebuildDirtyCells(RenderFlags renderFlags)
         {
-            ++m_rebuildDirtyCounter;
-            if (m_rebuildDirtyCounter < m_nextRebuildDirtyCount || m_dirtyCells.Count == 0)
+            if (m_dirtyCells.Count == 0)
                 return;
-            m_nextRebuildDirtyCount = m_rebuildDirtyCounter + 10; // change if stuttering is still noticable
             foreach (var cell in m_dirtyCells)
             {
                 ProfilerShort.Begin("Cell rebuild");
@@ -113,6 +113,7 @@ namespace Sandbox.Game.Entities.Cube
 
         internal MyCubeGridRenderCell GetCell(Vector3 pos)
         {
+            // NOTE: Cell position != cube position
             Vector3I cellPos = Vector3I.Round((pos - m_basePos) / (SplitCellCubeCount * m_gridRender.GridSize));
             MyCubeGridRenderCell result;
             if (!m_cells.TryGetValue(cellPos, out result))
@@ -124,40 +125,73 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private const int MAX_DECALS_PER_CUBE = 10;
-        private Dictionary<Vector3I, List<uint>> m_cubeDecals = new Dictionary<Vector3I, List<uint>>();
-        public void AddDecal(Vector3I cube, Vector3 position, Vector3 normal, string material)
+        public void AddDecal(Vector3I position, MyCubeGridHitInfo gridHitInfo, uint decalId)
         {
-            if (string.IsNullOrEmpty(material))
+            MyCube cube;
+            bool found = m_gridRender.CubeGrid.TryGetCube(position, out cube);
+            if (!found)
                 return;
-            if (!m_cubeDecals.ContainsKey(cube))
-                m_cubeDecals[cube] = new List<uint>();
-            if(m_cubeDecals[cube].Count > MAX_DECALS_PER_CUBE)
-            {
-                MyRenderProxy.RemoveDecal(m_cubeDecals[cube][0]);
-                m_cubeDecals[cube].RemoveAt(0);
-            }
-            Quaternion q = Quaternion.CreateFromAxisAngle(normal, MyRandom.Instance.NextFloat() * MathHelper.TwoPi);
-            var perp = Vector3.CalculatePerpendicularVector(normal);
-            perp = new Vector3((new Quaternion(perp, 0) * q).ToVector4()); //rotate around normal
-            var pos = MatrixD.CreateWorld(position, normal, perp);
-            var size = (1f + MyRandom.Instance.NextFloat(-0.35f,0.35f)) *1.5f; //TODO: variable size?
-            float depth = 0.2f;
-            pos = Matrix.CreateScale(new Vector3(size,size,depth)) * pos;
-            //pos.Translation = pos.Translation + pos.Backward * depth;
-            var decalId = MyRenderProxy.CreateDecal(m_gridRender.GetRenderObjectID(), (Matrix)pos, material);
-            m_cubeDecals[cube].Add(decalId);
 
+            if (gridHitInfo.CubePartIndex != -1)
+            {
+                var part = cube.Parts[gridHitInfo.CubePartIndex];
+                var cell = GetCell(part.InstanceData.Translation);
+                cell.AddCubePartDecal(part, decalId);
+            }
+
+            List<MyDecalPartIdentity> decals;
+            found = m_cubeDecals.TryGetValue(position, out decals);
+            if (!found)
+            {
+                decals = new List<MyDecalPartIdentity>();
+                m_cubeDecals[position] = decals;
+            }
+
+            if (decals.Count > MAX_DECALS_PER_CUBE)
+            {
+                RemoveDecal(position, decals, 0);
+                decals.RemoveAt(0);
+            }
+
+            decals.Add(new MyDecalPartIdentity() { DecalId = decalId, CubePartIndex = gridHitInfo.CubePartIndex });
         }
 
-        public void RemoveDecals(Vector3I cube)
+        public void RemoveDecals(Vector3I position)
         {
-            List<uint> decals;
-            if(m_cubeDecals.TryGetValue(cube, out decals))
+            List<MyDecalPartIdentity> decals;
+            if (m_cubeDecals.TryGetValue(position, out decals))
             {
-                foreach (var decal in decals)
-                    MyRenderProxy.RemoveDecal(decal);
+                MyCube cube = null;
+                for (int it = 0; it < decals.Count; it++)
+                    RemoveDecal(position, decals, it, ref cube);
+
                 decals.Clear();
+            }
+        }
+
+        private void RemoveDecal(Vector3I position, List<MyDecalPartIdentity> decals, int index)
+        {
+            MyCube cube = null;
+            RemoveDecal(position, decals, index, ref cube);
+        }
+
+        private void RemoveDecal(Vector3I position, List<MyDecalPartIdentity> decals, int index, ref MyCube cube)
+        {
+            MyDecalPartIdentity decal = decals[index];
+            MyDecals.RemoveDecal(decal.DecalId);
+
+            if (cube == null)
+            {
+                bool found = m_gridRender.CubeGrid.TryGetCube(position, out cube);
+                if (!found)
+                    return;
+            }
+
+            if (decal.CubePartIndex != -1)
+            {
+                var part = cube.Parts[decal.CubePartIndex];
+                var cell = GetCell(position);
+                cell.RemoveCubePartDecal(part, decal.DecalId);
             }
         }
 
@@ -167,6 +201,12 @@ namespace Sandbox.Game.Entities.Cube
             {
                 cell.Value.DebugDraw();
             }
+        }
+
+        struct MyDecalPartIdentity
+        {
+            public uint DecalId;
+            public int CubePartIndex;
         }
     }
 }

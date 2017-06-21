@@ -14,6 +14,8 @@ using VRageMath;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+    #if !XB1
+
     [MyDebugScreen("Game", "Voxel materials")]
     public class MyGuiScreenDebugVoxelMaterials : MyGuiScreenDebugBase
     {
@@ -86,7 +88,7 @@ namespace Sandbox.Game.Screens.DebugScreens
 
             m_materialsCombo.SelectItemByIndex(0);
 
-            m_colorFar3 = AddColor(new StringBuilder("Far3 color"), m_selectedVoxelMaterial, MemberHelper.GetMember(() => m_selectedVoxelMaterial.Far3Color));
+            m_colorFar3 = AddColor("Far3 color", m_selectedVoxelMaterial, MemberHelper.GetMember(() => m_selectedVoxelMaterial.Far3Color));
             m_colorFar3.SetColor(m_selectedVoxelMaterial.Far3Color);
 
             m_currentPosition.Y += 0.01f;
@@ -155,4 +157,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             MyDefinitionManager.Static.UpdateVoxelMaterial(m_selectedVoxelMaterial);
         }
     }
+
+#endif
 }

@@ -8,7 +8,7 @@ namespace Sandbox.ModAPI
     /// <summary>
     /// ModAPI laserantenna block interface
     /// </summary>
-    public interface IMyLaserAntenna : Ingame.IMyLaserAntenna
+    public interface IMyLaserAntenna : IMyFunctionalBlock, Ingame.IMyLaserAntenna
     {
         /// <summary>
         /// Flag if antenna requires LoS - for modded antenas

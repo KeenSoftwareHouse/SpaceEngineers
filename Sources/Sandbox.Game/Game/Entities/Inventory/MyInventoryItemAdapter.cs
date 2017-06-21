@@ -11,16 +11,28 @@ using System.Linq;
 using System.Text;
 using VRage.Game;
 using VRage.ModAPI;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using VRage;
+using Sandbox.Game.SessionComponents;
 
 namespace Sandbox.Game.Entities.Inventory
 {
     public class MyInventoryItemAdapter : IMyInventoryItemAdapter
     {
-        public static MyInventoryItemAdapter Static = new MyInventoryItemAdapter();
+        [ThreadStatic]
+        static MyInventoryItemAdapter m_static = new MyInventoryItemAdapter();
+        public static MyInventoryItemAdapter Static
+        {
+            get
+            {
+                if (m_static == null)
+                    m_static = new MyInventoryItemAdapter();
+                return m_static;
+            }
+        }
 
         private MyPhysicalItemDefinition m_physItem = null;
-        private MyCubeBlockDefinition m_blockDef = null;         
+        private MyCubeBlockDefinition m_blockDef = null;
 
         public void Adapt(IMyInventoryItem inventoryItem)
         {
@@ -58,7 +70,7 @@ namespace Sandbox.Game.Entities.Inventory
                 {
                     if (MyDestructionData.Static != null && Sync.IsServer)
                     {
-                        return MyDestructionHelper.MassFromHavok(MyDestructionData.Static.GetBlockMass(m_blockDef.Model, m_blockDef)) ;
+                        return MyDestructionHelper.MassFromHavok(MyDestructionData.Static.GetBlockMass(m_blockDef.Model, m_blockDef));
                     }
                     else
                     {
@@ -88,6 +100,42 @@ namespace Sandbox.Game.Entities.Inventory
             }
         }
 
+        public bool HasIntegralAmounts
+        {
+            get
+            {
+                if (m_physItem != null)
+                {
+                    return m_physItem.HasIntegralAmounts;
+                }
+
+                if (m_blockDef != null) return true;
+
+                return false;
+            }
+        }
+
+        public MyFixedPoint MaxStackAmount
+        {
+            get
+            {
+                if (m_physItem != null)
+                {
+                    return m_physItem.MaxStackAmount;
+                }
+
+                if (m_blockDef != null)
+                {
+                    if (MyGridPickupComponent.Static != null)
+                        return MyGridPickupComponent.Static.GetMaxStackSize(m_blockDef.Id);
+                    else
+                        return 1;
+                }
+
+                return MyFixedPoint.MaxValue;
+            }
+        }
+
         public string DisplayNameText
         {
             get
@@ -100,15 +148,15 @@ namespace Sandbox.Game.Entities.Inventory
             }
         }
 
-        public string Icon
+        public string[] Icons
         {
             get
             {
-                if (m_physItem != null) return m_physItem.Icon;
-                if (m_blockDef != null) return m_blockDef.Icon;
+                if (m_physItem != null) return m_physItem.Icons;
+                if (m_blockDef != null) return m_blockDef.Icons;
 
                 Debug.Assert(false, "Invalid inventory item!");
-                return "";
+                return new string[] { "" };
             }
         }
 

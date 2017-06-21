@@ -57,15 +57,33 @@ namespace VRage
         }
 
         #region string manipulation
+
+#if XB1
+        private IEnumerable<String> SplitArgsSelector2(String[] element)
+        {
+            return element;
+        }
+#endif
         
         //Splits by spaces unless in quotes, in which case we remove the quotes
         public List<string> SplitArgs(string input)
         {
+#if XB1
+            string[] splitted = input.Split('"');
+            IEnumerable<String[]> selected = splitted.Select((element, index) => index % 2 == 0
+                                                            ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                                                            : new string[] { element });
+            IEnumerable<String> simplified = selected.SelectMany(SplitArgsSelector2);
+            List<string> asList = simplified.ToList();
+            return asList;
+#else
             return input.Split('"')
                      .Select((element, index) => index % 2 == 0  // If even index
                                            ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)  // Split the item
                                            : new string[] { element })  // Keep the entire item
                      .SelectMany(element => element).ToList();
+
+#endif
         }
 
         //gets A from string A.B

@@ -23,6 +23,7 @@ namespace Sandbox.Game.Replication
     /// </summary>
     public class MyEntityPhysicsStateGroup : IMyStateGroup
     {
+        protected Func<MyEntity, Vector3D, bool> m_positionValidation;
         public delegate void MovedDelegate(ref MatrixD oldTransform, ref MatrixD newTransform);
         public delegate void VelocityDelegate(ref Vector3 oldVelocity,ref Vector3 newVelocity);
 
@@ -35,7 +36,6 @@ namespace Sandbox.Game.Replication
             public float LinearMovingPriority = 0.33f;
             public float StoppedPriority = 0.13f;
             public int StopAfterUpdateCount = 60; // 60 frames not moving is switched to stopped
-            public bool CompensateSlowSimSpeed = true;
 
             public static readonly PrioritySettings Default = new PrioritySettings();
         }
@@ -53,10 +53,11 @@ namespace Sandbox.Game.Replication
         static Vector3 m_readLinearVelocity = new Vector3();
         static Vector3 m_readAngularVelocity = new Vector3();
 
-        const int NUM_DECIMAL_PRECISION = 1;
-        static float PRECISION = 1/(float)Math.Pow(10,NUM_DECIMAL_PRECISION);
+        public const int NUM_DECIMAL_PRECISION = 3;
+        static protected float PRECISION = 1/(float)Math.Pow(10,NUM_DECIMAL_PRECISION);
         const float epsilonSq = 0.05f * 0.05f;
-        public static bool IsMoving(MyEntity entity)
+
+        protected virtual bool IsMoving(MyEntity entity)
         {
             // Never know if somebody is moving entity when physics is null
             return entity.Physics == null
@@ -87,10 +88,10 @@ namespace Sandbox.Game.Replication
 
         public static float EffectiveSimulationRatio
         {
-            get { return MyPerGameSettings.EnableMultiplayerVelocityCompensation ? MathHelper.Clamp(MyPhysics.SimulationRatio, 0.1f, 2) : 1.0f; }
+            get { return (float)Math.Round(MathHelper.Clamp(MyPhysics.SimulationRatio, 0.001f, 10),3); }
         }
 
-        protected MovedDelegate MoveHandler { get { return OnMoved; } }
+        public MovedDelegate MoveHandler { get { return OnMoved; } }
         protected VelocityDelegate VelocityHandler { get { return OnVelocityChanged; } }
 
         public virtual StateGroupEnum GroupType { get { return StateGroupEnum.Physics; } }
@@ -115,7 +116,7 @@ namespace Sandbox.Game.Replication
         {
         }
 
-        public void ClientUpdate()
+        public void ClientUpdate(uint timestamp)
         {
         }
 
@@ -132,22 +133,22 @@ namespace Sandbox.Game.Replication
         protected float GetBasicPhysicsPriority(MyClientInfo client)
         {
             // Called only on server
-            if (Entity.Physics == null || Entity.Physics.IsStatic || ResponsibleForUpdate(client.EndpointId))
+            if (Entity.Physics == null || Entity.Physics.IsStatic)
                 return 0;
                         
             return client.GetPriority(OwnerReplicable);
         }
 
-        public virtual bool ResponsibleForUpdate(EndpointId endpointId)
+        public static bool ResponsibleForUpdate(MyEntity entity,EndpointId endpointId)
         {
             if (Sync.Players == null)
                 return false;
 
-            var controllingPlayer = Sync.Players.GetControllingPlayer(Entity);
+            var controllingPlayer = Sync.Players.GetControllingPlayer(entity);
             if (controllingPlayer == null)
             {
                 // TODO: Move to subclass?
-                var character = Entity as MyCharacter;
+                var character = entity as MyCharacter;
                 if (character != null && character.CurrentRemoteControl != null)
                 {
                     controllingPlayer = Sync.Players.GetControllingPlayer(character.CurrentRemoteControl as MyEntity);
@@ -226,7 +227,7 @@ namespace Sandbox.Game.Replication
             return Sync.Players == null ? null : Sync.Players.GetControllingPlayer(Entity);
         }
 
-        public virtual void Serialize(BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        public virtual bool Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
         {
             bool moving = false;
             if (stream.Writing)
@@ -240,15 +241,18 @@ namespace Sandbox.Game.Replication
             }
 
             // When controlled by local player, don't apply what came from server
-            SerializeTransform(stream, Entity, null, m_lowPrecisionOrientation, !IsControlledLocally,moving, null, MoveHandler);
-            SerializeVelocities(stream, Entity, EffectiveSimulationRatio, !IsControlledLocally, moving,VelocityHandler);         
+            SerializeTransform(stream, Entity, null, m_lowPrecisionOrientation, !IsControlledLocally, moving, timestamp, null, MoveHandler);
+            SerializeVelocities(stream, Entity, EffectiveSimulationRatio, !IsControlledLocally, moving,VelocityHandler);
+
+            return true;
         }
 
         /// <summary>
         /// Serializes transform into 10 to 30.5 bytes.
         /// </summary>
-        public static bool SerializeTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool lowPrecisionOrientation, bool applyWhenReading, bool movingOnServer, Func<MyEntity, Vector3D, bool> posValidation = null, MovedDelegate moveHandler = null)
+        protected static bool SerializeTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool lowPrecisionOrientation, bool applyWhenReading, bool movingOnServer, uint timeStamp, Func<MyEntity, Vector3D, bool> posValidation = null, MovedDelegate moveHandler = null)
         {
+            stream.Serialize(ref timeStamp);
             if(stream.Writing)
             {
                 WriteTransform(stream, entity, deltaPosBase, lowPrecisionOrientation);
@@ -257,7 +261,7 @@ namespace Sandbox.Game.Replication
             else
             {
                 bool apply = ReadTransform(stream, entity, deltaPosBase, applyWhenReading,movingOnServer, ref m_readTranslation, ref m_readQuaternion, ref m_readMatrix, posValidation, moveHandler);
-                if ( apply )
+                if (apply && applyWhenReading)
                 {
                     var old = entity.PositionComp.WorldMatrix;
                     entity.PositionComp.SetWorldMatrix(m_readMatrix, null);
@@ -281,7 +285,7 @@ namespace Sandbox.Game.Replication
             }
             else
             {
-                stream.Write((HalfVector3)(Vector3)(matrix.Translation - deltaPosBase.Value)); // 6 B
+                stream.Write((Vector3)(matrix.Translation - deltaPosBase.Value)); // 6 B
             }
             var orientation = Quaternion.CreateFromForwardUp(matrix.Forward, matrix.Up);
             stream.WriteBool(lowPrecisionOrientation);
@@ -295,7 +299,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        static bool ReadTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool applyWhenReading, bool movingOnServer, ref Vector3D outPosition, ref Quaternion outOrientation, ref MatrixD outWorldMartix, Func<MyEntity, Vector3D, bool> posValidation = null, MovedDelegate moveHandler = null)
+        static  bool ReadTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool applyWhenReading, bool movingOnServer, ref Vector3D outPosition, ref Quaternion outOrientation, ref MatrixD outWorldMartix, Func<MyEntity, Vector3D, bool> posValidation = null, MovedDelegate moveHandler = null)
         {
             Vector3D position;
             if (stream.ReadBool())
@@ -304,11 +308,15 @@ namespace Sandbox.Game.Replication
             }
             else
             {
-                HalfVector3 pos = stream.ReadHalfVector3(); // 6 B
+                Vector3 pos = stream.ReadVector3(); // 6 B
                 if (deltaPosBase != null)
+                {
                     position = pos + deltaPosBase.Value;
+                }
                 else
-                    position = pos.ToVector3();
+                {
+                    position = pos;
+                }
             }
             Quaternion orientation;
             bool lowPrecisionOrientation = stream.ReadBool();
@@ -323,30 +331,28 @@ namespace Sandbox.Game.Replication
 
             if (entity != null)
             {
-                movingOnServer |= (entity.PositionComp.GetPosition() - position).LengthSquared() > epsilonSq;
-            }
-
-            if (movingOnServer && applyWhenReading && (posValidation == null || posValidation(entity, position)))
-            {
-                var old = entity.PositionComp.WorldMatrix;
-
-                MatrixD matrix = MatrixD.CreateFromQuaternion(orientation);
-                if (matrix.IsValid())
+                double delta = (entity.WorldMatrix.Translation - position).LengthSquared();
+                if (applyWhenReading && (movingOnServer || delta > 0.1 * 0.1) && (posValidation == null || posValidation(entity, position)))
                 {
-                    matrix.Translation = Vector3D.Round(position, NUM_DECIMAL_PRECISION + 1);
+                    MatrixD matrix = MatrixD.CreateFromQuaternion(orientation);
+                    if (matrix.IsValid())
+                    {
+                        matrix.Translation = position;
 
-                    outPosition = matrix.Translation;
-                    outOrientation = orientation;
-                    outWorldMartix = matrix;
-                    return true;
+                        outPosition = matrix.Translation;
+                        outOrientation = orientation;
+                        outWorldMartix = matrix;
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
             }
             return false;
         }
 
-        public static bool SerializeServerTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool movingOnServer, bool lowPrecisionOrientation, float positionTolerancy, ref Vector3D outPosition, ref Quaternion outOrientation, ref MatrixD outWorldMartix, Func<MyEntity, Vector3D, bool> posValidation = null)
+        protected bool SerializeServerTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool movingOnServer, uint timeStamp, bool lowPrecisionOrientation, ref Vector3D outPosition, ref Quaternion outOrientation, ref MatrixD outWorldMartix, Func<MyEntity, Vector3D, bool> posValidation = null)
         {
+            stream.Serialize(ref timeStamp);
             if (stream.Writing)
             {
                 WriteTransform(stream, entity, deltaPosBase, lowPrecisionOrientation);
@@ -357,57 +363,13 @@ namespace Sandbox.Game.Replication
                 bool apply = ReadTransform(stream, entity, deltaPosBase, true, movingOnServer,ref outPosition, ref outOrientation, ref outWorldMartix, posValidation);
                 return apply;
             }
-        }
-
-        public static void SerializeActive(BitStream stream, MyEntity entity)
-        {
-            if (stream.Writing)
-            {
-                if (entity.Physics.RigidBody != null && entity.Physics.RigidBody.IsActive)
-                    stream.WriteBool(true);
-                else
-                    stream.WriteBool(false);
-            }
-            else
-            {
-                // reading 
-                bool isActive = stream.ReadBool();
-                HkRigidBody rb = entity.Physics.RigidBody;
-                if ( rb != null )
-                {
-                    if (isActive)
-                        rb.Activate();
-                    else
-                        rb.Deactivate();
-                }
-            }
-        }
-
-        public static void SerializeFriction(BitStream stream, MyEntity entity)
-        {
-            MyPhysicsBody pb = entity.Physics as MyPhysicsBody;
-            if ( pb == null || pb.RigidBody == null )
-            {
-                if ( stream.Writing )
-                    stream.WriteFloat(0);
-                else
-                    stream.ReadFloat();
-                return;
-            }
-            HkRigidBody rb = pb.RigidBody;
-
-            if (stream.Writing)
-                stream.WriteFloat(rb.Friction);
-            else
-                rb.Friction = stream.ReadFloat();
-        }
-        
+        }        
         /// <summary>
         /// Serializes velocities into 12 bytes.
         /// </summary>
-        public static void SerializeVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool applyWhenReading, bool movingOnServer, VelocityDelegate velocityHandler = null)
+        protected static void SerializeVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool applyWhenReading, bool movingOnServer, VelocityDelegate velocityHandler = null)
         {
-            if(stream.Writing)
+            if (stream.Writing)
             {
                 WriteVelocities(stream, entity, simulationRatio, movingOnServer);
             }
@@ -415,11 +377,20 @@ namespace Sandbox.Game.Replication
             {
                 ReadVelocities(stream, entity, simulationRatio,movingOnServer, ref m_readLinearVelocity, ref m_readAngularVelocity);
 
-                if (applyWhenReading && entity.Physics != null)
+                float linearVelocityDiff = 0.0f;
+                float angularVelocityDiff = 0.0f;
+
+                if (entity != null && entity.Physics != null)
+                {
+                    linearVelocityDiff = (entity.Physics.LinearVelocity - m_readLinearVelocity).LengthSquared();
+                    angularVelocityDiff = (entity.Physics.AngularVelocity - m_readAngularVelocity).LengthSquared();
+                }
+
+                if ((linearVelocityDiff > 0.001f || angularVelocityDiff > 0.001f || applyWhenReading) && entity.Physics != null)
                 {
                     Vector3 oldLinear = entity.Physics.LinearVelocity;
-                    entity.Physics.LinearVelocity = m_readLinearVelocity;
-                    entity.Physics.AngularVelocity = m_readAngularVelocity;
+                    entity.Physics.LinearVelocity = Vector3.Round(m_readLinearVelocity,2);
+                    entity.Physics.AngularVelocity = Vector3.Round(m_readAngularVelocity,2);
                     entity.Physics.UpdateAccelerations();
 
                     if (velocityHandler != null && MyFakes.COMPENSATE_SPEED_WITH_SUPPORT)
@@ -430,7 +401,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public static void SerializeServerVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool movingOnServer, ref Vector3 outLinearVelocity, ref Vector3 outAngularVelocity)
+        protected void SerializeServerVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool movingOnServer, ref Vector3 outLinearVelocity, ref Vector3 outAngularVelocity)
         {
             if (stream.Writing)
             {
@@ -442,10 +413,10 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        static void WriteVelocities(BitStream stream, MyEntity entity, float simulationRatio,bool moving)
+        static void WriteVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool moving)
         {
-            HalfVector3 linear = entity.Physics != null ? Vector3.Round(entity.Physics.LinearVelocity * simulationRatio, NUM_DECIMAL_PRECISION) : Vector3.Zero;
-            HalfVector3 angular = entity.Physics != null ? Vector3.Round(entity.Physics.AngularVelocity * simulationRatio, NUM_DECIMAL_PRECISION) : Vector3.Zero;
+            Vector3 linear = entity.Physics != null ? entity.Physics.LinearVelocity * simulationRatio : Vector3.Zero;
+            Vector3 angular = entity.Physics != null ? entity.Physics.AngularVelocity * simulationRatio : Vector3.Zero;
             if (moving)
             {
                 stream.Write(linear); // 6B
@@ -453,14 +424,14 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        static void ReadVelocities(BitStream stream, MyEntity entity, float simulationRatio,bool movingOnServer, ref Vector3 outLinearVelocity, ref Vector3 outAngularVelocity)
+        static void ReadVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool movingOnServer, ref Vector3 outLinearVelocity, ref Vector3 outAngularVelocity)
         {
             Vector3 linear = Vector3.Zero;
             Vector3 angular = Vector3.Zero;
             if (movingOnServer)
             {
-                linear = stream.ReadHalfVector3(); // 6B
-                angular = stream.ReadHalfVector3(); // 6B
+                linear = stream.ReadVector3(); // 6B
+                angular = stream.ReadVector3(); // 6B
             }
 
             outLinearVelocity = linear / simulationRatio;

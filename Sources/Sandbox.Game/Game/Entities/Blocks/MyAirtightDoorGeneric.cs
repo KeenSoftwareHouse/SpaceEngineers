@@ -17,10 +17,11 @@ using Havok;
 using VRage.Game.Entity;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
-    public abstract class MyAirtightDoorGeneric : MyFunctionalBlock, ModAPI.IMyDoor
+    public abstract class MyAirtightDoorGeneric : MyDoorBase, ModAPI.IMyAirtightDoorBase
     {
 
         private MySoundPair m_sound;
@@ -33,8 +34,6 @@ namespace Sandbox.Game.Entities
 
         private int m_lastUpdateTime;
 
-        private readonly Sync<bool> m_open;
-
         private static readonly float EPSILON = 0.000000001f;
 
         protected List<MyEntitySubpart> m_subparts = new List<MyEntitySubpart>(4);
@@ -42,14 +41,6 @@ namespace Sandbox.Game.Entities
         protected static string[] m_emissiveNames;
         protected Color m_prevEmissiveColor;
         protected float m_prevEmissivity=-1;
-
-        public bool Open
-        {
-            get
-            {
-                return m_open;
-            }
-        }
 
         public float OpenRatio
         {
@@ -66,22 +57,19 @@ namespace Sandbox.Game.Entities
 
         protected override bool CheckIsWorking()
         {
-            return ResourceSink.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
 
         #region constructors & init & save
-        static MyAirtightDoorGeneric()
+        public MyAirtightDoorGeneric() : base()
         {
-            var open = new MyTerminalControlOnOffSwitch<MyAirtightDoorGeneric>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
-            open.Getter = (x) => x.Open;
-            open.Setter = (x, v) => x.m_open.Value = v;
-            open.EnableToggleAction();
-            open.EnableOnOffActions();
-            MyTerminalControlFactory.AddControl(open);
-        }
-        public MyAirtightDoorGeneric()
-        {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_open = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            //GR: added to base class do not use here
+            //CreateTerminalControls();
+
             m_open.Value = false;
             m_currOpening = 0f;
             m_currSpeed = 0f;
@@ -182,22 +170,27 @@ namespace Sandbox.Game.Entities
         }
 
         #region update
-        public override void UpdateBeforeSimulation100()
-        {
-            base.UpdateBeforeSimulation100();
-            if(m_soundEmitter != null)
-                m_soundEmitter.Update();
-        }
 
+        bool m_updated = false;
         bool m_stateChange = false;
         public override void UpdateBeforeSimulation()
         {
+            if (!m_updated)
+            {
+                MatrixD tmp = PositionComp.WorldMatrix;
+                foreach (var subpart in m_subparts)
+                {
+                    subpart.PositionComp.UpdateWorldMatrix(ref tmp);
+                }
+                m_updated = true;
+            }
             if (m_stateChange && ((m_open && 1f - m_currOpening < EPSILON) || (!m_open && m_currOpening < EPSILON)))
             {
                 //END OF MOVEMENT
-                if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
+                if (m_soundEmitter != null && m_soundEmitter.Loop)
                     m_soundEmitter.StopSound(false);
                 m_currSpeed = 0;
+                NeedsUpdate &= ~(MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME);
                 ResourceSink.Update();
                 RaisePropertiesChanged();
                 if (!m_open)
@@ -209,11 +202,11 @@ namespace Sandbox.Game.Entities
             }
             if (m_soundEmitter != null)
             {
-                if (Enabled && ResourceSink.IsPowered && m_currSpeed != 0)
+                if (Enabled && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && m_currSpeed != 0)
                 {
                     StartSound(m_sound);
                 }
-            }
+                }
 
             base.UpdateBeforeSimulation();
             UpdateCurrentOpening();
@@ -223,7 +216,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateCurrentOpening()
         {
-            if (Enabled && ResourceSink.IsPowered)
+            if (Enabled && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
                 float deltaPos = m_currSpeed * timeDelta;
@@ -253,7 +246,8 @@ namespace Sandbox.Game.Entities
                 && (force || color != m_prevEmissiveColor || m_prevEmissivity!=emissivity))
             {
                 foreach (var name in m_emissiveNames)
-                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, name, color , emissivity);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], name, color, emissivity);
+
                 m_prevEmissiveColor = color;
                 m_prevEmissivity = emissivity;
             }
@@ -272,14 +266,13 @@ namespace Sandbox.Game.Entities
 
         internal void DoChangeOpenClose()
         {
-            if (!Enabled || !ResourceSink.IsPowered)
+            if (!Enabled || !ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId))
                 return;
 
+            if (m_soundEmitter != null)
+                m_soundEmitter.StopSound(true);
             OnStateChange();
             RaisePropertiesChanged();
-
-            if(m_soundEmitter != null)
-                m_soundEmitter.StopSound(true);
         }
         #endregion
 
@@ -413,7 +406,7 @@ namespace Sandbox.Game.Entities
 
         private void StartSound(MySoundPair cuePair)
         {
-            if ((m_soundEmitter.Sound != null) && (m_soundEmitter.Sound.IsPlaying) && (m_soundEmitter.SoundId == cuePair.SoundId))
+            if ((m_soundEmitter.Sound != null) && (m_soundEmitter.Sound.IsPlaying) && (m_soundEmitter.SoundId == cuePair.Arcade || m_soundEmitter.SoundId == cuePair.Realistic))
                 return;
 
             m_soundEmitter.StopSound(true);

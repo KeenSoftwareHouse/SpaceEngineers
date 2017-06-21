@@ -9,13 +9,17 @@ using System.IO;
 using System.Runtime.InteropServices;
 using VRage.Utils;
 using VRageMath.PackedVector;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.FileSystem;
 using VRage.Import;
 using BoundingBox = VRageMath.BoundingBox;
 using BoundingSphere = VRageMath.BoundingSphere;
 using Vector3 = VRageMath.Vector3;
-using VRage.Render.Models;
+using VRageMath;
+using VRageRender;
+using VRageRender.Fractures;
+using VRageRender.Import;
+using VRageRender.Models;
 
 #endregion
 
@@ -45,6 +49,8 @@ namespace VRage.Game.Models
 
     public class MyModel : IDisposable, IPrimitiveManagerBase
     {
+        #region Static Fields
+
         static int m_nextUniqueId = 0;
         static Dictionary<int, string> m_uniqueModelNames = new Dictionary<int, string>();
         static Dictionary<string, int> m_uniqueModelIds = new Dictionary<string, int>();
@@ -52,15 +58,9 @@ namespace VRage.Game.Models
         [ThreadStatic]
         static MyModelImporter m_perThreadImporter;
 
-        static MyModelImporter m_importer
-        {
-            get 
-            {
-                if (m_perThreadImporter == null)
-                    m_perThreadImporter = new MyModelImporter();
-                return m_perThreadImporter;
-            }
-        }
+        #endregion // Static Fields
+
+        #region Instance Fields
 
         public bool KeepInMemory { get; private set; }
 
@@ -68,38 +68,11 @@ namespace VRage.Game.Models
 
         public int DataVersion { get; private set; }
 
-        MyMeshDrawTechnique m_drawTechnique;
         int m_verticesCount;
         int m_trianglesCount;
 
-        //  Vertices and indices used for collision detection
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyCompressedVertexNormal
-        {  //8 + 4 bytes
-            public HalfVector4 Position;
-            public Byte4 Normal;
-        }
-
-        //  Vertices and indices used for collision detection
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyVertexNormal
-        {  //12 + 12 bytes
-            public Vector3 Position;
-            public Vector3 Normal;
-        }
-
-        public int[] Indices
-        {
-            get { return m_Indices; }
-        }
-
-        public ushort[] Indices16
-        {
-            get { return m_Indices_16bit; }
-        }
-
-
         private MyCompressedVertexNormal[] m_vertices;
+        private MyCompressedBoneIndicesWeights[] m_bonesIndicesWeights;
 
         private int[] m_Indices = null;
         private ushort[] m_Indices_16bit = null;
@@ -120,32 +93,103 @@ namespace VRage.Game.Models
         // Will be removed once all models contains correct collision shapes
         private bool m_hasUV = false;
 
-        public bool HasUV 
-        {
-            get { return m_hasUV; }
-        }
-
         public bool m_loadUV = false;
-
-        public bool LoadUV
-        {
-            set { m_loadUV = value; }
-        }
 
         public bool ExportedWrong;
         public HkShape[] HavokCollisionShapes;
         public HkdBreakableShape[] HavokBreakableShapes;
         public byte[] HavokDestructionData;
 
-        public MyMesh GlassData;
-        public HalfVector2[] GlassTexCoords;
-
         private HalfVector2[] m_texCoords;
+
+        Byte4[] m_tangents = null;
+
+        //  Bounding volumes
+        private BoundingSphere m_boundingSphere;
+        private BoundingBox m_boundingBox;
+
+        //  Size of the bounding box
+        private Vector3 m_boundingBoxSize;
+        private Vector3 m_boundingBoxSizeHalf;
+
+        public VRageMath.Vector3I[] BoneMapping;
+        public float PatternScale = 1;
+
+        //  Octree
+        IMyTriangePruningStructure m_bvh;
+
+        readonly string m_assetName;
+        bool m_loadedData;
+
+        List<MyMesh> m_meshContainer = new List<MyMesh>();
+        Dictionary<string, MyMeshSection> m_meshSections = new Dictionary<string, MyMeshSection>();
+
+        bool m_loadingErrorProcessed = false;
+
+        private float m_scaleFactor = 1.0f;
+
+        #endregion // Fields
+
+        #region Properties
+
+        static MyModelImporter m_importer
+        {
+            get
+            {
+                if (m_perThreadImporter == null)
+                    m_perThreadImporter = new MyModelImporter();
+                return m_perThreadImporter;
+            }
+        }
+
+        public int[] Indices
+        {
+            get { return m_Indices; }
+        }
+
+        public ushort[] Indices16
+        {
+            get { return m_Indices_16bit; }
+        }
+
+
+        public bool HasUV
+        {
+            get { return m_hasUV; }
+        }
+
+        public bool LoadUV
+        {
+            set { m_loadUV = value; }
+        }
 
         public HalfVector2[] TexCoords
         {
             get { return m_texCoords; }
         }
+
+        public bool LoadedData
+        {
+            get { return m_loadedData; }
+        }
+
+        public float ScaleFactor { get { return m_scaleFactor; } }
+
+        /// <summary>
+        /// File path of the model
+        /// </summary>
+        public string AssetName
+        {
+            get { return m_assetName; }
+        }
+
+        public BoundingSphere BoundingSphere { get { return m_boundingSphere; } }
+        public BoundingBox BoundingBox { get { return m_boundingBox; } }
+
+        public Vector3 BoundingBoxSize { get { return m_boundingBoxSize; } }
+        public Vector3 BoundingBoxSizeHalf { get { return m_boundingBoxSizeHalf; } }
+
+        #endregion // Properties
 
         public static string GetById(int id)
         {
@@ -182,6 +226,11 @@ namespace VRage.Game.Models
             return GetVertexInt(vertexIndex);
         }
 
+        public void SetVertexPosition(int vertexIndex, ref Vector3 newPosition)
+        {
+            m_vertices[vertexIndex].Position = VF_Packer.PackPosition(newPosition);
+        }
+
         public void GetVertex(int vertexIndex1, int vertexIndex2, int vertexIndex3, out Vector3 v1, out Vector3 v2, out Vector3 v3)
         {
             v1 = GetVertex(vertexIndex1);
@@ -189,12 +238,39 @@ namespace VRage.Game.Models
             v3 = GetVertex(vertexIndex3);
         }
 
+        public MyTriangle_BoneIndicesWeigths? GetBoneIndicesWeights(int triangleIndex)
+        {
+            if (m_bonesIndicesWeights == null)
+                return null;
+
+            MyTriangleVertexIndices indices = Triangles[triangleIndex];
+
+            MyCompressedBoneIndicesWeights boneIndicesWeightsV0 = m_bonesIndicesWeights[indices.I0];
+            MyCompressedBoneIndicesWeights boneIndicesWeightsV1 = m_bonesIndicesWeights[indices.I1];
+            MyCompressedBoneIndicesWeights boneIndicesWeightsV2 = m_bonesIndicesWeights[indices.I2];
+
+            Vector4UByte indicesV0 = boneIndicesWeightsV0.Indices.ToVector4UByte();
+            Vector4 weightsV0 = boneIndicesWeightsV0.Weights.ToVector4();
+
+            Vector4UByte indicesV1 = boneIndicesWeightsV1.Indices.ToVector4UByte();
+            Vector4 weightsV1 = boneIndicesWeightsV1.Weights.ToVector4();
+
+            Vector4UByte indicesV2 = boneIndicesWeightsV2.Indices.ToVector4UByte();
+            Vector4 weightsV2 = boneIndicesWeightsV2.Weights.ToVector4();
+
+            MyTriangle_BoneIndicesWeigths ret = new MyTriangle_BoneIndicesWeigths()
+            {
+                Vertex0 = new MyVertex_BoneIndicesWeights() { Indices = indicesV0, Weights = weightsV0 },
+                Vertex1 = new MyVertex_BoneIndicesWeights() { Indices = indicesV1, Weights = weightsV1 },
+                Vertex2 = new MyVertex_BoneIndicesWeights() { Indices = indicesV2, Weights = weightsV2 }
+            };
+            return ret;
+        }
+
         public Vector3 GetVertexNormal(int vertexIndex)
         {
             return VF_Packer.UnpackNormal(ref m_vertices[vertexIndex].Normal);
         }
-
-        Byte4[] m_tangents = null;
 
         public Vector3 GetVertexTangent(int vertexIndex)
         {
@@ -215,33 +291,6 @@ namespace VRage.Game.Models
 
             return Vector3.Zero;
         }
-
-        //  Bounding volumes
-        public BoundingSphere BoundingSphere;   //TODO: Could be made readonly from the outside, and alterable only from the inside of this class
-        public BoundingBox BoundingBox;         //TODO: Could be made readonly from the outside, and alterable only from the inside of this class
-
-        //  Size of the bounding box
-        public Vector3 BoundingBoxSize;         //TODO: Could be made readonly from the outside, and alterable only from the inside of this class
-        public Vector3 BoundingBoxSizeHalf;     //TODO: Could be made readonly from the outside, and alterable only from the inside of this class
-
-        public VRageMath.Vector3I[] BoneMapping;
-        public float PatternScale = 1;
-
-        //  Octree
-        IMyTriangePruningStructure m_bvh;
-
-        readonly string m_assetName;
-        bool m_loadedData;
-
-        public bool LoadedData
-        {
-            get { return m_loadedData; }
-        }
-
-        List<MyMesh> m_meshContainer = new List<MyMesh>();
-        Dictionary<string, MyMeshSection> m_meshSections = new Dictionary<string, MyMeshSection>();
-
-        bool m_loadingErrorProcessed  = false;
  
         //  Create instance of a model, but doesn't really load the model from file to memory. Only remembers its definition.
         //  Data are loaded later using lazy-load mechanism - in LoadData or LoadInDraw
@@ -268,7 +317,7 @@ namespace VRage.Game.Models
             KeepInMemory = keepInMemory;
 
             var fsPath = Path.IsPathRooted(AssetName) ? AssetName : Path.Combine(MyFileSystem.ContentPath, AssetName);
-            System.Diagnostics.Debug.Assert(MyFileSystem.FileExists(fsPath), "Model data for " + m_assetName + " does not exists!");
+            //System.Diagnostics.Debug.Assert(MyFileSystem.FileExists(fsPath), "Model data for " + m_assetName + " does not exists!");
         }
 
         public List<MyMesh> GetMeshList()
@@ -291,10 +340,10 @@ namespace VRage.Game.Models
         //  Can be called from main and background thread
         public void LoadData()
         {
-            if (m_loadedData) return;
-
             lock (this)
             {
+                if (m_loadedData) return;
+
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyModel::LoadData");
 
 
@@ -403,22 +452,6 @@ namespace VRage.Game.Models
                             m_loadUV = false;
                         }
 
-                        if (meshPart.m_MaterialDesc != null && meshPart.Technique == MyMeshDrawTechnique.GLASS)
-                        {
-                            GlassData = mesh;
-
-                            HalfVector2[] forLoadingTexCoords0 = (HalfVector2[])tagData[MyImporterConstants.TAG_TEXCOORDS0];
-                            List<HalfVector2> neededTexCoords = new List<HalfVector2>();
-
-                            for (int t = 0; t < meshPart.m_indices.Count; t++)
-                            {
-                                int index = meshPart.m_indices[t];
-                                neededTexCoords.Add(forLoadingTexCoords0[index]);
-                            }
-
-                            GlassTexCoords = neededTexCoords.ToArray();
-                        }
-
                         System.Diagnostics.Debug.Assert(mesh.TriCount > 0);
 
                         if (mesh.TriCount == 0)
@@ -483,12 +516,32 @@ namespace VRage.Game.Models
                 Animations = (ModelAnimations)tagData[MyImporterConstants.TAG_ANIMATIONS];
                 Bones = (MyModelBone[])tagData[MyImporterConstants.TAG_BONES];
 
-                BoundingBox = (BoundingBox)tagData[MyImporterConstants.TAG_BOUNDING_BOX];
-                BoundingSphere = (BoundingSphere)tagData[MyImporterConstants.TAG_BOUNDING_SPHERE];
-                BoundingBoxSize = BoundingBox.Max - BoundingBox.Min;
-                BoundingBoxSizeHalf = BoundingBoxSize / 2.0f;
+                Vector4I[] boneIndices = (Vector4I[])tagData[MyImporterConstants.TAG_BLENDINDICES];
+                Vector4[] boneWeights = (Vector4[])tagData[MyImporterConstants.TAG_BLENDWEIGHTS];
+                if (boneIndices != null && boneIndices.Length != 0)
+                {
+                    if (boneWeights != null && boneIndices.Length == boneWeights.Length && boneIndices.Length == m_vertices.Length)
+                    {
+                        m_bonesIndicesWeights = new MyCompressedBoneIndicesWeights[boneIndices.Length];
+
+                        for (int it = 0; it < boneIndices.Length; it++)
+                        {
+                            m_bonesIndicesWeights[it].Indices = new Byte4(boneIndices[it].X, boneIndices[it].Y, boneIndices[it].Z, boneIndices[it].W);
+                            m_bonesIndicesWeights[it].Weights = new HalfVector4(boneWeights[it]);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Assert(false, "Bone indices/weights my be same number as vertices");
+                    }
+                }
+
+                m_boundingBox = (BoundingBox)tagData[MyImporterConstants.TAG_BOUNDING_BOX];
+                m_boundingSphere = (BoundingSphere)tagData[MyImporterConstants.TAG_BOUNDING_SPHERE];
+                m_boundingBoxSize = BoundingBox.Max - BoundingBox.Min;
+                m_boundingBoxSizeHalf = BoundingBoxSize / 2.0f;
                 Dummies = tagData[MyImporterConstants.TAG_DUMMIES] as Dictionary<string, MyModelDummy>;
-                BoneMapping = tagData[MyImporterConstants.TAG_BONE_MAPPING] as VRageMath.Vector3I[];
+                BoneMapping = tagData[MyImporterConstants.TAG_BONE_MAPPING] as Vector3I[];
 
                 if (tagData.ContainsKey(MyImporterConstants.TAG_MODEL_FRACTURES))
                     ModelFractures = (MyModelFractures)tagData[MyImporterConstants.TAG_MODEL_FRACTURES];
@@ -559,17 +612,14 @@ namespace VRage.Game.Models
 
                 MyLog.Default.WriteLine("Triangles.Length: " + Triangles.Length, LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("Vertexes.Length: " + GetVerticesCount(), LoggingOptions.LOADING_MODELS);
-                MyLog.Default.WriteLine("Centered: " + (bool)tagData[MyImporterConstants.TAG_CENTERED], LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("UseChannelTextures: " + (bool)tagData[MyImporterConstants.TAG_USE_CHANNEL_TEXTURES], LoggingOptions.LOADING_MODELS);
-                MyLog.Default.WriteLine("Length in meters: " + (float)tagData[MyImporterConstants.TAG_LENGTH_IN_METERS], LoggingOptions.LOADING_MODELS);
-                MyLog.Default.WriteLine("Rescale to length in meters?: " + (bool)tagData[MyImporterConstants.TAG_RESCALE_TO_LENGTH_IN_METERS], LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("BoundingBox: " + BoundingBox, LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("BoundingSphere: " + BoundingSphere, LoggingOptions.LOADING_MODELS);
 
-                VRage.Utils.Stats.PerAppLifetime.MyModelsCount++;
-                VRage.Utils.Stats.PerAppLifetime.MyModelsMeshesCount += m_meshContainer.Count;
-                VRage.Utils.Stats.PerAppLifetime.MyModelsVertexesCount += GetVerticesCount();
-                VRage.Utils.Stats.PerAppLifetime.MyModelsTrianglesCount += Triangles.Length;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsCount++;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsMeshesCount += m_meshContainer.Count;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsVertexesCount += GetVerticesCount();
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsTrianglesCount += Triangles.Length;
 
                 ModelInfo = new MyModelInfo(GetTrianglesCount(), GetVerticesCount(), BoundingBoxSize);
 
@@ -638,7 +688,7 @@ namespace VRage.Game.Models
 
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Model - load data - load tag data");
                 Dictionary<string, object> tagData = m_importer.GetTagData();
-                Debug.Assert(tagData.Count != 0, String.Format("Uncompleted tagData for asset: {0}, path: {1}", m_assetName, AssetName));
+                //Debug.Assert(tagData.Count != 0, String.Format("Uncompleted tagData for asset: {0}, path: {1}", m_assetName, AssetName));
                 if (tagData.Count != 0)
                 {
                     DataVersion = m_importer.DataVersion;
@@ -646,10 +696,10 @@ namespace VRage.Game.Models
                     Animations = (ModelAnimations)tagData[MyImporterConstants.TAG_ANIMATIONS];
                     Bones = (MyModelBone[])tagData[MyImporterConstants.TAG_BONES];
 
-                    BoundingBox = (BoundingBox)tagData[MyImporterConstants.TAG_BOUNDING_BOX];
-                    BoundingSphere = (BoundingSphere)tagData[MyImporterConstants.TAG_BOUNDING_SPHERE];
-                    BoundingBoxSize = BoundingBox.Max - BoundingBox.Min;
-                    BoundingBoxSizeHalf = BoundingBoxSize / 2.0f;
+                    m_boundingBox = (BoundingBox)tagData[MyImporterConstants.TAG_BOUNDING_BOX];
+                    m_boundingSphere = (BoundingSphere)tagData[MyImporterConstants.TAG_BOUNDING_SPHERE];
+                    m_boundingBoxSize = BoundingBox.Max - BoundingBox.Min;
+                    m_boundingBoxSizeHalf = BoundingBoxSize / 2.0f;
                     Dummies = tagData[MyImporterConstants.TAG_DUMMIES] as Dictionary<string, MyModelDummy>;
                     BoneMapping = tagData[MyImporterConstants.TAG_BONE_MAPPING] as VRageMath.Vector3I[];
                     if (BoneMapping.Length == 0)
@@ -662,10 +712,10 @@ namespace VRage.Game.Models
                     Animations = null;
                     Bones = null;
 
-                    BoundingBox = default(BoundingBox);
-                    BoundingSphere = default(BoundingSphere);
-                    BoundingBoxSize = default(Vector3);
-                    BoundingBoxSizeHalf = default(Vector3);
+                    m_boundingBox = default(BoundingBox);
+                    m_boundingSphere = default(BoundingSphere);
+                    m_boundingBoxSize = default(Vector3);
+                    m_boundingBoxSizeHalf = default(Vector3);
                     Dummies = null;
                     BoneMapping = null;
                 }
@@ -760,13 +810,13 @@ namespace VRage.Game.Models
                 m_bvh = null;
             }
 
-            VRage.Utils.Stats.PerAppLifetime.MyModelsMeshesCount -= m_meshContainer.Count;
+            VRageRender.Utils.Stats.PerAppLifetime.MyModelsMeshesCount -= m_meshContainer.Count;
             if (m_vertices != null)
-                VRage.Utils.Stats.PerAppLifetime.MyModelsVertexesCount -= GetVerticesCount();
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsVertexesCount -= GetVerticesCount();
             if (Triangles != null)
-                VRage.Utils.Stats.PerAppLifetime.MyModelsTrianglesCount -= Triangles.Length;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsTrianglesCount -= Triangles.Length;
             if (res)
-                VRage.Utils.Stats.PerAppLifetime.MyModelsCount--;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsCount--;
 
             if (HavokCollisionShapes != null)
             {
@@ -793,6 +843,10 @@ namespace VRage.Game.Models
 
             HavokData = null;
             HavokDestructionData = null;
+
+            m_scaleFactor = 1f;
+
+            Animations = null;
 
             return res;
         }
@@ -830,15 +884,19 @@ namespace VRage.Game.Models
             return m_bvh != null ? m_bvh.Size : 0;
         }
 
-        public MyMeshDrawTechnique GetDrawTechnique()
+        public MyMeshDrawTechnique GetDrawTechnique(int triangleIndex)
         {
-            return m_drawTechnique;
+            MyMeshDrawTechnique t = MyMeshDrawTechnique.MESH;
+
+            for (int i = 0; i < m_meshContainer.Count; i++)
+            {
+                if (triangleIndex >= m_meshContainer[i].TriStart && triangleIndex < (m_meshContainer[i].TriStart + m_meshContainer[i].TriCount))
+                    t = m_meshContainer[i].Material.DrawTechnique;
+            }
+
+            return t;
         }
 
-        public void SetDrawTechnique(MyMeshDrawTechnique drawTechnique)
-        {
-            m_drawTechnique = drawTechnique;
-        }
 
         /// <summary>
         /// Dispose
@@ -846,14 +904,6 @@ namespace VRage.Game.Models
         public void Dispose()
         {
             m_meshContainer.Clear();
-        }
-
-        /// <summary>
-        /// File path of the model
-        /// </summary>
-        public string AssetName
-        {
-            get { return m_assetName; }
         }
 
         //  Load only snappoints.
@@ -993,5 +1043,53 @@ namespace VRage.Game.Models
                 errorFound = false;
             }
         }
+
+        public void Rescale(float scaleFactor)
+        {
+            if (m_scaleFactor != scaleFactor)
+            {
+                float scaleChange = scaleFactor / m_scaleFactor;
+                m_scaleFactor = scaleFactor;
+
+                for (int i = 0; i < m_verticesCount; i++)
+                {
+                    Vector3 p = GetVertex(i) * scaleChange;
+                    SetVertexPosition(i, ref p);
+                }
+
+                if (Dummies != null) 
+                {
+                    foreach (var dummy in Dummies)
+                    {
+                        var localMatrix = dummy.Value.Matrix;
+                        localMatrix.Translation *= scaleChange;
+                        dummy.Value.Matrix = localMatrix;
+                    }
+                }
+
+                m_boundingBox.Min *= scaleChange;
+                m_boundingBox.Max *= scaleChange;
+
+                m_boundingBoxSize = BoundingBox.Max - BoundingBox.Min;
+                m_boundingBoxSizeHalf = BoundingBoxSize / 2.0f;
+
+                m_boundingSphere.Radius *= scaleChange;
+            }
+        }
+    }
+
+    //  Vertices and indices used for collision detection
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    struct MyCompressedVertexNormal
+    {  //8 + 4 bytes
+        public HalfVector4 Position;
+        public Byte4 Normal;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MyCompressedBoneIndicesWeights
+    {  //8 + 4 bytes
+        public HalfVector4 Weights;
+        public Byte4 Indices;
     }
 }

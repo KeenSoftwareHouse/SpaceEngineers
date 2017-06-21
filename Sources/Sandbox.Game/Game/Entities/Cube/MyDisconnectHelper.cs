@@ -12,8 +12,9 @@ using Sandbox.Game.GameSystems;
 using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using VRage;
-using VRage;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
+using VRage.Profiler;
+using Sandbox.Game.World;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -34,8 +35,8 @@ namespace Sandbox.Game.Entities.Cube
         private Group m_largestGroupWithPhysics;
 
         private List<MySlimBlock> m_tmpBlocks = new List<MySlimBlock>();
-        
-        public void Disconnect(MyCubeGrid grid)
+
+        public bool Disconnect(MyCubeGrid grid, MySlimBlock testBlock = null, bool testDisconnect = false)
         {
             ProfilerShort.Begin("Collect+IsInVoxels");
             m_largestGroupWithPhysics = default(Group);
@@ -44,6 +45,9 @@ namespace Sandbox.Game.Entities.Cube
             m_disconnectHelper.Clear();
             foreach (var block in grid.GetBlocks())
             {
+                if (block == testBlock)
+                    continue;
+
                 m_disconnectHelper.Add(block);
             }
             ProfilerShort.End();
@@ -53,7 +57,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 Group group = default(Group);
                 group.FirstBlockIndex = m_sortedBlocks.Count;
-                AddNeighbours(m_disconnectHelper.FirstElement(), out group.IsValid);
+                AddNeighbours(m_disconnectHelper.FirstElement(), out group.IsValid, testBlock);
                 group.BlockCount = m_sortedBlocks.Count - group.FirstBlockIndex;
 
                 if (group.IsValid && group.BlockCount > m_largestGroupWithPhysics.BlockCount)
@@ -101,17 +105,34 @@ namespace Sandbox.Game.Entities.Cube
 
             ProfilerShort.Begin("CreateSplits");
             if (m_groups.Count > 0)
+            {
+                if (testDisconnect)
+                {
+                    m_groups.Clear();
+                    m_sortedBlocks.Clear();
+                    m_disconnectHelper.Clear();
+                    ProfilerShort.End();
+                    return true;
+                }
                 MyCubeGrid.CreateSplits(grid, m_sortedBlocks, m_groups);
+            }
+            else
+            {
+                if (!MySession.Static.Settings.StationVoxelSupport)
+                {
+                    if (grid.IsStatic)
+                        grid.TestDynamic = MyCubeGrid.MyTestDynamicReason.GridSplit;
+                }
+            }
             ProfilerShort.End();
-
-
 
             m_groups.Clear();
             m_sortedBlocks.Clear();
             m_disconnectHelper.Clear();
+            return false;
         }
 
-        private void AddNeighbours(MySlimBlock firstBlock, out bool anyWithPhysics)
+        private void AddNeighbours(MySlimBlock firstBlock, out bool anyWithPhysics, MySlimBlock testBlock)
         {
             anyWithPhysics = false;
 
@@ -127,6 +148,9 @@ namespace Sandbox.Game.Entities.Cube
                 var currentBlock = m_neighborSearchBaseStack.Dequeue();
                 foreach (var n in currentBlock.Neighbours)
                 {
+                    if (n == testBlock)
+                        continue;
+
                     if (m_disconnectHelper.Remove(n))
                     {
                         anyWithPhysics |= n.HasPhysics;
@@ -154,6 +178,13 @@ namespace Sandbox.Game.Entities.Cube
                 //System.Diagnostics.Debug.Assert(MyEntities.IsInsideVoxel(blockPos, oldPos, out tmp) == MyEntities.IsInsideVoxel(blockPos, blockPos - Vector3.One * 10000, out tmp), "Wrong calc in InsideVoxels");
                 return MyEntities.IsInsideVoxel(blockPos, oldPos, out tmp);
             }
+        }
+
+        //this tests if removing a block will cause a grid to split
+        //this can take several ms per query, so should be called in a thread or very sparingly
+        public bool TryDisconnect(MySlimBlock testBlock)
+        {
+            return Disconnect(testBlock.CubeGrid, testBlock, true);
         }
     }
 }

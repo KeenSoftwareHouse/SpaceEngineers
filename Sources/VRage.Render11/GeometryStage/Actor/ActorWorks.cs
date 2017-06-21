@@ -24,7 +24,7 @@ namespace VRageRender
             get { return WorkPriority.Normal; }
         }
 
-        public void DoWork()
+        public void DoWork(WorkData workData = null)
         {
             MyRender11.GetRenderProfiler().StartProfilingBlock("DoActorUpdateWork");
 

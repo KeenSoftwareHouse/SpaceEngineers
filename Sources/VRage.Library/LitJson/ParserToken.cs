@@ -11,6 +11,8 @@
 
 namespace LitJson
 {
+#if !XB1
+
     internal enum ParserToken
     {
         // Lexer tokens (see section A.1.1. of the manual)
@@ -41,4 +43,5 @@ namespace LitJson
         // The empty rule
         Epsilon
     }
+#endif
 }

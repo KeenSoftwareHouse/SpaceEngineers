@@ -1,9 +1,9 @@
-﻿using Sandbox.Common.ObjectBuilders;
+﻿using ParallelTasks;
 using Sandbox.Definitions;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage.Algorithms;
@@ -136,7 +136,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             public MyObjectBuilder_ConveyorLine.LineConductivity LineConductivity;
         }
 
-        private static Dictionary<MyDefinitionId, BlockLinePositionInformation[]> m_blockLinePositions = new Dictionary<MyDefinitionId, BlockLinePositionInformation[]>();
+        private static ConcurrentDictionary<MyDefinitionId, BlockLinePositionInformation[]> m_blockLinePositions = new ConcurrentDictionary<MyDefinitionId, BlockLinePositionInformation[]>();
 
         private static readonly float CONVEYOR_PER_LINE_PENALTY = 1.0f;
 
@@ -154,6 +154,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
         private int m_length;
         private MyCubeGrid m_cubeGrid;
 
+        [ThreadStatic]
         private static bool m_invertedConductivity = false;
 
         public class InvertedConductivity : IDisposable
@@ -597,6 +598,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
         public static BlockLinePositionInformation[] GetBlockLinePositions(MyCubeBlock block)
         {
             BlockLinePositionInformation[] retval;
+
             if (m_blockLinePositions.TryGetValue(block.BlockDefinition.Id, out retval))
                 return retval;
 
@@ -667,7 +669,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
                 i++;
             }
 
-            m_blockLinePositions.Add(definition.Id, retval);
+            m_blockLinePositions.TryAdd(definition.Id, retval);
             return retval;
         }
 

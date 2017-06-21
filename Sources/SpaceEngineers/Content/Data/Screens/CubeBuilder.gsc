@@ -2,81 +2,6 @@
 <MyObjectBuilder_GuiScreen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Controls>
     <Controls>
-      <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlButton">
-        <Position>
-          <X>0.3950037954</X>
-          <Y>0.33208507</Y>
-        </Position>
-        <Size>
-          <X>0.178125</X>
-          <Y>0.0541666672</Y>
-        </Size>
-        <Name>ButtonSmall</Name>
-        <BackgroundColor>
-          <X>1</X>
-          <Y>1</Y>
-          <Z>1</Z>
-          <W>1</W>
-        </BackgroundColor>
-        <ControlTexture>Textures\GUI\Controls\button_default.dds</ControlTexture>
-        <OriginAlign>HORISONTAL_CENTER_AND_VERTICAL_CENTER</OriginAlign>
-        <TextEnum>ScreenCubeBuilderNewSmallShip</TextEnum>
-        <TextScale>1</TextScale>
-        <TextAlignment>3</TextAlignment>
-        <DrawCrossTextureWhenDisabled>true</DrawCrossTextureWhenDisabled>
-        <DrawRedTextureWhenDisabled>false</DrawRedTextureWhenDisabled>
-        <VisualStyle>Default</VisualStyle>
-      </MyObjectBuilder_GuiControlBase>
-      <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlButton">
-        <Position>
-          <X>0.3950037954</X>
-          <Y>0.39130687</Y>
-        </Position>
-        <Size>
-          <X>0.178125</X>
-          <Y>0.0541666672</Y>
-        </Size>
-        <Name>ButtonLarge</Name>
-        <BackgroundColor>
-          <X>1</X>
-          <Y>1</Y>
-          <Z>1</Z>
-          <W>1</W>
-        </BackgroundColor>
-        <ControlTexture>Textures\GUI\Controls\button_default.dds</ControlTexture>
-        <OriginAlign>HORISONTAL_CENTER_AND_VERTICAL_CENTER</OriginAlign>
-        <TextEnum>ScreenCubeBuilderNewLargeShip</TextEnum>
-        <TextScale>1</TextScale>
-        <TextAlignment>3</TextAlignment>
-        <DrawCrossTextureWhenDisabled>true</DrawCrossTextureWhenDisabled>
-        <DrawRedTextureWhenDisabled>false</DrawRedTextureWhenDisabled>
-        <VisualStyle>Default</VisualStyle>
-      </MyObjectBuilder_GuiControlBase>
-      <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlButton">
-        <Position>
-          <X>0.3950037954</X>
-          <Y>0.449797508</Y>
-        </Position>
-        <Size>
-          <X>0.178125</X>
-          <Y>0.0541666672</Y>
-        </Size>
-        <Name>ButtonStation</Name>
-        <BackgroundColor>
-          <X>1</X>
-          <Y>1</Y>
-          <Z>1</Z>
-          <W>1</W>
-        </BackgroundColor>
-        <ControlTexture>Textures\GUI\Controls\button_default.dds</ControlTexture>
-        <OriginAlign>HORISONTAL_CENTER_AND_VERTICAL_CENTER</OriginAlign>
-        <TextEnum>ScreenCubeBuilderNewStation</TextEnum>
-        <TextScale>1</TextScale>
-        <TextAlignment>3</TextAlignment>
-        <DrawCrossTextureWhenDisabled>true</DrawCrossTextureWhenDisabled>
-        <DrawRedTextureWhenDisabled>false</DrawRedTextureWhenDisabled>
-        <VisualStyle>Default</VisualStyle>
-      </MyObjectBuilder_GuiControlBase>
       <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlGrid">
         <Position>
           <X>-0.25</X>
@@ -98,6 +23,25 @@
         <VisualStyle>ToolsBlocks</VisualStyle>
         <DisplayColumnsCount>10</DisplayColumnsCount>
         <DisplayRowsCount>9</DisplayRowsCount>
+      </MyObjectBuilder_GuiControlBase>
+      <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlList">
+        <Position>
+          <X>0.28</X>
+          <Y>0.019</Y>
+        </Position>
+        <Size>
+          <X>0.27</X>
+          <Y>0.7</Y>
+        </Size>
+        <Name>BlockInfoPanel</Name>
+        <BackgroundColor>
+          <X>1</X>
+          <Y>1</Y>
+          <Z>1</Z>
+          <W>1</W>
+        </BackgroundColor>
+        <OriginAlign>HORISONTAL_LEFT_AND_VERTICAL_CENTER</OriginAlign>
+        <VisualStyle>Default</VisualStyle>
       </MyObjectBuilder_GuiControlBase>
       <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlTextbox">
         <Position>
@@ -141,7 +85,7 @@
       </MyObjectBuilder_GuiControlBase>
       <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlLabel">
         <Position>
-          <X>-0.4</X>
+          <X>-0.49</X>
           <Y>-0.345</Y>
         </Position>
         <Size>
@@ -155,7 +99,7 @@
           <Z>1</Z>
           <W>1</W>
         </BackgroundColor>
-        <OriginAlign>HORISONTAL_CENTER_AND_VERTICAL_CENTER</OriginAlign>
+        <OriginAlign>HORISONTAL_LEFT_AND_VERTICAL_CENTER</OriginAlign>
         <TextEnum>ScreenCubeBuilderBlockCategories</TextEnum>
         <TextScale>0.9</TextScale>
         <Font>Blue</Font>
@@ -183,9 +127,9 @@
       </MyObjectBuilder_GuiControlBase>   
       <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlLabel">
         <Position>
-          <X>0</X>
+          <X>-0.49</X>
           <Y>-0.415032873</Y>
-        </Position>
+        </Position>t
         <Size>
           <X>0.108351357</X>
           <Y>0.0253333338</Y>
@@ -197,14 +141,14 @@
           <Z>1</Z>
           <W>1</W>
         </BackgroundColor>
-        <OriginAlign>HORISONTAL_CENTER_AND_VERTICAL_CENTER</OriginAlign>
+        <OriginAlign>HORISONTAL_LEFT_AND_VERTICAL_CENTER</OriginAlign>
         <TextEnum>ScreenCubeBuilderToolbarConfig</TextEnum>
         <TextScale>0.9</TextScale>
         <Font>Blue</Font>
       </MyObjectBuilder_GuiControlBase>
       <MyObjectBuilder_GuiControlBase xsi:type="MyObjectBuilder_GuiControlLabel">
         <Position>
-          <X>0</X>
+          <X>-0.49</X>
           <Y>-0.390116463</Y>
         </Position>
         <Size>
@@ -218,7 +162,7 @@
           <Z>1</Z>
           <W>1</W>
         </BackgroundColor>
-        <OriginAlign>HORISONTAL_CENTER_AND_VERTICAL_CENTER</OriginAlign>
+        <OriginAlign>HORISONTAL_LEFT_AND_VERTICAL_CENTER</OriginAlign>
         <TextEnum>ScreenCubeBuilderSubtitle</TextEnum>
         <TextScale>0.7</TextScale>
         <Font>Blue</Font>

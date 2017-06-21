@@ -14,6 +14,7 @@ using System.Diagnostics;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using SharpDX;
+using SharpDX.Mathematics;
 using VRage.Utils;
 using VRage.Audio;
 using VRage.Library.Utils;

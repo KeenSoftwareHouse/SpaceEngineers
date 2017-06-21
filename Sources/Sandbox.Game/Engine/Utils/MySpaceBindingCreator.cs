@@ -32,7 +32,7 @@ namespace Sandbox.Engine.Utils
         {
             MyControllerHelper.AddContext(CX_BASE);
             MyControllerHelper.AddControl(CX_BASE, MyControlsSpace.CONTROL_MENU, MyJoystickButtonsEnum.J07);
-            //MyControllerHelper.AddControl(CX_BASE, MyControlsGUI.MAIN_MENU, MyJoystickButtonsEnum.J08);
+            MyControllerHelper.AddControl(CX_BASE, MyControlsGUI.MAIN_MENU, MyJoystickButtonsEnum.J08);
         }
 
         private static void CreateForGUI()
@@ -53,11 +53,19 @@ namespace Sandbox.Engine.Utils
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.BACKWARD,              MyJoystickAxesEnum.Ypos);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.STRAFE_LEFT,           MyJoystickAxesEnum.Xneg);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.STRAFE_RIGHT,          MyJoystickAxesEnum.Xpos);
-            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.PRIMARY_TOOL_ACTION,   MyJoystickAxesEnum.Zneg);
+#if !XB1
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.PRIMARY_TOOL_ACTION, MyJoystickAxesEnum.Zneg);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_TOOL_ACTION, MyJoystickAxesEnum.Zpos);
-            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.PRIMARY_BUILD_ACTION,  MyJoystickAxesEnum.Zneg); // MW:TODO shouldn't be this way I think
-            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_BUILD_ACTION,MyJoystickAxesEnum.Zpos); // this too
-            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.COPY_PASTE_ACTION,     MyJoystickAxesEnum.Zneg); // this too
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.PRIMARY_BUILD_ACTION, MyJoystickAxesEnum.Zneg); // MW:TODO shouldn't be this way I think
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_BUILD_ACTION, MyJoystickAxesEnum.Zpos); // this too
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.COPY_PASTE_ACTION, MyJoystickAxesEnum.Zneg); // this too
+#else
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.PRIMARY_TOOL_ACTION,    MyJoystickButtonsEnum.J12);
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_TOOL_ACTION,  MyJoystickButtonsEnum.J11);
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.PRIMARY_BUILD_ACTION,   MyJoystickButtonsEnum.J12); // MW:TODO shouldn't be this way I think
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_BUILD_ACTION, MyJoystickButtonsEnum.J11); // this too
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.COPY_PASTE_ACTION,      MyJoystickButtonsEnum.J12); // this too
+#endif
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_LEFT,         MyJoystickAxesEnum.RotationXneg);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_RIGHT,        MyJoystickAxesEnum.RotationXpos);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_UP,           MyJoystickAxesEnum.RotationYneg);

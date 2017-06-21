@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using VRage.FileSystem;
 using VRage.Game;
+using VRage.Game.ObjectBuilder;
 using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRage.Service;
@@ -50,10 +51,8 @@ namespace VRage.Dedicated
                 MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
                 MyPlugins.RegisterFromArgs(args);
                 MyPlugins.Load();
-                bool resultRegisterAssemblies = MyObjectBuilderType.RegisterAssemblies();
-                Debug.Assert(resultRegisterAssemblies,"Registering object builders types from assemblies failed.");
-                resultRegisterAssemblies = MyObjectBuilderSerializer.RegisterAssembliesAndLoadSerializers();
-                Debug.Assert(resultRegisterAssemblies, "Registering object builders serializers from assemblies failed.");
+
+                MyGlobalTypeMetadata.Static.Init();
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
                 MyConfigurator.Start<T>();
                 MyPlugins.Unload();
@@ -133,8 +132,8 @@ namespace VRage.Dedicated
 
             MySandboxGame.IsReloading = false;
 
-            VRageRender.MyRenderProxy.Initialize(MySandboxGame.IsDedicated ? (IMyRender)new MyNullRender() : new MyDX9Render());
-            VRageRender.MyRenderProxy.IS_OFFICIAL = MyFinalBuildConstants.IS_OFFICIAL;
+            VRageRender.MyRenderProxy.Initialize(MySandboxGame.IsDedicated ? (IMyRender)new MyNullRender() : new MyDX11Render());
+            MyFinalBuildConstants.APP_VERSION = MyPerGameSettings.BasicGameInfo.GameVersion;
 
             using (MySteamService steamService = new MySteamService(MySandboxGame.IsDedicated, MyPerServerSettings.AppId))
             {
@@ -154,7 +153,7 @@ namespace VRage.Dedicated
                     game.Run();
                 }
 
-                if (MySandboxGame.IsConsoleVisible && !MySandboxGame.IsReloading)
+                if (MySandboxGame.IsConsoleVisible && !MySandboxGame.IsReloading && !Console.IsInputRedirected)
                 {
                     Console.WriteLine("Server stopped, press any key to close this window");
                     Console.ReadKey(false);

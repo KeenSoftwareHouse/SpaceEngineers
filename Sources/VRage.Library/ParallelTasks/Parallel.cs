@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,20 +18,20 @@ namespace ParallelTasks
         static IWorkScheduler scheduler;
         static Pool<List<Task>> taskPool = new Pool<List<Task>>();
 
-        static List<MyConcurrentQueue<WorkItem>> m_buffers = new List<MyConcurrentQueue<WorkItem>>(8);
+        static readonly Dictionary<Thread, ConcurrentCachingList<WorkItem>> Buffers = new Dictionary<Thread, ConcurrentCachingList<WorkItem>>(8);
 
         [ThreadStatic]
-        static MyConcurrentQueue<WorkItem> m_callbackBuffer;
-        static MyConcurrentQueue<WorkItem> CallbackBuffer
+        static ConcurrentCachingList<WorkItem> m_callbackBuffer;
+        public static ConcurrentCachingList<WorkItem> CallbackBuffer
         {
             get
             {
                 if (m_callbackBuffer == null)
                 {
-                    m_callbackBuffer = new MyConcurrentQueue<WorkItem>(16);
-                    lock (m_buffers)
+                    m_callbackBuffer = new ConcurrentCachingList<WorkItem>(16);
+                    lock (Buffers)
                     {
-                        m_buffers.Add(m_callbackBuffer);
+                        Buffers.Add(Thread.CurrentThread, m_callbackBuffer);
                     }
                 }
                 return m_callbackBuffer;
@@ -38,18 +39,35 @@ namespace ParallelTasks
         }
 
         /// <summary>
-        /// Executes all task callbacks on a single thread.
-        /// This method is not re-entrant. It is suggested you call it only on the main thread.
+        /// Executes all task callbacks for the thread calling this function.
+        /// It is thread safe.
         /// </summary>
         public static void RunCallbacks()
         {
-            WorkItem item;
-            while (CallbackBuffer.TryDequeue(out item))
+            CallbackBuffer.ApplyChanges();
+            for (int i = 0; i < CallbackBuffer.Count; ++i)
             {
-                item.Callback();
-                item.Callback = null;
+                WorkItem item = CallbackBuffer[i];
+
+                Debug.Assert(item != null);
+                if (item == null)
+                    continue;
+
+                if (item.Callback != null)
+                {
+                    item.Callback();
+                    item.Callback = null;
+                }
+                if (item.DataCallback != null)
+                {
+                    item.DataCallback(item.WorkData);
+                    item.DataCallback = null;
+                }
+                item.WorkData = null;
                 item.Requeue();
             }
+
+            CallbackBuffer.ClearList();
         }
 
         // MartinG@DigitalRune: I made the processor affinity configurable. In some cases a we want 
@@ -171,6 +189,7 @@ namespace ParallelTasks
                 throw new ArgumentException("work.Options.MaximumThreads cannot be less than one.");
             var workItem = WorkItem.Get(Thread.CurrentThread);
             workItem.Callback = completionCallback;
+            workItem.WorkData = null;
             var task = workItem.PrepareStart(work);
             BackgroundWorker.StartWork(task);
             return task;
@@ -209,6 +228,37 @@ namespace ParallelTasks
         }
 
         /// <summary>
+        /// Starts a task in a secondary worker thread. Intended for long running, blocking work such as I/O.
+        /// </summary>
+        /// <param name="action">The work to execute.</param>
+        /// <param name="completionCallback">A method which will be called in Parallel.RunCallbacks() once this task has completed.</param>
+        /// <param name="workData">Data to be passed along both the work and the completion callback.</param>
+        /// <returns>A task which represents one execution of the action.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="action"/> is <see langword="null"/>.
+        /// </exception>
+        public static Task StartBackground(Action<WorkData> action, Action<WorkData> completionCallback, WorkData workData)
+        {
+            if (action == null)
+                throw new ArgumentNullException("action");
+
+            var work = DelegateWork.GetInstance();
+            work.DataAction = action;
+            work.Options = DefaultOptions;
+
+            var workItem = WorkItem.Get(Thread.CurrentThread);
+            workItem.DataCallback = completionCallback;
+            if (workData != null)
+                workItem.WorkData = workData;
+            else
+                workItem.WorkData = new WorkData();
+
+            var task = workItem.PrepareStart(work);
+            BackgroundWorker.StartWork(task);
+            return task;
+        }
+
+        /// <summary>
         /// Creates and starts a task to execute the given work.
         /// </summary>
         /// <param name="work">The work to execute in parallel.</param>
@@ -241,6 +291,7 @@ namespace ParallelTasks
             var workItem = WorkItem.Get(Thread.CurrentThread);
             workItem.CompletionCallbacks = CallbackBuffer;
             workItem.Callback = completionCallback;
+            workItem.WorkData = null;
             var task = workItem.PrepareStart(work);
             Scheduler.Schedule(task);
             return task;
@@ -294,6 +345,76 @@ namespace ParallelTasks
             work.Options = options;
             return Start(work, completionCallback);
         }
+
+        /// <summary>
+        /// Creates and schedules a task to execute the given work with the given work data.
+        /// </summary>
+        /// <param name="action">The work to execute in parallel.</param>
+        /// <param name="completionCallback">A method which will be called in Parallel.RunCallbacks() once this task has completed.</param>
+        /// <param name="workData">Data to be passed along both the work and the completion callback.</param>
+        /// <returns>A task which represents one execution of the action.</returns>
+        public static Task Start(Action<WorkData> action, Action<WorkData> completionCallback, WorkData workData)
+        {
+            WorkOptions options = new WorkOptions() { MaximumThreads = 1, DetachFromParent = false, QueueFIFO = false };
+
+            var work = DelegateWork.GetInstance();
+            work.DataAction = action;
+            work.Options = options;
+
+            var workItem = WorkItem.Get(Thread.CurrentThread);
+            workItem.CompletionCallbacks = CallbackBuffer;
+            workItem.DataCallback = completionCallback;
+
+            if (workData != null)
+            {
+                workItem.WorkData = workData;
+                workData.WorkState = WorkData.WorkStateEnum.NOT_STARTED;
+            }
+            else
+                workItem.WorkData = new WorkData();
+
+            var task = workItem.PrepareStart(work);
+            Scheduler.Schedule(task);
+            return task;
+        }
+
+        /// <summary>
+        /// Creates and schedules a task to execute on the given work-tracking thread.
+        /// If the requested thread that does not execute completion callbacks the callback will never be called.
+        /// </summary>
+        /// <param name="action">The work to execute in parallel.</param>
+        /// <param name="workData">Data to be passed along both the work and the completion callback.</param>
+        /// <param name="thread">Thread to execute the callback on. If not provided this is the calling thread.</param>
+        /// <returns>A task which represents one execution of the action.</returns>
+        public static Task ScheduleForThread(Action<WorkData> action, WorkData workData, Thread thread = null)
+        {
+            if(thread == null)
+                thread = Thread.CurrentThread;
+
+            WorkOptions options = new WorkOptions() { MaximumThreads = 1, DetachFromParent = false, QueueFIFO = false };
+
+            var work = DelegateWork.GetInstance();
+            work.Options = options;
+
+            var workItem = WorkItem.Get(thread);
+            lock (Buffers)
+            {
+                workItem.CompletionCallbacks = Buffers[thread];
+            }
+            workItem.DataCallback = action;
+
+
+            if (workData != null)
+                workItem.WorkData = workData;
+            else
+                workItem.WorkData = new WorkData();
+
+            var task = workItem.PrepareStart(work, thread);
+
+            CallbackBuffer.Add(workItem);
+            return task;
+        }
+
 
         private static void RunPerWorker(Action action, Barrier barrier)
         {
@@ -513,13 +634,13 @@ namespace ParallelTasks
         public static void Clean()
         {
             taskPool.Clean();
-            lock (m_buffers)
+            lock (Buffers)
             {
-                foreach (var b in m_buffers)
+                foreach (var b in Buffers.Values)
                 {
-                    b.Clear();
+                    b.ClearImmediate();
                 }
-                m_buffers.Clear();
+                Buffers.Clear();
             }
             WorkItem.Clean();
         }

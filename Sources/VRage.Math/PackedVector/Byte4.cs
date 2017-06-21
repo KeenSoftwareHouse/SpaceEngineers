@@ -89,6 +89,16 @@ namespace VRageMath.PackedVector
             return vector4;
         }
 
+        public Vector4UByte ToVector4UByte()
+        {
+            Vector4UByte vector4;
+            vector4.X = (byte)(this.packedValue & (uint)byte.MaxValue);
+            vector4.Y = (byte)(this.packedValue >> 8 & (uint)byte.MaxValue);
+            vector4.Z = (byte)(this.packedValue >> 16 & (uint)byte.MaxValue);
+            vector4.W = (byte)(this.packedValue >> 24 & (uint)byte.MaxValue);
+            return vector4;
+        }
+
         /// <summary>
         /// Returns a string representation of the current instance.
         /// </summary>

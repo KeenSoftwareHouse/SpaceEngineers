@@ -4,14 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using SharpDX.Direct3D11;
+using VRage.Render11.Common;
 using VRageMath;
-using VRageRender.Resources;
+using VRage.Render11.Resources;
 
 namespace VRageRender
 {
     class MyRenderFont : MyFont
     {
-        private Dictionary<int, TexId> m_bitmapTextureById = new Dictionary<int, TexId>();
+        private Dictionary<int, ISrvBindable> m_bitmapTextureById = new Dictionary<int, ISrvBindable>();
         internal string m_filePath;
 
         internal MyRenderFont(string fontFilePath)
@@ -22,9 +23,10 @@ namespace VRageRender
 
         internal void LoadContent()
         {
+            MyFileTextureManager texManager = MyManagers.FileTextures;
             foreach (var entry in m_bitmapInfoByID)
             {
-                m_bitmapTextureById[entry.Key] = MyTextures.GetTexture(Path.Combine(m_fontDirectory, entry.Value.strFilename), MyTextureEnum.GUI, true);
+                m_bitmapTextureById[entry.Key] = texManager.GetTexture(Path.Combine(m_fontDirectory, entry.Value.strFilename), MyFileTextureEnum.GUI, true);
             }
         }
 
@@ -34,7 +36,7 @@ namespace VRageRender
         /// <param name="position">Direction on the baseline. Text will advance from this position.</param>
         /// <param name="maxTextWidth">Maximum width of the text. Texts wider than this will be truncated and they will end with an ellipsis.</param>
         /// <returns>Width of the text (in pixels).</returns>
-        internal float DrawString(Vector2 position, Color colorMask, StringBuilder text, float scale, float maxTextWidth = float.PositiveInfinity)
+        internal float DrawString(Vector2 position, Color colorMask, string text, float scale, float maxTextWidth = float.PositiveInfinity)
         {
             scale *= MyRenderGuiConstants.FONT_SCALE;
             Vector2 vOrigin = new Vector2(0, 0);

@@ -39,7 +39,7 @@ namespace Sandbox.Game.Weapons
             // backward compatibility with old models/mods
             if (!m_gunBase.HasDummies)  
             {
-                Vector3 pos = 2 * entity.PositionComp.WorldMatrix.Forward;
+                Vector3 pos = 2 * entity.PositionComp.WorldMatrix.Forward * entity.Model.ScaleFactor;
                 m_gunBase.AddMuzzleMatrix(MyAmmoType.HighSpeed, Matrix.CreateTranslation(pos));
             }
         }

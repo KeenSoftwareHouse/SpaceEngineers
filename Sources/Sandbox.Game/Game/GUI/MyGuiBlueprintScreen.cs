@@ -33,6 +33,7 @@ using VRage.Collections;
 using VRage.Game;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using VRage.Profiler;
 
 #endregion
 
@@ -41,7 +42,11 @@ namespace Sandbox.Game.Gui
 {
     public enum MyBlueprintTypeEnum
     {
+#if !XB1 // XB1_NOWORKSHOP
         STEAM,
+#else // XB1
+        STEAM__NOT_USED,
+#endif // XB1
         LOCAL,
         SHARED,
         DEFAULT
@@ -51,7 +56,9 @@ namespace Sandbox.Game.Gui
     { 
         public MyBlueprintTypeEnum Type;
         public ulong? PublishedItemId = null;
+#if !XB1 // XB1_NOWORKSHOP
         public MySteamWorkshop.SubscribedItem Item;
+#endif // !XB1
 
         public MyBlueprintItemInfo(MyBlueprintTypeEnum type, ulong? id = null)
         {
@@ -69,7 +76,9 @@ namespace Sandbox.Game.Gui
         private static readonly float HIDDEN_PART_RIGHT = 0.04f;
         private static List<MyGuiControlListbox.Item> m_recievedBlueprints = new List<MyGuiControlListbox.Item>();
         private static bool m_needsExtract = false;
+#if !XB1 // XB1_NOWORKSHOP
         public static List<MySteamWorkshop.SubscribedItem> m_subscribedItemsList = new List<MySteamWorkshop.SubscribedItem>();
+#endif // !XB1
 
         private Vector2 m_controlPadding = new Vector2(0.02f, 0.02f);
         private float m_textScale = 0.8f;
@@ -84,12 +93,13 @@ namespace Sandbox.Game.Gui
         private MyGuiControlButton m_searchClear;
         private static MyGuiControlListbox m_blueprintList = new MyGuiControlListbox(visualStyle: MyGuiControlListboxStyleEnum.Blueprints);
         private MyGuiDetailScreenBase m_detailScreen = null;
-        private MyGuiControlImageButton m_thumbnailImage;
-        private MyGuiControlImageButton m_selectedImage;
+        private MyGuiControlImage m_thumbnailImage;
         private bool m_activeDetail = false;
         private MyGuiControlListbox.Item m_selectedItem = null;
         private MyGuiControlRotatingWheel m_wheel;
         private MyGridClipboard m_clipboard;
+        private bool m_allowCopyToClipboard;
+        private string m_selectedThumbnailPath = null;
 
         static HashSet<ulong> m_downloadQueued = new HashSet<ulong>();
         static MyConcurrentHashSet<ulong> m_downloadFinished = new MyConcurrentHashSet<ulong>();
@@ -97,7 +107,8 @@ namespace Sandbox.Game.Gui
         static string TEMP_PATH = Path.Combine(m_workshopBlueprintFolder, "temp");
 
         private string[] filenames;
-           
+
+        static LoadPrefabData m_LoadPrefabData;
 
         public static bool FirstTime
         {
@@ -144,9 +155,15 @@ namespace Sandbox.Game.Gui
             return "MyBlueprintScreen";
         }
 
-        public MyGuiBlueprintScreen(MyGridClipboard clipboard) :
+        public MyGuiBlueprintScreen(MyGridClipboard clipboard, bool allowCopyToClipboard) :
             base(new Vector2(MyGuiManager.GetMaxMouseCoord().X - SCREEN_SIZE.X * 0.5f + HIDDEN_PART_RIGHT, 0.5f), SCREEN_SIZE, MyGuiConstants.SCREEN_BACKGROUND_COLOR, false)
         {
+
+            Debug.Assert(clipboard != null, "Clipboard can't be null");
+
+            m_clipboard = clipboard;
+            m_allowCopyToClipboard = allowCopyToClipboard;
+
             if (!Directory.Exists(m_localBlueprintFolder))
             {
                 Directory.CreateDirectory(m_localBlueprintFolder);
@@ -174,16 +191,17 @@ namespace Sandbox.Game.Gui
             OnEnterCallback += Ok;
             m_searchBox.TextChanged += OnSearchTextChange;
 
-            if (clipboard != null)
-            {
-                m_clipboard = clipboard;
+            
+            //if (clipboard != null)
+            //{
+            //    m_clipboard = clipboard;
+            //}
+            //else
+            //{
+            //    System.Diagnostics.Debug.Fail("Clipboard shouldn't be null!");
+            //    m_clipboard = Sandbox.Game.Entities.MyCubeBuilder.Static.Clipboard;
+            //}
             }
-            else
-            {
-                System.Diagnostics.Debug.Fail("Clipboard shouldn't be null!");
-                m_clipboard = Sandbox.Game.Entities.MyCubeBuilder.Static.Clipboard;
-            }
-        }
 
         void CreateButtons()
         {
@@ -191,7 +209,7 @@ namespace Sandbox.Game.Gui
             Vector2 buttonOffset = new Vector2(0.15f, 0.035f);
             float width = 0.15f;
 
-            m_okButton = CreateButton(width, new StringBuilder("Ok"), OnOk, textScale: m_textScale);
+            m_okButton = CreateButton(width, new StringBuilder("Ok"), OnOk, textScale: m_textScale, enabled: m_allowCopyToClipboard);
             m_okButton.Position = buttonPosition;
 
             var cancelButton = CreateButton(width, new StringBuilder("Cancel"), OnCancel, textScale: m_textScale);
@@ -208,10 +226,10 @@ namespace Sandbox.Game.Gui
             m_deleteButton = CreateButton(width, new StringBuilder("Delete"), OnDelete, false, textScale: m_textScale);
             m_deleteButton.Position = (buttonPosition + new Vector2(0f, 2f) * buttonOffset) * new Vector2(0f, 1f);
 
-            var createButton = CreateButton(width, new StringBuilder("Create from clipboard"), OnCreate, MyCubeBuilder.Static != null ? MyCubeBuilder.Static.Clipboard.HasCopiedGrids() : false, textScale: m_textScale);
+            var createButton = CreateButton(width, new StringBuilder("Create from clipboard"), OnCreate, m_clipboard != null ? m_clipboard.HasCopiedGrids() : false, textScale: m_textScale);
             createButton.Position = (buttonPosition + new Vector2(0f, 3f) * buttonOffset) * new Vector2(0f, 1f);
 
-            m_replaceButton = CreateButton(width, new StringBuilder("Replace with clipboard"), OnReplace, MyCubeBuilder.Static != null ? MyCubeBuilder.Static.Clipboard.HasCopiedGrids() && m_selectedItem != null : false, textScale: m_textScale);
+            m_replaceButton = CreateButton(width, new StringBuilder("Replace with clipboard"), OnReplace, m_clipboard != null ? m_clipboard.HasCopiedGrids() && m_selectedItem != null : false, textScale: m_textScale);
             m_replaceButton.Position = (buttonPosition + new Vector2(0f, 4f) * buttonOffset) * new Vector2(0f, 1f);
             
             var reloadButton = CreateButton(width, new StringBuilder("Refresh Blueprints"), OnReload, textScale: m_textScale);
@@ -220,13 +238,11 @@ namespace Sandbox.Game.Gui
 
         public void RefreshThumbnail()
         {
-            m_selectedImage = new MyGuiControlImageButton();
-            m_selectedImage.BorderTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK;
-
-            m_thumbnailImage = new MyGuiControlImageButton();
+            m_thumbnailImage = new MyGuiControlImage();
             m_thumbnailImage.Position = new Vector2(-0.31f, -0.2f);
             m_thumbnailImage.Size = new Vector2(0.2f, 0.175f);
-            m_thumbnailImage.BorderTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK;
+            m_thumbnailImage.BackgroundTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK;
+            m_thumbnailImage.SetPadding(new MyGuiBorderThickness(3f, 2f, 3f, 2f));
             m_thumbnailImage.Visible = false;
         }
 
@@ -289,6 +305,7 @@ namespace Sandbox.Game.Gui
 
             if (Task.IsComplete)
             {
+#if !XB1 // XB1_NOWORKSHOP
                 if (reload)
                 {
                     GetWorkshopBlueprints();
@@ -297,6 +314,7 @@ namespace Sandbox.Game.Gui
                 {
                     GetWorkshopItemsSteam();
                 }
+#endif // !XB1
             }
 
             foreach (var i in m_recievedBlueprints)
@@ -345,8 +363,12 @@ namespace Sandbox.Game.Gui
             return true;
         }
 
+#if !XB1 // XB1_NOWORKSHOP
         void GetWorkshopItemsSteam()
         {
+            if (MyFakes.XB1_PREVIEW)
+                return;
+
             for (int i = 0; i < m_subscribedItemsList.Count; i++)
             {
                 MySteamWorkshop.SubscribedItem suscribedItem = m_subscribedItemsList[i];
@@ -450,12 +472,14 @@ namespace Sandbox.Game.Gui
                 m_blueprintList.Add(listItem);
             }
         }
+#endif // !XB1
 
         DirectoryInfo CreateTempDirectory()
         {
             return Directory.CreateDirectory(TEMP_PATH);
         }
 
+#if !XB1 // XB1_NOWORKSHOP
         void DownloadBlueprints()
         {     
             ProfilerShort.Begin("Getting workshop blueprints.");
@@ -498,14 +522,24 @@ namespace Sandbox.Game.Gui
 
         void GetWorkshopBlueprints()
         {
+            if (MyFakes.XB1_PREVIEW)
+                return;
+
             Task = Parallel.Start(DownloadBlueprints);
         }
+#endif // !XB1
 
         override public void RefreshBlueprintList(bool fromTask = false)
         {
             m_blueprintList.StoreSituation();
             m_blueprintList.Items.Clear();
             GetLocalBlueprintNames(fromTask);
+            m_selectedItem = null;
+            m_screenshotButton.Enabled = false;
+            m_detailsButton.Enabled = false;
+            m_replaceButton.Enabled = false;
+            m_deleteButton.Enabled = false;
+
             m_blueprintList.RestoreSituation(false,true);
         }
 
@@ -578,8 +612,9 @@ namespace Sandbox.Game.Gui
                 MyBlueprintItemInfo blueprintInfo = (item.UserData as MyBlueprintItemInfo);
                 if (blueprintInfo.Type == MyBlueprintTypeEnum.LOCAL)
                 {
-                    path = Path.Combine(m_localBlueprintFolder, item.Text.ToString(), "thumb.png");               
+                    path = Path.Combine(m_localBlueprintFolder, item.Text.ToString(), "thumb.png");
                 }
+#if !XB1 // XB1_NOWORKSHOP
                 else if (blueprintInfo.Type == MyBlueprintTypeEnum.STEAM)
                 {
                     var id = blueprintInfo.PublishedItemId;
@@ -613,6 +648,7 @@ namespace Sandbox.Game.Gui
                         }
                     }
                 }
+#endif // !XB1
                 else if (blueprintInfo.Type == MyBlueprintTypeEnum.DEFAULT)
                 {
                     path = Path.Combine(m_defaultBlueprintFolder, item.Text.ToString(), "thumb.png");
@@ -623,7 +659,7 @@ namespace Sandbox.Game.Gui
                     m_thumbnailImage.SetTexture(path);
                     if (!m_activeDetail)
                     {
-                        if (m_thumbnailImage.BackgroundTexture != null)
+                        if (m_thumbnailImage.IsAnyTextureValid())
                         {
                             m_thumbnailImage.Visible = true;
                         }
@@ -632,7 +668,7 @@ namespace Sandbox.Game.Gui
                 else
                 {
                     m_thumbnailImage.Visible = false;
-                    m_thumbnailImage.BackgroundTexture = null;
+                    m_thumbnailImage.SetTexture();
                 }
             }
             else
@@ -662,6 +698,7 @@ namespace Sandbox.Game.Gui
                 path = Path.Combine(m_localBlueprintFolder, m_selectedItem.Text.ToString(), "thumb.png");
                 m_deleteButton.Enabled = true;
             }
+#if !XB1 // XB1_NOWORKSHOP
             else if (type == MyBlueprintTypeEnum.STEAM)
             {
                 path = Path.Combine(m_workshopBlueprintFolder, "temp", id.ToString(), "thumb.png");
@@ -669,6 +706,7 @@ namespace Sandbox.Game.Gui
                 m_replaceButton.Enabled = false;
                 m_deleteButton.Enabled = false;
             }
+#endif // !XB1
             else if (type == MyBlueprintTypeEnum.SHARED)
             {
                 m_replaceButton.Enabled = false;
@@ -686,12 +724,12 @@ namespace Sandbox.Game.Gui
 
             if (File.Exists(path))
             {
-                m_selectedImage.SetTexture(path);
+                m_selectedThumbnailPath = path;
             }
 
             else
             {
-                m_selectedImage.BackgroundTexture = null;
+                m_selectedThumbnailPath = null;
             }
         }
 
@@ -704,6 +742,62 @@ namespace Sandbox.Game.Gui
             if (m_selectedItem.Text == null)
                 return false;
             return true;
+        }
+
+        /// <summary>
+        /// GK: Check this sperately in order not to intervene with loading the prefab
+        /// </summary>
+        private void CheckDevTag()
+        {
+#if !XB1
+            var itemInfo = m_selectedItem.UserData as MyBlueprintItemInfo;
+
+            bool devTagMismatch = itemInfo.Item != null && itemInfo.Item.Tags != null && itemInfo.Item.Tags.Contains(MySteamWorkshop.WORKSHOP_DEVELOPMENT_TAG) && MyFinalBuildConstants.IS_STABLE;
+
+            if (devTagMismatch)
+            {
+               MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                buttonType: MyMessageBoxButtonsType.OK,
+                styleEnum: MyMessageBoxStyleEnum.Info,
+                messageCaption: MyTexts.Get(MySpaceTexts.BlueprintScreen_DevMismatchCaption),
+               messageText: MyTexts.Get(MySpaceTexts.BlueprintScreen_DevMismatchMessage)
+               ));
+            }
+#endif // !XB1
+        }
+
+        class LoadPrefabData : WorkData
+        {
+            MyObjectBuilder_Definitions m_prefab;
+            string m_path;
+            MyGuiBlueprintScreen m_blueprintScreen;
+            ulong? m_id;
+
+            public LoadPrefabData(MyObjectBuilder_Definitions prefab, string path, MyGuiBlueprintScreen blueprintScreen, ulong? id = null)
+            {
+                m_prefab = prefab;
+                m_path = path;
+                m_blueprintScreen = blueprintScreen;
+                m_id = id;
+            }
+
+            public void CallLoadPrefab(WorkData workData)
+            {
+                m_prefab = LoadPrefab(m_path);
+                CallOnPrefabLoaded();
+            }
+
+            public void CallLoadWorkshopPrefab(WorkData workData)
+            {
+                m_prefab = LoadWorkshopPrefab(m_path, m_id);
+                CallOnPrefabLoaded();
+            }
+
+            public void CallOnPrefabLoaded()
+            {
+                if (m_blueprintScreen.State == MyGuiScreenState.OPENED)
+                    m_blueprintScreen.OnPrefabLoaded(m_prefab);
+            }
         }
 
         bool CopySelectedItemToClipboard()
@@ -719,19 +813,23 @@ namespace Sandbox.Game.Gui
                 path = Path.Combine(m_localBlueprintFolder, m_selectedItem.Text.ToString(), "bp.sbc");
                 if (File.Exists(path))
                 {
-                    prefab = LoadPrefab(path);
+                    m_LoadPrefabData = new LoadPrefabData(prefab, path, this);
+                    Task = Parallel.Start(m_LoadPrefabData.CallLoadPrefab, null, m_LoadPrefabData);
                 }
             }
+#if !XB1 // XB1_NOWORKSHOP
             else if (blueprintInfo.Type == MyBlueprintTypeEnum.STEAM)
             {
                 var id = (m_selectedItem.UserData as MyBlueprintItemInfo).PublishedItemId;
                 path = Path.Combine(m_workshopBlueprintFolder, id.ToString() + m_workshopBlueprintSuffix);
                 if (File.Exists(path))
                 {
-                    prefab = LoadWorkshopPrefab(path, id);
+                    m_LoadPrefabData = new LoadPrefabData(prefab, path, this, id);
+                    Task = Parallel.Start(m_LoadPrefabData.CallLoadWorkshopPrefab, null, m_LoadPrefabData);
                 }
 
             }
+#endif // !XB1
             else if (blueprintInfo.Type == MyBlueprintTypeEnum.SHARED)
             {
                 return false;
@@ -741,17 +839,49 @@ namespace Sandbox.Game.Gui
                 path = Path.Combine(m_defaultBlueprintFolder, m_selectedItem.Text.ToString(), "bp.sbc");
                 if (File.Exists(path))
                 {
-                    prefab = LoadPrefab(path);
+                    m_LoadPrefabData = new LoadPrefabData(prefab, path, this);
+                    Task = Parallel.Start(m_LoadPrefabData.CallLoadPrefab, null, m_LoadPrefabData);
                 }
             }
+            return false;
+            
+        }
 
+        internal void OnPrefabLoaded(MyObjectBuilder_Definitions prefab)
+        {
             if (prefab != null)
             {
                 if (MySandboxGame.Static.SessionCompatHelper != null)
                 {
                     MySandboxGame.Static.SessionCompatHelper.CheckAndFixPrefab(prefab);
                 }
-                return CopyBlueprintPrefabToClipboard(prefab, m_clipboard);
+                if (CheckBlueprintForMods(prefab) == false)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                           buttonType: MyMessageBoxButtonsType.YES_NO,
+                           styleEnum: MyMessageBoxStyleEnum.Info,
+                           messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning),
+                           messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextDoYouWantToPasteGridWithMissingBlocks),
+                           callback: result =>
+                           {
+                               if (result == MyGuiScreenMessageBox.ResultEnum.YES)
+                               {
+                                   if (CopyBlueprintPrefabToClipboard(prefab, m_clipboard))
+                                   {
+                                       CloseScreen();
+                                       CheckDevTag();
+                                   }
+                               }
+                           }));
+                }
+                else
+                {
+                    if (CopyBlueprintPrefabToClipboard(prefab, m_clipboard))
+                    {
+                        CloseScreen();
+                        CheckDevTag();
+                }
+            }
             }
             else
             {
@@ -761,8 +891,33 @@ namespace Sandbox.Game.Gui
                             messageCaption: new StringBuilder("Error"),
                             messageText: new StringBuilder("Failed to load the blueprint file.")
                             ));
-                return false;
             }
+        }
+
+        static bool CheckBlueprintForMods(MyObjectBuilder_Definitions prefab)
+        {
+            if (prefab.ShipBlueprints == null)
+                return true;
+
+            var cubeGrids = prefab.ShipBlueprints[0].CubeGrids;
+
+            if (cubeGrids == null || cubeGrids.Length == 0)
+                return true;
+
+            foreach (var gridBuilder in cubeGrids)
+            {
+                foreach (var block in gridBuilder.CubeBlocks)
+                {
+                    var defId = block.GetId();
+                    MyCubeBlockDefinition blockDefinition = null;
+                    if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(defId, out blockDefinition) == false)
+                    { 
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         public static bool CopyBlueprintPrefabToClipboard(MyObjectBuilder_Definitions prefab, MyGridClipboard clipboard, bool setOwner = true)
@@ -809,9 +964,9 @@ namespace Sandbox.Game.Gui
                     cubeGrids[i] = MyFracturedBlock.ConvertFracturedBlocksToComponents(cubeGrids[i]);
                 }
             }
-
             clipboard.SetGridFromBuilders(cubeGrids, dragVector, dragDistance);
-            clipboard.Deactivate();
+            //clipboard.Deactivate();
+            clipboard.ShowModdedBlocksWarning = false;
             return true;
         }
 
@@ -841,6 +996,7 @@ namespace Sandbox.Game.Gui
                 foreach (var item in m_blueprintList.Items)
                     item.Visible = true;
             }
+            m_blueprintList.ScrollToolbarToTop();
         }
 
         void OpenSharedBlueprint(MyBlueprintItemInfo itemInfo)
@@ -893,18 +1049,14 @@ namespace Sandbox.Game.Gui
             }
 
             var itemInfo = m_selectedItem.UserData as MyBlueprintItemInfo;
+
             if (itemInfo.Type == MyBlueprintTypeEnum.SHARED)
             {
                 OpenSharedBlueprint(itemInfo);
             }
             else
             {
-                if (MySession.Static.SurvivalMode && MySession.Static.IsAdminModeEnabled == false && m_clipboard == Sandbox.Game.Entities.MyCubeBuilder.Static.Clipboard)
-                {
-                    CloseScreen();
-                }
-                else
-                {
+#if !XB1 // XB1_NOWORKSHOP
                     if (itemInfo.Type == MyBlueprintTypeEnum.STEAM)
                     {
                         Task = Parallel.Start(() =>
@@ -916,12 +1068,12 @@ namespace Sandbox.Game.Gui
                         }, () => { CopyBlueprintAndClose(); });
                     }
                     else
+#endif // !XB1
                     {
                         CopyBlueprintAndClose();
                     }
                 }
             }
-        }
 
         void OnOk(MyGuiControlButton button) 
         {
@@ -986,7 +1138,7 @@ namespace Sandbox.Game.Gui
                             },
                             selectedItem: m_selectedItem,
                             parent: this,
-                            thumbnailTexture: m_selectedImage.BackgroundTexture,
+                            thumbnailTexture: m_selectedThumbnailPath,
                             textScale: m_textScale
                             );
                         m_activeDetail = true;
@@ -1029,7 +1181,7 @@ namespace Sandbox.Game.Gui
                             },
                             selectedItem: m_selectedItem,
                             parent: this,
-                            thumbnailTexture: m_selectedImage.BackgroundTexture,
+                            thumbnailTexture: m_selectedThumbnailPath,
                             textScale: m_textScale
                             );
                         m_activeDetail = true;
@@ -1046,6 +1198,7 @@ namespace Sandbox.Game.Gui
                                     ));
                     }
                 }
+#if !XB1 // XB1_NOWORKSHOP
                 else if (blueprintInfo.Type == MyBlueprintTypeEnum.STEAM)
                 {
                     MySteamWorkshop.SubscribedItem workshopData = blueprintInfo.Item;
@@ -1056,9 +1209,11 @@ namespace Sandbox.Game.Gui
                         } 
                     }, () => { OnBlueprintDownloadedDetails(workshopData); });               
                 }
+#endif // !XB1
             }
         }
 
+#if !XB1 // XB1_NOWORKSHOP
         void DownloadBlueprintFromSteam(MySteamWorkshop.SubscribedItem item)
         {
             if (MySteamWorkshop.IsBlueprintUpToDate(item))
@@ -1088,7 +1243,7 @@ namespace Sandbox.Game.Gui
                     },
                     selectedItem: m_selectedItem,
                     parent: this,
-                    thumbnailTexture: m_selectedImage.BackgroundTexture,
+                    thumbnailTexture: m_selectedThumbnailPath,
                     textScale: m_textScale
                     );
                 m_activeDetail = true;
@@ -1116,7 +1271,7 @@ namespace Sandbox.Game.Gui
                 m_thumbnailImage.SetTexture(path);
                 if (!m_activeDetail)
                 {
-                    if (m_thumbnailImage.BackgroundTexture != null)
+                    if (m_thumbnailImage.IsAnyTextureValid())
                     {
                         m_thumbnailImage.Visible = true;
                     }
@@ -1125,11 +1280,12 @@ namespace Sandbox.Game.Gui
             else
             {
                 m_thumbnailImage.Visible = false;
-                m_thumbnailImage.BackgroundTexture = null;
+                m_thumbnailImage.SetTexture();
             }
             m_downloadQueued.Remove(item.PublishedFileId);
             m_downloadFinished.Add(item.PublishedFileId);
         }
+#endif // !XB1
 
         public void TakeScreenshot(string name)
         {
@@ -1151,11 +1307,11 @@ namespace Sandbox.Game.Gui
 
         public void CreateFromClipboard(bool withScreenshot = false, bool replace = false)
         {
-            if (MyCubeBuilder.Static.Clipboard.CopiedGridsName == null)
+            if (m_clipboard.CopiedGridsName == null)
             {
                 return;
             }
-            string name = MyUtils.StripInvalidChars(MyCubeBuilder.Static.Clipboard.CopiedGridsName);
+            string name = MyUtils.StripInvalidChars(m_clipboard.CopiedGridsName);
             string newName = name;
             string path = Path.Combine(m_localBlueprintFolder, name);
             int index = 1;
@@ -1175,19 +1331,17 @@ namespace Sandbox.Game.Gui
 
             var prefab = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ShipBlueprintDefinition>();
             prefab.Id = new MyDefinitionId(new MyObjectBuilderType(typeof(MyObjectBuilder_ShipBlueprintDefinition)), MyUtils.StripInvalidChars(name));
-            prefab.CubeGrids = MyCubeBuilder.Static.Clipboard.CopiedGrids.ToArray();
+            prefab.CubeGrids = m_clipboard.CopiedGrids.ToArray();
             prefab.RespawnShip = false;
             prefab.DisplayName = MySteam.UserName;
             prefab.OwnerSteamId = Sync.MyId;
-            if (MyFakes.ENABLE_BATTLE_SYSTEM)
-                prefab.Points = MyBattleHelper.GetBattlePoints(prefab.CubeGrids);
             prefab.CubeGrids[0].DisplayName = name;
 
             var definitions = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
             definitions.ShipBlueprints = new MyObjectBuilder_ShipBlueprintDefinition[1];
             definitions.ShipBlueprints[0] = prefab;
 
-            SavePrefabToFile(definitions, replace: replace);
+            SavePrefabToFile(definitions, m_clipboard.CopiedGridsName, replace: replace);
             RefreshBlueprintList();
         }
 
@@ -1246,13 +1400,9 @@ namespace Sandbox.Game.Gui
                         if (File.Exists(path))
                         {
                             var oldBlueprint = LoadPrefab(path);
-                            MyCubeBuilder.Static.Clipboard.CopiedGrids[0].DisplayName = name;
-                            oldBlueprint.ShipBlueprints[0].CubeGrids = MyCubeBuilder.Static.Clipboard.CopiedGrids.ToArray();
-
-                            if (MyFakes.ENABLE_BATTLE_SYSTEM)
-                                oldBlueprint.ShipBlueprints[0].Points = MyBattleHelper.GetBattlePoints(oldBlueprint.ShipBlueprints[0].CubeGrids);
-
-                            SavePrefabToFile(oldBlueprint, replace: true);
+                            m_clipboard.CopiedGrids[0].DisplayName = name;
+                            oldBlueprint.ShipBlueprints[0].CubeGrids = m_clipboard.CopiedGrids.ToArray();
+                            SavePrefabToFile(oldBlueprint, m_clipboard.CopiedGridsName, replace: true);
                             RefreshBlueprintList();
                         }
                     }
@@ -1285,7 +1435,9 @@ namespace Sandbox.Game.Gui
                 m_wheel.Visible = false;
                 if (m_needsExtract)
                 {
+#if !XB1 // XB1_NOWORKSHOP
                     GetWorkshopItemsSteam();
+#endif // !XB1
                     m_needsExtract = false;
                     RefreshBlueprintList();
                 }

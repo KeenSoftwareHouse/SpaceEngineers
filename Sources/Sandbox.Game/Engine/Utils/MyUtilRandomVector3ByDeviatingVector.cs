@@ -33,6 +33,20 @@ namespace Sandbox.Engine.Utils
             return Vector3.TransformNormal(result, m_matrix);
         }
 
+        public Vector3 GetNext(int hash, float maxAngle)
+        {
+            float resultTheta = MyUtils.GetRandomFloat(hash, -maxAngle, maxAngle);
+            float resultPhi = MyUtils.GetRandomFloat(hash, 0, MathHelper.TwoPi);
+            //  Convert to cartezian coordinates (XYZ)
+            Vector3 result = -new Vector3(
+                MyMath.FastSin(resultTheta) * MyMath.FastCos(resultPhi),
+                MyMath.FastSin(resultTheta) * MyMath.FastSin(resultPhi),
+                MyMath.FastCos(resultTheta)
+                );
+
+            return Vector3.TransformNormal(result, m_matrix);
+        }
+
         //  One-time call
         public static Vector3 GetRandom(Vector3 originalVector, float maxAngle)
         {
@@ -41,6 +55,15 @@ namespace Sandbox.Engine.Utils
 
             MyUtilRandomVector3ByDeviatingVector rnd = new MyUtilRandomVector3ByDeviatingVector(originalVector);
             return rnd.GetNext(maxAngle);
+        }
+
+        public static Vector3 GetRandom(int hash, Vector3 originalVector, float maxAngle)
+        {
+            if (maxAngle == 0)
+                return originalVector;
+
+            MyUtilRandomVector3ByDeviatingVector rnd = new MyUtilRandomVector3ByDeviatingVector(originalVector);
+            return rnd.GetNext(hash, maxAngle);
         }
     }
 }

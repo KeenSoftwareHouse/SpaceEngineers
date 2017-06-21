@@ -70,12 +70,12 @@ namespace VRage.Stats
 
         private int DeltaTimeToInt(MyTimeSpan delta)
         {
-            return (int)(1000.0f * delta.Miliseconds + 0.5f);
+            return (int)(1000.0f * delta.Milliseconds + 0.5f);
         }
 
         private MyTimeSpan IntToDeltaTime(int v)
         {
-            return MyTimeSpan.FromMiliseconds(v / 1000.0f);
+            return MyTimeSpan.FromMilliseconds(v / 1000.0f);
         }
 
         public void ReadAndClear(MyTimeSpan currentTime, out Value sum, out int count, out Value min, out Value max, out Value last, out MyStatTypeEnum type, out int decimals, out MyTimeSpan inactivityMs)
@@ -89,7 +89,7 @@ namespace VRage.Stats
                 {
                     // Load delta, increment it and save it
                     var delta = IntToDeltaTime(-Count);
-                    delta += Count < 0 ? currentTime - LastClear : MyTimeSpan.FromMiliseconds(1);
+                    delta += Count < 0 ? currentTime - LastClear : MyTimeSpan.FromMilliseconds(1);
                     Count = -DeltaTimeToInt(delta);
 
                     inactivityMs = delta;
@@ -97,7 +97,7 @@ namespace VRage.Stats
                 }
                 else
                 {
-                    if (currentTime >= (LastRefresh + MyTimeSpan.FromMiliseconds(RefreshRate)))
+                    if (currentTime >= (LastRefresh + MyTimeSpan.FromMilliseconds(RefreshRate)))
                     {
                         DrawSum = Sum;
                         DrawCount = Count;
@@ -113,7 +113,7 @@ namespace VRage.Stats
                         }
                     }
 
-                    if (ClearRate != -1 && currentTime >= (LastClear + MyTimeSpan.FromMiliseconds(ClearRate)))
+                    if (ClearRate != -1 && currentTime >= (LastClear + MyTimeSpan.FromMilliseconds(ClearRate)))
                     {
                         Count = 0;
                         ClearUnsafe();

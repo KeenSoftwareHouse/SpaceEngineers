@@ -4,11 +4,18 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+#if XB1
+using System.Diagnostics;
+#endif
+
+
 namespace VRage.Common.Utils
 {
     internal class MyCheckSumStream : Stream
     {
+#if !XB1
         private MyRSA m_verifier;
+#endif
         private Stream m_stream;
         private string m_filename;
         private byte[] m_signedHash;
@@ -21,7 +28,9 @@ namespace VRage.Common.Utils
         internal MyCheckSumStream(Stream stream, string filename, byte[] signedHash, byte[] publicKey, Action<string, string> failHandler)
         {
             m_stream = stream;
+#if !XB1
             m_verifier = new MyRSA();
+#endif
             m_signedHash = signedHash;
             m_publicKey = publicKey;
             m_filename = filename;
@@ -34,13 +43,17 @@ namespace VRage.Common.Utils
 
             if (disposing)
             {
+#if XB1
+			Debug.Assert(false, "Change verification method");
+#else
                 m_verifier.HashObject.TransformFinalBlock(new byte[0], 0, 0);
 
                 if (!m_verifier.VerifyHash(m_verifier.HashObject.Hash, m_signedHash, m_publicKey))
                 {
                     m_failHandler(m_filename, Convert.ToBase64String(m_verifier.HashObject.Hash));
                 }
-                m_stream.Dispose();
+#endif
+				m_stream.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -51,11 +64,14 @@ namespace VRage.Common.Utils
             var bytesRead = m_stream.Read(array, offset, count);
             int checkOffset = offset + skip;
             int checkCount = bytesRead - skip;
+#if XB1
+			Debug.Assert(false, "Change verification method");
+#else
             if (checkCount > 0 && checkOffset > 0)
             {
                 m_verifier.HashObject.TransformBlock(array, offset + skip, bytesRead - skip, null, 0);
             }
-
+#endif
             m_lastPosition = m_stream.Position;
 
             return bytesRead;

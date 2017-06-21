@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using VRage.Game.Components;
 using VRage.ModAPI;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -27,6 +27,7 @@ namespace VRage.Game.Entity
 
         public abstract MyFixedPoint CurrentMass { get; }
         public abstract MyFixedPoint MaxMass { get; }
+        public abstract int MaxItemCount { get; }
 
         public abstract MyFixedPoint CurrentVolume { get; }
         public abstract MyFixedPoint MaxVolume { get; }
@@ -58,7 +59,7 @@ namespace VRage.Game.Entity
             InventoryId = MyStringHash.GetOrCompute(ob.InventoryId ?? "Inventory");
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_InventoryBase;
             ob.InventoryId = InventoryId.ToString();
@@ -72,12 +73,12 @@ namespace VRage.Game.Entity
         }
 
         public abstract MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId, float volumeRemoved = 0, float massRemoved = 0);
-        public abstract MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None);
+        public abstract MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool substitute = false);
 
         public abstract bool ItemsCanBeAdded(MyFixedPoint amount, IMyInventoryItem item);
         public abstract bool ItemsCanBeRemoved(MyFixedPoint amount, IMyInventoryItem item);
 
-        public abstract bool Add(IMyInventoryItem item, MyFixedPoint amount, bool stack = true);
+        public abstract bool Add(IMyInventoryItem item, MyFixedPoint amount);
         public abstract bool Remove(IMyInventoryItem item, MyFixedPoint amount);
 
         public abstract void CountItems(Dictionary<MyDefinitionId, MyFixedPoint> itemCounts);
@@ -92,7 +93,7 @@ namespace VRage.Game.Entity
         /// <param name="objectBuilder"></param>
         /// <param name="index"></param>
         /// <returns>true if items were added, false if items didn't fit</returns>
-        public abstract bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1, bool stack = true);        
+        public abstract bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder); 
 
         /// <summary>
         /// Remove items of a given amount and definition
@@ -107,7 +108,7 @@ namespace VRage.Game.Entity
         /// Transfers safely given item from inventory given as parameter to this instance.
         /// </summary>
         /// <returns>true if items were succesfully transfered, otherwise, false</returns>
-        public abstract bool TransferItemsFrom(MyInventoryBase sourceInventory, IMyInventoryItem item, MyFixedPoint amount, bool stack);
+        public abstract bool TransferItemsFrom(MyInventoryBase sourceInventory, IMyInventoryItem item, MyFixedPoint amount);
 
         public abstract void OnContentsChanged();
 

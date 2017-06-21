@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 using System.Xml.Serialization;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game.ObjectBuilders
@@ -36,5 +36,10 @@ namespace VRage.Game.ObjectBuilders
         [ProtoMember]
         [XmlArrayItem("Conjunction")]
         public MyObjectBuilder_AnimationSMConditionsConjunction[] Conditions = null;
+
+        // Priority of the transition, lower is processed sooner.
+        // Transitions with unset priorities are processed as last ones.
+        [ProtoMember]
+        public int? Priority;
 	}
 }

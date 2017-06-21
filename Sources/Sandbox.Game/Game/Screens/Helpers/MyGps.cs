@@ -4,6 +4,7 @@ using System;
 using System.Text;
 using System.Threading;
 using VRage.Game;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
@@ -17,8 +18,12 @@ namespace Sandbox.Game.Screens.Helpers
         public string Name;
         public string Description;
         public Vector3D Coords;
+        public Color GPSColor;
         public bool ShowOnHud;
+        public bool AlwaysVisible;
         public TimeSpan? DiscardAt;//final=null. Not final=time at which we should drop it from the list, relative to ElapsedPlayTime
+        public bool IsLocal = false;
+        private IMyEntity m_entity = null;
         public int Hash
         {
             get;
@@ -48,10 +53,14 @@ namespace Sandbox.Game.Screens.Helpers
 
         public void ToClipboard()
         {
+#if !XB1
             Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(this.ToString()));
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             thread.Join();
+#else
+            System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
         }
 
         public MyGps(MyObjectBuilder_Gps.Entry builder)
@@ -60,12 +69,18 @@ namespace Sandbox.Game.Screens.Helpers
             Description = builder.description;
             Coords = builder.coords;
             ShowOnHud = builder.showOnHud;
+            AlwaysVisible = builder.alwaysVisible;
+            if (builder.color != Color.Transparent && builder.color != Color.Black)
+                GPSColor = builder.color;
+            else
+                GPSColor = new Color(117, 201, 241);
             if (!builder.isFinal)
                 SetDiscardAt();
             UpdateHash();
         }
         public MyGps()
         {
+            GPSColor = new Color(117, 201, 241);
             SetDiscardAt();
         }
 
@@ -74,5 +89,35 @@ namespace Sandbox.Game.Screens.Helpers
             DiscardAt = TimeSpan.FromSeconds(MySession.Static.ElapsedPlayTime.TotalSeconds + DROP_NONFINAL_AFTER_SEC);
         }
 
+        public void SetEntity(IMyEntity entity)
+        {
+            if (entity == null)
+                return;
+            m_entity = entity;
+            m_entity.PositionComp.OnPositionChanged += PositionComp_OnPositionChanged;
+            m_entity.OnClose += m_entity_OnClose;
+            Coords = m_entity.PositionComp.GetPosition();
+        }
+
+        void m_entity_OnClose(IMyEntity obj)
+        {
+            m_entity.PositionComp.OnPositionChanged -= PositionComp_OnPositionChanged;
+            m_entity.OnClose -= m_entity_OnClose;
+        }
+
+        void PositionComp_OnPositionChanged(VRage.Game.Components.MyPositionComponentBase obj)
+        {
+            if (m_entity != null)
+                Coords = m_entity.PositionComp.GetPosition();
+        }
+
+        public void Close()
+        {
+            if (m_entity != null)
+            {
+                m_entity.PositionComp.OnPositionChanged -= PositionComp_OnPositionChanged;
+                m_entity.OnClose -= m_entity_OnClose;
+            }
+        }
     }
 }

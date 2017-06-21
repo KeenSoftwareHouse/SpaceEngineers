@@ -11,7 +11,7 @@ using Sandbox.Common;
 using Sandbox.Game.Entities;
 using Sandbox.Definitions;
 using VRage.Utils;
-using VRage.Animations;
+using VRageRender.Animations;
 
 namespace Sandbox.Engine.Physics
 {
@@ -462,7 +462,8 @@ namespace Sandbox.Engine.Physics
             }
 
             // Instead of blind settings, we need to traverse tree from root to children             
-            SetBoneTo(Ragdoll.m_ragdollTree, weight, dynamicBodiesWeight, keyframedBodiesWeight, true );
+            //SetBoneTo(Ragdoll.m_ragdollTree, weight, dynamicBodiesWeight, keyframedBodiesWeight, true );
+            SetBoneTo(Ragdoll.m_ragdollTree, weight, dynamicBodiesWeight, keyframedBodiesWeight, false); //<ib.ragdoll> traslation can't be added for root..
 
             if (MyFakes.ENABLE_RAGDOLL_DEBUG)
             {
@@ -528,7 +529,16 @@ namespace Sandbox.Engine.Physics
                 {
                     childWeight = keyframedChildrenWeight;
                 }
-                SetBoneTo(childBone, childWeight, dynamicChildrenWeight, keyframedChildrenWeight, MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION);
+                //SetBoneTo(childBone, childWeight, dynamicChildrenWeight, keyframedChildrenWeight, MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION);
+
+                if (IsPartiallySimulated)
+                {
+                    SetBoneTo(childBone, childWeight, dynamicChildrenWeight, keyframedChildrenWeight, false);
+                }
+                else
+                {
+                    SetBoneTo(childBone, childWeight, dynamicChildrenWeight, keyframedChildrenWeight, (Ragdoll.IsRigidBodyPalmOrFoot(childBone.m_rigidBodyIndex)) ? false : MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION); 
+                }               
             }
         }
 
@@ -776,7 +786,7 @@ namespace Sandbox.Engine.Physics
                 foreach (var bodyIndex in m_rigidBodiesToBonesIndices.Keys)
                 {
                     Matrix debug = m_bodyToBoneRigTransforms[bodyIndex] * BodiesRigTransfoms[bodyIndex] * worldMatrix;
-                    VRageRender.MyRenderProxy.DebugDrawSphere(debug.Translation, 0.025f, Color.Purple, 0.8f, false);
+                    //VRageRender.MyRenderProxy.DebugDrawSphere(debug.Translation, 0.025f, Color.Purple, 0.8f, false);
                 }
             }
 
@@ -806,6 +816,7 @@ namespace Sandbox.Engine.Physics
                     var matrix = (MatrixD)Ragdoll.GetRigidBodyLocalTransform(bodyIndex) * worldMatrix;
                     DrawShape(Ragdoll.RigidBodies[bodyIndex].GetShape(), matrix, color, 0.6f);
                     VRageRender.MyRenderProxy.DebugDrawAxis(matrix, 0.3f, false);
+                    VRageRender.MyRenderProxy.DebugDrawSphere(matrix.Translation, 0.03f, Color.Green, 0.8f, false);
                 }
             }
         }
@@ -856,8 +867,9 @@ namespace Sandbox.Engine.Physics
                                 
                 m_changed = distance > 0.001f || forwardChange > 0.001f || upChange > 0.001f;
 
-                if (distance > 10)
+                if (distance > 10 || m_character.m_positionResetFromServer)
                 {
+                    m_character.m_positionResetFromServer = false;
                     if (MyFakes.ENABLE_RAGDOLL_DEBUG)
                     {
                         Debug.WriteLine("MyRagdollMapper.UpdateRagdollPosition");
@@ -878,7 +890,29 @@ namespace Sandbox.Engine.Physics
                         MyLog.Default.WriteLine("MyRagdollMapper.UpdateRagdollPosition");
                     }
 
-                    Ragdoll.SetWorldMatrix(havokWorldMatrix, true);                    
+                    //Original version: directly set world matrix
+                    //Ragdoll.SetWorldMatrix(havokWorldMatrix, true);
+
+                    // Smoothed version
+                    if (IsPartiallySimulated)
+                    {
+                        MatrixD newHavokWorldMatrix = new MatrixD();
+
+                        const float wr = 0.9f;
+                        Vector3 Forward = (1 - wr) * Ragdoll.WorldMatrix.Forward + wr * havokWorldMatrix.Forward;
+                        newHavokWorldMatrix = MatrixD.CreateFromDir(Forward, Ragdoll.WorldMatrix.Up);
+
+                        const float wp = 0.9f;
+                        newHavokWorldMatrix.Translation = (1 - wp) * Ragdoll.WorldMatrix.Translation + wp * havokWorldMatrix.Translation;
+
+                        Ragdoll.SetWorldMatrix(newHavokWorldMatrix, true);
+                    }
+                    else
+                    {
+                        Ragdoll.SetWorldMatrix(havokWorldMatrix, true);
+                    }
+
+                                        
                 }
             }
 
@@ -983,6 +1017,40 @@ namespace Sandbox.Engine.Physics
             }
         }
 
+        public void SetLimitedVelocities()
+        {
+            //<ib.change> Ragdoll in jetpack mode
+            //Console.WriteLine("SetLimitedVelocities:");
+
+            if (Ragdoll.RigidBodies[0] == null) return;
+
+            const float linearVelocityEps = 1.0f;
+            const float angularVelocityEps = 1.0f;
+            float maxLinearVelocity = Math.Max(10.0f,Ragdoll.RigidBodies[0].LinearVelocity.Length() + linearVelocityEps);
+            float maxAngularVelocity = Math.Max(4.0f*(float)Math.PI, Ragdoll.RigidBodies[0].AngularVelocity.Length() + angularVelocityEps);
+
+            int counter = 0;
+            foreach (var bodyindex in m_dynamicBodies)
+            {
+                if (IsPartiallySimulated)
+                {
+                    Ragdoll.RigidBodies[bodyindex].MaxLinearVelocity = maxLinearVelocity;
+                    Ragdoll.RigidBodies[bodyindex].MaxAngularVelocity = maxAngularVelocity;
+                    Ragdoll.RigidBodies[bodyindex].LinearDamping = 0.2f;
+                    Ragdoll.RigidBodies[bodyindex].AngularDamping = 0.2f;
+                    //Console.WriteLine(" {0} Index:{1} MaxLVel:{2} MaxAVel:{3} LD:{4} AD:{5}", counter, bodyindex, Ragdoll.RigidBodies[bodyindex].MaxLinearVelocity, Ragdoll.RigidBodies[bodyindex].MaxAngularVelocity, Ragdoll.RigidBodies[bodyindex].LinearDamping, Ragdoll.RigidBodies[bodyindex].AngularDamping);
+                    counter++;
+                }
+                else
+                {
+                    Ragdoll.RigidBodies[bodyindex].MaxLinearVelocity = Ragdoll.MaxLinearVelocity;
+                    Ragdoll.RigidBodies[bodyindex].MaxAngularVelocity = Ragdoll.MaxAngularVelocity;
+                    Ragdoll.RigidBodies[bodyindex].LinearDamping = 0.5f;
+                    Ragdoll.RigidBodies[bodyindex].AngularDamping = 0.5f;
+                }
+            }
+        }
+
         public void UpdateRagdollAfterSimulation()
         {
             if (MyFakes.ENABLE_RAGDOLL_DEBUG)
@@ -1082,7 +1150,7 @@ namespace Sandbox.Engine.Physics
             } 
             if (changed && MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC)
             {
-                m_character.SyncObject.SendRagdollTransforms(worldTransform, m_ragdollRigidBodiesAbsoluteTransforms);
+                m_character.SendRagdollTransforms(worldTransform, m_ragdollRigidBodiesAbsoluteTransforms);
                 m_lastSyncedWorldMatrix = worldTransform;
             }
         }

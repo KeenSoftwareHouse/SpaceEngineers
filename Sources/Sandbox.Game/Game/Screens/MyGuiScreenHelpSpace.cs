@@ -10,29 +10,44 @@ using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Input;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiScreenHelpSpace : MyGuiScreenBase
+    public class MyGuiScreenHelpSpace : MyGuiScreenBase
     {
         struct ControlWithDescription
         {
             public StringBuilder BoundButtons;
             public StringBuilder Description;
-            public MyFontEnum LeftFont;
-            public MyFontEnum RightFont;
+            public string LeftFont;
+            public string RightFont;
 
-            public ControlWithDescription(string boundButtons, string description, MyFontEnum leftFont = MyFontEnum.Red, MyFontEnum rightFont = MyFontEnum.White)
+            public StringBuilder LeftIcon;
+            public Color LeftIconColor;
+
+            public ControlWithDescription(string boundButtons, string description, string leftFont = MyFontEnum.Red, string rightFont = MyFontEnum.White)
                 : this(new StringBuilder(boundButtons), new StringBuilder(description), leftFont, rightFont)
             { }
-            public ControlWithDescription(StringBuilder boundButtons, StringBuilder description, MyFontEnum leftFont = MyFontEnum.Red, MyFontEnum rightFont = MyFontEnum.White)
+            public ControlWithDescription(StringBuilder boundButtons, StringBuilder description, string leftFont = MyFontEnum.Red, string rightFont = MyFontEnum.White)
             {
                 BoundButtons = new StringBuilder(boundButtons.Length).AppendStringBuilder(boundButtons);
                 Description = new StringBuilder(description.Length).AppendStringBuilder(description);
                 LeftFont = leftFont;
                 RightFont = rightFont;
+                LeftIcon = null;
+                LeftIconColor = Color.White;
+            }
+            public ControlWithDescription(StringBuilder boundButtons, StringBuilder description, StringBuilder leftIcon, Color leftIconColor, string leftFont = MyFontEnum.Red, string rightFont = MyFontEnum.White)
+            {
+                BoundButtons = new StringBuilder(boundButtons.Length).AppendStringBuilder(boundButtons);
+                Description = new StringBuilder(description.Length).AppendStringBuilder(description);
+                LeftFont = leftFont;
+                RightFont = rightFont;
+                LeftIcon = leftIcon;
+                LeftIconColor = leftIconColor;
             }
             public ControlWithDescription(MyStringId control)
             {
@@ -42,6 +57,8 @@ namespace Sandbox.Game.Gui
                 Description = MyTexts.Get(c.GetControlDescription() ?? c.GetControlName());
                 LeftFont = MyFontEnum.Red;
                 RightFont = MyFontEnum.White;
+                LeftIcon = null;
+                LeftIconColor = Color.White;
             }
         }
 
@@ -57,6 +74,7 @@ namespace Sandbox.Game.Gui
             Advanced,
             Advanced2,
             Spectator,
+            Performance,
             Developer,
             Developer2,
         }
@@ -79,6 +97,7 @@ namespace Sandbox.Game.Gui
             m_pages[(int)HelpPageEnum.Advanced] = new HelpPage();
             m_pages[(int)HelpPageEnum.Advanced2] = new HelpPage();
             m_pages[(int)HelpPageEnum.Spectator] = new HelpPage();
+            m_pages[(int)HelpPageEnum.Performance] = new HelpPage();
             m_pages[(int)HelpPageEnum.Developer] = new HelpPage();
             m_pages[(int)HelpPageEnum.Developer2] = new HelpPage();
 
@@ -86,6 +105,7 @@ namespace Sandbox.Game.Gui
             m_pageTitles[(int)HelpPageEnum.Advanced] = MyTexts.GetString(MyCommonTexts.AdvancedControls);
             m_pageTitles[(int)HelpPageEnum.Advanced2] = MyTexts.GetString(MyCommonTexts.AdvancedControls);
             m_pageTitles[(int)HelpPageEnum.Spectator] = MyTexts.GetString(MyCommonTexts.SpectatorControls);
+            m_pageTitles[(int)HelpPageEnum.Performance] = MyTexts.GetString(MyCommonTexts.PerformanceWarningHelpHeader);
             m_pageTitles[(int)HelpPageEnum.Developer] = "Developer Controls";
             m_pageTitles[(int)HelpPageEnum.Developer2] = "Developer Controls";
 
@@ -93,6 +113,7 @@ namespace Sandbox.Game.Gui
             HelpPage advancedPage = m_pages[(int)HelpPageEnum.Advanced];
             HelpPage advancedPage2 = m_pages[(int)HelpPageEnum.Advanced2];
             HelpPage spectatorPage = m_pages[(int)HelpPageEnum.Spectator];
+            HelpPage performancePage = m_pages[(int)HelpPageEnum.Performance];
             HelpPage developerPage = m_pages[(int)HelpPageEnum.Developer];
             HelpPage developer2Page = m_pages[(int)HelpPageEnum.Developer2];
 
@@ -177,10 +198,10 @@ namespace Sandbox.Game.Gui
                 MyTexts.Get(MySpaceTexts.ControlDescLoot)));
             advancedPage.RightColumn.Add(new ControlWithDescription("", ""));
             advancedPage.RightColumn.Add(new ControlWithDescription(new StringBuilder(), MyTexts.Get(MyCommonTexts.Factions), rightFont: MyFontEnum.Red));
-            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Blue), MyTexts.Get(MySpaceTexts.Factions_YourBlock), MyFontEnum.Blue));
-            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Green), MyTexts.Get(MySpaceTexts.Factions_YourFaction), MyFontEnum.Green));
-            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_White), MyTexts.Get(MySpaceTexts.Factions_NeutralFaction), MyFontEnum.White));
-            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Red), MyTexts.Get(MySpaceTexts.Factions_EnemyFaction)));
+            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Blue), MyTexts.Get(MySpaceTexts.Factions_YourBlock), new StringBuilder("Textures\\HUD\\marker_self.dds"), new Color(117, 201, 241), MyFontEnum.Blue));
+            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Green), MyTexts.Get(MySpaceTexts.Factions_YourFaction), new StringBuilder("Textures\\HUD\\marker_friendly.dds"), new Color(101, 178, 90), MyFontEnum.Green));
+            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_White), MyTexts.Get(MySpaceTexts.Factions_NeutralFaction), new StringBuilder("Textures\\HUD\\marker_neutral.dds"), Color.White, MyFontEnum.White));
+            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Red), MyTexts.Get(MySpaceTexts.Factions_EnemyFaction), new StringBuilder("Textures\\HUD\\marker_enemy.dds"), new Color(227, 62, 63)));
 
             advancedPage.RightColumn.Add(new ControlWithDescription("", ""));
             advancedPage.RightColumn.Add(new ControlWithDescription(MyControlsSpace.ROTATION_LEFT));
@@ -199,8 +220,19 @@ namespace Sandbox.Game.Gui
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE));
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE));
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE));
-            advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.STATION_ROTATION));
+            advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.FREE_ROTATION));
             advancedPage2.LeftColumn.Add(new ControlWithDescription("Ctrl + G", MyTexts.GetString(MySpaceTexts.SwitchBuilderMode)));
+
+            // Get control for toggling the block size
+            StringBuilder resizeBlockControl = null;
+            MyControl cubeBuilderCubesizeModeControl = MyInput.Static.GetGameControl(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE);
+            if (cubeBuilderCubesizeModeControl != null)
+                cubeBuilderCubesizeModeControl.AppendBoundButtonNames(ref resizeBlockControl, unassignedText: MyInput.Static.GetUnassignedName());
+
+            // Add block editing controls
+            advancedPage2.LeftColumn.Add(new ControlWithDescription(MyTexts.Get(MyCommonTexts.MouseWheel), MyTexts.Get(MyCommonTexts.ControlName_ChangeBlockVariants)));
+            if (cubeBuilderCubesizeModeControl != null)
+                advancedPage2.LeftColumn.Add(new ControlWithDescription(resizeBlockControl, MyTexts.Get(cubeBuilderCubesizeModeControl.GetControlName())));
 
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_LEFT));
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_RIGHT));
@@ -219,6 +251,25 @@ namespace Sandbox.Game.Gui
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_DELTA));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_FREE));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_STATIC));
+
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaBlocks), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaBlocksDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaGrid), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaGridDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaConveyor), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaConveyorDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaGyro), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaGyroDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaOxygen), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaOxygenDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaAI), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaAIDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaScripts), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaScriptsDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaPhysics), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaPhysicsDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaRender), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaRenderDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaTextures), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaTexturesDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription("", ""));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaClearAndGeometryRender), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaClearAndGeometryRenderDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaTransparentPass), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaTransparentPassDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaLights), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaLightsDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaShadows), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaShadowsDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaRenderFoliage), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaRenderFoliageDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaSSAO), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaSSAODescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaPostProcess), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaPostProcessDescription)));
             
 
             //These keys are to be used just for developers or testing
@@ -242,7 +293,7 @@ namespace Sandbox.Game.Gui
 
                 developerPage.RightColumn.Add(new ControlWithDescription("", "Global Debug Input"));
                 developerPage.RightColumn.Add(new ControlWithDescription("F6", "Switch between astronauts"));
-                developerPage.RightColumn.Add(new ControlWithDescription("F7", "Switch to fixed dir. 3rd person camera"));
+                developerPage.RightColumn.Add(new ControlWithDescription("F7", "Switch to fixed pos. 3rd person camera"));
                 developerPage.RightColumn.Add(new ControlWithDescription("F8", "Switch to spectator camera"));
                 developerPage.RightColumn.Add(new ControlWithDescription("Ctrl + F8", "Reset spectator camera"));
                 developerPage.RightColumn.Add(new ControlWithDescription("F9", "Switch to static 3rd person"));
@@ -273,6 +324,7 @@ namespace Sandbox.Game.Gui
 
 
             }
+
 
             AddProfilerControls(developerPage);
 
@@ -321,6 +373,14 @@ namespace Sandbox.Game.Gui
                     textScale: TEXT_SCALE,
                     originAlign: descriptionAlign,
                     font: line.RightFont));
+                if (line.LeftIcon != null)
+                {
+                    Controls.Add(new MyGuiControlImage(
+                        position: controlPosition - new Vector2(0.05f, -0.002f),
+                        size: new Vector2(0.02f, 0.02f),
+                        textures: new string[] { line.LeftIcon.ToString() },
+                        backgroundColor: line.LeftIconColor));
+                }
                 controlPosition.Y += LINE_HEIGHT;
                 descriptionPosition.Y += LINE_HEIGHT;
             }
@@ -344,6 +404,14 @@ namespace Sandbox.Game.Gui
                     textScale: TEXT_SCALE,
                     originAlign: descriptionAlign,
                     font: line.RightFont));
+                if (line.LeftIcon != null)
+                {
+                    Controls.Add(new MyGuiControlImage(
+                        position: controlPosition - new Vector2(0.05f, -0.002f),
+                        size: new Vector2(0.02f, 0.02f),
+                        textures: new string[] { line.LeftIcon.ToString() },
+                        backgroundColor: line.LeftIconColor));
+                }
                 controlPosition.Y += LINE_HEIGHT;
                 descriptionPosition.Y += LINE_HEIGHT;
             }

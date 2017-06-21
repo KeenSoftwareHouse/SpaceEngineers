@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--Definition for Cube Builder Component (Building cubes)-->
+  <Definition xsi:type="MyObjectBuilder_CubeBuilderDefinition">
+    <Id>
+      <TypeId>MyObjectBuilder_CubeBuilderDefinition</TypeId>
+      <SubtypeId>CubeBuilderBase</SubtypeId>
+    </Id>
+    
+    <!--Building distance settings-->
+    <DefaultBlockBuildingDistance>20</DefaultBlockBuildingDistance>
+    <MaxBlockBuildingDistance>100</MaxBlockBuildingDistance>
+    <MinBlockBuildingDistance>1</MinBlockBuildingDistance>
+    <BuildingDistLargeSurvivalCharacter>10</BuildingDistLargeSurvivalCharacter>
+    <BuildingDistSmallSurvivalCharacter>5</BuildingDistSmallSurvivalCharacter>
+    <BuildingDistSmallSurvivalShip>12.5</BuildingDistSmallSurvivalShip>
+    <BuildingDistLargeSurvivalShip>12.5</BuildingDistLargeSurvivalShip>
+
+    <!--Placement settings-->
+    <BuildingSettings>
+      <StaticGridAlignToCenter>false</StaticGridAlignToCenter>
+      <SmallStaticGrid>
+        <SnapMode>OneFreeAxis</SnapMode>
+        <SearchHalfExtentsDeltaRatio>-0.1</SearchHalfExtentsDeltaRatio>
+        <SearchHalfExtentsDeltaAbsolute>-0.13</SearchHalfExtentsDeltaAbsolute>
+        <CanAnchorToStaticGrid>false</CanAnchorToStaticGrid>
+        <EnablePreciseRotationWhenSnapped>false</EnablePreciseRotationWhenSnapped>
+        <!--Voxel Placement Settings: Possible settings Both,InVoxel,OutsideVoxel,Volumetric. If volumetric set than MaxAllowed and MinAllowed will be used.-->
+        <VoxelPlacement>
+          <PlacementMode>OutsideVoxel</PlacementMode>
+        </VoxelPlacement>
+      </SmallStaticGrid>
+      <SmallGrid>
+        <SnapMode>OneFreeAxis</SnapMode>
+        <SearchHalfExtentsDeltaRatio>-0.1</SearchHalfExtentsDeltaRatio>
+        <SearchHalfExtentsDeltaAbsolute>-0.13</SearchHalfExtentsDeltaAbsolute>
+        <CanAnchorToStaticGrid>false</CanAnchorToStaticGrid>
+        <EnablePreciseRotationWhenSnapped>false</EnablePreciseRotationWhenSnapped>
+        <VoxelPlacement>
+          <PlacementMode>OutsideVoxel</PlacementMode>
+        </VoxelPlacement>
+      </SmallGrid>
+      <LargeStaticGrid>
+        <SnapMode>Base6Directions</SnapMode>
+        <SearchHalfExtentsDeltaRatio>-0.1</SearchHalfExtentsDeltaRatio>
+        <SearchHalfExtentsDeltaAbsolute>-0.13</SearchHalfExtentsDeltaAbsolute>
+        <CanAnchorToStaticGrid>false</CanAnchorToStaticGrid>
+        <EnablePreciseRotationWhenSnapped>true</EnablePreciseRotationWhenSnapped>
+        <VoxelPlacement>
+          <PlacementMode>Both</PlacementMode>
+        </VoxelPlacement>
+      </LargeStaticGrid>
+      <LargeGrid>
+        <SnapMode>OneFreeAxis</SnapMode>
+        <SearchHalfExtentsDeltaRatio>-0.1</SearchHalfExtentsDeltaRatio>
+        <SearchHalfExtentsDeltaAbsolute>-0.13</SearchHalfExtentsDeltaAbsolute>
+        <CanAnchorToStaticGrid>false</CanAnchorToStaticGrid>
+        <EnablePreciseRotationWhenSnapped>false</EnablePreciseRotationWhenSnapped>
+        <VoxelPlacement>
+          <PlacementMode>Both</PlacementMode>
+        </VoxelPlacement>
+      </LargeGrid>
+    </BuildingSettings>
+    
+  </Definition>
+  
+  <!--Definition for Clipboard Component (Copy/Paste functionality)-->
+  <Definition xsi:type="MyObjectBuilder_ClipboardDefinition">
+    <Id>
+      <TypeId>MyObjectBuilder_ClipboardDefinition</TypeId>
+      <SubtypeId>ClipboardBase</SubtypeId>
+    </Id>
+    
+    <!--Pasting settings-->
+    <PastingSettings>
+      <StaticGridAlignToCenter>false</StaticGridAlignToCenter>
+      <SmallStaticGrid>
+        <SnapMode>Base6Directions</SnapMode>
+        <CanAnchorToStaticGrid>false</CanAnchorToStaticGrid>
+        <EnablePreciseRotationWhenSnapped>false</EnablePreciseRotationWhenSnapped>
+        <!--Voxel Placement Settings: Possible settings Both,InVoxel,OutsideVoxel,Volumetric. If volumetric set than MaxAllowed and MinAllowed will be used.-->
+        <VoxelPlacement>
+          <PlacementMode>Both</PlacementMode>
+        </VoxelPlacement>
+      </SmallStaticGrid>
+      <SmallGrid>
+        <SnapMode>Base6Directions</SnapMode>
+        <CanAnchorToStaticGrid>false</CanAnchorToStaticGrid>
+        <EnablePreciseRotationWhenSnapped>false</EnablePreciseRotationWhenSnapped>
+        <VoxelPlacement>
+          <PlacementMode>Both</PlacementMode>
+        </VoxelPlacement>
+      </SmallGrid>
+      <LargeStaticGrid>
+        <SnapMode>Base6Directions</SnapMode>
+        <CanAnchorToStaticGrid>false</CanAnchorToStaticGrid>
+        <EnablePreciseRotationWhenSnapped>false</EnablePreciseRotationWhenSnapped>
+        <VoxelPlacement>
+          <PlacementMode>Both</PlacementMode>
+        </VoxelPlacement>
+      </LargeStaticGrid>
+      <LargeGrid>
+        <SnapMode>Base6Directions</SnapMode>
+        <CanAnchorToStaticGrid>false</CanAnchorToStaticGrid>
+        <EnablePreciseRotationWhenSnapped>false</EnablePreciseRotationWhenSnapped>
+        <VoxelPlacement>
+          <PlacementMode>Both</PlacementMode>
+        </VoxelPlacement>
+      </LargeGrid>
+    </PastingSettings>
+  </Definition>
+
+  <!--Definition for Local Coordinate System-->
+  <Definition xsi:type="MyObjectBuilder_CoordinateSystemDefinition">
+    <Id>
+      <TypeId>MyObjectBuilder_CoordinateSystemDefinition</TypeId>
+      <SubtypeId>CoordinateSystem</SubtypeId>
+    </Id>
+    <!--Angle tolerance (in radians) used for deciding if block is aligned to coord system-->
+    <AngleTolerance>0.0001</AngleTolerance>
+    <!--Position tolerance (in meters) used for deciding if block is aligned to coord system-->
+    <PositionTolerance>0.001</PositionTolerance>
+    <!--Local coordinate system size (in meters)-->
+    <CoordSystemSize>1000</CoordSystemSize>
+  </Definition>
+</Definitions>

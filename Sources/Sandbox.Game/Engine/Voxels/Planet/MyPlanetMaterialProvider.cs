@@ -4,8 +4,7 @@ using Sandbox.Game.GameSystems;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using VRage;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
@@ -201,7 +200,7 @@ namespace Sandbox.Engine.Voxels
             Closed = true;
         }
 
-        public unsafe void GetRuleBounds(ref BoundingBox request, out BoundingBox ruleBounds)
+        private unsafe void GetRuleBounds(ref BoundingBox request, out BoundingBox ruleBounds)
         {
             Vector3* vertices = stackalloc Vector3[8];
 
@@ -309,15 +308,10 @@ namespace Sandbox.Engine.Voxels
 
             foreach (var bio in m_biomes.Values)
             {
-                if (Object.ReferenceEquals(m_rangeBiomes[bio.Value], bio.Rules) || m_rangeBiomes[bio.Value] == null || m_providerForRules != this)
+                if (ReferenceEquals(m_rangeBiomes[bio.Value], bio.Rules) || m_rangeBiomes[bio.Value] == null || m_providerForRules != this)
                     m_rangeBiomes[bio.Value] = new List<PlanetMaterialRule>();
 
-                m_rangeBiomes[bio.Value].Clear();
-
-                bio.MateriaTree.Query(delegate(int x)
-                {
-                    m_rangeBiomes[bio.Value].Add(bio.MateriaTree.GetUserData<PlanetMaterialRule>(x)); return true;
-                }, ref box);
+                bio.MateriaTree.OverlapAllBoundingBox(ref box, m_rangeBiomes[bio.Value], clear: true);
             }
             m_rangeClean = false;
             m_providerForRules = this;
@@ -341,7 +335,7 @@ namespace Sandbox.Engine.Voxels
 
             ProfilerShort.Begin("MaterialComputation");
 
-            req.Flags = req.RequestFlags & MyVoxelRequestFlags.SurfaceMaterial;
+            req.Flags = req.RequestFlags & (MyVoxelRequestFlags.SurfaceMaterial | MyVoxelRequestFlags.ConsiderContent);
 
             Vector3I minInLod = req.minInLod;
             Vector3I maxInLod = req.maxInLod;
@@ -356,9 +350,10 @@ namespace Sandbox.Engine.Voxels
             // We don't bother determining where the surface is if we don't have the normal.
             bool assignToSurface = req.RequestFlags.HasFlags(MyVoxelRequestFlags.SurfaceMaterial);
 
+            bool useContent = req.RequestFlags.HasFlags(MyVoxelRequestFlags.ConsiderContent);
+
             // Prepare coefficient cache
             m_planetShape.PrepareCache();
-
 
             // Here we will compute which rules match the requested range and apply those.
             if (m_biomes != null)
@@ -388,14 +383,15 @@ namespace Sandbox.Engine.Voxels
                         var write = v + combinedOffset;
                         var writeLinear = target.ComputeLinear(ref write);
 
-                        byte material = target.Material(writeLinear);
-                        if (material != 0 && assignToSurface)
+                        if ((assignToSurface && target.Material(writeLinear) != 0)
+                            || (useContent && target.Content(writeLinear) == 0))
                         {
                             if (computeOcclusion)
                             {
                                 // Prevent empty voxels from affecting occlusion.
                                 target.Content(writeLinear, 0);
                             }
+                            target.Material(writeLinear, MyVoxelConstants.NULL_MATERIAL);
                             continue;
                         }
 
@@ -423,7 +419,7 @@ namespace Sandbox.Engine.Voxels
         {
             ProfilerShort.Begin("Occlusion Computation");
 
-            req.Flags = req.RequestFlags & MyVoxelRequestFlags.SurfaceMaterial;
+            req.Flags = req.RequestFlags & (MyVoxelRequestFlags.SurfaceMaterial | MyVoxelRequestFlags.ConsiderContent);
 
             Vector3I minInLod = req.minInLod;
             Vector3I maxInLod = req.maxInLod;
@@ -432,7 +428,9 @@ namespace Sandbox.Engine.Voxels
             float lodVoxelSize = 1 << req.Lod;
 
             // We don't bother determining where the surface is if we don't have the normal.
-            bool assignToSurface = req.RequestFlags.HasFlags(MyVoxelRequestFlags.SurfaceMaterial);
+            bool assignToSurface = req.RequestFlags.HasFlags(MyVoxelRequestFlags.SurfaceMaterial) && req.RequestedData.Requests(MyStorageDataTypeEnum.Material);
+
+            bool useContent = req.RequestFlags.HasFlags(MyVoxelRequestFlags.ConsiderContent);
 
             // Prepare coefficient cache
             m_planetShape.PrepareCache();
@@ -449,6 +447,13 @@ namespace Sandbox.Engine.Voxels
 
                         var write = v + combinedOffset;
                         var writeLinear = target.ComputeLinear(ref write);
+
+                        if ((assignToSurface && target.Material(writeLinear) != 0)
+                            || (useContent && target.Content(writeLinear) == 0))
+                        {
+                            target.Content(writeLinear, 0);
+                            continue;
+                        }
 
                         Vector3 localPos = coords * lodVoxelSize;
                         var occlusion = GetOcclusionForPosition(ref localPos, lodVoxelSize);
@@ -732,7 +737,7 @@ namespace Sandbox.Engine.Voxels
 
             // this guarantess texcoord in [0,1)
             if (skipCache)
-                ps.SampledHeight = m_planetShape.GetValueForPosition(ps.Face, ref ps.Texcoord, out ps.Normal);
+                ps.SampledHeight = m_planetShape.GetValueForPositionCacheless(ps.Face, ref ps.Texcoord, out ps.Normal);
             else
                 ps.SampledHeight = m_planetShape.GetValueForPositionWithCache(ps.Face, ref ps.Texcoord, out ps.Normal);
 

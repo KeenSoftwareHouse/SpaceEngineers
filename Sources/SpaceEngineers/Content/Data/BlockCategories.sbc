@@ -404,6 +404,7 @@
       <SearchBlocks>false</SearchBlocks>
       <IsShipCategory>true</IsShipCategory>
       <IsBlockCategory>false</IsBlockCategory>
+      <IsToolCategory>true</IsToolCategory>
       <ItemIds>
         <string>ShipGrinder/LargeShipGrinder</string>
         <string>ShipWelder/LargeShipWelder</string>
@@ -496,7 +497,7 @@
         <string>ConveyorTubeCurved</string>
         <string>ConveyorTubeSmallCurved</string>
         <string>ConveyorTubeCurvedMedium</string>
-        <string>SmallShipConveyorHub</string>
+        <!--<string>SmallShipConveyorHub</string>-->
         <string>ConveyorSorter/LargeBlockConveyorSorter</string>
         <string>ConveyorSorter/MediumBlockConveyorSorter</string>
         <string>ConveyorSorter/SmallBlockConveyorSorter</string>
@@ -514,6 +515,7 @@
       <Name>CharacterAnimations</Name>
       <IsShipCategory>true</IsShipCategory>
       <ShowAnimations>true</ShowAnimations>
+      <IsAnimationCategory>true</IsAnimationCategory>
       <ItemIds>
         <string>Wave</string>
         <string>Victory</string>
@@ -529,6 +531,7 @@
       <DisplayName>DisplayName_Category_CharacterTools</DisplayName>
       <Name>CharacterTools</Name>
       <SearchBlocks>false</SearchBlocks>
+      <IsToolCategory>true</IsToolCategory>
       <ItemIds>
         <string>AutomaticRifleItem</string>
         <string>RapidFireAutomaticRifleItem</string>

@@ -27,8 +27,6 @@ namespace Sandbox.Game.Replication
     /// </summary>
     class MyGridPhysicsStateGroup : MyEntityPhysicsStateGroup
     {
-        const int NUM_NODES_TO_SEND_ALL = 50;
-        static Func<MyEntity, Vector3D, bool> m_positionValidation = ValidatePosition;
 
         static List<MyCubeGrid> m_groups = new List<MyCubeGrid>();
 
@@ -42,17 +40,42 @@ namespace Sandbox.Game.Replication
         public MyGridPhysicsStateGroup(MyEntity entity, IMyReplicable ownerReplicable)
             : base(entity, ownerReplicable)
         {
+            m_positionValidation = ValidatePosition;
         }
 
-        static bool ValidatePosition(MyEntity entity, Vector3D position)
+        bool ValidatePosition(MyEntity entity, Vector3D position)
         {
-            // TODO: Jump hack, ideally remove (depends on position which comes from server, need to read it first, then check, then apply)
             var grid = entity as MyCubeGrid;
             if (grid != null && grid.PositionComp != null && grid.GridSystems.JumpSystem != null)
             {
                 return grid.GridSystems.JumpSystem.CheckReceivedCoordinates(ref position);
             }
             return true;
+        }
+
+        public override MyPlayer GetControllingPlayer()
+        {
+            if (Sync.Players == null)
+            {
+                return null;
+            }
+
+            var g = MyCubeGridGroups.Static.PhysicalDynamic.GetGroup(Entity);
+            if (g == null)
+            {
+                return base.GetControllingPlayer();
+            }
+
+            foreach (var node in g.Nodes)
+            {
+                MyPlayer player = Sync.Players.GetControllingPlayer(node.NodeData);
+                if (player != null)
+                {
+                    return player;
+                }
+
+            }
+            return null;
         }
 
         /// <summary>
@@ -73,7 +96,7 @@ namespace Sandbox.Game.Replication
             foreach (var node in group.Nodes)
             {
                 // Static in never master
-                if (node.NodeData.IsStatic)
+                if (node.NodeData.Physics == null || node.NodeData.Physics.IsStatic)
                     continue;
 
                 // Sort by radius, then by EntityId (to make stable sort of two same-size grids)
@@ -97,17 +120,21 @@ namespace Sandbox.Game.Replication
 
             if (Entity != GetMasterGrid(Entity))
                 return 0;
-         
 
+            //support has allways high priority
+            if (client.State.SupportId.HasValue && client.State.SupportId.Value == Entity.EntityId && IsMoving(Entity))
+            {
+                return 1000.0f;
+            }
             return base.GetGroupPriority(frameCountWithoutSync, client, settings);
         }
-        
-        private void UpdateGridMaxSpeed(MyCubeGrid grid,bool fromServer = true)
-        {
-            if (Sync.IsServer == false && MyPerGameSettings.EnableMultiplayerVelocityCompensation && grid != null && grid.Physics != null && grid.Physics.RigidBody != null)
-            {
-                float maxSpeed = grid.GridSizeEnum == MyCubeSize.Large ? MyGridPhysics.LargeShipMaxLinearVelocity() : MyGridPhysics.SmallShipMaxLinearVelocity();
 
+        private static void UpdateGridMaxSpeed(MyCubeGrid grid, bool fromServer = true)
+        {
+            if (Sync.IsServer == false && grid != null && grid.Physics != null && grid.Physics.RigidBody != null)
+            {
+                float maxSpeed = 1.04f*(grid.GridSizeEnum == MyCubeSize.Large ? MyGridPhysics.LargeShipMaxLinearVelocity() : MyGridPhysics.SmallShipMaxLinearVelocity());
+                
                 maxSpeed *= Sync.RelativeSimulationRatio;
                
                 if (fromServer && grid.Physics.RigidBody.LinearVelocity.LengthSquared() > maxSpeed * maxSpeed)
@@ -121,7 +148,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public override void Serialize(BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        public override bool Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
         {
             // Client does not care about slave grids, he always synced group through controlled object
             Debug.Assert(stream.Reading || !Sync.IsServer || Entity == GetMasterGrid(Entity), "Writing data from SlaveGrid!");
@@ -139,8 +166,9 @@ namespace Sandbox.Game.Replication
                 moving = stream.ReadBool();
             }
 
+
             // Serialize this grid
-            apply = SerializeTransform(stream, Entity, null, m_lowPrecisionOrientation, apply,moving, m_positionValidation, MoveHandler);
+            apply = SerializeTransform(stream, Entity, null, m_lowPrecisionOrientation, apply,moving, timestamp, m_positionValidation, MoveHandler);
             SerializeVelocities(stream, Entity, EffectiveSimulationRatio, apply, moving,VelocityHandler);
 
      
@@ -148,79 +176,119 @@ namespace Sandbox.Game.Replication
             Vector3D basePos = Entity.WorldMatrix.Translation;
             if (stream.Writing)
             {
+ 
                 UpdateGridMaxSpeed(Entity, Sync.IsServer);
-                var g = MyCubeGridGroups.Static.PhysicalDynamic.GetGroup(Entity);
-                if (g == null)
+
+                bool fullyWritten = WriteSubgrids(Entity,stream, ref forClient, timestamp, maxBitPosition,m_lowPrecisionOrientation, ref basePos, ref m_currentSentPosition);
+
+                stream.WriteBool(fullyWritten);
+
+                if (fullyWritten)
                 {
-                    stream.WriteByte(0);
+                    SerializeRopeData(stream, apply, gridsGroup: m_groups);
                 }
-                else
-                {
-                    m_groups.Clear();
-                    int i= -1;
-                    foreach (var node in g.Nodes)
-                    {
-                        i++;
-                        if(i < m_currentSentPosition)
-                        {
-                            continue;
-                        }
-                        if (i == m_currentSentPosition + NUM_NODES_TO_SEND_ALL)
-                        {
-                            break;
-                        }
-                        var target = MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy)node.NodeData);
-                        if (node.NodeData != Entity && !node.NodeData.IsStatic && target != null)
-                        {
-                            m_groups.Add(node.NodeData);
-                        }
-                    }
+                return fullyWritten;
 
-                    m_currentSentPosition = i;
-                    if (m_currentSentPosition >= g.Nodes.Count-1)
-                    {
-                        m_currentSentPosition = 0;
-                    }
-                    stream.WriteByte((byte)m_groups.Count); // Ignoring self
-                    foreach (var node in m_groups)
-                    {
-                        var target = MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy)node);
-
-                        // ~26.5 bytes per grid, not bad
-                        NetworkId networkId = MyMultiplayer.Static.ReplicationLayer.GetNetworkIdByObject(target);
-                        stream.WriteNetworkId(networkId); // ~2 bytes
-
-                        moving = IsMoving(node);
-                        stream.WriteBool(moving);
-               
-                        SerializeTransform(stream, node, basePos, true, apply, moving,null, null); // 12.5 bytes
-                        SerializeVelocities(stream, node, EffectiveSimulationRatio, apply, moving); // 12 byte
-                        UpdateGridMaxSpeed(node, Sync.IsServer);
-                    }
-                }
-
-                SerializeRopeData(stream, apply, gridsGroup: m_groups);
             }
             else
             {
                 UpdateGridMaxSpeed(Entity, !Sync.IsServer);
 
-                byte numRecords = stream.ReadByte();
-                for (int i = 0; i < numRecords; i++)
-                {               
-                    NetworkId networkId = stream.ReadNetworkId(); // ~2 bytes
-                    MyCubeGridReplicable replicable = MyMultiplayer.Static.ReplicationLayer.GetObjectByNetworkId(networkId) as MyCubeGridReplicable;
-                    MyCubeGrid grid = replicable != null ? replicable.Grid : null;
+                ReadSubGrids(stream, timestamp, apply,m_lowPrecisionOrientation, ref basePos);
 
-                    moving = stream.ReadBool();
-                    SerializeTransform(stream, grid, basePos, true, apply && grid != null,moving, null, null); // 12.5 bytes
-                    SerializeVelocities(stream, grid, EffectiveSimulationRatio, apply && grid != null, moving); // 12 bytes
-                   
-                    UpdateGridMaxSpeed(grid,!Sync.IsServer);
+                if (stream.ReadBool())
+                {
+                    SerializeRopeData(stream, apply);
+                }
+            }
+            return true;
+        }
+
+        protected static bool IsMovingSubGrid(MyEntity entity)
+        {
+            // Never know if somebody is moving entity when physics is null
+            return entity.Physics == null
+                || Vector3.IsZero(entity.Physics.LinearVelocity, PRECISION) == false
+                || Vector3.IsZero(entity.Physics.AngularVelocity, PRECISION) == false;
+        }
+
+        public static void ReadSubGrids(BitStream stream, uint timestamp, bool apply,bool lowPrecisionOrientation, ref Vector3D basePos)
+        {
+            while (stream.ReadBool())
+            {
+                NetworkId networkId = stream.ReadNetworkId(); // ~2 bytes
+                MyCubeGridReplicable replicable = MyMultiplayer.Static.ReplicationLayer.GetObjectByNetworkId(networkId) as MyCubeGridReplicable;
+                MyCubeGrid grid = replicable != null ? replicable.Grid : null;
+
+                bool moving = stream.ReadBool();
+                SerializeTransform(stream, grid, basePos, lowPrecisionOrientation, apply && grid != null, moving, timestamp, null, null); // 12.5 bytes
+                SerializeVelocities(stream, grid, EffectiveSimulationRatio, apply && grid != null, moving); // 12 bytes
+
+                UpdateGridMaxSpeed(grid, !Sync.IsServer);
+            }
+        }
+
+        public static  bool WriteSubgrids(MyCubeGrid masterGrid, BitStream stream, ref EndpointId forClient, uint timestamp, int maxBitPosition, bool lowPrecisionOrientation,ref Vector3D basePos, ref int currentSentPosition)
+        {
+            bool fullyWritten = true;
+            var g = MyCubeGridGroups.Static.PhysicalDynamic.GetGroup(masterGrid);
+            if (g == null)
+            {
+                stream.WriteBool(false);
+            }
+            else
+            {
+                m_groups.Clear();
+                int i = 0;
+                foreach (var node in g.Nodes)
+                {
+                    i++;
+
+                    if (i < currentSentPosition)
+                    {
+                        continue;
+                    }
+
+
+                    var target = MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy)node.NodeData);
+
+                    int pos = stream.BitPosition;
+
+                    if (node.NodeData != masterGrid && node.NodeData.Physics != null && !node.NodeData.Physics.IsStatic && target != null)
+                    {
+                        stream.WriteBool(true);
+                        // ~26.5 bytes per grid, not bad
+                        NetworkId networkId = MyMultiplayer.Static.ReplicationLayer.GetNetworkIdByObject(target);
+                        stream.WriteNetworkId(networkId); // ~2 bytes
+
+                        bool moving = IsMovingSubGrid(node.NodeData);
+                        stream.WriteBool(moving);
+
+                        SerializeTransform(stream, node.NodeData, basePos, lowPrecisionOrientation, false, moving, timestamp, null, null); // 12.5 bytes
+                        SerializeVelocities(stream, node.NodeData, EffectiveSimulationRatio, false, moving); // 12 byte
+                        UpdateGridMaxSpeed(node.NodeData, Sync.IsServer);
+                        m_groups.Add(node.NodeData);
+
+                        currentSentPosition++;
+                    }
+
+                    if (stream.BitPosition > maxBitPosition)
+                    {
+                        stream.SetBitPositionWrite(pos);
+                        fullyWritten = false;
+                        currentSentPosition--;
+                        break;
+                    }
+
+                    if (i == g.Nodes.Count)
+                    {
+                        currentSentPosition = 0;
+                    }
                 }
 
-                SerializeRopeData(stream, apply);
+                stream.WriteBool(false);
             }
+            return fullyWritten;
         }
 
         private void SerializeRopeData(BitStream stream, bool applyWhenReading, List<MyCubeGrid> gridsGroup = null)
@@ -276,26 +344,6 @@ namespace Sandbox.Game.Replication
                 }
             }
 
-        }
-
-        private bool IsGroupControlledByAnyPlayer(List<MyCubeGrid> gridsGroup)
-        {
-            MyPlayer.PlayerId playerId;
-            bool controlled = Sync.Players.ControlledEntities.TryGetValue(Entity.EntityId, out playerId);
-            if (controlled)
-                return true;
-
-            if (gridsGroup != null)
-            {
-                foreach (var grid in gridsGroup)
-                {
-                    controlled = Sync.Players.ControlledEntities.TryGetValue(Entity.EntityId, out playerId);
-                    if (controlled)
-                        return true;
-                }
-            }
-
-            return false;
         }
     }
 }

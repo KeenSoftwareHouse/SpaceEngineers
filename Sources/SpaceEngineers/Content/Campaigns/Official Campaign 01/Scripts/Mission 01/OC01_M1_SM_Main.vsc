@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_VSFiles xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <StateMachine>
+    <Name>OC01_M1_SM_Main</Name>
+    <OwnerId>0</OwnerId>
+    <Cursors>
+      <MyObjectBuilder_ScriptSMCursor>
+        <NodeName>Start</NodeName>
+      </MyObjectBuilder_ScriptSMCursor>
+    </Cursors>
+    <Nodes>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="407" y="252" />
+        <Name>Start</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_Start.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_Start</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="701.965454" y="245.414185" />
+        <Name>GetToTheBridge</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_GetToTheBridge.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_GetToTheBridge</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1028.17432" y="243.001465" />
+        <Name>GetToTheHangar</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_GetToTheHangar.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_GetToTheHangar</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1434.0105" y="242.573486" />
+        <Name>StationStart</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_StationStart.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_StationStart</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1760.69189" y="231.4118" />
+        <Name>Exploration</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_Exploration.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_Exploration</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode xsi:type="MyObjectBuilder_ScriptSMSpreadNode">
+        <Position x="2543.86426" y="269.961" />
+        <Name>Spread_6</Name>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="2508.681" y="4.017853" />
+        <Name>Effects</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_m1_OLS_Effects.vs</ScriptFilePath>
+        <ScriptClassName>OC01_m1_OLS_Effects</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="2728.41748" y="247.028748" />
+        <Name>Sprint</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_Sprint.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_Sprint</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="3278.95044" y="249.50174" />
+        <Name>EscapePod</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_EscapePod.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_EscapePod</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="2009.38989" y="228.602478" />
+        <Name>BreachArea</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_BreachArea.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_BreachArea</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="2263.3877" y="239.554749" />
+        <Name>DamagedDoor</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_DamagedDoor.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_DamagedDoor</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="2998.20654" y="229.574219" />
+        <Name>Jumping</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 01\OC01_M1_OLS_Jumping.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M1_OLS_Jumping</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+    </Nodes>
+    <Transitions>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Start</From>
+        <To>GetToTheBridge</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>GetToTheBridge</From>
+        <To>GetToTheHangar</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>StationStart</From>
+        <To>Exploration</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Exploration</From>
+        <To>BreachArea</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_6</From>
+        <To>Effects</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name />
+        <From>Spread_6</From>
+        <To>Sprint</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>GetToTheHangar</From>
+        <To>StationStart</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Sprint</From>
+        <To>Jumping</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>BreachArea</From>
+        <To>DamagedDoor</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>DamagedDoor</From>
+        <To>Spread_6</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Jumping</From>
+        <To>EscapePod</To>
+      </MyObjectBuilder_ScriptSMTransition>
+    </Transitions>
+  </StateMachine>
+</MyObjectBuilder_VSFiles>

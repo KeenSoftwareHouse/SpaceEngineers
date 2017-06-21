@@ -1,10 +1,13 @@
-﻿using System;
+﻿#if !XB1
+
+using System;
 using System.Collections.Generic;
 using VRage.Win32;
 
 namespace VRage.Input
 {
-    class MyGuiLocalizedKeyboardState
+	[Unsharper.UnsharperDisableReflection]
+    public class MyGuiLocalizedKeyboardState
     {
         static HashSet<byte> m_localKeys;
 
@@ -21,7 +24,11 @@ namespace VRage.Input
             }
 
             public KeyboardLayout(string keyboardLayoutID)
+#if UNSHARPER
+				:this(new IntPtr())
+#else
                 : this(WinApi.LoadKeyboardLayout(keyboardLayoutID, KLF_NOTELLSHELL))
+#endif
             {
             }
 
@@ -35,8 +42,11 @@ namespace VRage.Input
             {
                 if (IsDisposed)
                     return;
-
+#if UNSHARPER
+					System.Diagnostics.Debug.Assert(false);
+#else
                 WinApi.UnloadKeyboardLayout(Handle);
+#endif
                 IsDisposed = true;
             }
 
@@ -46,7 +56,12 @@ namespace VRage.Input
             {
                 get
                 {
-                    return new KeyboardLayout(WinApi.GetKeyboardLayout(IntPtr.Zero));
+#if UNSHARPER
+					System.Diagnostics.Debug.Assert(false);
+					return new KeyboardLayout();
+#else
+					return new KeyboardLayout(WinApi.GetKeyboardLayout(IntPtr.Zero));
+#endif
                 }
             }
         }
@@ -95,8 +110,8 @@ namespace VRage.Input
 
         public void ClearStates()
         {
-            m_previousKeyboardState = new MyKeyboardState();
-            m_actualKeyboardState = new MyKeyboardState();                        
+            m_previousKeyboardState = m_actualKeyboardState;
+            m_actualKeyboardState = new MyKeyboardState();
         }
 
 
@@ -111,6 +126,12 @@ namespace VRage.Input
         {
             m_previousKeyboardState = m_actualKeyboardState;
             m_actualKeyboardState = state;
+        }
+
+        public void UpdateStatesFromSnapshot(MyKeyboardState currentState, MyKeyboardState previousState)
+        {
+            m_previousKeyboardState = previousState;
+            m_actualKeyboardState = currentState;
         }
 
         public MyKeyboardState GetActualKeyboardState()
@@ -229,3 +250,5 @@ namespace VRage.Input
         }
     }
 }
+
+#endif

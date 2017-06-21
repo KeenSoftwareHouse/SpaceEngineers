@@ -1,4 +1,5 @@
-﻿// Type: System.ServiceProcess.ServiceBase
+﻿#if !XB1
+// Type: System.ServiceProcess.ServiceBase
 // Assembly: System.ServiceProcess, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a
 // Assembly location: C:\Windows\Microsoft.NET\Framework\v4.0.30319\System.ServiceProcess.dll
 
@@ -822,3 +823,4 @@ namespace VRage.Service
         private delegate void DeferredHandlerDelegateAdvancedSession(int eventType, int sessionId);
     }
 }
+#endif // !XB1

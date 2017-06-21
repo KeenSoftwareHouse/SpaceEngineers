@@ -374,12 +374,11 @@ namespace Sandbox.Game.Gui
 
                 var mousePosition = MyGuiManager.MouseCursorPosition;
                 VRageRender.MyRenderProxy.DebugDrawText2D(initVec, "Mouse coords: " + mousePosition.ToString(), Color.BlueViolet, 0.4f);
+
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 450), multiplayerStats, Color.Yellow, 0.6f);
             }
 
             #endregion
-
-            VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 450), multiplayerStats, Color.Yellow, 0.6f);
-
         }
 
         public override void Update10()
@@ -414,7 +413,7 @@ namespace Sandbox.Game.Gui
 
         private bool ThrowFloatingObjectsFunc()
         {
-            var view = MySession.Static.CameraController.GetViewMatrix();
+            var view = MySector.MainCamera.ViewMatrix;
             var inv = Matrix.Invert(view);
 
             //MyPhysicalInventoryItem item = new MyPhysicalInventoryItem(100, 
@@ -447,8 +446,8 @@ namespace Sandbox.Game.Gui
             {
                 if (grid is MyCubeGrid)
                 {
-                    if ((grid as MyCubeGrid).GetFirstBlockOfType<MySpaceBall>() != null)
-                        grid.Close();
+                    //if ((grid as MyCubeGrid).GetFirstBlockOfType<MySpaceBall>() != null)
+                    //    grid.Close();
                 }
             }
             return true;

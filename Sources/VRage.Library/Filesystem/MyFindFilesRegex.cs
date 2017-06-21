@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 
 namespace VRage.Filesystem
 {
@@ -10,6 +12,9 @@ namespace VRage.Filesystem
     {
         public static class FindFilesPatternToRegex
         {
+#if XB1
+            //TODO for XB1?
+#else // !XB1
             private static Regex HasQuestionMarkRegEx = new Regex(@"\?", RegexOptions.Compiled);
             private static Regex IlegalCharactersRegex = new Regex("[" + @"\/:<>|" + "\"]", RegexOptions.Compiled);
             private static Regex CatchExtentionRegex = new Regex(@"^\s*.+\.([^\.]+)\s*$", RegexOptions.Compiled);
@@ -50,6 +55,7 @@ namespace VRage.Filesystem
                 Regex regex = new Regex(regexString, RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 return regex;
             }
+#endif // !XB1
         }
     }
 }

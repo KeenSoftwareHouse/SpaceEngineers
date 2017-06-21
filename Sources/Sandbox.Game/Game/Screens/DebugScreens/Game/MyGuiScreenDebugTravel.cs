@@ -1,4 +1,5 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -11,6 +12,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1
     [MyDebugScreen("Game", "Travel")]
     class MyGuiScreenDebugTravel : MyGuiScreenDebugBase
     {
@@ -62,22 +64,9 @@ namespace Sandbox.Game.Screens.DebugScreens
         {
             Vector3D pos = (Vector3D)positionInMilions * 1E6;
 
-            var topEntity = ((MyEntity)MySession.Static.ControlledEntity).GetTopMostParent();
-
-            if (topEntity is MyCubeGrid)
-            {
-                var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(topEntity as MyCubeGrid);
-
-                foreach (var grid in gridGroup.Nodes)
-                {
-                    grid.NodeData.PositionComp.SetPosition(pos);
-                }
-            }
-            else
-            {
-                topEntity.PositionComp.SetPosition(pos);
-            }
+            MyMultiplayer.TeleportControlledEntity(pos);
         }
 
     }
+#endif
 }

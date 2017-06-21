@@ -17,6 +17,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Weapons;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -138,7 +139,7 @@ namespace Sandbox.Game.GameSystems
                 }
 
                 if (weapon.CanShoot(action, m_shipController.ControllerInfo.Controller != null ? m_shipController.ControllerInfo.ControllingIdentityId : m_shipController.OwnerId, out status))
-                    weapon.Shoot(action, ((MyEntity)weapon).WorldMatrix.Forward);
+                    weapon.Shoot(action, ((MyEntity)weapon).WorldMatrix.Forward, null);
             }
         }
 

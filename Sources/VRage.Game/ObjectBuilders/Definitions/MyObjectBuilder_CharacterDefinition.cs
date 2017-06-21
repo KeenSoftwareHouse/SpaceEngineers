@@ -9,6 +9,13 @@ using VRageMath;
 
 namespace VRage.Game
 {
+    public enum MyEnumCharacterRotationToSupport
+    {
+        None,
+        OneAxis,
+        Full
+    }
+
     [ProtoContract]
     public class MyJetpackThrustDefinition
     {
@@ -254,6 +261,12 @@ namespace VRage.Game
         public string RightHandItemBone;
 
         [ProtoMember]
+        public bool UsesAtmosphereDetector = false;
+
+        [ProtoMember]
+        public bool UsesReverbDetector = false;
+
+        [ProtoMember]
         public bool NeedsOxygen = false;
 
         [ProtoMember]
@@ -322,9 +335,10 @@ namespace VRage.Game
         [ProtoMember]
         public float CharacterCollisionCrouchHeight = 1.25f;
 
-        [ProtoMember]
-        public string HelmetVariation;
-
+        // new astronaut does not use this variable
+        //[ProtoMember]
+        //public string HelmetVariation;
+        
         [ProtoMember]
         public string JumpSoundName = "";
         [ProtoMember]
@@ -339,11 +353,17 @@ namespace VRage.Game
         public string CrouchDownSoundName = "";
         [ProtoMember]
         public string CrouchUpSoundName = "";
+        [ProtoMember]
+        public string MovementSoundName = "";
 
         [ProtoMember]
         public string PainSoundName = "";
         [ProtoMember]
+        public string SuffocateSoundName = "";
+        [ProtoMember]
         public string DeathSoundName = "";
+        [ProtoMember]
+        public string DeathBySuffocationSoundName = "";
 
         [ProtoMember]
         public string IronsightActSoundName = "";
@@ -351,6 +371,15 @@ namespace VRage.Game
         public string IronsightDeactSoundName = "";
         [ProtoMember]
         public string FastFlySoundName = "";
+
+        [ProtoMember]
+        public string HelmetOxygenNormalSoundName = "";
+        [ProtoMember]
+        public string HelmetOxygenLowSoundName = "";
+        [ProtoMember]
+        public string HelmetOxygenCriticalSoundName = "";
+        [ProtoMember]
+        public string HelmetOxygenNoneSoundName = "";
 
         [ProtoMember]
         public bool LoopingFootsteps = false;
@@ -403,8 +432,15 @@ namespace VRage.Game
         /// <summary>
         /// Name of used animation controller.
         /// </summary>
+        [ProtoMember]
         public string AnimationController = null;
 
+        [ProtoMember]
         public float? MaxForce = null;
+        /// <summary>
+        /// Align with the support? 
+        /// </summary>
+        [ProtoMember]
+        public MyEnumCharacterRotationToSupport RotationToSupport = MyEnumCharacterRotationToSupport.None;
     }
 }

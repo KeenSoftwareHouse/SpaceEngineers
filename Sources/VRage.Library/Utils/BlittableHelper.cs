@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -26,3 +27,4 @@ namespace VRage.Library.Utils
         }
     } 
 }
+#endif // !XB1

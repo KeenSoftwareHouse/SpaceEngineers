@@ -24,169 +24,44 @@ using VRage.Game.Components;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Network;
+using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 #endregion
 
 namespace Sandbox.Game.Multiplayer
 {
+    [StaticEventOwner]
     [PreloadRequired]
     public static class MySyncDestructions
     {
-        [MessageId(3247, P2PMessageEnum.Unreliable)]
-        struct AddDestructionEffectMsg
-        {
-            public Vector3D Position;
-            public Vector3 Direction;
-            public float Scale;
-            public MyParticleEffectsIDEnum EffectId;
-        }
-
-        [MessageId(3248, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct CreateFracturePieceMsg
-        {
-            [ProtoMember]
-            public MyObjectBuilder_FracturedPiece FracturePiece;
-
-            public override string ToString()
-            {
-                return "CreateFracturePieceMsg: " + FracturePiece.EntityId;
-            }
-        }
-
-        [MessageId(3249, P2PMessageEnum.Reliable)]
-        struct RemoveFracturePieceMsg
-        {
-            public long EntityId;
-            public float BlendTime;
-
-            public override string ToString()
-            {
-                return "RemoveFracturePieceMsg: " + EntityId + ", " + BlendTime;
-            }
-        }
-
-        [MessageId(3250, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct CreateFractureBlockMsg
-        {
-            [ProtoMember]
-            public MyObjectBuilder_FracturedBlock FracturedBlock;
-
-            [ProtoMember]
-            public long Grid;
-
-            [ProtoMember]
-            public Vector3I Position;
-        }
-
-        [MessageId(3253, P2PMessageEnum.Reliable)]
-        struct FPManagerDbgMsg
-        {
-            public long CreatedId;
-            public long RemovedId;
-        }
-
-        [MessageId(3254, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct CreateFractureComponentMsg
-        {
-            [ProtoMember]
-            public MyObjectBuilder_FractureComponentBase FractureComponent;
-
-            [ProtoMember]
-            public long Grid;
-
-            [ProtoMember]
-            public Vector3I Position;
-
-            [ProtoMember]
-            public ushort CompoundBlockId;
-        }
-
-        [MessageId(3265, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct RemoveShapeFromFractureComponentMsg
-        {
-            [ProtoMember]
-            public long Grid;
-
-            [ProtoMember]
-            public Vector3I Position;
-
-            [ProtoMember]
-            public ushort CompoundBlockId;
-
-            [ProtoMember]
-            public string[] ShapeNames;
-        }
-
-        [MessageId(3266, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct RemoveFracturedPiecesMsg
-        {
-            [ProtoMember]
-            public ulong UserId;
-
-            [ProtoMember]
-            public Vector3D Center;
-
-            [ProtoMember]
-            public float Radius;
-        }
-
-
-        static MySyncDestructions()
-        {
-            //MySyncLayer.RegisterMessage<EnableGeneratorsMsg>(OnEnableGeneratorsMessage, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<AddDestructionEffectMsg>(OnAddDestructionEffectMessage, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer|MyMessagePermissions.ToSelf, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<CreateFracturePieceMsg>(OnCreateFracturePieceMessage, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<RemoveFracturePieceMsg>(OnRemoveFracturePieceMessage, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<CreateFractureBlockMsg>(OnCreateFracturedBlockMessage, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<CreateFractureComponentMsg>(OnCreateFractureComponentMessage, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<RemoveShapeFromFractureComponentMsg>(OnRemoveShapeFromFractureComponentMessage, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-
-            MySyncLayer.RegisterMessage<FPManagerDbgMsg>(OnFPManagerDbgMessage, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<RemoveFracturedPiecesMsg>(OnRemoveFracturedPiecesMessage, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-        }
-
-
         public static void AddDestructionEffect(MyParticleEffectsIDEnum effectId, Vector3D position, Vector3 direction, float scale)
         {
-            AddDestructionEffectMsg msg = new AddDestructionEffectMsg();
-            msg.EffectId = effectId;
-            msg.Position = position;
-            msg.Direction = direction;
-            msg.Scale = scale;
-            MySession.Static.SyncLayer.SendMessageToServerAndSelf(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnAddDestructionEffectMessage, effectId, position, direction, scale);
         }
-
-        static void OnAddDestructionEffectMessage(ref AddDestructionEffectMsg msg, MyNetworkClient sender)
+        
+        [Event, Server, Broadcast]
+        static void OnAddDestructionEffectMessage(MyParticleEffectsIDEnum effectId, Vector3D position, Vector3 direction, float scale)
         {
-            MyGridPhysics.CreateDestructionEffect(msg.EffectId, msg.Position, msg.Direction, msg.Scale);
-            if (Sync.IsServer)
-            {
-                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-            }
+            MyGridPhysics.CreateDestructionEffect(effectId, position, direction, scale);
         }
 
         public static void CreateFracturePiece(MyObjectBuilder_FracturedPiece fracturePiece)
         {
             Debug.Assert(Sync.IsServer);
-            var msg = new CreateFracturePieceMsg();
-            msg.FracturePiece = fracturePiece;
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnCreateFracturePieceMessage, fracturePiece);
         }
 
-        static void OnCreateFracturePieceMessage(ref CreateFracturePieceMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        static void OnCreateFracturePieceMessage(
+            [Serialize(MyObjectFlags.Dynamic, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))]MyObjectBuilder_FracturedPiece fracturePiece)
         {
-            Debug.Assert(!Sync.IsServer);
-
-            var fracturedPiece = MyFracturedPiecesManager.Static.GetPieceFromPool(msg.FracturePiece.EntityId, true);
-            Debug.Assert(msg.FracturePiece.EntityId != 0, "Fracture piece without ID");
+            var fracturedPiece = MyFracturedPiecesManager.Static.GetPieceFromPool(fracturePiece.EntityId, true);
+            Debug.Assert(fracturePiece.EntityId != 0, "Fracture piece without ID");
             try
             {
-                fracturedPiece.Init(msg.FracturePiece);
+                fracturedPiece.Init(fracturePiece);
                 MyEntities.Add(fracturedPiece);
             }
             catch (Exception e)
@@ -197,7 +72,7 @@ namespace Sandbox.Game.Multiplayer
 
                 MyFracturedPiecesManager.Static.RemoveFracturePiece(fracturedPiece, 0, true, false);
                 StringBuilder sb = new StringBuilder();
-                foreach(var shape in msg.FracturePiece.Shapes)
+                foreach (var shape in fracturePiece.Shapes)
                 {
                     sb.Append(shape.Name).Append(" ");
                 }
@@ -210,20 +85,18 @@ namespace Sandbox.Game.Multiplayer
         {
             Debug.Assert(Sync.IsServer);
 
-            var msg = new RemoveFracturePieceMsg();
-            msg.EntityId = entityId;
-            msg.BlendTime = blendTime;
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnRemoveFracturePieceMessage, entityId, blendTime);
         }
 
-        static void OnRemoveFracturePieceMessage(ref RemoveFracturePieceMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        static void OnRemoveFracturePieceMessage(long entityId, float blendTime)
         {
             Debug.Assert(!Sync.IsServer);
 
             MyFracturedPiece fracturePiece;
-            if (MyEntities.TryGetEntityById(msg.EntityId, out fracturePiece))
+            if (MyEntities.TryGetEntityById(entityId, out fracturePiece))
             {
-                MyFracturedPiecesManager.Static.RemoveFracturePiece(fracturePiece, msg.BlendTime, fromServer: true, sync: false);
+                MyFracturedPiecesManager.Static.RemoveFracturePiece(fracturePiece, blendTime, fromServer: true, sync: false);
             }
             else
             {
@@ -234,38 +107,31 @@ namespace Sandbox.Game.Multiplayer
         [Conditional("DEBUG")]
         public static void FPManagerDbgMessage(long createdId, long removedId)
         {
-            var msg = new FPManagerDbgMsg();
-            msg.CreatedId = createdId;
-            msg.RemovedId = removedId;
-
-            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnFPManagerDbgMessage, createdId, removedId);
         }
 
-        static void OnFPManagerDbgMessage(ref FPManagerDbgMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void OnFPManagerDbgMessage(long createdId, long removedId)
         {
-            MyFracturedPiecesManager.Static.DbgCheck(msg.CreatedId, msg.RemovedId);
+            MyFracturedPiecesManager.Static.DbgCheck(createdId, removedId);
         }
 
-        public static void CreateFracturedBlock(MyObjectBuilder_FracturedBlock fracturedBlock, long grid, Vector3I position)
+        public static void CreateFracturedBlock(MyObjectBuilder_FracturedBlock fracturedBlock, long gridId, Vector3I position)
         {
             Debug.Assert(Sync.IsServer);
 
-            var msg = new CreateFractureBlockMsg();
-            msg.FracturedBlock = fracturedBlock;
-            msg.Grid = grid;
-            msg.Position = position;
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnCreateFracturedBlockMessage, gridId, position, fracturedBlock);
         }
 
-        static void OnCreateFracturedBlockMessage(ref CreateFractureBlockMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        static void OnCreateFracturedBlockMessage(long gridId, Vector3I position,
+            [Serialize(MyObjectFlags.Dynamic, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))]MyObjectBuilder_FracturedBlock fracturedBlock)
         {
-            Debug.Assert(!Sync.IsServer);
-
             MyCubeGrid grid;
-            if (MyEntities.TryGetEntityById(msg.Grid, out grid))
+            if (MyEntities.TryGetEntityById(gridId, out grid))
             {
                 grid.EnableGenerators(false, true);
-                grid.CreateFracturedBlock(msg.FracturedBlock, msg.Position);
+                grid.CreateFracturedBlock(fracturedBlock, position);
                 grid.EnableGenerators(true, true);
             }
         }
@@ -276,35 +142,30 @@ namespace Sandbox.Game.Multiplayer
             Debug.Assert(gridId != 0);
             Debug.Assert(component.Shapes != null && component.Shapes.Count > 0);
 
-            var msg = new CreateFractureComponentMsg();
-            msg.Grid = gridId;
-            msg.Position = position;
-            msg.CompoundBlockId = compoundBlockId;
-            msg.FractureComponent = component;
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnCreateFractureComponentMessage, gridId, position, compoundBlockId, component);
         }
 
-        static void OnCreateFractureComponentMessage(ref CreateFractureComponentMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        static void OnCreateFractureComponentMessage(long gridId, Vector3I position, ushort compoundBlockId,
+            [Serialize(MyObjectFlags.Dynamic, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))]MyObjectBuilder_FractureComponentBase component)
         {
-            Debug.Assert(!Sync.IsServer);
-
             MyEntity entity;
-            if (MyEntities.TryGetEntityById(msg.Grid, out entity))
+            if (MyEntities.TryGetEntityById(gridId, out entity))
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
-                var cubeBlock = grid.GetCubeBlock(msg.Position);
+                var cubeBlock = grid.GetCubeBlock(position);
                 if (cubeBlock != null && cubeBlock.FatBlock != null)
                 {
                     var compound = cubeBlock.FatBlock as MyCompoundCubeBlock;
                     if (compound != null)
                     {
-                        var blockInCompound = compound.GetBlock(msg.CompoundBlockId);
+                        var blockInCompound = compound.GetBlock(compoundBlockId);
                         if (blockInCompound != null)
-                            AddFractureComponent(msg.FractureComponent, blockInCompound.FatBlock);
+                            AddFractureComponent(component, blockInCompound.FatBlock);
                     }
                     else
                     {
-                        AddFractureComponent(msg.FractureComponent, cubeBlock.FatBlock);
+                        AddFractureComponent(component, cubeBlock.FatBlock);
                     }
                 }
             }
@@ -361,12 +222,7 @@ namespace Sandbox.Game.Multiplayer
             Debug.Assert(gridId != 0);
             Debug.Assert(shapeName != null && !string.IsNullOrEmpty(shapeName));
 
-            var msg = new RemoveShapeFromFractureComponentMsg();
-            msg.Grid = gridId;
-            msg.Position = position;
-            msg.CompoundBlockId = compoundBlockId;
-            msg.ShapeNames = new string[] { shapeName };
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnRemoveShapeFromFractureComponentMessage, gridId, position, compoundBlockId, new string[] { shapeName });
         }
 
         public static void RemoveShapesFromFractureComponent(long gridId, Vector3I position, ushort compoundBlockId, List<string> shapeNames)
@@ -375,36 +231,31 @@ namespace Sandbox.Game.Multiplayer
             Debug.Assert(gridId != 0);
             Debug.Assert(shapeNames != null && shapeNames.Count > 0);
 
-            var msg = new RemoveShapeFromFractureComponentMsg();
-            msg.Grid = gridId;
-            msg.Position = position;
-            msg.CompoundBlockId = compoundBlockId;
-            msg.ShapeNames = shapeNames.ToArray();
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnRemoveShapeFromFractureComponentMessage, gridId, position, compoundBlockId, shapeNames.ToArray());
         }
 
-        static void OnRemoveShapeFromFractureComponentMessage(ref RemoveShapeFromFractureComponentMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        static void OnRemoveShapeFromFractureComponentMessage(long gridId, Vector3I position, ushort compoundBlockId, string[] shapeNames)
         {
-            Debug.Assert(!Sync.IsServer);
-            Debug.Assert(msg.ShapeNames != null && msg.ShapeNames.Length > 0);
+            Debug.Assert(shapeNames != null && shapeNames.Length > 0);
 
             MyEntity entity;
-            if (MyEntities.TryGetEntityById(msg.Grid, out entity))
+            if (MyEntities.TryGetEntityById(gridId, out entity))
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
-                var cubeBlock = grid.GetCubeBlock(msg.Position);
+                var cubeBlock = grid.GetCubeBlock(position);
                 if (cubeBlock != null && cubeBlock.FatBlock != null)
                 {
                     var compound = cubeBlock.FatBlock as MyCompoundCubeBlock;
                     if (compound != null)
                     {
-                        var blockInCompound = compound.GetBlock(msg.CompoundBlockId);
+                        var blockInCompound = compound.GetBlock(compoundBlockId);
                         if (blockInCompound != null)
-                            RemoveFractureComponentChildShapes(blockInCompound, msg.ShapeNames);
+                            RemoveFractureComponentChildShapes(blockInCompound, shapeNames);
                     }
                     else
                     {
-                        RemoveFractureComponentChildShapes(cubeBlock, msg.ShapeNames);
+                        RemoveFractureComponentChildShapes(cubeBlock, shapeNames);
                     }
                 }
             }
@@ -425,6 +276,12 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        /// <summary>
+        /// WARNING: OLD METHOD. Do not use. use MyDecaySystem now.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="center"></param>
+        /// <param name="radius"></param>
         public static void RemoveFracturedPiecesRequest(ulong userId, Vector3D center, float radius)
         {
             if (Sync.IsServer)
@@ -433,20 +290,15 @@ namespace Sandbox.Game.Multiplayer
             }
             else
             {
-                var msg = new RemoveFracturedPiecesMsg();
-                msg.UserId = userId;
-                msg.Center = center;
-                msg.Radius = radius;
-
-                MySession.Static.SyncLayer.SendMessageToServer(ref msg);
+                MyMultiplayer.RaiseStaticEvent(s => MySyncDestructions.OnRemoveFracturedPiecesMessage, userId, center, radius);
             }
         }
 
-        static void OnRemoveFracturedPiecesMessage(ref RemoveFracturedPiecesMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void OnRemoveFracturedPiecesMessage(ulong userId, Vector3D center, float radius)
         {
-            Debug.Assert(Sync.IsServer);
-            if (MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(msg.UserId))
-                MyFracturedPiecesManager.Static.RemoveFracturesInSphere(msg.Center, msg.Radius);
+            if (MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(userId))
+                MyFracturedPiecesManager.Static.RemoveFracturesInSphere(center, radius);
         }
     }
 }

@@ -3,8 +3,12 @@ using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath.PackedVector;
+using VRageRender.Messages;
 using VRageRender.Vertex;
 
 
@@ -17,7 +21,7 @@ namespace VRageRender
         // one-to-many component type -> generalize if more
         List<MyActor> m_owners;
         MyIDTracker<MyInstancingComponent> m_ID;
-        internal VertexBufferId VB;
+        internal IVertexBuffer VB;
         private MyVertexInputLayout m_input;
         private int m_stride;
         private MyRenderInstanceBufferType m_type;
@@ -35,7 +39,7 @@ namespace VRageRender
             MyUtils.Init(ref m_ID);
             m_ID.Clear();
 
-            VB = VertexBufferId.NULL;
+            VB = null;
             m_input = MyVertexInputLayout.Empty;
             m_stride = -1;
             m_type = MyRenderInstanceBufferType.Invalid;
@@ -78,11 +82,9 @@ namespace VRageRender
 
         internal void Dispose()
         {
-            if (VB != VertexBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(VB);
-                VB = VertexBufferId.NULL;
-            }
+            if (VB != null)
+                MyManagers.Buffers.Dispose(VB); VB = null;
+            
             m_capacity = 0;
         }
 
@@ -93,7 +95,10 @@ namespace VRageRender
             fixed (MyInstanceData* dataPtr = instanceData.GetInternalArray())
             {
                 m_capacity = Math.Max(instanceData.Count, capacity);
-                MyHwBuffers.ResizeAndUpdateStaticVertexBuffer(ref VB, m_capacity, sizeof(MyVertexFormatGenericInstance), new IntPtr(dataPtr), m_debugName + " instances buffer");
+
+                // TODO: This class must allocate VB through MyManagers.Buffers before resize
+                // New name was: m_debugName + " instances buffer"
+                MyManagers.Buffers.Resize(VB, m_capacity, sizeof(MyVertexFormatGenericInstance), new IntPtr(dataPtr));
             }
 
             BumpRenderable();
@@ -127,7 +132,11 @@ namespace VRageRender
 
             fixed (MyVertexFormatCubeInstance* dataPtr = rawBuffer)
             {
-                MyHwBuffers.ResizeAndUpdateStaticVertexBuffer(ref VB, m_capacity, sizeof(MyVertexFormatCubeInstance), new IntPtr(dataPtr), m_debugName + " instances buffer");
+                // TODO: This class must allocate VB through MyManagers.Buffers before resize
+                // New name was: m_debugName + " instances buffer"
+                MyManagers.Buffers.Resize(
+                    VB, m_capacity, sizeof(MyVertexFormatCubeInstance), 
+                    new IntPtr(dataPtr)); 
             }
 
             BumpRenderable();

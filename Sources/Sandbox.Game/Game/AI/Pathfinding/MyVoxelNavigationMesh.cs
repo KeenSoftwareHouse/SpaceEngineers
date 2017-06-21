@@ -4,18 +4,16 @@ using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Algorithms;
 using VRage.Collections;
 using VRage.Utils;
-using VRage.Voxels;
 using VRage.Trace;
 using VRageMath;
 using VRage.Generics;
-using Sandbox.Game.World;
-using VRageMath.Spatial;
+using VRage.Profiler;
+using VRage.Voxels;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
@@ -24,6 +22,7 @@ namespace Sandbox.Game.AI.Pathfinding
         private static bool DO_CONSISTENCY_CHECKS = false;
 
         private MyVoxelBase m_voxelMap;
+        private static MyVoxelBase m_staticVoxelMap;
         private Vector3 m_cellSize;
 
         // Cells that are fully processed and present in the mesh
@@ -100,6 +99,11 @@ namespace Sandbox.Game.AI.Pathfinding
 
         public const int NAVMESH_LOD = 0;
 
+        // Dirty hack for the OBJ exporter
+        public static MyVoxelBase VoxelMap
+        { get { return m_staticVoxelMap; } }
+  
+
         public Vector3D VoxelMapReferencePosition
         {
             get
@@ -120,6 +124,7 @@ namespace Sandbox.Game.AI.Pathfinding
             : base(coordinator.Links, 16, timestampFunction)
         {
             m_voxelMap = voxelMap;
+            m_staticVoxelMap = m_voxelMap;
             m_cellSize = m_voxelMap.SizeInMetres / m_voxelMap.Storage.Geometry.CellsCount * (1 << NAVMESH_LOD);
 
             m_processedCells = new MyVector3ISet();
@@ -175,7 +180,7 @@ namespace Sandbox.Game.AI.Pathfinding
             MyVoxelCoordSystems.VoxelCoordToGeometryCellCoord(ref maxVoxelChanged, out maxCell);
 
             Vector3I currentCell = minCell;
-            for (var it = new Vector3I.RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out currentCell))
+            for (var it = new Vector3I_RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out currentCell))
             {
                 if (m_processedCells.Contains(ref(currentCell)))
                 {
@@ -212,7 +217,7 @@ namespace Sandbox.Game.AI.Pathfinding
             pos /= 1 << NAVMESH_LOD;
             end /= 1 << NAVMESH_LOD;
 
-            for (var it = new Vector3I.RangeIterator(ref pos, ref end); it.IsValid(); it.GetNext(out pos))
+            for (var it = new Vector3I_RangeIterator(ref pos, ref end); it.IsValid(); it.GetNext(out pos))
             {
                 float rectDistance = Vector3.RectangularDistance(pos, center);
                 if (rectDistance > 1)
@@ -413,7 +418,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private bool AddCell(Vector3I cellPos, ref HashSet<Vector3I> adjacentCellPos)
         {
-            if (MyFakes.LOG_NAVMESH_GENERATION) MyAIComponent.Static.Pathfinding.VoxelPathfinding.DebugLog.LogCellAddition(this, cellPos);
+            if (MyFakes.LOG_NAVMESH_GENERATION) MyCestmirPathfindingShorts.Pathfinding.VoxelPathfinding.DebugLog.LogCellAddition(this, cellPos);
 
             MyCellCoord coord = new MyCellCoord(NAVMESH_LOD, cellPos);
             Debug.Assert(IsCellPosValid(ref cellPos));
@@ -442,7 +447,7 @@ namespace Sandbox.Game.AI.Pathfinding
             MyTrace.Send(TraceWindow.Ai, "Adding cell " + cellPos);
 
             m_connectionHelper.ClearCell();
-            m_vertexMapping.Init(generatedMesh.VerticesCount);
+            m_vertexMapping.Resize(generatedMesh.VerticesCount);
 
             // Prepare list of possibly intersecting cube grids for voxel-grid navmesh intersection testing
             Vector3D bbMin = m_voxelMap.PositionLeftBottomCorner + (m_cellSize * (m_bbMinOffset + cellPos));
@@ -454,7 +459,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
             Vector3D voxelMapCenter = m_voxelMap.PositionComp.GetPosition();
             Vector3 centerDisplacement = voxelMapCenter - m_voxelMap.PositionLeftBottomCorner;
-            
+
             float eps = 0.5f;   // "little bit" constant - see under
 
             Vector3I minCell = cellPos - Vector3I.One;
@@ -462,7 +467,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
             Vector3I adjacentCell = minCell;
             m_adjacentBBoxes.Clear();
-            for (var it = new Vector3I.RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out adjacentCell))
+            for (var it = new Vector3I_RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out adjacentCell))
             {
                 if (adjacentCell.Equals(cellPos))
                     continue;
@@ -571,6 +576,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 var tri = AddTriangle(ref aPos, ref bPos, ref cPos, ref edgeAB, ref edgeBC, ref edgeCA);
                 ProfilerShort.End();
 
+                ProfilerShort.Begin("Fix outer edges");
                 // Iterate over the triangle's vertices and fix possible outer edges (because the triangle vertices could have moved)
                 {
                     var v = Mesh.GetFace(tri.Index).GetVertexEnumerator();
@@ -608,9 +614,11 @@ namespace Sandbox.Game.AI.Pathfinding
                         }
                     }
 
-                    Mesh.PrepareFreeVertexHashset();
+                    //Mesh.PrepareFreeVertexHashset();
                 }
+                ProfilerShort.End();
 
+                ProfilerShort.Begin("Updating vertices");
                 // We have to get the triangle vertices again for the connection helper (they could have moved)
                 Vector3 realA, realB, realC;
                 {
@@ -623,6 +631,7 @@ namespace Sandbox.Game.AI.Pathfinding
                     realB = Mesh.GetVertexPosition(bIndex);
                     realC = Mesh.GetVertexPosition(cIndex);
                 }
+                ProfilerShort.End();
 
                 CheckMeshConsistency();
 
@@ -727,7 +736,7 @@ namespace Sandbox.Game.AI.Pathfinding
             if (!m_processedCells.Contains(cell)) return false;
 
             MyTrace.Send(TraceWindow.Ai, "Removing cell " + cell);
-            if (MyFakes.LOG_NAVMESH_GENERATION) MyAIComponent.Static.Pathfinding.VoxelPathfinding.DebugLog.LogCellRemoval(this, cell);
+            if (MyFakes.LOG_NAVMESH_GENERATION) MyCestmirPathfindingShorts.Pathfinding.VoxelPathfinding.DebugLog.LogCellRemoval(this, cell);
 
             ProfilerShort.Begin("Removing navmesh links");
             MyVoxelPathfinding.CellId cellId = new MyVoxelPathfinding.CellId() { VoxelMap = m_voxelMap, Pos = cell };
@@ -1238,7 +1247,7 @@ namespace Sandbox.Game.AI.Pathfinding
                     Vector3D v2 = Mesh.GetVertexPosition(e.Current.Vertex2) + offset;
                     Vector3D s = (v1 + v2) * 0.5;
 
-                    if (MyAIComponent.Static.Pathfinding.Obstacles.IsInObstacle(s))
+                    if (MyCestmirPathfindingShorts.Pathfinding.Obstacles.IsInObstacle(s))
                     {
                         VRageRender.MyRenderProxy.DebugDrawSphere(s, 0.05f, Color.Red, 1.0f, false);
                     }

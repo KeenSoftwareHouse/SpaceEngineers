@@ -56,7 +56,7 @@ namespace Sandbox.Game.Screens.Helpers
             get { return Elements.Count - 1; }
         }
 
-        public void Add(MyDefinitionId id, double val1, double val2, MyFontEnum font)
+        public void Add(MyDefinitionId id, double val1, double val2, string font)
         {
             var control = new ComponentControl(id);
             control.Size            = new Vector2(Size.X - m_padding.HorizontalSum, control.Size.Y);
@@ -109,9 +109,10 @@ namespace Sandbox.Game.Screens.Helpers
                 MinSize = MaxSize = Size;
                 var padding = new MyGuiBorderThickness(0.0025f, 0.001f);
 
-                Elements.Add(new MyGuiControlPanel(
-                    size: Size - padding.SizeChange,
-                    texture: def.Icon));
+                for (int i = 0; i < def.Icons.Length; i++)
+                    Elements.Add(new MyGuiControlPanel(
+                        size: Size - padding.SizeChange,
+                        texture: def.Icons[0]));
 
                 if (def.IconSymbol.HasValue)
                 {
@@ -177,7 +178,7 @@ namespace Sandbox.Game.Screens.Helpers
                 UpdateNameLabelSize();
             }
 
-            public MyFontEnum ValuesFont
+            public string ValuesFont
             {
                 set { m_valuesLabel.Font = value; }
             }

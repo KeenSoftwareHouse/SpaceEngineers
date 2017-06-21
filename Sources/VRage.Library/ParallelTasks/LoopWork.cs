@@ -31,7 +31,7 @@ namespace ParallelTasks
             this.stride = stride;
         }
 
-        public void DoWork()
+        public void DoWork(WorkData workData = null)
         {
             int start;
             while ((start = IncrementIndex()) < length)
@@ -98,7 +98,7 @@ namespace ParallelTasks
             this.notDone = true;
         }
 
-        public void DoWork()
+        public void DoWork(WorkData workData = null)
         {
             T item = default(T);
             while (notDone)

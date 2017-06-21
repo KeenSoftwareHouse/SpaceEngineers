@@ -5,18 +5,20 @@ using System.Linq;
 using System.Text;
 using VRage.ModAPI;
 using VRage.Game.Entity;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ModAPI.Interfaces;
+using IMyEntity = VRage.ModAPI.IMyEntity;
 
 namespace Sandbox.Game.Entities.Character
 {
     partial class MyCharacter
     {
-        IMyEntity ModAPI.Interfaces.IMyControllableEntity.Entity
+        IMyEntity VRage.Game.ModAPI.Interfaces.IMyControllableEntity.Entity
         {
             get { return Entity; }
         }
 
-        void ModAPI.Interfaces.IMyControllableEntity.DrawHud(ModAPI.Interfaces.IMyCameraController camera, long playerId)
+        void VRage.Game.ModAPI.Interfaces.IMyControllableEntity.DrawHud(IMyCameraController camera, long playerId)
         {
             if (camera is IMyCameraController)
                 DrawHud(camera as IMyCameraController, playerId);

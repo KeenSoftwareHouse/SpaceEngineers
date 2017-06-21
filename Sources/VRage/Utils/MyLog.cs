@@ -11,6 +11,7 @@ using System.Reflection;
 using SystemTrace = System.Diagnostics.Trace;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.Library;
 
 namespace VRage.Utils
 {
@@ -35,6 +36,16 @@ namespace VRage.Utils
         ALL = (SESSION_SETTINGS << 1) - 1,
     }
 
+    public enum MyLogSeverity
+    {
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Critical
+    }
+
+    [Unsharper.UnsharperDisableReflection()]
     public class MyLog
     {
         public struct IndentToken : IDisposable
@@ -88,6 +99,9 @@ namespace VRage.Utils
             }
         }
 
+
+        private bool m_alwaysFlush = false;
+        public static MyLogSeverity AssertLevel = (MyLogSeverity)(byte.MaxValue);
         private bool LogForMemoryProfiler = false;
         private bool m_enabled = false;             //  Must be false, beuuase MW web site must not write into log file
         private Stream m_stream;                    //  Used for opening and closing the file
@@ -123,6 +137,11 @@ namespace VRage.Utils
             }
         }
 
+        public MyLog(bool alwaysFlush = false)
+        {
+            m_alwaysFlush = alwaysFlush;
+        }
+
         public void Init(string logFileName, StringBuilder appVersionString)
         {
             lock (m_lock)
@@ -133,7 +152,7 @@ namespace VRage.Utils
                     m_stream = MyFileSystem.OpenWrite(m_filepath);
                     m_streamWriter = new StreamWriter(m_stream);
                     m_normalWriter = new Action<string>(WriteLine);
-                    m_closedLogWriter = new Action<string>((s) => File.AppendAllText(m_filepath, s + Environment.NewLine));
+                    m_closedLogWriter = new Action<string>((s) => File.AppendAllText(m_filepath, s + MyEnvironment.NewLine));
                     m_enabled = true;
                 }
                 catch (Exception e)
@@ -179,14 +198,17 @@ namespace VRage.Utils
 
             lock (m_lock)
             {
-                int threadId = GetThreadId();
-                m_indentsByThread[threadId] = GetIdentByThread(threadId) + 1;
+                if (m_enabled)
+                {
+                    int threadId = GetThreadId();
+                    m_indentsByThread[threadId] = GetIdentByThread(threadId) + 1;
 
-                MyLogIndentKey indentKey = new MyLogIndentKey(threadId, m_indentsByThread[threadId]);
-                m_indents[indentKey] = new MyLogIndentValue(GetManagedMemory(), GetSystemMemory(), DateTimeOffset.Now);
+                    MyLogIndentKey indentKey = new MyLogIndentKey(threadId, m_indentsByThread[threadId]);
+                    m_indents[indentKey] = new MyLogIndentValue(GetManagedMemory(), GetSystemMemory(), DateTimeOffset.Now);
 
-                if (LogForMemoryProfiler)
-                    MyMemoryLogs.StartEvent();
+                    if (LogForMemoryProfiler)
+                        MyMemoryLogs.StartEvent();
+                }
             }
         }
 
@@ -196,6 +218,8 @@ namespace VRage.Utils
 
             lock (m_lock)
             {
+                if (m_enabled == false) return false;
+
                 int threadId = GetThreadId();
                 MyLogIndentKey indentKey = new MyLogIndentKey(threadId, GetIdentByThread(threadId));
 
@@ -220,6 +244,8 @@ namespace VRage.Utils
 
             lock (m_lock)
             {
+                if (m_enabled == false) return;
+
                 int threadId = GetThreadId();
                 MyLogIndentKey indentKey = new MyLogIndentKey(threadId, GetIdentByThread(threadId));
 
@@ -262,7 +288,7 @@ namespace VRage.Utils
 
         long GetSystemMemory()
         {
-            return Environment.WorkingSet;
+            return MyEnvironment.WorkingSetForMyLog;
         }
 
         //	Must be called before application ends
@@ -274,6 +300,8 @@ namespace VRage.Utils
 
             lock (m_lock)
             {
+                if (m_enabled == false) return;
+
                 WriteLine("Log Closed");
 
                 m_streamWriter.Close();
@@ -295,7 +323,7 @@ namespace VRage.Utils
             }
             else if (m_filepath != null)
             {
-                File.AppendAllText(m_filepath, text + Environment.NewLine);
+                File.AppendAllText(m_filepath, text + MyEnvironment.NewLine);
             }
         }
 
@@ -348,6 +376,8 @@ namespace VRage.Utils
             if (m_enabled == false) return;
 
             WriteLine(m_normalWriter, ex);
+
+            m_streamWriter.Flush();
         }
 
         StringBuilder m_consoleStringBuilder = new StringBuilder();
@@ -370,10 +400,15 @@ namespace VRage.Utils
             {
                 lock (m_lock)
                 {
-                    WriteDateTimeAndThreadId();
-                    WriteString(msg);
-                    m_streamWriter.WriteLine();
-                    m_streamWriter.Flush();
+                    if (m_enabled)
+                    {
+                        WriteDateTimeAndThreadId();
+                        WriteString(msg);
+                        m_streamWriter.WriteLine();
+
+                        if (m_alwaysFlush)
+                            m_streamWriter.Flush();
+                    }
                 }
             }
 
@@ -383,6 +418,13 @@ namespace VRage.Utils
             }
 
             //Debug.WriteLine(msg);
+        }
+
+		//Crash object builder logging
+		//TODO: remove or make sure it uses lock,enabled, etc...
+        public TextWriter GetTextWriter()
+        {
+            return m_streamWriter;
         }
 
         private string GetGCMemoryString(string prependText = "")
@@ -398,6 +440,9 @@ namespace VRage.Utils
         //  Log info about ThreadPool
         public void LogThreadPoolInfo()
         {
+#if XB1
+			Debug.Assert(false);
+#else
             if (m_enabled == false) return;
 
             WriteLine("LogThreadPoolInfo - START");
@@ -420,6 +465,7 @@ namespace VRage.Utils
 
             DecreaseIndent();
             WriteLine("LogThreadPoolInfo - END");
+#endif
         }
 
         //	Return message with included datetime information. We are using when logging.
@@ -452,6 +498,17 @@ namespace VRage.Utils
 
         void WriteString(String text)
         {
+            if (text == null ||
+    m_tmpWrite == null ||
+    m_streamWriter == null)
+                return;
+
+
+            if (text == null)
+            {
+                Debug.Fail("text shouldn't be null!");
+                text = "UNKNOWN ERROR: text shouldn't be null!";
+            }
             if (m_tmpWrite.Length < text.Length)
             {
                 Array.Resize(ref m_tmpWrite, Math.Max(m_tmpWrite.Length * 2, text.Length));
@@ -462,6 +519,12 @@ namespace VRage.Utils
 
         void WriteStringBuilder(StringBuilder sb)
         {
+            //JC: fix for a NullReferenceException, when the game is closed
+            if (sb == null || 
+                m_tmpWrite == null ||
+                m_streamWriter == null)
+                return;
+
             if (m_tmpWrite.Length < sb.Length)
             {
                 Array.Resize(ref m_tmpWrite, Math.Max(m_tmpWrite.Length * 2, sb.Length));
@@ -490,5 +553,118 @@ namespace VRage.Utils
 
             return retVal;
         }
+
+        public void Log(MyLogSeverity severity, string format, params object[] args)
+        {
+            if (m_enabled)
+            {
+                lock (m_lock)
+                {
+                    if (m_enabled)
+                    {
+                        WriteDateTimeAndThreadId();
+
+                        StringBuilder sb = m_stringBuilder;
+                        sb.Clear();
+
+                        sb.AppendFormat("{0}: ", severity);
+                        sb.AppendFormat(format, args);
+                        sb.Append('\n');
+
+                        WriteStringBuilder(sb);
+
+                        if ((int)severity >= (int)AssertLevel)
+                            SystemTrace.Fail(sb.ToString());
+                    }
+                }
+            }
+        }
+
+        public void Log(MyLogSeverity severity, StringBuilder builder)
+        {
+            if (m_enabled)
+            {
+                lock (m_lock)
+                {
+                    if (m_enabled)
+                    {
+                        WriteDateTimeAndThreadId();
+
+                        StringBuilder sb = m_stringBuilder;
+                        sb.Clear();
+
+                        sb.AppendFormat("{0}: ", severity);
+                        sb.AppendStringBuilder(builder);
+                        sb.Append('\n');
+
+                        WriteStringBuilder(sb);
+
+                        if ((int)severity >= (int)AssertLevel)
+                            SystemTrace.Fail(sb.ToString());
+                    }
+                }
+            }
+        }
+
+        public void Flush()
+        {
+            m_streamWriter.Flush();
+        }
+    }
+
+    public static class MyLogExtensions
+    {
+        [Conditional("DEBUG")]
+        public static void Debug(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Debug, message, args);
+        }
+
+        [Conditional("DEBUG")]
+        public static void Debug(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Debug, buillder);
+        }
+
+        public static void Info(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Info, message, args);
+        }
+
+        public static void Info(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Info, buillder);
+        }
+
+        public static void Warning(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Warning, message, args);
+        }
+
+        public static void Warning(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Warning, buillder);
+        }
+
+        public static void Error(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Error, message, args);
+        }
+
+        public static void Error(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Error, buillder);
+        }
+
+        public static void Critical(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Critical, message, args);
+        }
+
+        public static void Critical(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Critical, buillder);
+        }
+
     }
 }

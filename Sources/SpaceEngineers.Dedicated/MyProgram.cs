@@ -9,6 +9,7 @@ using System.Configuration.Install;
 using System.ServiceProcess;
 using VRage.Dedicated;
 using VRage.Game;
+using VRage.Game.SessionComponents;
 
 #endregion
 
@@ -20,6 +21,7 @@ namespace SpaceEngineersDedicated
         [STAThread]
         static void Main(string[] args)
         {
+            SpaceEngineersGame.SetupBasicGameInfo();
             SpaceEngineersGame.SetupPerGameSettings();
 
             MyPerGameSettings.SendLogToKeen = DedicatedServer.SendLogToKeen;
@@ -29,6 +31,7 @@ namespace SpaceEngineersDedicated
             MyPerServerSettings.GameDSName = MyPerServerSettings.GameNameSafe + "Dedicated";
             MyPerServerSettings.GameDSDescription = "Your place for space engineering, destruction and exploring.";
 
+            MySessionComponentExtDebug.ForceDisable = true;
 
             MyPerServerSettings.AppId = 244850;
 
@@ -36,9 +39,10 @@ namespace SpaceEngineersDedicated
             ConfigForm<MyObjectBuilder_SessionSettings>.GameAttributes = Game.SpaceEngineers;
             ConfigForm<MyObjectBuilder_SessionSettings>.OnReset = delegate
             {
+                SpaceEngineersGame.SetupBasicGameInfo();
                 SpaceEngineersGame.SetupPerGameSettings();
             };
-
+            MyFinalBuildConstants.APP_VERSION = MyPerGameSettings.BasicGameInfo.GameVersion;
 
             DedicatedServer.Run<MyObjectBuilder_SessionSettings>(args);
         }
@@ -55,6 +59,7 @@ namespace SpaceEngineersDedicated
         /// </summary>
         public WindowsServiceInstaller()
         {
+            SpaceEngineersGame.SetupBasicGameInfo();
             SpaceEngineersGame.SetupPerGameSettings();
 
             ServiceProcessInstaller serviceProcessInstaller =

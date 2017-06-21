@@ -1,15 +1,15 @@
-﻿using Sandbox.Common;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
@@ -17,7 +17,7 @@ using VRageRender;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
-    public class MyVoxelPathfindingLog
+    public class MyVoxelPathfindingLog : IMyPathfindingLog
     {
         private abstract class Operation
         {
@@ -43,7 +43,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 Debug.Assert(map != null);
                 if (map == null) return;
 
-                var navmesh = MyAIComponent.Static.Pathfinding.VoxelPathfinding.GetVoxelMapNavmesh(map);
+                var navmesh = MyCestmirPathfindingShorts.Pathfinding.VoxelPathfinding.GetVoxelMapNavmesh(map);
                 Debug.Assert(navmesh != null);
                 if (navmesh == null) return;
 
@@ -94,6 +94,9 @@ namespace Sandbox.Game.AI.Pathfinding
 
         public MyVoxelPathfindingLog(string filename)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             string path = Path.Combine(MyFileSystem.UserDataPath, filename);
 
             if (MyFakes.REPLAY_NAVMESH_GENERATION)
@@ -158,6 +161,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 m_log = new MyLog();
                 m_log.Init(path, MyFinalBuildConstants.APP_VERSION_STRING);
             }
+#endif // !XB1
         }
 
         public void Close()

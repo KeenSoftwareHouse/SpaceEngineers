@@ -261,6 +261,41 @@ namespace Sandbox.Engine.Voxels
 
         private static readonly BoundingBoxD s_unitsBox = new BoundingBoxD(new Vector3(-1), new Vector3(1));
 
+        public static void GetForwardUp(int face, out Vector3 forward, out Vector3 up)
+        {
+            switch (face)
+            {
+                case (int)Faces.XPositive:
+                    up = Vector3.Up;
+                    forward = Vector3.Right;
+                    break;
+                case (int)Faces.XNegative:
+                    up = Vector3.Up;
+                    forward = Vector3.Left;
+                    break;
+                case (int)Faces.YPositive:
+                    up = Vector3.Forward;
+                    forward = Vector3.Left;
+                    break;
+                case (int)Faces.YNegative:
+                    up = Vector3.Forward;
+                    forward = Vector3.Right;
+                    break;
+                case (int)Faces.ZPositive:
+                    up = Vector3.Up;
+                    forward = Vector3.Right;
+                    break;
+                case (int)Faces.ZNegative:
+                    up = Vector3.Up;
+                    forward = Vector3.Left;
+                    break;
+                default:
+                    Debug.Fail("Bad face number!!!!!");
+                    forward = up = Vector3.Zero;
+                    break;
+            }
+        }
+
         /**
          * Project a position to a face of the (-1, -1, -1)(1, 1, 1) cube.
          */

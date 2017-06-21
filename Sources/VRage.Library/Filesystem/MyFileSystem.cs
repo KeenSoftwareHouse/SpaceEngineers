@@ -9,15 +9,20 @@ namespace VRage.FileSystem
 {
     public static class MyFileSystem
     {
+#if !UNSHARPER
         public static readonly Assembly MainAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
         public static readonly string MainAssemblyName = MainAssembly.GetName().Name;
         public static string ExePath = new FileInfo(MainAssembly.Location).DirectoryName; // OM: Need to be able to alter this due to starting game from tools
-
+#else
+		public static string ExePath = @"."; // OM: Need to be able to alter this due to starting game from tools
+#endif
+        private static string m_shadersBasePath;
         private static string m_contentPath;
         private static string m_modsPath;
         private static string m_userDataPath;
         private static string m_savesPath;
 
+        public static string ShadersBasePath { get { CheckInitialized(); return m_shadersBasePath; } }
         public static string ContentPath { get { CheckInitialized();  return m_contentPath; } }
         public static string ModsPath { get { CheckInitialized(); return m_modsPath; } }
         public static string UserDataPath { get { CheckInitialized(); return m_userDataPath; } }        
@@ -33,7 +38,11 @@ namespace VRage.FileSystem
         private static void CheckInitialized()
         {
             if (m_contentPath == null)
+#if XB1
+                MyFileSystem.Init(".", ".");
+#else
                 throw new InvalidOperationException("Paths are not initialized, call 'Init'");
+#endif
         }
 
         private static void CheckUserSpecificInitialized()
@@ -42,13 +51,17 @@ namespace VRage.FileSystem
                 throw new InvalidOperationException("User specific path not initialized, call 'InitUserSpecific'");
         }
 
-        public static void Init(string contentPath, string userData, string modDirName = "Mods")
+        public static void Init(string contentPath, string userData, string modDirName = "Mods", string shadersBasePath = null)
         {
             if (m_contentPath != null)
+#if XB1
+                return;
+#else
                 throw new InvalidOperationException("Paths already initialized");
-
-            m_contentPath = contentPath;
-            m_userDataPath = userData;
+#endif
+            m_contentPath = Path.GetFullPath(contentPath);
+            m_shadersBasePath = string.IsNullOrEmpty(shadersBasePath) ? m_contentPath : Path.GetFullPath(shadersBasePath);
+            m_userDataPath = Path.GetFullPath(userData);
             m_modsPath = Path.Combine(m_userDataPath, modDirName);
             Directory.CreateDirectory(m_modsPath);
         }
@@ -67,7 +80,7 @@ namespace VRage.FileSystem
 
         public static void Reset()
         {
-            m_contentPath = m_modsPath = m_userDataPath = m_savesPath = null;
+            m_contentPath = m_shadersBasePath = m_modsPath = m_userDataPath = m_savesPath = null;
         }
         
         public static Stream Open(string path, FileMode mode, FileAccess access, FileShare share)
@@ -138,9 +151,43 @@ namespace VRage.FileSystem
             return m_fileProvider.DirectoryExists(path);
         }
 
-        public static IEnumerable<string> GetFiles(string path, string filter = "*", VRage.FileSystem.MySearchOption searchOption = VRage.FileSystem.MySearchOption.AllDirectories)
+        public static IEnumerable<string> GetFiles(string path)
+        {
+            return m_fileProvider.GetFiles(path, "*", VRage.FileSystem.MySearchOption.AllDirectories);
+        }
+
+        public static IEnumerable<string> GetFiles(string path, string filter)
+        {
+            return m_fileProvider.GetFiles(path, filter, VRage.FileSystem.MySearchOption.AllDirectories);
+        }
+
+        public static IEnumerable<string> GetFiles(string path, string filter, VRage.FileSystem.MySearchOption searchOption)
         {
             return m_fileProvider.GetFiles(path, filter, searchOption);
+        }
+
+        /// <summary>
+        /// Creates a relative path from one file or folder to another.
+        /// </summary>
+        public static string MakeRelativePath(string fromPath, string toPath)
+        {
+            if (string.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
+            if (string.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
+
+            Uri fromUri = new Uri(fromPath);
+            Uri toUri = new Uri(toPath);
+
+            if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
+            {
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            return relativePath;
         }
     }
 }

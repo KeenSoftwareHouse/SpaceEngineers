@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using VRage.ModAPI;
 using VRageMath;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.ModAPI
 {
@@ -15,10 +16,10 @@ namespace Sandbox.ModAPI
     /// </summary>
     public static class MyAPIGateway
     {
-
         /// <summary>
         /// Event triggered on gui control created.
         /// </summary>
+        [Obsolete( "Use IMyGui.GuiControlCreated" )]
         public static Action<object> GuiControlCreated;
 
         /// <summary>
@@ -35,6 +36,7 @@ namespace Sandbox.ModAPI
                 m_sessionStorage = value;
             }
         }
+
         /// <summary>
         /// IMyEntities represents all objects that currently in world 
         /// </summary>
@@ -72,30 +74,52 @@ namespace Sandbox.ModAPI
         /// </summary>
         public static IMyTerminalActionsHelper TerminalActionsHelper;
         /// <summary>
-        /// IMyUtilities is helper for loading/saving files , showing messages to players
+        /// IMyTerminalControls allows access to adding and removing controls from a block's terminal screen
         /// </summary>
+        public static IMyTerminalControls TerminalControls;
+
         public static IMyUtilities Utilities;
         /// <summary>
         /// IMyMultiplayer  contains multiplayer related things
         /// </summary>
         public static IMyMultiplayer Multiplayer;
         /// <summary>
-        /// IMyParallelTask allows to run tasks on baground threads 
+        /// IMyParallelTask allows to run tasks on background threads 
         /// </summary>
         public static IMyParallelTask Parallel;
 
+        /// <summary>
+        /// IMyPhysics contains physics related things (CastRay, etc.)
+        /// </summary>
+        public static IMyPhysics Physics;
+
+        /// <summary>
+        /// IMyGui exposes some useful values from the GUI systems
+        /// </summary>
+        public static IMyGui Gui;
+
         public static IMyPrefabManager PrefabManager;
+
+#if !XB1 // XB1_NOILINJECTOR
+        /// <summary>
+        /// Provides mod access to control compilation of ingame scripts
+        /// </summary>
+        public static IMyIngameScripting IngameScripting;
+#endif // !XB1
 
         /// <summary>
         /// IMyInput allows accessing direct input device states
         /// </summary>
-        public static VRage.ModAPI.IMyInput Input;
+        public static IMyInput Input;
 
         // Storage for property Entities.
         private static IMyEntities m_entitiesStorage;
         // Storage for property Session.
         private static IMySession m_sessionStorage;
 
+
+
+#if !XB1
         [Conditional("DEBUG")] 
         public static void GetMessageBoxPointer(ref IntPtr pointer)
         {
@@ -109,6 +133,7 @@ namespace Sandbox.ModAPI
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetProcAddress(IntPtr hModule, String procname);
+#endif // !XB1
 
         public static void Clean()
         {
@@ -116,12 +141,39 @@ namespace Sandbox.ModAPI
             Entities = null;
             Players = null;
             CubeBuilder = null;
+            if (IngameScripting != null)
+            {
+                IngameScripting.Clean();
+            }
+            IngameScripting = null;
             TerminalActionsHelper = null;
             Utilities = null;
             Parallel = null;
+            Physics = null;
             Multiplayer = null;
             PrefabManager = null;
             Input = null;
+            TerminalControls = null;
+        }
+
+        public static StringBuilder DoorBase(string name)
+        {
+            StringBuilder doorbase = new StringBuilder();
+
+            foreach (var c in name)
+            {
+                if (c == ' ') doorbase.Append(c);
+
+                byte b = (byte)c;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    doorbase.Append((b & 0x80) != 0 ? "Door" : "Base");
+                    b <<= 1;
+                }
+            }
+
+            return doorbase;
         }
     }
 }

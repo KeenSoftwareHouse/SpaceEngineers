@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using VRage.Collections;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
 using Vector3 = VRageMath.Vector3;
@@ -56,7 +57,7 @@ namespace VRageRender
             }
             m_pendingComponentsToInit.Clear();
 
-            BoundingSphereD sphere = new BoundingSphereD(MyEnvironment.CameraPosition, MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance());
+            BoundingSphereD sphere = new BoundingSphereD(MyRender11.Environment.Matrices.CameraPosition, MyRender11.Settings.User.FoliageDetails.GrassDrawDistance());
             MyScene.FoliageDBVH.OverlapAllBoundingSphere(ref sphere, m_componentsInRadius);
 
             foreach (var foliageComponent in m_activeComponents)
@@ -109,6 +110,8 @@ namespace VRageRender
         internal int m_btreeProxy;
         internal bool Updated;
 
+        private bool m_pendingRefresh;
+
         internal override void Construct()
         {
             base.Construct();
@@ -154,7 +157,8 @@ namespace VRageRender
 
         void PrepareStream(int materialId, int triangles, int voxelLod)
         {
-            float densityFactor = MyRender11.Settings.GrassDensityFactor * (float)MathHelper.Lerp(2*AllocationFactor, 1.0, MyRender11.Settings.GrassDensityFactor/10.0);
+            float densityFactor = MyRender11.Settings.User.GrassDensityFactor * 
+                (float)MathHelper.Lerp(2 * AllocationFactor, 1.0, MyRender11.Settings.User.GrassDensityFactor / 10.0);
             if (densityFactor < 0.1f)
             {
                 densityFactor = 0.1f;
@@ -163,10 +167,22 @@ namespace VRageRender
             int predictedAllocation = (int)(triangles * MyVoxelMaterials1.Table[materialId].FoliageDensity * densityFactor);
 
             var firstOrDefault = m_streams.GetValueOrDefault(materialId);
-            if(firstOrDefault == null)
+            if (firstOrDefault == null)
                 m_streams.SetDefault(materialId, new MyFoliageStream()).Reserve(predictedAllocation);
             else
                 firstOrDefault.Reserve(predictedAllocation);
+        }
+
+        public void RefreshStreams()
+        {
+            if (m_streams == null)
+                return;
+
+            m_pendingRefresh = true;
+            foreach (var stream in m_streams.Values)
+            {
+                stream.Reset();
+            }
         }
 
         internal void InvalidateStreams()
@@ -182,11 +198,7 @@ namespace VRageRender
             if (voxelMeshNotReady)
                 return false;
 
-            int partsNum;
-            if (MyMeshes.IsMergedVoxelMesh(mesh))
-                partsNum = MyMeshes.GetMergedLodMesh(mesh, 0).Info.PartsNum;
-            else
-                partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
+            int partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
 
             // only stream stones for lod0
             if (voxelLod > 0)
@@ -222,9 +234,11 @@ namespace VRageRender
 
         internal unsafe void FillStreams()
         {
-            bool alreadyFilled = m_streams != null && m_streams.Count > 0;
+            bool alreadyFilled = m_streams != null && m_streams.Count > 0 && !m_pendingRefresh;
             if (alreadyFilled)
                 return;
+
+            m_pendingRefresh = false;
 
             var mesh = Owner.GetRenderable().GetModel();
 
@@ -233,13 +247,10 @@ namespace VRageRender
             if (!Owner.IsVisible)
                 return;
 
-            int partsNum;
-            if (MyMeshes.IsMergedVoxelMesh(mesh))
-                partsNum = MyMeshes.GetMergedLodMesh(mesh, 0).Info.PartsNum;
-            else
-                partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
+            int partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
 
-            m_streams = new Dictionary<int, MyFoliageStream>();
+            if(m_streams == null)
+                m_streams = new Dictionary<int, MyFoliageStream>();
 
             // analyze 
             for (int partIndex = 0; partIndex < partsNum; ++partIndex )
@@ -299,8 +310,10 @@ namespace VRageRender
             var proxy = renderable.Lods[0].RenderableProxies[0];
             
             // get shader for streaming
-
-            var bundle = MyMaterialShaders.Get(MyStringId.GetOrCompute(MyVoxelMesh.MULTI_MATERIAL_TAG), MyStringId.GetOrCompute("foliage_streaming"), MyMeshes.VoxelLayout, renderable.Lods[0].VertexShaderFlags &~ MyShaderUnifiedFlags.USE_VOXEL_MORPHING);
+            MyFileTextureEnum textureTypes = proxy.Material == MyMeshMaterialId.NULL ? MyFileTextureEnum.UNSPECIFIED : proxy.Material.Info.TextureTypes;
+            var bundle = MyMaterialShaders.Get(MyMaterialShaders.TRIPLANAR_MULTI_MATERIAL_TAG,
+                MyMaterialShaders.FOLIAGE_STREAMING_PASS_ID, MyMeshes.VoxelLayout,
+                renderable.Lods[0].VertexShaderFlags &~ MyShaderUnifiedFlags.USE_VOXEL_MORPHING, textureTypes);
 
             MyRender11.FoliageGenerator.RecordCommands(proxy, m_streams[materialId], materialId,
                 bundle.VS, bundle.IL,
@@ -318,48 +331,13 @@ namespace VRageRender
             var invScaleMat = MatrixD.CreateScale(1.0f / renderableComponent.m_voxelScale);
 
             var worldMat = proxy.WorldMatrix;
-            worldMat.Translation -= MyEnvironment.CameraPosition;
+            worldMat.Translation -= MyRender11.Environment.Matrices.CameraPosition;
             proxy.CommonObjectData.LocalMatrix = invScaleMat * worldMat;
 
             foreach(var materialStreamPair in m_streams)
             {
                 foliageRenderer.RecordCommands(proxy, materialStreamPair.Value.m_stream, materialStreamPair.Key);
             }
-        }
-    }
-
-    public static class MeshIdExtensions
-    {
-        internal static bool ShouldHaveFoliage(this MeshId mesh)
-        {
-            int partsNum;
-            if (MyMeshes.IsMergedVoxelMesh(mesh))
-                partsNum = MyMeshes.GetMergedLodMesh(mesh, 0).Info.PartsNum;
-            else
-                partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
-
-            bool shouldHaveFoliage = false;
-            for (int partIndex = 0; partIndex < partsNum; ++partIndex)
-            {
-                var triple = MyMeshes.GetVoxelPart(mesh, partIndex).Info.MaterialTriple;
-
-                if (triple.I0 >= 0 && MyVoxelMaterials1.Table[triple.I0].HasFoliage)
-                {
-                    shouldHaveFoliage = true;
-                    break;
-                }
-                if (triple.I1 >= 0 && MyVoxelMaterials1.Table[triple.I1].HasFoliage)
-                {
-                    shouldHaveFoliage = true;
-                    break;
-                }
-                if (triple.I2 >= 0 && MyVoxelMaterials1.Table[triple.I2].HasFoliage)
-                {
-                    shouldHaveFoliage = true;
-                    break;
-                }
-            }
-            return shouldHaveFoliage;
         }
     }
 }

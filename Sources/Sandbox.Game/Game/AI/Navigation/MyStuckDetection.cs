@@ -17,12 +17,15 @@ namespace Sandbox.Game.AI.Navigation
         private Vector3 m_rotationStuckDetection;
         private float m_positionToleranceSq;
         private float m_rotationToleranceSq;
+        private double m_previousDistanceFromTarget;
 
         private bool m_isRotating;
         private int m_counter;
         private int m_longTermCounter;
         private int m_tickCounter;
         private int m_stoppedTime;
+
+        private BoundingBoxD m_boundingBox;
 
         public bool IsStuck { get; private set; }
 
@@ -34,12 +37,17 @@ namespace Sandbox.Game.AI.Navigation
             Reset();
         }
 
+        public MyStuckDetection(float positionTolerance, float rotationTolerance, BoundingBoxD box) : this(positionTolerance, rotationTolerance)
+        {
+            m_boundingBox = box;
+        }
+
         public void SetRotating(bool rotating)
         {
             m_isRotating = rotating;
         }
 
-        public void Update(Vector3D worldPosition, Vector3 rotation)
+        public void Update(Vector3D worldPosition, Vector3 rotation, Vector3D targetLocation = new Vector3D())
         {
             m_translationStuckDetection = m_translationStuckDetection * 0.8 + worldPosition * 0.2;
             m_rotationStuckDetection = m_rotationStuckDetection * 0.95f + rotation * 0.05f;
@@ -47,6 +55,19 @@ namespace Sandbox.Game.AI.Navigation
             bool isStuck = (m_translationStuckDetection - worldPosition).LengthSquared() < m_positionToleranceSq
                  && (m_rotationStuckDetection - rotation).LengthSquared() < m_rotationToleranceSq
                  && !m_isRotating;
+
+            //Additional check when too close to target and get stuck
+            var currentDistanceFromTarget = (worldPosition - targetLocation).Length();
+            if (targetLocation != Vector3D.Zero && !isStuck && currentDistanceFromTarget < 2 * m_boundingBox.Extents.Min())
+            {
+                //init the variable in order to not be too far from current value
+                if (Math.Abs(m_previousDistanceFromTarget - currentDistanceFromTarget) > 1)
+                    m_previousDistanceFromTarget = currentDistanceFromTarget + 1;
+                m_previousDistanceFromTarget = m_previousDistanceFromTarget * 0.7 + currentDistanceFromTarget * 0.3;
+                var dx = Math.Abs(currentDistanceFromTarget - m_previousDistanceFromTarget);
+
+                isStuck = dx < m_positionToleranceSq;
+            }
 
             if (m_counter <= 0)
             {
@@ -88,10 +109,10 @@ namespace Sandbox.Game.AI.Navigation
 
         }
 
-        public void Reset()
+        public void Reset(bool force = false)
         {
             // Only reset the stuck detection if we were stopped in a different frame
-            if (m_stoppedTime != m_tickCounter)
+            if (force || m_stoppedTime != m_tickCounter)
             {
                 m_translationStuckDetection = Vector3D.Zero;
                 m_rotationStuckDetection = Vector3.Zero;

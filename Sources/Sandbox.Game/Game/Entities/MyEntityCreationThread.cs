@@ -11,6 +11,7 @@ using VRage.Collections;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Utils;
 
 namespace Sandbox.Game.Entities
@@ -66,6 +67,7 @@ namespace Sandbox.Game.Entities
                         {
                             item.Result = MyEntities.CreateFromObjectBuilderNoinit(item.ObjectBuilder);
                         }
+                        item.Result.SentFromServer = true;
                         item.InScene = (item.ObjectBuilder.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene;
                         item.ObjectBuilder.PersistentFlags &= ~MyPersistentEntityFlags2.InScene;
                         item.Result.DebugAsyncLoading = true;

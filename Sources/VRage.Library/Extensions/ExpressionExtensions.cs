@@ -10,6 +10,8 @@ namespace System.Linq.Expressions
 {
     public static class ExpressionExtension
     {
+#if XB1
+#else
         public static Func<T, TMember> CreateGetter<T, TMember>(this Expression<Func<T, TMember>> expression)
         {
             Debug.Assert(expression.Body is MemberExpression, "Expression is not property or field selector");
@@ -111,5 +113,6 @@ namespace System.Linq.Expressions
             var call = Expression.Call(instance, info, callArgs);
             return Expression.Lambda<TDelegate>(call, lambdaArgs).Compile();
         }
+#endif
     }
 }

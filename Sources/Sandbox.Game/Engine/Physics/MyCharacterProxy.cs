@@ -164,11 +164,11 @@ namespace Sandbox.Engine.Physics
                 characterRBCInfo.AllowedPenetrationDepth = MyFakes.ENABLE_LIMITED_CHARACTER_BODY ? 0.3f : 0.1f;
                 characterRBCInfo.JumpHeight = 0.8f;
 
-                bool shouldLimitSpeed = (Sync.IsServer || MyPerGameSettings.EnableMultiplayerVelocityCompensation == false);
-                float maxCharacterSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
+                float maxCharacterSpeed = MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip;
                 CharacterRigidBody = new HkCharacterRigidBody(characterRBCInfo, maxCharacterSpeed, body, isOnlyVertical);
 
                 CharacterRigidBody.GetRigidBody().ContactPointCallbackEnabled = true;
+                CharacterRigidBody.GetRigidBody().ContactPointCallback -= RigidBody_ContactPointCallback;
                 CharacterRigidBody.GetRigidBody().ContactPointCallback += RigidBody_ContactPointCallback;
                 CharacterRigidBody.GetRigidBody().ContactPointCallbackDelay = 0;
 
@@ -206,6 +206,10 @@ namespace Sandbox.Engine.Physics
 
             if (CharacterRigidBody != null)
             {
+                if (CharacterRigidBody.GetRigidBody() != null)
+                {
+                    CharacterRigidBody.GetRigidBody().ContactPointCallback -= RigidBody_ContactPointCallback;
+                }
                 CharacterRigidBody.Dispose();
                 CharacterRigidBody = null;
             }
@@ -216,6 +220,13 @@ namespace Sandbox.Engine.Physics
         }
 
         #endregion
+
+        public void SetCollisionFilterInfo(uint info)
+        {
+            if (m_isDynamic)
+                CharacterRigidBody.SetCollisionFilterInfo(info);
+        }
+        
 
         #region Activation
 
@@ -490,12 +501,15 @@ namespace Sandbox.Engine.Physics
             set
             {
                 m_angularVelocity = value;
-                CharacterRigidBody.AngularVelocity = m_angularVelocity; 
-                CharacterRigidBody.SetAngularVelocity(m_angularVelocity);
+                if (CharacterRigidBody != null)
+                {
+                    CharacterRigidBody.AngularVelocity = m_angularVelocity;
+                    CharacterRigidBody.SetAngularVelocity(m_angularVelocity);
+                }
             }
             get
             {
-                return CharacterRigidBody.GetAngularVelocity();
+                return CharacterRigidBody != null ? CharacterRigidBody.GetAngularVelocity() : m_angularVelocity;
             }
         }
 
@@ -540,9 +554,73 @@ namespace Sandbox.Engine.Physics
                 Supported = CharacterRigidBody.Supported;
                 SupportNormal = CharacterRigidBody.SupportNormal;
                 GroundVelocity = CharacterRigidBody.GroundVelocity;
+
+                if(false)
+                {
+                    // Coordinate system
+                    Matrix worldMatrix = GetPhysicsBody().GetWorldMatrix();
+                    Vector3 Side = CharacterRigidBody.Up.Cross(CharacterRigidBody.Forward);
+                    //MyPhysicsDebugDraw.DebugDrawCoordinateSystem(worldMatrix.Translation, CharacterRigidBody.Forward, Side, CharacterRigidBody.Up);
+
+                    //BoundingBoxD 
+                    //MyPhysicsDebugDraw.DebugDrawAabb(worldMatrix.Translation,Color.LightBlue);
+
+                    //Velocity and Acceleration
+                    MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.LinearVelocity, Color.Red, 1.0f);
+                    //MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.LinearAcceleration, Color.Blue, 1.0f);
+
+                    // Gravity
+                    MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.Gravity, Color.Yellow, 0.1f);
+
+                    // Controller Up
+                    //MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.GetControllerUp(), Color.Pink, 1.0f);
+                    MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, CharacterRigidBody.Up, Color.Pink, 1.0f);
+
+                    Vector3 TestUp = Vector3.Up;
+                    MyPhysicsDebugDraw.DebugDrawVector3(worldMatrix.Translation, TestUp, Color.Green, 1.0f);
+
+                    /*
+                    // Capsule Shape draw 
+                    float radius = 0.4f;
+                    Vector3 vertexA = Vector3.Zero;
+                    Vector3 vertexB = Vector3.Zero;
+                    CharacterRigidBody.GetPxCapsuleShapeDrawData(ref radius,ref vertexA,ref vertexB);
+                    if ((vertexA != vertexB) && (radius > 0.0f))
+                    {
+                        HkShape capsuleShape = new HkCapsuleShape(vertexA, vertexB, radius); // only for debug display
+
+                        int index = 0;
+                        const float alpha = 0.3f;
+                        MyPhysicsDebugDraw.DrawCollisionShape(capsuleShape, worldMatrix, alpha, ref index);
+                    }
+                    */
+                }
             }           
         }
 
+        public void UpdateSupport(float stepSizeInSeconds)
+        {
+            if (CharacterRigidBody != null)
+            {
+                CharacterRigidBody.UpdateSupport(stepSizeInSeconds);
+                Supported = CharacterRigidBody.Supported;
+                SupportNormal = CharacterRigidBody.SupportNormal;
+                GroundVelocity = CharacterRigidBody.GroundVelocity;
+            }
+        }
+
+        public void SkipSimulation(MatrixD mat)
+        {
+            if (CharacterRigidBody != null)
+            {
+                CharacterRigidBody.Position = mat.Translation;
+                CharacterRigidBody.Forward = mat.Forward;
+                CharacterRigidBody.Up = mat.Up;
+                Supported = CharacterRigidBody.Supported;
+                SupportNormal = CharacterRigidBody.SupportNormal;
+                GroundVelocity = CharacterRigidBody.GroundVelocity;
+            }
+        }
 
         bool m_flyingStateEnabled = false;
         private HkRigidBody m_oldRigidBody;
@@ -550,9 +628,8 @@ namespace Sandbox.Engine.Physics
         public void EnableFlyingState(bool enable)
         {
             //multiply by constant because walking on max moving ship
-            bool shouldLimitSpeed =  (Sync.IsServer || MyPerGameSettings.EnableMultiplayerVelocityCompensation == false);
-            float maxCharacterWalkingSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
-            float maxCharacterFlyingSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
+            float maxCharacterWalkingSpeed = MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip;
+            float maxCharacterFlyingSpeed = MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip;
             float maxAcceleration = 9; // why
             EnableFlyingState(enable, maxCharacterWalkingSpeed, maxCharacterFlyingSpeed, maxAcceleration);           
         }
@@ -627,6 +704,12 @@ namespace Sandbox.Engine.Physics
                 CharacterRigidBody.ApplyAngularImpulse(impulse);
             }
         }
+
+        // Apply gravity as linear velocity to character proxy only
+        public void ApplyGravity(Vector3 gravity)
+        {
+            CharacterRigidBody.LinearVelocity += (gravity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS); 
+        }
       
         public bool ImmediateSetWorldTransform
         {
@@ -685,6 +768,15 @@ namespace Sandbox.Engine.Physics
                 }
                 return false;
             }
+        }
+
+        public MyPhysicsBody GetPhysicsBody()
+        {
+            if (m_physicsBody != null)
+            {
+                return m_physicsBody;
+            }
+            return null;
         }
 
         public HkEntity GetRigidBody()

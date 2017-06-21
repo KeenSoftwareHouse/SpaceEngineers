@@ -1,4 +1,6 @@
-﻿using SharpDX;
+﻿#if !XB1
+
+using SharpDX;
 using SharpDX.DirectInput;
 using System;
 using VRage.Utils;
@@ -87,6 +89,7 @@ namespace VRage.Input
 
             return mouseState;
         }
-
     }
 }
+
+#endif

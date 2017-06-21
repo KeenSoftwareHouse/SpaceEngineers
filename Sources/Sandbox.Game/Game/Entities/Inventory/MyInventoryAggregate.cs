@@ -1,7 +1,5 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using VRage.Game.ObjectBuilders.ComponentSystem;
+﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
-using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,8 +14,8 @@ using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Character;
 using VRage.Game;
 using VRage.Game.Entity;
-using VRage.ModAPI;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using Sandbox.Game.SessionComponents;
 
 namespace Sandbox.Game.Entities.Inventory
 {
@@ -88,6 +86,27 @@ namespace Sandbox.Game.Entities.Inventory
             }
         }
 
+        public override int MaxItemCount
+        {
+            get
+            {
+                int maxItemCount = 0;
+                foreach (MyInventoryBase inventory in m_children.Reader)
+                {
+                    long tmpSum = (long)maxItemCount + (long)inventory.MaxItemCount;
+                    if (tmpSum > (long)int.MaxValue)
+                    {
+                        maxItemCount = int.MaxValue;
+                    }
+                    else
+                    {
+                        maxItemCount = (int)tmpSum;
+                    }
+                }
+                return maxItemCount;
+            }
+        }
+
         private float? m_forcedPriority;
         public override float? ForcedPriority
         {
@@ -104,22 +123,22 @@ namespace Sandbox.Game.Entities.Inventory
         }
 
         private int m_inventoryCount;
-        public event Action<MyInventoryAggregate,int> OnInventoryCountChanged;
+        public event Action<MyInventoryAggregate, int> OnInventoryCountChanged;
 
         /// <summary>
         /// Returns number of inventories of MyInventory type contained in this aggregate
         /// </summary>
         public int InventoryCount
         {
-            get 
-            { 
-                return m_inventoryCount; 
+            get
+            {
+                return m_inventoryCount;
             }
-            private set 
+            private set
             {
                 if (m_inventoryCount != value)
                 {
-                    int change = m_inventoryCount - value;
+                    int change = value - m_inventoryCount;
                     m_inventoryCount = value;
                     var handler = OnInventoryCountChanged;
                     if (handler != null)
@@ -128,15 +147,15 @@ namespace Sandbox.Game.Entities.Inventory
                     }
                 }
             }
-        }        
+        }
 
         #endregion
 
         #region De/Constructor & Init
 
-        public MyInventoryAggregate(): base("Inventory") { }
+        public MyInventoryAggregate() : base("Inventory") { }
 
-        public MyInventoryAggregate(string inventoryId) : base(inventoryId) {}
+        public MyInventoryAggregate(string inventoryId) : base(inventoryId) { }
 
         // Register callbacks
         public void Init()
@@ -173,17 +192,17 @@ namespace Sandbox.Game.Entities.Inventory
             return (MyFixedPoint)amount;
         }
 
-        public override MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None)
+        public override MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool substitute = false)
         {
             float amount = 0;
             foreach (MyInventoryBase inventory in m_children.Reader)
             {
-                amount += (float)inventory.GetItemAmount(contentId, flags);
+                amount += (float)inventory.GetItemAmount(contentId, flags, substitute);
             }
-            return (MyFixedPoint) amount;
+            return (MyFixedPoint)amount;
         }
 
-        public override bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1, bool stack = true)
+        public override bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder)
         {
             var maxAmount = ComputeAmountThatFits(objectBuilder.GetId());
             var restAmount = amount;
@@ -198,11 +217,12 @@ namespace Sandbox.Game.Entities.Inventory
                     }
                     if (availableSpace > 0)
                     {
-                        if (inventory.AddItems(availableSpace, objectBuilder, index, stack))
+                        if (inventory.AddItems(availableSpace, objectBuilder))
                         {
                             restAmount -= availableSpace;
                         }
                     }
+                    if (restAmount == 0) break;
                 }
             }
             return restAmount == 0;
@@ -218,17 +238,12 @@ namespace Sandbox.Game.Entities.Inventory
             return amount - restAmount;
         }
 
-        public MyInventoryBase GetInventory(MyStringHash id)        
+        public MyInventoryBase GetInventory(MyStringHash id)
         {
-            tmp_list.Clear();
-            this.GetComponentsFlattened(tmp_list);
-            foreach (var item in tmp_list)
+            foreach (var item in m_children.Reader)
             {
                 MyInventoryBase inventory = item as MyInventoryBase;
-                if (inventory.InventoryId == id)
-                {
-                    return inventory;
-                }
+                if (inventory.InventoryId == id) return inventory;
             }
             return null;
         }
@@ -255,7 +270,7 @@ namespace Sandbox.Game.Entities.Inventory
             if (OnAfterComponentAdd != null)
             {
                 OnAfterComponentAdd(this, inv);
-            }                
+            }
         }
 
         private void OnChildAggregateCountChanged(MyInventoryAggregate obj, int change)
@@ -288,7 +303,7 @@ namespace Sandbox.Game.Entities.Inventory
             OnContentsChanged();
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_InventoryAggregate;
 
@@ -340,45 +355,45 @@ namespace Sandbox.Game.Entities.Inventory
             }
         }
 
-		// MK: TODO: ItemsCanBeAdded, ItemsCanBeRemoved, Add and Remove should probably support getting stuff from several inventories at once
+        // MK: TODO: ItemsCanBeAdded, ItemsCanBeRemoved, Add and Remove should probably support getting stuff from several inventories at once
         public override bool ItemsCanBeAdded(MyFixedPoint amount, IMyInventoryItem item)
         {
-            foreach(MyInventoryBase inventory in m_children.Reader)
-			{
-				if (inventory.ItemsCanBeAdded(amount, item))
-					return true;
-			}
-			return false;
+            foreach (MyInventoryBase inventory in m_children.Reader)
+            {
+                if (inventory.ItemsCanBeAdded(amount, item))
+                    return true;
+            }
+            return false;
         }
 
         public override bool ItemsCanBeRemoved(MyFixedPoint amount, IMyInventoryItem item)
         {
-            foreach(MyInventoryBase inventory in m_children.Reader)
-			{
-				if (inventory.ItemsCanBeRemoved(amount, item))
-					return true;
-			}
-			return false;
+            foreach (MyInventoryBase inventory in m_children.Reader)
+            {
+                if (inventory.ItemsCanBeRemoved(amount, item))
+                    return true;
+            }
+            return false;
         }
 
-        public override bool Add(IMyInventoryItem item, MyFixedPoint amount, bool stack = true)
+        public override bool Add(IMyInventoryItem item, MyFixedPoint amount)
         {
-            foreach(MyInventoryBase inventory in m_children.Reader)
-			{
-				if (inventory.ItemsCanBeAdded(amount, item) && inventory.Add(item, amount, stack))
-					return true;
-			}
-			return false;
+            foreach (MyInventoryBase inventory in m_children.Reader)
+            {
+                if (inventory.ItemsCanBeAdded(amount, item) && inventory.Add(item, amount))
+                    return true;
+            }
+            return false;
         }
 
         public override bool Remove(IMyInventoryItem item, MyFixedPoint amount)
         {
-            foreach(MyInventoryBase inventory in m_children.Reader)
-			{
-				if (inventory.ItemsCanBeRemoved(amount, item) && inventory.Remove(item, amount))
-					return true;
-			}
-			return false;
+            foreach (MyInventoryBase inventory in m_children.Reader)
+            {
+                if (inventory.ItemsCanBeRemoved(amount, item) && inventory.Remove(item, amount))
+                    return true;
+            }
+            return false;
         }
 
         public override List<MyPhysicalInventoryItem> GetItems()
@@ -409,7 +424,7 @@ namespace Sandbox.Game.Entities.Inventory
         /// Transfers safely given item from inventory given as parameter to this instance.
         /// </summary>
         /// <returns>true if items were succesfully transfered, otherwise, false</returns>
-        public override bool TransferItemsFrom(MyInventoryBase sourceInventory, IMyInventoryItem item, MyFixedPoint amount, bool stack)
+        public override bool TransferItemsFrom(MyInventoryBase sourceInventory, IMyInventoryItem item, MyFixedPoint amount)
         {
             if (sourceInventory == null)
             {
@@ -440,7 +455,7 @@ namespace Sandbox.Game.Entities.Inventory
                     if (destinationInventory != sourceInventory)
                     {
                         // try to add first and then remove to ensure this items don't disappear
-                        if (destinationInventory.Add(item, amount, stack))
+                        if (destinationInventory.Add(item, amount))
                         {
                             if (sourceInventory.Remove(item, amount))
                             {
@@ -457,7 +472,7 @@ namespace Sandbox.Game.Entities.Inventory
                     else
                     {
                         // same inventory transfer = splitting amount, need to remove first and add second
-                        if (sourceInventory.Remove(item, amount) && destinationInventory.Add(item, amount, stack))
+                        if (sourceInventory.Remove(item, amount) && destinationInventory.Add(item, amount))
                         {
                             return true;
                         }
@@ -477,7 +492,6 @@ namespace Sandbox.Game.Entities.Inventory
                     eventParams.SourceInventoryId = sourceInventory.InventoryId;
                     eventParams.DestinationOwnerId = destinationInventory.Entity.EntityId;
                     eventParams.DestinationInventoryId = destinationInventory.InventoryId;
-                    eventParams.Stack = stack;
                     MyMultiplayer.RaiseStaticEvent(s => InventoryBaseTransferItem_Implementation, eventParams);
                 }
             }
@@ -505,7 +519,7 @@ namespace Sandbox.Game.Entities.Inventory
             }
 
             if (foundItem.HasValue)
-                dst.TransferItemsFrom(source, foundItem, eventParams.Amount, eventParams.Stack);
+                dst.TransferItemsFrom(source, foundItem, eventParams.Amount);
         }
 
         public override void ConsumeItem(MyDefinitionId itemId, MyFixedPoint amount, long consumerEntityId = 0)
@@ -542,7 +556,7 @@ namespace Sandbox.Game.Entities.Inventory
                     {
                         return foundInventory; // we found it!
                     }
-                    else if (inventory is MyInventory) 
+                    else if (inventory is MyInventory)
                     {
                         currentIndex++; // we did not found correct inventory - advance current index
                     }
@@ -571,20 +585,35 @@ namespace Sandbox.Game.Entities.Inventory
                     return;
             }
 
+            bool removeItem = true;
+
             if (entity.Components != null)
             {
-                var statComp = entity.Components.Get<MyEntityStatComponent>() as MyCharacterStatComponent;
-                if (statComp != null)
+                var definition = MyDefinitionManager.Static.GetDefinition(itemId) as MyUsableItemDefinition;
+                if (definition != null)
                 {
-                    var definition = MyDefinitionManager.Static.GetDefinition(itemId) as MyConsumableItemDefinition;
-                    statComp.Consume(amount, definition);
                     var character = entity as MyCharacter;
                     if (character != null)
-                        character.SoundComp.StartSecondarySound(definition.EatingSound, true);
+                        character.SoundComp.StartSecondarySound(definition.UseSound, true);
+
+                    var consumableDef = definition as MyConsumableItemDefinition;
+                    if (consumableDef != null)
+                    {
+                        var statComp = entity.Components.Get<MyEntityStatComponent>() as MyCharacterStatComponent;
+                        if (statComp != null)
+                        {
+                            statComp.Consume(amount, consumableDef);
+                        }
+                    }
+
+                    var schematicDef = definition as MySchematicItemDefinition;
+                    if (schematicDef != null)
+                        removeItem &= MySessionComponentResearch.Static.UnlockResearch(character, schematicDef.Research);
                 }
             }
 
-            RemoveItemsOfType(amount, itemId);
+            if (removeItem)
+                RemoveItemsOfType(amount, itemId);
         }
 
         #region Fixing wrong inventories
@@ -635,7 +664,7 @@ namespace Sandbox.Game.Entities.Inventory
                         {
                             outputInventory = myInventory;
                         }
-                    }                    
+                    }
                 }
             }
 
@@ -646,7 +675,7 @@ namespace Sandbox.Game.Entities.Inventory
                     var myInventory = inventory as MyInventory;
                     if (myInventory == null)
                         continue;
-                    if (inputInventory == null )
+                    if (inputInventory == null)
                     {
                         inputInventory = myInventory;
                     }

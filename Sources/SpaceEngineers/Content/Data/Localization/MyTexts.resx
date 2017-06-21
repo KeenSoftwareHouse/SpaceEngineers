@@ -252,7 +252,7 @@
     <value>Spotlight</value>
   </data>
   <data name="DisplayName_Block_FullCoverWall" xml:space="preserve">
-    <value>Full Cover Wall</value>
+    <value>Cover Walls</value>
   </data>
   <data name="DisplayName_Block_GatlingGun" xml:space="preserve">
     <value>Gatling Gun</value>
@@ -305,6 +305,24 @@
   <data name="DisplayName_Block_InteriorLight" xml:space="preserve">
     <value>Interior Light</value>
   </data>
+  <data name="DisplayName_Block_CornerLCD" xml:space="preserve">
+    <value>Corner LCD</value>
+  </data>
+  <data name="DisplayName_Block_CornerLCD2" xml:space="preserve">
+    <value>Corner LCD 2</value>
+  </data>
+  <data name="DisplayName_Block_CornerLCDFlatTop" xml:space="preserve">
+    <value>Corner LCD Flat Top</value>
+  </data>
+  <data name="DisplayName_Block_CornerLCDFlatBottom" xml:space="preserve">
+    <value>Corner LCD Flat Bottom</value>
+  </data>
+  <data name="DisplayName_Block_CornerLight" xml:space="preserve">
+    <value>Corner Light</value>
+  </data>
+  <data name="DisplayName_Block_CornerLightDouble" xml:space="preserve">
+    <value>Corner Light - Double</value>
+  </data>
   <data name="DisplayName_Block_InteriorPillar" xml:space="preserve">
     <value>Interior Pillar</value>
   </data>
@@ -336,7 +354,7 @@
     <value>Large Steel Tube</value>
   </data>
   <data name="DisplayName_Block_LargeThrust" xml:space="preserve">
-    <value>Large Thruster</value>
+    <value>Large Ion Thruster</value>
   </data>
   <data name="DisplayName_Block_LightArmorBlock" xml:space="preserve">
     <value>Light Armor Block</value>
@@ -438,13 +456,13 @@
     <value>Small Steel Tube</value>
   </data>
   <data name="DisplayName_Block_SmallThrust" xml:space="preserve">
-    <value>Small Thruster</value>
+    <value>Ion Thrusters</value>
   </data>
   <data name="DisplayName_Block_Stairs" xml:space="preserve">
     <value>Stairs</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalk" xml:space="preserve">
-    <value>Steel Catwalk</value>
+    <value>Steel Catwalks</value>
   </data>
   <data name="DisplayName_Item_SteelPlate" xml:space="preserve">
     <value>Steel Plate</value>
@@ -573,7 +591,7 @@ Public: Any Steam player can join</value>
     <value>Turret</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
-    <value>Conveyor</value>
+    <value>Conveyor Junction</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminal</value>
@@ -1162,7 +1180,8 @@ Recommendations help to grow the community. Thank you!</value>
     <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
   </data>
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
-    <value>{0} is not available for {1}</value>
+    <value>{0} {1} is not available for a {2}</value>
+    <comment>{0} + {2} are type of grid, {1} is DisplayName</comment>
   </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Angle grinder</value>
@@ -1417,6 +1436,12 @@ Volume: {2} L{4}</value>
   </data>
   <data name="BlockPropertyDescription_LightRadius" xml:space="preserve">
     <value>Radius of influence of the light</value>
+  </data>
+  <data name="BlockPropertyTitle_LightReflectorRadius" xml:space="preserve">
+    <value>Reflector radius</value>
+  </data>
+  <data name="BlockPropertyDescription_LightReflectorRadius" xml:space="preserve">
+    <value>Reflector radius of influence of the light</value>
   </data>
   <data name="BlockPropertyTitle_LightFalloff" xml:space="preserve">
     <value>Falloff</value>
@@ -1741,7 +1766,7 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
     <value>Artificial Mass</value>
   </data>
   <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
-    <value>Control Station</value>
+    <value>Control Stations</value>
   </data>
   <data name="DisplayName_Block_Collector" xml:space="preserve">
     <value>Collector</value>
@@ -1831,7 +1856,7 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
     <value>Wheel 1x1</value>
   </data>
   <data name="DisplayName_Block_Wheel3x3" xml:space="preserve">
-    <value>Wheel 3x3</value>
+    <value>Wheels</value>
   </data>
   <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
     <value>Wheel 5x5</value>
@@ -1939,7 +1964,7 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
     <value>Meteor storm inbound.</value>
   </data>
   <data name="DisplayName_Block_ConveyorTubeMedium" xml:space="preserve">
-    <value>Conveyor Tube</value>
+    <value>Medium Conveyor Tube</value>
   </data>
   <data name="DisplayName_Block_ConnectorSmall" xml:space="preserve">
     <value>Ejector</value>
@@ -2287,7 +2312,7 @@ uncontrolled, without a medbay and far enough from all players so that they can 
     <value>Realistic</value>
   </data>
   <data name="WorldSettings_SoundMode" xml:space="preserve">
-    <value>Sound Mode</value>
+    <value>Sound mode</value>
   </data>
   <data name="Terminal_ShowOnHUD" xml:space="preserve">
     <value>Show on HUD</value>
@@ -2357,7 +2382,7 @@ Respawn?</value>
     <value>Wheel Suspension 1x1</value>
   </data>
   <data name="DisplayName_Block_Suspension3x3" xml:space="preserve">
-    <value>Wheel Suspension 3x3</value>
+    <value>Wheel Suspensions</value>
   </data>
   <data name="DisplayName_Block_Suspension5x5" xml:space="preserve">
     <value>Wheel Suspension 5x5</value>
@@ -2487,7 +2512,7 @@ Setting to 0% will effectively lock the suspension.</value>
     <value>Rotor displacement</value>
   </data>
   <data name="DisplayName_Block_ArmorCenter" xml:space="preserve">
-    <value>Blast door</value>
+    <value>Blast doors</value>
   </data>
   <data name="DisplayName_Block_ArmorCorner" xml:space="preserve">
     <value>Blast door corner</value>
@@ -3057,7 +3082,7 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
     <value>Broadcasting On</value>
   </data>
   <data name="NotificationCopyPasteAsteroidObstructed" xml:space="preserve">
-    <value>Can not place asteroids over ships and players</value>
+    <value>Can not place asteroids/voxels over ships(except stations) and players</value>
   </data>
   <data name="DisplayName_Block_AdvancedRotor" xml:space="preserve">
     <value>Advanced Rotor</value>
@@ -3307,6 +3332,15 @@ Characters leaving the game area will be killed.</value>
   <data name="WorkshopTag_Exploration" xml:space="preserve">
     <value>Exploration</value>
   </data>
+  <data name="BlueprintScreen_DevMismatchCaption" xml:space="preserve">
+    <value>Blueprint created in development version</value>
+  </data>
+  <data name="BlueprintScreen_DevMismatchMessage" xml:space="preserve">
+    <value>This blueprint was created in development version. It could cause issues in game.</value>
+  </data>
+  <data name="WorkshopTag_Dev" xml:space="preserve">
+    <value>Development</value>
+  </data>
   <data name="DisplayName_Programmable_Block" xml:space="preserve">
     <value>Programmable block</value>
   </data>
@@ -3533,6 +3567,12 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_ShowOnHud" xml:space="preserve">
     <value>Show on  HUD</value>
   </data>
+  <data name="TerminalTab_GPS_AlwaysVisible" xml:space="preserve">
+    <value>Always Visible</value>
+  </data>
+  <data name="TerminalTab_GPS_AlwaysVisible_Tooltip" xml:space="preserve">
+    <value>Prevents this GPS coordinate from getting clustered or fading out.</value>
+  </data>
   <data name="TerminalTab_GPS_X" xml:space="preserve">
     <value>X</value>
   </data>
@@ -3696,7 +3736,7 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Backgr.</value>
   </data>
   <data name="BlockPropertyTitle_FontColor" xml:space="preserve">
-    <value>Font</value>
+    <value>Color</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenDefinitionsTextures" xml:space="preserve">
     <value>Loaded textures</value>
@@ -3735,10 +3775,10 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Public</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelPublicTitle" xml:space="preserve">
-    <value>Public title</value>
+    <value>Title</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelShowPublicTextPanel" xml:space="preserve">
-    <value>Edit public text</value>
+    <value>Edit text</value>
   </data>
   <data name="DisplayName_Block_LaserAntenna" xml:space="preserve">
     <value>Laser Antenna</value>
@@ -4035,7 +4075,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
-    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+    <value>Enable oxygen processing. Used by space suit and cockpits.</value>
   </data>
   <data name="World_Settings_EnableOxygen" xml:space="preserve">
     <value>Enable oxygen</value>
@@ -4334,6 +4374,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DialogTextJoiningBattle" xml:space="preserve">
     <value>Joining battle</value>
   </data>
+  <data name="DialogTextJoiningScenario" xml:space="preserve">
+    <value>Joining scenario</value>
+  </data>
   <data name="DialogTextJoinBattleFailed" xml:space="preserve">
     <value>Joining battle failed, reason: {0}</value>
   </data>
@@ -4476,8 +4519,8 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>
 Enables flora for planets</value>
   </data>
-  <data name="ToolTipWorldSettings_EnableStationVoxel" xml:space="preserve">
-    <value>Stations will be fixed only if they intersects with asteroids. They will move like ships otherwise.</value>
+  <data name="ToolTipWorldSettings_EnableConvertToStation" xml:space="preserve">
+    <value>Add option to ship's terminal to convert ship to station</value>
   </data>
   <data name="ToolTipWorldSettings_FloraDensity" xml:space="preserve">
     <value>Density of flora elements on planets</value>
@@ -4485,8 +4528,8 @@ Enables flora for planets</value>
   <data name="WorldSettings_EnableFlora" xml:space="preserve">
     <value>Enable Flora</value>
   </data>
-  <data name="WorldSettings_EnableStationVoxel" xml:space="preserve">
-    <value>Station voxel support</value>
+  <data name="WorldSettings_EnableConvertToStation" xml:space="preserve">
+    <value>Enable convert to station</value>
   </data>
   <data name="WorldSettings_FloraDensity" xml:space="preserve">
     <value>Flora Density</value>
@@ -4500,11 +4543,11 @@ Enables flora for planets</value>
   <data name="WorldSettings_FloraDensity_Medium" xml:space="preserve">
     <value>Medium</value>
   </data>
-  <data name="WorldSettings_DisableRespawnShips" xml:space="preserve">
-    <value>Disable respawn ships</value>
+  <data name="WorldSettings_EnableRespawnShips" xml:space="preserve">
+    <value>Enable respawn ships</value>
   </data>
-  <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
-    <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
+  <data name="ToolTipWorldSettings_EnableRespawnShips" xml:space="preserve">
+    <value>Enable respawn in ships and suit. When disabled and no valid medical rooms exist, respawn won't be possible at all!</value>
   </data>
   <data name="BlockPropertyTitle_SensorPlaySound" xml:space="preserve">
     <value>Audible Proximity Alert</value>
@@ -5051,11 +5094,11 @@ Allowed sites: steamcommunity, youtube, KSH forum.</value>
     <value>Random NPC pirate ship will be generated from time to time.
 These ships are enemies and will try to attack you with their drones.</value>
   </data>
-  <data name="ToolTipWorldSettings_EnableCyberhounds" xml:space="preserve">
-    <value>Enable / disable spawning of cyberhounds</value>
+  <data name="ToolTipWorldSettings_EnableWolfs" xml:space="preserve">
+    <value>Enable / disable spawning of Wolves</value>
   </data>
-  <data name="WorldSettings_EnableCyberhounds" xml:space="preserve">
-    <value>Enable cyberhounds</value>
+  <data name="WorldSettings_EnableWolfs" xml:space="preserve">
+    <value>Enable wolves</value>
   </data>
   <data name="ToolTipWorldSettings_EnableSpiders" xml:space="preserve">
     <value>Enable / disable spawning of spiders</value>
@@ -5067,7 +5110,7 @@ These ships are enemies and will try to attack you with their drones.</value>
     <value>Enable drones</value>
   </data>
   <data name="ToolTipWorldSettings_CargoShipsEnabled" xml:space="preserve">
-    <value>Random NPC cargo ships can be encountered.</value>
+    <value>Random NPC cargoships will fly through world from time to time.</value>
   </data>
   <data name="ToolTipWorldSettings_ClientCanSave" xml:space="preserve">
     <value>Client can save network game. If unchecked then only server can save.</value>
@@ -5076,7 +5119,7 @@ These ships are enemies and will try to attack you with their drones.</value>
     <value>Camera can be switched to 3rd person view, looking on your astronaut from behind.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableEncounters" xml:space="preserve">
-    <value>Random NPC ships will fly through world from time to time.</value>
+    <value>Random abandoned ships and stations can be encountered.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableIngameScripts" xml:space="preserve">
     <value>If disabled, scripts will not be run in game. Scripts are used in programmable block
@@ -5095,7 +5138,7 @@ and can also be used by some mods to create advanced logic and effects.</value>
     <value>Large Atmospheric Thruster</value>
   </data>
   <data name="DisplayName_Block_SmallAtmoThrust" xml:space="preserve">
-    <value>Small Atmospheric Thruster</value>
+    <value>Atmospheric Thrusters</value>
   </data>
   <data name="NotificationShipEnergyCritical" xml:space="preserve">
     <value>Warning: Ship fuel is critically low. Life support failure imminent.</value>
@@ -5113,7 +5156,7 @@ and can also be used by some mods to create advanced logic and effects.</value>
     <value>Large Hydrogen Thruster</value>
   </data>
   <data name="DisplayName_Block_SmallHydrogenThrust" xml:space="preserve">
-    <value>Small Hydrogen Thruster</value>
+    <value>Hydrogen Thrusters</value>
   </data>
   <data name="BlockPropertyDescription_Motor_SuspensionSpeed" xml:space="preserve">
     <value>Wheels will not be propeled over this speed</value>
@@ -5135,6 +5178,15 @@ and can also be used by some mods to create advanced logic and effects.</value>
   </data>
   <data name="BlockPropertiesText_MotorAttachingSpecific" xml:space="preserve">
     <value>Looking for specific rotor to attach</value>
+  </data>
+  <data name="BlockPropertiesText_HeadAttachingAny" xml:space="preserve">
+    <value>Looking for any Head to attach</value>
+  </data>
+  <data name="BlockPropertiesText_HeadAttachingSpecific" xml:space="preserve">
+    <value>Looking for specific Head to attach</value>
+  </data>
+  <data name="BlockPropertiesText_MotorLocked" xml:space="preserve">
+    <value>Safety locked</value>
   </data>
   <data name="BlockPropertiesText_MotorDetached" xml:space="preserve">
     <value>Detached</value>
@@ -5235,11 +5287,11 @@ and can also be used by some mods to create advanced logic and effects.</value>
   <data name="SwitchBuilderMode" xml:space="preserve">
     <value>Switch cockpit builder mode</value>
   </data>
-  <data name="NotificationPlayerDemoted" xml:space="preserve">
-    <value>You are no longer a Space master</value>
+  <data name="NotificationPlayerDemoted_SpaceMaster" xml:space="preserve">
+    <value>You have been demoted to Space Master</value>
   </data>
-  <data name="NotificationPlayerPromoted" xml:space="preserve">
-    <value>You have been promoted to Space master</value>
+  <data name="NotificationPlayerPromoted_SpaceMaster" xml:space="preserve">
+    <value>You have been promoted to Space Master</value>
   </data>
   <data name="ScreenDebugAdminMenu_ReplicateEverythingServer_Tooltip" xml:space="preserve">
     <value>You are on server and allready have all objects</value>
@@ -5394,5 +5446,396 @@ and can also be used by some mods to create advanced logic and effects.</value>
   </data>
   <data name="ProgrammableBlock_Exception_NestedTooComplex" xml:space="preserve">
     <value>Script execution halted temporarily. The combined execution between a calling programmable block and this script became too complex. This script has not been terminated, but the calling script has.</value>
+  </data>
+  <data name="DisplayName_OpenHelmet" xml:space="preserve">
+    <value>Open Helmet</value>
+  </data>
+  <data name="DisplayName_CloseHelmet" xml:space="preserve">
+    <value>Close Helmet</value>
+  </data>
+  <data name="Description_OpenHelmet" xml:space="preserve">
+    <value>Open Helmet</value>
+  </data>
+  <data name="Description_CloseHelmet" xml:space="preserve">
+    <value>Close Helmet</value>
+  </data>
+  <data name="GPS_Body_Location_Name" xml:space="preserve">
+    <value>Body Location</value>
+  </data>
+  <data name="GPS_Body_Location_Desc" xml:space="preserve">
+    <value>Last known body location</value>
+  </data>
+  <data name="DisplayName_AlienLander" xml:space="preserve">
+    <value>Alien Planet Landing</value>
+  </data>
+  <data name="DisplayName_MarsLander" xml:space="preserve">
+    <value>Mars Planet Landing</value>
+  </data>
+  <data name="BlockActionTitle_AddPistonHead" xml:space="preserve">
+    <value>Add Piston Head</value>
+  </data>
+  <data name="BlockActionTooltip_AddPistonHead" xml:space="preserve">
+    <value>Tries to add a piston head if no head is present.</value>
+  </data>
+  <data name="BlockActionTitle_AddRotorHead" xml:space="preserve">
+    <value>Add Rotor Head</value>
+  </data>
+  <data name="BlockActionTooltip_AddRotorHead" xml:space="preserve">
+    <value>Tries to add a Rotor head if no head is present.</value>
+  </data>
+  <data name="BlockActionTitle_AddSmallRotorHead" xml:space="preserve">
+    <value>Add Small Head</value>
+  </data>
+  <data name="BlockActionTooltip_AddSmallRotorHead" xml:space="preserve">
+    <value>Tries to add a Small Rotor head on Large Rotor if no head is present.</value>
+  </data>
+  <data name="BlockActionTitle_AddWheel" xml:space="preserve">
+    <value>Add Wheel</value>
+  </data>
+  <data name="BlockActionTooltip_AddWheel" xml:space="preserve">
+    <value>Tries to add a Wheel if no wheel is present.</value>
+  </data>
+  <data name="Notification_PistonHeadNotPlaced" xml:space="preserve">
+    <value>Piston head could not be placed.</value>
+  </data>
+  <data name="Notification_PistonHeadAlreadyExists" xml:space="preserve">
+    <value>Piston head already exists.</value>
+  </data>
+  <data name="NotificationLandingGearSwitchLocked" xml:space="preserve">
+    <value>Landing gears Locked</value>
+  </data>
+  <data name="NotificationLandingGearSwitchUnlocked" xml:space="preserve">
+    <value>Landing gears Unlocked</value>
+  </data>
+  <data name="BlockPropertyTitle_Silent" xml:space="preserve">
+    <value>Silent</value>
+  </data>
+  <data name="ToolTipTimerBlock_Silent" xml:space="preserve">
+    <value>Turn off timer beep sounds</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NoValidConstructor" xml:space="preserve">
+    <value>This program has no valid constructor.</value>
+  </data>
+  <data name="ProgrammableBlock_DefaultScript_Constructor" xml:space="preserve">
+    <value>The constructor, called only once every session and
+always before any other method is called. Use it to
+initialize your script. 
+    
+The constructor is optional and can be removed if not
+needed.</value>
+  </data>
+  <data name="ProgrammableBlock_DefaultScript_Main" xml:space="preserve">
+    <value>The main entry point of the script, invoked every time
+one of the programmable block's Run actions are invoked.
+
+The method itself is required, but the argument above
+can be removed if not needed.</value>
+  </data>
+  <data name="ProgrammableBlock_DefaultScript_Save" xml:space="preserve">
+    <value>Called when the program needs to save its state. Use
+this method to save your state to the Storage field
+or some other means. 
+
+This method is optional and can be removed if not
+needed.</value>
+  </data>
+  <data name="NotificationHandbrakeOff" xml:space="preserve">
+    <value>Handbrake off</value>
+  </data>
+  <data name="NotificationHandbrakeOn" xml:space="preserve">
+    <value>Handbrake on</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_RemoveFloating" xml:space="preserve">
+    <value>Remove floating objects</value>
+  </data>
+  <data name="BlockPropertyTitle_RemoteBlockSpeedLimit" xml:space="preserve">
+    <value>Speed limit</value>
+  </data>
+  <data name="NotificationConnectorsDisabled" xml:space="preserve">
+    <value>Connectors Disabled</value>
+  </data>
+  <data name="NotificationConnectorsEnabled" xml:space="preserve">
+    <value>Connectors Enabled</value>
+  </data>
+  <data name="NotificationCannotJumpOutsideWorld" xml:space="preserve">
+    <value>Jump drives cannot be used to jump outside world limits.</value>
+  </data>
+  <data name="BroadcastStatus_IsPreviewGrid" xml:space="preserve">
+    <value>Preview Grid</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationOkWarningList" xml:space="preserve">
+    <value>Warning list</value>
+  </data>
+  <data name="CubeBuilder_CubeSizeModeChange" xml:space="preserve">
+    <value>Press {0} again{1}to change block size.</value>
+  </data>
+  <data name="BlockSize_NotAvailable" xml:space="preserve">
+    <value>This block is for {0} only</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertButton_TT" xml:space="preserve">
+    <value>Converts this station to a ship.
+Ships can move and rotate.
+WARNING: Make sure your station is not connected to asteroid
+when you convert to a ship. If it was, it might explode on you 
+when it changes to a ship.</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertToStationButton" xml:space="preserve">
+    <value>Convert to station</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertToStationButton_TT" xml:space="preserve">
+    <value>Converts this ship to a station.
+Ship has to be stationary in order to convert it to a station
+(both angular and linear velocity have to be 0).
+Stations are more performance friendly.
+WARNING: Converting ship to a station is possible in planets gravity,
+but it will be converted to a ship in the moment of station being
+split and not in voxel. </value>
+  </data>
+  <data name="RemoteControlCoord" xml:space="preserve">
+    <value>Coords:</value>
+  </data>
+  <data name="RemoteControlUsedBy" xml:space="preserve">
+    <value>Controlled by another player: </value>
+  </data>
+  <data name="RemoteControlWaypoint" xml:space="preserve">
+    <value>Current waypoint:</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureEnableOxygenPressurization" xml:space="preserve">
+    <value>Are you sure you want to enable airtightness? This can have negative influence to performance.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableOxygenPressurization" xml:space="preserve">
+    <value>Allow pressurization of ships and stations.</value>
+  </data>
+  <data name="World_Settings_EnableOxygenPressurization" xml:space="preserve">
+    <value>Enable airtightness</value>
+  </data>
+  <data name="ControlName_CubeDefaultMountpoint" xml:space="preserve">
+    <value>Reset orientation</value>
+  </data>
+  <data name="NotificationHint_CubeDefaultMountpoint" xml:space="preserve">
+    <value>Press {0} to toggle auto orientation</value>
+  </data>
+  <data name="MaxBackupSaves" xml:space="preserve">
+    <value>Max backup saves</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxBackupSaves" xml:space="preserve">
+    <value>Configure the maximum number of saves that should be backed up. The backup folder is located on the respective save directory.
+When this is 0 then the backup feature is disabled and all backups are deleted upon save!</value>
+  </data>
+  <data name="TerminalTab_Chat_ChatHistory" xml:space="preserve">
+    <value>-Global Chat History-</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_AdminTools" xml:space="preserve">
+    <value>Admin Tools</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_Cleanup" xml:space="preserve">
+    <value>Cleanup</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_Invulnerable" xml:space="preserve">
+    <value>Invulnerable</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_InvulnerableToolTip" xml:space="preserve">
+    <value>Makes you invulnerable to all damage, and invisible to turrets.</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_ModeSelect" xml:space="preserve">
+    <value>Mode Select</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_ShowPlayers" xml:space="preserve">
+    <value>Show All Players</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_ShowPlayersToolTip" xml:space="preserve">
+    <value>Shows all player names on HUD, even when broadcast is off.</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_TeleportHere" xml:space="preserve">
+    <value>Teleport Here</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_TeleportHereToolTip" xml:space="preserve">
+    <value>Teleports your character to the spectator camera.</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_UseTerminals" xml:space="preserve">
+    <value>Can Use All Terminals</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_UseTerminalsToolTip" xml:space="preserve">
+    <value>Allows you to use any terminal, regardless of ownership.</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_EntityList" xml:space="preserve">
+    <value>Entity List</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_SortOptions" xml:space="preserve">
+    <value>Sort Options</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_StopAll" xml:space="preserve">
+    <value>Stop All Entities</value>
+  </data>
+  <data name="DetectedEntity_Asteroid" xml:space="preserve">
+    <value>Asteroid</value>
+  </data>
+  <data name="DetectedEntity_CharacterHuman" xml:space="preserve">
+    <value>Human</value>
+  </data>
+  <data name="DetectedEntity_LargeGrid" xml:space="preserve">
+    <value>Large Grid</value>
+  </data>
+  <data name="DetectedEntity_Meteor" xml:space="preserve">
+    <value>Meteor</value>
+  </data>
+  <data name="DetectedEntity_Planet" xml:space="preserve">
+    <value>Planet</value>
+  </data>
+  <data name="DetectedEntity_SmallGrid" xml:space="preserve">
+    <value>Small Grid</value>
+  </data>
+  <data name="DetectedEntity_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="NotificationShipOverLimits" xml:space="preserve">
+    <value>Cannot place. Ship would exceed regulations.</value>
+  </data>
+  <data name="WorldSettings_MaxBlocksPerPlayer" xml:space="preserve">
+    <value>Max blocks per player</value>
+  </data>
+  <data name="WorldSettings_MaxGridSize" xml:space="preserve">
+    <value>Max ship size</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxBlocksPerPlayer" xml:space="preserve">
+    <value>Maximum number of blocks each player can build. Destroyed blocks are refunded</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxGridSize" xml:space="preserve">
+    <value>Maximum size (in blocks) of ships and stations</value>
+  </data>
+  <data name="TerminalTab_Info_Assign" xml:space="preserve">
+    <value>Assign</value>
+  </data>
+  <data name="TerminalTab_Info_BlocksLower" xml:space="preserve">
+    <value>blocks</value>
+  </data>
+  <data name="TerminalTab_Info_Overview" xml:space="preserve">
+    <value>Owned blocks overview</value>
+  </data>
+  <data name="TerminalTab_Info_YouBuilt" xml:space="preserve">
+    <value>You built</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableRemoteBlockRemoval" xml:space="preserve">
+    <value>Enable players to remotely remove owned blocks to free up their limit.</value>
+  </data>
+  <data name="WorldSettings_EnableRemoteBlockRemoval" xml:space="preserve">
+    <value>Remote block removal</value>
+  </data>
+  <data name="ToolTipWorldSettings_StationVoxelSupport" xml:space="preserve">
+    <value>By enabling this option grids will no longer turn dynamic when disconnected from static grids</value>
+  </data>
+  <data name="WorldSettings_StationVoxelSupport" xml:space="preserve">
+    <value>Unsupported Stations</value>
+  </data>
+  <data name="BlockPropertyTitle_AssignedCamera" xml:space="preserve">
+    <value>Assigned camera</value>
+  </data>
+  <data name="Terminal_ShowInInventory" xml:space="preserve">
+    <value>Show block in Inventory Screen</value>
+  </data>
+  <data name="Terminal_ShowInInventoryToolTip" xml:space="preserve">
+    <value>Show block in inventory screen. If you access the block directly it will be visible regardless of this setting.</value>
+  </data>
+  <data name="NotificationPlayerDemoted_None" xml:space="preserve">
+    <value>You have been demoted to Player</value>
+  </data>
+  <data name="NotificationPlayerDemoted_Scripter" xml:space="preserve">
+    <value>You have been demoted to Scripter</value>
+  </data>
+  <data name="NotificationPlayerPromoted_Admin" xml:space="preserve">
+    <value>You have been promoted to Administrator</value>
+  </data>
+  <data name="NotificationPlayerPromoted_Scripter" xml:space="preserve">
+    <value>You have been promoted to Scripter</value>
+  </data>
+  <data name="TerminalControlPanel_Recompile" xml:space="preserve">
+    <value>Recompile</value>
+  </data>
+  <data name="TerminalControlPanel_Recompile_Tooltip" xml:space="preserve">
+    <value>Recompiles the current script.</value>
+  </data>
+  <data name="NotificationPlayerDemoted_Moderator" xml:space="preserve">
+    <value>You have heen demoted to Moderator</value>
+  </data>
+  <data name="NotificationPlayerPromoted_Moderator" xml:space="preserve">
+    <value>You have been promoted to Moderator</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CurrentTarget" xml:space="preserve">
+    <value>Current target: </value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnTargeted" xml:space="preserve">
+    <value>Spawn into targeted container</value>
+  </data>
+  <data name="HudInfoMagnetic" xml:space="preserve">
+    <value>Magnetic</value>
+  </data>
+  <data name="BlockPropertyTitle_Font" xml:space="preserve">
+    <value>Font</value>
+  </data>
+  <data name="Terminal_RemoteControl_Button" xml:space="preserve">
+    <value>Remote Access</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectSubgrids" xml:space="preserve">
+    <value>Detect subgrids</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton" xml:space="preserve">
+    <value>Take Control</value>
+  </data>
+  <data name="BroadcastScreen_UnavailableControlButton" xml:space="preserve">
+    <value>Unavailable</value>
+  </data>
+  <data name="BroadcastScreen_NoOwnership" xml:space="preserve">
+    <value>Wrong ownership setting.</value>
+  </data>
+  <data name="BroadcastScreen_Ownership" xml:space="preserve">
+    <value>Ownership correct</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton_NoMainRemoteControl" xml:space="preserve">
+    <value>Multiple Remote Controllers on grid. Set one as main!</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton_NoRemoteToolTip" xml:space="preserve">
+    <value>No Remote Controller on grid.</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton_RemoteToolTip" xml:space="preserve">
+    <value>Remote Control ready</value>
+  </data>
+  <data name="BroadcastScreen_TakeControlButton_ToolTip" xml:space="preserve">
+    <value>Take control of target grid.</value>
+  </data>
+  <data name="BroadcastScreen_TerminalButton_NoStableConnectionToolTip" xml:space="preserve">
+    <value>Cannot establish connection to grid.</value>
+  </data>
+  <data name="BroadcastScreen_TerminalButton_StableConnectionToolTip" xml:space="preserve">
+    <value>Connection stable</value>
+  </data>
+  <data name="BroadcastScreen_TerminalButton_ToolTip" xml:space="preserve">
+    <value>Open terminal of target grid.</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainRemoteControl" xml:space="preserve">
+    <value>Main Remote Control</value>
+  </data>
+  <data name="BroadcastScreen_TerminalButton_PlayerBroadcastOffToolTip" xml:space="preserve">
+    <value>Players antenna off</value>
+  </data>
+  <data name="DetectedEntity_CharacterOther" xml:space="preserve">
+    <value>Animal</value>
+  </data>
+  <data name="ToolTipAudioOptionsEnableReverb" xml:space="preserve">
+    <value>Enables Echo. Note that if your audio rate is larger than 48 kHz, Echo will not work.You can change the rate from your system's Speaker properties and restart game</value>
+  </data>
+  <data name="DisplayName_Dead_Astronaut" xml:space="preserve">
+    <value>Dead Astronaut</value>
+  </data>
+  <data name="Terminal_CustomData" xml:space="preserve">
+    <value>Custom Data</value>
+  </data>
+  <data name="Terminal_CustomDataTooltip" xml:space="preserve">
+    <value>Shows and editor for custom data to be used by scripts and mods</value>
+  </data>
+  <data name="Notification_BlueprintScriptRemoved" xml:space="preserve">
+    <value>Some scripts were removed from this blueprint because you do not have Scripter permissions</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralNone" xml:space="preserve">
+    <value>Infinite: None</value>
   </data>
 </root>

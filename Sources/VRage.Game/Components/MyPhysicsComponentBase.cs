@@ -55,6 +55,8 @@ namespace VRage.Game.Components
 
         #region Fields
 
+        private Vector3 m_lastLinearVelocity;
+        private Vector3 m_lastAngularVelocity;
 
         /// <summary>
         /// Must be set before creating rigid body
@@ -291,6 +293,8 @@ namespace VRage.Game.Components
 
         public MyPhysicsComponentDefinitionBase Definition { get; private set; }
 
+        public MatrixD? ServerWorldMatrix { get; set; }
+
         #endregion
 
         #region Methods
@@ -372,12 +376,38 @@ namespace VRage.Game.Components
         /// </summary>
         public abstract void ForceActivate();
 
-        public abstract void UpdateAccelerations();
+        public void UpdateAccelerations()
+        {
+            LinearAcceleration = (LinearVelocity - m_lastLinearVelocity) * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+            m_lastLinearVelocity = LinearVelocity;
+
+            AngularAcceleration = (AngularVelocity - m_lastAngularVelocity) * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+            m_lastAngularVelocity = AngularVelocity;
+        }
 
         /// <summary>
         /// Set the current linear and angular velocities of this physics body.
         /// </summary>
-        public abstract void SetSpeeds(Vector3 linear, Vector3 angular);
+        public void SetSpeeds(Vector3 linear, Vector3 angular)
+        {
+            LinearVelocity = linear;
+            AngularVelocity = angular;
+            ClearAccelerations();
+            SetActualSpeedsAsPrevious();
+        }
+
+        private void ClearAccelerations()
+        {
+            LinearAcceleration = Vector3.Zero;
+            AngularAcceleration = Vector3.Zero;
+        }
+
+        private void SetActualSpeedsAsPrevious()
+        {
+            // setting of previous speeds according to current one - elimination of acceleration that was caused by setting of speed when for example speed on server is different that speed on client
+            m_lastLinearVelocity = LinearVelocity;
+            m_lastAngularVelocity = AngularVelocity;
+        }
 
         /// <summary>
         /// Converts global space position to local cluster space.
@@ -470,7 +500,7 @@ namespace VRage.Game.Components
             return Definition != null && Definition.Serialize;
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = MyComponentFactory.CreateObjectBuilder(this) as MyObjectBuilder_PhysicsComponentBase;
             builder.LinearVelocity = LinearVelocity;

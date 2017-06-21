@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Collections;
 using VRage.Utils;
 
 namespace VRage.Generics
@@ -20,7 +21,13 @@ namespace VRage.Generics
         // All state machine transitions, starting node is stored here too.
         protected Dictionary<int, MyStateMachineTransitionWithStart> m_transitions = new Dictionary<int, MyStateMachineTransitionWithStart>();
         // Enqueued actions for next update. These actions ignore conditions.
-        private HashSet<MyStringId> m_enqueuedActions = new HashSet<MyStringId>();
+        private MyConcurrentHashSet<MyStringId> m_enqueuedActions = new MyConcurrentHashSet<MyStringId>();
+
+        // Reader of all nodes.
+        public DictionaryReader<string, MyStateMachineNode> AllNodes
+        {
+            get { return m_nodes; }
+        }
         
         public delegate void StateChangedHandler(MyStateMachineTransitionWithStart transition);
         // Called when the state is changed.
@@ -173,36 +180,52 @@ namespace VRage.Generics
         public void Update()
         {
             if (CurrentNode == null)
-                return;
-            int transitionId = -1;
-            MyStateMachineNode nextNode = null;
-            // enqueued transitions (actions) first
-            if (m_enqueuedActions.Count > 0)
             {
-                foreach (var transition in CurrentNode.Transitions)
-                    if (m_enqueuedActions.Contains(transition.Name))
-                    {
-                        transitionId = transition.Id;
-                        nextNode = transition.TargetNode;
-                        break;
-                    }
                 m_enqueuedActions.Clear();
-            }
-            // transitions checking conditions
-            if (nextNode == null)
-            {
-                nextNode = CurrentNode.QueryNewState(out transitionId);
-            }
-            // now try to transfer from one state to another
-            if (nextNode != null)
-            {
-                //var fromNode = CurrentNode;
-                var transitionWithStart = m_transitions[transitionId];
-
-                CurrentNode = nextNode;
-                NotifyStateChanged(transitionWithStart);
+                return;
             }
 
+            int maxPassThrough = 100;
+            MyStateMachineNode nextNode;
+            do
+            {
+                nextNode = null;
+                int transitionId = -1;
+                // enqueued transitions (actions) first
+                if (m_enqueuedActions.Count > 0)
+                {
+                    int bestPriority = int.MaxValue;
+                    foreach (var transition in CurrentNode.Transitions)
+                    {
+                        int transitionPriority = transition.Priority ?? int.MaxValue;
+                        if (transitionPriority <= bestPriority && m_enqueuedActions.Contains(transition.Name)
+                            && (transition.Conditions.Count == 0 || transition.Evaluate()))
+                        {
+                            transitionId = transition.Id;
+                            nextNode = transition.TargetNode;
+                            bestPriority = transitionPriority;
+                        }
+                    }
+                }
+                // transitions checking conditions
+                if (nextNode == null)
+                {
+                    nextNode = CurrentNode.QueryNewState(false, out transitionId);
+                }
+                // now try to transfer from one state to another
+                if (nextNode != null)
+                {
+                    //var fromNode = CurrentNode;
+                    var transitionWithStart = m_transitions[transitionId];
+
+                    CurrentNode = nextNode;
+                    NotifyStateChanged(transitionWithStart);
+                }
+            } while (nextNode != null       // we changed state
+                && CurrentNode.PassThrough  // we want to pass through
+                && maxPassThrough-- > 0);   // safety, prevent infinite loop caused by wrong data
+
+            m_enqueuedActions.Clear();
             if (CurrentNode != null)
                 CurrentNode.OnUpdate(this);
         }
@@ -215,6 +238,22 @@ namespace VRage.Generics
         public void TriggerAction(MyStringId actionName)
         {
             m_enqueuedActions.Add(actionName);
+        }
+
+        /// <summary>
+        /// Sort the transitions between states according to their priorities.
+        /// </summary>
+        public void SortTransitions()
+        {
+            foreach (var state in m_nodes.Values)
+            {
+                state.Transitions.Sort((transition1, transition2) =>
+                {
+                    int leftValue = transition1.Priority ?? int.MaxValue;
+                    int rightValue = transition2.Priority ?? int.MaxValue;
+                    return leftValue.CompareTo(rightValue);
+                });
+            }
         }
     }
 }

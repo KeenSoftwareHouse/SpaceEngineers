@@ -673,7 +673,7 @@
               <HorizonIndicatorEnabled>true</HorizonIndicatorEnabled>
               <PreviousControlledEntityId xsi:nil="true" />
               <AutoPilotEnabled>false</AutoPilotEnabled>
-              <FlightMode>0</FlightMode>
+              <FlightMode>2</FlightMode>
               <CurrentWaypointIndex>-1</CurrentWaypointIndex>
               <Waypoints />
               <Direction>0</Direction>

@@ -11,6 +11,7 @@ using VRageMath;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -322,17 +323,17 @@ namespace Sandbox.Game.World.Generator
 
         protected abstract void CloseObjectSeed(MyObjectSeed objectSeed);
 
-        protected Vector3I.RangeIterator GetCellsIterator(BoundingSphereD sphere)
+        protected Vector3I_RangeIterator GetCellsIterator(BoundingSphereD sphere)
         {
             return GetCellsIterator(BoundingBoxD.CreateFromSphere(sphere));
         }
 
-        protected Vector3I.RangeIterator GetCellsIterator(BoundingBoxD bbox)
+        protected Vector3I_RangeIterator GetCellsIterator(BoundingBoxD bbox)
         {
             Vector3I min = Vector3I.Floor(bbox.Min / CELL_SIZE);
             Vector3I max = Vector3I.Floor(bbox.Max / CELL_SIZE);
 
-            return new Vector3I.RangeIterator(ref min, ref max);
+            return new Vector3I_RangeIterator(ref min, ref max);
         }
 
         protected void OverlapAllBoundingSphere(ref BoundingSphereD sphere, List<MyObjectSeed> list)

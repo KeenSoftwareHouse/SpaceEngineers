@@ -91,6 +91,7 @@ namespace Sandbox.Game.Gui
 
         void OnLANServerListResponded(int server)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnLANServerListResponded");
             GameServerItem serverItem = SteamAPI.Instance.GetLANServerDetails(server);
             AddServerItem(serverItem, 
                 delegate() 
@@ -98,11 +99,14 @@ namespace Sandbox.Game.Gui
                     m_LANPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_LAN).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
                 },
                 isFiltered: false);
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void OnLANServersCompleteResponse(MatchMakingServerResponseEnum response)
         {
+            VRage.Profiler.ProfilerShort.Begin("OnLANServersCompleteResponse");
             CloseLANRequest();
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void CloseLANRequest()

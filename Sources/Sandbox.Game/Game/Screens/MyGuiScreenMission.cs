@@ -16,7 +16,6 @@ using Sandbox.Game.World;
 using Sandbox.Gui.RichTextLabel;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.Render;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -27,7 +26,7 @@ using VRage;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.Gui;
-
+using VRage.Game.ModAPI;
 
 #endregion
 

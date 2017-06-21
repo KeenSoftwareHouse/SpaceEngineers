@@ -7,13 +7,14 @@ namespace VRage.Game
 {
     public enum MyRelationsBetweenFactions
     {
-        Neutral,
-        Enemies
+        Neutral = 0,
+        Enemies,
+        Allies // TODO: add code to actually support it
     }
 
     public enum MyOwnershipShareModeEnum
     {
-        None,
+        None = 0,
         Faction,
         All
     }

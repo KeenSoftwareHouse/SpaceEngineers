@@ -1,8 +1,12 @@
-﻿using System;
+﻿#if !XB1
+
+using System;
 using System.Collections.Generic;
 using VRageMath;
 using System.IO;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using System.Globalization;
 using VRage.Game.Models;
 
@@ -57,8 +61,13 @@ namespace Sandbox.Common
                 // For each line of the file
                 while (!reader.EndOfStream)
                 {
+#if XB1
+                    System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+                    string[] lineTokens = { };//TODO for XB1: Regex.Split(reader.ReadLine().Trim(), @"\s+");
+#else // !XB1
                     // Tokenize line by splitting on 1 more more whitespace character
                     string[] lineTokens = Regex.Split(reader.ReadLine().Trim(), @"\s+");
+#endif // !XB1
 
                     // Skip blank lines and comments
                     if (lineTokens.Length > 0 &&
@@ -124,3 +133,5 @@ namespace Sandbox.Common
         }
     }
 }
+
+#endif

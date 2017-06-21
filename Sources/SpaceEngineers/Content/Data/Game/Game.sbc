@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Definition xsi:type="VR.GameDefinition">
+		<Id>
+			<TypeId>MyObjectBuilder_GameDefinition</TypeId>
+			<SubtypeId>VRageDefault</SubtypeId>
+		</Id>
+		<SessionComponents>
+			<Component>MyAIComponent</Component>
+			<Component>MyAiTargetManager</Component>
+			<Component>MyAudioComponent</Component>
+			<Component>MyChatSystem</Component>
+			<Component>MyDamageSystem</Component>
+			<Component>MyDebris</Component>
+			<Component>MyFloatingObjects</Component>
+			<Component>MyGamePruningStructure</Component>
+			<Component>MyGlobalEvents</Component>
+			<Component>MyHitReportingComponent</Component>
+			<Component>MyHud</Component>
+			<Component>MyHudCameraOverlay</Component>
+			<Component>MyHudWarnings</Component>
+			<Component>MyLights</Component>
+			<Component>MyMaterialPropertiesHelper</Component>
+			<Component>MyParticlesManager</Component>
+			<Component>MyPhysics</Component>
+			<Component>MyPhysicsComponentSystem</Component>
+			<Component>MyPrecalcComponent</Component>
+			<Component>MyScenarioSystem</Component>
+			<Component>MyScriptManager</Component>
+			<Component>MySector</Component>
+			<Component>MySessionComponentAnimationSystem</Component>
+      <Component Type="MyObjectBuilder_CoordinateSystemDefinition" Subtype="CoordinateSystem">MyCoordinateSystem</Component>
+      <Component Type="MyObjectBuilder_ClipboardDefinition" Subtype="ClipboardBase">MyClipboardComponent</Component>
+			<Component>MySessionComponentEntityTrigger</Component>
+			<Component>MySessionComponentMissionTriggers</Component>
+			<Component>MySessionComponentVoxelHand</Component>
+			<Component>MySessionComponentTriggerSystem</Component>
+      <Component>MySessionComponentCutscenes</Component>
+			<Component>MyVisualScriptManagerSessionComponent</Component>
+			<Component>MyThirdPersonSpectator</Component>
+			<Component>MyTimerComponentSystem</Component>
+			<Component>MyToolbarComponent</Component>
+			<Component>MyVoxelOperationsSessionComponent</Component>
+			<Component>MySessionComponentExtDebug</Component>
+			<Component>MyCubeGrids</Component>
+			<Component>MyHighlightSystem</Component>
+      <Component>MyLocalizationSessionComponent</Component>
+		</SessionComponents>
+	</Definition>
+
+	<Definition xsi:type="VR.GameDefinition">
+		<Id>
+			<TypeId>MyObjectBuilder_GameDefinition</TypeId>
+			<SubtypeId>Space</SubtypeId>
+		</Id>
+
+		<Default>true</Default>
+
+		<InheritFrom>VRageDefault</InheritFrom>
+
+		<SessionComponents Combine="Union">
+			<Component>MyTerminalControls</Component>
+			<Component>MySpaceFaunaComponent</Component>
+			<Component>MySpaceBuildComponent</Component>
+			<Component>MySpacePlanetTrackComponent</Component>
+			<Component>MySpaceRespawnComponent</Component>
+			<Component>MyAntennaSystem</Component>
+			<Component>MyEnvironmentalParticles</Component>
+			<Component>MyEncounterGenerator</Component>
+			<Component>MyGravityProviderSystem</Component>
+			<Component>MyProceduralWorldGenerator</Component>
+			<Component>MyPirateAntennas</Component>
+			<Component>MyMeteorShower</Component>
+			<Component>MyWarheads</Component>
+			<Component>MyExplosions</Component>
+			<Component>MyMissiles</Component>
+			<Component>MyProjectiles</Component>
+			<Component>MyNeutralShipSpawner</Component>
+      <Component Type="MyObjectBuilder_CubeBuilderDefinition" Subtype="CubeBuilderBase">MyCubeBuilder</Component>
+			<Component Type="MyObjectBuilder_DemoComponentDefinition" Subtype="Default">DemoComponent</Component>
+			<Component>MyPlanets</Component>
+			<Component>MyHeightMapLoadingSystem</Component>
+			<Component>MySessionComponentPlanetAmbientSounds</Component>
+			<Component>MyPlanetTrackComponent</Component>
+			<Component>MySessionComponentScriptSharedStorage</Component>
+			<Component>MyEnvironmentBotSpawningSystem</Component>
+			<Component>MySectorWeatherComponent</Component>
+			<Component>MyPlanets</Component>
+			<Component>MyHeightMapLoadingSystem</Component>
+			<Component>MySessionComponentPlanetAmbientSounds</Component>
+			<Component>MyPlanetTrackComponent</Component>
+			<Component>MyPlanetEnvironmentSessionComponent</Component>
+			<Component>MyEnvironmentBotSpawningSystem</Component>
+			<Component>MySectorWeatherComponent</Component>
+			<Component>MyCampaignSessionComponent</Component>
+			<Component>MyEntityTransformationSystem</Component>
+      		<Component>MySessionComponentResearch</Component>
+	  		<Component>MySteamAchievements</Component>
+			<Component>MySessionComponentTrash</Component>
+  		<Component>MySteamAchievements</Component>
+		</SessionComponents>
+	</Definition>
+</Definitions>

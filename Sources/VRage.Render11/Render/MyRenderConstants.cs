@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX.DXGI;
+﻿using SharpDX.DXGI;
 using VRageMath;
 
 namespace VRageRender
 {
-    class MyRender11Constants
+    static class MyRender11Constants
     {
         public const Format DX11_BACKBUFFER_FORMAT = Format.R8G8B8A8_UNorm_SRgb;
         public const int BUFFER_COUNT = 2;

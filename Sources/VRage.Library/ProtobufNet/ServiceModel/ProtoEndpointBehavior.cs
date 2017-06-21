@@ -1,4 +1,5 @@
-﻿#if FEAT_SERVICEMODEL && PLAT_XMLSERIALIZER
+﻿#if !XB1 // XB1_NOPROTOBUF
+#if FEAT_SERVICEMODEL && PLAT_XMLSERIALIZER
 using System.ServiceModel.Description;
 
 namespace ProtoBuf.ServiceModel
@@ -80,3 +81,4 @@ namespace ProtoBuf.ServiceModel
 
 }
 #endif
+#endif // !XB1

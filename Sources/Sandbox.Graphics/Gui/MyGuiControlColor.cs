@@ -1,5 +1,4 @@
-﻿using Sandbox.Common;
-using System;
+﻿using System;
 using System.Text;
 using VRage.Game;
 using VRage.Input;
@@ -36,14 +35,14 @@ namespace Sandbox.Graphics.GUI
         bool m_placeSlidersVertically;
 
         public MyGuiControlColor(
-            StringBuilder text,
+            String text,
             float textScale,
             Vector2 position,
             Color color,
             Color defaultColor,
             MyStringId dialogAmountCaption,
             bool placeSlidersVertically = false,
-            MyFontEnum font = MyFontEnum.Blue)
+            string font = MyFontEnum.Blue)
             : base(position: position,
                    toolTip: null,
                    isActiveControl: false)
@@ -112,7 +111,7 @@ namespace Sandbox.Graphics.GUI
             Size = m_minSize;
         }
 
-        MyGuiControlSlider MakeSlider(MyFontEnum font, byte defaultVal)
+        MyGuiControlSlider MakeSlider(string font, byte defaultVal)
         {
             MyGuiControlSlider slider=new MyGuiControlSlider(
                 position: Vector2.Zero,
@@ -144,7 +143,7 @@ namespace Sandbox.Graphics.GUI
 
         }
 
-        MyGuiControlLabel MakeLabel(float scale, MyFontEnum font)
+        MyGuiControlLabel MakeLabel(float scale, string font)
         {
             return new MyGuiControlLabel(
                 text: String.Empty,
@@ -303,6 +302,11 @@ namespace Sandbox.Graphics.GUI
         public Color GetColor()
         {
             return m_color;
+        }
+
+        public Color Color
+        {
+            get { return m_color; }
         }
     }
 }

@@ -21,6 +21,8 @@ using VRage;
 using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
+using VRage.Sync;
+using Sandbox.Game.EntityComponents;
 
 #endregion
 
@@ -35,7 +37,7 @@ namespace Sandbox.Game.Entities
 
         public bool IsPowered
         {
-            get { return CubeGrid.GridSystems.GyroSystem.ResourceSink.IsPowered; }
+            get { return CubeGrid.GridSystems.GyroSystem.ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId); }
         }
 
         protected override bool CheckIsWorking()
@@ -65,6 +67,18 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        protected override void OnStopWorking()
+        {
+            UpdateEmissivity();
+            base.OnStopWorking();
+        }
+
+        protected override void OnStartWorking()
+        {
+            UpdateEmissivity();
+            base.OnStartWorking();
+        }
+
         readonly Sync<bool> m_gyroOverride;
         public bool GyroOverride 
         { 
@@ -81,11 +95,38 @@ namespace Sandbox.Game.Entities
         private Sync<Vector3> m_gyroOverrideVelocity;
         public Vector3 GyroOverrideVelocityGrid { get { return Vector3.TransformNormal(m_gyroOverrideVelocity, Orientation); } }
 
-        static MyGyro()
+        static float MaxAngularRadiansPerSecond(MyGyro gyro)
         {
+            if (gyro.m_gyroDefinition.CubeSize == MyCubeSize.Small)
+                return MyGridPhysics.GetSmallShipMaxAngularVelocity();
+            else
+            {
+                Debug.Assert(gyro.m_gyroDefinition.CubeSize == MyCubeSize.Large, "Maximal grid velocity not defined for other grids than small/large");
+                return MyGridPhysics.GetLargeShipMaxAngularVelocity();
+            }
+        }
+
+        public MyGyro()
+        {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_gyroPower = SyncType.CreateAndAddProp<float>();
+            m_gyroOverride = SyncType.CreateAndAddProp<bool>();
+            m_gyroOverrideVelocity = SyncType.CreateAndAddProp<Vector3>();
+#endif // XB1
+            CreateTerminalControls();
+
+            m_gyroPower.ValueChanged += x => GyroPowerChanged();
+            m_gyroOverride.ValueChanged += x => GyroOverrideChanged();
+        }
+
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyGyro>())
+                return;
+            base.CreateTerminalControls();
             var gyroPower = new MyTerminalControlSlider<MyGyro>("Power", MySpaceTexts.BlockPropertyTitle_GyroPower, MySpaceTexts.BlockPropertyDescription_GyroPower);
             gyroPower.Getter = (x) => x.GyroPower;
-            gyroPower.Setter = (x, v) => { x.GyroPower = v;};
+            gyroPower.Setter = (x, v) => { x.GyroPower = v; };
             gyroPower.Writer = (x, result) => result.AppendInt32((int)(x.GyroPower * 100)).Append(" %");
             gyroPower.DefaultValue = 1;
             gyroPower.EnableActions(MyTerminalActionIcons.INCREASE, MyTerminalActionIcons.DECREASE);
@@ -103,8 +144,8 @@ namespace Sandbox.Game.Entities
 
                 var gyroOverrideSliderY = new MyTerminalControlSlider<MyGyro>("Yaw", MySpaceTexts.BlockPropertyTitle_GyroYawOverride, MySpaceTexts.BlockPropertyDescription_GyroYawOverride);
                 gyroOverrideSliderY.Getter = (x) => -x.m_gyroOverrideVelocity.Value.Y;
-                gyroOverrideSliderY.Setter = (x, v) => { SetGyroTorqueYaw(x, -v);};
-                gyroOverrideSliderY.Writer = (x, result) => result.AppendDecimal(x.m_gyroOverrideVelocity.Value.Y * MathHelper.RadiansPerSecondToRPM, 2).Append(" RPM");
+                gyroOverrideSliderY.Setter = (x, v) => { SetGyroTorqueYaw(x, -v); };
+                gyroOverrideSliderY.Writer = (x, result) => result.AppendDecimal(-x.m_gyroOverrideVelocity.Value.Y * MathHelper.RadiansPerSecondToRPM, 2).Append(" RPM");
                 gyroOverrideSliderY.Enabled = (x) => x.GyroOverride;
                 gyroOverrideSliderY.DefaultValue = 0;
                 gyroOverrideSliderY.SetDualLogLimits((x) => 0.01f * MathHelper.RPMToRadiansPerSecond, MaxAngularRadiansPerSecond, 0.05f);
@@ -123,8 +164,8 @@ namespace Sandbox.Game.Entities
 
                 var gyroOverrideSliderZ = new MyTerminalControlSlider<MyGyro>("Roll", MySpaceTexts.BlockPropertyTitle_GyroRollOverride, MySpaceTexts.BlockPropertyDescription_GyroRollOverride);
                 gyroOverrideSliderZ.Getter = (x) => -x.m_gyroOverrideVelocity.Value.Z;
-                gyroOverrideSliderZ.Setter = (x, v) => { SetGyroTorqueRoll(x, -v);};
-                gyroOverrideSliderZ.Writer = (x, result) => result.AppendDecimal(x.m_gyroOverrideVelocity.Value.Z * MathHelper.RadiansPerSecondToRPM, 2).Append(" RPM");
+                gyroOverrideSliderZ.Setter = (x, v) => { SetGyroTorqueRoll(x, -v); };
+                gyroOverrideSliderZ.Writer = (x, result) => result.AppendDecimal(-x.m_gyroOverrideVelocity.Value.Z * MathHelper.RadiansPerSecondToRPM, 2).Append(" RPM");
                 gyroOverrideSliderZ.Enabled = (x) => x.GyroOverride;
                 gyroOverrideSliderZ.DefaultValue = 0;
                 gyroOverrideSliderZ.SetDualLogLimits((x) => 0.01f * MathHelper.RPMToRadiansPerSecond, MaxAngularRadiansPerSecond, 0.05f);
@@ -133,33 +174,16 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        static float MaxAngularRadiansPerSecond(MyGyro gyro)
-        {
-            if (gyro.m_gyroDefinition.CubeSize == MyCubeSize.Small)
-                return MyGridPhysics.GetSmallShipMaxAngularVelocity();
-            else
-            {
-                Debug.Assert(gyro.m_gyroDefinition.CubeSize == MyCubeSize.Large, "Maximal grid velocity not defined for other grids than small/large");
-                return MyGridPhysics.GetLargeShipMaxAngularVelocity();
-            }
-        }
-
-        public MyGyro()
-        {
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
-            m_gyroPower.ValueChanged += x => GyroPowerChanged();
-            m_gyroOverride.ValueChanged += x => GyroOverrideChanged();
-
-        }
-
         void GyroOverrideChanged()
         {
             SetGyroOverride(m_gyroOverride.Value);
+            UpdateEmissivity();
         }
 
         void GyroPowerChanged()
         {
             UpdateText();
+            UpdateEmissivity();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -176,6 +200,7 @@ namespace Sandbox.Game.Entities
             }
 
             UpdateText();
+            UpdateEmissivity();
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -187,12 +212,6 @@ namespace Sandbox.Game.Entities
             return ob;
         }
 
-        public override void UpdateBeforeSimulation()
-        {
-            base.UpdateBeforeSimulation();
-            UpdateEmissivity();
-        }
-
         public override void UpdateVisual()
         {
             base.UpdateVisual();
@@ -201,6 +220,7 @@ namespace Sandbox.Game.Entities
         public override void OnModelChange()
         {
             m_oldEmissiveState = -1;
+            UpdateEmissivity();
             base.OnModelChange();
         }
 
@@ -325,6 +345,7 @@ namespace Sandbox.Game.Entities
                 }
 
                 UpdateText();
+                UpdateEmissivity();
             }
         }
     }

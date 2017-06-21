@@ -1,0 +1,397 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DroneBehaviors>
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>DefaultDirect</SubtypeId>
+      </Id>
+      <StrafeWidth>20</StrafeWidth>
+      <StrafeHeight>20</StrafeHeight>
+      <StrafeDepth>10</StrafeDepth>
+      <MinStrafeDistance>5</MinStrafeDistance>
+
+      <AvoidCollisions>true</AvoidCollisions>
+      <RotateToPlayer>true</RotateToPlayer>
+      <UseStaticWeaponry>true</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>true</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>75</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>75</TargetDistance>
+      <MaxManeuverDistance>200</MaxManeuverDistance>
+      <StaticWeaponryUsage>300</StaticWeaponryUsage>
+      <ToolsUsage>8</ToolsUsage>
+      <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>1000</WaypointDelayMsMin>
+      <WaypointDelayMsMax>3000</WaypointDelayMsMax>
+      <WaypointMaxTime>15000</WaypointMaxTime>
+      <WaypointThresholdDistance>0.5</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>HoverDirect</SubtypeId>
+      </Id>
+      <StrafeWidth>20</StrafeWidth>
+      <StrafeHeight>20</StrafeHeight>
+      <StrafeDepth>10</StrafeDepth>
+      <MinStrafeDistance>5</MinStrafeDistance>
+
+      <AvoidCollisions>true</AvoidCollisions>
+      <RotateToPlayer>true</RotateToPlayer>
+      <UseStaticWeaponry>true</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>true</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>75</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>75</TargetDistance>
+      <MaxManeuverDistance>200</MaxManeuverDistance>
+      <StaticWeaponryUsage>300</StaticWeaponryUsage>
+      <ToolsUsage>8</ToolsUsage>
+      <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+      <UsePlanetHover>true</UsePlanetHover>
+      <PlanetHoverMin>3</PlanetHoverMin>
+      <PlanetHoverMax>50</PlanetHoverMax>
+
+      <WaypointDelayMsMin>1000</WaypointDelayMsMin>
+      <WaypointDelayMsMax>3000</WaypointDelayMsMax>
+      <WaypointMaxTime>15000</WaypointMaxTime>
+      <WaypointThresholdDistance>0.5</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>DefaultDistant</SubtypeId>
+      </Id>
+      <StrafeWidth>50</StrafeWidth>
+      <StrafeHeight>50</StrafeHeight>
+      <StrafeDepth>50</StrafeDepth>
+      <MinStrafeDistance>10</MinStrafeDistance>
+
+      <AvoidCollisions>true</AvoidCollisions>
+      <RotateToPlayer>false</RotateToPlayer>
+      <UseStaticWeaponry>false</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>false</UseRammingBehavior>
+      <AlternativeBehavior>DefaultDirect</AlternativeBehavior>
+
+      <SpeedLimit>50</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>450</TargetDistance>
+      <MaxManeuverDistance>550</MaxManeuverDistance>
+      <StaticWeaponryUsage>0</StaticWeaponryUsage>
+      <ToolsUsage>8</ToolsUsage>
+      <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>0</WaypointDelayMsMin>
+      <WaypointDelayMsMax>0</WaypointDelayMsMax>
+      <WaypointMaxTime>8000</WaypointMaxTime>
+      <WaypointThresholdDistance>5</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>DefaultGrinderBot</SubtypeId>
+      </Id>
+      <StrafeWidth>2</StrafeWidth>
+      <StrafeHeight>2</StrafeHeight>
+      <StrafeDepth>1</StrafeDepth>
+      <MinStrafeDistance>0.5</MinStrafeDistance>
+
+      <AvoidCollisions>false</AvoidCollisions>
+      <RotateToPlayer>true</RotateToPlayer>
+      <UseStaticWeaponry>false</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>true</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>75</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>0</TargetDistance>
+      <MaxManeuverDistance>2.5</MaxManeuverDistance>
+      <StaticWeaponryUsage>200</StaticWeaponryUsage>
+      <ToolsUsage>16</ToolsUsage>
+      <RammingBehaviorDistance>30</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>500</WaypointDelayMsMin>
+      <WaypointDelayMsMax>1000</WaypointDelayMsMax>
+      <WaypointMaxTime>8000</WaypointMaxTime>
+      <WaypointThresholdDistance>0.25</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>DefaultDrillBot</SubtypeId>
+      </Id>
+      <StrafeWidth>2</StrafeWidth>
+      <StrafeHeight>2</StrafeHeight>
+      <StrafeDepth>1</StrafeDepth>
+      <MinStrafeDistance>0.5</MinStrafeDistance>
+
+      <AvoidCollisions>false</AvoidCollisions>
+      <RotateToPlayer>true</RotateToPlayer>
+      <UseStaticWeaponry>false</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>true</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>25</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>0</TargetDistance>
+      <MaxManeuverDistance>2.5</MaxManeuverDistance>
+      <StaticWeaponryUsage>200</StaticWeaponryUsage>
+      <ToolsUsage>80</ToolsUsage>
+      <RammingBehaviorDistance>30</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>500</WaypointDelayMsMin>
+      <WaypointDelayMsMax>1000</WaypointDelayMsMax>
+      <WaypointMaxTime>5000</WaypointMaxTime>
+      <WaypointThresholdDistance>0.25</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>C_HoverTurretDrone</SubtypeId>
+      </Id>
+      <StrafeWidth>30</StrafeWidth>
+      <StrafeHeight>20</StrafeHeight>
+      <StrafeDepth>20</StrafeDepth>
+      <MinStrafeDistance>10</MinStrafeDistance>
+
+      <AvoidCollisions>false</AvoidCollisions>
+      <RotateToPlayer>false</RotateToPlayer>
+      <UseStaticWeaponry>false</UseStaticWeaponry>
+      <UseTools>false</UseTools>
+      <UseRammingBehavior>false</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>50</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>100</TargetDistance>
+      <MaxManeuverDistance>175</MaxManeuverDistance>
+      <StaticWeaponryUsage>15</StaticWeaponryUsage>
+      <ToolsUsage>8</ToolsUsage>
+      <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>2000</WaypointDelayMsMin>
+      <WaypointDelayMsMax>6000</WaypointDelayMsMax>
+      <WaypointMaxTime>15000</WaypointMaxTime>
+      <WaypointThresholdDistance>1</WaypointThresholdDistance>
+      <LostTimeMs>60000</LostTimeMs>
+
+      <UsePlanetHover>true</UsePlanetHover>
+      <PlanetHoverMin>20</PlanetHoverMin>
+      <PlanetHoverMax>40</PlanetHoverMax>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>C_TunnelGatlingDrone</SubtypeId>
+      </Id>
+      <StrafeWidth>7</StrafeWidth>
+      <StrafeHeight>7</StrafeHeight>
+      <StrafeDepth>3</StrafeDepth>
+      <MinStrafeDistance>2</MinStrafeDistance>
+
+      <AvoidCollisions>true</AvoidCollisions>
+      <RotateToPlayer>true</RotateToPlayer>
+      <UseStaticWeaponry>true</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>true</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>15</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>20</TargetDistance>
+      <MaxManeuverDistance>30</MaxManeuverDistance>
+      <StaticWeaponryUsage>50</StaticWeaponryUsage>
+      <ToolsUsage>8</ToolsUsage>
+      <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>1000</WaypointDelayMsMin>
+      <WaypointDelayMsMax>3000</WaypointDelayMsMax>
+      <WaypointMaxTime>15000</WaypointMaxTime>
+      <WaypointThresholdDistance>0.5</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>C_CloseRangeGatlingDrone</SubtypeId>
+      </Id>
+      <StrafeWidth>8</StrafeWidth>
+      <StrafeHeight>8</StrafeHeight>
+      <StrafeDepth>5</StrafeDepth>
+      <MinStrafeDistance>2</MinStrafeDistance>
+
+      <AvoidCollisions>true</AvoidCollisions>
+      <RotateToPlayer>true</RotateToPlayer>
+      <UseStaticWeaponry>true</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>false</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>25</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>30</TargetDistance>
+      <MaxManeuverDistance>40</MaxManeuverDistance>
+      <StaticWeaponryUsage>60</StaticWeaponryUsage>
+      <ToolsUsage>8</ToolsUsage>
+      <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>1000</WaypointDelayMsMin>
+      <WaypointDelayMsMax>3000</WaypointDelayMsMax>
+      <WaypointMaxTime>15000</WaypointMaxTime>
+      <WaypointThresholdDistance>0.5</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>C_LongRangeGatlingDrone</SubtypeId>
+      </Id>
+      <StrafeWidth>12</StrafeWidth>
+      <StrafeHeight>12</StrafeHeight>
+      <StrafeDepth>8</StrafeDepth>
+      <MinStrafeDistance>4</MinStrafeDistance>
+
+      <AvoidCollisions>true</AvoidCollisions>
+      <RotateToPlayer>true</RotateToPlayer>
+      <UseStaticWeaponry>true</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>false</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>60</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>150</TargetDistance>
+      <MaxManeuverDistance>175</MaxManeuverDistance>
+      <StaticWeaponryUsage>200</StaticWeaponryUsage>
+      <ToolsUsage>8</ToolsUsage>
+      <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>1500</WaypointDelayMsMin>
+      <WaypointDelayMsMax>4500</WaypointDelayMsMax>
+      <WaypointMaxTime>15000</WaypointMaxTime>
+      <WaypointThresholdDistance>0.75</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+
+    <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+      <Id>
+        <TypeId>DroneBehaviorDefinition</TypeId>
+        <SubtypeId>C_TunnelDrillDrone</SubtypeId>
+      </Id>
+      <StrafeWidth>2</StrafeWidth>
+      <StrafeHeight>2</StrafeHeight>
+      <StrafeDepth>1</StrafeDepth>
+      <MinStrafeDistance>0.5</MinStrafeDistance>
+
+      <AvoidCollisions>false</AvoidCollisions>
+      <RotateToPlayer>true</RotateToPlayer>
+      <UseStaticWeaponry>false</UseStaticWeaponry>
+      <UseTools>true</UseTools>
+      <UseRammingBehavior>true</UseRammingBehavior>
+      <AlternativeBehavior></AlternativeBehavior>
+
+      <SpeedLimit>25</SpeedLimit>
+      <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+      <TargetDistance>0</TargetDistance>
+      <MaxManeuverDistance>2.5</MaxManeuverDistance>
+      <StaticWeaponryUsage>200</StaticWeaponryUsage>
+      <ToolsUsage>250</ToolsUsage>
+      <RammingBehaviorDistance>30</RammingBehaviorDistance>
+
+      <WaypointDelayMsMin>500</WaypointDelayMsMin>
+      <WaypointDelayMsMax>1000</WaypointDelayMsMax>
+      <WaypointMaxTime>5000</WaypointMaxTime>
+      <WaypointThresholdDistance>0.25</WaypointThresholdDistance>
+      <LostTimeMs>20000</LostTimeMs>
+    </DroneBehavior>
+  </DroneBehaviors>
+
+  <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+    <Id>
+      <TypeId>DroneBehaviorDefinition</TypeId>
+      <SubtypeId>C_LargeDrone</SubtypeId>
+    </Id>
+    <StrafeWidth>15</StrafeWidth>
+    <StrafeHeight>15</StrafeHeight>
+    <StrafeDepth>15</StrafeDepth>
+    <MinStrafeDistance>4</MinStrafeDistance>
+
+    <AvoidCollisions>true</AvoidCollisions>
+    <RotateToPlayer>true</RotateToPlayer>
+    <UseStaticWeaponry>true</UseStaticWeaponry>
+    <UseTools>true</UseTools>
+    <UseRammingBehavior>false</UseRammingBehavior>
+    <AlternativeBehavior></AlternativeBehavior>
+
+    <SpeedLimit>40</SpeedLimit>
+    <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+    <TargetDistance>50</TargetDistance>
+    <MaxManeuverDistance>300</MaxManeuverDistance>
+    <StaticWeaponryUsage>400</StaticWeaponryUsage>
+    <ToolsUsage>8</ToolsUsage>
+    <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+    <WaypointDelayMsMin>2500</WaypointDelayMsMin>
+    <WaypointDelayMsMax>5000</WaypointDelayMsMax>
+    <WaypointMaxTime>15000</WaypointMaxTime>
+    <WaypointThresholdDistance>0.75</WaypointThresholdDistance>
+    <LostTimeMs>20000</LostTimeMs>
+  </DroneBehavior>
+
+  <DroneBehavior xsi:type="MyObjectBuilder_DroneBehaviorDefinition">
+    <Id>
+      <TypeId>DroneBehaviorDefinition</TypeId>
+      <SubtypeId>C_Mine</SubtypeId>
+    </Id>
+    <StrafeWidth>7</StrafeWidth>
+    <StrafeHeight>7</StrafeHeight>
+    <StrafeDepth>3</StrafeDepth>
+    <MinStrafeDistance>2</MinStrafeDistance>
+
+    <AvoidCollisions>false</AvoidCollisions>
+    <RotateToPlayer>true</RotateToPlayer>
+    <UseStaticWeaponry>false</UseStaticWeaponry>
+    <UseTools>false</UseTools>
+    <UseRammingBehavior>true</UseRammingBehavior>
+    <CanBeDisabled>false</CanBeDisabled>
+    <AlternativeBehavior></AlternativeBehavior>
+
+    <SpeedLimit>75</SpeedLimit>
+    <PlayerYAxisOffset>0.9</PlayerYAxisOffset>
+    <TargetDistance>0</TargetDistance>
+    <MaxManeuverDistance>0</MaxManeuverDistance>
+    <StaticWeaponryUsage>50</StaticWeaponryUsage>
+    <ToolsUsage>8</ToolsUsage>
+    <RammingBehaviorDistance>75</RammingBehaviorDistance>
+
+    <WaypointDelayMsMin>1000</WaypointDelayMsMin>
+    <WaypointDelayMsMax>3000</WaypointDelayMsMax>
+    <WaypointMaxTime>3000</WaypointMaxTime>
+    <WaypointThresholdDistance>0.5</WaypointThresholdDistance>
+    <LostTimeMs>20000</LostTimeMs>
+  </DroneBehavior>
+</Definitions>

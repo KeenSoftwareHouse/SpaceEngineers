@@ -23,9 +23,10 @@ using Sandbox.Game.World;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Entities.Character;
 using VRage;
-using Sandbox.Common.Components;
+
 using VRageMath.Spatial;
 using Sandbox.Game;
+using VRage.Profiler;
 
 #endregion
 
@@ -56,6 +57,9 @@ namespace Sandbox.Engine.Physics
         {
             public MyPhysicsBody Parent = null;
             public Matrix Transform = Matrix.Identity;
+            /// <summary>
+            /// This does NOT contain all welded bodies, see @MyWeldGroupData
+            /// </summary>
             public readonly HashSet<MyPhysicsBody> Children = new HashSet<MyPhysicsBody>();
             public HkMassElement MassElement;
 
@@ -132,9 +136,7 @@ namespace Sandbox.Engine.Physics
 
             other.Deactivate();
 
-            //other.RemoveConstraints(other.RigidBody);//jn:TODO check if this is OK
-
-            var transform = other.RigidBody.GetRigidBodyMatrix() * Matrix.Invert(RigidBody.GetRigidBodyMatrix());
+            var transform = other.Entity.WorldMatrix*Entity.WorldMatrixInvScaled;
             other.WeldInfo.Transform = transform;
             other.WeldInfo.UpdateMassProps(other.RigidBody);
             Debug.Assert(other.WeldedRigidBody == null);
@@ -241,6 +243,10 @@ namespace Sandbox.Engine.Physics
                     var transformShape = new HkTransformShape(child.WeldedRigidBody.GetShape(), ref child.WeldInfo.Transform);
                     HkShape.SetUserData(transformShape, child.WeldedRigidBody);
                     m_tmpShapeList.Add(transformShape);
+
+                    //TODO:this saves from crash but disables the collision of excessive entities
+                    if(m_tmpShapeList.Count == HkSmartListShape.MaxChildren)
+                        break;
                     //m_tmpElements.Add(child.WeldInfo.MassElement);
                 }
                 //var list = new HkListShape(m_tmpShapeList.ToArray(), HkReferencePolicy.None);
@@ -405,7 +411,6 @@ namespace Sandbox.Engine.Physics
                 {
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyA), "Object was removed prior to constraint");
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyB), "Object was removed prior to constraint");
-                    constraint.OnRemovedFromWorld();
                     HavokWorld.RemoveConstraint(constraint);
                 }
             }

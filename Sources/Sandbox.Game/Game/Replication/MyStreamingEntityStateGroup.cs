@@ -135,14 +135,18 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public void ClientUpdate()
+        public void ClientUpdate(uint timestamp)
         {
 
         }
 
         public void Destroy()
         {
-
+            if (m_recivedParts != null)
+            {
+                m_recivedParts.Clear();
+                m_recivedParts = null;
+            }
         }
 
         public float GetGroupPriority(int frameCountWithoutSync, MyClientInfo forClient)
@@ -158,7 +162,7 @@ namespace Sandbox.Game.Replication
                 return 0.0f;
             }
 
-            float priority = forClient.HasReplicable(Instance as IMyReplicable) && clientData.Dirty ? Instance.GetPriority(forClient) * Instance.PriorityScale() : 0.0f;
+            float priority = forClient.HasReplicable(Instance as IMyReplicable) && clientData.Dirty ? Instance.GetPriority(forClient,false) * Instance.PriorityScale() : 0.0f;
 
             if (priority < 0.01f && (clientData.ForceSend || clientData.FailedIncompletePackets.Count >0))
             {
@@ -243,6 +247,10 @@ namespace Sandbox.Game.Replication
                 Debug.Assert(false,"testing assert to find issue, if you got this and game is running, please ignore it");
                 MyLog.Default.WriteLine("received empty state group");
                 //something went wrong we need to cancel this replicable and hope next time it will be ok 
+                if (m_recivedParts != null)
+                {
+                    m_recivedParts.Clear();
+                }
                 m_recivedParts = null;
                 Instance.LoadCancel(); 
             }
@@ -273,15 +281,18 @@ namespace Sandbox.Game.Replication
             str.ResetRead();
             Instance.LoadDone(str);
             str.Dispose();
-            m_recivedParts.Clear();
+            if (m_recivedParts != null)
+            {
+                m_recivedParts.Clear();
+            }
             m_recivedParts = null;
             m_recievedBytes = 0;
         }
 
-        private void ProcessWrite(int maxBitPosition, ref VRage.Library.Collections.BitStream stream, MyClientStateBase forClient, byte packetId)
+        private void ProcessWrite(int maxBitPosition, ref VRage.Library.Collections.BitStream stream, EndpointId forClient, byte packetId)
         {
             m_streamSize = MyLibraryUtils.GetDivisionCeil(maxBitPosition - stream.BitPosition - HEADER_SIZE - SAFE_VALUE, 8) * 8;
-            StreamClientData clientData = m_clientStreamData[forClient.EndpointId.Value];
+            StreamClientData clientData = m_clientStreamData[forClient.Value];
 
             if (clientData.FailedIncompletePackets.Count > 0)
             {
@@ -415,7 +426,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public void Serialize(VRage.Library.Collections.BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        public bool Serialize(VRage.Library.Collections.BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
         {
             if (stream.Reading)
             {
@@ -425,6 +436,8 @@ namespace Sandbox.Game.Replication
             {
                 ProcessWrite(maxBitPosition, ref stream, forClient, packetId);
             }
+
+            return true;
         }
 
         private void SaveReplicable(StreamClientData clientData)

@@ -627,9 +627,9 @@ namespace Sandbox.Definitions
                 Tiles = new MyTileDefinition[]
                 {
                     new MyTileDefinition() { LocalMatrix = Matrix.Identity, Normal = Vector3.Normalize(new Vector3(2, -2, -1)), IsEmpty = true}, //slope triangle
-                    new MyTileDefinition() { LocalMatrix = Matrix.CreateRotationX(MathHelper.Pi), Normal = Vector3.Right, Up = new Vector3(0,1,1)}, //triangle right
-                    new MyTileDefinition() { LocalMatrix = Matrix.CreateRotationX(MathHelper.Pi) * Matrix.CreateRotationY(-MathHelper.PiOver2), Normal = Vector3.Forward, Up = new Vector3(-2,1,0)}, //triangle front
-                    new MyTileDefinition() { LocalMatrix = Matrix.CreateRotationZ(-MathHelper.PiOver2) * Matrix.CreateRotationX(MathHelper.Pi), Normal = Vector3.Down, Up = new Vector3(2,0,-1)},  //triangle bottom
+                    new MyTileDefinition() { LocalMatrix = Matrix.CreateRotationX(MathHelper.Pi), Normal = Vector3.Right, Up = new Vector3(0,-1,2)}, //triangle right
+                    new MyTileDefinition() { LocalMatrix = Matrix.CreateRotationX(MathHelper.Pi) * Matrix.CreateRotationY(-MathHelper.PiOver2), Normal = Vector3.Forward, Up = new Vector3(2,0,-1)}, //triangle front
+                    new MyTileDefinition() { LocalMatrix = Matrix.CreateRotationZ(-MathHelper.PiOver2) * Matrix.CreateRotationX(MathHelper.Pi), Normal = Vector3.Down, Up = new Vector3(1,0,2)},  //triangle bottom
                     new MyTileDefinition() { LocalMatrix = Matrix.Identity, Normal = Vector3.Up, FullQuad = true}, //top square
                     new MyTileDefinition() { LocalMatrix = Matrix.CreateRotationZ(MathHelper.PiOver2), Normal = Vector3.Left, FullQuad = true}, //left square
                     new MyTileDefinition() { LocalMatrix = Matrix.CreateRotationX(MathHelper.PiOver2), Normal = Vector3.Backward, FullQuad = true }, //back square

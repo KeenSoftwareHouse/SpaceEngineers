@@ -8,7 +8,7 @@ namespace VRage.Game.Definitions
     public abstract class MyDefinitionPostprocessor
     {
         // Priority for this postprocessor
-        public int Priority {
+        public virtual int Priority {
             get { return 500; }
         }
 
@@ -21,7 +21,7 @@ namespace VRage.Game.Definitions
         {
             public MyModContext Context;
             public MyDefinitionSet Set;
-            public Dictionary<MyStringHash, MyDefinitionBase> Definitions;
+            public Dictionary<MyStringHash, MyDefinitionBase> Definitions;  // MyStringHash key is subtype id
         }
 
         // Called after all definitions are loaded

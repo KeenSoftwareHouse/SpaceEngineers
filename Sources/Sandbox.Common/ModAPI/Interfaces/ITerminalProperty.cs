@@ -34,39 +34,39 @@ namespace Sandbox.ModAPI.Interfaces
         /// </summary>
         /// <param name="block">block reference</param>
         /// <returns>value of type <see cref="ITerminalProperty.TypeName"/></returns>
-        TValue GetValue(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
+        TValue GetValue(VRage.Game.ModAPI.Ingame.IMyCubeBlock block);
         /// <summary>
         /// Set property value
         /// </summary>
         /// <param name="block">block reference</param>
         /// <param name="value">value of type <see cref="ITerminalProperty.TypeName"/></param>
-        void SetValue(Sandbox.ModAPI.Ingame.IMyCubeBlock block, TValue value);
+        void SetValue(VRage.Game.ModAPI.Ingame.IMyCubeBlock block, TValue value);
 
         /// <summary>
         /// Default value of property (if value is not set, or value from block definition)
         /// </summary>
         /// <param name="block">block reference</param>
         /// <returns>value of type <see cref="ITerminalProperty.TypeName"/></returns>
-        TValue GetDefaultValue(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
+        TValue GetDefaultValue(VRage.Game.ModAPI.Ingame.IMyCubeBlock block);
         /// <summary>
         /// Minimum value of property (value from block definition) - this function is obsolete, because it contains typo in name, use <see cref="GetMinimum(Sandbox.ModAPI.Ingame.IMyCubeBlock)"/>
         /// </summary>
         /// <param name="block">block reference</param>
         /// <returns>value of type <see cref="ITerminalProperty.TypeName"/></returns>
         [Obsolete("Use GetMinimum instead")]
-        TValue GetMininum(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
+        TValue GetMininum(VRage.Game.ModAPI.Ingame.IMyCubeBlock block);
         /// <summary>
         /// Minimum value of property (value from block definition)
         /// </summary>
         /// <param name="block">block reference</param>
         /// <returns>value of type <see cref="ITerminalProperty.TypeName"/></returns>
-        TValue GetMinimum(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
+        TValue GetMinimum(VRage.Game.ModAPI.Ingame.IMyCubeBlock block);
         /// <summary>
         /// Maximum value of property (value from block definition)
         /// </summary>
         /// <param name="block">block reference</param>
         /// <returns>value of type <see cref="ITerminalProperty.TypeName"/></returns>
-        TValue GetMaximum(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
+        TValue GetMaximum(VRage.Game.ModAPI.Ingame.IMyCubeBlock block);
     }
 
     /// <summary>

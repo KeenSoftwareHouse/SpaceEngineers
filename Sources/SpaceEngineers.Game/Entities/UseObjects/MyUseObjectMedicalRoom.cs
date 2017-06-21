@@ -10,7 +10,9 @@ using VRage.ModAPI;
 using VRageMath;
 using Sandbox.Game;
 using Sandbox.Game.Entities.Cube;
+using SpaceEngineers.Game.Entities.Blocks;
 using VRage.Game;
+using VRageRender.Import;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {
@@ -51,6 +53,11 @@ namespace SpaceEngineers.Game.Entities.UseObjects
                     return (int)renderObjectIds[0];
                 return -1;
             }
+        }
+
+        public override int InstanceID
+        {
+            get { return -1; }
         }
 
         public override bool ShowOverlay

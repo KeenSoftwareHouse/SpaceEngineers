@@ -8,6 +8,8 @@ namespace VRage.Cryptography
 {
     public static class MySHA256
     {
+#if XB1
+#else
         static bool m_supportsFips = true;
 
         private static SHA256 CreateInternal()
@@ -33,5 +35,6 @@ namespace VRage.Cryptography
                 return CreateInternal();
             }
         }
-    }
+#endif
+	}
 }

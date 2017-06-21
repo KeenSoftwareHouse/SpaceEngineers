@@ -69,7 +69,12 @@ namespace Sandbox.Game.Lights
             if (light != null)
             {
                 light.Clear();
-                m_preallocatedLights.Deallocate(light);
+
+                //by Gregory: added null check happened once when unloading session
+                if (m_preallocatedLights != null)
+                {
+                    m_preallocatedLights.Deallocate(light);
+                }
             }
         }        
     }

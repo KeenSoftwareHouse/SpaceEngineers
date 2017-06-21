@@ -1,12 +1,13 @@
 ﻿using ProtoBuf;
 using System.Xml.Serialization;
+using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public class MyObjectBuilder_ConsumableItemDefinition : MyObjectBuilder_PhysicalItemDefinition
+    public class MyObjectBuilder_ConsumableItemDefinition : MyObjectBuilder_UsableItemDefinition
     {
         [ProtoContract]
         public class StatValue
@@ -27,8 +28,5 @@ namespace VRage.Game
         [XmlArrayItem("Stat")]
         [ProtoMember]
         public StatValue[] Stats;
-
-        [ProtoMember]
-        public string EatingSound;
     }
 }

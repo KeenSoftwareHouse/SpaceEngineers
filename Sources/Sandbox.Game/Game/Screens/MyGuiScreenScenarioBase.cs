@@ -300,7 +300,7 @@ namespace Sandbox.Game.Screens
             m_availableSaves.Clear();
         }
 
-        protected void RefreshGameList(bool tutorials = false)
+        protected void RefreshGameList()
         {
             int selectedIndex = m_scenarioTable.SelectedRowIndex ?? -1;
             m_scenarioTable.Clear();
@@ -309,11 +309,6 @@ namespace Sandbox.Game.Screens
             {
                 var checkpoint = m_availableSaves[index].Item2;
                 var name = new StringBuilder(checkpoint.SessionName);
-                if (tutorials)
-                    if (MyTutorialHelper.IsUnlocked(checkpoint.SessionName) || MyFakes.DEVELOPMENT_PRESET)
-                        color = null;
-                    else
-                        color = Color.Gray;
                 var row = new MyGuiControlTable.Row(m_availableSaves[index]);
                 row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, textColor : color, icon: GetIcon(m_availableSaves[index])));
                 row.AddCell(new MyGuiControlTable.Cell(text: name, textColor: color, userData: name));

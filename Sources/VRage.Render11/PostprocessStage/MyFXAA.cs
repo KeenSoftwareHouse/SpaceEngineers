@@ -1,9 +1,5 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageRender.Resources;
+﻿using VRage.Render11.Common;
+using VRage.Render11.Resources;
 
 namespace VRageRender
 {
@@ -13,22 +9,20 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_ps = MyShaders.CreatePs("fxaa.hlsl");
+            m_ps = MyShaders.CreatePs("Postprocess/Fxaa.hlsl");
         }
 
-        internal static void Run(MyBindableResource destination, MyBindableResource source)
+        internal static void Run(IRtvBindable destination, ISrvBindable source)
         {
-            var context = MyRender11.DeviceContext;
+            RC.SetBlendState(null);
 
-            context.OutputMerger.BlendState = null;
+            RC.SetInputLayout(null);
+            RC.PixelShader.Set(m_ps);
 
-            context.InputAssembler.InputLayout = null;
-            context.PixelShader.Set(m_ps);
+            RC.SetRtv(destination);
+            RC.PixelShader.SetSrv(0, source);
 
-            RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, destination);
-            RC.BindSRV(0, source);
-
-            MyScreenPass.DrawFullscreenQuad(new MyViewport(destination.GetSize().X, destination.GetSize().Y));
+            MyScreenPass.DrawFullscreenQuad(new MyViewport(destination.Size.X, destination.Size.Y));
         }
     }
 }

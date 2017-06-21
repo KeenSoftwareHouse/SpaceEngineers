@@ -9,14 +9,15 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.SessionComponents.Clipboard;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ObjectBuilders;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 
@@ -161,6 +162,10 @@ namespace Sandbox.Game.Entities
 
             MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
 
+            Debug.Assert(m_previewVoxelMaps.Count == 1, "More than one voxel in clipboard");
+
+            MyGuiScreenDebugSpawnMenu.RecreateAsteroidBeforePaste((float)m_previewVoxelMaps[0].PositionComp.GetPosition().Length());
+
             MyEntities.RemapObjectBuilderCollection(m_copiedVoxelMaps);
 
             foreach (var voxelMap in m_previewVoxelMaps)
@@ -174,6 +179,7 @@ namespace Sandbox.Game.Entities
                     MakeVisible(voxelMap);
                     m_shouldMarkForClose = false;
                     MyEntities.RaiseEntityCreated(voxelMap);
+                    voxelMap.IsReadyForReplication = true;
                 }
                 else
                 {
@@ -333,7 +339,7 @@ namespace Sandbox.Game.Entities
                     MyObjectBuilder_Planet builder = m_copiedVoxelMaps[i] as MyObjectBuilder_Planet;
                     if (builder != null)
                     {
-                        VRageRender.MyRenderProxy.DebugDrawSphere(m_pastePosition, builder.Radius, Color.Green, 1.0f, true, true);
+                        VRageRender.MyRenderProxy.DebugDrawSphere(m_pastePosition, builder.Radius * 1.1f, Color.Green, 1.0f, true, true);
                     }
                 }
             }
@@ -391,7 +397,7 @@ namespace Sandbox.Game.Entities
                         {
                             using (m_tmpResultList.GetClearToken())
                             {
-                                BoundingSphereD sphere = new BoundingSphereD(m_pastePosition, builder.Radius);
+                                BoundingSphereD sphere = new BoundingSphereD(m_pastePosition, builder.Radius * 1.1f);
                                 MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref sphere, m_tmpResultList);
 
                                 if (TestPlacement(m_tmpResultList) == false)

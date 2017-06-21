@@ -146,7 +146,7 @@ namespace VRageMath
         }
 
         /// <summary>
-        /// Gets an array of points that make up the corners of the BoundingFrustum.
+        /// Gets an array of points that make up the corners of the BoundingFrustum. ALLOCATION!
         /// </summary>
         public Vector3[] GetCorners()
         {
@@ -160,6 +160,23 @@ namespace VRageMath
         public void GetCorners(Vector3[] corners)
         {
             this.cornerArray.CopyTo((Array)corners, 0);
+        }
+
+        /// <summary>
+        /// Gets the array of points that make up the corners of the BoundingBox.
+        /// </summary>
+        /// <param name="corners">An existing array of at least 8 Vector3 points where the corners of the BoundingBox are written.</param>
+        [Unsharper.UnsharperDisableReflection()]
+        public unsafe void GetCornersUnsafe(Vector3* corners)
+        {
+            corners[0] = cornerArray[0];
+            corners[1] = cornerArray[1];
+            corners[2] = cornerArray[2];
+            corners[3] = cornerArray[3];
+            corners[4] = cornerArray[4];
+            corners[5] = cornerArray[5];
+            corners[6] = cornerArray[6];
+            corners[7] = cornerArray[7];
         }
 
         /// <summary>

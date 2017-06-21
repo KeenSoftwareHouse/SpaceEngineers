@@ -4,12 +4,6 @@ using VRage.ObjectBuilders;
 
 namespace VRage.Game
 {
-    public enum MyProjectileType
-    {
-        Bullet,
-        Bolt
-    }
-
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ProjectileAmmoDefinition : MyObjectBuilder_AmmoDefinition
@@ -32,11 +26,8 @@ namespace VRage.Game
             [ProtoMember, DefaultValue(0.5f)]
             public float ProjectileTrailProbability = 0.5f;
 
-            [ProtoMember, DefaultValue(MyCustomHitMaterialMethodType.Small)]
-            public MyCustomHitMaterialMethodType ProjectileOnHitMaterialParticlesType = MyCustomHitMaterialMethodType.Small;
-
-            [ProtoMember, DefaultValue(MyCustomHitParticlesMethodType.BasicSmall)]
-            public MyCustomHitParticlesMethodType ProjectileOnHitParticlesType = MyCustomHitParticlesMethodType.BasicSmall;
+            [ProtoMember]
+            public string ProjectileOnHitEffectName = "Hit_BasicAmmoSmall";
 
             [ProtoMember]
             public float ProjectileMassDamage;
@@ -50,8 +41,8 @@ namespace VRage.Game
             [ProtoMember, DefaultValue(120)]
             public float ProjectileHeadShotDamage = 120;
 
-            [ProtoMember, DefaultValue(MyProjectileType.Bullet)]
-            public MyProjectileType ProjectileType = MyProjectileType.Bullet;
+            [ProtoMember, DefaultValue(1)]
+            public int ProjectileCount = 1;
         }
 
         [ProtoMember, DefaultValue(null)]

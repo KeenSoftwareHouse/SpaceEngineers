@@ -5,22 +5,22 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Sandbox.Common.ObjectBuilders;
-using VRage.Import;
 using VRage.Library.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using VRage.Game.Entity;
+using VRage.Voxels;
+using VRageRender.Import;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.Components
 {
     class MyRenderComponentPlanet : MyRenderComponentVoxelMap
     {
-        static bool m_renderEnabled = false;
         MyPlanet m_planet = null;
 
         private int m_shadowHelperRenderObjectIndex = -1;
+        private int m_atmosphereRenderIndex = -1;
         readonly List<int> m_cloudLayerRenderObjectIndexList = new List<int>();
 
 		int m_fogUpdateCounter = 0;
@@ -96,6 +96,8 @@ namespace Sandbox.Game.Components
 				matrix.M44 = 1;
 				matrix.Translation = Entity.PositionComp.GetPosition();
 
+			    m_atmosphereRenderIndex = runningRenderObjectIndex;
+
 				SetRenderObjectID(runningRenderObjectIndex++, MyRenderProxy.CreateRenderEntityAtmosphere(this.Entity.GetFriendlyName() + " " + this.Entity.EntityId.ToString(),
 					  "Models\\Environment\\Atmosphere_sphere.mwm",
 					  matrix,
@@ -117,12 +119,6 @@ namespace Sandbox.Game.Components
 				   atmosphereWavelengths));
 
 				UpdateAtmosphereSettings(m_planet.AtmosphereSettings);
-			}
-
-			if (m_renderEnabled == false)
-			{
-				MyRenderProxy.EnableRenderModule((uint)MyRenderModuleEnum.Atmosphere, true);
-				m_renderEnabled = true;
 			}
 
 		    m_shadowHelperRenderObjectIndex = runningRenderObjectIndex;
@@ -213,7 +209,7 @@ namespace Sandbox.Game.Components
 
         public void UpdateAtmosphereSettings(MyAtmosphereSettings settings)
         {
-            MyRenderProxy.UpdateAtmosphereSettings(m_renderObjectIDs[1], settings);
+            MyRenderProxy.UpdateAtmosphereSettings(m_renderObjectIDs[m_atmosphereRenderIndex], settings);
         }
 
 		private bool IsPointInAirtightSpace(Vector3D worldPosition)

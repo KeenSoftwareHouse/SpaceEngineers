@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using VRage.Collections;
+using VRage.Library;
 
 namespace ParallelTasks
 {
@@ -12,15 +15,9 @@ namespace ParallelTasks
     /// <typeparam name="T">The type of item to store. Must be a class with a parameterless constructor.</typeparam>
     public class Pool<T>
         : Singleton<Pool<T>>
-        where T: class, new()
+        where T : class, new()
     {
-        struct DequeEnumerator
-        {
-            public Deque<T> Deque;
-            public IEnumerator<KeyValuePair<Thread, DequeEnumerator>> Enumerator;
-        }
-
-        Hashtable<Thread, DequeEnumerator> instances;
+        private readonly MyConcurrentDictionary<Thread, MyConcurrentQueue<T>> m_instances;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Pool&lt;T&gt;"/> class.
@@ -28,9 +25,9 @@ namespace ParallelTasks
         public Pool()
         {
 #if WINDOWS_PHONE
-            instances = new Hashtable<Thread, DequeEnumerator>(1);
+            m_instances = new MyConcurrentDictionary<Thread, MyConcurrentQueue<T>>(1);
 #else
-            instances = new Hashtable<Thread, DequeEnumerator>(Environment.ProcessorCount);
+            m_instances = new MyConcurrentDictionary<Thread, MyConcurrentQueue<T>>(MyEnvironment.ProcessorCount);
 #endif
         }
 
@@ -40,24 +37,21 @@ namespace ParallelTasks
         /// <returns>An instance of <typeparamref name="T"/>.</returns>
         public T Get(Thread thread)
         {
-            DequeEnumerator de;
-            if (instances.TryGet(thread, out de))
+            MyConcurrentQueue<T> queue;
+
+            if (!m_instances.TryGetValue(thread, out queue))
             {
-                T instance = default(T);
-                if (de.Deque.LocalPop(ref instance))
-                    return instance;
-                else
-                {
-                    de.Enumerator.Reset();
-                    while (de.Enumerator.MoveNext())
-                    {
-                        if (de.Enumerator.Current.Value.Deque.TrySteal(ref instance))
-                            return instance;
-                    }
-                }
+                queue = new MyConcurrentQueue<T>();
+                m_instances.Add(thread, queue);
             }
 
-            return new T();
+            T instance;
+            if (!queue.TryDequeue(out instance))
+            {
+                instance = new T();
+            }
+
+            return instance;
         }
 
         /// <summary>
@@ -67,29 +61,17 @@ namespace ParallelTasks
         /// <param name="instance">The instance to return to the pool.</param>
         public void Return(Thread thread, T instance)
         {
-            DequeEnumerator de;
-            if (instances.TryGet(thread, out de))
-                de.Deque.LocalPush(instance);
-            else
-            {
-                de = new DequeEnumerator()
-                {
-                    Deque = new Deque<T>(),
-                    Enumerator = instances.GetEnumerator()
-                };
+            MyConcurrentQueue<T> queue = m_instances[thread];
 
-                de.Deque.LocalPush(instance);
-
-                instances.Add(thread, de);
-            }
+            queue.Enqueue(instance);
         }
 
 
         public void Clean()
         {
-            foreach (var instance in instances)
+            foreach (var instance in m_instances)
             {
-                instance.Value.Deque.Clear();
+                instance.Value.Clear();
             }
         }
     }

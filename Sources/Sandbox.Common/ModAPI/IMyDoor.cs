@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.ModAPI
 {
-    public interface IMyDoor : Sandbox.ModAPI.Ingame.IMyDoor
+    public interface IMyDoor : IMyFunctionalBlock, Sandbox.ModAPI.Ingame.IMyDoor
     {
         event Action<bool> DoorStateChanged;
     }

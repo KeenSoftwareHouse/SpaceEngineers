@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Sandbox.ModAPI;
 using Sandbox.Definitions;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 
 namespace Sandbox.Game.World
@@ -163,16 +164,16 @@ namespace Sandbox.Game.World
             m_joinRequests.Remove(playerId);
         }
 
-        public void AcceptJoin(long playerId)
+        public void AcceptJoin(long playerId, bool autoaccept = false)
         {
-            MySession.Static.Factions.AddPlayerToFaction(playerId, FactionId);
+            MySession.Static.Factions.AddPlayerToFactionInternal(playerId, FactionId);
 
             if (m_joinRequests.ContainsKey(playerId))
             {
                 m_members[playerId] = m_joinRequests[playerId];
                 m_joinRequests.Remove(playerId);
             }
-            else if (AutoAcceptMember || MySession.Static.Settings.ScenarioEditMode)
+            else if (AutoAcceptMember || autoaccept)
                 m_members[playerId] = new MyFactionMember(playerId, false);
         }
 

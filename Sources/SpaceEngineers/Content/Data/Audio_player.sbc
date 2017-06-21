@@ -1,0 +1,3476 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Sounds>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayJet</SubtypeId>
+      </Id>
+      <Category>PLAYER_JET</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.3</Volume>
+      <VolumeVariation>1.92830074</VolumeVariation>
+      <PitchVariation>13.8767748</PitchVariation>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayJetStart2d.wav</Start>
+          <Loop>ARC\PLAYER\ArcPlayJetIdleLoop2d.wav</Loop>
+          <End>ARC\PLAYER\ArcPlayJetEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayJetStart3d.wav</Start>
+          <Loop>ARC\PLAYER\ArcPlayJetIdleLoop3d.wav</Loop>
+          <End>ARC\PLAYER\ArcPlayJetEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayJetRun</SubtypeId>
+      </Id>
+      <Category>PLAYER_JET</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayJetRunStart3d.wav</Start>
+          <Loop>ARC\PLAYER\ArcPlayJetRunLoop3d.wav</Loop>
+          <End>ARC\PLAYER\ArcPlayJetRunEnd3d.wav</End>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayJetRunStart2d.wav</Start>
+          <Loop>ARC\PLAYER\ArcPlayJetRunLoop2d.wav</Loop>
+          <End>ARC\PLAYER\ArcPlayJetRunEnd2d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayJet</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_JET</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>1.1</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayJetStart2d.wav</Start>
+          <Loop>REAL\PLAYER\RealPlayJetIdleLoop2d.wav</Loop>
+          <End>Real\PLAYER\RealPlayJetEnd2d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayJetRun</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_JET</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>1.1</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayJetRunStart2d.wav</Start>
+          <Loop>REAL\PLAYER\RealPlayJetRunLoop2d.wav</Loop>
+          <End>Real\PLAYER\RealPlayJetRunEnd2d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleShot</SubtypeId>
+      </Id>
+      <Category>WEP_PLAY</Category>
+      <Volume>0.5</Volume>
+      <MaxDistance>300</MaxDistance>
+      <DistantSounds>
+        <DistantSound distanceCrossfade="10" distance="140" sound="WepRifleDistA" />
+      </DistantSounds>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>3</DynamicMusicAmount>
+      <Volume>0.8</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d08.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d09.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d010.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d011.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d012.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepRifleDistA</SubtypeId>
+      </Id>
+      <Category>WEP_PLAY</Category>
+      <MaxDistance>1000</MaxDistance>
+      <Volume>0.8</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d08.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d09.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d010.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP_DIST\ArcWepPlayRifleStartDistA3d011.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleNoAmmo</SubtypeId>
+      </Id>
+      <Category>WEP_PLAY</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.602728665</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleNoAmmo3d.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillIdle</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\TOOL\ArcToolPlayDrillIdleStart3d.xwm</Start>
+          <Loop>ARC\TOOL\ArcToolPlayDrillIdleLoop3d.xwm</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillIdleEnd3d.xwm</End>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\TOOL\ArcToolPlayDrillIdleStart2d.xwm</Start>
+          <Loop>ARC\TOOL\ArcToolPlayDrillIdleLoop2d.xwm</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillIdleEnd2d.xwm</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillMetal</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <!--<Start>ARC\TOOL\ArcToolPlayDrillSurfaceStart2d.wav</Start>-->
+          <Loop>ARC\TOOL\ArcToolPlayDrillMetalLoop2d.xwm</Loop>
+          <!--<End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>-->
+        </Wave>
+        <Wave Type="D3">
+          <!--<Start>ARC\TOOL\ArcToolPlayDrillSurfaceStart3d.wav</Start>-->
+          <Loop>ARC\TOOL\ArcToolPlayDrillMetalLoop3d.xwm</Loop>
+          <!--<End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>-->
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillRock</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <!--<Start>ARC\TOOL\ArcToolPlayDrillSurfaceStart2d.wav</Start>-->
+          <Loop>ARC\TOOL\ArcToolPlayDrillRockLoop2d.xwm</Loop>
+          <!--<End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>-->
+        </Wave>
+        <Wave Type="D3">
+          <!--<Start>ARC\TOOL\ArcToolPlayDrillSurfaceStart3d.wav</Start>-->
+          <Loop>ARC\TOOL\ArcToolPlayDrillRockLoop3d.xwm</Loop>
+          <!--<End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>-->
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillGrass</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillGrassLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillGrassLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillSoil</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSoilLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSoilLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillSand</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSandLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSandLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillSnow</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSnowLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSnowLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillIce</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillIceLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillIceLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepPlayRifleShot</SubtypeId>
+      </Id>
+      <Category>R_WEP_PLAY</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.6</Volume>
+      <Pitch>-4</Pitch>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>3</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>REAL\WEP\RealWepPlayRifleStart3d01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>REAL\WEP\RealWepPlayRifleStart2d01.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepPlayRifleNoAmmo</SubtypeId>
+      </Id>
+      <Category>R_WEP_PLAY</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Real\WEP\RealWepPlayRifleNoAmmo3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayDrillIdle</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY_DRILL</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\TOOL\RealToolPlayDrillIdleStart2d.wav</Start>
+          <Loop>Real\TOOL\RealToolPlayDrillIdleLoop2d.wav</Loop>
+          <End>Real\TOOL\RealToolPlayDrillIdleEnd2d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayDrillMetal</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY_DRILL</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\TOOL\RealToolPlayDrillMetalLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayDrillRock</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY_DRILL</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\TOOL\RealToolPlayDrillRockLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayDrillSoil</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY_DRILL</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\TOOL\RealToolPlayDrillRockLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayDrillIce</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY_DRILL</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\TOOL\RealToolPlayDrillRockLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpMetal</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.2</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>100</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d01.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d02.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d03.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d04.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d05.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d06.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d07.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d08.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpMetal3d09.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepPlayRifleImpMetal</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.7</Volume>
+      <!--<PitchVariation>25</PitchVariation>-->
+      <VolumeVariation>1</VolumeVariation>
+      <Pitch>-5</Pitch>
+      <PreventSynchronization>3</PreventSynchronization>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepPlayRifleImpMetal3d01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Start>REAL\IMP\RealWepPlayRifleImpMetal3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepPlayRifleImpMetal3d03.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepPlayRifleImpRock</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>2</Volume>
+      <PitchVariation>100</PitchVariation>
+      <VolumeVariarion>1</VolumeVariarion>
+      <Pitch>-5</Pitch>
+      <PreventSynchronization>3</PreventSynchronization>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d02.wav</Start>
+        </Wave>-->
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepPlayRifleImpSoilMoon</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>2</Volume>
+      <PitchVariation>100</PitchVariation>
+      <VolumeVariarion>1</VolumeVariarion>
+      <Pitch>-5</Pitch>
+      <PreventSynchronization>3</PreventSynchronization>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d02.wav</Start>
+        </Wave>-->
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepPlayRifleImpSoil</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>2</Volume>
+      <PitchVariation>100</PitchVariation>
+      <VolumeVariarion>1</VolumeVariarion>
+      <Pitch>-5</Pitch>
+      <PreventSynchronization>3</PreventSynchronization>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d02.wav</Start>
+        </Wave>-->
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepPlayRifleImpIce</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>2</Volume>
+      <PitchVariation>100</PitchVariation>
+      <VolumeVariarion>1</VolumeVariarion>
+      <Pitch>-5</Pitch>
+      <PreventSynchronization>3</PreventSynchronization>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d02.wav</Start>
+        </Wave>-->
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealImpRockRock0Cat3d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpPlay</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.7</Volume>
+      <VolumeVariation>3.80834985</VolumeVariation>
+      <PitchVariation>94.18148</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>10</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepShipGatlingImpPlay</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.9</Volume>
+      <VolumeVariation>2</VolumeVariation>
+      <PitchVariation>200</PitchVariation>
+      <DynamicMusicCategory>HeavyFight</DynamicMusicCategory>
+      <DynamicMusicAmount>10</DynamicMusicAmount>
+      <Pitch>-3</Pitch>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepShipGatlingImpPlay</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.9</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>100</PitchVariation>
+      <Pitch>-1</Pitch>
+      <PreventSynchronization>5</PreventSynchronization>
+      <SoundLimit>2</SoundLimit>
+      <DynamicMusicCategory>HeavyFight</DynamicMusicCategory>
+      <DynamicMusicAmount>10</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d05.wav</Start>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d05.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepPlayRifleImpPlay</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.9</Volume>
+      <VolumeVariation>2</VolumeVariation>
+      <PitchVariation>100</PitchVariation>
+      <PreventSynchronization>0</PreventSynchronization>
+      <SoundLimit>3</SoundLimit>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>10</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay2d05.wav</Start>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\IMP\RealWepShipGatlingImpPlay3d05.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpRock</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.2</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>100</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d08.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpRock3d09.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpWood</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>100</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpWood3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpWood3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpWood3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpWood3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpWood3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpSnow</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>50</PitchVariation>
+      <PreventSynchronization>0</PreventSynchronization>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSnow3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSnow3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSnow3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSnow3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSnow3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpIce</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>50</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpIce3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpIce3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpIce3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpIce3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpIce3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpGrass</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>86.99048</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpGrassDry</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>50</PitchVariation>
+      <PreventSynchronization>0</PreventSynchronization>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassDry3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpSand</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>80</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSand3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSand3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSand3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSand3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSand3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSand3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSand3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSand3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpSoil</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>80</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpSoilMoon</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>86.99048</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpSoilMars</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>86.99048</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoil3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpSoilDry</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.5</Volume>
+      <PitchVariation>86.99048</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoilDry3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoilDry3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoilDry3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoilDry3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoilDry3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoilDry3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoilDry3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpSoilDry3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpGlass</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.2</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>90</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGlass3d01.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGlass3d02.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGlass3d03.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGlass3d04.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGlass3d05.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepPlayRifleImpGrassAlien</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.6</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>90</PitchVariation>
+      <DynamicMusicCategory>LightFight</DynamicMusicCategory>
+      <DynamicMusicAmount>5</DynamicMusicAmount>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassAlien3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassAlien3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassAlien3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassAlien3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepPlayRifleImpGrassAlien3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayCrouchDwn</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.41</Volume>
+      <VolumeVariation>2.2174015</VolumeVariation>
+      <PitchVariation>127.710335</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchDwn2d01.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchDwn3d03.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchDwn3d02.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchDwn3d01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchDwn2d02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchDwn2d03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayCrouchDwn</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>5</MaxDistance>
+      <Volume>3</Volume>
+      <PitchVariation>70</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayCrouchDown2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayCrouchUp</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.4</Volume>
+      <!--<VolumeVariation>1.78375232</VolumeVariation>
+      <PitchVariation>125.903481</PitchVariation>-->
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchUp2d01.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchUp3d03.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchUp3d02.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchUp3d01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchUp2d02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayCrouchUp2d03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayCrouchUp</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>5</MaxDistance>
+      <Volume>3</Volume>
+      <PitchVariation>70</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayCrouchUp2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayCrouchMetal</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\FOOTSTEPS\ArcPlayCrouchMetalLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayCrouchRock</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\FOOTSTEPS\ArcPlayCrouchRockLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayCrouchMetal</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.8040759</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayCrouchMetalLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayCrouchRock</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.8040759</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayCrouchRockLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsClothLoop</SubtypeId>
+      </Id>
+      <Category>PLAYER_JET</Category>
+      <MaxDistance>5</MaxDistance>
+      <Volume>0.9</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\FOOTSTEPS\ArcPlayStepsClothLoop3d.wav</Loop>
+        </Wave>
+        <Wave Type="D2">
+          <Loop>ARC\FOOTSTEPS\ArcPlayStepsClothLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayRunRock</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>Arc\FOOTSTEPS\ArcPlayRunRockLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayRunMetal</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>Arc\FOOTSTEPS\ArcPlayRunMetalLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayRunRock</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayRunRockLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayRunMetal</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayRunMetalLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlaySprintMetal</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\FOOTSTEPS\ArcPlaySprintMetalLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlaySprintMetal</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.8040759</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlaySprintMetalLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlaySprintRock</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\FOOTSTEPS\ArcPlaySprintRockLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlaySprintRock</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.8040759</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlaySprintRockLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayWalkMetal</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\FOOTSTEPS\ArcPlayWalkMetalLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayWalkMetal</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.8040759</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayWalkMetalLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayWalkRock</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\FOOTSTEPS\ArcPlayWalkRockLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayWalkRock</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.8040759</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayWalkRockLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayChokeA</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>REAL\PLAYER\RealPlayChokeALoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayChokeB</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <Volume>0.9</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>REAL\PLAYER\RealPlayChokeBLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayChokeC</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <Volume>1.1</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>REAL\PLAYER\RealPlayChokeCLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayChokeHit</SubtypeId>
+      </Id>
+      <Volume>0.4</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayChokeHit2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayChokeHit2d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayChokeInitiate</SubtypeId>
+      </Id>
+      <Volume>1.3</Volume>
+      <PitchVariation>150</PitchVariation>
+      <VolumeVariation>1</VolumeVariation>
+      <Loopable>false</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayChokeInitiate2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayChokeDeath</SubtypeId>
+      </Id>
+      <Volume>1</Volume>
+      <PitchVariation>50</PitchVariation>
+      <VolumeVariation>1</VolumeVariation>
+      <Loopable>false</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayChokeDeath2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsMetal</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayRunMetal3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayRunMetal3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayRunMetal3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayRunMetal3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayRunMetal3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayRunMetal3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayRunMetal3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayRunMetal3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsGlass</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGlass3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGlass3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGlass3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGlass3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGlass3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGlass3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGlass3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGlass3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsRock</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.45</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsRock3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsRock3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsRock3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsRock3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsRock3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsRock3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsRock3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsRock3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsGrass</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrass3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrass3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrass3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrass3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrass3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrass3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrass3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrass3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsGrassDry</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.2</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrassDry3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrassDry3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrassDry3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrassDry3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrassDry3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrassDry3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrassDry3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsGrassDry3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsIce</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.25</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsIce3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsIce3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsIce3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsIce3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsIce3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsIce3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsIce3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsIce3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsSand</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.2</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSand3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSand3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSand3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSand3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSand3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSand3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSand3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSand3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsSnow</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.15</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSnow3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSnow3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSnow3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSnow3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSnow3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSnow3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSnow3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSnow3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsSoil</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.15</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsSoilMars</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.2</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsSoilMoon</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.2</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoil3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsSoilDry</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.2</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoilDry3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoilDry3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoilDry3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoilDry3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoilDry3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoilDry3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoilDry3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsSoilDry3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsAliGrass</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.25</Volume>
+      <VolumeVariation>0.8</VolumeVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsAliGrass3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsAliGrass3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsAliGrass3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsAliGrass3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsAliGrass3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsAliGrass3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsAliGrass3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\FOOTSTEPS\ArcPlayStepsAliGrass3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayStepsMetal</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.6</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d05.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d06.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d07.wav</Start>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d08.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d09.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d10.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d11.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d12.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d13.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayStepsGlass</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.6</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d05.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d06.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d07.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d08.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d09.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d10.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d11.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d12.wav</Start>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d13.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsGlass2d14.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayStepsRock</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.6</Volume>
+      <Loopable>false</Loopable>
+      <!--<AlwaysUseOneMode>true</AlwaysUseOneMode>-->
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d05.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d06.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d07.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d08.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d09.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d10.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d11.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d12.wav</Start>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d13.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d14.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayStepsIce</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.6</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d05.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d06.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d07.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d08.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d09.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d10.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d11.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d12.wav</Start>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d13.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsRock2d14.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayStepsSoilMoon</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d05.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d06.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d07.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d08.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d09.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d10.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d11.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d12.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d13.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsSoil2d14.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayJump</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.9</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>50</PitchVariation>
+      <PreventSynchronization>0</PreventSynchronization>
+      <Waves>
+        <!--<Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayJump2d.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayJump3d.wav</Start>
+        </Wave>-->
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayJump2d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayJump3d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayJump2d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayJump3d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayJump</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>7</MaxDistance>
+      <Volume>1</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayJump2d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallMetal</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.491781741</Volume>
+      <VolumeVariation>1.42237329</VolumeVariation>
+      <PitchVariation>35.5593338</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallMetal2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallMetal2d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallMetal3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallMetal3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallGlass</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>25</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>1.42237329</VolumeVariation>
+      <PitchVariation>35.5593338</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallGlass3d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallGlass2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayFallMetal</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>7</MaxDistance>
+      <Volume>1</Volume>
+      <PitchVariation>50</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallMetal2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallMetal2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallMetal2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallRock</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>46.6797371</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>3.084708</VolumeVariation>
+      <PitchVariation>62.6625557</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallRock2d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallRock3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayFallRock</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>7</MaxDistance>
+      <Volume>1.2</Volume>
+      <PitchVariation>50</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallRock2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallRock2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallRock2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayFallIce</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>7</MaxDistance>
+      <Volume>1.2</Volume>
+      <PitchVariation>50</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallRock2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallRock2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallRock2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayFallGlass</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>7</MaxDistance>
+      <Volume>1.2</Volume>
+      <PitchVariation>50</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallGlass2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallGlass2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallGlass2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayFallSoilMoon</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>7</MaxDistance>
+      <Volume>1</Volume>
+      <PitchVariation>50</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallSoil2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallSoil2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayFallSoil2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallIce</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.3</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallIce3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallIce3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallSnow</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.25</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSnow3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSnow3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallGrass</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.3</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallGrass3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallGrass3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallGrassDry</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.3</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallGrassDry3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallGrassDry3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallSand</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.3</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSand3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSand3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallSoil</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.3</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSoil3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallSoilMoon</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.6</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSoil3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallSoilMars</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.6</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSoil3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSoil3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallSoilDry</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.3</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSoilDry3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallSoilDry3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayFallWood</SubtypeId>
+      </Id>
+      <Category>PLAYER_RUNS</Category>
+      <MaxDistance>45</MaxDistance>
+      <Volume>0.6</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallWood3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\FOOTSTEPS\ArcPlayFallWood3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayIronSightActivate</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>38.739212</MaxDistance>
+      <Volume>0.389053166</Volume>
+      <VolumeVariation>0.699623466</VolumeVariation>
+      <PitchVariation>71.69703</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayIronSightStart3d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayIronSightStart2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayIronSightActivate</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <MaxDistance>38.739212</MaxDistance>
+      <Volume>0.3</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayIronSightStart2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayIronSightDeactivate</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>38.739212</MaxDistance>
+      <Volume>0.3</Volume>
+      <VolumeVariation>0.7</VolumeVariation>
+      <PitchVariation>71.69703</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayIronSightEnd3d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayIronSightEnd2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayIronSightDeactivate</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <MaxDistance>38.739212</MaxDistance>
+      <Volume>0.1</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayIronSightEnd2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayHelmetOn</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.6</Volume>
+      <PitchVariation>71.69703</PitchVariation>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayHelmetOn2d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayHelmetOn3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayHelmetOff</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.6</Volume>
+      <VolumeVariation>0.7</VolumeVariation>
+      <PitchVariation>71.69703</PitchVariation>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayHelmetOff2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayHelmetOn</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>50</PitchVariation>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Pitch>-4</Pitch>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayHelmetOff2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayHelmetOff</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>50</PitchVariation>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Pitch>-4</Pitch>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayHelmetOn2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayVocPain</SubtypeId>
+      </Id>
+      <Category>PLAYER_VOC</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.2</Volume>
+      <VolumeVariation>1.5</VolumeVariation>
+      <PitchVariation>120</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d05.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d06.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d07.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d08.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocPain2d09.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayVocDeath</SubtypeId>
+      </Id>
+      <Category>PLAYER_VOC</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>1.4</VolumeVariation>
+      <PitchVariation>150</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>REAL\PLAYER\RealPlayVocDeath2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepExplOnPlayUnused</SubtypeId>
+      </Id>
+      <Category>WEP_EXPL</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.6150559</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\EXPL\ArcWepExplOnPlay2d01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\EXPL\ArcWepExplOnPlay2d02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\EXPL\ArcWepExplOnPlay2d03.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\EXPL\ArcWepExplOnPlay2d04.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealImpPlayerMetal</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <PitchVariation>250</PitchVariation>
+      <Volume>1.1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealImpPlayerRock</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <PitchVariation>120</PitchVariation>
+      <Volume>1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealImpPlayerPlayer</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <PitchVariation>120</PitchVariation>
+      <Volume>1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealImpPlayerGlass</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <PitchVariation>120</PitchVariation>
+      <Volume>1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealImpPlayerSoilMoon</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <PitchVariation>120</PitchVariation>
+      <Volume>1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealImpPlayerIce</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <PitchVariation>120</PitchVariation>
+      <Volume>1</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\IMP\RealImpPlayerPlayer2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcImpPlayerMetal</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <Volume>0.3</Volume>
+      <MaxDistance>25</MaxDistance>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerMetal3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerMetal3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerMetal3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerMetal3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerMetal3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcImpPlayerRock</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>25</MaxDistance>
+      <Volume>0.3</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerRock3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerRock3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerRock3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerRock3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerRock3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcImpPlayerPlayer</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>25</MaxDistance>
+      <Volume>0.3</Volume>
+      <PreventSynchronization>10</PreventSynchronization>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerPlayer3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerPlayer3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerPlayer3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerPlayer3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpPlayerPlayer3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayGrindIdle</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\TOOL\ArcToolPlayGrindStart2d.xwm</Start>
+          <Loop>ARC\TOOL\ArcToolPlayGrindIdleLoop2d.xwm</Loop>
+          <End>ARC\TOOL\ArcToolPlayGrindEnd2d.xwm</End>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\TOOL\ArcToolPlayGrindStart3d.xwm</Start>
+          <Loop>ARC\TOOL\ArcToolPlayGrindIdleLoop3d.xwm</Loop>
+          <End>ARC\TOOL\ArcToolPlayGrindEnd3d.xwm</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayGrindMetal</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY</Category>
+      <Volume>0.8</Volume>
+      <MaxDistance>20</MaxDistance>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\TOOL\ArcToolPlayGrindMetalStart2d.xwm</Start>
+          <Loop>ARC\TOOL\ArcToolPlayGrindMetalLoop2d.xwm</Loop>
+          <End>ARC\TOOL\ArcToolPlayGrindMetalEnd2d.xwm</End>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\TOOL\ArcToolPlayGrindMetalStart3d.xwm</Start>
+          <Loop>ARC\TOOL\ArcToolPlayGrindMetalLoop3d.xwm</Loop>
+          <End>ARC\TOOL\ArcToolPlayGrindMetalEnd3d.xwm</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayWeldIdle</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY</Category>
+      <Volume>0.8</Volume>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7095661</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayWeldIdleLoop2d.xwm</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayWeldIdleLoop3d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayWeldMetal</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY</Category>
+      <Volume>0.8</Volume>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7095661</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayWeldMetalLoop2d.xwm</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayWeldMetalLoop3d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayGrindIdle</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY</Category>
+      <MaxDistance>30.2429581</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\TOOL\RealToolPlayGrindStart2d.wav</Start>
+          <Loop>Real\TOOL\RealToolPlayGrindIdleLoop2d.wav</Loop>
+          <End>Real\TOOL\RealToolPlayGrindEnd2d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayGrindMetal</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\TOOL\RealToolPlayGrindMetalStart2d.wav</Start>
+          <Loop>Real\TOOL\RealToolPlayGrindMetalLoop2d.wav</Loop>
+          <End>Real\TOOL\RealToolPlayGrindMetalEnd2d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayWeldIdle</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY</Category>
+      <MaxDistance>5</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\TOOL\RealToolPlayWeldIdle2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealToolPlayWeldMetal</SubtypeId>
+      </Id>
+      <Category>R_TOOL_PLAY</Category>
+      <MaxDistance>5</MaxDistance>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\TOOL\RealToolPlayWeldMetalLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayVocBreath1L</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <MaxDistance>0</MaxDistance>
+      <Volume>0.12</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayVocBreath1L2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayVocBreath2L</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <MaxDistance>0</MaxDistance>
+      <Volume>0.15</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayVocBreath2L2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayHelmetA</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <MaxDistance>0</MaxDistance>
+      <Volume>0.04</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetALoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayHelmetB</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <MaxDistance>0</MaxDistance>
+      <Volume>0.04</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetALoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayHelmetC</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <MaxDistance>0</MaxDistance>
+      <Volume>0.04</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetALoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>PlayHelmetD</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <MaxDistance>0</MaxDistance>
+      <Volume>0.04</Volume>
+      <Loopable>true</Loopable>
+      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetALoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+  </Sounds>
+</Definitions>

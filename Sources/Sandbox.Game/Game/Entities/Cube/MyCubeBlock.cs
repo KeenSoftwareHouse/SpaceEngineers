@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
@@ -20,7 +21,6 @@ using VRage;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI;
 using VRage.Collections;
-using Sandbox.Common.Components;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Game.Components;
@@ -29,6 +29,12 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.Models;
+
+using VRage.Game.ModAPI;
+using Sandbox.Game.ParticleEffects;
+using VRage.Game.Entity.EntityComponents;
+using VRageRender.Import;
 
 #endregion
 
@@ -68,6 +74,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public long BuiltBy
+        {
+            get { return SlimBlock == null ? 0 : SlimBlock.BuiltBy; }
+        }
+
         private MyResourceSinkComponent m_sinkComp;
 
         public MyResourceSinkComponent ResourceSink
@@ -91,6 +102,8 @@ namespace Sandbox.Game.Entities
             return faction.Tag;
         }
 
+        public bool IsBeingRemoved = false;
+
 
         public VRage.Game.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long identityId)
         {
@@ -99,7 +112,7 @@ namespace Sandbox.Game.Entities
 
             if (IDModule == null)
                 return VRage.Game.MyRelationsBetweenPlayerAndBlock.NoOwnership;
-
+            
             return IDModule.GetUserRelationToOwner(identityId);
         }
 
@@ -141,6 +154,7 @@ namespace Sandbox.Game.Entities
         public MyBlockOrientation Orientation { get { return SlimBlock.Orientation; } }
         public Vector3I Position { get { return SlimBlock.Position; } }
         public MyCubeGrid CubeGrid { get { return SlimBlock.CubeGrid; } }
+        protected List<MyCubeBlockEffect> m_activeEffects = null;
 
         public MyUseObjectsComponentBase UseObjectsComponent { get { return Components.Get<MyUseObjectsComponentBase>(); } }
         
@@ -198,6 +212,9 @@ namespace Sandbox.Game.Entities
             if (isWorkingChanged && IsWorkingChanged != null)
                 IsWorkingChanged(this);
         }
+        public bool IsSilenced = false;
+        public bool SilenceInChange = false;
+        public bool UsedUpdateEveryFrame = false;
 
         protected virtual bool CheckIsWorking()
         {
@@ -205,6 +222,20 @@ namespace Sandbox.Game.Entities
         }
 
         public event Action<MyCubeBlock> IsWorkingChanged;
+
+        public event Func<bool> CanContinueBuildCheck;
+        public bool CanContinueBuild()
+        {
+            if (CanContinueBuildCheck == null) return true;
+
+            bool retval = true;
+            foreach (var func in CanContinueBuildCheck.GetInvocationList())
+            {
+                var boolFunc = func as Func<bool>;
+                retval = retval & boolFunc();
+            }
+            return retval;
+        }
 
         /// <summary>
         /// Detectors contains inverted matrices
@@ -265,7 +296,8 @@ namespace Sandbox.Game.Entities
                 if (Components.TryGet<MyEntityInventorySpawnComponent>(out component))
                 {
                     component.SpawnInventoryContainer();
-                    Components.Add<MyInventoryBase>(new MyInventory(inventory.MaxVolume, inventory.MaxMass, Vector3.One, inventory.GetFlags(), null));
+                    MyInventory newInventory = new MyInventory(inventory.MaxVolume, inventory.MaxMass, Vector3.One, inventory.GetFlags());
+                    Components.Add<MyInventoryBase>(newInventory);
                 }
                 else
                 {
@@ -336,6 +368,11 @@ namespace Sandbox.Game.Entities
             get { return BlockDefinition.DisplayNameText; }
         }
 
+        // Flag if block is destructible even if grid is not.
+        protected bool m_forceBlockDestructible;
+        public bool ForceBlockDestructible { get { return MyFakes.ENABLE_VR_FORCE_BLOCK_DESTRUCTIBLE && m_forceBlockDestructible; } }
+
+
         static MyCubeBlock()
         {
             m_methodDataIsConnectedTo = new MethodDataIsConnectedTo();
@@ -352,6 +389,8 @@ namespace Sandbox.Game.Entities
         public void Init()
         {
             PositionComp.LocalAABB = new BoundingBox(new Vector3(-SlimBlock.CubeGrid.GridSize / 2), new Vector3(SlimBlock.CubeGrid.GridSize / 2));
+            //if (CubeGrid.GridScale < 1.0f)
+            //    PositionComp.Scale = CubeGrid.GridScale;
             Components.Add<MyUseObjectsComponentBase>(new MyUseObjectsComponent());
 
             Matrix localMatrix;
@@ -403,7 +442,6 @@ namespace Sandbox.Game.Entities
             orientation.Translation = localMatrix.Translation;
             localMatrix = orientation;
         }
-
         public virtual void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
         {
             //objectBuilder.PersistentFlags |= MyPersistentEntityFlags2.CastShadows;
@@ -412,6 +450,8 @@ namespace Sandbox.Game.Entities
                 EntityId = MyEntityIdentifier.AllocateId();
             else if (builder.EntityId != 0)
                 EntityId = builder.EntityId;
+
+            Name = builder.Name;
 
             NumberInGrid = cubeGrid.BlockCounter.GetNextNumber(builder.GetId());
             Render.ColorMaskHsv = builder.ColorMaskHSV;
@@ -456,7 +496,8 @@ namespace Sandbox.Game.Entities
 
         private void InitOwnership(MyObjectBuilder_CubeBlock builder)
         {
-            bool canHaveOwnership = BlockDefinition.ContainsComputer() || (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle);
+            var ownerComp = Components.Get<MyEntityOwnershipComponent>();
+            bool canHaveOwnership = BlockDefinition.ContainsComputer();
             if (UseObjectsComponent != null)
             {
                 canHaveOwnership = canHaveOwnership || UseObjectsComponent.GetDetectors("ownership").Count > 0;
@@ -491,6 +532,12 @@ namespace Sandbox.Game.Entities
                     m_IDModule.ShareMode = builder.ShareMode;
                 }
             }
+
+            if (ownerComp != null && builder.Owner != 0)
+            {
+                ownerComp.OwnerId = builder.Owner;
+                ownerComp.ShareMode = MyOwnershipShareModeEnum.None;
+            }
         }
 
         public sealed override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
@@ -507,6 +554,7 @@ namespace Sandbox.Game.Entities
             builder.Min = Min;
             builder.Owner = 0;
             builder.ShareMode = MyOwnershipShareModeEnum.None;
+            builder.Name = Name;
             if (m_IDModule != null)
             {
                 builder.Owner = m_IDModule.Owner;
@@ -529,7 +577,9 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            builder.ComponentContainer = Components.Serialize();
+            builder.ComponentContainer = Components.Serialize(copy);
+            if(copy)
+                builder.Name = null;
 
             return builder;
         }
@@ -622,7 +672,7 @@ namespace Sandbox.Game.Entities
         public virtual bool ConnectionAllowed(ref Vector3I otherBlockMinPos, ref Vector3I otherBlockMaxPos, ref Vector3I faceNormal, MyCubeBlockDefinition def)
         {
             Vector3I pos = otherBlockMinPos;
-            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref otherBlockMinPos, ref otherBlockMaxPos); it.IsValid(); it.GetNext(out pos))
+            for (Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref otherBlockMinPos, ref otherBlockMaxPos); it.IsValid(); it.GetNext(out pos))
             {
                 if (ConnectionAllowed(ref pos, ref faceNormal, def)) return true;
             }
@@ -673,10 +723,8 @@ namespace Sandbox.Game.Entities
         {
             if (renderObjectId != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
-                VRageRender.MyRenderProxy.UpdateColorEmissivity(renderObjectId, 0,
-                    "Emissive", emissivePartColor, emissivity);
-                VRageRender.MyRenderProxy.UpdateColorEmissivity(renderObjectId, 0,
-                    "Display", displayPartColor, emissivity);
+                UpdateNamedEmissiveParts(renderObjectId, "Emissive", emissivePartColor, emissivity);
+                UpdateNamedEmissiveParts(renderObjectId, "Display", displayPartColor, emissivity);
             }
         }
 
@@ -720,9 +768,31 @@ namespace Sandbox.Game.Entities
         public override void UpdateBeforeSimulation10()
         {
             base.UpdateBeforeSimulation10();
-
+            //VRageRender.MyRenderProxy.DebugDrawAABB(PositionComp.WorldAABB, Color.AliceBlue, 1f, 1f, false);
             if (MyFakes.ENABLE_SUBBLOCKS && m_loadedSubBlocks != null)
                 InitSubBlocks();
+        }
+
+        public override void UpdateBeforeSimulation()
+        {
+            base.UpdateBeforeSimulation();
+
+            if (m_activeEffects != null && MyPerGameSettings.UseNewDamageEffects)
+            {
+                for (int i = 0; i < m_activeEffects.Count; i++)
+                {
+                    if (m_activeEffects[i].CanBeDeleted)
+                    {
+                        m_activeEffects[i].Stop();
+                        m_activeEffects.RemoveAt(i);
+                        i--;
+                    }
+                    else
+                    {
+                        m_activeEffects[i].Update();
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -803,6 +873,7 @@ namespace Sandbox.Game.Entities
         {
             if (BlockDefinition.ContainsComputer())
             {
+                var ownerComp = Components.Get<MyEntityOwnershipComponent>();
                 if (setOwnership)
                 {
                     if (m_IDModule.Owner == 0)
@@ -812,6 +883,12 @@ namespace Sandbox.Game.Entities
                             CubeGrid.ChangeOwnerRequest(CubeGrid, this, owner, sharing);
                         }
                     }
+
+                    if (ownerComp != null && ownerComp.OwnerId == 0)
+                    {
+                        if (Sync.IsServer)
+                            CubeGrid.ChangeOwnerRequest(CubeGrid, this, owner, sharing);
+                }
                 }
                 else
                 {
@@ -820,8 +897,14 @@ namespace Sandbox.Game.Entities
                         sharing = MyOwnershipShareModeEnum.None;
                         CubeGrid.ChangeOwnerRequest(CubeGrid, this, 0, sharing);
                     }
+
+                    if (ownerComp != null && ownerComp.OwnerId != 0 && Sync.IsServer)
+                    {
+                        sharing = MyOwnershipShareModeEnum.None;
+                        CubeGrid.ChangeOwnerRequest(CubeGrid, this, 0, sharing);
                 }
             }
+        }
         }
 
         public void ChangeBlockOwnerRequest(long playerId, MyOwnershipShareModeEnum shareMode)
@@ -829,10 +912,103 @@ namespace Sandbox.Game.Entities
             CubeGrid.ChangeOwnerRequest(CubeGrid, this, playerId, shareMode);
         }
 
+        public bool SetEffect(string effectName, bool stopPrevious = false)
+        {
+            return SetEffect(effectName, 0f, stopPrevious, true);
+        }
+
+        public bool SetEffect(string effectName, float parameter, bool stopPrevious = false, bool ignoreParameter = false, bool removeSameNameEffects = false){
+            if (BlockDefinition == null || BlockDefinition.Effects == null)
+                return false;//block does not have any effects
+
+            int i;
+            int effectId = -1;
+            
+            //find effect in block definitions that corresponds to name and parameter
+            for (i = 0; i < BlockDefinition.Effects.Length; i++)
+            {
+                if (effectName.Equals(BlockDefinition.Effects[i].Name) && (ignoreParameter || (parameter >= BlockDefinition.Effects[i].ParameterMin && parameter <= BlockDefinition.Effects[i].ParameterMax)))
+                {
+                    effectId = i;
+                    break;
+                }
+            }
+            if (effectId == -1)
+                return false;//effect not in block definition
+
+            if (m_activeEffects == null)
+                m_activeEffects = new List<MyCubeBlockEffect>();
+
+            //check active effects for this new effect
+            for (i = 0; i < m_activeEffects.Count; i++)
+            {
+                if (m_activeEffects[i].EffectId == effectId)
+                {
+                    if (stopPrevious)
+                    {
+                        m_activeEffects[i].Stop();
+                        m_activeEffects.RemoveAt(i);
+                        break;
+                    }
+                    else
+                        return false;//effect is already running
+                }
+            }
+
+            if (removeSameNameEffects)
+                RemoveEffect(effectName, effectId);
+
+            if (m_activeEffects.Count == 0)
+            {
+                m_wasUpdatedEachFrame = (NeedsUpdate & MyEntityUpdateEnum.EACH_FRAME) != 0;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            }
+
+            m_activeEffects.Add(new MyCubeBlockEffect(effectId, BlockDefinition.Effects[effectId], this));
+            return true;
+        }
+
+        public int RemoveEffect(string effectName, int exception = -1)
+        {
+            if (BlockDefinition == null || BlockDefinition.Effects == null || m_activeEffects == null)
+                return 0;//block does not have any effects
+
+            int ret = 0;
+            int i, j;
+            for (i = 0; i < BlockDefinition.Effects.Length; i++)
+            {
+                if (effectName.Equals(BlockDefinition.Effects[i].Name))
+                {
+                    for (j = 0; j < m_activeEffects.Count; j++)
+                    {
+                        if (m_activeEffects[j].EffectId == i && i != exception)
+                        {
+                            m_activeEffects[j].Stop();
+                            m_activeEffects.RemoveAt(j);
+                            ret++;
+                        }
+                    }
+                }
+            }
+            if (m_activeEffects.Count == 0 && m_wasUpdatedEachFrame == false)
+            {
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+            }
+            return ret;
+        }
+
         private MyParticleEffect m_damageEffect;// = new MyParticleEffect();
         private bool m_wasUpdatedEachFrame=false;
-        internal virtual void SetDamageEffect(bool show)
+        public virtual void SetDamageEffect(bool show)
         {
+            if (MyPerGameSettings.UseNewDamageEffects && show)
+                SetEffect("Damage", (SlimBlock.Integrity / SlimBlock.MaxIntegrity), removeSameNameEffects: true);
+
+            bool effectCreated = (m_activeEffects != null && MyPerGameSettings.UseNewDamageEffects && m_activeEffects.Count > 0);
+
+            if (MyPerGameSettings.UseNewDamageEffects && show == false)
+                RemoveEffect("Damage");
+
             if (MyFakes.SHOW_DAMAGE_EFFECTS && BlockDefinition.DamageEffectID != null&& MySandboxGame.Static.EnableDamageEffects)
             {
                 if (!show && m_damageEffect != null)
@@ -842,14 +1018,13 @@ namespace Sandbox.Game.Entities
                     if (!m_wasUpdatedEachFrame)
                         NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
                 }
-                if (show && m_damageEffect == null)
+                if (show && m_damageEffect == null && effectCreated == false)
                 {//start
                     if (MyParticlesManager.TryCreateParticleEffect((int)BlockDefinition.DamageEffectID, out m_damageEffect))
                     {
-                        m_damageEffect.UserScale = Model.BoundingBox.Perimeter*.01f;//scale to size of item
+                        m_damageEffect.UserScale = Model.BoundingBox.Perimeter * 0.018f;//scale to size of item
                         setDamageWorldMatrix();
                         m_damageEffect.OnDelete += damageEffect_OnDelete;
-                        m_damageEffect.AutoDelete = false;
                     }
                     m_wasUpdatedEachFrame = (NeedsUpdate & MyEntityUpdateEnum.EACH_FRAME) != 0;
                     //Debug.Assert(!m_wasUpdatedEachFrame, "may not t NeedUpdate correctly!");
@@ -857,8 +1032,11 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
-        internal virtual void StopDamageEffect()
+        public virtual void StopDamageEffect()
         {
+            if (MyPerGameSettings.UseNewDamageEffects)
+                RemoveEffect("Damage");
+
             if (MyFakes.SHOW_DAMAGE_EFFECTS && BlockDefinition.DamageEffectID != null)
             {
                 if (m_damageEffect != null)
@@ -895,31 +1073,36 @@ namespace Sandbox.Game.Entities
 
         public void ChangeOwner(long owner, MyOwnershipShareModeEnum shareMode)
         {
-            if (m_IDModule == null)
+            var ownerComp = Components.Get<MyEntityOwnershipComponent>();
+            if (ownerComp != null)
             {
-                if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
+                bool changed = owner != ownerComp.OwnerId || shareMode != ownerComp.ShareMode;
+                if (changed)
                 {
-                    m_IDModule = new MyIDModule();
-                    m_IDModule.Owner = 0;
-                    m_IDModule.ShareMode = MyOwnershipShareModeEnum.None;
-                }
-                else
-                {
-                    return;
+                    var oldOwner = ownerComp.OwnerId;
+                    ownerComp.OwnerId = owner;
+                    ownerComp.ShareMode = shareMode;
+
+                    if (MyFakes.ENABLE_TERMINAL_PROPERTIES)
+                        CubeGrid.ChangeOwner(this, oldOwner, owner);
+
+                    OnOwnershipChanged();
                 }
             }
-
-            bool changed = owner != m_IDModule.Owner || shareMode != m_IDModule.ShareMode;
-            if (changed)
+            else if (IDModule != null)
             {
-                var oldOwner = m_IDModule.Owner;
-                m_IDModule.Owner = owner;
-                m_IDModule.ShareMode = shareMode;
+                bool changed = owner != m_IDModule.Owner || shareMode != m_IDModule.ShareMode;
+                if (changed)
+                {
+                    var oldOwner = m_IDModule.Owner;
+                    m_IDModule.Owner = owner;
+                    m_IDModule.ShareMode = shareMode;
 
-                if(MyFakes.ENABLE_TERMINAL_PROPERTIES)
-                    CubeGrid.ChangeOwner(this, oldOwner, owner);
+                    if (MyFakes.ENABLE_TERMINAL_PROPERTIES)
+                        CubeGrid.ChangeOwner(this, oldOwner, owner);
 
-                OnOwnershipChanged();
+                    OnOwnershipChanged();
+                }
             }
         }
 
@@ -971,9 +1154,9 @@ namespace Sandbox.Game.Entities
 
         public class MyBlockPosComponent : MyPositionComponent
         {
-            protected override void OnWorldPositionChanged(object source)
+            protected override void OnWorldPositionChanged(object source, bool updateChildren)
             {
-                base.OnWorldPositionChanged(source);
+                base.OnWorldPositionChanged(source, updateChildren);
                 (Container.Entity as MyCubeBlock).WorldPositionChanged(source);
             }
         }
@@ -1085,7 +1268,7 @@ namespace Sandbox.Game.Entities
                 Matrix subGridWorldMatrix = subBlockMatrix * localMatrix * CubeGrid.WorldMatrix;
 
                 MySlimBlock subblock = null;
-                MyCubeGrid subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, null, subGridWorldMatrix);
+                MyCubeGrid subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, null, subGridWorldMatrix, new Vector3(0, -1f, 0));
                 if (subgrid != null)
                 {
                     subblock = subgrid.GetCubeBlock(Vector3I.Zero);
@@ -1244,7 +1427,7 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
-        virtual internal float GetMass()
+        public virtual float GetMass()
         {
             Matrix m;
             if (MyDestructionData.Static != null)
@@ -1252,7 +1435,7 @@ namespace Sandbox.Game.Entities
             return BlockDefinition.Mass;
         }
 
-        virtual public BoundingBox GetGeometryLocalBox()
+        public virtual BoundingBox GetGeometryLocalBox()
         {
             if (Model != null)
                 return Model.BoundingBox; //TODO pm: BB is centered on model center not block center
@@ -1265,8 +1448,19 @@ namespace Sandbox.Game.Entities
             return new DictionaryReader<string, MySlimBlock>(SubBlocks);
         }
 
+        public bool TryGetSubBlock(string name, out MySlimBlock block)
+        {
+            if (SubBlocks == null)
+            {
+                block = null;
+                return false;
+            }
+
+            return SubBlocks.TryGetValue(name, out block);
+        }
+
         private MyUpgradableBlockComponent m_upgradeComponent;
-        internal MyUpgradableBlockComponent GetComponent()
+        public MyUpgradableBlockComponent GetComponent()
         {
             if (m_upgradeComponent == null)
             {
@@ -1331,6 +1525,23 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_FRACTURE_COMPONENT)
                 fractureComponent = Components.Get<MyFractureComponentBase>() as MyFractureComponentCubeBlock;
             return fractureComponent;
+        }
+
+        public override void RefreshModels(string modelPath, string modelCollisionPath)
+        {
+            MyModel model = MyModels.GetModelOnlyData(modelPath);
+            if (model != null)
+                model.Rescale(CubeGrid.GridScale);
+
+            if (modelCollisionPath != null)
+            {
+                model = MyModels.GetModelOnlyData(modelCollisionPath);
+                if (model != null)
+                    model.Rescale(CubeGrid.GridScale);
+            }
+
+            // Must be after model rescale
+            base.RefreshModels(modelPath, modelCollisionPath);
         }
     }
 }

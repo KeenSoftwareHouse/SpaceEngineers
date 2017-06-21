@@ -11,5 +11,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 	{
 		[ProtoMember]
 		public string ResourceSinkGroup;
+
+        [ProtoMember]
+        public string TimerSoundStart = "";
+
+        [ProtoMember]
+        public string TimerSoundMid = "";
+
+        [ProtoMember]
+        public string TimerSoundEnd = "";
 	}
 }

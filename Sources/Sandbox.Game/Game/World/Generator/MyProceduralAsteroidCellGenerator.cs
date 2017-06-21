@@ -6,10 +6,10 @@ using System.Diagnostics;
 using VRage;
 using VRage.Library.Utils;
 using VRage.Noise;
-using VRage.Voxels;
 using VRageMath;
-using Sandbox.Common.ObjectBuilders;
 using VRage.Game;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -39,8 +39,7 @@ namespace Sandbox.Game.World.Generator
         private Dictionary<MyObjectSeedType, double> m_seedClusterTypeProbability = new Dictionary<MyObjectSeedType, double>()
         {
             {MyObjectSeedType.Asteroid, 300},
-            {MyObjectSeedType.EncounterSingle, 3},
-            {MyObjectSeedType.EncounterMulti, 2},
+            {MyObjectSeedType.EncounterSingle, 5},
         };
 
         public MyProceduralAsteroidCellGenerator(int seed, double density, MyProceduralWorldModule parent = null)
@@ -89,7 +88,7 @@ namespace Sandbox.Game.World.Generator
                 int index = 0;
                 Vector3I subCellId = Vector3I.Zero;
                 Vector3I max = new Vector3I(SUBCELLS - 1);
-                for (var iter = new Vector3I.RangeIterator(ref Vector3I.Zero, ref max); iter.IsValid(); iter.GetNext(out subCellId))
+                for (var iter = new Vector3I_RangeIterator(ref Vector3I.Zero, ref max); iter.IsValid(); iter.GetNext(out subCellId))
                 {
                     // there is a bug in the position calculation which can very rarely cause overlaping objects but backwards compatibility so meh
                     Vector3D position = new Vector3D(random.NextDouble(), random.NextDouble(), random.NextDouble());
@@ -201,7 +200,6 @@ namespace Sandbox.Game.World.Generator
                             break;
                         case MyObjectSeedType.EncounterAlone:
                         case MyObjectSeedType.EncounterSingle:
-                        case MyObjectSeedType.EncounterMulti:
                             ProfilerShort.Begin("Encounter");
                             bool doSpawn = true;
                             foreach (var start in MySession.Static.Scenario.PossiblePlayerStarts)
@@ -295,7 +293,6 @@ namespace Sandbox.Game.World.Generator
                     break;
                 case MyObjectSeedType.EncounterAlone:
                 case MyObjectSeedType.EncounterSingle:
-                case MyObjectSeedType.EncounterMulti:
                     break;
                 default:
                     throw new InvalidBranchException();
@@ -373,7 +370,6 @@ namespace Sandbox.Game.World.Generator
                     break;
                 case MyObjectSeedType.EncounterAlone:
                 case MyObjectSeedType.EncounterSingle:
-                case MyObjectSeedType.EncounterMulti:
                     MyEncounterGenerator.RemoveEncounter(objectSeed.BoundingVolume, objectSeed.Params.Seed);
                     break;
                 default:

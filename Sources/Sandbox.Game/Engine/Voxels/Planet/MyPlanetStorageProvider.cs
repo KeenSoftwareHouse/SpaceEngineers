@@ -3,9 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Sandbox.Game.WorldEnvironment;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
+using VRage.Voxels;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -199,7 +200,7 @@ namespace Sandbox.Engine.Voxels
             }
 
             Vector3 pos = localPos - Shape.Center();
-            return Shape.SignedDistanceLocal(pos, 1);
+            return Shape.SignedDistanceLocalCacheless(pos);
         }
 
         public MyVoxelMaterialDefinition GetMaterialAtPosition(ref Vector3D localPosition)
@@ -219,19 +220,31 @@ namespace Sandbox.Engine.Voxels
                 Debug.Fail("Storage closed!");
                 return;
             }
+
             if (req.RequestedData.Requests(MyStorageDataTypeEnum.Content))
             {
                 Shape.ReadContentRange(ref req);
+                req.RequestFlags |= MyVoxelRequestFlags.ConsiderContent;
             }
 
-            if (req.RequestedData.Requests(MyStorageDataTypeEnum.Material))
+            if (req.Flags.HasFlags(MyVoxelRequestFlags.EmptyContent))
             {
-                Material.ReadMaterialRange(ref req);
+                if (req.RequestedData.Requests(MyStorageDataTypeEnum.Material))
+                    req.Target.BlockFill(MyStorageDataTypeEnum.Material, req.minInLod, req.maxInLod, MyVoxelConstants.NULL_MATERIAL);
+                if (req.RequestedData.Requests(MyStorageDataTypeEnum.Occlusion))
+                    req.Target.BlockFill(MyStorageDataTypeEnum.Occlusion, req.minInLod, req.maxInLod, 0);
             }
-            // If only occlusion is requested
-            else if (req.RequestedData.Requests(MyStorageDataTypeEnum.Occlusion))
+            else
             {
-                Material.ReadOcclusion(ref req);
+                if (req.RequestedData.Requests(MyStorageDataTypeEnum.Material))
+                {
+                    Material.ReadMaterialRange(ref req);
+                }
+                // If only occlusion is requested
+                else if (req.RequestedData.Requests(MyStorageDataTypeEnum.Occlusion))
+                {
+                    Material.ReadOcclusion(ref req);
+                }
             }
         }
 
@@ -284,24 +297,6 @@ namespace Sandbox.Engine.Voxels
         /**
          * Combined surface properties for the planet.
          * 
-         * This object stores most information about the planet surface.
-         * 
-         */
-        public struct SurfaceProperties {
-            public Vector3 Position;
-            public Vector3 Gravity;
-            public Vector3 Normal;
-            public MyVoxelMaterialDefinition Material;
-            public float Slope;
-            public float HeightRatio;
-            public float Latitude;
-            public float Longitude;
-            public byte Biome;
-        }
-
-        /**
-         * Combined surface properties for the planet.
-         * 
          * This object stores very detailed information about a point in the planet's surface.
          * 
          */
@@ -347,12 +342,12 @@ namespace Sandbox.Engine.Voxels
          * 
          * When using the coefficient cache be sure to have it properly set up. (MyPlanetShapeProvider.PrepareCache())
          */
-        public void ComputeCombinedMaterialAndSurface(Vector3 position, bool useCache, out SurfaceProperties props)
+        public void ComputeCombinedMaterialAndSurface(Vector3 position, bool useCache, out MySurfaceParams props)
         {
             if (Closed)
             {
                 Debug.Fail("Storage closed!");
-                props = new SurfaceProperties();
+                props = new MySurfaceParams();
                 return;
             }
 
@@ -385,7 +380,7 @@ namespace Sandbox.Engine.Voxels
 
             float value;
             if(!useCache)
-                value = Shape.GetValueForPosition(face, ref pos, out props.Normal);
+                value = Shape.GetValueForPositionCacheless(face, ref pos, out props.Normal);
             else
                 value = Shape.GetValueForPositionWithCache(face, ref pos, out props.Normal);
 
@@ -406,12 +401,12 @@ namespace Sandbox.Engine.Voxels
 
             var rule = Material.GetLayeredMaterialForPosition(ref pars, out props.Biome, ref occl);
 
-            props.Material = rule.FirstOrDefault;
-            if (props.Material == null) props.Material = MyDefinitionManager.Static.GetVoxelMaterialDefinition(0);
+            if (rule.FirstOrDefault == null) props.Material = 0;
+            else props.Material = rule.FirstOrDefault.Index;
 
             //props.Altitude = value;
 
-            props.Slope = pars.Normal.Z;
+            props.Normal = pars.Normal;
 
             props.HeightRatio = Shape.AltitudeToRatio(value);
         }

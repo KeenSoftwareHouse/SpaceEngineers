@@ -163,6 +163,7 @@ namespace Sandbox.Definitions
         public void ReloadPrefabs()
         {
             BoundingSphere sphere = new BoundingSphere(Vector3.Zero, float.MinValue);
+            float radiusAddition = 0;
             foreach (var prefab in Prefabs)
             {
                 var prefabDef = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
@@ -177,8 +178,17 @@ namespace Sandbox.Definitions
                 prefabSphere.Center += prefab.Position;
 
                 sphere.Include(prefabSphere);
+
+                if (prefabDef.CubeGrids != null)
+                {
+                    foreach (var grid in prefabDef.CubeGrids)
+                    {
+                        float gridSize = MyDefinitionManager.Static.GetCubeSize(grid.GridSizeEnum);
+                        radiusAddition = Math.Max(radiusAddition, 2 * gridSize);
+                    }
+                }
             }
-            SpawnRadius = sphere.Radius + 5.0f; // Add 5m just to be sure
+            SpawnRadius = sphere.Radius + radiusAddition;
             m_initialized = true;
         }
     }

@@ -1,10 +1,12 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace VRage.Native
 {
+#if !UNSHARPER
     public static partial class NativeCall<TResult>
     {
         public static TResult Method(IntPtr instance, int methodOffset)
@@ -42,4 +44,6 @@ namespace VRage.Native
             return NativeCallHelper<Func<IntPtr, IntPtr, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TResult>>.Invoke(NativeMethod.CalculateAddress(instance, methodOffset), instance, arg1, arg2, arg3, arg4, arg5, arg6);
         }
     }
+#endif
 }
+#endif // !XB1

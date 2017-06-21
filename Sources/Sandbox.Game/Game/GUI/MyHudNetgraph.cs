@@ -3,7 +3,6 @@ using Sandbox.Engine.Networking;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using VRageMath;
 
@@ -11,7 +10,7 @@ namespace Sandbox.Game.Gui
 {
     public class MyHudNetgraph
     {
-        public const int NUMBER_OF_VISIBLE_PACKETS = 150; // px count on x
+        public const int NUMBER_OF_VISIBLE_PACKETS = 1500; // px count on x
         public static readonly Vector2 OPTIMAL_LENGTH_BAR_NORMALIZED = new Vector2(0, 0.25f); // normalized size of bar height
 
         // scale constants (progressive)
@@ -37,7 +36,8 @@ namespace Sandbox.Game.Gui
             public long ByteCountUnreliableReceived;
             public long ByteCountSent;
 
-            public float AverageOnThisLine;
+            public float AverageReceivedOnThisLine;
+            public float AverageSentOnThisLine;
 
             public long TotalByteCountReceived
             {
@@ -48,7 +48,8 @@ namespace Sandbox.Game.Gui
             {
                 ByteCountReliableReceived = ByteCountUnreliableReceived = 0;
                 ByteCountSent = 0;
-                AverageOnThisLine = 0;
+                AverageReceivedOnThisLine = 0;
+                AverageSentOnThisLine = 0;
             }
         }
 
@@ -212,6 +213,7 @@ namespace Sandbox.Game.Gui
         private void CalculateCurrentLineData()
         {
             long averageReceivedBytes = 0;
+            long averageSentBytes = 0;
 
             m_byteMaximumForPacketScale = 0;
             m_averageMaximum = 0;
@@ -226,14 +228,16 @@ namespace Sandbox.Game.Gui
                 for (int i = startIndex; i < MyHudNetgraph.NUMBER_OF_VISIBLE_PACKETS; i++)
                 {
                     averageReceivedBytes += m_linesData[i].TotalByteCountReceived;
+                    averageSentBytes += m_linesData[i].ByteCountSent;
                     m_byteMaximumForPacketScale = Math.Max(m_byteMaximumForPacketScale, m_linesData[i].TotalByteCountReceived + m_linesData[i].ByteCountSent);
-                    m_averageMaximum = Math.Max(m_averageMaximum, m_linesData[i].AverageOnThisLine);
+                    m_averageMaximum = Math.Max(m_averageMaximum, Math.Max(m_linesData[i].AverageReceivedOnThisLine, m_linesData[i].AverageSentOnThisLine));
                 }
                 for (int i = 0; i < secondStep; i++)
                 {
                     averageReceivedBytes += m_linesData[i].TotalByteCountReceived;
+                    averageSentBytes += m_linesData[i].ByteCountSent;
                     m_byteMaximumForPacketScale = Math.Max(m_byteMaximumForPacketScale, m_linesData[i].TotalByteCountReceived + m_linesData[i].ByteCountSent);
-                    m_averageMaximum = Math.Max(m_averageMaximum, m_linesData[i].AverageOnThisLine);
+                    m_averageMaximum = Math.Max(m_averageMaximum, Math.Max(m_linesData[i].AverageReceivedOnThisLine, m_linesData[i].AverageSentOnThisLine));
                 }
             }
             else
@@ -241,13 +245,15 @@ namespace Sandbox.Game.Gui
                 for (int i = startIndex; i < startIndex + LINE_AVERAGE_COUNT; i++)
                 {
                     averageReceivedBytes += m_linesData[i].TotalByteCountReceived;
+                    averageSentBytes += m_linesData[i].ByteCountSent;
                     m_byteMaximumForPacketScale = Math.Max(m_byteMaximumForPacketScale, m_linesData[i].TotalByteCountReceived + m_linesData[i].ByteCountSent);
-                    m_averageMaximum = Math.Max(m_averageMaximum, m_linesData[i].AverageOnThisLine);
+                    m_averageMaximum = Math.Max(m_averageMaximum, Math.Max(m_linesData[i].AverageReceivedOnThisLine, m_linesData[i].AverageSentOnThisLine));
                 }
             }
 
             //ByteAverageForPacketScale = averageReceivedBytes;
-            m_linesData[m_currentFirstIndex].AverageOnThisLine = averageReceivedBytes * (1000f / (MyNetworkStats.NETGRAPH_UPDATE_TIME_MS * LINE_AVERAGE_COUNT));
+            m_linesData[m_currentFirstIndex].AverageReceivedOnThisLine = averageReceivedBytes * (1000f / (MyNetworkStats.NETGRAPH_UPDATE_TIME_MS * LINE_AVERAGE_COUNT));
+            m_linesData[m_currentFirstIndex].AverageSentOnThisLine = averageSentBytes * (1000f / (MyNetworkStats.NETGRAPH_UPDATE_TIME_MS * LINE_AVERAGE_COUNT));
         }
 
         public void ClearNetgraph()
@@ -284,7 +290,7 @@ namespace Sandbox.Game.Gui
                 }
                 else if (m_averageMaximum < CurrentAverageScaleMinimumValue)
                 {
-                    int multiplier = MathHelper.Log2((int)(m_averageMaximum / AVERAGE_SCALE_MINIMUM));
+                    int multiplier = MathHelper.Log2((int)(m_averageMaximum / AVERAGE_SCALE_MINIMUM)) + 1;
                     CurrentAverageScaleMultiplier = multiplier;
                     m_lastAverageScaleChange = Stopwatch.GetTimestamp();
                 }

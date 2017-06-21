@@ -16,7 +16,6 @@ using System.Text;
 using VRage;
 using VRage.Collections;
 using VRage.Library.Collections;
-using VRage.Library.Sync;
 using VRage.Network;
 using VRage.Replication;
 using VRage.Serialization;
@@ -30,13 +29,9 @@ namespace Sandbox.Game.Replication
     {
         public MySyncedBlock Block { get { return Instance; } }
 
-        private IMyReplicable m_gridReplicable { get { return FindByObject(Block.CubeGrid); } }
-        private MyPropertySyncStateGroup m_propertySync;
+        private StateGroups.MyPropertySyncStateGroup m_propertySync;
 
-        public MyTerminalReplicable()
-        {
-            IsChild = true;
-        }
+        public MyTerminalReplicable() { }
 
         public override void OnServerReplicate()
         {
@@ -48,7 +43,7 @@ namespace Sandbox.Game.Replication
         {
             Debug.Assert(MyMultiplayer.Static != null, "Should not get here without multiplayer");
             base.OnHook();
-            m_propertySync = new MyPropertySyncStateGroup(this, Block.SyncType);
+            m_propertySync = new StateGroups.MyPropertySyncStateGroup(this, Block.SyncType);
             m_propertySync.GlobalValidate = context => HasRights(context.ClientState.GetClient());
             Block.OnClose += (entity) => RaiseDestroyed();
         }
@@ -66,13 +61,16 @@ namespace Sandbox.Game.Replication
                 || relationToBlockOwner == VRage.Game.MyRelationsBetweenPlayerAndBlock.NoOwnership;
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
+            if (Block == null)
+                return null;
+
             Debug.Assert(!Block.Closed && !Block.CubeGrid.Closed, "Sending terminal replicable on closed block/grid");
-            return m_gridReplicable;
+            return FindByObject(Block.CubeGrid); 
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client, bool cached)
         {
             Debug.Fail("Getting priority of child replicable: MyTerminalReplicable");
             return 0; // This is child replicable
@@ -111,6 +109,17 @@ namespace Sandbox.Game.Replication
         public override void GetStateGroups(List<IMyStateGroup> resultList)
         {
             resultList.Add(m_propertySync);
+        }
+
+        public override bool HasToBeChild
+        {
+            get { return true; }
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            System.Diagnostics.Debug.Fail("GetAABB can be called only on root replicables");
+            return VRageMath.BoundingBoxD.CreateInvalid();
         }
     }
 }

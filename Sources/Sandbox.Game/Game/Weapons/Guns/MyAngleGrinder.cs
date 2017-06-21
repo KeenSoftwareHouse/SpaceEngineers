@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using System;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
@@ -22,13 +23,20 @@ using VRageMath;
 using Sandbox.Engine.Networking;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
+using VRage.Library.Utils;
+using Sandbox.Game.Audio;
+using Sandbox.ModAPI.Weapons;
+using Sandbox.Game.WorldEnvironment.Modules;
+using Sandbox.Game.WorldEnvironment;
+using Sandbox.Game.World;
 
 #endregion
 
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_AngleGrinder))]
-    class MyAngleGrinder : MyEngineerToolBase
+    public class MyAngleGrinder : MyEngineerToolBase, IMyAngleGrinder
     {
         private MySoundPair m_idleSound = new MySoundPair("ToolPlayGrindIdle");
         private MySoundPair m_actualSound = new MySoundPair("ToolPlayGrindMetal");
@@ -45,14 +53,19 @@ namespace Sandbox.Game.Weapons
         int m_lastUpdateTime;
         float m_rotationSpeed;
 
-        MyDefinitionId m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "AngleGrinderItem");
+        //GK: Added in order to check for breakable environment items (e.g. trees) from hand tools (Driller,Grinder)
+        private int m_lastContactTime;
+        private int m_lastItemId;
+
+        static MyDefinitionId m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "AngleGrinderItem");
+        private float m_grinderCameraMaxShakeIntensity = 1.5f;
+        private double m_grinderCameraMeanShakeIntensity = 1.0f;
 
         public MyAngleGrinder()
             : base(250)
         {
             SecondaryLightIntensityLower = 0.4f;
             SecondaryLightIntensityUpper = 0.4f;
-            EffectId = MyParticleEffectsIDEnum.AngleGrinder;
             EffectScale = 0.6f;
 
             HasCubeHighlight = true;
@@ -66,6 +79,7 @@ namespace Sandbox.Game.Weapons
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
+            m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "AngleGrinderItem");
             if (objectBuilder.SubtypeName !=null && objectBuilder.SubtypeName.Length>0)
                 m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), objectBuilder.SubtypeName + "Item");
             PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId);
@@ -87,8 +101,6 @@ namespace Sandbox.Game.Weapons
                 {
                     if (toolSound.subtype.Equals("Idle"))
                         m_idleSound = new MySoundPair(toolSound.sound);
-                    if (toolSound.subtype.Equals("Soundset"))
-                        m_source = MyStringHash.GetOrCompute(toolSound.sound);
                 }
             }
         }
@@ -107,6 +119,8 @@ namespace Sandbox.Game.Weapons
 
             int timeDelta = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            if (!m_activated)
+                EffectId = null;
 
             if (m_activated && m_rotationSpeed < GRINDER_MAX_SPEED_RPM)
             {
@@ -130,11 +144,11 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             MyAnalyticsHelper.ReportActivityStartIf(!m_activated, this.Owner, "Grinding", "Character", "HandTools", "AngleGrinder", true);
 
-            base.Shoot(action, direction, gunAction);
+            base.Shoot(action, direction, overrideWeaponPos, gunAction);
 
             if (action == MyShootActionEnum.PrimaryAction && IsPreheated && Sync.IsServer && m_activated)
             {
@@ -193,6 +207,7 @@ namespace Sandbox.Game.Weapons
         {
             var block = GetTargetBlock();
             MyStringHash target = m_metal;
+            EffectId = null;
             if (block != null && (!(MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode) || block.CubeGrid.BlocksDestructionEnabled))
             {
                 float hackMultiplier = 1.0f;
@@ -209,8 +224,14 @@ namespace Sandbox.Game.Weapons
                 if (block.UseDamageSystem)
                     MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
 
-                block.DecreaseMountLevel(damageInfo.Amount, CharacterInventory);
-                block.MoveItemsFromConstructionStockpile(CharacterInventory);
+                if (block.CubeGrid.Editable)
+                {
+                    block.DecreaseMountLevel(damageInfo.Amount, CharacterInventory);
+                    block.MoveItemsFromConstructionStockpile(CharacterInventory);
+                }
+
+                if (MySession.Static != null && Owner == MySession.Static.LocalCharacter && MyMusicController.Static != null)
+                    MyMusicController.Static.Building(250);
 
                 if (block.UseDamageSystem)
                     MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);
@@ -225,6 +246,9 @@ namespace Sandbox.Game.Weapons
                 }
                 if (block.BlockDefinition.PhysicalMaterial.Id.SubtypeName.Length > 0)
                     target = block.BlockDefinition.PhysicalMaterial.Id.SubtypeId;
+
+                if (Owner != null && Owner.ControllerInfo.IsLocallyControlled() && (Owner.IsInFirstPersonView || Owner.ForceFirstPersonCamera))
+                    PerformCameraShake();
             }
 
             var targetDestroyable = GetTargetDestroyable();
@@ -243,11 +267,34 @@ namespace Sandbox.Game.Weapons
                 targetDestroyable.DoDamage(20, MyDamageType.Grind, true, attackerId: Owner != null ? Owner.EntityId : 0);
                 if (targetDestroyable is MyCharacter)
                     target = MyStringHash.GetOrCompute((targetDestroyable as MyCharacter).Definition.PhysicalMaterial);
+
+                if (Owner != null && Owner.ControllerInfo.IsLocallyControlled() && (Owner.IsInFirstPersonView || Owner.ForceFirstPersonCamera))
+                    PerformCameraShake();
+            }
+
+            var sector = m_raycastComponent.HitEnvironmentSector;
+            if (sector != null)
+            {
+                var itemId = m_raycastComponent.EnvironmentItem;
+                if (itemId != m_lastItemId)
+                {
+                    m_lastItemId = itemId;
+                    m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                }
+                if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime > MyDebrisConstants.CUT_TREE_IN_MILISECONDS / m_speedMultiplier)
+                {
+                    var sectorProxy = sector.GetModule<MyBreakableEnvironmentProxy>();
+                    sectorProxy.BreakAt(itemId, m_raycastComponent.HitPosition, Vector3D.Zero, 0);
+                    m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                    m_lastItemId = 0;
+                }
+                target = MyStringHash.GetOrCompute("Wood");
             }
 
             if (block != null || targetDestroyable != null)
             {
-                m_actualSound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_source, target);
+                m_actualSound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_handItemDef.ToolMaterial, target);
+                EffectId = MyMaterialPropertiesHelper.Static.GetCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Start, m_handItemDef.ToolMaterial, target);
             }
         }
 
@@ -269,6 +316,16 @@ namespace Sandbox.Game.Weapons
         {
             if (m_soundEmitter.Sound != null && m_soundEmitter.Sound.IsPlaying)
             m_soundEmitter.StopSound(true);
+        }
+
+        public void PerformCameraShake()
+        {
+            if (MySector.MainCamera == null)
+                return;
+
+            float intensity = (float)(-Math.Log(MyRandom.Instance.NextDouble()) * m_grinderCameraMeanShakeIntensity);
+            intensity = MathHelper.Clamp(intensity, 0, m_grinderCameraMaxShakeIntensity);
+            MySector.MainCamera.CameraShake.AddShake(intensity);
         }
     }
 }

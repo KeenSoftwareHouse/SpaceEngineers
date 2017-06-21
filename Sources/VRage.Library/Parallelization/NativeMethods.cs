@@ -12,8 +12,13 @@ namespace VRage
         public const int WaitTimeout = 0x102;
         public const int WaitFailed = -1;
 
+#if XB1
+        public static readonly int SpinCount = 4000;
+        public static readonly bool SpinEnabled = true;
+#else // !XB1
         public static readonly int SpinCount = Environment.ProcessorCount != 1 ? 4000 : 0;
         public static readonly bool SpinEnabled = Environment.ProcessorCount != 1;
+#endif // !XB1
 
         // We need to import some stuff. We can't use 
         // ProcessHacker.Native because it depends on this library.
@@ -23,6 +28,7 @@ namespace VRage
             [In] IntPtr Handle
             );
 
+#if !XB1 // it looks like CreateEvent is not used at all
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern IntPtr CreateEvent(
             [In] [Optional] IntPtr EventAttributes,
@@ -30,6 +36,7 @@ namespace VRage
             [In] bool InitialState,
             [In] [Optional] string Name
             );
+#endif // !XB1
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern IntPtr CreateSemaphore(
@@ -46,6 +53,7 @@ namespace VRage
             [In] IntPtr PreviousCount // out int
             );
 
+#if !XB1 // it looks like SetEvent and ResetEvent are not used at all
         [DllImport("kernel32.dll")]
         public static extern bool ResetEvent(
             [In] IntPtr EventHandle
@@ -55,6 +63,7 @@ namespace VRage
         public static extern bool SetEvent(
             [In] IntPtr EventHandle
             );
+#endif // !XB1
 
         [DllImport("kernel32.dll")]
         public static extern int WaitForSingleObject(
@@ -62,6 +71,7 @@ namespace VRage
             [In] int Milliseconds
             );
 
+#if !XB1 // it looks like ntdll.dll is not used at all
         [DllImport("ntdll.dll")]
         public static extern int NtCreateKeyedEvent(
             [Out] out IntPtr KeyedEventHandle,
@@ -85,5 +95,6 @@ namespace VRage
             [In] bool Alertable,
             [In] [Optional] IntPtr Timeout
             );
+#endif // !XB1
     }
 }

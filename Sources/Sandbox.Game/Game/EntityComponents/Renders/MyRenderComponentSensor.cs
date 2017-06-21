@@ -7,7 +7,7 @@ using VRageMath;
 using VRageRender;
 using Sandbox.Graphics;
 using Sandbox.Game.Entities;
-using Sandbox.Common.Components;
+
 using VRage.Game.Components;
 using VRage.Game;
 

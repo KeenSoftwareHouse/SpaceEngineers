@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_VSFiles xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <StateMachine>
+    <Name>OC01_M4_SM_Main</Name>
+    <OwnerId>0</OwnerId>
+    <Cursors>
+      <MyObjectBuilder_ScriptSMCursor>
+        <NodeName>Cutscene</NodeName>
+      </MyObjectBuilder_ScriptSMCursor>
+    </Cursors>
+    <Nodes>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="437.2732" y="326.069336" />
+        <Name>Start</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 04\OC01_M4_OLS_Start.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M4_OLS_Start</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="668" y="334" />
+        <Name>GetToLZ</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 04\OC01_M4_OLS_GetToLZ.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M4_OLS_GetToLZ</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="901" y="332" />
+        <Name>TankPart</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 04\OC01_M4_OLS_TankPart.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M4_OLS_TankPart</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="1180.02063" y="333.7323" />
+        <Name>BaseStart</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 04\OC01_M4_OLS_BaseStart.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M4_OLS_BaseStart</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+      <MyObjectBuilder_ScriptSMNode>
+        <Position x="163.419617" y="319.475952" />
+        <Name>Cutscene</Name>
+        <ScriptFilePath>Campaigns\Official Campaign 01\Scripts\Mission 04\OC01_M4_OLS_Cutscene.vs</ScriptFilePath>
+        <ScriptClassName>OC01_M4_OLS_Cutscene</ScriptClassName>
+      </MyObjectBuilder_ScriptSMNode>
+    </Nodes>
+    <Transitions>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Start</From>
+        <To>GetToLZ</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>GetToLZ</From>
+        <To>TankPart</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>TankPart</From>
+        <To>BaseStart</To>
+      </MyObjectBuilder_ScriptSMTransition>
+      <MyObjectBuilder_ScriptSMTransition>
+        <Name>Completed</Name>
+        <From>Cutscene</From>
+        <To>Start</To>
+      </MyObjectBuilder_ScriptSMTransition>
+    </Transitions>
+  </StateMachine>
+</MyObjectBuilder_VSFiles>

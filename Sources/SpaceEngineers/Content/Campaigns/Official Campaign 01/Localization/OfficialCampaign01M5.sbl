@@ -1,0 +1,196 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Localization xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Id>18347664881907400704</Id>
+  <Language>English</Language>
+  <Context>Mission05</Context>
+  <ResourceName>OfficialCampaign01M5</ResourceName>
+  <Default>true</Default>
+  <Entries>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Enemy_Arrival</Key>
+        <Value xsi:type="xsd:string">I will send you back to the Sol Cooperative in a box!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Enemy_BossTalk</Key>
+        <Value xsi:type="xsd:string">I'll be with you soon Engineer, in the meantime please enjoy the company of my drone army!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Monolith_Come</Key>
+        <Value xsi:type="xsd:string">Eng--in--eer...... Come... there is... much for you to see...</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AboutArena</Key>
+        <Value xsi:type="xsd:string">This appears to be where the R.O.S.4 corporation makes all its small ships and drones.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_AboutTube</Key>
+        <Value xsi:type="xsd:string">Newly made drones will exit through these tubes.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BossDead</Key>
+        <Value xsi:type="xsd:string">You did it. I didn't think you would. I was already halfway done writing the mission failure report.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_BossWarning</Key>
+        <Value xsi:type="xsd:string">Warning, large ship detected, recommend evasive maneuvers.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Fan</Key>
+        <Value xsi:type="xsd:string">Ok, not sure why that is there, probably best to avoid it.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_FighterShips</Key>
+        <Value xsi:type="xsd:string">These ships are unlocked, I recommend "borrowing" one for this encounter.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_OverView</Key>
+        <Value xsi:type="xsd:string">This is an impressive factory, for a human design at least, except maybe for that giant fan.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_SecurityDrone</Key>
+        <Value xsi:type="xsd:string">Security drone has been activated.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_SecurityDroneWarning</Key>
+        <Value xsi:type="xsd:string">Warning, security drone activated.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_SeesMonolith</Key>
+        <Value xsi:type="xsd:string">So that's the artefact, I'm receiving all kinds of strange signals from it.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_ShowControlBlock</Key>
+        <Value xsi:type="xsd:string">Shooting these control blocks will interfere with hostile drone programming.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_HackModuleCreator</Key>
+        <Value xsi:type="xsd:string">Assembler control</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Module</Key>
+        <Value xsi:type="xsd:string">Hack Module</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Monolith</Key>
+        <Value xsi:type="xsd:string">Artefact</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_SecurityDrone</Key>
+        <Value xsi:type="xsd:string">Security Drone</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Socket</Key>
+        <Value xsi:type="xsd:string">Control Block</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_TugShip</Key>
+        <Value xsi:type="xsd:string">Transgressor - Combat Ship </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Percentage</Key>
+        <Value xsi:type="xsd:string">{0}%</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Preparation</Key>
+        <Value xsi:type="xsd:string">Prepare yourself for combat</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Preparation_drone</Key>
+        <Value xsi:type="xsd:string">Destroy the hostile security drone</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Preparation_gears</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] to unlock landing gears</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_Preparation_ship</Key>
+        <Value xsi:type="xsd:string">Enter one of the highlighted ships</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_FirstTower</Key>
+        <Value xsi:type="xsd:string">Destroy the control block to hack new drones</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_FirstTower_Attack</Key>
+        <Value xsi:type="xsd:string">Destroy the exposed control block</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_FirstTower_NextExposed</Key>
+        <Value xsi:type="xsd:string">Next exposed control block: {0}</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_FirstTower_NextExposedTime</Key>
+        <Value xsi:type="xsd:string">Next exposure in: {0}s</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_FirstTower_Wait</Key>
+        <Value xsi:type="xsd:string">Survive until next exposure</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Combat</Key>
+        <Value xsi:type="xsd:string">Survive until control blocks re-emerge</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Combat_HelpYourDrones</Key>
+        <Value xsi:type="xsd:string">Help friendly drones (green) to defeat hostile drones (red)</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Combat_TimeLeft</Key>
+        <Value xsi:type="xsd:string">Hacking completed in {0}:{1}{2}</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Combat_WaitForHacking</Key>
+        <Value xsi:type="xsd:string">Survive until the hacking is completed</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_SecondTower</Key>
+        <Value xsi:type="xsd:string">Destroy a second control block </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_DefeatBoss</Key>
+        <Value xsi:type="xsd:string">Defeat {0}</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_DefeatBoss_Quest</Key>
+        <Value xsi:type="xsd:string">Destroy the CEO's ship</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_WaitForBoss</Key>
+        <Value xsi:type="xsd:string">Survive until Marcus arrives</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_WaitForBoss_Boss</Key>
+        <Value xsi:type="xsd:string">Large entity incoming in: {0}s</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest05_WaitForBoss_Intro</Key>
+        <Value xsi:type="xsd:string">Destroy more red drones</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_Monolith</Key>
+        <Value xsi:type="xsd:string">Locate the artefact and discover its purpose</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_Monolith_End</Key>
+        <Value xsi:type="xsd:string">Approach the artefact</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest06_Monolith_Location</Key>
+        <Value xsi:type="xsd:string">Secret corridor marked with GPS</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Terminology_Central</Key>
+        <Value xsi:type="xsd:string">Central</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Terminology_Left</Key>
+        <Value xsi:type="xsd:string">Left</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Terminology_Right</Key>
+        <Value xsi:type="xsd:string">Right</Value>
+      </item>
+    </dictionary>
+  </Entries>
+</MyObjectBuilder_Localization>

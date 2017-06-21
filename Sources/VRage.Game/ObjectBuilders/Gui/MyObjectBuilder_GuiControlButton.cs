@@ -24,6 +24,10 @@ namespace VRage.Game
         SquareSmall,
         UrlText,
         Error,
+        Like,
+        Envelope,
+        Bug,
+        Help
     }
 
     [ProtoContract]

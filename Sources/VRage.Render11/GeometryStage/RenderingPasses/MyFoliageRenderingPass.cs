@@ -1,14 +1,17 @@
 ﻿using System.Diagnostics;
 using SharpDX.Direct3D;
+using VRage.Render11.Common;
+using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
+using VRage.Stats;
 using VRageMath;
-using VRageRender.Resources;
+using VRageRender.Utils;
 
 namespace VRageRender
 {
     internal sealed class MyFoliageRenderingPass : MyRenderingPass
     {
-        private const string FoliageRenderShader = "foliage.hlsl";
-        internal const int GrassStencilMask = 0x80;
+        private const string FoliageRenderShader = "Geometry/Foliage/Foliage.hlsl";
 
         private static InputLayoutId m_inputLayout = InputLayoutId.NULL;
         private static VertexShaderId m_VS = VertexShaderId.NULL;
@@ -50,19 +53,19 @@ namespace VRageRender
 
             RC.BeginProfilingBlock("Foliage pass");
 
-            Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
-            Context.InputAssembler.InputLayout = m_inputLayout;
+            RC.SetPrimitiveTopology(PrimitiveTopology.PointList);
+            RC.SetInputLayout(m_inputLayout);
 
-            RC.SetCB(MyCommon.FOLIAGE_SLOT, MyCommon.MaterialFoliageTableConstants);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.FOLIAGE_SLOT, MyCommon.MaterialFoliageTableConstants);
 
-            RC.SetRS(MyRender11.m_nocullRasterizerState);
+            RC.SetRasterizerState(MyRasterizerStateManager.NocullRasterizerState);
 
-            RC.SetVS(m_VS);
-            RC.SetIL(m_inputLayout);
+            RC.VertexShader.Set(m_VS);
+            RC.SetInputLayout(m_inputLayout);
 
-            RC.BindGBufferForWrite(MyGBuffer.Main);
+            RC.SetRtvs(MyGBuffer.Main, MyDepthStencilAccess.ReadWrite);
 
-            RC.SetDS(MyDepthStencilState.WriteDepthAndStencil, GrassStencilMask);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.DefaultDepthState);
         }
 
         internal override void End()
@@ -75,40 +78,40 @@ namespace VRageRender
 
         internal void CleanupPipeline()
         {
-            Context.GeometryShader.Set(null);
-            Context.Rasterizer.State = null;
+            RC.GeometryShader.Set(null);
+            RC.SetRasterizerState(null);
         }
 
-        internal unsafe void RecordCommands(MyRenderableProxy proxy, VertexBufferId stream, int voxelMatId)
+        internal unsafe void RecordCommands(MyRenderableProxy proxy, IVertexBuffer stream, int voxelMatId)
         {
-            if (stream == VertexBufferId.NULL) return;
+            if (stream == null) return;
 
             var foliageType = MyVoxelMaterials1.Table[voxelMatId].FoliageType;
 
-            MyMapping mapping = MyMapping.MapDiscard(RC.DeviceContext, proxy.ObjectBuffer);
+            MyMapping mapping = MyMapping.MapDiscard(RC, proxy.ObjectBuffer);
             mapping.WriteAndPosition(ref proxy.NonVoxelObjectData);
             mapping.WriteAndPosition(ref proxy.CommonObjectData);
             mapping.Unmap();
 
-            RC.SetCB(MyCommon.OBJECT_SLOT, proxy.ObjectBuffer);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.OBJECT_SLOT, proxy.ObjectBuffer);
 
-            RC.SetGS(m_GS[foliageType]);
-            RC.SetPS(m_PS[foliageType]);
+            RC.GeometryShader.Set(m_GS[foliageType]);
+            RC.PixelShader.Set(m_PS[foliageType]);
 
             if (MyVoxelMaterials1.Table[voxelMatId].FoliageColorTextureArray != null)
             {
-                RC.BindRawSRV(0, MyVoxelMaterials1.Table[voxelMatId].FoliageColorTextureArray.ShaderView);
-                RC.BindRawSRV(1, MyVoxelMaterials1.Table[voxelMatId].FoliageNormalTextureArray.ShaderView);
+                RC.AllShaderStages.SetSrv(0, MyVoxelMaterials1.Table[voxelMatId].FoliageColorTextureArray);
+                RC.AllShaderStages.SetSrv(1, MyVoxelMaterials1.Table[voxelMatId].FoliageNormalTextureArray);
             }
             else
             {
-                RC.BindRawSRV(0, MyTextures.GetView(MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_Texture, MyTextureEnum.COLOR_METAL, true)));
-                RC.BindRawSRV(1, MyTextures.GetView(MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_NormalTexture, MyTextureEnum.NORMALMAP_GLOSS, true)));
+                MyFileTextureManager texManager = MyManagers.FileTextures;
+                RC.AllShaderStages.SetSrv(0, texManager.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_Texture, MyFileTextureEnum.COLOR_METAL, true));
+                RC.AllShaderStages.SetSrv(1, texManager.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_NormalTexture, MyFileTextureEnum.NORMALMAP_GLOSS, true));
             }
 
-            RC.SetVB(0, stream.Buffer, stream.Stride);
-            Context.DrawAuto();
-            RC.Stats.DrawAuto++;
+            RC.SetVertexBuffer(0, stream);
+            RC.DrawAuto();
         }
 
         internal void Render()
@@ -117,22 +120,24 @@ namespace VRageRender
             if (foliageComponents.Count <= 0)
                 return;
 
-            ViewProjection = MyEnvironment.ViewProjectionAt0;
+            ViewProjection = MyRender11.Environment.Matrices.ViewProjectionAt0;
             Viewport = new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
 
             PerFrame();
             Begin();
 
-            var viewFrustum = new BoundingFrustumD(MyEnvironment.ViewProjectionD);
+            var viewFrustum = new BoundingFrustumD(MyRender11.Environment.Matrices.ViewProjectionD);
 
             foreach (var foliageComponent in foliageComponents)
             {
                 var renderableComponent = foliageComponent.Owner.GetRenderable();
                 bool removeDitheringInProgress = renderableComponent.m_objectDithering > 0 && renderableComponent.m_objectDithering < 2;
-                if (!removeDitheringInProgress && foliageComponent.Owner.CalculateCameraDistance() < MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance())
+                if (!removeDitheringInProgress && foliageComponent.Owner.CalculateCameraDistance() < MyRender11.Settings.User.FoliageDetails.GrassDrawDistance())
                 {
                     if (viewFrustum.Contains(foliageComponent.Owner.Aabb) != ContainmentType.Disjoint)
+                    {
                         foliageComponent.Render(this);
+                    }
                 }
             }
 

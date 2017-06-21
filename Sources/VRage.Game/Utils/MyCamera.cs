@@ -1,16 +1,26 @@
 ﻿using System;
+using VRage.Game.Components;
 using VRage.ModAPI;
-using VRageMath;
 using VRageRender;
 using VRage.Utils;
+using VRageMath;
 using Vector3 = VRageMath.Vector3;
-using Matrix = VRageMath.Matrix;
+using Vector3D = VRageMath.Vector3D;
+using MatrixD = VRageMath.MatrixD;
+using BoundingBoxD = VRageMath.BoundingBoxD;
+using BoundingSphereD = VRageMath.BoundingSphereD;
+using BoundingFrustumD = VRageMath.BoundingFrustumD;
 
 namespace VRage.Game.Utils
 {
-    public class MyCamera : IMyCamera
+    public class MyCamera: IMyCamera
     {
-        public const float DefaultFarPlaneDistance = 20000; // default far plane distance
+        // Default far plane distance
+        public const float DefaultFarPlaneDistance = 20000;
+        // Near clip plane for "near" objects, near objects are cockpit, cockpit glass and weapons
+        private const float NearForNearObjects = 0.01f;
+        // Far clip plane for "near" objects, near objects are cockpit, cockpit glass and weapons
+        private const float FarForNearObjects = 100.0f;
 
         //  Original was 0.5, but I changed it to 0.35 so in extreme-wide screen resolution cockpit glass isn't truncated!
         // Previous distance was 0.35, changed to 0.27 so fov 100 degrees is displayed properly (otherwise cockpit would be truncated)
@@ -21,54 +31,91 @@ namespace VRage.Game.Utils
         //  Therefore far plane distance can be any large number, but near plane distance can't be too small.
         public float FarPlaneDistance = DefaultFarPlaneDistance; // farplane is now set by MyObjectBuilder_SessionSettings.ViewDistance
 
-        // Near clip plane for "near" objects, near objects are cockpit, cockpit glass and weapons
-        const float NearForNearObjects = 0.01f;
-
-        // Far clip plane for "near" objects, near objects are cockpit, cockpit glass and weapons
-        const float FarForNearObjects = 100.0f;
-
-        public float FieldOfView = (float)(Math.PI / 2.0);
-        public float FieldOfViewForNearObjects = (float)(MathHelper.ToRadians(70));
-
+        // Current field of view. Set in constructor, can be changed later.
+        public float FieldOfView;
+        
         //  This are ACTUAL public properties of a camera. If we are looking forward, it contains related values.
-        public Vector3D Position;
-
-        public Vector3 ForwardVector = Vector3.Forward;
-        public Vector3 LeftVector = Vector3.Left;
-        public Vector3 UpVector = Vector3.Up;
         public Vector3D PreviousPosition;
-        public MyViewport Viewport;                    //  Current viewport
-        public MatrixD InversePositionTranslationMatrix;  //  This is: Matrix.CreateTranslation(-MyCamera.Position);
-        public MatrixD ViewMatrix;                    //  This is view matrix when camera in real position
-        public MatrixD ViewMatrixAtZero;
-        public MatrixD WorldMatrix;
-        public MatrixD ProjectionMatrix;
-        public MatrixD ProjectionMatrixFar;
-        public MatrixD ProjectionMatrixForNearObjects;
-        public MatrixD ViewProjectionMatrix;          //  This is view-projection matrix when camera in real position
-        public MatrixD ViewProjectionMatrixFar;       
-        public BoundingBoxD BoundingBox;              //    Bounding box calculated from bounding frustum, updated every draw
-        public BoundingSphereD BoundingSphere;        //    Bounding sphere calculated from bounding frustum, updated every draw
 
-        public float FieldOfViewAngle
-        {
-            get { return MathHelper.ToDegrees(FieldOfView); }
-            set { FieldOfView = MathHelper.ToRadians(value); }
-        }
-
-        public float FieldOfViewAngleForNearObjects
-        {
-            get { return MathHelper.ToDegrees(FieldOfViewForNearObjects); }
-            set { FieldOfViewForNearObjects = MathHelper.ToRadians(value); }
-        }
+        public MyViewport Viewport;                   // Current viewport
+        public MatrixD WorldMatrix = MatrixD.Identity;             // World matrix is cached inversion of view matrix
+        public MatrixD ViewMatrix = MatrixD.Identity;              // This is view matrix when camera in real position
+        public MatrixD ProjectionMatrix = MatrixD.Identity;        // Projection matrix of this camera
+        public MatrixD ProjectionMatrixFar = MatrixD.Identity;     // Projection matrix for far objects
+        public MatrixD ViewProjectionMatrix = MatrixD.Identity;    // This is view-projection matrix when camera in real position
+        public MatrixD ViewProjectionMatrixFar = MatrixD.Identity; // This is view-projection matrix for far objects when camera in real position
+        public BoundingBoxD BoundingBox;              // Bounding box calculated from bounding frustum, updated every draw
+        public BoundingSphereD BoundingSphere;        // Bounding sphere calculated from bounding frustum, updated every draw
 
         public MyCameraZoomProperties Zoom;
 
-        //  Calculated or constants parameters of this camera
-        public float ForwardAspectRatio;
-
         public BoundingFrustumD BoundingFrustum = new BoundingFrustumD(MatrixD.Identity);
         public BoundingFrustumD BoundingFrustumFar = new BoundingFrustumD(MatrixD.Identity);
+
+        public float AspectRatio { get; private set; }
+
+        /// <summary>
+        /// Member that shakes with the camera.
+        /// Note: If we start to have more cameras in the scene, this should be changed to component, because not every camera needs it.
+        ///       But currently - we use just one camera, so it is a member.
+        /// </summary>
+        public readonly MyCameraShake CameraShake = new MyCameraShake();
+        /// <summary>
+        /// Member that implements camera spring.
+        /// Note: If we start to have more cameras in the scene, this should be changed to component, because not every camera needs it.
+        ///       But currently - we use just one camera, so it is a member.
+        /// </summary>
+        public readonly MyCameraSpring CameraSpring = new MyCameraSpring();
+
+        /// <summary>
+        /// Current view matrix without translation part.
+        /// </summary>
+        public MatrixD ViewMatrixAtZero
+        {
+            get
+            {
+                MatrixD rtnMatrix = ViewProjectionMatrix;
+                rtnMatrix.M14 = 0;
+                rtnMatrix.M24 = 0;
+                rtnMatrix.M34 = 0;
+                rtnMatrix.M41 = 0;
+                rtnMatrix.M42 = 0;
+                rtnMatrix.M43 = 0;
+                rtnMatrix.M44 = 1;
+                return rtnMatrix;
+            }
+        }
+
+        /// <summary>
+        /// Forward vector of camera world matrix ("ahead from camera")
+        /// </summary>
+        public Vector3 ForwardVector
+        {
+            get { return WorldMatrix.Forward; }
+        }
+        /// <summary>
+        /// Left vector of camera world matrix ("to the left from camera")
+        /// </summary>
+        public Vector3 LeftVector
+        {
+            get { return WorldMatrix.Left; }
+        }
+        /// <summary>
+        /// Up vector of camera world matrix ("up from camera")
+        /// </summary>
+        public Vector3 UpVector
+        {
+            get { return WorldMatrix.Up; }
+        }
+
+        /// <summary>
+        /// Field of view in degrees.
+        /// </summary>
+        public float FieldOfViewDegrees
+        {
+            get { return VRageMath.MathHelper.ToDegrees(FieldOfView); }
+            set { FieldOfView = VRageMath.MathHelper.ToRadians(value); }
+        }
 
         /// <summary>
         /// Gets current fov with considering if zoom is enabled
@@ -79,88 +126,75 @@ namespace VRage.Game.Utils
         }
 
         /// <summary>
-        /// Gets current fov with considering if zoom is enabled
+        /// Get position of the camera.
         /// </summary>
-        public float FovWithZoomForNearObjects
+        public Vector3D Position
         {
-            get { return Zoom.GetFOVForNearObjects(); }
+            get { return WorldMatrix.Translation; }
         }
+
+        // -------------------------------------------------------------------------------------
 
         public MyCamera(float fieldOfView, MyViewport currentScreenViewport)
         {
-            FieldOfView = fieldOfView; // MySandboxGame.Config.FieldOfView; // no dependency on sandbox!
+            FieldOfView = fieldOfView; 
             Zoom = new MyCameraZoomProperties(this);
             UpdateScreenSize(currentScreenViewport);
         }
 
-        public void Update(float updateStepSize)
+        public void Update(float updateStepTime)
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyCamera-Update");
-            Zoom.Update(updateStepSize);
+            Zoom.Update(updateStepTime);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            Vector3 newCameraPosOffset = Vector3.Zero;
+            // spring
+            if (CameraSpring.Enabled)
+            {
+                CameraSpring.Update(updateStepTime, out newCameraPosOffset);
+            }
+            // shake
+            if (CameraShake.ShakeEnabled)
+            {
+                Vector3 shakePos, shakeDir;
+                CameraShake.UpdateShake(updateStepTime, out shakePos, out shakeDir);
+                newCameraPosOffset += shakePos;
+            }
+            // apply
+            if (newCameraPosOffset != Vector3.Zero)
+            {
+                Vector3D newCameraPosOffsetD = newCameraPosOffset;
+                Vector3D newCameraPosOffsetRotatedD;
+                Vector3D.Rotate(ref newCameraPosOffsetD, ref ViewMatrix, out newCameraPosOffsetRotatedD);
+                ViewMatrix.Translation += newCameraPosOffsetRotatedD;
+            }
+
+            UpdatePropertiesInternal(ViewMatrix);
         }
 
         public void UpdateScreenSize(MyViewport currentScreenViewport)
         {
-            Viewport = currentScreenViewport; // MySandboxGame.ScreenViewport; // no dependency on sandbox!
+            Viewport = currentScreenViewport; 
 
             PreviousPosition = Vector3D.Zero;
             BoundingFrustum = new BoundingFrustumD(MatrixD.Identity);
 
-            ForwardAspectRatio = (float)Viewport.Width / (float)Viewport.Height;
+            AspectRatio = Viewport.Width / Viewport.Height;
         }
 
-        public void SetViewMatrix(MatrixD value)
+        public void SetViewMatrix(MatrixD newViewMatrix)
         {
-            ViewMatrix = value;
-
-            MatrixD.Invert(ref ViewMatrix, out WorldMatrix);
-            Position = WorldMatrix.Translation;
-            InversePositionTranslationMatrix = MatrixD.CreateTranslation(-Position);
-
             PreviousPosition = Position;
+            UpdatePropertiesInternal(newViewMatrix);
+        }
 
-            ForwardVector = (Vector3)WorldMatrix.Forward;
-            UpVector = (Vector3)WorldMatrix.Up;
-            LeftVector = (Vector3)WorldMatrix.Left;
-
-            //  Projection matrix according to zoom level
-            ProjectionMatrix = MatrixD.CreatePerspectiveFieldOfView(FovWithZoom, ForwardAspectRatio,
-                GetSafeNear(),
-                FarPlaneDistance);
-
-            ProjectionMatrixFar = MatrixD.CreatePerspectiveFieldOfView(FovWithZoom, ForwardAspectRatio,
-                GetSafeNear(),
-                1000000);
-
-            ViewProjectionMatrix = ViewMatrix * ProjectionMatrix;
-            ViewProjectionMatrixFar = ViewMatrix * ProjectionMatrixFar;
-
-            //  Projection matrix according to zoom level
-            float near = System.Math.Min(NearPlaneDistance, NearForNearObjects); //minimum cockpit distance 
-            ProjectionMatrixForNearObjects = MatrixD.CreatePerspectiveFieldOfView(FovWithZoomForNearObjects, ForwardAspectRatio,
-                near,
-                FarForNearObjects);
-
-            float safenear = System.Math.Min(4, NearPlaneDistance); //minimum cockpit distance
-
-            ViewMatrixAtZero = value;
-            ViewMatrixAtZero.M14 = 0;
-            ViewMatrixAtZero.M24 = 0;
-            ViewMatrixAtZero.M34 = 0;
-            ViewMatrixAtZero.M41 = 0;
-            ViewMatrixAtZero.M42 = 0;
-            ViewMatrixAtZero.M43 = 0;
-            ViewMatrixAtZero.M44 = 1;
-
-            UpdateBoundingFrustum();
-
-            VRageRender.MyRenderProxy.SetCameraViewMatrix(
-                value,
+        public void UploadViewMatrixToRender()
+        {
+            MyRenderProxy.SetCameraViewMatrix(
+                ViewMatrix,
                 ProjectionMatrix,
-                ProjectionMatrixForNearObjects,
-                safenear,
-                Zoom.GetFOVForNearObjects(),
+                GetSafeNear(),
                 Zoom.GetFOV(),
                 NearPlaneDistance,
                 FarPlaneDistance,
@@ -169,22 +203,35 @@ namespace VRage.Game.Utils
                 Position);
         }
 
-        /// <summary>
-        /// Changes FOV for ForwardCamera (updates projection matrix)
-        /// SetViewMatrix overwrites this changes
-        /// </summary>
-        /// <param name="fov"></param>
-        public void ChangeFov(float fov)
+        private void UpdatePropertiesInternal(MatrixD newViewMatrix)
         {
+            ViewMatrix = newViewMatrix;
+            MatrixD.Invert(ref ViewMatrix, out WorldMatrix);
+
             //  Projection matrix according to zoom level
-            ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(fov, ForwardAspectRatio,
+            ProjectionMatrix = MatrixD.CreatePerspectiveFieldOfView(FovWithZoom, AspectRatio,
                 GetSafeNear(),
                 FarPlaneDistance);
+
+            ProjectionMatrixFar = MatrixD.CreatePerspectiveFieldOfView(FovWithZoom, AspectRatio,
+                GetSafeNear(),
+                1000000);
+
+            ViewProjectionMatrix = ViewMatrix * ProjectionMatrix;
+            ViewProjectionMatrixFar = ViewMatrix * ProjectionMatrixFar;
+
+            //  Projection matrix according to zoom level
+            // float near = System.Math.Min(NearPlaneDistance, NearForNearObjects); //minimum cockpit distance 
+            // ProjectionMatrixForNearObjects = MatrixD.CreatePerspectiveFieldOfView(FovWithZoomForNearObjects, ForwardAspectRatio,
+            //    near,
+            //    FarForNearObjects);
+
+            UpdateBoundingFrustum();
         }
 
         float GetSafeNear()
         {
-            return System.Math.Min(4, NearPlaneDistance); //minimum cockpit distance            
+            return Math.Min(4, NearPlaneDistance); //minimum cockpit distance            
         }
 
         void UpdateBoundingFrustum()
@@ -226,7 +273,7 @@ namespace VRage.Game.Utils
             return result != VRageMath.ContainmentType.Disjoint;
         }
 
-        public double GetDistanceWithFOV(Vector3D position)
+        public double GetDistanceFromPoint(Vector3D position)
         {
             return Vector3D.Distance(this.Position, position);
         }
@@ -242,6 +289,38 @@ namespace VRage.Game.Utils
             return Vector3D.Transform(worldPos, ViewProjectionMatrix);
         }
 
+        /// <summary>
+        /// Gets normalized world space line from screen space coordinates.
+        /// </summary>
+        /// <param name="screenCoords"></param>
+        /// <returns></returns>
+        public LineD WorldLineFromScreen(Vector2 screenCoords)
+        {
+            var matViewProjInv = MatrixD.Invert(ViewProjectionMatrix);
+
+            // normalized screen space vector
+            var raySource = new Vector4D(
+                    (2.0f * screenCoords.X) / Viewport.Width - 1.0f,
+                    1.0f - (2.0f * screenCoords.Y) / Viewport.Height,
+                    0.0f,
+                    1.0f
+                );
+            var rayTarget = new Vector4D(
+                    (2.0f * screenCoords.X) / Viewport.Width - 1.0f,
+                    1.0f - (2.0f * screenCoords.Y) / Viewport.Height,
+                    1.0f,
+                    1.0f
+                );
+
+            var raySourceWorld = Vector4D.Transform(raySource, matViewProjInv);
+            var rayTargetWorld = Vector4D.Transform(rayTarget, matViewProjInv);
+
+            raySourceWorld /= raySourceWorld.W;
+            rayTargetWorld /= rayTargetWorld.W;
+
+            return new LineD(new Vector3D(raySourceWorld), new Vector3D(rayTargetWorld));
+        }
+
         #region ModAPI
 
         Vector3D IMyCamera.WorldToScreen(ref Vector3D worldPos)
@@ -251,12 +330,12 @@ namespace VRage.Game.Utils
 
         float IMyCamera.FieldOfViewAngle
         {
-            get { return FieldOfViewAngle; }
+            get { return FieldOfViewDegrees; }
         }
 
         float IMyCamera.FieldOfViewAngleForNearObjects
         {
-            get { return FieldOfViewAngleForNearObjects; }
+            get { return FieldOfViewDegrees; }
         }
 
         float IMyCamera.FovWithZoom
@@ -266,12 +345,12 @@ namespace VRage.Game.Utils
 
         float IMyCamera.FovWithZoomForNearObjects
         {
-            get { return FovWithZoomForNearObjects; }
+            get { return FovWithZoom; }
         }
 
         double IMyCamera.GetDistanceWithFOV(Vector3D position)
         {
-            return GetDistanceWithFOV(position);
+            return GetDistanceFromPoint(position);
         }
 
         bool IMyCamera.IsInFrustum(ref BoundingBoxD boundingBox)
@@ -326,7 +405,7 @@ namespace VRage.Game.Utils
 
         MatrixD IMyCamera.ProjectionMatrixForNearObjects
         {
-            get { return ProjectionMatrixForNearObjects; }
+            get { return ProjectionMatrix; }
         }
 
         float IMyCamera.NearPlaneDistance

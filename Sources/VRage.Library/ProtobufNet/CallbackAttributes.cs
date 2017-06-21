@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOPROTOBUF
+using System;
 using System.ComponentModel;
 
 namespace ProtoBuf
@@ -31,3 +32,4 @@ namespace ProtoBuf
 #endif
     public sealed class ProtoAfterDeserializationAttribute : Attribute { }
 }
+#endif // !XB1

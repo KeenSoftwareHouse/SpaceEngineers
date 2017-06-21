@@ -21,5 +21,8 @@ namespace VRage.Game
 
         [ProtoMember]
         public bool ShowInToolbarConfig = true;
+
+        [ProtoMember]
+        public bool ShowInInventory = true;
     }
 }

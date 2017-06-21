@@ -24,15 +24,19 @@ using VRage.Groups;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 #endregion
 
 namespace Sandbox.Game.Entities
 {
+    /// <summary>
+    /// This should be replaced by MyEntityOwnershipComponent
+    /// </summary>
     public class MyIDModule
     {
         long m_owner = 0; //PlayerId
-
+        
         public long Owner
         {
             get { return m_owner; }

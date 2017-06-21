@@ -18,7 +18,7 @@ using VRage;
 
 namespace System.Text
 {
-    public static partial class StringBuilderExtensions
+    public static class StringBuilderExtensions_Format
     {
         public static StringBuilder AppendStringBuilder(this StringBuilder stringBuilder, StringBuilder otherStringBuilder)
         {
@@ -152,6 +152,9 @@ namespace System.Text
                             index++;
                         }
 
+#if UNSHARPER
+			Debug.Assert(false);
+#else
                         // Have any extended settings now, so just print out the particular argument they wanted
                         switch (format_char)
                         {
@@ -161,7 +164,8 @@ namespace System.Text
                             case '3': string_builder.ConcatFormatValue<D>(arg4, padding, base_value, decimal_places, thousandSeparator); break;
                             default: Debug.Assert(false, "Invalid parameter index"); break;
                         }
-                    }
+#endif
+					}
 
                     // Update the verbatim range, start of a new section now
                     verbatim_range_start = (index + 1);
@@ -256,5 +260,20 @@ namespace System.Text
             return self;
         }
 
+        //! Change all characters to lower case without allocation and return this instance.
+        public static StringBuilder ToLower(this StringBuilder self)
+        {
+            for (int i = 0; i < self.Length; ++i)
+                self[i] = Char.ToLower(self[i]);
+            return self;
+        }
+
+        //! Change first characters to upper case without allocation and return this instance.
+        public static StringBuilder FirstLetterUpperCase(this StringBuilder self)
+        {
+            if (self.Length > 0)
+                self[0] = Char.ToUpper(self[0]);
+            return self;
+        }
     }
 }

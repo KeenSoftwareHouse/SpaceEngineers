@@ -19,6 +19,8 @@ namespace Sandbox.Definitions
         public string GlassModel;
         public string InteriorModel;
         public string CharacterAnimation;
+        public string GetInSound;
+        public string GetOutSound;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -27,6 +29,8 @@ namespace Sandbox.Definitions
             EnableFirstPerson = cbuilder.EnableFirstPerson;
             EnableShipControl = cbuilder.EnableShipControl;
             EnableBuilderCockpit = cbuilder.EnableBuilderCockpit;
+            GetInSound = cbuilder.GetInSound;
+            GetOutSound = cbuilder.GetOutSound;
         }
     }
 }

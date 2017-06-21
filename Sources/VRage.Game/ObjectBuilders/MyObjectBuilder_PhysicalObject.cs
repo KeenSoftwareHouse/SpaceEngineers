@@ -19,6 +19,10 @@ namespace VRage.Game
         /// </summary>
         [ProtoMember, DefaultValue(null)]
         public float? DurabilityHP = null;
+        public bool ShouldSerializeDurabilityHP()
+        {
+            return DurabilityHP.HasValue;
+        }
 
         public virtual bool CanStack(MyObjectBuilder_PhysicalObject a)
         {

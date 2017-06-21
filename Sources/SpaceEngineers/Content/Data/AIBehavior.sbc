@@ -14,7 +14,7 @@
     <AIBehavior xsi:type="MyObjectBuilder_BehaviorTreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_BehaviorTreeDefinition</TypeId>
-        <SubtypeId>CyberhoundBehavior</SubtypeId>
+        <SubtypeId>WolfBehavior</SubtypeId>
       </Id>
       <FirstNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
         <BTNodes>
@@ -136,11 +136,12 @@
                           <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSelectorNode">
                             <BTNodes>
                               <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
-                                <ActionName>GotoTargetNoPathfinding</ActionName>
+                                <!-->ActionName>GotoTargetNoPathfinding</ActionName>
                                 <Parameters>
                                   <Parameter xsi:type="FloatType" FloatValue="1" />
                                   <Parameter xsi:type="BoolType" BoolValue="false" />
-                                </Parameters>
+                                </Parameters-->
+                                <ActionName>GotoTarget</ActionName>
                               </BTNode>
                               <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
                                 <ActionName>PlayAnimation</ActionName>
@@ -191,13 +192,33 @@
         </BTNodes>
         <Name>AttackSequence</Name>
       </FirstNode>
-      <Behavior>Cyberhound</Behavior>
+      <Behavior>Wolf</Behavior>
     </AIBehavior>
     <AIBehavior xsi:type="MyObjectBuilder_BehaviorTreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_BehaviorTreeDefinition</TypeId>
-        <SubtypeId>SpiderBehavior</SubtypeId>
+        <SubtypeId>GoToBehavior</SubtypeId>
       </Id>
+      <FirstNode xsi:type="MyObjectBuilder_BehaviorTreeSelectorNode">
+        <BTNodes>
+          <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
+            <BTNodes>
+              <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                <ActionName>GoToPlayerDefinedTarget</ActionName>
+              </BTNode>
+            </BTNodes>
+            <Name>Sequence</Name>
+          </BTNode>
+          <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+            <ActionName>Idle</ActionName>
+          </BTNode>
+        </BTNodes>
+        <Name>Selector</Name>
+      </FirstNode>
+      <Behavior>Cyberhound</Behavior>
+    </AIBehavior>
+    <AIBehavior xsi:type="MyObjectBuilder_BehaviorTreeDefinition">
+      <Id Type="MyObjectBuilder_BehaviorTreeDefinition" Subtype="SpiderBehavior" />
       <FirstNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
         <BTNodes>
           <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
@@ -222,6 +243,12 @@
                     <ActionName>IsFalse</ActionName>
                     <Parameters>
                       <Parameter xsi:type="MemType" MemName="burrowing" />
+                    </Parameters>
+                  </BTNode>
+                  <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                    <ActionName>IsTrue</ActionName>
+                    <Parameters>
+                      <Parameter xsi:type="MemType" MemName="burrowed" />
                     </Parameters>
                   </BTNode>
                   <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
@@ -284,6 +311,9 @@
                     <Parameters>
                       <Parameter xsi:type="MemType" MemName="burrowed" />
                     </Parameters>
+                  </BTNode>
+                  <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                    <ActionName>HasNoTarget</ActionName>
                   </BTNode>
                   <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
                     <BTNodes>
@@ -388,6 +418,21 @@
                                     </BTNodes>
                                     <Name>Sequence</Name>
                                   </BTNode>
+                                  <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
+                                    <BTNodes>
+                                      <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                                        <ActionName>SetBoolean</ActionName>
+                                        <Parameters>
+                                          <Parameter xsi:type="MemType" MemName="burrowing" />
+                                          <Parameter xsi:type="BoolType" BoolValue="true" />
+                                        </Parameters>
+                                      </BTNode>
+                                      <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                                        <ActionName>DummyRunningNode</ActionName>
+                                      </BTNode>
+                                    </BTNodes>
+                                    <Name>Burrow</Name>
+                                  </BTNode>
                                 </BTNodes>
                                 <Name>FindTarget</Name>
                               </BTNode>
@@ -411,7 +456,7 @@
                                   <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSelectorNode">
                                     <BTNodes>
                                       <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
-                                        <ActionName>GotoAndAimTarget</ActionName>
+                                        <ActionName>GotoTarget</ActionName>
                                       </BTNode>
                                       <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
                                         <BTNodes>
@@ -446,7 +491,7 @@
                                 <ActionName>PlayAnimation</ActionName>
                                 <Parameters>
                                   <Parameter xsi:type="StringType" StringValue="Idle" />
-                                  <Parameter xsi:type="BoolType" BoolValue="false" />
+                                  <Parameter xsi:type="BoolType" BoolValue="true" />
                                 </Parameters>
                               </BTNode>
                             </BTNodes>
@@ -462,6 +507,32 @@
                     <BTNodes>
                       <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
                         <BTNodes>
+                          <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSelectorNode">
+                            <BTNodes>
+                              <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                                <ActionName>IsAtTargetPosition</ActionName>
+                                <Parameters>
+                                  <Parameter xsi:type="FloatType" FloatValue="1.5" />
+                                </Parameters>
+                              </BTNode>
+                              <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
+                                <BTNodes>
+                                  <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                                    <ActionName>SetBoolean</ActionName>
+                                    <Parameters>
+                                      <Parameter xsi:type="MemType" MemName="burrowing" />
+                                      <Parameter xsi:type="BoolType" BoolValue="true" />
+                                    </Parameters>
+                                  </BTNode>
+                                  <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                                    <ActionName>DummyRunningNode</ActionName>
+                                  </BTNode>
+                                </BTNodes>
+                                <Name>Burrow</Name>
+                              </BTNode>
+                            </BTNodes>
+                            <Name>Selector</Name>
+                          </BTNode>
                           <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
                             <ActionName>IsTargetValid</ActionName>
                             <Parameters>

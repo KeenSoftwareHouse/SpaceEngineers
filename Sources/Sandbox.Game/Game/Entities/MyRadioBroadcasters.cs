@@ -23,18 +23,6 @@ using VRage.Game;
 
 namespace Sandbox.Game.Entities
 {
-    /// <summary>
-    /// Always implement explicitly, because of Obfuscation
-    /// </summary>
-    public interface IMyComponentOwner<T>
-    {
-        /// <summary>
-        /// Always implement explicitly, because of Obfuscation
-        /// </summary>
-        bool GetComponent(out T component);
-    }
-
-
     static class MyRadioBroadcasters
     {
         #region Fields

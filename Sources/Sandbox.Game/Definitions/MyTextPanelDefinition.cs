@@ -6,7 +6,7 @@ using VRage.Utils;
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_TextPanelDefinition))]
-    class MyTextPanelDefinition : MyCubeBlockDefinition
+    public class MyTextPanelDefinition : MyCubeBlockDefinition
     {
 	    public MyStringHash ResourceSinkGroup;
         public float RequiredPowerInput;

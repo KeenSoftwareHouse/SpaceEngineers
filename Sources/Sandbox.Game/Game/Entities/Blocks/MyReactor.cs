@@ -23,23 +23,16 @@ using VRage.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Game;
 using VRage.Game.Entity;
-using VRage.ModAPI.Ingame;
-using IMyInventory = VRage.ModAPI.Ingame.IMyInventory;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Profiler;
+using VRage.Sync;
+using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Reactor))]
-    class MyReactor : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyReactor, IMyInventoryOwner
+    public class MyReactor : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyReactor, IMyInventoryOwner
     {
-        static MyReactor()
-        {
-            var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyReactor>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
-            useConveyorSystem.Getter = (x) => (x).UseConveyorSystem;
-            useConveyorSystem.Setter = (x, v) => (x).UseConveyorSystem = v;
-            useConveyorSystem.EnableToggleAction();
-            MyTerminalControlFactory.AddControl(useConveyorSystem);
-        }
-
         private MyReactorDefinition m_reactorDefinition;
 		public MyReactorDefinition ReactorDefinition { get { return m_reactorDefinition; } }
 
@@ -64,9 +57,27 @@ namespace Sandbox.Game.Entities
 
         public MyReactor()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_remainingPowerCapacity = SyncType.CreateAndAddProp<float>();
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            CreateTerminalControls();
+
 			SourceComp = new MyResourceSourceComponent();
             m_remainingPowerCapacity.ValueChanged += (x) => RemainingCapacityChanged();
             m_remainingPowerCapacity.ValidateNever();
+        }
+
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyReactor>())
+                return;
+            base.CreateTerminalControls();
+            var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyReactor>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
+            useConveyorSystem.Getter = (x) => (x).UseConveyorSystem;
+            useConveyorSystem.Setter = (x, v) => (x).UseConveyorSystem = v;
+            useConveyorSystem.EnableToggleAction();
+            MyTerminalControlFactory.AddControl(useConveyorSystem);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -99,14 +110,16 @@ namespace Sandbox.Game.Entities
 
             if (this.GetInventory() == null)
             {
-                Components.Add<MyInventoryBase>( new MyInventory(m_reactorDefinition.InventoryMaxVolume, m_reactorDefinition.InventorySize, MyInventoryFlags.CanReceive, this));
-                this.GetInventory().Init(obGenerator.Inventory);
+                MyInventory inventory = new MyInventory(m_reactorDefinition.InventoryMaxVolume, m_reactorDefinition.InventorySize, MyInventoryFlags.CanReceive);
+                Components.Add<MyInventoryBase>(inventory);
+                inventory.Init(obGenerator.Inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
+            this.GetInventory().Constraint = m_reactorDefinition.InventoryConstraint;
+
             if (Sync.IsServer)
             {
-                this.GetInventory().Constraint = m_reactorDefinition.InventoryConstraint;
                 RefreshRemainingCapacity();
             }
             
@@ -463,5 +476,23 @@ namespace Sandbox.Game.Entities
             else if (before && !IsWorking)
                 OnStopWorking();
         }
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.ItemDefinition = m_reactorDefinition.FuelId;
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }

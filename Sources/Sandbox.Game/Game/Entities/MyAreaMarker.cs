@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using Sandbox.ModAPI;
 using System;
@@ -24,6 +25,8 @@ using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Import;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.Entities
 {
@@ -118,8 +121,8 @@ namespace Sandbox.Game.Entities
             Render.AddRenderObjects();
 
 			List<MyTextureChange> textureChanges = new List<MyTextureChange>();
-			textureChanges.Add(new MyTextureChange { TextureName = m_definition.ColorMetalTexture, MaterialSlot = "ColorMetalTexture" });
-			textureChanges.Add(new MyTextureChange { TextureName = m_definition.AddMapsTexture, MaterialSlot = "AddMapsTexture" });
+			textureChanges.Add(new MyTextureChange { TextureName = m_definition.ColorMetalTexture, TextureType = MyTextureType.ColorMetal });
+            textureChanges.Add(new MyTextureChange { TextureName = m_definition.AddMapsTexture, TextureType = MyTextureType.Extensions });
 
             VRageRender.MyRenderProxy.ChangeMaterialTexture(Render.RenderObjectIDs[0], "BotFlag", textureChanges); // TODO: change the material name
 
@@ -180,6 +183,19 @@ namespace Sandbox.Game.Entities
             get { return (int)Render.RenderObjectIDs[0]; }
         }
 
+        public void SetRenderID(uint id)
+        {
+        }
+
+        public int InstanceID
+        {
+            get { return -1; }
+        }
+
+        public void SetInstanceID(int id)
+        {
+        }
+
         public bool ShowOverlay
         {
             get { return true; }
@@ -187,7 +203,7 @@ namespace Sandbox.Game.Entities
 
         public UseActionEnum SupportedActions
         {
-            get { return UseActionEnum.Manipulate; }
+            get { return MyFakes.ENABLE_SEPARATE_USE_AND_PICK_UP_KEY ? UseActionEnum.PickUp : UseActionEnum.Manipulate; }
         }
 
         public bool ContinuousUsage
@@ -205,7 +221,7 @@ namespace Sandbox.Game.Entities
             return new MyActionDescription()
             {
                 Text = MyStringId.GetOrCompute("NotificationRemoveAreaMarker"),
-                FormatParams = new object[] { MyInput.Static.GetGameControl(MyControlsSpace.USE) }
+                FormatParams = new object[] { MyInput.Static.GetGameControl(MyFakes.ENABLE_SEPARATE_USE_AND_PICK_UP_KEY ? MyControlsSpace.PICK_UP : MyControlsSpace.USE) }
             };
         }
 

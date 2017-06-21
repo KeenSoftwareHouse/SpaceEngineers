@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
 using VRageRender.Vertex;
 
 namespace VRageRender
@@ -12,7 +14,7 @@ namespace VRageRender
         internal int BaseV;
     }
 
-    struct MyMeshTableSRV_Entry
+    struct MyMeshTableSrv_Entry
     {
         internal List<int> Pages;
     }
@@ -25,7 +27,7 @@ namespace VRageRender
     }
 
 
-    class MyMeshTableSRV
+    class MyMeshTableSrv
     {
         #region Static
         internal static VertexLayoutId OneAndOnlySupportedVertexLayout;
@@ -45,7 +47,10 @@ namespace VRageRender
         {
             var mesh = MyMeshes.GetLodMesh(model, 0);
 
-            return mesh.Info.Data.VertexLayout == OneAndOnlySupportedVertexLayout && mesh.Info.IndicesNum > 0 && model.Info.RuntimeGenerated == false && model.Info.Dynamic == false;
+            MeshPartId part1;
+            bool multipleParts = MyMeshes.TryGetMeshPart(model, 0, 1, out part1);
+
+            return !multipleParts && mesh.Info.Data.VertexLayout == OneAndOnlySupportedVertexLayout && mesh.Info.IndicesNum > 0 && model.Info.RuntimeGenerated == false && model.Info.Dynamic == false;
         }
 
         //List<MyVertexFormatPositionHalf4> m_vertexPositionList = new List<MyVertexFormatPositionHalf4>();
@@ -65,17 +70,17 @@ namespace VRageRender
         int m_indexPageSize = 0;
         int m_pagesUsed = 0;
 
-        Dictionary<MyMeshTableEntry, MyMeshTableSRV_Entry> m_table = new Dictionary<MyMeshTableEntry, MyMeshTableSRV_Entry>();
+        Dictionary<MyMeshTableEntry, MyMeshTableSrv_Entry> m_table = new Dictionary<MyMeshTableEntry, MyMeshTableSrv_Entry>();
 
         internal int PageSize { get { return m_indexPageSize; } }
 
-        internal StructuredBufferId m_VB_positions = StructuredBufferId.NULL;
-        internal StructuredBufferId m_VB_rest = StructuredBufferId.NULL;
-        internal StructuredBufferId m_IB = StructuredBufferId.NULL;
+        internal ISrvBuffer m_VB_positions;
+        internal ISrvBuffer m_VB_rest;
+        internal ISrvBuffer m_IB;
 
         bool m_dirty;
 
-        internal MyMeshTableSRV(int pageSize = 36)
+        internal MyMeshTableSrv(int pageSize = 36)
         {
             // non multiple-of-3 page size?
             Debug.Assert((pageSize % 3) == 0);
@@ -83,6 +88,11 @@ namespace VRageRender
             m_indexPageSize = pageSize;
 
             m_dirty = false;
+        }
+
+        internal int CalculateIndicesCapacity(int currentOffset, int indicesNum)
+        {
+            return currentOffset + ((indicesNum + m_indexPageSize - 1) / m_indexPageSize) * m_indexPageSize;
         }
 
         internal bool ContainsKey(MyMeshTableEntry key)
@@ -109,7 +119,7 @@ namespace VRageRender
 
         internal List<int> Pages(MyMeshTableEntry key)
         {
-            return m_table.Get(key).Pages;
+            return m_table[key].Pages;
         }
 
         internal unsafe void AddMesh(MeshId model)
@@ -123,13 +133,13 @@ namespace VRageRender
                 var indexOffset = m_indices;
 
                 var mesh = MyMeshes.GetLodMesh(model, 0);
-                Debug.Assert(mesh.Info.Data.IndicesFmt == SharpDX.DXGI.Format.R16_UInt);
+                Debug.Assert(mesh.Info.Data.IndicesFmt == MyIndexBufferFormat.UShort);
 
                 var meshInfo = mesh.Info;
                 var data = meshInfo.Data;
 
                 int verticesCapacity = vertexOffset + meshInfo.VerticesNum;
-                int indicesCapacity = indexOffset + ((meshInfo.IndicesNum + m_indexPageSize - 1) / m_indexPageSize) * m_indexPageSize;
+                int indicesCapacity = CalculateIndicesCapacity(indexOffset, meshInfo.IndicesNum);
 
                 m_vertices = verticesCapacity;
                 m_indices = indicesCapacity;
@@ -183,7 +193,7 @@ namespace VRageRender
                     }
                 }
 
-                m_table.Add(key, new MyMeshTableSRV_Entry { Pages = list });
+                m_table.Add(key, new MyMeshTableSrv_Entry { Pages = list });
                 m_dirty = true;
             }
         }
@@ -193,18 +203,24 @@ namespace VRageRender
             if(m_dirty)
             {
                 Release();
-
+                
                 fixed(void* ptr = m_vertexStream0)
                 {
-                    m_VB_positions = MyHwBuffers.CreateStructuredBuffer(m_vertices, Stride0, false, new IntPtr(ptr));
+                    m_VB_positions = MyManagers.Buffers.CreateSrv(
+                        "MyMergeInstancing positions", m_vertices, Stride0,
+                        new IntPtr(ptr));
                 }
                 fixed (void* ptr = m_vertexStream1)
                 {
-                    m_VB_rest = MyHwBuffers.CreateStructuredBuffer(m_vertices, Stride1, false, new IntPtr(ptr));
+                    m_VB_rest = MyManagers.Buffers.CreateSrv(
+                        "MyMergeInstancing rest", m_vertices, Stride1,
+                        new IntPtr(ptr));
                 }
                 fixed (void* ptr = m_indexStream)
                 {
-                    m_IB = MyHwBuffers.CreateStructuredBuffer(m_indices, IndexStride, false, new IntPtr(ptr));
+                    m_IB = MyManagers.Buffers.CreateSrv(
+                        "MyMergeInstancing", m_indices, IndexStride, 
+                        new IntPtr(ptr));
                 }
 
                 m_dirty = false;
@@ -221,16 +237,12 @@ namespace VRageRender
 
         internal void Release()
         {
-            if (m_VB_positions != StructuredBufferId.NULL)
+            if (m_VB_positions != null)
             {
-                MyHwBuffers.Destroy(m_VB_positions);
-                MyHwBuffers.Destroy(m_VB_rest);
-                MyHwBuffers.Destroy(m_IB);
+                MyManagers.Buffers.Dispose(m_VB_positions); m_VB_positions = null;
+                MyManagers.Buffers.Dispose(m_VB_rest); m_VB_rest = null;
+                MyManagers.Buffers.Dispose(m_IB); m_IB = null;
             }
-
-            m_VB_positions = StructuredBufferId.NULL;
-            m_VB_rest = StructuredBufferId.NULL;
-            m_IB = StructuredBufferId.NULL;
         }
     }
 }

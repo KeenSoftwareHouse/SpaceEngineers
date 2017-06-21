@@ -256,8 +256,11 @@ namespace Sandbox.Game.Gui
 
         public static void RemoveSound(MyGuiSounds cueEnum)
         {
-            if (m_sound != null && m_sound.CueEnum == MyGuiAudio.GetCue(cueEnum))
+            if (m_sound != null && m_sound.CueEnum == MyGuiAudio.GetCue(cueEnum) && m_sound.IsPlaying == false)
+            {
                 m_sound.Stop();
+                m_sound = null;
+            }
             m_soundQueue.RemoveAll(new System.Predicate<MyGuiSounds>((cue) => { return cue == cueEnum; }));
         }
 
@@ -344,11 +347,11 @@ namespace Sandbox.Game.Gui
                 var character = MySession.Static.LocalCharacter;
                 if (character == null) return false;
 
-                if (character.SuitBattery.ResourceSink.CurrentInput > 0)
+                if (character.SuitBattery.ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) > 0)
                     return false;
                 return (character.SuitBattery.ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId) / MyEnergyConstants.BATTERY_MAX_CAPACITY) <= treshold && !character.IsDead;
             }
-            else if (MySession.Static.ControlledEntity.Entity is MyCockpit && !MyHud.ShipInfo.AllEnabledRecently)
+            else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
                 var grid = (MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid;
                 var sourcesEnabled = grid.GridSystems.ResourceDistributor.SourcesEnabledByType(MyResourceDistributorComponent.ElectricityId);
@@ -379,7 +382,9 @@ namespace Sandbox.Game.Gui
             if (MySession.Static.ControlledEntity.Entity is MyCharacter)
             {
                 cue = MyGuiSounds.HudVocEnergyLow;
-                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
+                if (MySession.Static.LocalCharacter != null
+                    && MySession.Static.LocalCharacter.OxygenComponent != null
+                    && MySession.Static.LocalCharacter.OxygenComponent.NeedsOxygenFromSuit && MySession.Static.Settings.EnableOxygen)
                 {
                     text = MySpaceTexts.NotificationSuitEnergyLowNoDamage;
                 }
@@ -390,11 +395,33 @@ namespace Sandbox.Game.Gui
             }
             else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
-                    cue = MyGuiSounds.HudVocStationFuelLow;
+                MyCockpit cockpit = (MyCockpit)MySession.Static.ControlledEntity.Entity;
+                bool hasReactor = false;
+                List<MyCubeGrid> connectedGroups = MyCubeGridGroups.Static.Logical.GetGroupNodes(cockpit.CubeGrid);
+                if (connectedGroups == null || connectedGroups.Count == 0)
+                    return false;
+
+                foreach (var grid in connectedGroups)
+                {
+                    if (grid.NumberOfReactors > 0)
+                    {
+                        hasReactor = true;
+                        break;
+                    }
+                }
+
+                if (hasReactor)
+                {
+                    if (cockpit.CubeGrid.IsStatic)
+                        cue = MyGuiSounds.HudVocStationFuelLow;
+                    else
+                        cue = MyGuiSounds.HudVocShipFuelLow;
+                }
                 else
-                    cue = MyGuiSounds.HudVocShipFuelLow;
-                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
+                    return false;
+
+                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.OxygenComponent != null 
+                    && MySession.Static.LocalCharacter.OxygenComponent.NeedsOxygenFromSuit && MySession.Static.Settings.EnableOxygen)
                 {
                     text = MySpaceTexts.NotificationShipEnergyLowNoDamage;
                 }
@@ -417,7 +444,8 @@ namespace Sandbox.Game.Gui
             if (MySession.Static.ControlledEntity.Entity is MyCharacter || MySession.Static.ControlledEntity == null)
             {
                 cue = MyGuiSounds.HudVocEnergyCrit;
-                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
+                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.OxygenComponent != null
+                    && MySession.Static.LocalCharacter.OxygenComponent.NeedsOxygenFromSuit && MySession.Static.Settings.EnableOxygen)
                 {
                     text = MySpaceTexts.NotificationSuitEnergyCriticalNoDamage;
                 }
@@ -428,11 +456,33 @@ namespace Sandbox.Game.Gui
             }
             else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
-                    cue = MyGuiSounds.HudVocStationFuelCrit;
+                MyCockpit cockpit = (MyCockpit)MySession.Static.ControlledEntity.Entity;
+                bool hasReactor = false;
+                List<MyCubeGrid> connectedGroups = MyCubeGridGroups.Static.Logical.GetGroupNodes(cockpit.CubeGrid);
+                if (connectedGroups == null || connectedGroups.Count == 0)
+                    return false;
+
+                foreach (var grid in connectedGroups)
+                {
+                    if (grid.NumberOfReactors > 0)
+                    {
+                        hasReactor = true;
+                        break;
+                    }
+                }
+
+                if (hasReactor)
+                {
+                    if (cockpit.CubeGrid.IsStatic)
+                        cue = MyGuiSounds.HudVocStationFuelCrit;
+                    else
+                        cue = MyGuiSounds.HudVocShipFuelCrit;
+                }
                 else
-                    cue = MyGuiSounds.HudVocShipFuelCrit;
-                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
+                    return false;
+
+                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.OxygenComponent != null
+                    && MySession.Static.LocalCharacter.OxygenComponent.NeedsOxygenFromSuit && MySession.Static.Settings.EnableOxygen)
                 {
                     text = MySpaceTexts.NotificationShipEnergyCriticalNoDamage;
                 }
@@ -459,11 +509,32 @@ namespace Sandbox.Game.Gui
             }
             else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
-                    cue = MyGuiSounds.HudVocStationFuelNo;
+                MyCockpit cockpit = (MyCockpit)MySession.Static.ControlledEntity.Entity;
+                bool hasReactor = false;
+                List<MyCubeGrid> connectedGroups = MyCubeGridGroups.Static.Logical.GetGroupNodes(cockpit.CubeGrid);
+                if (connectedGroups == null || connectedGroups.Count == 0)
+                    return false;
+
+                foreach (var grid in connectedGroups)
+                {
+                    if (grid.NumberOfReactors > 0)
+                    {
+                        hasReactor = true;
+                        break;
+                    }
+                }
+                
+                if (hasReactor)
+                {
+                    if (cockpit.CubeGrid.IsStatic)
+                        cue = MyGuiSounds.HudVocStationFuelNo;
+                    else
+                        cue = MyGuiSounds.HudVocShipFuelNo;
+
+                    text = MySpaceTexts.NotificationFuelNo;
+                }
                 else
-                    cue = MyGuiSounds.HudVocShipFuelNo;
-                text = MySpaceTexts.NotificationFuelNo;
+                    return false;
             }
             else
                 return false;

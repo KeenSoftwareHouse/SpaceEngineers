@@ -7,6 +7,10 @@ using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace VRage
 {
@@ -14,7 +18,11 @@ namespace VRage
     /// Fixed point number represented as 64-bit integer with 6 decimal places (one millionts)
     /// </summary>
     [ProtoContract]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct MyFixedPoint : IXmlSerializable
+#else // XB1
+    public struct MyFixedPoint : IXmlSerializable, IMySetGetMemberDataHelper
+#endif // XB1
     {
         const int Places = 6;
         const int Divider = 1000000;
@@ -25,6 +33,8 @@ namespace VRage
         public static readonly MyFixedPoint MaxValue = new MyFixedPoint(long.MaxValue);
         public static readonly MyFixedPoint Zero = new MyFixedPoint(0L);
         public static readonly MyFixedPoint SmallestPossibleValue = new MyFixedPoint(1);
+        public static readonly MyFixedPoint MaxIntValue = (MyFixedPoint)int.MaxValue;
+        public static readonly MyFixedPoint MinIntValue = (MyFixedPoint)int.MinValue;
 
         [ProtoMember]
         public long RawValue;
@@ -252,6 +262,11 @@ namespace VRage
             return (MyFixedPoint)a * b;
         }
 
+        public static MyFixedPoint AddSafe(MyFixedPoint a, MyFixedPoint b)
+        {
+            return new MyFixedPoint(AddSafeInternal(a.RawValue, b.RawValue));
+        }
+
         public static MyFixedPoint MultiplySafe(MyFixedPoint a, float b)
         {
             return MultiplySafe(a, (MyFixedPoint)b);
@@ -307,6 +322,13 @@ namespace VRage
             return sa < 0 ? long.MinValue : long.MaxValue; // Overflow => return the correct max value
         }
 
+        public int ToIntSafe()
+        {
+            if (RawValue > MaxIntValue.RawValue) return (int)MaxIntValue;
+            if (RawValue < MinIntValue.RawValue) return (int)MinIntValue;
+            return (int)this;
+        }
+
         public override string ToString()
         {
             return SerializeString();
@@ -344,5 +366,16 @@ namespace VRage
         {
             writer.WriteString(SerializeString());
         }
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name == "RawValue")
+                return RawValue;
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 }

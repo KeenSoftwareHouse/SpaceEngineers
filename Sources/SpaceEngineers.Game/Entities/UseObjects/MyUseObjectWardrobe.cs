@@ -1,22 +1,21 @@
-﻿
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
+using Sandbox.Game;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Screens;
+using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using Sandbox.Common;
-using Sandbox.Definitions;
-using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.Entities.Blocks;
+using VRage.Game;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
-using System.Collections.Generic;
-using VRage.Game;
+using VRageRender.Import;
 
-namespace Sandbox.Game.Entities.Cube
+namespace SpaceEngineers.Game.Entities.UseObjects
 {
     [MyUseObject("wardrobe")]
     class MyUseObjectWardrobe : MyUseObjectBase
@@ -38,7 +37,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public override MatrixD ActivationMatrix
         {
-            get { return (MatrixD)LocalMatrix * Block.WorldMatrix; }
+            get { return ((MatrixD)LocalMatrix) * Block.WorldMatrix; }
         }
 
         public override MatrixD WorldMatrix
@@ -52,6 +51,11 @@ namespace Sandbox.Game.Entities.Cube
             {
                 return Block.Render.GetRenderObjectID();
             }
+        }
+
+        public override int InstanceID
+        {
+            get { return -1; }
         }
 
         public override bool ShowOverlay
@@ -68,7 +72,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             var user = entity as MyCharacter;
             var relation = Block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-            if (!relation.IsFriendly())
+            if (!relation.IsFriendly() && !MySession.Static.AdminSettings.HasFlag(AdminSettingsEnum.UseTerminals))
             {
                 if (user.ControllerInfo.IsLocallyHumanControlled())
                 {

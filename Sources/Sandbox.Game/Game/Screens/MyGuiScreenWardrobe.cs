@@ -23,8 +23,12 @@ using VRageMath;
 
 namespace Sandbox.Game.Screens
 {
+    public delegate void MyWardrobeChangeDelegate(string prevModel, Vector3 prevColorMask, string newModel, Vector3 newColorMask);
+
     public class MyGuiScreenWardrobe : MyGuiScreenBase
     {
+        public static event MyWardrobeChangeDelegate LookChanged;
+
         private const string m_hueScaleTexture = "Textures\\GUI\\HueScale.png";
 
         private MyGuiControlCombobox m_modelPicker;
@@ -48,6 +52,7 @@ namespace Sandbox.Game.Screens
         private string  m_storedModel;
         private Vector3 m_storedHSV;
         private MyCameraControllerSettings m_storedCamera;
+        private bool m_colorOrModelChanged;
 
         public MyGuiScreenWardrobe(MyCharacter user, HashSet<string> customCharacterNames = null)
             : base(size: new Vector2(0.31f, 0.55f),
@@ -91,7 +96,7 @@ namespace Sandbox.Game.Screens
                     MyCharacterDefinition definition;
                     // NPCs can't be played with while in survival mode
                     if (!definedCharacters.TryGetValue(characterName, out definition) || MySession.Static.SurvivalMode && !definition.UsableByPlayer) continue;
-                    if (definition.Public) continue;
+                    if (!definition.Public) continue;
 
                     var key = GetDisplayName(definition.Name);
                     m_displayModels[key] = i;
@@ -227,6 +232,8 @@ namespace Sandbox.Game.Screens
             Controls.Add(m_sliderValue);
             Controls.Add(new MyGuiControlButton(position: new Vector2(0f, 0.16f), text: new StringBuilder("OK"), onButtonClick: OnOkClick));
             Controls.Add(new MyGuiControlButton(position: new Vector2(0f, 0.22f), text: new StringBuilder("Cancel"), onButtonClick: OnCancelClick));
+
+            m_colorOrModelChanged = false;
         }
 
         protected override void Canceling()
@@ -253,6 +260,9 @@ namespace Sandbox.Game.Screens
 
         private void OnOkClick(MyGuiControlButton sender)
         {
+            if(m_colorOrModelChanged && LookChanged != null)
+                LookChanged(m_storedModel, m_storedHSV, m_user.ModelName, m_user.ColorMask);
+
             ChangeCameraBack();
             CloseScreenNow();
         }
@@ -310,6 +320,7 @@ namespace Sandbox.Game.Screens
 
         private void ChangeCharacter(string model, Vector3 colorMaskHSV)
         {
+            m_colorOrModelChanged = true;
             m_user.ChangeModelAndColor(model, colorMaskHSV);
         }
     }

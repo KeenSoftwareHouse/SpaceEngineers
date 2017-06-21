@@ -1,9 +1,4 @@
-﻿using Sandbox.Common.AI;
-using Sandbox.Game.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Sandbox.Game.Entities;
 
 namespace Sandbox.Game.AI.Logic
 {

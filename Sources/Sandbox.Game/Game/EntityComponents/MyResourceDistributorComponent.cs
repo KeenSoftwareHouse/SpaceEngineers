@@ -14,8 +14,10 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
+using VRage.Profiler;
 using VRage.Trace;
 using VRage.Utils;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.EntityComponents
 {
@@ -29,7 +31,10 @@ namespace Sandbox.Game.EntityComponents
 
 	public class MyResourceDistributorComponent : MyEntityComponentBase
 	{
-		/// Note: The properties in this class will default to electricity for backwards compatibility for now
+        public static readonly MyDefinitionId ElectricityId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Electricity");
+        public static readonly MyDefinitionId HydrogenId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Hydrogen");
+        public static readonly MyDefinitionId OxygenId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Oxygen");
+
 
 		private struct MyPhysicalDistributionGroup
 		{
@@ -185,6 +190,8 @@ namespace Sandbox.Game.EntityComponents
 		    }
 		}
 
+        #region Local structs and classes
+
 		/// <summary>
 	    /// Some precomputed data for each priority group.
 	    /// </summary>
@@ -211,6 +218,7 @@ namespace Sandbox.Game.EntityComponents
 
 		private class PerTypeData
 		{
+            public MyDefinitionId TypeId;
 			public MySinkGroupData[] SinkDataByPriority;
 			public MySourceGroupData[] SourceDataByPriority;
 			public MyTuple<MySinkGroupData, MySourceGroupData> InputOutputData;
@@ -230,14 +238,14 @@ namespace Sandbox.Game.EntityComponents
 			public int SourceCount;
 			public float RemainingFuelTime;
 			public bool RemainingFuelTimeDirty;
-			public int LastFuelTimeCompute;
 			public float MaxAvailableResource;
 			public MyMultipleEnabledEnum SourcesEnabled;
 			public bool SourcesEnabledDirty;
 			public MyResourceStateEnum ResourceState;
 		}
 
-	    private int m_allEnabledCounter = 0;
+        #endregion
+
 		private int m_typeGroupCount = 0;
 
 		private readonly List<PerTypeData> m_dataPerType = new List<PerTypeData>();
@@ -259,12 +267,12 @@ namespace Sandbox.Game.EntityComponents
 
 	    #region Properties
 
-	    public bool AllEnabledRecently { get { return m_allEnabledCounter <= 30; } }
-
 	    /// <summary>
 	    /// For debugging purposes. Enables trace messages and watches for this instance.
 	    /// </summary>
-	    public bool ShowTrace { get; set; }
+        public static bool ShowTrace = false;
+
+        public string DebugName;
 
 	    public MyMultipleEnabledEnum SourcesEnabled { get { return SourcesEnabledByType(m_typeIdToIndexTotal.Keys.First()); } }
 	    public MyResourceStateEnum ResourceState { get { return ResourceStateByType(m_typeIdToIndexTotal.Keys.First()); } }
@@ -276,8 +284,6 @@ namespace Sandbox.Game.EntityComponents
 		private static int m_sourceGroupPrioritiesTotal = -1;
 
 		public static int SinkGroupPrioritiesTotal { get { return m_sinkGroupPrioritiesTotal; } }
-
-		public static readonly MyDefinitionId ElectricityId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Electricity");
 
 		private static readonly Dictionary<MyDefinitionId, int> m_typeIdToIndexTotal = new Dictionary<MyDefinitionId, int>(MyDefinitionId.Comparer);
         private static readonly Dictionary<MyDefinitionId, bool> m_typeIdToConveyorConnectionRequiredTotal = new Dictionary<MyDefinitionId, bool>(MyDefinitionId.Comparer);
@@ -374,6 +380,7 @@ namespace Sandbox.Game.EntityComponents
 
             m_dataPerType.Add(new PerTypeData
             {
+                TypeId = typeId,
                 SinkDataByPriority = sinkGroupDataByPriority,
                 SourceDataByPriority = sourceGroupDatabyPriority,
                 InputOutputData = new MyTuple<MySinkGroupData, MySourceGroupData>(),
@@ -389,7 +396,6 @@ namespace Sandbox.Game.EntityComponents
                 SourceCount = 0,
                 RemainingFuelTime = 0,
                 RemainingFuelTimeDirty = true,
-                LastFuelTimeCompute = 0,
                 MaxAvailableResource = 0,
                 SourcesEnabled = MyMultipleEnabledEnum.NoObjects,
                 SourcesEnabledDirty = true,
@@ -399,9 +405,10 @@ namespace Sandbox.Game.EntityComponents
 			m_initializedTypes.Add(typeId);
 		}
 
-		public MyResourceDistributorComponent()
+		public MyResourceDistributorComponent(string debugName)
 	    {
 			InitializeMappings();
+            DebugName = debugName;
 	    }
 
 	    #region Add and remove
@@ -796,16 +803,16 @@ namespace Sandbox.Game.EntityComponents
 
 	    #endregion
 
-	    public void UpdateBeforeSimulation10()
+	    public void UpdateBeforeSimulation()
 	    {
             CheckDistributionSystemChanges();
+
 		    foreach (var typeId in m_typeIdToIndex.Keys)
 		    {
                 MyDefinitionId localTypeId = typeId;
                 int typeIndex = GetTypeIndex(ref localTypeId);
 			    if (NeedsRecompute(ref localTypeId))
                     RecomputeResourceDistribution(ref localTypeId, false);
-				m_dataPerType[typeIndex].LastFuelTimeCompute += 10;
 		    }
 
             foreach (var typeToRemove in m_typesToRemove)
@@ -816,8 +823,6 @@ namespace Sandbox.Game.EntityComponents
 
 		    if (ShowTrace)
 			    UpdateTrace();
-
-		    m_allEnabledCounter += 10;
 	    }
 
 	    /// <summary>
@@ -862,10 +867,22 @@ namespace Sandbox.Game.EntityComponents
 
 			m_dataPerType[typeIndex].SourcesEnabled = state;
 			bool enabled = (state == MyMultipleEnabledEnum.AllEnabled);
+            IMyFaction faction1 = MySession.Static.Factions.TryGetPlayerFaction(playerId);
 			foreach (var group in m_dataPerType[typeIndex].SourcesByPriority)
 			{
 				foreach (var source in group)
 				{
+                    //Trash send playerId = -1
+                    if (playerId >= 0 && source.Entity != null)
+                    {
+                        MyFunctionalBlock fb = source.Entity as MyFunctionalBlock;
+                        if (fb != null && fb.OwnerId != 0)
+                        {
+                            IMyFaction faction2 = MySession.Static.Factions.TryGetPlayerFaction(fb.OwnerId);
+                            if (faction2 != null && MySession.Static.Factions.GetRelationBetweenFactions(faction1 != null ? faction1.FactionId : 0, faction2.FactionId) == MyRelationsBetweenFactions.Enemies)
+                                continue;
+                        }
+                    }
 					source.MaxOutputChanged -= source_MaxOutputChanged;
 				    source.ProductionEnabledChanged -= source_ProductionEnabledChanged;
 					source.Enabled = enabled;
@@ -881,7 +898,6 @@ namespace Sandbox.Game.EntityComponents
 			//RecomputeResourceDistribution();
 			m_dataPerType[typeIndex].SourcesEnabledDirty = false;
 			m_dataPerType[typeIndex].NeedsRecompute = true;
-			m_allEnabledCounter = 0;
 		}
 
 	    #region Private methods
@@ -1081,12 +1097,6 @@ namespace Sandbox.Game.EntityComponents
                     m_sinksToAdd.Clear();
                 }
             }
-
-
-            foreach(var idCountPair in m_changedTypes)
-            {
-            //    Debug.Assert(idCountPair.Value == 0);
-            }
         }
 
 	    private void RecomputeResourceDistribution(ref MyDefinitionId typeId, bool updateChanges = true)
@@ -1147,8 +1157,8 @@ namespace Sandbox.Game.EntityComponents
 		            RecreatePhysicalDistributionGroups(ref typeId, m_dataPerType[typeIndex].SinksByPriority, m_dataPerType[typeIndex].SourcesByPriority, m_dataPerType[typeIndex].InputOutputList);
 		        }
 
-		        MyResourceStateEnum totalState = MyResourceStateEnum.Ok;
-			    int powerOutCounter = 0;
+                m_dataPerType[typeIndex].MaxAvailableResource = 0;
+
                 for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
 			    {
                     MyPhysicalDistributionGroup group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
@@ -1180,15 +1190,40 @@ namespace Sandbox.Game.EntityComponents
                     group.OtherStorage,
                     group.MaxAvailableResources);
 
+                    m_dataPerType[typeIndex].MaxAvailableResource += group.MaxAvailableResources;
+
                     m_dataPerType[typeIndex].DistributionGroups[groupIndex] = group;
-                    //if (group.ResourceState == MyResourceStateEnum.NoPower && ++powerOutCounter == m_dataPerType[typeIndex].DistributionGroupsInUse)
-					//	totalState = MyResourceStateEnum.NoPower;
 			    }
+
+                MyResourceStateEnum resultState;
+                if (m_dataPerType[typeIndex].MaxAvailableResource == 0.0f)
+                    resultState = MyResourceStateEnum.NoPower;
+                else 
+                {
+                    resultState = MyResourceStateEnum.Ok;
+
+                    for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
+                    {
+                        if ( m_dataPerType[typeIndex].DistributionGroups[groupIndex].ResourceState == MyResourceStateEnum.OverloadAdaptible)
+                        {
+                            resultState = MyResourceStateEnum.OverloadAdaptible;
+                            break;
+                        }
+                        if ( m_dataPerType[typeIndex].DistributionGroups[groupIndex].ResourceState == MyResourceStateEnum.OverloadBlackout)
+                        {
+                            resultState = MyResourceStateEnum.OverloadAdaptible;
+                            break;
+                        }
+                    }
+                }
+
+                m_dataPerType[typeIndex].ResourceState = resultState;
+
                 ProfilerShort.End();
 
 		    }
 
-		    m_dataPerType[typeIndex].NeedsRecompute = false;
+   		    m_dataPerType[typeIndex].NeedsRecompute = false;
 
 		    ProfilerShort.End();
 	    }
@@ -1250,7 +1285,7 @@ namespace Sandbox.Game.EntityComponents
 			bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
 			{
-                if (!MyGridConveyorSystem.Pathfinding.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
+                if (!MyGridConveyorSystem.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
 					continue;
 
                 var group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
@@ -1281,7 +1316,7 @@ namespace Sandbox.Game.EntityComponents
             bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
             {
-                if (block == null || !MyGridConveyorSystem.Pathfinding.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
+                if (block == null || !MyGridConveyorSystem.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
                 {
                     bool addToGroup = false;
                     if (block == null)
@@ -1332,7 +1367,7 @@ namespace Sandbox.Game.EntityComponents
             bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
             {
-                if (block == null || !MyGridConveyorSystem.Pathfinding.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
+                if (block == null || !MyGridConveyorSystem.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
                 {
                     bool addToGroup = false;
                     if (block == null)
@@ -1374,6 +1409,19 @@ namespace Sandbox.Game.EntityComponents
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="typeId"></param>
+        /// <param name="sinkDataByPriority"></param>
+        /// <param name="sourceDataByPriority"></param>
+        /// <param name="sinkSourceData"></param>
+        /// <param name="sinksByPriority"></param>
+        /// <param name="sourcesByPriority"></param>
+        /// <param name="sinkSourcePairs"></param>
+        /// <param name="stockpilingStorageList">Indices into sinkSourcePairs</param>
+        /// <param name="otherStorageList">Indices into sinkSourcePairs</param>
+        /// <param name="maxAvailableResource"></param>
 		private static void ComputeInitialDistributionData(
 			ref MyDefinitionId typeId,
 			MySinkGroupData[] sinkDataByPriority,
@@ -1442,6 +1490,7 @@ namespace Sandbox.Game.EntityComponents
 			sinkSourceData.Item1.RequiredInput = 0f;
 			sinkSourceData.Item1.RequiredInputCumulative = 0f;
 			sinkSourceData.Item2.MaxAvailableResource = 0f;
+            sinkSourceData.Item2.UsageRatio = 0f;
 			for (int pairIndex = 0; pairIndex < sinkSourcePairs.Count; ++pairIndex)
 			{
 				var sinkSourcePair = sinkSourcePairs[pairIndex];
@@ -1495,13 +1544,15 @@ namespace Sandbox.Game.EntityComponents
 			    {
 				    // Run everything in the group at max.
 					availableResource -= sinkDataByPriority[sinkPriorityIndex].RequiredInput;
-				    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex])
+                    //ToArray = Hotfix for collection modified exception
+                    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex].ToArray())
 						sink.SetInputFromDistributor(typeId, sink.RequiredInputByType(typeId), sinkDataByPriority[sinkPriorityIndex].IsAdaptible);
 			    }
 				else if (sinkDataByPriority[sinkPriorityIndex].IsAdaptible && availableResource > 0.0f)
 			    {
 				    // Distribute power in this group based on ratio of its requirement vs. group requirement.
-				    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex])
+                    //ToArray = Hotfix for collection modified exception
+                    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex].ToArray())
 				    {
 						float ratio = sink.RequiredInputByType(typeId) / sinkDataByPriority[sinkPriorityIndex].RequiredInput;
 						sink.SetInputFromDistributor(typeId, ratio * availableResource, true);
@@ -1512,7 +1563,8 @@ namespace Sandbox.Game.EntityComponents
 			    {
 				    // Not enough power for this group and members can't adapt.
 				    // None of the lower priority groups will get any power either.
-                    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex])
+                    //ToArray = Hotfix for collection modified exception
+                    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex].ToArray())
 						sink.SetInputFromDistributor(typeId, 0.0f, sinkDataByPriority[sinkPriorityIndex].IsAdaptible);
 					sinkDataByPriority[sinkPriorityIndex].RemainingAvailableResource = availableResource;
 				    ++sinkPriorityIndex; // move on to next group
@@ -1525,7 +1577,8 @@ namespace Sandbox.Game.EntityComponents
 			for (; sinkPriorityIndex < sinkDataByPriority.Length; ++sinkPriorityIndex)
 		    {
 				sinkDataByPriority[sinkPriorityIndex].RemainingAvailableResource = 0.0f;
-				foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex])
+                //ToArray = Hotfix for collection modified exception
+                foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex].ToArray())
 					sink.SetInputFromDistributor(typeId, 0.0f, sinkDataByPriority[sinkPriorityIndex].IsAdaptible);
 		    }
             ProfilerShort.End();
@@ -1575,8 +1628,9 @@ namespace Sandbox.Game.EntityComponents
 				if (ordinaryStorageRequiredInput <= availableResourcesForStorage)
                 {
 					availableResourcesForStorage -= ordinaryStorageRequiredInput;
-                    foreach (int pairIndex in otherStorageList)
+                    for (int i = 0; i<otherStorageList.Count; i++)
                     {
+                        int pairIndex = otherStorageList[i];
                         var sink = sinkSourcePairs[pairIndex].Item1;
                         sink.SetInputFromDistributor(typeId, sink.RequiredInputByType(typeId), true);
                     }
@@ -1584,8 +1638,9 @@ namespace Sandbox.Game.EntityComponents
                 }
                 else
                 {
-                    foreach (int pairIndex in otherStorageList)
+                    for (int i = 0; i < otherStorageList.Count; i++)
                     {
+                        int pairIndex = otherStorageList[i];
                         var sink = sinkSourcePairs[pairIndex].Item1;
                         float ratio = sink.RequiredInputByType(typeId) / ordinaryStorageRequiredInput;
                         sink.SetInputFromDistributor(typeId, ratio * availableResourcesForStorage, true);
@@ -1609,8 +1664,9 @@ namespace Sandbox.Game.EntityComponents
 	            sinkSourceData.Item2.UsageRatio = 0f;
 
             sinkSourceData.Item2.ActiveCount = 0;
-            foreach (int pairIndex in otherStorageList)
+            for (int i = 0; i < otherStorageList.Count; i++)
             {
+                int pairIndex = otherStorageList[i];
                 var source = sinkSourcePairs[pairIndex].Item2;
                 if (!source.Enabled || !source.ProductionEnabledByType(typeId) || !source.HasCapacityRemainingByType(typeId))
                     continue;
@@ -1635,7 +1691,8 @@ namespace Sandbox.Game.EntityComponents
 				    sourceDataByPriority[sourcePriorityIndex].UsageRatio = 0f;
 
 			    sourceDataByPriority[sourcePriorityIndex].ActiveCount = 0;
-			    foreach (MyResourceSourceComponent source in sourcesByPriority[sourcePriorityIndex])
+                //ToArray = Hotfix for collection modified exception
+			    foreach (MyResourceSourceComponent source in sourcesByPriority[sourcePriorityIndex].ToArray())
 			    {
 				    if (!source.Enabled || !source.HasCapacityRemainingByType(typeId))
 					    continue;
@@ -1696,34 +1753,131 @@ namespace Sandbox.Game.EntityComponents
 	    [Conditional("DEBUG")]
 	    private void UpdateTrace()
 	    {
-			for (int typeIndex = 0; typeIndex < m_typeGroupCount; ++typeIndex)
-		    {
-			    for (int i = 0; i < m_dataPerType[typeIndex].SinkDataByPriority.Length; ++i)
-			    {
-				    var data = m_dataPerType[typeIndex].SinkDataByPriority[i];
-					MyTrace.Watch(String.Format("Data[{0}][{1}].RemainingAvailableResource", typeIndex, i), data.RemainingAvailableResource);
-			    }
-			    for (int i = 0; i < m_dataPerType[typeIndex].SinkDataByPriority.Length; ++i)
-			    {
-				    var data = m_dataPerType[typeIndex].SinkDataByPriority[i];
-				    MyTrace.Watch(String.Format("Data[{0}][{1}].RequiredInput", typeIndex, i), data.RequiredInput);
-			    }
-			    for (int i = 0; i < m_dataPerType[typeIndex].SinkDataByPriority.Length; ++i)
-			    {
-				    var data = m_dataPerType[typeIndex].SinkDataByPriority[i];
-				    MyTrace.Watch(String.Format("Data[{0}][{1}].IsAdaptible", typeIndex, i), data.IsAdaptible);
-			    }
+            for (int typeIndex = 0; typeIndex < m_typeGroupCount; ++typeIndex)
+            {
+                for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
+                {
+                    MyPhysicalDistributionGroup group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
 
-			    int j = 0;
-			    foreach (var group in m_dataPerType[typeIndex].SourcesByPriority)
-				    foreach (var producer in group)
-				    {
-					    ++j;
-					    MyTrace.Watch(String.Format("Producer[{0}][{1}].IsTurnedOn", typeIndex, j), producer.Enabled);
-						MyTrace.Watch(String.Format("Producer[{0}][{1}].HasRemainingCapacity", typeIndex, j), producer.HasCapacityRemaining);
-						MyTrace.Watch(String.Format("Producer[{0}][{1}].CurrentOutput", typeIndex, j), producer.CurrentOutput);
-				    }
-		    }
+                    MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + ".MaxAvailableResources", group.MaxAvailableResources);
+                    MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + ".ResourceState", group.ResourceState);
+
+                    MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + "Item1.IsAdaptible", group.InputOutputData.Item1.IsAdaptible);
+                    MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + "Item1.RequiredInput", group.InputOutputData.Item1.RequiredInput);
+                    MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + "Item1.RequiredInputCumulative", group.InputOutputData.Item1.RequiredInputCumulative);
+                    MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + "Item1.RemainingAvailableResource", group.InputOutputData.Item1.RemainingAvailableResource);
+                    MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + "Item2.MaxAvailableResource", group.InputOutputData.Item2.MaxAvailableResource);
+                    MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + "Item2.UsageRatio", group.InputOutputData.Item2.UsageRatio);
+
+                    for (int ss = 0; ss < group.SinkSourcePairs.Count; ss++)
+                    {
+                        MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + ss + "Sink(" + group.SinkSourcePairs[ss].Item1.Entity.ToString() + ").CurrentInput", group.SinkSourcePairs[ss].Item1.CurrentInput);
+                        MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + ss + "Source(" + group.SinkSourcePairs[ss].Item2.Entity.ToString() + ").CurrentOutput", group.SinkSourcePairs[ss].Item2.CurrentOutput);
+                        MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + ss + "Source(" + group.SinkSourcePairs[ss].Item2.Entity.ToString() + ").UsedCapacity", group.SinkSourcePairs[ss].Item2.RemainingCapacity);
+                        MyTrace.Watch(DebugName + "." + m_dataPerType[typeIndex].TypeId.SubtypeName + groupIndex + ss + "Source(" + group.SinkSourcePairs[ss].Item2.Entity.ToString() + ").MaxOutput", group.SinkSourcePairs[ss].Item2.MaxOutput);
+                    }
+                    
+                    
+
+                    
+                }
+            }
+
+
+            //for (int typeIndex1 = 2; typeIndex1 < m_typeGroupCount; ++typeIndex1)
+            //{
+            //    if (m_dataPerType[typeIndex1].SinkDataByPriority != null)
+            //    {
+            //        for (int i = 0; i < m_dataPerType[typeIndex1].SinkDataByPriority.Length; ++i)
+            //        {
+            //            var data = m_dataPerType[typeIndex1].SinkDataByPriority[i];
+            //            MyTrace.Watch(String.Format("Data[{0}][{1}].RemainingAvailableResource", m_dataPerType[typeIndex1].TypeId.SubtypeName, i), data.RemainingAvailableResource);
+            //        }
+            //        for (int i = 0; i < m_dataPerType[typeIndex1].SinkDataByPriority.Length; ++i)
+            //        {
+            //            var data = m_dataPerType[typeIndex1].SinkDataByPriority[i];
+            //            MyTrace.Watch(String.Format("Data[{0}][{1}].RequiredInput", m_dataPerType[typeIndex1].TypeId.SubtypeName, i), data.RequiredInput);
+            //        }
+            //        for (int i = 0; i < m_dataPerType[typeIndex1].SinkDataByPriority.Length; ++i)
+            //        {
+            //            var data = m_dataPerType[typeIndex1].SinkDataByPriority[i];
+            //            MyTrace.Watch(String.Format("Data[{0}][{1}].IsAdaptible", m_dataPerType[typeIndex1].TypeId.SubtypeName, i), data.IsAdaptible);
+            //        }
+            //    }
+
+            //    int j = 0;
+            //    foreach (var group in m_dataPerType[typeIndex].SourcesByPriority)
+            //        foreach (var producer in group)
+            //        {
+            //            ++j;
+            //            MyTrace.Watch(String.Format("Producer[{0}][{1}].IsTurnedOn", m_dataPerType[typeIndex].TypeId.SubtypeName, j), producer.Enabled);
+            //            MyTrace.Watch(String.Format("Producer[{0}][{1}].HasRemainingCapacity", m_dataPerType[typeIndex].TypeId.SubtypeName, j), producer.HasCapacityRemaining);
+            //            MyTrace.Watch(String.Format("Producer[{0}][{1}].CurrentOutput", m_dataPerType[typeIndex].TypeId.SubtypeName, j), producer.CurrentOutput);
+            //        }
+         //   }
+
+
+            //for (int typeIndex = 0; typeIndex < m_typeGroupCount; ++typeIndex)
+            //{
+            //    if (m_dataPerType[typeIndex].SinksByPriority != null)
+            //    {
+            //        for (int i = 0; i < m_dataPerType[typeIndex].SinksByPriority.Length; ++i)
+            //        {
+            //            var sinkGroup = m_dataPerType[typeIndex].SinksByPriority[i];
+
+            //            int sg = 0;
+            //            foreach (var component in sinkGroup)
+            //            {
+            //                if (component.Entity != null && !string.IsNullOrEmpty(((VRage.Game.Entity.MyEntity)component.Entity).DisplayNameText) && ((VRage.Game.Entity.MyEntity)component.Entity).DisplayNameText.Contains("Tank"))
+            //                {
+            //                    MyTrace.Watch(String.Format("SinksByPriority[{0}][{1}].CurrentInput", m_dataPerType[typeIndex].TypeId.SubtypeName, component.ComponentTypeDebugString + sg.ToString()), component.CurrentInputByType(m_dataPerType[typeIndex].TypeId));
+            //                    MyTrace.Watch(String.Format("SinksByPriority[{0}][{1}].RequiredInput", m_dataPerType[typeIndex].TypeId.SubtypeName, component.ComponentTypeDebugString + sg.ToString()), component.RequiredInputByType(m_dataPerType[typeIndex].TypeId));
+            //                    MyTrace.Watch(String.Format("SinksByPriority[{0}][{1}].SuppliedRatio", m_dataPerType[typeIndex].TypeId.SubtypeName, component.ComponentTypeDebugString + sg.ToString()), component.SuppliedRatioByType(m_dataPerType[typeIndex].TypeId));
+            //                }
+            //                sg++;
+            //            }
+            //        }
+            //    }
+            //    if (m_dataPerType[typeIndex].SourcesByPriority != null)
+            //    {
+            //        for (int i = 0; i < m_dataPerType[typeIndex].SourcesByPriority.Length; ++i)
+            //        {
+            //            var sourceGroup = m_dataPerType[typeIndex].SourcesByPriority[i];
+            //            foreach (var component in sourceGroup)
+            //            {
+            //                if (component.Entity != null && !string.IsNullOrEmpty(((VRage.Game.Entity.MyEntity)component.Entity).DisplayNameText) && ((VRage.Game.Entity.MyEntity)component.Entity).DisplayNameText.Contains("Tank"))
+            //                {
+            //                    MyTrace.Watch(String.Format("SourcesByPriority[{0}][{1}].CurrentOutput", m_dataPerType[typeIndex].TypeId.SubtypeName, component.ComponentTypeDebugString), component.CurrentOutputByType(m_dataPerType[typeIndex].TypeId));
+            //                    MyTrace.Watch(String.Format("SourcesByPriority[{0}][{1}].MaxOutput", m_dataPerType[typeIndex].TypeId.SubtypeName, component.ComponentTypeDebugString), component.MaxOutputByType(m_dataPerType[typeIndex].TypeId));
+            //                    MyTrace.Watch(String.Format("SourcesByPriority[{0}][{1}].RemainingCapacity", m_dataPerType[typeIndex].TypeId.SubtypeName, component.ComponentTypeDebugString), component.RemainingCapacityByType(m_dataPerType[typeIndex].TypeId));
+            //                }
+            //            }
+            //        }
+            //    }
+
+            //    if (m_dataPerType[typeIndex].InputOutputList != null)
+            //    {
+            //        for (int i = 0; i < m_dataPerType[typeIndex].InputOutputList.Count; ++i)
+            //        {
+            //            var tuple = m_dataPerType[typeIndex].InputOutputList[i];
+
+            //            MyTrace.Watch(String.Format("InputOutputList[{0}][{1}].CurrentInput", m_dataPerType[typeIndex].TypeId.SubtypeName, tuple.Item1.ComponentTypeDebugString + i.ToString()), tuple.Item1.CurrentInputByType(m_dataPerType[typeIndex].TypeId));
+            //            MyTrace.Watch(String.Format("InputOutputList[{0}][{1}].CurrentOutput", m_dataPerType[typeIndex].TypeId.SubtypeName, tuple.Item1.ComponentTypeDebugString + i.ToString()), tuple.Item2.CurrentOutputByType(m_dataPerType[typeIndex].TypeId));
+                             
+            //        }
+            //    }
+
+
+                //int j = 0;
+                //foreach (var group in m_dataPerType[typeIndex].SourcesByPriority)
+                //    foreach (var producer in group)
+                //    {
+                //        ++j;
+                //        MyTrace.Watch(String.Format("Producer[{0}][{1}].Enabled", m_dataPerType[typeIndex].TypeId.SubtypeName, j), producer.Enabled);
+                //        MyTrace.Watch(String.Format("Producer[{0}][{1}].HasRemainingCapacity", m_dataPerType[typeIndex].TypeId.SubtypeName, j), producer.HasCapacityRemaining);
+                //        MyTrace.Watch(String.Format("Producer[{0}][{1}].CurrentOutput", m_dataPerType[typeIndex].TypeId.SubtypeName, j), producer.CurrentOutput);
+                //    }
+           // }
 	    }
 
 	    private HashSet<MyResourceSinkComponent> GetSinksOfType(ref MyDefinitionId typeId, MyStringHash groupType)
@@ -1774,11 +1928,10 @@ namespace Sandbox.Game.EntityComponents
 		    if (!TryGetTypeIndex(ref resourceTypeId, out typeIndex))
 		        return 0f;
 
-			if (!m_dataPerType[typeIndex].RemainingFuelTimeDirty || m_dataPerType[typeIndex].LastFuelTimeCompute <= 30)
+			if (!m_dataPerType[typeIndex].RemainingFuelTimeDirty)
 				return m_dataPerType[typeIndex].RemainingFuelTime;
 
 			m_dataPerType[typeIndex].RemainingFuelTime = ComputeRemainingFuelTime(resourceTypeId);
-			m_dataPerType[typeIndex].LastFuelTimeCompute = 0;
 			return m_dataPerType[typeIndex].RemainingFuelTime;
 		}
 
@@ -1896,102 +2049,110 @@ namespace Sandbox.Game.EntityComponents
 
 	    private void Sink_RequiredInputChanged(MyDefinitionId changedResourceTypeId, MyResourceSinkComponent changedSink, float oldRequirement, float newRequirement)
 	    {
+            if (m_typeIdToIndex.ContainsKey(changedResourceTypeId) == false || m_sinkSubtypeToPriority.ContainsKey(changedSink.Group) == false)
+            {
+                return;
+            }
+
 			var typeIndex = GetTypeIndex(ref changedResourceTypeId);
 	        if (!TryGetTypeIndex(changedResourceTypeId, out typeIndex))
 	        {
 	            Debug.Fail("Sink required input changed but missing the resource id.");
 	            return;
 	        }
-            if (NeedsRecompute(ref changedResourceTypeId))
+
+            m_dataPerType[typeIndex].NeedsRecompute = true;
+
+            if (NeedsRecompute(ref changedResourceTypeId))  //because of jetpack
             {
                 RecomputeResourceDistribution(ref changedResourceTypeId);
                 return;
             }
 
-			int groupId = GetPriority(changedSink);
+            //int groupId = GetPriority(changedSink);
 
-			if (!IsConveyorConnectionRequired(ref changedResourceTypeId))
-		    {
-				// Go over all priorities, starting from the changedSink.
-				MyDebug.AssertDebug(m_dataPerType[typeIndex].SinkDataByPriority[groupId].RequiredInput >= 0.0f);
-				m_dataPerType[typeIndex].SinkDataByPriority[groupId].RequiredInput = 0.0f;
-				foreach (MyResourceSinkComponent sink in m_dataPerType[typeIndex].SinksByPriority[groupId])
-					m_dataPerType[typeIndex].SinkDataByPriority[groupId].RequiredInput += sink.RequiredInputByType(changedResourceTypeId);
+            //if (!IsConveyorConnectionRequired(ref changedResourceTypeId))
+            //{
+            //    // Go over all priorities, starting from the changedSink.
+            //    MyDebug.AssertDebug(m_dataPerType[typeIndex].SinkDataByPriority[groupId].RequiredInput >= 0.0f);
+            //    m_dataPerType[typeIndex].SinkDataByPriority[groupId].RequiredInput = 0.0f;
+            //    foreach (MyResourceSinkComponent sink in m_dataPerType[typeIndex].SinksByPriority[groupId])
+            //        m_dataPerType[typeIndex].SinkDataByPriority[groupId].RequiredInput += sink.RequiredInputByType(changedResourceTypeId);
 
-				// Update cumulative requirements.
-				float cumulative = (groupId != 0) ? m_dataPerType[typeIndex].SinkDataByPriority[groupId - 1].RequiredInputCumulative : 0.0f;
-				for (int index = groupId; index < m_dataPerType[typeIndex].SinkDataByPriority.Length; ++index)
-				{
-					cumulative += m_dataPerType[typeIndex].SinkDataByPriority[index].RequiredInput;
-					m_dataPerType[typeIndex].SinkDataByPriority[index].RequiredInputCumulative = cumulative;
-				}
+            //    // Update cumulative requirements.
+            //    float cumulative = (groupId != 0) ? m_dataPerType[typeIndex].SinkDataByPriority[groupId - 1].RequiredInputCumulative : 0.0f;
+            //    for (int index = groupId; index < m_dataPerType[typeIndex].SinkDataByPriority.Length; ++index)
+            //    {
+            //        cumulative += m_dataPerType[typeIndex].SinkDataByPriority[index].RequiredInput;
+            //        m_dataPerType[typeIndex].SinkDataByPriority[index].RequiredInputCumulative = cumulative;
+            //    }
 
-				PrepareSinkSourceData(
-					ref changedResourceTypeId,
-					ref m_dataPerType[typeIndex].InputOutputData,
-					m_dataPerType[typeIndex].InputOutputList,
-					m_dataPerType[typeIndex].StockpilingStorageIndices,
-					m_dataPerType[typeIndex].OtherStorageIndices);
+            //    PrepareSinkSourceData(
+            //        ref changedResourceTypeId,
+            //        ref m_dataPerType[typeIndex].InputOutputData,
+            //        m_dataPerType[typeIndex].InputOutputList,
+            //        m_dataPerType[typeIndex].StockpilingStorageIndices,
+            //        m_dataPerType[typeIndex].OtherStorageIndices);
 
-			    m_dataPerType[typeIndex].ResourceState = RecomputeResourceDistributionPartial(
-					ref changedResourceTypeId,
-					groupId,
-					m_dataPerType[typeIndex].SinkDataByPriority,
-					m_dataPerType[typeIndex].SourceDataByPriority,
-                    ref m_dataPerType[typeIndex].InputOutputData,
-					m_dataPerType[typeIndex].SinksByPriority,
-					m_dataPerType[typeIndex].SourcesByPriority,
-                    m_dataPerType[typeIndex].InputOutputList,
-					m_dataPerType[typeIndex].StockpilingStorageIndices,
-					m_dataPerType[typeIndex].OtherStorageIndices,
-					m_dataPerType[typeIndex].SinkDataByPriority[groupId].RemainingAvailableResource);
-		    }
-		    else
-		    {
-                for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
-				{
-                    if (!m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinksByPriority[groupId].Contains(changedSink) && m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkSourcePairs.TrueForAll((pair) => pair.Item1 != changedSink))
-						continue;
+            //    m_dataPerType[typeIndex].ResourceState = RecomputeResourceDistributionPartial(
+            //        ref changedResourceTypeId,
+            //        groupId,
+            //        m_dataPerType[typeIndex].SinkDataByPriority,
+            //        m_dataPerType[typeIndex].SourceDataByPriority,
+            //        ref m_dataPerType[typeIndex].InputOutputData,
+            //        m_dataPerType[typeIndex].SinksByPriority,
+            //        m_dataPerType[typeIndex].SourcesByPriority,
+            //        m_dataPerType[typeIndex].InputOutputList,
+            //        m_dataPerType[typeIndex].StockpilingStorageIndices,
+            //        m_dataPerType[typeIndex].OtherStorageIndices,
+            //        m_dataPerType[typeIndex].SinkDataByPriority[groupId].RemainingAvailableResource);
+            //}
+            //else
+            //{
+            //    for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
+            //    {
+            //        if (!m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinksByPriority[groupId].Contains(changedSink) && m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkSourcePairs.TrueForAll((pair) => pair.Item1 != changedSink))
+            //            continue;
 
-                    var group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
+            //        var group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
 
-                    MyDebug.AssertDebug(group.SinkDataByPriority[groupId].RequiredInput >= 0.0f);
-                    group.SinkDataByPriority[groupId].RequiredInput = 0.0f;
-                    foreach (MyResourceSinkComponent sink in group.SinksByPriority[groupId])
-                        group.SinkDataByPriority[groupId].RequiredInput += sink.RequiredInputByType(changedResourceTypeId);
+            //        MyDebug.AssertDebug(group.SinkDataByPriority[groupId].RequiredInput >= 0.0f);
+            //        group.SinkDataByPriority[groupId].RequiredInput = 0.0f;
+            //        foreach (MyResourceSinkComponent sink in group.SinksByPriority[groupId])
+            //            group.SinkDataByPriority[groupId].RequiredInput += sink.RequiredInputByType(changedResourceTypeId);
 
-                    float cumulative = (groupId != 0) ? group.SinkDataByPriority[groupId - 1].RequiredInputCumulative : 0.0f;
-                    for (int index = groupId; index < group.SinkDataByPriority.Length; ++index)
-					{
-                        cumulative += group.SinkDataByPriority[index].RequiredInput;
-                        group.SinkDataByPriority[index].RequiredInputCumulative = cumulative;
-					}
+            //        float cumulative = (groupId != 0) ? group.SinkDataByPriority[groupId - 1].RequiredInputCumulative : 0.0f;
+            //        for (int index = groupId; index < group.SinkDataByPriority.Length; ++index)
+            //        {
+            //            cumulative += group.SinkDataByPriority[index].RequiredInput;
+            //            group.SinkDataByPriority[index].RequiredInputCumulative = cumulative;
+            //        }
 
-					PrepareSinkSourceData(
-					ref changedResourceTypeId,
-                    ref group.InputOutputData,
-                    group.SinkSourcePairs,
-                    group.StockpilingStorage,
-                    group.OtherStorage);
+            //        PrepareSinkSourceData(
+            //        ref changedResourceTypeId,
+            //        ref group.InputOutputData,
+            //        group.SinkSourcePairs,
+            //        group.StockpilingStorage,
+            //        group.OtherStorage);
 
-                    group.ResourceState = RecomputeResourceDistributionPartial(
-					ref changedResourceTypeId,
-					groupId,
-                    group.SinkDataByPriority,
-                    group.SourceDataByPriority,
-                    ref group.InputOutputData,
-                    group.SinksByPriority,
-                    group.SourcesByPriority,
-                    group.SinkSourcePairs,
-                    group.StockpilingStorage,
-                    group.OtherStorage,
-                    group.MaxAvailableResources);
+            //        group.ResourceState = RecomputeResourceDistributionPartial(
+            //        ref changedResourceTypeId,
+            //        groupId,
+            //        group.SinkDataByPriority,
+            //        group.SourceDataByPriority,
+            //        ref group.InputOutputData,
+            //        group.SinksByPriority,
+            //        group.SourcesByPriority,
+            //        group.SinkSourcePairs,
+            //        group.StockpilingStorage,
+            //        group.OtherStorage,
+            //        group.MaxAvailableResources);
 
-				    m_dataPerType[typeIndex].DistributionGroups[groupIndex] = group;
+            //        m_dataPerType[typeIndex].DistributionGroups[groupIndex] = group;
 
-					break;
-				}   
-		    }
+            //        break;
+            //    }
+            //}
 	    }
 
 	    private float Sink_IsResourceAvailable(MyDefinitionId resourceTypeId, MyResourceSinkComponent receiver)
@@ -2015,15 +2176,22 @@ namespace Sandbox.Game.EntityComponents
                 if (groupIndex == m_dataPerType[typeIndex].DistributionGroupsInUse)
                     return 0f;
 
-                return  m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource +
-                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RemainingAvailableResource -
-                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RequiredInput -
-                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RequiredInput;
+                return m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource
+                        //+ m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RemainingAvailableResource
+                        - m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RequiredInput;
+                        //- m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RequiredInput;
             }
             else
             {
-                return m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource + m_dataPerType[typeIndex].InputOutputData.Item1.RemainingAvailableResource
-                        - m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RequiredInput - m_dataPerType[typeIndex].InputOutputData.Item1.RequiredInput;
+                float availableForSink = m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource;
+                //float availableForStorage = m_dataPerType[typeIndex].InputOutputData.Item1.RemainingAvailableResource;
+
+                float requiredInputForSink = m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RequiredInput;
+                //float requiredInputForStorage = m_dataPerType[typeIndex].InputOutputData.Item1.RequiredInput;
+
+                float totalAvailable = availableForSink /*+ availableForStorage*/ - requiredInputForSink;// -requiredInputForStorage;
+
+                return totalAvailable;
             }
 	    }
 

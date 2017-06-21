@@ -12,11 +12,12 @@ using Sandbox.Definitions;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common;
 using System;
-using Sandbox.Common.Components;
+
 using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage;
 using VRage.Game.Entity;
+using VRage.Game;
 
 
 namespace Sandbox.Game.Weapons

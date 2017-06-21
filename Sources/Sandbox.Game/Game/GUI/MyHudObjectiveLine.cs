@@ -9,6 +9,7 @@ using System.Text;
 using System.Collections.Generic;
 using VRage;
 using Sandbox.ModAPI;
+using VRage.Game.ModAPI;
 
 #endregion
 

@@ -12,7 +12,9 @@ using VRage.Serialization;
 namespace VRage.Common.Utils
 {
     public class MyRSA
-    {
+	{
+#if XB1
+#else
         private HashAlgorithm m_hasher;
 
         public HashAlgorithm HashObject { get { return m_hasher; } }
@@ -278,5 +280,6 @@ namespace VRage.Common.Utils
                 }
             }
         }
-    }
+#endif
+	}
 }

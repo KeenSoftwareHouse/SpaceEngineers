@@ -10,6 +10,8 @@ using System.Runtime.InteropServices;
 
 namespace DShowNET
 {
+#if XB1
+#else
     [ComVisible(true), ComImport,
     Guid("56a868b1-0ad4-11ce-b03a-0020af0ba770"),
     InterfaceType(ComInterfaceType.InterfaceIsDual)]
@@ -301,5 +303,5 @@ namespace DShowNET
         DvdCurrentHmsfTime = 0x11a,	// EC_DVD_CURRENT_HMSF_TIME
         DvdKaraokeMode = 0x11b		// EC_DVD_KARAOKE_MODE
     }
-
+#endif
 } // namespace DShowNET

@@ -1,13 +1,10 @@
 ﻿using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Components;
-using Sandbox.Game.Replication;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage.Network;
-using Sandbox.Common.Components;
+
 using VRage.Game.Components;
 using VRage.Game.Entity;
 
@@ -70,7 +67,7 @@ namespace Sandbox.Game.Replication
             loadingDoneHandler(craftComp); 
         }
 
-        public override IMyReplicable GetDependency()
+        public override IMyReplicable GetParent()
         {
             System.Diagnostics.Debug.Assert(!((MyEntity)CraftingComponent.Entity).Closed, "Sending inventory of closed entity");
             if (CraftingComponent.Entity is MyCharacter)
@@ -86,7 +83,7 @@ namespace Sandbox.Game.Replication
             return null;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             // TODO: This can be adjusted, but for now, make sure it is always created on clients
             return 1.0f;
@@ -119,6 +116,17 @@ namespace Sandbox.Game.Replication
                 ((MyEntity)CraftingComponent.Entity).OnClose -= m_raiseDestroyedHandler;
                 RaiseDestroyed();
             }
+        }
+
+        public override bool HasToBeChild
+        {
+            get { return true; }
+        }
+
+        public override VRageMath.BoundingBoxD GetAABB()
+        {
+            System.Diagnostics.Debug.Fail("GetAABB can be called only on root replicables");
+            return VRageMath.BoundingBoxD.CreateInvalid();
         }
     }
 }

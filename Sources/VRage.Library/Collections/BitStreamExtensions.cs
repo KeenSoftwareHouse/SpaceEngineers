@@ -6,7 +6,8 @@ using VRage.Library.Collections;
 
 namespace System
 {
-    public static class BitStreamExtensions
+	[Unsharper.UnsharperDisableReflection()]
+	public static class BitStreamExtensions
     {
         public delegate void SerializeCallback<T>(BitStream stream, ref T item);
         public delegate T Reader<T>(BitStream bs);

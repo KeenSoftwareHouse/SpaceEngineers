@@ -18,12 +18,16 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_ScenarioDefinition))]
     public class MyScenarioDefinition : MyDefinitionBase
     {
-        public BoundingBoxD WorldBoundaries;
+        public MyDefinitionId GameDefinition;
+
+        public MyDefinitionId Environment;
+
+        public BoundingBoxD? WorldBoundaries;
         public MyWorldGeneratorStartingStateBase[] PossiblePlayerStarts;
         public MyWorldGeneratorOperationBase[] WorldGeneratorOperations;
-        public bool  AsteroidClustersEnabled;
+        public bool AsteroidClustersEnabled;
         public float AsteroidClustersOffset;
-        public bool  CentralClusterEnabled;
+        public bool CentralClusterEnabled;
         public MyEnvironmentHostilityEnum DefaultEnvironment;
         public MyStringId[] CreativeModeWeapons;
         public MyStringId[] SurvivalModeWeapons;
@@ -33,6 +37,10 @@ namespace Sandbox.Definitions
         public StartingPhysicalItem[] SurvivalModePhysicalItems;
         public StartingItem[] CreativeModeAmmoItems;
         public StartingItem[] SurvivalModeAmmoItems;
+
+        public MyObjectBuilder_InventoryItem[] CreativeInventoryItems;
+        public MyObjectBuilder_InventoryItem[] SurvivalInventoryItems;
+
         public MyObjectBuilder_Toolbar CreativeDefaultToolbar;
         public MyObjectBuilder_Toolbar SurvivalDefaultToolbar;
         public MyStringId MainCharacterModel;
@@ -73,7 +81,11 @@ namespace Sandbox.Definitions
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
-            var ob = builder as MyObjectBuilder_ScenarioDefinition;
+            var ob = (MyObjectBuilder_ScenarioDefinition) builder;
+
+            GameDefinition = ob.GameDefinition;
+
+            Environment = ob.EnvironmentDefinition;
 
             AsteroidClustersEnabled = ob.AsteroidClusters.Enabled;
             AsteroidClustersOffset  = ob.AsteroidClusters.Offset;
@@ -185,8 +197,10 @@ namespace Sandbox.Definitions
                 }
             }
 
-            WorldBoundaries.Min = ob.WorldBoundaries.Min;
-            WorldBoundaries.Max = ob.WorldBoundaries.Max;
+            CreativeInventoryItems = ob.CreativeInventoryItems;
+            SurvivalInventoryItems = ob.SurvivalInventoryItems;
+
+            WorldBoundaries = ob.WorldBoundaries;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()

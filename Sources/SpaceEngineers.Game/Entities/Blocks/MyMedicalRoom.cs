@@ -1,37 +1,39 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.Gui;
-
-using VRageMath;
-using System;
-using Sandbox.Game.World;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Engine.Multiplayer;
-using SteamSDK;
-using Sandbox.Common;
-using Sandbox.Game.Components;
-using Sandbox.Definitions;
-using Sandbox.ModAPI;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.Game.GameSystems.Conveyors;
-using Sandbox.Game.GameSystems;
-using VRage.Game.Entity.UseObject;
-using VRage.Import;
-using VRage.ModAPI;
-using Sandbox.Game.Localization;
-using Sandbox.Game.Screens.Terminal.Controls;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sandbox;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
+using Sandbox.Game;
+using Sandbox.Game.Components;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
-using VRage.Game.Components;
-using Sandbox.ModAPI;
-using VRage.Utils;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.GameSystems.Conveyors;
+using Sandbox.Game.GameSystems.Electricity;
+using Sandbox.Game.Gui;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Terminal.Controls;
+using Sandbox.Game.World;
+using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity.UseObject;
+using VRage.Game.ModAPI;
+using VRage.Import;
+using VRage.ModAPI;
 using VRage.Network;
+using VRage.Utils;
+using VRageMath;
+using VRageRender.Import;
 
-namespace Sandbox.Game.Entities.Cube
+namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MedicalRoom))]
     public partial class MyMedicalRoom : MyFunctionalBlock, IMyRechargeSocketOwner, IMyGasBlock, IMyMedicalRoom
@@ -85,7 +87,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-			return SinkComp.IsPowered && base.CheckIsWorking();
+            return SinkComp.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         /// <summary>
@@ -151,8 +153,25 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         public bool SpawnWithoutOxygenEnabled { set { m_spawnWithoutOxygenEnabled = value; } get { return m_spawnWithoutOxygenEnabled; } }
 
-        static MyMedicalRoom()
+        public MyMedicalRoom()
         {
+            CreateTerminalControls();
+
+            m_idleSoundEmitter = new MyEntity3DSoundEmitter(this, true);
+            m_progressSoundEmitter = new MyEntity3DSoundEmitter(this, true);
+
+            m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.ShouldPlay2D].Add((Func<bool>)(() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
+            if (MySession.Static != null && MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound)
+            {
+                m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.CanHear].Add((Func<bool>)(() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
+            }
+        }
+
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyMedicalRoom>())
+                return;
+            base.CreateTerminalControls();
             //terminal:
             var label = new MyTerminalControlLabel<MyMedicalRoom>(MySpaceTexts.TerminalScenarioSettingsLabel);
             var ownershipCheckbox = new MyTerminalControlCheckbox<MyMedicalRoom>("TakeOwnership", MySpaceTexts.MedicalRoom_ownershipAssignmentLabel, MySpaceTexts.MedicalRoom_ownershipAssignmentTooltip);
@@ -173,18 +192,6 @@ namespace Sandbox.Game.Entities.Cube
             };
             factionCheckbox.Enabled = (x) => MySession.Static.Settings.ScenarioEditMode;
             MyTerminalControlFactory.AddControl(factionCheckbox);
-        }
-
-        public MyMedicalRoom()
-        {
-            m_idleSoundEmitter = new MyEntity3DSoundEmitter(this);
-            m_progressSoundEmitter = new MyEntity3DSoundEmitter(this);
-
-            m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.ShouldPlay2D].Add((Func<bool>) (() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
-            if (MySession.Static != null && MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound)
-            {
-                m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.CanHear].Add((Func<bool>) (() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
-            }
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -208,14 +215,14 @@ namespace Sandbox.Game.Entities.Cube
             SinkComp.Init(
                 resourceSinkGroup,
                 MyEnergyConstants.MAX_REQUIRED_POWER_MEDICAL_ROOM,
-                () => (Enabled && IsFunctional) ? SinkComp.MaxRequiredInput : 0f);
+                () => (Enabled && IsFunctional) ? SinkComp.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : 0f);
             SinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
 
             base.Init(objectBuilder, cubeGrid);
 	         
             m_rechargeSocket = new MyRechargeSocket();
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
             SteamUserId = (objectBuilder as MyObjectBuilder_MedicalRoom).SteamUserId;
 
@@ -286,11 +293,13 @@ namespace Sandbox.Game.Entities.Cube
             return builder;
         }
 
-        public override void UpdateBeforeSimulation100()
+        public override void UpdateSoundEmitters()
         {
-            base.UpdateBeforeSimulation100();
-            m_idleSoundEmitter.Update();
-            m_progressSoundEmitter.Update();
+            base.UpdateSoundEmitters();
+            if(m_idleSoundEmitter != null)
+                m_idleSoundEmitter.Update();
+            if(m_progressSoundEmitter != null)
+                m_progressSoundEmitter.Update();
         }
 
         public override void UpdateBeforeSimulation10()
@@ -316,7 +325,8 @@ namespace Sandbox.Game.Entities.Cube
         public void Use(UseActionEnum actionEnum, MyCharacter user)
         {
             var relation = GetUserRelationToOwner(user.ControllerInfo.Controller.Player.Identity.IdentityId);
-            if (!relation.IsFriendly())
+            var player = MyPlayer.GetPlayerFromCharacter(user);
+            if (!(relation.IsFriendly() || (player != null && MySession.Static.IsUserSpaceMaster(player.Client.SteamUserId))))
             {
                 if (user.ControllerInfo.Controller.Player == MySession.Static.LocalHumanPlayer)
                 {
@@ -428,8 +438,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool HasSpawnPosition()
         {
-             MyModelDummy dummy;
-             return Model.Dummies.TryGetValue("dummy detector_respawn", out dummy);
+            MyModelDummy dummy;
+            return Model.Dummies.TryGetValue("dummy detector_respawn", out dummy);
         }
 
         public MatrixD GetSpawnPosition()
@@ -442,16 +452,19 @@ namespace Sandbox.Game.Entities.Cube
                 dummyLocal = dummy.Matrix;
             }
 
-            MatrixD worldMatrix = MatrixD.Multiply(dummyLocal, WorldMatrix);
+            MatrixD worldMatrix = MatrixD.Multiply(MatrixD.CreateTranslation(dummyLocal.Translation), WorldMatrix);
             return worldMatrix;
         }
-         
+
         public float GetOxygenLevel()
         {
             if (!MySession.Static.Settings.EnableOxygen)
             {
                 return 0f;
             }
+
+            if (CubeGrid.GridSystems.GasSystem == null)
+                return 0;
 
             var oxygenBlock = CubeGrid.GridSystems.GasSystem.GetOxygenBlock(WorldMatrix.Translation);
 
@@ -512,5 +525,18 @@ namespace Sandbox.Game.Entities.Cube
             return ret;
         }
 
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }

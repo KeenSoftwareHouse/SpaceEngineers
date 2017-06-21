@@ -42,8 +42,6 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        internal DateTime LastMessageFromServer { get; private set; }
-
         internal bool AutoRegisterGameEvents { get; set; }
 
         internal MySyncLayer(MyTransportLayer transportLayer)
@@ -110,24 +108,12 @@ namespace Sandbox.Game.Multiplayer
                     success = Sync.ServerId == target || Sync.IsServer;
                     break;
 
-                case MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf:
-                    success = Sync.ServerId == target || Sync.IsServer || Sync.MyId == target;
-                    break;
-
                 case MyMessagePermissions.FromServer:
                     success = Sync.IsServer;
                     break;
 
                 case MyMessagePermissions.ToServer:
                     success = Sync.ServerId == target;
-                    break;
-
-                case MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf:
-                    success = Sync.ServerId == target || Sync.MyId == target;
-                    break;
-
-                case MyMessagePermissions.ToSelf:
-                    success = Sync.MyId == target;
                     break;
 
                 default:
@@ -150,24 +136,12 @@ namespace Sandbox.Game.Multiplayer
                     success = Sync.ServerId == sender || Sync.IsServer;
                     break;
 
-                case MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf:
-                    success = Sync.ServerId == sender || Sync.IsServer || Sync.MyId == sender;
-                    break;
-
                 case MyMessagePermissions.FromServer:
                     success = Sync.ServerId == sender;
                     break;
 
                 case MyMessagePermissions.ToServer:
                     success = Sync.IsServer;
-                    break;
-
-                case MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf:
-                    success = Sync.IsServer || Sync.MyId == sender;
-                    break;
-
-                case MyMessagePermissions.ToSelf:
-                    success = Sync.MyId == sender;
                     break;
 
                 default:
@@ -216,7 +190,12 @@ namespace Sandbox.Game.Multiplayer
         {
             if (Attribute.IsDefined(typeof(TMsg), typeof(ProtoContractAttribute)))
             {
+#if !XB1 // XB1_NOPROTOBUF
                 return CreateProto<TMsg>();
+#else // XB1
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+#endif // XB1
             }
             else
             {
@@ -224,11 +203,13 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+#if !XB1 // XB1_NOPROTOBUF
         // Separate methods for each serializer, don't want to to run static constructor on both
         static ISerializer<TMsg> CreateProto<TMsg>()
         {
             return DefaultProtoSerializer<TMsg>.Default;
         }
+#endif // !XB1
 
         // Separate methods for each serializer, don't want to to run static constructor on both
         static ISerializer<TMsg> CreateBlittable<TMsg>()

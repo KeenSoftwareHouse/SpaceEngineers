@@ -13,13 +13,13 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
 using Sandbox.Common;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SmallMissileLauncherReload))]
-    class MySmallMissileLauncherReload : MySmallMissileLauncher, IMySmallMissileLauncherReload
+    public class MySmallMissileLauncherReload : MySmallMissileLauncher, IMySmallMissileLauncherReload
     {
         const int COOLDOWN_TIME_MILISECONDS = 5000;
         int m_numRocketsShot = 0;
@@ -30,12 +30,20 @@ namespace Sandbox.Game.Weapons
         {
             get
             {
-                return this.GunBase.BurstFireRate;
+                return this.GunBase.ShotsInBurst;
             }
         }
 
-        static MySmallMissileLauncherReload()
+        public MySmallMissileLauncherReload()
         {
+            CreateTerminalControls();
+        }
+
+        protected override void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MySmallMissileLauncher>())
+                return;
+            base.CreateTerminalControls();
             var useConveyor = new MyTerminalControlOnOffSwitch<MySmallMissileLauncher>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyor.Getter = (x) => x.UseConveyorSystem;
             useConveyor.Setter = (x, v) => x.UseConveyorSystem = v;
@@ -44,10 +52,10 @@ namespace Sandbox.Game.Weapons
             MyTerminalControlFactory.AddControl(useConveyor);
         }
 
-        override public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             //small reloadable launcher have cooldown 
-            if ((BurstFireRate == m_numRocketsShot) && (COOLDOWN_TIME_MILISECONDS > MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot))
+            if ((BurstFireRate == m_numRocketsShot) && (MySandboxGame.TotalGamePlayTimeInMilliseconds < m_nextShootTime))
             {
                 return;
             }
@@ -57,12 +65,7 @@ namespace Sandbox.Game.Weapons
             }
             m_numRocketsShot++;
 
-            base.Shoot(action, direction, gunAction);
-
-            if (m_numRocketsShot == BurstFireRate)
-            {
-                MyHud.Notifications.Add(MISSILE_RELOAD_NOTIFICATION);
-            }
+            base.Shoot(action, direction, overrideWeaponPos, gunAction);
         }
     }
 }

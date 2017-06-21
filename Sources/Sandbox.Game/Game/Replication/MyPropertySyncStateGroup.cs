@@ -16,10 +16,10 @@ using System.Text;
 using VRage;
 using VRage.Collections;
 using VRage.Library.Collections;
-using VRage.Library.Sync;
 using VRage.Network;
 using VRage.Replication;
 using VRage.Serialization;
+using VRage.Sync;
 
 namespace Sandbox.Game.Replication
 {
@@ -46,7 +46,7 @@ namespace Sandbox.Game.Replication
         private SmallBitField m_dirtyProperties;
         private uint m_lastUpdateFrame;
 
-        private Dictionary<MyClientStateBase, ClientData> m_clientData = new Dictionary<MyClientStateBase, ClientData>();
+        private Dictionary<EndpointId , ClientData> m_clientData = new Dictionary<EndpointId, ClientData>();
         private ListReader<SyncBase> m_properties;
 
         public readonly IMyReplicable Owner;
@@ -91,16 +91,16 @@ namespace Sandbox.Game.Replication
 
         public void CreateClientData(MyClientStateBase forClient)
         {
-            m_clientData.Add(forClient, new ClientData());
-            m_clientData[forClient].DirtyProperties.Reset(true);
+            m_clientData.Add(forClient.EndpointId, new ClientData());
+            m_clientData[forClient.EndpointId].DirtyProperties.Reset(true);
         }
 
         public void DestroyClientData(MyClientStateBase forClient)
         {
-            m_clientData.Remove(forClient);
+            m_clientData.Remove(forClient.EndpointId);
         }
 
-        public void ClientUpdate()
+        public void ClientUpdate(uint timestamp)
         {
             const int ClientUpdateSleepFrames = 6;
 
@@ -134,10 +134,10 @@ namespace Sandbox.Game.Replication
 
             bool isValid = reader.ReadData(m_properties[propertyIndex], true);
 
-            // Validation succeded, mark property as clean
-            if (MyEventContext.Current.ClientState != null && m_clientData.ContainsKey(MyEventContext.Current.ClientState))
+            // Validation succeeded, mark property as clean
+            if (MyEventContext.Current.ClientState != null && m_clientData.ContainsKey(MyEventContext.Current.ClientState.EndpointId))
             {
-                m_clientData[MyEventContext.Current.ClientState].DirtyProperties[propertyIndex] = !isValid;
+                m_clientData[MyEventContext.Current.ClientState.EndpointId].DirtyProperties[propertyIndex] = !isValid;
             }
         }
 
@@ -151,18 +151,22 @@ namespace Sandbox.Game.Replication
                 return 0;
             }
 
+            if (client.HasReplicable(Owner) == false)
+            {
+                return 0;
+            }
             // Called only on server
             float priority = client.GetPriority(Owner);
             if (priority <= 0)
                 return 0;
 
-            if (m_clientData[client.State].DirtyProperties.Bits > 0 && m_clientData[client.State].PacketId == null)
+            if (m_clientData[client.State.EndpointId].DirtyProperties.Bits > 0 && m_clientData[client.State.EndpointId].PacketId == null)
                 return PriorityAdjust(frameCountWithoutSync, client.State, priority);
             else
                 return 0;
         }
 
-        public void Serialize(BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        public bool Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
         {
             SmallBitField dirtyFlags;
             if (stream.Writing)
@@ -192,11 +196,13 @@ namespace Sandbox.Game.Replication
                 data.SentProperties.Bits = data.DirtyProperties.Bits;
                 data.DirtyProperties.Bits = 0;
             }
+
+            return true;
         }
 
         public void OnAck(MyClientStateBase forClient, byte packetId, bool delivered)
         {
-            var data = m_clientData[forClient];
+            var data = m_clientData[forClient.EndpointId];
             Debug.Assert(data.PacketId == null || data.PacketId == packetId, "Packet ID does not match, error in replication server, reporting ACK for something invalid");
             
             if (delivered)

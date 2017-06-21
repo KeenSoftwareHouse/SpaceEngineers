@@ -18,6 +18,7 @@ namespace Sandbox.Game
         public static readonly MyStringId CROUCH = MyStringId.GetOrCompute("CROUCH"); // move down, crouch
         public static readonly MyStringId SWITCH_WALK = MyStringId.GetOrCompute("SWITCH_WALK");
         public static readonly MyStringId USE = MyStringId.GetOrCompute("USE"); // interact
+        public static readonly MyStringId PICK_UP = MyStringId.GetOrCompute("PICK_UP"); // pick into inventory
         public static readonly MyStringId TERMINAL = MyStringId.GetOrCompute("TERMINAL");
         public static readonly MyStringId HELP_SCREEN = MyStringId.GetOrCompute("HELP_SCREEN");
         public static readonly MyStringId CONTROL_MENU = MyStringId.GetOrCompute("CONTROL_MENU");
@@ -31,6 +32,7 @@ namespace Sandbox.Game
         public static readonly MyStringId HEADLIGHTS = MyStringId.GetOrCompute("HEADLIGHTS");
         public static readonly MyStringId SCREENSHOT = MyStringId.GetOrCompute("SCREENSHOT");
         public static readonly MyStringId LOOKAROUND = MyStringId.GetOrCompute("LOOKAROUND"); // looking inside cockpit
+        public static readonly MyStringId TOGGLE_SIGNALS = MyStringId.GetOrCompute("TOGGLE_SIGNALS"); // Toggling signals render mode on/off
         public static readonly MyStringId SWITCH_LEFT = MyStringId.GetOrCompute("SWITCH_LEFT"); // Previous Color. Default key '['.
         public static readonly MyStringId SWITCH_RIGHT = MyStringId.GetOrCompute("SWITCH_RIGHT"); // Next Color. Default key ']'.
         public static readonly MyStringId CUBE_COLOR_CHANGE = MyStringId.GetOrCompute("CUBE_COLOR_CHANGE");
@@ -51,6 +53,8 @@ namespace Sandbox.Game
         public static readonly MyStringId VOXEL_HAND_SETTINGS = MyStringId.GetOrCompute("VOXEL_HAND_SETTINGS");
         public static readonly MyStringId MISSION_SETTINGS = MyStringId.GetOrCompute("MISSION_SETTINGS");
         public static readonly MyStringId COCKPIT_BUILD_MODE = MyStringId.GetOrCompute("COCKPIT_BUILD_MODE");
+        public static readonly MyStringId CUBE_BUILDER_CUBESIZE_MODE = MyStringId.GetOrCompute("CUBE_BUILDER_CUBESIZE_MODE");
+        public static readonly MyStringId CUBE_DEFAULT_MOUNTPOINT = MyStringId.GetOrCompute("CUBE_DEFAULT_MOUNTPOINT"); // T key
 
         // Weapon selection slots
         public static readonly MyStringId SLOT1 = MyStringId.GetOrCompute("SLOT1");
@@ -84,7 +88,7 @@ namespace Sandbox.Game
         public static readonly MyStringId SPECTATOR_DELTA = MyStringId.GetOrCompute("SPECTATOR_DELTA");
         public static readonly MyStringId SPECTATOR_FREE = MyStringId.GetOrCompute("SPECTATOR_FREE");
         public static readonly MyStringId SPECTATOR_STATIC = MyStringId.GetOrCompute("SPECTATOR_STATIC");
-        public static readonly MyStringId STATION_ROTATION = MyStringId.GetOrCompute("STATION_ROTATION");
+        public static readonly MyStringId FREE_ROTATION = MyStringId.GetOrCompute("FREE_ROTATION");
         public static readonly MyStringId VOICE_CHAT = MyStringId.GetOrCompute("VOICE_CHAT");
 
         // NOT BINDABLE

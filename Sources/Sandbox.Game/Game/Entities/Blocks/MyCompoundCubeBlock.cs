@@ -10,18 +10,21 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
 using VRageMath;
-using Sandbox.Common.ModAPI;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRage;
+using VRageRender;
 using Sandbox.Common;
 using VRage.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Models;
 using VRage.Game;
+using VRage.Game.ModAPI;
 using VRage.Import;
 using VRage.Game.Models;
+using VRage.Game.ModAPI.Interfaces;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities
 {
@@ -29,8 +32,10 @@ namespace Sandbox.Game.Entities
     /// Cube block which is composed of several cube blocks together with shared compound template name.
     /// </summary>
     [MyCubeBlockType(typeof(MyObjectBuilder_CompoundCubeBlock))]
-    public class MyCompoundCubeBlock : MyCubeBlock
+    public class MyCompoundCubeBlock : MyCubeBlock, IMyDecalProxy
     {
+        static List<VertexArealBoneIndexWeight> m_boneIndexWeightTmp;
+
         private class MyCompoundBlockPosComponent : MyCubeBlock.MyBlockPosComponent
         {
             private MyCompoundCubeBlock m_block;
@@ -86,13 +91,11 @@ namespace Sandbox.Game.Entities
                 m_compoundBlock = compoundBlock;
             }
 
-            public override bool DebugDraw()
+            public override void DebugDraw()
             {
                 foreach (var block in m_compoundBlock.GetBlocks())
                     if (block.FatBlock != null)
                         block.FatBlock.DebugDraw();
-
-                return true;
             }
         }
 
@@ -184,7 +187,10 @@ namespace Sandbox.Game.Entities
                 foreach (var pair in m_mapIdToBlock)
                 {
                     objectBuilder.BlockIds[counter] = pair.Key;
-                    objectBuilder.Blocks[counter] = pair.Value.GetObjectBuilder();
+                    if(!copy)
+                        objectBuilder.Blocks[counter] = pair.Value.GetObjectBuilder();
+                    else
+                        objectBuilder.Blocks[counter] = pair.Value.GetCopyObjectBuilder();
                     ++counter;
                 }
             }
@@ -233,7 +239,7 @@ namespace Sandbox.Game.Entities
             base.UpdateVisual();
         }
 
-        internal override float GetMass()
+        public override float GetMass()
         {
             float mass = 0f;
             foreach (var pair in m_mapIdToBlock)
@@ -971,17 +977,46 @@ namespace Sandbox.Game.Entities
                 integrity += block.Value.MaxIntegrity;
             }
 
-            if (hitInfo.HasValue)
+            for (int i = m_blocks.Count - 1; i >= 0; --i)
             {
-                Debug.Assert(m_mapIdToBlock.Count > 0);
-                CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
-                    Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), m_mapIdToBlock.First().Value.BlockDefinition.PhysicalMaterial.DamageDecal);
+                var block = m_blocks[i];
+                block.DoDamage(damage * (block.MaxIntegrity / integrity), damageType, hitInfo, true, attackerId);
+            }
+        }
+
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler, MyStringHash material)
+        {
+            Debug.Assert(m_mapIdToBlock.Count > 0);
+            MyCubeGridHitInfo gridHitInfo = customdata as MyCubeGridHitInfo;
+            if (gridHitInfo == null)
+            {
+                Debug.Fail("MyCubeGridHitInfo must not be null");
+                return;
             }
 
-            foreach (var block in m_mapIdToBlock)
+            MySlimBlock block = m_mapIdToBlock.First().Value;
+            MyPhysicalMaterialDefinition physicalMaterial = block.BlockDefinition.PhysicalMaterial;
+            MyDecalRenderInfo renderable = new MyDecalRenderInfo();
+            renderable.Position = Vector3D.Transform(hitInfo.Position, CubeGrid.PositionComp.WorldMatrixInvScaled);
+            renderable.Normal = Vector3D.TransformNormal(hitInfo.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled);
+            renderable.RenderObjectId = CubeGrid.Render.GetRenderObjectID();
+
+            VertexBoneIndicesWeights? boneIndicesWeights = gridHitInfo.Triangle.GetAffectingBoneIndicesWeights(ref m_boneIndexWeightTmp);
+            if (boneIndicesWeights.HasValue)
             {
-                block.Value.DoDamage(damage * (block.Value.MaxIntegrity / integrity), damageType, true, hitInfo, false, attackerId);
+                renderable.BoneIndices = boneIndicesWeights.Value.Indices;
+                renderable.BoneWeights = boneIndicesWeights.Value.Weights;
             }
+
+            if (material.GetHashCode() == 0)
+                renderable.Material = MyStringHash.GetOrCompute(physicalMaterial.Id.SubtypeName);
+            else
+                renderable.Material = material;
+
+
+            var decalId = decalHandler.AddDecal(ref renderable);
+            if (decalId != null)
+                CubeGrid.RenderData.AddDecal(Position, gridHitInfo, decalId.Value);
         }
 
         public bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, bool checkZFight = false, bool ignoreGenerated = false)

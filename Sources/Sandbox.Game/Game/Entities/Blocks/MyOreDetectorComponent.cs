@@ -4,18 +4,16 @@ using ParallelTasks;
 using Sandbox.Definitions;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Gui;
-using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using VRage;
 using VRage.Collections;
-using VRage;
 using VRage.Generics;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
+using VRageRender.Utils;
 
 #endregion
 
@@ -86,7 +84,9 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(m_issuedQueries.Contains(depositCell));
             m_issuedQueries.Remove(depositCell);
             m_depositsByCellCoord[depositCell] = deposit;
+            ProfilerShort.Begin("IssueQueries");
             IssueQueries();
+            ProfilerShort.End();
         }
 
         public DictionaryValuesReader<Vector3I, MyEntityOreDeposit> Deposits
@@ -335,10 +335,12 @@ namespace Sandbox.Game.Entities.Cube
 
         private void OnComplete()
         {
+            ProfilerShort.Begin("MyOreDetectorComponent - OnComplete");
             m_args.CompletionCallback(m_args.Cell, m_result);
             m_args = default(Args);
             m_result = null;
             m_instancePool.Deallocate(this);
+            ProfilerShort.End();
         }
 
         WorkPriority IPrioritizedWork.Priority
@@ -346,7 +348,7 @@ namespace Sandbox.Game.Entities.Cube
             get { return WorkPriority.VeryLow; }
         }
 
-        void IWork.DoWork()
+        void IWork.DoWork(WorkData workData = null)
         {
             ProfilerShort.Begin("MyDepositQuery.DoWork");
             try

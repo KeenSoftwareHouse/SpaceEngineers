@@ -31,6 +31,7 @@ namespace VRage.Audio
         void SetVolume(float value);
 
         float Volume { get; }
+        float VolumeMultiplier { get; set; }
 
         void Cleanup();
     }

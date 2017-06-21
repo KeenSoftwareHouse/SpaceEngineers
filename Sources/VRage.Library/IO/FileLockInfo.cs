@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if XB1
+using System.Diagnostics;
+#endif
 
 namespace KeenSoftwareHouse.Library.IO
 {
@@ -12,7 +15,8 @@ namespace KeenSoftwareHouse.Library.IO
     using System.Text;
     using System.Threading;
 
-    public class Win32Processes
+	[Unsharper.UnsharperDisableReflection()]
+	public class Win32Processes
     {
         /// <summary>
         /// Return a list of processes that hold on the given file.
@@ -20,7 +24,9 @@ namespace KeenSoftwareHouse.Library.IO
         public static List<Process> GetProcessesLockingFile(string filePath)
         {
             var procs = new List<Process>();
-
+#if XB1
+			Debug.Assert(false);
+#else
             var processListSnapshot = Process.GetProcesses();
             foreach (var process in processListSnapshot)
             {
@@ -28,7 +34,8 @@ namespace KeenSoftwareHouse.Library.IO
                 var files = GetFilesLockedBy(process);
                 if (files.Contains(filePath)) procs.Add(process);
             }
-            return procs;
+#endif
+			return procs;
         }
 
         /// <summary>
@@ -37,7 +44,9 @@ namespace KeenSoftwareHouse.Library.IO
         public static List<string> GetFilesLockedBy(Process process)
         {
             var outp = new List<string>();
-
+#if XB1
+			Debug.Assert(false);
+#else
             ThreadStart ts = delegate
             {
                 try
@@ -63,12 +72,13 @@ namespace KeenSoftwareHouse.Library.IO
                 }
             }
             catch { Ignore(); }
-
+#endif
             return outp;
         }
 
+#if !XB1
 
-        #region Inner Workings
+//        #region Inner Workings
         private static void Ignore() { }
         private static List<string> UnsafeGetFilesLockedBy(Process process)
         {
@@ -196,9 +206,14 @@ namespace KeenSoftwareHouse.Library.IO
                 return null;
             }
         }
+#endif
 
         private static string GetRegularFileNameFromDevice(string strRawName)
         {
+#if XB1
+			Debug.Assert(false);
+			return strRawName;
+#else
             string strFileName = strRawName;
             foreach (string strDrivePath in Environment.GetLogicalDrives())
             {
@@ -215,8 +230,10 @@ namespace KeenSoftwareHouse.Library.IO
                 }
             }
             return strFileName;
-        }
+#endif
+		}
 
+#if !XB1
         private static IEnumerable<Win32API.SYSTEM_HANDLE_INFORMATION> GetHandles(Process process)
         {
             var nHandleInfoSize = 0x10000;
@@ -324,7 +341,8 @@ namespace KeenSoftwareHouse.Library.IO
             }
 
             [StructLayout(LayoutKind.Sequential)]
-            public struct OBJECT_BASIC_INFORMATION
+			[Unsharper.UnsharperDisableReflection()]
+			public struct OBJECT_BASIC_INFORMATION
             { // Information Class 0
                 public int Attributes;
                 public int GrantedAccess;
@@ -341,7 +359,8 @@ namespace KeenSoftwareHouse.Library.IO
                 public System.Runtime.InteropServices.ComTypes.FILETIME CreateTime;
             }
 
-            [StructLayout(LayoutKind.Sequential)]
+			[Unsharper.UnsharperDisableReflection()]
+			[StructLayout(LayoutKind.Sequential)]
             public struct OBJECT_TYPE_INFORMATION
             { // Information Class 2
                 public UNICODE_STRING Name;
@@ -367,13 +386,15 @@ namespace KeenSoftwareHouse.Library.IO
                 public int NonPagedPoolUsage;
             }
 
-            [StructLayout(LayoutKind.Sequential)]
+			[Unsharper.UnsharperDisableReflection()]
+			[StructLayout(LayoutKind.Sequential)]
             public struct OBJECT_NAME_INFORMATION
             { // Information Class 1
                 public UNICODE_STRING Name;
             }
 
-            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+			[Unsharper.UnsharperDisableReflection()]
+			[StructLayout(LayoutKind.Sequential, Pack = 1)]
             public struct UNICODE_STRING
             {
                 public ushort Length;
@@ -381,7 +402,8 @@ namespace KeenSoftwareHouse.Library.IO
                 public IntPtr Buffer;
             }
 
-            [StructLayout(LayoutKind.Sequential)]
+			[Unsharper.UnsharperDisableReflection()]
+			[StructLayout(LayoutKind.Sequential)]
             public struct GENERIC_MAPPING
             {
                 public int GenericRead;
@@ -406,6 +428,8 @@ namespace KeenSoftwareHouse.Library.IO
             public const int DUPLICATE_SAME_ACCESS = 0x2;
             public const uint FILE_SEQUENTIAL_ONLY = 0x00000004;
         }
-        #endregion
+#endif
+		//		#endregion
     }
+
 }

@@ -13,6 +13,7 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRageMath;
 using VRageRender;
 
@@ -34,9 +35,6 @@ namespace Sandbox.Game.World
         private int m_previousTime = 0;
 
         static readonly int GLOBAL_EVENT_UPDATE_RATIO_IN_MS = 2000;
-
-        public static MySyncGlobal SyncObject = new MySyncGlobal();
-
 
         public override void LoadData()
         {
@@ -209,8 +207,10 @@ namespace Sandbox.Game.World
         private void StartGlobalEvent(MyGlobalEventBase globalEvent)
         {
             AddGlobalEventToEventLog(globalEvent);
-            if (globalEvent.IsHandlerValid)
-                globalEvent.Action(globalEvent);
+			if (globalEvent.IsHandlerValid)
+			{
+				globalEvent.Action.Invoke(this, new object[] { globalEvent });
+			}
         }
 
         private void AddGlobalEventToEventLog(MyGlobalEventBase globalEvent)

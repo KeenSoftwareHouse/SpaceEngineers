@@ -318,6 +318,7 @@ namespace VRage.Replication
 
                     if (success)
                     {
+                        e.Stream.CheckTerminator();
                         eventsBuffer.Events.Dequeue();
                         ReturnEvent(e);
                     }

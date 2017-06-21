@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Localization xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Id>11190819744073711616</Id>
+  <Language>English</Language>
+  <Context>Mission04</Context>
+  <ResourceName>OfficialCampaign01M4</ResourceName>
+  <Default>true</Default>
+  <Entries>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Enemy_BossFight</Key>
+        <Value xsi:type="xsd:string">If you want to something done you have to do it yourself. Now is your time to die!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_PlayerReady</Key>
+        <Value xsi:type="xsd:string">Wait near the coordinates, we are almost there.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_Tank</Key>
+        <Value xsi:type="xsd:string">Glad you made it out of that wreck alive. Report to these coordinates, we have something for you...</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_TankDrop</Key>
+        <Value xsi:type="xsd:string">Stand clear of the landing zone! Tank drop will commence shortly</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_TankDropped</Key>
+        <Value xsi:type="xsd:string">Good luck.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_Rebel_TankReady</Key>
+        <Value xsi:type="xsd:string">We are in position, ready to deploy.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_DroneBlockDestroyed</Key>
+        <Value xsi:type="xsd:string">Door is still locked. It may be necessary to destroy more nodes.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_DroneControlStart</Key>
+        <Value xsi:type="xsd:string">Proceed to door control room and destroy one of door control nodes.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_DroneDoor</Key>
+        <Value xsi:type="xsd:string">This door is currently under lockdown. They can be opened from room on the left.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_DroneHint</Key>
+        <Value xsi:type="xsd:string">Access to this section is restricted. There is combat drone station in this area however.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_DroneHint2</Key>
+        <Value xsi:type="xsd:string">Activate the drone from drone control room located nearby.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_FrontGateOnFoot</Key>
+        <Value xsi:type="xsd:string">Use of wreckage missile launchers is recommended to destroy fortress gate.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_FrontGateTank</Key>
+        <Value xsi:type="xsd:string">Use of your rocket launchers is recommended to destroy fortress gate.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Jetpack</Key>
+        <Value xsi:type="xsd:string">Warning: suit hydrogen leak detected.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Outro</Key>
+        <Value xsi:type="xsd:string">The drone factory is just ahead, I'm getting strange signals that I've not encountered before, that probably means the artefact is close and more than likely so is the CEO of the company who I imagine isn't going to be too happy with you.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_ShipDestruction</Key>
+        <Value xsi:type="xsd:string">Warning: Reactor core critical, explosion imminent.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Start</Key>
+        <Value xsi:type="xsd:string">Warning: Reactor core overloading, evacuate ship immediately.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_TankDestruction1</Key>
+        <Value xsi:type="xsd:string">Your tank is no longer operable.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_TankDestruction2</Key>
+        <Value xsi:type="xsd:string">I have an alternative solution, some of these ship wrecks still have functioning turrets.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Warning</Key>
+        <Value xsi:type="xsd:string">Warning, ship control is disabled. Collision with the planet is imminent.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Chat_VA_Wreckage</Key>
+        <Value xsi:type="xsd:string">This wreckage still has operable weaponry that you can use.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Base</Key>
+        <Value xsi:type="xsd:string">Main Entrance</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ControlRoom</Key>
+        <Value xsi:type="xsd:string">Door Control Room</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Core</Key>
+        <Value xsi:type="xsd:string">Base Core</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_DoorControl</Key>
+        <Value xsi:type="xsd:string">Door Control</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_DronelRoom</Key>
+        <Value xsi:type="xsd:string">Drone Control Room</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_Escape</Key>
+        <Value xsi:type="xsd:string">Escape route</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_GearPanel</Key>
+        <Value xsi:type="xsd:string">Gear Control Panel</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_LZ</Key>
+        <Value xsi:type="xsd:string">Landing Zone</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">GPS_ShipWreckage</Key>
+        <Value xsi:type="xsd:string">Usable ship wreckage </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCD_TankPanel1_Line1</Key>
+        <Value xsi:type="xsd:string">   Press {0} to toggle</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCD_TankPanel1_Line2</Key>
+        <Value xsi:type="xsd:string">        handbrake</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCD_TankPanel2_Line1</Key>
+        <Value xsi:type="xsd:string">  Press {0} to toggle</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">LCD_TankPanel2_Line2</Key>
+        <Value xsi:type="xsd:string">Third person view</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_GetOut</Key>
+        <Value xsi:type="xsd:string">Evacuate the Ship!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_GetOut_Countdown</Key>
+        <Value xsi:type="xsd:string">Ship explosion in {0}...</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_GetOut_Line1</Key>
+        <Value xsi:type="xsd:string">Ship reactor meltdown imminent</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest01_GetOut_Line2</Key>
+        <Value xsi:type="xsd:string">Escape the ship immediately!</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Meeting</Key>
+        <Value xsi:type="xsd:string">Meet with the Rebel Transport</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Meeting_Coordinate</Key>
+        <Value xsi:type="xsd:string">Go to GPS coordinates</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Meeting_StayClose</Key>
+        <Value xsi:type="xsd:string">Stay close to GPS coordinates</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Meeting_Tank</Key>
+        <Value xsi:type="xsd:string">Enter the tank cockpit</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest02_Meeting_Wait</Key>
+        <Value xsi:type="xsd:string">Wait for the Rebel ship to deploy its tank</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03B_OnFoot</Key>
+        <Value xsi:type="xsd:string">Breach the defenses and enter the base</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03B_OnFoot_TurretControlHint1</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ]  key to control turret</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03B_OnFoot_TurretControlHint2</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] key to exit a turret</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03B_OnFoot_UseShips</Key>
+        <Value xsi:type="xsd:string">The wrecks have functional turrets, use them to fight with and to breach the main entrance.</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Tank</Key>
+        <Value xsi:type="xsd:string">Drive the tank and breach the base defenses</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Tank_Brakes</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] key to toggle handbrakes</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Tank_EscapeTurret</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] key to exit a turret</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Tank_FrontTurrets</Key>
+        <Value xsi:type="xsd:string">Use weapons to punch a hole in the main entrance ([ {0} ] key)</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Tank_Quest</Key>
+        <Value xsi:type="xsd:string">Use [ {0} ] key to toggle reactors</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest03_Tank_Turrets</Key>
+        <Value xsi:type="xsd:string">Press [ {0} ] and [ {1} ] keys to control turrets</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_BaseStart</Key>
+        <Value xsi:type="xsd:string">Enter the base interior</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_BaseStart_Exit</Key>
+        <Value xsi:type="xsd:string">Use the button panel to open the door to the drone factory</Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Quest04_BaseStart_Intro</Key>
+        <Value xsi:type="xsd:string">Continue onwards, further into the base</Value>
+      </item>
+    </dictionary>
+  </Entries>
+</MyObjectBuilder_Localization>

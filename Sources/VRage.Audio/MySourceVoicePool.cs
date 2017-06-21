@@ -3,6 +3,7 @@ using SharpDX.XAudio2;
 using System.Collections.Generic;
 using System.Text;
 using VRage.Collections;
+using VRage.Data.Audio;
 
 namespace VRage.Audio
 {
@@ -17,11 +18,10 @@ namespace VRage.Audio
         List<MySourceVoice> m_fadingOutVoices;
         public event AudioEngineChanged OnAudioEngineChanged;
 
-        public bool useSameSoundLimiter = false;
-        public int sameSoundlimiterCount = 3;
+        public bool UseSameSoundLimiter = false;
 
         int m_currentCount;
-        private const int MAX_COUNT = 32;
+        private const int MAX_COUNT = 128;
 #if DEBUG
         public MyConcurrentHashSet<MySourceVoice> m_debugPlayingList = new MyConcurrentHashSet<MySourceVoice>();
 #endif
@@ -38,7 +38,7 @@ namespace VRage.Audio
             m_audioEngine = audioEngine;
             m_waveFormat = waveformat;
             m_owner = owner;
-            m_availableVoices = new MyConcurrentQueue<MySourceVoice>(32);
+            m_availableVoices = new MyConcurrentQueue<MySourceVoice>(MAX_COUNT);
             m_fadingOutVoices = new List<MySourceVoice>();
             m_currentCount = 0;
         }
@@ -149,7 +149,7 @@ namespace VRage.Audio
             }
 
             //silent sounds playing in large number (sameSoundLimiterCount)
-            if (useSameSoundLimiter)
+            if (UseSameSoundLimiter)
             {
                 //add remaining voices to distance and sort them
                 m_distancedVoices.Clear();
@@ -164,17 +164,20 @@ namespace VRage.Audio
 
                 //silent or un-silent voices
                 MyCueId currentCueId;
-                int j;
+                int j,limit;
+                MySoundData cueDefinition;
                 while (m_distancedVoices.Count > 0)
                 {
                     currentCueId = m_distancedVoices[0].CueEnum;
                     i = 0;
+                    cueDefinition = MyAudio.Static.GetCue(currentCueId);
+                    limit = cueDefinition != null ? cueDefinition.SoundLimit : 0;
                     for (j = 0; j < m_distancedVoices.Count; j++)
                     {
                         if (m_distancedVoices[j].CueEnum.Equals(currentCueId))
                         {
                             i++;
-                            if (i > sameSoundlimiterCount)
+                            if (limit > 0 && i > limit)
                                 m_distancedVoices[j].Silent = true;
                             else
                                 m_distancedVoices[j].Silent = false;
@@ -250,11 +253,15 @@ namespace VRage.Audio
             int id = 0;
             foreach(var item in m_debugPlayingList)
             {
-                if (item.IsPlaying && !item.IsPaused)
-                    stringBuilder.Append(item.CueEnum.ToString()+" ").AppendDecimal(item.Volume, 2).Append(", ");
-                if (id % 5 == 0 && id > 0)
-                    stringBuilder.AppendLine();
-                id++;
+                if (item.IsPlaying && !item.IsPaused && !item.Silent && item.VolumeMultiplier != 0f)
+                {
+                    if(id > 0)
+                        stringBuilder.Append(", ");
+                    if (id % 5 == 0 && id > 0)
+                        stringBuilder.AppendLine();
+                    stringBuilder.Append(item.CueEnum.ToString() + " ").AppendDecimal(item.Volume*item.VolumeMultiplier, 2);
+                    id++;
+                }
             }
 
             if(id > 0)
@@ -268,11 +275,21 @@ namespace VRage.Audio
             int id = 0;
             foreach(var item in m_debugPlayingList)
             {
-                if (item.IsPlaying && item.IsPaused)
-                    stringBuilder.Append(item.CueEnum.ToString()).Append(", ");
-                if (id % 5 == 0 && id > 0)
-                    stringBuilder.AppendLine();
-                id++;
+                if (item.IsPlaying && (item.IsPaused || item.Silent || item.VolumeMultiplier == 0f))
+                {
+                    if (id > 0)
+                        stringBuilder.Append(", ");
+                    if (id % 4 == 0 && id > 0)
+                        stringBuilder.AppendLine();
+                    stringBuilder.Append(item.CueEnum.ToString() + " ");
+                    if (item.Silent)
+                        stringBuilder.Append("LIM");
+                    else if (item.VolumeMultiplier == 0f)
+                        stringBuilder.Append("SIL");
+                    else
+                        stringBuilder.Append("PAU");
+                    id++;
+                }
             }
             if (id > 0)
                 stringBuilder.AppendLine();

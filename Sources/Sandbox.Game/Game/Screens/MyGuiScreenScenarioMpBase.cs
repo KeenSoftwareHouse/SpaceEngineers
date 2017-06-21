@@ -219,7 +219,7 @@ namespace Sandbox.Game.Screens
             m_readyPlayers.Clear();
             base.OnClosed();
             if (Cancelled)
-                MyGuiScreenMainMenu.ReturnToMainMenu();
+                MySessionLoader.UnloadAndExitToMenu();
         }
 
         public void MySyncScenario_PlayerReady(ulong Id)

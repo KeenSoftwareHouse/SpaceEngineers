@@ -41,6 +41,13 @@ namespace VRageMath.PackedVector
             return vector3;
         }
 
+        public HalfVector4 ToHalfVector4()
+        {
+            HalfVector4 v4;
+            v4.PackedValue = ((ulong)X) | ((ulong)Y << 16) | ((ulong)Z << 32);
+            return v4;
+        }
+
         public static implicit operator HalfVector3(Vector3 v)
         {
             return new HalfVector3(v);

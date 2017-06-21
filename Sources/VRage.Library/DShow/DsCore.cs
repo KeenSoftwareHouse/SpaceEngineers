@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace DShowNET
 {
+#if !XB1
     [ComVisible(false)]
     public enum PinDirection		// PIN_DIRECTION
     {
@@ -385,5 +386,5 @@ namespace DShowNET
             [In, MarshalAs(UnmanagedType.LPStruct)]			DsOptInt64 pTimeStart,
             [In, MarshalAs(UnmanagedType.LPStruct)]			DsOptInt64 pTimeEnd);
     }
-
+#endif
 } // namespace DShowNET

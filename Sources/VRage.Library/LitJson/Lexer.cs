@@ -17,6 +17,8 @@ using System.Text;
 
 namespace LitJson
 {
+#if !XB1
+
     internal class FsmContext
     {
         public bool  Return;
@@ -909,4 +911,5 @@ namespace LitJson
             input_buffer = input_char;
         }
     }
+#endif
 }

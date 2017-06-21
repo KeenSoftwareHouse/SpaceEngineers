@@ -11,7 +11,6 @@ using System.Text;
 using VRage.Generics;
 
 using VRageMath;
-using VRageRender.Resources;
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;
@@ -21,6 +20,8 @@ using BoundingFrustum = VRageMath.BoundingFrustum;
 using VRage.Collections;
 using System.Collections.Specialized;
 using System.Threading;
+using VRage.Render11.GeometryStage2;
+using VRage.Render11.GeometryStage2.Instancing;
 
 
 namespace VRageRender
@@ -42,6 +43,13 @@ namespace VRageRender
         {
             var actor = Create();
             actor.AddComponent<MyRenderableComponent>(MyComponentFactory<MyRenderableComponent>.Create());
+            return actor;
+        }
+
+        internal static MyActor CreateSceneObject2()
+        {
+            var actor = Create();
+            actor.AddComponent<MyInstanceComponent>(MyComponentFactory<MyInstanceComponent>.Create());
             return actor;
         }
 

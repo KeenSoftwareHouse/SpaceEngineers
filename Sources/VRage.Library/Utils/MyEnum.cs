@@ -7,9 +7,50 @@ using VRage.Compiler;
 
 namespace VRage.Library.Utils
 {
+    public enum MyGameModeEnum
+    {
+        Creative,
+        Survival,
+    }
+
+
+#if UNSHARPER
+	public struct MyEnum_Range<T>
+	where T : struct, IComparable, IFormattable, IConvertible
+    {
+        public static readonly T Min;
+        public static readonly T Max;
+
+		static MyEnum_Range()
+        {
+            var values = MyEnum<T>.Values;
+            var comparer = Comparer<T>.Default;
+
+            if (values.Length > 0)
+            {
+                Max = values[0];
+                Min = values[0];
+                for (int i = 1; i < values.Length; i++)
+                {
+                    var v = values[i];
+                    if (comparer.Compare(Max, v) < 0)
+                    {
+                        Max = v;
+                    }
+                    if (comparer.Compare(Min, v) > 0)
+                    {
+                        Min = v;
+                    }
+                }
+            }
+        }
+    }
+#endif
+
     public static class MyEnum<T>
         where T : struct, IComparable, IFormattable, IConvertible
     {
+#if !UNSHARPER
         // Intentionaly here as inner struct, when not used, max value is not calculated
         public struct Range
         {
@@ -40,6 +81,8 @@ namespace VRage.Library.Utils
                 }
             }
         }
+#endif
+
 
         public static string Name { get { return TypeNameHelper<T>.Name; } }
         public static readonly T[] Values = (T[])Enum.GetValues(typeof(T));

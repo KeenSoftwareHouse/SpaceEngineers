@@ -16,6 +16,9 @@ using Sandbox.Game.World;
 
 namespace Sandbox.Game.Gui
 {
+
+#if !XB1
+
     [MyDebugScreen("Game", "Character properties")]
     class MyGuiScreenDebugCharacterProperties : MyGuiScreenDebugBase
     {
@@ -40,18 +43,18 @@ namespace Sandbox.Game.Gui
                 return;
 
             AddLabel("Front light", Color.Yellow.ToVector4(), 1.2f);
-            AddSlider("Reflector Distance", 1, 500, null, MemberHelper.GetMember(() => MyCharacter.REFLECTOR_RANGE));
-            AddSlider("Reflector Intensity", 0.0f, 2.0f, null, MemberHelper.GetMember(() => MyCharacter.REFLECTOR_INTENSITY));
-            AddColor(new StringBuilder("Reflector Color"), null, MemberHelper.GetMember(() => MyCharacter.REFLECTOR_COLOR));
-            AddSlider("Reflector angle", 0.001f, 0.8f, null, MemberHelper.GetMember(() => MyCharacter.REFLECTOR_CONE_ANGLE));
-            AddSlider("Reflector direction", -89.0f, 89.0f, null, MemberHelper.GetMember(() => MyCharacter.REFLECTOR_DIRECTION));
-            AddSlider("Point Light Range", 0.0f, 100.0f, null, MemberHelper.GetMember(() => MyCharacter.POINT_LIGHT_RANGE));
-            AddSlider("Point Light Intensity", 0.0f, 2.0f, null, MemberHelper.GetMember(() => MyCharacter.POINT_LIGHT_INTENSITY));
-            AddColor(new StringBuilder("Point Light Color"), null, MemberHelper.GetMember(() => MyCharacter.POINT_COLOR));
-            AddColor(new StringBuilder("Point Light Color Specular"), null, MemberHelper.GetMember(() => MyCharacter.POINT_COLOR_SPECULAR));
-            //AddSlider(new StringBuilder("Jetpack glare size"), 0.01f, 10.0f, character.Definition, MemberHelper.GetMember(() => character.Definition.JetpackGlareSize));
-            //AddSlider(new StringBuilder("Headlight glare size"), 0.005f, 10.0f, character.Definition, MemberHelper.GetMember(() => character.Definition.LightGlareSize));
-            AddSlider("Welder glare size", 0.01f, 10.0f, null, MemberHelper.GetMember(() => MyEngineerToolBase.GLARE_SIZE));
+            AddSlider("Reflector Distance CONST", 1, 500, () => MyCharacter.REFLECTOR_RANGE, (s) => { });
+            AddSlider("Reflector Intensity CONST", 0.0f, 2.0f, () => MyCharacter.REFLECTOR_INTENSITY, (s) => { });
+            //AddColor(new StringBuilder("Reflector Color"), null, MemberHelper.GetMember(() => MyCharacter.REFLECTOR_COLOR));
+            //AddSlider("Reflector angle", 0.001f, 0.8f, null, MemberHelper.GetMember(() => MyCharacter.REFLECTOR_CONE_ANGLE));
+            //AddSlider("Reflector direction", -89.0f, 89.0f, null, MemberHelper.GetMember(() => MyCharacter.REFLECTOR_DIRECTION));
+            //AddSlider("Point Light Range", 0.0f, 100.0f, null, MemberHelper.GetMember(() => MyCharacter.POINT_LIGHT_RANGE));
+            //AddSlider("Point Light Intensity", 0.0f, 2.0f, null, MemberHelper.GetMember(() => MyCharacter.POINT_LIGHT_INTENSITY));
+            //AddColor(new StringBuilder("Point Light Color"), null, MemberHelper.GetMember(() => MyCharacter.POINT_COLOR));
+            //AddColor(new StringBuilder("Point Light Color Specular"), null, MemberHelper.GetMember(() => MyCharacter.POINT_COLOR_SPECULAR));
+            ////AddSlider(new StringBuilder("Jetpack glare size"), 0.01f, 10.0f, character.Definition, MemberHelper.GetMember(() => character.Definition.JetpackGlareSize));
+            ////AddSlider(new StringBuilder("Headlight glare size"), 0.005f, 10.0f, character.Definition, MemberHelper.GetMember(() => character.Definition.LightGlareSize));
+            //AddSlider("Welder glare size", 0.01f, 10.0f, null, MemberHelper.GetMember(() => MyEngineerToolBase.GLARE_SIZE));
 
             m_currentPosition.Y += 0.01f;
         }
@@ -61,4 +64,6 @@ namespace Sandbox.Game.Gui
             return "MyGuiScreenDebugCharacterProperties";
         }
     }
+
+#endif
 }

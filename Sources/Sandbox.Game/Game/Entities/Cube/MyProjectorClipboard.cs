@@ -8,18 +8,23 @@ using System.Linq;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Game.GameSystems.CoordinateSystem;
 
 namespace Sandbox.Game.Entities.Cube
 {
     public class MyProjectorClipboard : MyGridClipboard
     {
         private MyProjectorBase m_projector;
+        Vector3I m_oldProjectorRotation;
+        Vector3I m_oldProjectorOffset;
+        MatrixD m_oldProjectorMatrix;
+        bool m_firstUpdateAfterNewBlueprint = false;
 
-
-        public MyProjectorClipboard(MyProjectorBase projector)
-            : base(MyPerGameSettings.PastingSettings)
+        public MyProjectorClipboard(MyProjectorBase projector, MyPlacementSettings settings)
+            : base(settings) //Pasting Settings here ?
         {
             MyDebug.AssertDebug(projector != null);
             m_projector = projector;
@@ -79,6 +84,9 @@ namespace Sandbox.Game.Entities.Cube
             gridBuilder.DestructibleBlocks = false;
             foreach (var block in gridBuilder.CubeBlocks)
             {
+                block.Owner = 0;
+                block.ShareMode = MyOwnershipShareModeEnum.None;
+                block.EntityId = 0;
                 var functionalBlock = block as MyObjectBuilder_FunctionalBlock;
                 if (functionalBlock != null)
                 {
@@ -106,6 +114,7 @@ namespace Sandbox.Game.Entities.Cube
         public bool ActuallyTestPlacement()
         {
             m_projectionCanBePlaced = base.TestPlacement();
+            MyCoordinateSystem.Static.Visible = false;
             return m_projectionCanBePlaced;
         }
 
@@ -123,24 +132,36 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override void UpdateGridTransformations()
         {
-            MatrixD originalOrientation = Matrix.Multiply(base.GetFirstGridOrientationMatrix(), m_projector.WorldMatrix);
-            var invRotation = Matrix.Invert(CopiedGrids[0].PositionAndOrientation.Value.GetMatrix()).GetOrientation();
-            MatrixD orientationDelta = invRotation * originalOrientation; // matrix from original orientation to new orientation
+            MatrixD worldMatrix = m_projector.WorldMatrix;
 
-            for (int i = 0; i < PreviewGrids.Count; i++)
+            if (m_firstUpdateAfterNewBlueprint || m_oldProjectorRotation != m_projector.ProjectionRotation || m_oldProjectorOffset != m_projector.ProjectionOffset || !m_oldProjectorMatrix.EqualsFast(ref worldMatrix))
             {
-                MatrixD worldMatrix2 = CopiedGrids[i].PositionAndOrientation.Value.GetMatrix(); //get original rotation and position
-                var offset = worldMatrix2.Translation - CopiedGrids[0].PositionAndOrientation.Value.Position;//calculate offset to first pasted grid
-                m_copiedGridOffsets[i] = Vector3D.TransformNormal(offset, orientationDelta); // Transform the offset to new orientation
-                if (!AnyCopiedGridIsStatic)
-                    worldMatrix2 = worldMatrix2 * orientationDelta; //correct rotation
-                Vector3D translation = m_pastePosition + m_copiedGridOffsets[i]; //correct position
+                m_firstUpdateAfterNewBlueprint = false;
+                m_oldProjectorRotation = m_projector.ProjectionRotation;
+                m_oldProjectorMatrix = worldMatrix;
+                m_oldProjectorOffset = m_projector.ProjectionOffset;
 
-                worldMatrix2.Translation = Vector3.Zero;
-                worldMatrix2 = Matrix.Orthogonalize(worldMatrix2);
-                worldMatrix2.Translation = translation + Vector3D.Transform(m_projector.GetProjectionTranslationOffset(), m_projector.WorldMatrix.GetOrientation());
+                // Update rotation based on projector settings
+                Quaternion rotation = m_projector.ProjectionRotationQuaternion;
+                Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);
+                worldMatrix = Matrix.Multiply(rotationMatrix, worldMatrix);
 
-                PreviewGrids[i].PositionComp.SetWorldMatrix(worldMatrix2);// Set the corrected position
+                // Update PreviewGrids
+                for (int i = 0; i < PreviewGrids.Count; i++)
+                {
+                    // ensure the first block touches the projector base at (0,0,0) projector offset config
+                    MySlimBlock firstBlock = PreviewGrids[i].CubeBlocks.First();
+                    Vector3D firstBlockPos = MyCubeGrid.GridIntegerToWorld(PreviewGrids[i].GridSize, firstBlock.Position, worldMatrix);
+
+                    Vector3D delta = firstBlockPos - m_projector.WorldMatrix.Translation;
+
+                    // Re-adjust position
+                    Vector3D projectionOffset = m_projector.GetProjectionTranslationOffset();
+                    projectionOffset = Vector3D.Transform(projectionOffset, m_projector.WorldMatrix.GetOrientation());
+                    worldMatrix.Translation -= delta + projectionOffset;
+
+                    PreviewGrids[i].PositionComp.SetWorldMatrix(worldMatrix);
+                }
             }
         }
 
@@ -155,6 +176,12 @@ namespace Sandbox.Game.Entities.Cube
 
                 return 0f;
             }
+        }
+
+        public override void Activate(Action callback = null)
+        {
+            ActivateNoAlign(callback);
+            m_firstUpdateAfterNewBlueprint = true;
         }
     }
 }

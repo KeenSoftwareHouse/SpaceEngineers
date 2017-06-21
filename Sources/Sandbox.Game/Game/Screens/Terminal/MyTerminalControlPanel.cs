@@ -11,12 +11,15 @@ using VRageMath;
 using Sandbox.Graphics;
 using System.Collections.Generic;
 using Sandbox.Common;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.World;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Localization;
 using VRage.Game;
+using VRage.Profiler;
 using VRage.Utils;
 
 namespace Sandbox.Game.Gui
@@ -183,6 +186,8 @@ namespace Sandbox.Game.Gui
             m_showAll.Selected = m_showAllTerminalBlocks;
             ClearBlockList();
             PopulateBlockList();
+            //GR: Scroll toolbar to top manually when needed from individual controls
+            m_blockListbox.ScrollToolbarToTop();
         }
 
         void groupSave_ButtonClicked(MyGuiControlButton obj)
@@ -247,6 +252,8 @@ namespace Sandbox.Game.Gui
                 foreach (var item in m_blockListbox.Items)
                     item.Visible = true;
             }
+            //GR: Scroll toolbar to top manually when needed from individual controls
+            m_blockListbox.ScrollToolbarToTop();
             //SelectBlocks();
         }
 
@@ -578,6 +585,11 @@ namespace Sandbox.Game.Gui
         {
             ClearBlockList();
             PopulateBlockList();
+            
+            //JC: This should never be null at this point but is happening...
+            if (m_blockListbox != null)
+                //GR: Scroll toolbar to top manually when needed from individual controls
+                m_blockListbox.ScrollToolbarToTop();
         }
     }
 }

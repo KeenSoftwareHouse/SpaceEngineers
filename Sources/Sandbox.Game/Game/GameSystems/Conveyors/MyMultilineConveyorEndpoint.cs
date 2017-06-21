@@ -9,7 +9,9 @@ using System.Text;
 using VRage;
 using VRage.Algorithms;
 using VRage.Game;
+using VRage.Profiler;
 using VRageMath;
+using VRageRender.Import;
 
 namespace Sandbox.Game.GameSystems.Conveyors
 {
@@ -160,11 +162,14 @@ namespace Sandbox.Game.GameSystems.Conveyors
         protected ConveyorLinePosition[] GetLinePositions()
         {
             ConveyorLinePosition[] retval = null;
-            if (m_linePositions.TryGetValue(CubeBlock.BlockDefinition.Id, out retval))
-                return retval;
-
-            retval = GetLinePositions(CubeBlock, "detector_conveyor");
-            m_linePositions.Add(CubeBlock.BlockDefinition.Id, retval);
+            lock (m_linePositions)
+            {
+                if (!m_linePositions.TryGetValue(CubeBlock.BlockDefinition.Id, out retval))
+                {
+                    retval = GetLinePositions(CubeBlock, "detector_conveyor");
+                    m_linePositions.Add(CubeBlock.BlockDefinition.Id, retval);
+                }
+            }
             return retval;
         }
 
@@ -173,7 +178,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             return GetLinePositions(cubeBlock, VRage.Game.Models.MyModels.GetModelOnlyDummies(cubeBlock.BlockDefinition.Model).Dummies, dummyName);
         }
 
-        public static ConveyorLinePosition[] GetLinePositions(MyCubeBlock cubeBlock, IDictionary<string, VRage.Import.MyModelDummy> dummies, string dummyName)
+        public static ConveyorLinePosition[] GetLinePositions(MyCubeBlock cubeBlock, IDictionary<string, MyModelDummy> dummies, string dummyName)
         {
             var definition = cubeBlock.BlockDefinition;
             float cubeSize = MyDefinitionManager.Static.GetCubeSize(definition.CubeSize);

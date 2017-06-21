@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Library.Collections;
+using VRageMath;
 
 namespace VRage.Network
 {
@@ -11,21 +12,21 @@ namespace VRage.Network
         /// <summary>
         /// Child replicables are strongly dependent on parent.
         /// When parent is replicated, children are replicated, priority is never checked for children.
-        /// Dependency can change during replicable runtime, IsChild can not.
+        /// Parent can change during replicable runtime, HasToBeChild can not.
         /// </summary>
-        bool IsChild { get; }
+        bool HasToBeChild { get; }
 
         /// <summary>
-        /// Gets dependency which must be replicated first.
+        /// Gets parent which must be replicated first.
         /// </summary>
-        IMyReplicable GetDependency();
+        IMyReplicable GetParent();
 
         /// <summary>
         /// Gets priority related to client.
         /// When priority is lower than zero, it means the object is not relevant for client.
         /// Default priority is 1.0f.
         /// </summary>
-        float GetPriority(MyClientInfo client);
+        float GetPriority(MyClientInfo client,bool cached);
 
         /// <summary>
         /// Serializes object for replication to client.
@@ -55,5 +56,26 @@ namespace VRage.Network
         /// It does not have to return same instances every time.
         /// </summary>
         void GetStateGroups(List<IMyStateGroup> resultList);
+
+        bool IsReadyForReplication { get; }
+        Dictionary<IMyReplicable, Action> ReadyForReplicationAction { get; }
+
+        /// <summary>
+        /// Root replicables always have spatial representation. 
+        /// </summary>
+        /// <returns></returns>
+        BoundingBoxD GetAABB();
+
+        /// <summary>
+        /// Called when root replicable AABB changed
+        /// </summary>
+        Action<IMyReplicable> OnAABBChanged { get; set; }
+
+        /// <summary>
+        /// Dependend replicables, which might not be in AABB of this replicable. Ie. all relayed antennas are depended 
+        /// on mycharacter and need to be synced with him. 
+        /// </summary>
+        /// <returns></returns>
+        HashSet<IMyReplicable> GetDependencies();
     }
 }

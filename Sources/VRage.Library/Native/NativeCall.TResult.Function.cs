@@ -1,10 +1,12 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace VRage.Native
 {
+#if !UNSHARPER
     public static partial class NativeCall<TResult>
     {
         public static TResult Function(IntPtr address)
@@ -42,4 +44,7 @@ namespace VRage.Native
             return NativeCallHelper<Func<IntPtr, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TResult>>.Invoke(address, arg1, arg2, arg3, arg4, arg5, arg6);
         }
     }
+#endif
 }
+
+#endif // !XB1

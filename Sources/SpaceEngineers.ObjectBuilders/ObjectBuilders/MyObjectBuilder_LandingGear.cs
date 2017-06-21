@@ -34,7 +34,10 @@ namespace Sandbox.Common.ObjectBuilders
         public float BrakeForce = MaxSolverImpulse;
 
         [ProtoMember]
-        public bool AutoLock;
+        public bool AutoLock = true;
+
+        [ProtoMember]
+        public bool FirstLockAttempt = true;
 
         [ProtoMember]
         [Serialize(MyObjectFlags.Nullable)]

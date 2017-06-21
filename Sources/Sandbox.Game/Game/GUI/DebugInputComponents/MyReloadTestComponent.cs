@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Sandbox.Game.Gui.DebugInputComponents
                 GC.Collect(2, GCCollectionMode.Forced);
                 MySandboxGame.Log.WriteLine(String.Format("RELOAD TEST, Game GC: {0} B", GC.GetTotalMemory(false).ToString("##,#")));
                 MySandboxGame.Log.WriteLine(String.Format("RELOAD TEST, Game WS: {0} B", Process.GetCurrentProcess().PrivateMemorySize64.ToString("##,#")));
-                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                MySessionLoader.UnloadAndExitToMenu();
             }
         }
 
@@ -33,7 +34,8 @@ namespace Sandbox.Game.Gui.DebugInputComponents
             MySandboxGame.Log.WriteLine(String.Format("RELOAD TEST, Menu WS: {0} B", Process.GetCurrentProcess().PrivateMemorySize64.ToString("##,#")));
             var session = MyLocalCache.GetAvailableWorldInfos().OrderByDescending(s => s.Item2.LastLoadTime).FirstOrDefault();
             if (session != null)
-                MyGuiScreenLoadSandbox.LoadSingleplayerSession(session.Item1);
+                MySessionLoader.LoadSingleplayerSession(session.Item1);
         }
     }
 }
+#endif // !XB1

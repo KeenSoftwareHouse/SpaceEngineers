@@ -8,7 +8,11 @@ using VRageMath;
 
 namespace VRage.Input
 {
+#if !XB1
     public partial class MyDirectXInput : VRage.ModAPI.IMyInput
+#else
+    public partial class MyXInputInput : VRage.ModAPI.IMyInput
+#endif
     {
         bool ModAPI.IMyInput.IsCapsLock { get { return IsCapsLock; } }
 

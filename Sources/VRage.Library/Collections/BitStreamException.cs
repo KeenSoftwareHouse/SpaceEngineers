@@ -5,6 +5,7 @@ using System.Text;
 
 namespace VRage.Library.Collections
 {
+	[Unsharper.UnsharperDisableReflection()]
     public class BitStreamException : Exception
     {
         public BitStreamException(Exception inner)

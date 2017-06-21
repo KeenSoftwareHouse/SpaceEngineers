@@ -8,10 +8,11 @@ using System.Diagnostics;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    public interface IMyControllableEntity : Sandbox.ModAPI.Interfaces.IMyControllableEntity
+    public interface IMyControllableEntity : VRage.Game.ModAPI.Interfaces.IMyControllableEntity
     {
         MyControllerInfo ControllerInfo { get; }
 
@@ -38,6 +39,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         void OnEndShoot(MyShootActionEnum action);
         void UseFinished();
+        void PickUpFinished();
         void Sprint(bool enabled);
 
         void SwitchToWeapon(MyDefinitionId weaponDefinition);
@@ -54,12 +56,22 @@ namespace Sandbox.Game.Entities
         MyEntityCameraSettings GetCameraEntitySettings();
 
         MyStringId ControlContext { get; }
+
+        MyToolbar Toolbar { get; }
+    }
+
+    public struct MoveInformation
+    {
+        public Vector3 MoveIndicator;
+        public Vector2 RotationIndicator;
+        public float RollIndicator;
     }
 
     public enum MyShootActionEnum
     {
         PrimaryAction = 0,
         SecondaryAction = 1,
+        TertiaryAction = 2,
     }
 
     static class MyControllableEntityExtensions

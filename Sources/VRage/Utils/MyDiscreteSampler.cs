@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace VRage.Utils
     /// <summary>
     /// A templated class for sampling from a set of objects with given probabilities. Uses MyDiscreteSampler.
     /// </summary>
-    public class MyDiscreteSampler<T>
+    public class MyDiscreteSampler<T> : IEnumerable<T>
     {
         private T[] m_values;
         private MyDiscreteSampler m_sampler;
@@ -68,9 +69,26 @@ namespace VRage.Utils
             return m_values[m_sampler.Sample(rng)];
         }
 
+        public T Sample(float sample)
+        {
+            return m_values[m_sampler.Sample(sample)];
+        }
+
         public T Sample()
         {
             return m_values[m_sampler.Sample()];
+        }
+
+        public int Count { get { return m_values.Length; } }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return m_values.AsEnumerable().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 
@@ -211,6 +229,34 @@ namespace VRage.Utils
             int entryIndex = rng.Next(m_binCount);
             var entry = m_bins[entryIndex];
             if (rng.NextFloat() <= entry.Split)
+            {
+                return entry.BinIndex;
+            }
+            else
+            {
+                return entry.Donator;
+            }
+        }
+
+        /**
+         * Beware that Cestmir thinks this can be less precise if you have a billiard numbers.
+         * 
+         * He is probably right. So only use this version if you don't care.
+         */
+        public int Sample(float rate)
+        {
+            Debug.Assert(m_initialized && m_bins != null, "Sampling fron an uninitialized sampler!");
+
+            if (rate == 1) rate = .999999f;
+
+            double binSelect = m_binCount*rate;
+
+            int entryIndex = (int)(binSelect);
+            var entry = m_bins[entryIndex];
+
+            var split = binSelect - entryIndex;
+
+            if (split <= entry.Split)
             {
                 return entry.BinIndex;
             }

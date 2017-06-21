@@ -16,6 +16,8 @@ using Sandbox.Graphics;
 using Sandbox.Engine.Physics;
 using VRage.Win32;
 using VRage.Game;
+using VRageRender.Utils;
+using MyRenderProxy = VRageRender.MyRenderProxy;
 
 namespace Sandbox.Game.Gui
 {
@@ -47,13 +49,13 @@ namespace Sandbox.Game.Gui
         public override void LoadData()
         {
             base.LoadData();
-            VRageRender.MyRenderProxy.DRAW_RENDER_STATS = true;
+            MyRenderProxy.DrawRenderStats = MyRenderProxy.MyStatsState.MoveNext;
         }
 
         public override void UnloadData()
         {
             base.UnloadData();
-            VRageRender.MyRenderProxy.DRAW_RENDER_STATS = false;
+            MyRenderProxy.DrawRenderStats = MyRenderProxy.MyStatsState.NoDraw;
         }
 
         public override string GetFriendlyName()
@@ -95,16 +97,18 @@ namespace Sandbox.Game.Gui
             Stats.Timing.WriteFormat("Frame max time: {0} ms", MyFpsManager.FrameTimeMax, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 1);
             Stats.Timing.Write("Update lag (per s)", (float)m_updateLag, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 4);
             Stats.Timing.Write("GC Memory", GC.GetTotalMemory(false), VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+#if !XB1
             Stats.Timing.Write("Process memory", WinApi.WorkingSet, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
-            Stats.Timing.Write("Active parcticle effects", MyParticlesManager.ParticleEffectsForUpdate.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
-            Stats.Timing.Write("  particles total", MyParticlesManager.ParticlesTotal, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+#endif // !XB1
+            Stats.Timing.Write("Active particle effects", MyParticlesManager.ParticleEffectsForUpdate.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+            //Stats.Timing.Write("Billboards total", VRageRender.MyPerformanceCounter.PerCameraDraw11Read.BillboardsDrawn, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
 
-            if (MyPhysics.Clusters != null)
+            if (MyPhysics.GetClusterList() != null)
             {
                 double i = 0.0;
                 double sum = 0.0;
                 double max = 0.0;
-                foreach (Havok.HkWorld havokWorld in MyPhysics.Clusters.GetList())
+                foreach (Havok.HkWorld havokWorld in MyPhysics.GetClusterList())
                 {
                     i += 1.0;
                     var value = havokWorld.StepDuration.TotalMilliseconds;

@@ -1,4 +1,5 @@
-﻿#if !NO_GENERICS
+﻿#if !XB1 // XB1_NOPROTOBUF
+#if !NO_GENERICS
 using System.Collections.Generic;
 #endif
 using ProtoBuf.Meta;
@@ -284,3 +285,4 @@ namespace ProtoBuf
         
     }   
 }
+#endif // !XB1

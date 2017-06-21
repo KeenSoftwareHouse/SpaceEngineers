@@ -87,7 +87,9 @@ namespace VRage.Generics
 #endif
         }
 
+#if !XB1 // XB1_NOPROTOBUF
         [ProtoAfterDeserialization]
+#endif // !XB1
         void OnProtoDeserialize()
         {
             CreateFromInt(m_enumInt);

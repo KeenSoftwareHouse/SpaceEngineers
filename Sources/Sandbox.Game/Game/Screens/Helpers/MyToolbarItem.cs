@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Sandbox.Definitions;
-using VRageMath;
-using Sandbox.Game.Screens.Helpers;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Entities;
 using Sandbox.Graphics.GUI;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Utils;
 
 namespace Sandbox.Game.Screens.Helpers
-{
+{    
     public abstract class MyToolbarItem
     {
         /// <summary>
@@ -32,7 +25,7 @@ namespace Sandbox.Game.Screens.Helpers
         }
 
         public bool Enabled { get; private set; }
-        public string Icon { get; private set; }
+        public string[] Icons { get; private set; }
         public string SubIcon { get; private set; }
         public StringBuilder IconText { get; private set; }
         public StringBuilder DisplayName { get; private set; }
@@ -44,12 +37,13 @@ namespace Sandbox.Game.Screens.Helpers
 
         public MyToolbarItem()
         {
-            Icon = MyGuiConstants.TEXTURE_ICON_FAKE.Texture;
+            Icons = new string[] { MyGuiConstants.TEXTURE_ICON_FAKE.Texture };
             IconText = new StringBuilder();
             DisplayName = new StringBuilder();
         }
 
-        public virtual void OnClose() { }
+        public virtual void OnRemovedFromToolbar(MyToolbar toolbar) { }
+        public virtual void OnAddedToToolbar(MyToolbar toolbar) { }
 
         public abstract bool Activate();
         public abstract bool Init(MyObjectBuilder_ToolbarItem data);
@@ -69,10 +63,10 @@ namespace Sandbox.Game.Screens.Helpers
             return ChangeInfo.Enabled;
         }
 
-        public ChangeInfo SetIcon(string newIcon)
+        public ChangeInfo SetIcons(string[] newIcons)
         {
-            if (newIcon == Icon) return ChangeInfo.None;
-            Icon = newIcon;
+            if (newIcons == Icons) return ChangeInfo.None;
+            Icons = newIcons;
             return ChangeInfo.Icon;
         }
 
@@ -107,6 +101,14 @@ namespace Sandbox.Game.Screens.Helpers
             DisplayName.Clear();
             DisplayName.Append(newDisplayName);
             return ChangeInfo.DisplayName;
+        }
+
+        public virtual void FillGridItem(MyGuiControlGrid.Item gridItem)
+        {
+            if (IconText.Length == 0)
+                gridItem.ClearText(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            else
+                gridItem.AddText(IconText, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
         }
 
         public override bool Equals(object obj)

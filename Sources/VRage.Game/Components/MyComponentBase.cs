@@ -22,7 +22,7 @@ namespace VRage.Game.Components
         /// <param name="container">The new container of the component</param>
         public virtual void SetContainer(MyComponentContainer container)
         {
-            if (container == null)
+            if (m_container != null)
                 OnBeforeRemovedFromContainer();
 
             m_container = container;
@@ -39,12 +39,12 @@ namespace VRage.Game.Components
             if (container != null)
                 OnAddedToContainer();
         }
-
+#if !UNSHARPER
         public virtual T GetAs<T>() where T : MyComponentBase
         {
             return this as T;
         }
-
+#endif
         /// <summary>
         /// Gets called after the container of this component changes
         /// </summary>
@@ -59,15 +59,21 @@ namespace VRage.Game.Components
         {
         }
 
+        /// <summary>
+        /// CH: TOOD: Be careful! This does not get called if the component is added to a container that is in the scene already!
+        /// </summary>
         public virtual void OnAddedToScene()
         {
         }
 
+        /// <summary>
+        /// CH: TOOD: Be careful! This does not get called if the component is removed from a container that is still in the scene!
+        /// </summary>
         public virtual void OnRemovedFromScene()
         {
         }
 
-        public virtual MyObjectBuilder_ComponentBase Serialize()
+        public virtual MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             return MyComponentFactory.CreateObjectBuilder(this);
         }

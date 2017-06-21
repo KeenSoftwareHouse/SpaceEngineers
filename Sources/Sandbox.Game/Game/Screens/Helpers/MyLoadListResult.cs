@@ -33,9 +33,11 @@ namespace Sandbox.Game.Gui
 
         public List<Tuple<string, MyWorldInfo>> AvailableSaves = new List<Tuple<string, MyWorldInfo>>();
         public bool ContainsCorruptedWorlds;
+        public readonly string CustomPath;
 
-        public MyLoadListResult()
+        public MyLoadListResult(string customPath = null)
         {
+            CustomPath = customPath;
             Task = Parallel.Start(() => LoadListAsync());
         }
 
@@ -50,16 +52,17 @@ namespace Sandbox.Game.Gui
             foreach (var pair in AvailableSaves)
             {
                 Debug.Assert(pair != null);
-                if (pair.Item2 == null)
+                if (pair.Item2 != null && pair.Item2.IsCorrupted)
                 {
                     corruptedWorlds.Append(Path.GetFileNameWithoutExtension(pair.Item1)).Append("\n");
                     ContainsCorruptedWorlds = true;
                 }
             }
 
+            AvailableSaves.RemoveAll(x => x == null || x.Item2 == null);
+
             if (ContainsCorruptedWorlds)
-            {
-                AvailableSaves.RemoveAll(x => x == null || x.Item2 == null);
+            {                
                 if (MyLog.Default != null)
                 {
                     MyLog.Default.WriteLine("Corrupted worlds: ");
@@ -105,9 +108,11 @@ namespace Sandbox.Game.Gui
 
     public class MyLoadWorldInfoListResult : MyLoadListResult
     {
+        public MyLoadWorldInfoListResult(string customPath = null) : base(customPath) {}
+
         protected override List<Tuple<string, MyWorldInfo>> GetAvailableSaves()
         {
-            return MyLocalCache.GetAvailableWorldInfos();
+            return MyLocalCache.GetAvailableWorldInfos(CustomPath);
         }
     }
 

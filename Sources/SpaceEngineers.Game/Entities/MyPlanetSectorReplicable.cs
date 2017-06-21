@@ -13,7 +13,7 @@ using VRage.Network;
 
 namespace Sandbox.Game.Entities.Planet
 {
-    class MyPlanetSectorReplicable : MyExternalReplicableEvent<MyPlanetEnvironmentSector>
+    /*class MyPlanetSectorReplicable : MyExternalReplicableEvent<MyPlanetEnvironmentSector>
     {
         public override IMyReplicable GetDependency()
         {
@@ -40,7 +40,7 @@ namespace Sandbox.Game.Entities.Planet
         public override bool OnSave(BitStream stream)
         {
             stream.WriteInt64(Instance.Planet.EntityId);
-            stream.WriteInt64(Instance.SectorId.Pack64());
+            stream.WriteInt64(Instance.SectorId.Pack());
 
             var items = Instance.SavedItems;
             if (items != null)
@@ -80,9 +80,9 @@ namespace Sandbox.Game.Entities.Planet
             var planet = MyEntities.GetEntityById(planetEntityId) as MyPlanet;
 
             MyPlanetSectorId id;
-            MyPlanetSectorId.Unpack64(packedSectorId, out id);
+            MyPlanetSectorId.Unpack(packedSectorId, out id);
 
-            var sector = planet.GetSector(ref id);
+            MyPlanetEnvironmentSector sector = (MyPlanetEnvironmentSector) planet.GetSector(ref id);
 
             List<int> items = new List<int>(changedItems);
 
@@ -133,5 +133,5 @@ namespace Sandbox.Game.Entities.Planet
         {
             //throw new NotImplementedException();
         }
-    }
+    }*/
 }
