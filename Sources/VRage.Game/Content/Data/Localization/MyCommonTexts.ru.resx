@@ -2164,9 +2164,9 @@
     <value>Среднее</value>
   </data>
   <data name="ControlName_VoiceChat" xml:space="preserve">
-    <value>Push-to-talk voice chat</value>
+    <value>Нажми-чтобы-говорить чат</value>
   </data>
   <data name="EnableVoiceChat" xml:space="preserve">
-    <value>Enable voice chat</value>
+    <value>Включить голосовой чат</value>
   </data>
 </root>
