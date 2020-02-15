@@ -152,10 +152,10 @@
     <value>Звичайна</value>
   </data>
   <data name="ControlName_RollLeft" xml:space="preserve">
-    <value>Крутнути вліво</value>
+    <value>Крутити вліво</value>
   </data>
   <data name="ControlName_RollRight" xml:space="preserve">
-    <value>Крутнути вправо</value>
+    <value>Крутити вправо</value>
   </data>
   <data name="ControlName_RotationDown" xml:space="preserve">
     <value>Повернути донизу</value>
@@ -170,10 +170,10 @@
     <value>Повернути догори</value>
   </data>
   <data name="ScreenOptionsButtonVideo" xml:space="preserve">
-    <value>Видиво</value>
+    <value>Відео</value>
   </data>
   <data name="ScreenCaptionVideoOptions" xml:space="preserve">
-    <value>Налаштування видива</value>
+    <value>Налаштування відео</value>
   </data>
   <data name="Chat_screen" xml:space="preserve">
     <value>Екран балачки</value>
@@ -225,7 +225,7 @@
     <value>Кобальтова руда</value>
   </data>
   <data name="DisplayName_Block_Cockpit1" xml:space="preserve">
-    <value>Кабини</value>
+    <value>Кабіни</value>
   </data>
   <data name="DisplayName_Item_Computer" xml:space="preserve">
     <value>Комп'ютер</value>
@@ -237,7 +237,7 @@
     <value>Компоненти детектора</value>
   </data>
   <data name="DisplayName_Block_DiagonalWindow" xml:space="preserve">
-    <value>Діаґональне вікно</value>
+    <value>Діагональне вікно</value>
   </data>
   <data name="DisplayName_Item_Display" xml:space="preserve">
     <value>Екран</value>
@@ -255,10 +255,10 @@
     <value>Повна стіна</value>
   </data>
   <data name="DisplayName_Block_GatlingGun" xml:space="preserve">
-    <value>Кулемет Ґатлінґа</value>
+    <value>Кулемет Ґатлінга</value>
   </data>
   <data name="DisplayName_Block_GatlingTurret" xml:space="preserve">
-    <value>Турель Ґатлінґа</value>
+    <value>Турель Ґатлінга</value>
   </data>
   <data name="DisplayName_Item_GoldIngot" xml:space="preserve">
     <value>Золотий злиток</value>
@@ -270,16 +270,16 @@
     <value>Ґравій</value>
   </data>
   <data name="DisplayName_Block_GravityGenerator" xml:space="preserve">
-    <value>Генератор ґравітації</value>
+    <value>Генератор гравітації</value>
   </data>
   <data name="DisplayName_Item_GravityGeneratorComponents" xml:space="preserve">
-    <value>Компоненти генератора ґравітації</value>
+    <value>Компоненти генератора гравітації</value>
   </data>
   <data name="HelpScreen_FactionColor_Green" xml:space="preserve">
     <value>Зелений</value>
   </data>
   <data name="DisplayName_Block_Gyroscope" xml:space="preserve">
-    <value>Ґіроскоп</value>
+    <value>Гіроскоп</value>
   </data>
   <data name="DisplayName_Block_HalfCoverWall" xml:space="preserve">
     <value>Одинарна перегородка</value>
@@ -4268,10 +4268,10 @@
     <value>Прибрати</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
-    <value>Access control menu to open control panel of {0}</value>
+    <value>Меню контролю доступу, щоб відкрити панель керування {0}</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
-    <value>Access control menu to open terminal</value>
+    <value>Меню контролю доступу, щоб відкрити термінал</value>
   </data>
   <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
     <value>Відкрити інвентар</value>
@@ -4283,7 +4283,7 @@
     <value>Показати панель керування</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
-    <value>Access control menu to setup panel's buttons</value>
+    <value>Меню контролю доступу для налаштування кнопок панелі</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Натисніть {0}, аби відкрити кріокамеру</value>
@@ -4298,10 +4298,10 @@
     <value>Додати</value>
   </data>
   <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
-    <value>Рух вниз</value>
+    <value>Переміститись донизу</value>
   </data>
   <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
-    <value>Рух вгору</value>
+    <value>Переміститись вгору</value>
   </data>
   <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
     <value>Прибрати</value>
@@ -4328,10 +4328,10 @@
     <value>Точки руху</value>
   </data>
   <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
-    <value>Set actions to be done when autopilot reaches this waypoint</value>
+    <value>Встановіть дії, які потрібно виконати, коли автопілот досяг цієї точки</value>
   </data>
   <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
-    <value>Setup Actions</value>
+    <value>Налаштування дій</value>
   </data>
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Автопілот увімкнено</value>
@@ -4346,63 +4346,63 @@
     <value>Зміна параметрів візуалізації потрібен перезапуск гри</value>
   </data>
   <data name="StationRotation_Static" xml:space="preserve">
-    <value>Station rotation</value>
+    <value>Обертання станції</value>
   </data>
   <data name="StationRotation_Static_Desc" xml:space="preserve">
-    <value>Enables rotation of station block</value>
+    <value>Вмикає обертання блоку станції</value>
   </data>
   <data name="NotificationStationRotation" xml:space="preserve">
-    <value>Station rotation mode</value>
+    <value>Режим обертання станції</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
-    <value>Applied changes will be visible after restarting the game</value>
+    <value>Застосовані зміни будуть видимі після перезапуску гри</value>
   </data>
   <data name="GuiScenarioPlayerName" xml:space="preserve">
-    <value>Player name</value>
+    <value>Ім'я гравця</value>
   </data>
   <data name="GuiScenarioPlayerStatus" xml:space="preserve">
-    <value>Status</value>
+    <value>Статус</value>
   </data>
   <data name="GuiScenarioSend" xml:space="preserve">
-    <value>Send</value>
+    <value>Надіслати</value>
   </data>
   <data name="GuiScenarioStart" xml:space="preserve">
-    <value>Start</value>
+    <value>Старт</value>
   </data>
   <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
-    <value>Precision Mode</value>
+    <value>Режим точності</value>
   </data>
   <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
     <value>Forward Direction</value>
   </data>
   <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
-    <value>Copy</value>
+    <value>Копіювати</value>
   </data>
   <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
-    <value>Paste</value>
+    <value>Вставити</value>
   </data>
   <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
-    <value>Reset waypoint</value>
+    <value>Скинути точку маршруту</value>
   </data>
   <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
     <value>Resets current waypoint to first position</value>
   </data>
   <data name="GuiScenarioTimeout" xml:space="preserve">
-    <value>Connection timeout:</value>
+    <value>Час очікування з'єднання:</value>
   </data>
   <data name="GuiScenarioTimeout10min" xml:space="preserve">
-    <value>10 min</value>
+    <value>10 хв</value>
   </data>
   <data name="GuiScenarioTimeout3min" xml:space="preserve">
-    <value>3 min</value>
+    <value>3 хв</value>
   </data>
   <data name="GuiScenarioTimeout5min" xml:space="preserve">
-    <value>5 min</value>
+    <value>5 хв</value>
   </data>
   <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
-    <value>Unlimited</value>
+    <value>Необмежений</value>
   </data>
   <data name="WorldSettings_GameScenario" xml:space="preserve">
-    <value>Scenario</value>
+    <value>Сценарій</value>
   </data>
 </root>
