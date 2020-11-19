@@ -4,7 +4,7 @@ using VRage.ModAPI;
 
 namespace VRage.Game.Components
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple=true)]
     public class MyEntityComponentDescriptor : System.Attribute
     {
         public Type EntityBuilderType;

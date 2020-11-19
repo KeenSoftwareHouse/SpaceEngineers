@@ -256,9 +256,9 @@ namespace Sandbox.Game.World
             foreach (var type in assembly.GetTypes())
             {
                 var descriptorArray = type.GetCustomAttributes(typeof(MyEntityComponentDescriptor), false);
-                if (descriptorArray != null && descriptorArray.Length > 0)
+                foreach (var descriptorAttribute in descriptorArray)
                 {
-                    var descriptor = (MyEntityComponentDescriptor)descriptorArray[0];
+                    var descriptor = (MyEntityComponentDescriptor)descriptorAttribute;
                     try
                     {
                         var component = (MyGameLogicComponent)Activator.CreateInstance(type);
