@@ -258,7 +258,7 @@ namespace Sandbox.Engine.Multiplayer
 
             if (ip == 0)
             {
-                MyLog.Default.WriteLineAndConsole("Error: No IP assigned.");
+                MyLog.Default.WriteLineAndConsole("Error: No IP assigned or Steam not open.");
                 return;
             }
 
