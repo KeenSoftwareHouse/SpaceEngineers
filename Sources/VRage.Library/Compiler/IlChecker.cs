@@ -26,7 +26,7 @@ namespace VRage.Compiler
             AllowNamespaceOfTypeCommon(typeof(System.Collections.IEnumerator));
             AllowNamespaceOfTypeCommon(typeof(System.Collections.Generic.IEnumerable<>));
             AllowNamespaceOfTypeCommon(typeof(System.Collections.Generic.HashSet<>));
-            AllowNamespaceOfTypeCommon(typeof(System.Collections.Generic.Queue<>));
+            AllowNamespaceOfTypeCommon(typeof(System.Collections.Generic.LinkedList<>));
             AllowNamespaceOfTypeCommon(typeof(System.Collections.Generic.ListExtensions));
             AllowNamespaceOfTypeCommon(typeof(System.Linq.Enumerable));
             AllowNamespaceOfTypeCommon(typeof(System.Text.StringBuilder));
