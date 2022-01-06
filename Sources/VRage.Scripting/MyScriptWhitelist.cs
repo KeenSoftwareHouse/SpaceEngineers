@@ -53,7 +53,7 @@ namespace VRage.Scripting
                     typeof(System.Collections.IEnumerator),
                     typeof(System.Collections.Generic.IEnumerable<>),
                     typeof(System.Collections.Generic.HashSet<>),
-                    typeof(System.Collections.Generic.Queue<>),
+                    typeof(System.Collections.Generic.LinkedList<>),
                     typeof(System.Collections.Concurrent.ConcurrentDictionary<,>),
                     typeof(System.Collections.Concurrent.ConcurrentBag<>),
                     typeof(System.Linq.Enumerable),
