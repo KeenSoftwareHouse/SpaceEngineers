@@ -1,3 +1,8 @@
+
+ARCHIVED VERSION OF Space Engineers. This version is not up-to-date version of the game.
+
+If you find some issue with the game please report on https://support.keenswh.com/.
+
 Space Engineers
 ===============
 
