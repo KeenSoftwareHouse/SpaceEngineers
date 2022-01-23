@@ -41,7 +41,7 @@
       </Id>
       <Name>Health</Name>
       <MinValue>0</MinValue>
-      <MaxValue>85</MaxValue>
+      <MaxValue>10</MaxValue>
     </Stat>
   </StatDefinitions>
   
