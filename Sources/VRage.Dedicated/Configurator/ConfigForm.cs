@@ -116,7 +116,7 @@ namespace VRage.Dedicated
             {
                 // When running without host process, console is not properly attached on debug (no console output)
                 string[] cmdLine = Environment.GetCommandLineArgs();
-                Process.Start(cmdLine[0].Replace(".vshost.exe", ".exe"), ((cmdLine.Length > 1) ? cmdLine[1] : "" ) + " -console -ignorelastsession");
+                Process.Start(cmdLine[0].Replace(".vshost.exe", ".exe"), ((cmdLine.Length > 1) ? String.Join(" ", cmdLine, 1, cmdLine.Length - 1 ) : "" ) + " -console -ignorelastsession");
                 Close();
             }
         }
