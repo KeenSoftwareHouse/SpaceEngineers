@@ -228,7 +228,7 @@ namespace Sandbox.Game.Entities
 
         private void OnStateChange()
         {
-            float speed = ((MyDoorDefinition)BlockDefinition).OpeningSpeed;
+            float speed = (BlockDefinition is MyDoorDefinition) ? ((MyDoorDefinition)BlockDefinition).OpeningSpeed : 1f;
             m_currSpeed = m_open ? speed : -speed;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
