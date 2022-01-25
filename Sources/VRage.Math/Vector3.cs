@@ -833,6 +833,46 @@ namespace VRageMath
         }
 
         /// <summary>
+        /// Returns the vector that contains the lowest and the highest value from each matching pair of components.
+        /// </summary>
+        /// <param name="value1">Source vector.</param><param name="value2">Source vector.</param><param name="min">[OutAttribute] The minimized vector.</param><param name="max">[OutAttribute] The maximized vector.</param>
+        public static void MinMax(Vector3 value1, Vector3 value2, out Vector3 min, out Vector3 max)
+        {
+            if (value1.X < value2.X)
+            {
+                min.X = value1.X;
+                max.X = value2.X;
+            }
+            else
+            {
+                max.X = value1.X;
+                min.X = value2.X;
+            }
+
+            if (value1.Y < value2.Y)
+            {
+                min.Y = value1.Y;
+                max.Y = value2.Y;
+            }
+            else
+            {
+                max.Y = value1.Y;
+                min.Y = value2.Y;
+            }
+
+            if (value1.Z < value2.Z)
+            {
+                min.Z = value1.Z;
+                max.Z = value2.Z;
+            }
+            else
+            {
+                max.Z = value1.Z;
+                min.Z = value2.Z;
+            }
+        }
+
+        /// <summary>
         /// Returns a vector that contains the lowest value from each matching pair of components.
         /// </summary>
         /// <param name="value1">Source vector.</param><param name="value2">Source vector.</param>

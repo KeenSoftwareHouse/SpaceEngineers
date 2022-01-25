@@ -713,8 +713,8 @@ namespace Sandbox.Game.Entities
                         // This code is used to avoid mixed start, end values, overlapped values on sides. So as result we need precise neighbour(s). Not neighbours touched on edges.
 
                         // Start and end sometimes have exchanged values
-                        Vector3 start = Vector3.Min(thisMountPoint.Start, thisMountPoint.End);
-                        Vector3 end = Vector3.Max(thisMountPoint.Start, thisMountPoint.End);
+                        Vector3 start, end;
+                        Vector3.MinMax(thisMountPoint.Start, thisMountPoint.End, out start, out end);
 
                         // Clamp only overlapped values on sides not thickness of aabb of mount point
                         Vector3I clampMask = Vector3I.One - Vector3I.Abs(thisMountPoint.Normal);
@@ -752,8 +752,8 @@ namespace Sandbox.Game.Entities
 
                     m_cacheNeighborBlocks.Clear();
 
-                    var currentMin = Vector3.Min(gridPosStart, gridPosEnd);
-                    var currentMax = Vector3.Max(gridPosStart, gridPosEnd);
+                    Vector3 currentMin, currentMax;
+                    Vector3.MinMax(gridPosStart, gridPosEnd, out currentMin, out currentMax);
 
                     var minI = Vector3I.Floor(currentMin);
                     var maxI = Vector3I.Floor(currentMax);
