@@ -433,7 +433,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void AddMass(MySlimBlock block, IDictionary<Vector3I, HkMassElement> massResults)
         {
-            float mass = block.BlockDefinition.Mass;
+            float mass = block.GetMass();
             if (MyFakes.ENABLE_COMPOUND_BLOCKS && block.FatBlock is MyCompoundCubeBlock)
             {
                 mass = 0f;
