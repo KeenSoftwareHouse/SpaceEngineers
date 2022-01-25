@@ -1,10 +1,4 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
@@ -36,8 +30,8 @@ namespace Sandbox.Game.Screens
         protected MyLayoutTable m_sideMenuLayout;
         protected MyLayoutTable m_buttonsLayout;
 
-        protected int m_selectedRow;
-        
+        protected int m_selectedRowIndex;
+
         protected const float MARGIN_TOP = 0.1f;
         protected const float MARGIN_LEFT = 0.42f;
         protected const string WORKSHOP_PATH_TAG = "workshop";
@@ -96,7 +90,7 @@ namespace Sandbox.Game.Screens
                 m_sideMenuLayout = new MyLayoutTable(this, originL, layoutSize);
                 m_sideMenuLayout.SetColumnWidthsNormalized(columnWidthLabel, columnWidthControl);
                 m_sideMenuLayout.SetRowHeightsNormalized(rowHeight, rowHeight, rowHeight, rowHeight, rowHeight);
-                
+
                 m_sideMenuLayout.Add(nameLabel, MyAlignH.Left, MyAlignV.Top, 0, 0);
                 m_sideMenuLayout.Add(m_nameTextbox, MyAlignH.Left, MyAlignV.Top, 0, 1);
                 m_sideMenuLayout.Add(descriptionLabel, MyAlignH.Left, MyAlignV.Top, 1, 0);
@@ -133,8 +127,8 @@ namespace Sandbox.Game.Screens
             {
                 int buttonRowCount = 2;
                 int buttonColumnCount = 4;
-                Vector2 buttonSize = new Vector2(300f / 1600f, 70f / 1200f);
-                Vector2 buttonsOrigin = m_size.Value / 2 - new Vector2(0.83f, 0.16f);
+                Vector2 buttonSize = new Vector2(320f / 1600f, 70f / 1200f);
+                Vector2 buttonsOrigin = m_size.Value / 2 - new Vector2(0.865f, 0.16f);
                 Vector2 buttonOffset = new Vector2(0.01f, 0.01f);
                 Vector2 buttonLayoutSize = new Vector2((buttonSize.X + buttonOffset.X) * (buttonColumnCount), (buttonSize.Y + buttonOffset.Y) * (buttonRowCount));
                 m_buttonsLayout = new MyLayoutTable(this, buttonsOrigin, buttonLayoutSize);
@@ -225,7 +219,7 @@ namespace Sandbox.Game.Screens
 
         protected virtual void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
         {
-            m_selectedRow = eventArgs.RowIndex;
+            m_selectedRowIndex = eventArgs.RowIndex;
             FillRight();
         }
 
@@ -317,12 +311,12 @@ namespace Sandbox.Game.Screens
                 // Select row with same world ID as we had before refresh.
                 if (index == selectedIndex)
                 {
-                    m_selectedRow = index;
+                    m_selectedRowIndex = index;
                     m_scenarioTable.SelectedRow = row;
                 }
             }
 
-            m_scenarioTable.SelectedRowIndex = m_selectedRow;
+            m_scenarioTable.SelectedRowIndex = m_selectedRowIndex;
             m_scenarioTable.ScrollToSelection();
             FillRight();
         }
@@ -332,7 +326,7 @@ namespace Sandbox.Game.Screens
             return (Tuple<string, MyWorldInfo>)(row.UserData);
         }
 
-        
+
         protected virtual MyGuiHighlightTexture GetIcon(Tuple<string, MyWorldInfo> save)
         {
             return MyGuiConstants.TEXTURE_ICON_BLUEPRINTS_LOCAL;
